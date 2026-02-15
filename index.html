@@ -410,7 +410,7 @@
     </header>
 
     <nav class="nav" aria-label="Main links">
-      <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
+      <a href="/openclaw-setup.html" id="openclaw-setup-link">OpenClaw Setup</a>
       <a href="#">Website Design</a>
       <a href="#">AI Lessons</a>
       <a href="#" id="buy-domain-link">Buy This Domain Now</a>
@@ -677,9 +677,8 @@
       el.setAttribute('aria-hidden', 'true');
     }
 
-    setupLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      openSetupModal();
+    setupLink.addEventListener('click', () => {
+      window.location.href = '/openclaw-setup.html';
     });
 
     setupCloseBtn.addEventListener('click', closeSetupModal);

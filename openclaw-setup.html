@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw Setup Eastern Shore Maryland | Eastern Shore AI</title>
+  <meta name="description" content="OpenClaw Setup Eastern Shore Maryland: $100, no additional fees, 30 days of technical support, secure setup and hardening." />
+  <link rel="canonical" href="https://easternshore.ai/openclaw-setup.html" />
+  <style>
+    :root { --bg:#070b14; --bg2:#0e1630; --card:#121b38; --text:#e8eeff; --muted:#9fb0d8; --cyan:#35e7ff; --line:#24335f; --violet:#8f7bff; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--text);
+      background:radial-gradient(circle at 20% 10%, #182a57 0%, var(--bg) 40%), linear-gradient(140deg, var(--bg), var(--bg2)); }
+    .container { max-width:920px; margin:0 auto; padding:1.2rem; }
+    a { color:var(--cyan); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:1rem; }
+    h1 { margin:.2rem 0 .6rem; }
+    p { color:var(--muted); line-height:1.6; }
+    ul { color:var(--muted); line-height:1.6; }
+    .btn { border:1px solid var(--line); background:transparent; color:var(--text); border-radius:10px; padding:.55rem .85rem; cursor:pointer; font-weight:600; }
+    .btn-primary { background:linear-gradient(145deg,var(--violet),#6279ff); border-color:#7084ff; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.7rem; }
+    .full { grid-column:1 / -1; }
+    label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:.25rem; }
+    input,textarea { width:100%; border:1px solid var(--line); border-radius:10px; background:#0a1230; color:var(--text); padding:.65rem .7rem; font:inherit; }
+    textarea { min-height:120px; resize:vertical; }
+    .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
+    .form-status { margin-top:.6rem; color:var(--muted); min-height:1.2em; }
+    .form-status.ok { color:#7dffb1; } .form-status.err { color:#ff8ea8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p><a href="/">← Back to Eastern Shore AI</a></p>
+    <section class="card">
+      <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
+      <p><strong>$100 no additional fees, 30 days of technical support.</strong> We configure your OpenClaw assistant stack correctly, including safe security setup and best-practice hardening.</p>
+      <ul>
+        <li>End-to-end OpenClaw install and channel onboarding</li>
+        <li>Security hardening and exposure review</li>
+        <li>Trusted proxy/auth configuration and safe defaults</li>
+        <li>Validation, documentation, and launch handoff</li>
+      </ul>
+    </section>
+
+    <section class="card" style="margin-top:1rem;">
+      <h2>Request Setup Consultation</h2>
+      <form id="setup-page-form">
+        <div class="form-grid">
+          <div>
+            <label for="name">Your Name</label>
+            <input id="name" required />
+          </div>
+          <div>
+            <label for="email">Your Email</label>
+            <input id="email" type="email" required />
+          </div>
+          <div class="full">
+            <label for="message">Project Details</label>
+            <textarea id="message" required placeholder="Tell us what you need help setting up."></textarea>
+          </div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">Send Request</button></div>
+        <p class="form-status" id="status"></p>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+    const form = document.getElementById('setup-page-form');
+    const statusEl = document.getElementById('status');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
+      try {
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'setup_consultation',
+            name: document.getElementById('name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            offer: '',
+            message: document.getElementById('message').value.trim(),
+            website: ''
+          })
+        });
+        if (!res.ok) throw new Error('Request failed');
+        statusEl.textContent = 'Request sent successfully.';
+        statusEl.className = 'form-status ok';
+        form.reset();
+      } catch {
+        statusEl.textContent = 'Could not send right now. Please try again.';
+        statusEl.className = 'form-status err';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Request';
+      }
+    });
+  </script>
+</body>
+</html>
