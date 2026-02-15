@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://easternshore.ai/sitemap.xml
