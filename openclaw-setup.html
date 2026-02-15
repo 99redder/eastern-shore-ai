@@ -71,12 +71,45 @@
     .admin-controls.active { display:block; }
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
     .admin-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:8px; padding:.6rem; background:#0a1230; font-size:.85rem; color:var(--muted); }
+    .brand-header { display:flex; align-items:center; gap:0.7rem; margin-bottom:0.6rem; }
+    .brand-header svg { width:44px; height:44px; flex-shrink:0; }
+    .brand-header-text { font-weight:700; font-size:1.1rem; color:var(--cyan); letter-spacing:0.04em; text-transform:uppercase; line-height:1; }
+    .brand-header-text small { display:block; margin-top:0.2rem; font-size:0.55rem; color:var(--muted); letter-spacing:0.14em; font-weight:600; }
     @media (max-width: 760px) { .booking-grid, .admin-grid { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
   <div class="container">
     <p><a href="/">← Back to Eastern Shore AI</a></p>
+
+    <div class="brand-header">
+      <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="cg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#35e7ff"/>
+            <stop offset="100%" stop-color="#8f7bff"/>
+          </linearGradient>
+        </defs>
+        <rect width="44" height="44" rx="11" fill="#0a1230"/>
+        <rect x="1.5" y="1.5" width="41" height="41" rx="9.5" stroke="url(#cg)" stroke-width="1.5" fill="none"/>
+        <!-- gear ring -->
+        <circle cx="22" cy="22" r="11" stroke="url(#cg)" stroke-width="1.8" fill="none"/>
+        <!-- gear teeth -->
+        <rect x="20.5" y="8" width="3" height="4" rx="1" fill="#35e7ff" opacity="0.7"/>
+        <rect x="20.5" y="32" width="3" height="4" rx="1" fill="#8f7bff" opacity="0.7"/>
+        <rect x="8" y="20.5" width="4" height="3" rx="1" fill="#35e7ff" opacity="0.7"/>
+        <rect x="32" y="20.5" width="4" height="3" rx="1" fill="#8f7bff" opacity="0.7"/>
+        <!-- claw -->
+        <path d="M17 25 Q17 18 22 17 Q27 18 27 25" stroke="url(#cg)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M17 25 L15 28" stroke="#35e7ff" stroke-width="2" stroke-linecap="round"/>
+        <path d="M27 25 L29 28" stroke="#8f7bff" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-header-text">
+        OpenClaw Setup
+        <small>BY EASTERN SHORE AI</small>
+      </div>
+    </div>
+
     <section class="card">
       <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
       <p><strong>$100 no additional fees, 30 days of technical support.</strong> We configure your OpenClaw assistant stack correctly, including safe security setup and best-practice hardening.</p>
