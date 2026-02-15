@@ -24,8 +24,10 @@ export default {
     // Stripe webhook comes from Stripe servers (no browser Origin), so skip origin check there.
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
+      const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
+      const isAdminBlockWrite = url.pathname === '/api/admin/block-slot' && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
-      if (!isBookingsRead && !isPostRoute) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -48,6 +50,14 @@ export default {
 
     if (url.pathname === '/api/bookings') {
       return handleBookings(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/availability') {
+      return handleAvailability(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/admin/block-slot') {
+      return handleAdminBlockSlot(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -144,6 +154,14 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
 
     if (existing) {
       return json({ ok: false, error: 'That date/time is already booked. Please choose another slot.' }, 409, corsHeaders);
+    }
+
+    const blocked = await env.DB.prepare(
+      `SELECT id FROM blocked_slots WHERE setup_at = ?1 AND active = 1 LIMIT 1`
+    ).bind(setupAt).first();
+
+    if (blocked) {
+      return json({ ok: false, error: 'That date/time is unavailable. Please choose another slot.' }, 409, corsHeaders);
     }
   }
 
@@ -294,7 +312,88 @@ async function handleBookings(request, env, corsHeaders, url) {
      LIMIT ?1`
   ).bind(limit).all();
 
-  return json({ ok: true, bookings: rows.results || [] }, 200, corsHeaders);
+  const blocked = await env.DB.prepare(
+    `SELECT id, setup_date, setup_time, setup_at, reason, active, created_at, updated_at
+     FROM blocked_slots
+     ORDER BY created_at DESC
+     LIMIT ?1`
+  ).bind(limit).all();
+
+  return json({ ok: true, bookings: rows.results || [], blockedSlots: blocked.results || [] }, 200, corsHeaders);
+}
+
+async function handleAvailability(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: true, unavailable: [] }, 200, corsHeaders);
+  }
+
+  const from = (url.searchParams.get('from') || '').trim();
+  const to = (url.searchParams.get('to') || '').trim();
+
+  let bookedRows;
+  let blockedRows;
+  if (from && to) {
+    bookedRows = await env.DB.prepare(
+      `SELECT setup_at FROM bookings WHERE status IN ('paid','confirmed') AND setup_at >= ?1 AND setup_at <= ?2`
+    ).bind(from, to).all();
+    blockedRows = await env.DB.prepare(
+      `SELECT setup_at FROM blocked_slots WHERE active = 1 AND setup_at >= ?1 AND setup_at <= ?2`
+    ).bind(from, to).all();
+  } else {
+    bookedRows = await env.DB.prepare(
+      `SELECT setup_at FROM bookings WHERE status IN ('paid','confirmed') ORDER BY setup_at DESC LIMIT 500`
+    ).all();
+    blockedRows = await env.DB.prepare(
+      `SELECT setup_at FROM blocked_slots WHERE active = 1 ORDER BY setup_at DESC LIMIT 500`
+    ).all();
+  }
+
+  const unavailable = Array.from(new Set([
+    ...(bookedRows.results || []).map(r => r.setup_at).filter(Boolean),
+    ...(blockedRows.results || []).map(r => r.setup_at).filter(Boolean)
+  ]));
+
+  return json({ ok: true, unavailable }, 200, corsHeaders);
+}
+
+async function handleAdminBlockSlot(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const provided = (url.searchParams.get('key') || '').trim();
+  const expected = (env.ADMIN_API_KEY || '').trim();
+  if (!expected) return json({ ok: false, error: 'Admin API key not configured' }, 500, corsHeaders);
+  if (!provided || provided !== expected) return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
+
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const setupDate = (data.setupDate || '').toString().trim();
+  const setupTime = (data.setupTime || '').toString().trim();
+  const reason = (data.reason || '').toString().trim();
+  const active = data.active === false ? 0 : 1;
+
+  if (!setupDate || !setupTime) {
+    return json({ ok: false, error: 'Missing setup date/time' }, 400, corsHeaders);
+  }
+
+  const setupAt = `${setupDate}T${setupTime}`;
+
+  await env.DB.prepare(
+    `INSERT INTO blocked_slots (setup_date, setup_time, setup_at, reason, active)
+     VALUES (?1, ?2, ?3, ?4, ?5)
+     ON CONFLICT(setup_at) DO UPDATE SET
+       reason=excluded.reason,
+       active=excluded.active,
+       updated_at=datetime('now')`
+  ).bind(setupDate, setupTime, setupAt, reason || null, active).run();
+
+  return json({ ok: true, setupAt, active: !!active }, 200, corsHeaders);
 }
 
 async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
