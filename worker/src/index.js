@@ -1,10 +1,15 @@
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
-    const allowOrigin = env.ALLOWED_ORIGIN || '*';
+    const allowedOrigins = (env.ALLOWED_ORIGINS || '*')
+      .split(',')
+      .map(v => v.trim())
+      .filter(Boolean);
+    const allowAll = allowedOrigins.includes('*');
+    const originAllowed = allowAll || allowedOrigins.includes(origin);
 
     const corsHeaders = {
-      'Access-Control-Allow-Origin': allowOrigin === '*' ? '*' : allowOrigin,
+      'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Vary': 'Origin'
@@ -23,7 +28,7 @@ export default {
       return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
     }
 
-    if (allowOrigin !== '*' && origin !== allowOrigin) {
+    if (!originAllowed) {
       return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
     }
 

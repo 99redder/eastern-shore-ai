@@ -22,9 +22,9 @@ This worker receives contact/domain-offer form submissions and emails them to `e
 
 Default endpoint used by the site:
 
-- `https://eastern-shore-ai-contact.workers.dev/api/contact`
+- `https://eastern-shore-ai-contact.99redder.workers.dev/api/contact`
 
 ## Notes
 
-- CORS allowed origin is set in `wrangler.toml` (`ALLOWED_ORIGIN`).
+- CORS allowed origins are set in `wrangler.toml` (`ALLOWED_ORIGINS`) as a comma-separated list.
 - Messages include `reply_to` set to the submitter's email.
