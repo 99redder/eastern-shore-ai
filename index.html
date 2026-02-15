@@ -384,7 +384,7 @@
           <button type="button" class="btn" id="cancel-btn">Cancel</button>
           <button type="submit" class="btn btn-primary">Send Offer</button>
         </div>
-        <p class="hint">Submitting sends directly to easternshoreai@outlook.com.</p>
+        
         <p class="form-status" id="form-status" aria-live="polite"></p>
       </form>
     </div>
@@ -419,14 +419,12 @@
         offerInput.placeholder = 'optional';
         offerInput.required = false;
         sendBtn.textContent = 'Send Inquiry';
-        hintEl.textContent = 'Submitting sends directly to easternshoreai@outlook.com.';
       } else {
         titleEl.textContent = 'Make an Offer — easternshoreai.com';
         offerLabel.textContent = 'Offer Amount (USD)';
         offerInput.placeholder = 'e.g. 2500';
         offerInput.required = true;
         sendBtn.textContent = 'Send Offer';
-        hintEl.textContent = 'Submitting sends directly to easternshoreai@outlook.com.';
       }
     }
 
