@@ -31,6 +31,11 @@
     .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
     .form-status { margin-top:.6rem; color:var(--muted); min-height:1.2em; }
     .form-status.ok { color:#7dffb1; } .form-status.err { color:#ff8ea8; }
+    .success-modal-overlay { position:fixed; inset:0; background:rgba(2,6,16,.72); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
+    .success-modal-overlay.active { display:flex; }
+    .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #101b39, #0d142d); border:1px solid var(--line); border-radius:14px; padding:1rem; }
+    .success-modal h3 { margin:.1rem 0 .4rem; color:var(--cyan); }
+    .success-modal p { margin:.45rem 0; }
     @media (max-width: 760px) { .booking-grid { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -95,6 +100,16 @@
     </section>
   </div>
 
+  <div class="success-modal-overlay" id="success-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <h3 id="success-title">Payment Received — Setup Booked ✅</h3>
+      <p id="success-details">Your OpenClaw setup appointment is confirmed.</p>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-primary" id="success-close-btn">Got it</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
@@ -102,6 +117,25 @@
     const statusEl = document.getElementById('status');
     const submitBtn = form.querySelector('button[type="submit"]');
     const bookPayBtn = document.getElementById('book-pay-btn');
+    const successModal = document.getElementById('success-modal');
+    const successDetails = document.getElementById('success-details');
+    const successCloseBtn = document.getElementById('success-close-btn');
+
+    function openSuccessModal(text) {
+      successDetails.textContent = text;
+      successModal.classList.add('active');
+      successModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSuccessModal() {
+      successModal.classList.remove('active');
+      successModal.setAttribute('aria-hidden', 'true');
+    }
+
+    successCloseBtn.addEventListener('click', closeSuccessModal);
+    successModal.addEventListener('click', (e) => {
+      if (e.target === successModal) closeSuccessModal();
+    });
 
     bookPayBtn.addEventListener('click', async () => {
       const setupDate = document.getElementById('setup-date').value;
@@ -113,6 +147,8 @@
         alert('Please choose your setup date and time first.');
         return;
       }
+
+      localStorage.setItem('esa_last_setup_slot', JSON.stringify({ setupDate, setupTime }));
 
       bookPayBtn.disabled = true;
       bookPayBtn.textContent = 'Redirecting…';
@@ -133,6 +169,19 @@
         bookPayBtn.textContent = 'Book + Pay Now';
       }
     });
+
+    const qs = new URLSearchParams(window.location.search);
+    if (qs.get('paid') === '1') {
+      let dateText = 'your selected date';
+      let timeText = 'your selected time';
+      try {
+        const saved = JSON.parse(localStorage.getItem('esa_last_setup_slot') || '{}');
+        if (saved.setupDate) dateText = saved.setupDate;
+        if (saved.setupTime) timeText = saved.setupTime;
+      } catch {}
+      openSuccessModal(`Your OpenClaw setup appointment is confirmed for ${dateText} at ${timeText}.`);
+      window.history.replaceState({}, '', '/openclaw-setup.html');
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
