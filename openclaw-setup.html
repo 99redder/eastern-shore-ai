@@ -26,7 +26,7 @@
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.7rem; }
     .full { grid-column:1 / -1; }
     label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:.25rem; }
-    input,textarea { width:100%; border:1px solid var(--line); border-radius:10px; background:#0a1230; color:var(--text); padding:.65rem .7rem; font:inherit; }
+    input,textarea,select { width:100%; border:1px solid var(--line); border-radius:10px; background:#0a1230; color:var(--text); padding:.65rem .7rem; font:inherit; }
     textarea { min-height:120px; resize:vertical; }
     .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
     .form-status { margin-top:.6rem; color:var(--muted); min-height:1.2em; }
@@ -68,7 +68,9 @@
             </div>
             <div>
               <label for="setup-time">Preferred Time</label>
-              <input id="setup-time" type="time" />
+              <select id="setup-time">
+                <option value="">Select time…</option>
+              </select>
             </div>
           </div>
         </div>
@@ -198,8 +200,28 @@
       if (e.target === successModal) closeSuccessModal();
     });
 
+    const TIME_SLOTS = [
+      '08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
+      '12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30',
+      '16:00','16:30','17:00'
+    ];
+
     function setupAtKey(date, time) {
       return date && time ? `${date}T${time}` : '';
+    }
+
+    function renderTimeOptions() {
+      const selectedDate = setupDateEl.value;
+      const current = setupTimeEl.value;
+      const opts = ['<option value="">Select time…</option>'];
+      for (const t of TIME_SLOTS) {
+        const unavailable = selectedDate && slotIsUnavailable(selectedDate, t);
+        opts.push(`<option value="${t}" ${unavailable ? 'disabled' : ''}>${t}${unavailable ? ' (unavailable)' : ''}</option>`);
+      }
+      setupTimeEl.innerHTML = opts.join('');
+      if (current && !(selectedDate && slotIsUnavailable(selectedDate, current))) {
+        setupTimeEl.value = current;
+      }
     }
 
     async function loadAvailability() {
@@ -210,12 +232,14 @@
       } catch {
         unavailableSlots = new Set();
       }
+      renderTimeOptions();
     }
 
     function slotIsUnavailable(date, time) {
       return unavailableSlots.has(setupAtKey(date, time));
     }
 
+    setupDateEl.addEventListener('change', renderTimeOptions);
     const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
     if (adminMode) {
       adminPanel.classList.add('active');
