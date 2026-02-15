@@ -272,6 +272,31 @@ async function handleStripeWebhook(request, env, corsHeaders) {
   return json({ ok: true }, 200, corsHeaders);
 }
 
+async function handleBookings(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const provided = (url.searchParams.get('key') || '').trim();
+  const expected = (env.ADMIN_API_KEY || '').trim();
+  if (!expected) {
+    return json({ ok: false, error: 'Admin API key not configured' }, 500, corsHeaders);
+  }
+  if (!provided || provided !== expected) {
+    return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
+  }
+
+  const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 20)));
+  const rows = await env.DB.prepare(
+    `SELECT id, stripe_session_id, stripe_payment_intent_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents, paid_at, created_at, updated_at
+     FROM bookings
+     ORDER BY created_at DESC
+     LIMIT ?1`
+  ).bind(limit).all();
+
+  return json({ ok: true, bookings: rows.results || [] }, 200, corsHeaders);
+}
+
 async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
   // Stripe-Signature header format: t=timestamp,v1=signature[,v1=signature2]
   const parts = Object.fromEntries(
