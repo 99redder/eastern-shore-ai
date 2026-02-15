@@ -1,0 +1,8 @@
+name = "eastern-shore-ai-contact"
+main = "src/index.js"
+compatibility_date = "2026-02-15"
+
+[vars]
+ALLOWED_ORIGIN = "https://easternshoreai.com"
+TO_EMAIL = "easternshoreai@outlook.com"
+FROM_EMAIL = "noreply@easternshoreai.com"

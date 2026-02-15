@@ -269,6 +269,16 @@
       font-size: 0.82rem;
     }
 
+    .form-status {
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-height: 1.2em;
+    }
+
+    .form-status.ok { color: #7dffb1; }
+    .form-status.err { color: #ff8ea8; }
+
     footer {
       margin: 2rem 0 1rem;
       color: #8092c3;
@@ -374,7 +384,8 @@
           <button type="button" class="btn" id="cancel-btn">Cancel</button>
           <button type="submit" class="btn btn-primary">Send Offer</button>
         </div>
-        <p class="hint">Submitting opens your default mail app addressed to easternshoreai@outlook.com.</p>
+        <p class="hint">Submitting sends directly to easternshoreai@outlook.com.</p>
+        <p class="form-status" id="form-status" aria-live="polite"></p>
       </form>
     </div>
   </div>
@@ -393,25 +404,29 @@
     const offerInput = document.getElementById('offer');
     const sendBtn = form.querySelector('button[type="submit"]');
     const hintEl = form.querySelector('.hint');
+    const statusEl = document.getElementById('form-status');
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.workers.dev/api/contact';
 
     let formMode = 'offer';
 
     function applyFormMode(mode) {
       formMode = mode;
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
       if (mode === 'contact') {
         titleEl.textContent = 'General Inquiry';
         offerLabel.textContent = 'Budget (optional)';
         offerInput.placeholder = 'optional';
         offerInput.required = false;
         sendBtn.textContent = 'Send Inquiry';
-        hintEl.textContent = 'Submitting opens your default mail app addressed to easternshoreai@outlook.com.';
+        hintEl.textContent = 'Submitting sends directly to easternshoreai@outlook.com.';
       } else {
         titleEl.textContent = 'Make an Offer — easternshoreai.com';
         offerLabel.textContent = 'Offer Amount (USD)';
         offerInput.placeholder = 'e.g. 2500';
         offerInput.required = true;
         sendBtn.textContent = 'Send Offer';
-        hintEl.textContent = 'Submitting opens your default mail app addressed to easternshoreai@outlook.com.';
+        hintEl.textContent = 'Submitting sends directly to easternshoreai@outlook.com.';
       }
     }
 
@@ -447,27 +462,54 @@
       if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
     });
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const offer = document.getElementById('offer').value.trim();
       const message = document.getElementById('message').value.trim();
 
-      const subject = formMode === 'contact'
-        ? encodeURIComponent('General Inquiry: Eastern Shore AI')
-        : encodeURIComponent(`Domain Offer: easternshoreai.com ($${offer})`);
+      if (CONTACT_API_URL.includes('YOUR-WORKER-URL')) {
+        statusEl.textContent = 'Contact service not configured yet.';
+        statusEl.className = 'form-status err';
+        return;
+      }
 
-      const body = encodeURIComponent(
-        formMode === 'contact'
-          ? `Name: ${name}\nEmail: ${email}\nBudget: ${offer || '(not provided)'}\n\nInquiry:\n${message || '(none)'}`
-          : `Name: ${name}\nEmail: ${email}\nOffer: $${offer}\n\nMessage:\n${message || '(none)'}`
-      );
+      sendBtn.disabled = true;
+      sendBtn.textContent = formMode === 'contact' ? 'Sending…' : 'Submitting…';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
 
-      window.location.href = `mailto:easternshoreai@outlook.com?subject=${subject}&body=${body}`;
-      closeModal();
-      form.reset();
-      applyFormMode('offer');
+      try {
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: formMode,
+            name,
+            email,
+            offer,
+            message,
+            website: ''
+          })
+        });
+
+        if (!res.ok) throw new Error('Request failed');
+
+        statusEl.textContent = 'Sent successfully.';
+        statusEl.className = 'form-status ok';
+        setTimeout(() => {
+          closeModal();
+          form.reset();
+          applyFormMode('offer');
+        }, 900);
+      } catch (err) {
+        statusEl.textContent = 'Could not send right now. Please try again.';
+        statusEl.className = 'form-status err';
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = formMode === 'contact' ? 'Send Inquiry' : 'Send Offer';
+      }
     });
   </script>
 </body>
