@@ -18,7 +18,7 @@
     p { color:var(--muted); line-height:1.6; }
     ul { color:var(--muted); line-height:1.6; }
     .btn { border:1px solid var(--line); background:transparent; color:var(--text); border-radius:10px; padding:.55rem .85rem; cursor:pointer; font-weight:600; }
-    .btn-primary { background:linear-gradient(145deg,var(--violet),#6279ff); border-color:#7084ff; }
+    .btn-primary { background:linear-gradient(145deg,#ff5fd2,#ff3bc1); border-color:#ff6dd8; color:#fff; box-shadow:0 0 16px rgba(255,95,210,0.3); }
     .booking-grid { display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
     .book-pay-panel { background:#0d1734; border:1px solid var(--line); border-radius:12px; padding:.9rem; }
     .book-pay-panel p { margin:.2rem 0 .8rem; font-size:.92rem; }
@@ -135,9 +135,9 @@
               <input id="setup-date" type="date" />
             </div>
             <div>
-              <label for="setup-time">Preferred Time</label>
+              <label for="setup-time">Preferred Time Block</label>
               <select id="setup-time">
-                <option value="">Select time…</option>
+                <option value="">Select time block…</option>
               </select>
             </div>
           </div>
@@ -208,8 +208,10 @@
                 <input id="admin-date" type="date" />
               </div>
               <div>
-                <label for="admin-time">Time</label>
-                <input id="admin-time" type="time" />
+                <label for="admin-time">Time Block</label>
+                <select id="admin-time">
+                  <option value="">Select block…</option>
+                </select>
               </div>
               <div class="full">
                 <label for="admin-reason">Reason (optional)</label>
@@ -299,9 +301,11 @@
     });
 
     const TIME_SLOTS = [
-      '08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
-      '12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30',
-      '16:00','16:30','17:00'
+      { value: '08:00-10:00', label: '08:00 - 10:00' },
+      { value: '10:00-12:00', label: '10:00 - 12:00' },
+      { value: '12:00-14:00', label: '12:00 - 14:00' },
+      { value: '14:00-16:00', label: '14:00 - 16:00' },
+      { value: '16:00-18:00', label: '16:00 - 18:00' }
     ];
 
     function setupAtKey(date, time) {
@@ -311,14 +315,24 @@
     function renderTimeOptions() {
       const selectedDate = setupDateEl.value;
       const current = setupTimeEl.value;
-      const opts = ['<option value="">Select time…</option>'];
-      for (const t of TIME_SLOTS) {
-        const unavailable = selectedDate && slotIsUnavailable(selectedDate, t);
-        opts.push(`<option value="${t}" ${unavailable ? 'disabled' : ''}>${t}${unavailable ? ' (unavailable)' : ''}</option>`);
+      const adminCurrent = adminTimeEl.value;
+      const userOpts = ['<option value="">Select time block…</option>'];
+      const adminOpts = ['<option value="">Select block…</option>'];
+
+      for (const slot of TIME_SLOTS) {
+        const unavailable = selectedDate && slotIsUnavailable(selectedDate, slot.value);
+        userOpts.push(`<option value="${slot.value}" ${unavailable ? 'disabled' : ''}>${slot.label}${unavailable ? ' (unavailable)' : ''}</option>`);
+        adminOpts.push(`<option value="${slot.value}">${slot.label}</option>`);
       }
-      setupTimeEl.innerHTML = opts.join('');
+
+      setupTimeEl.innerHTML = userOpts.join('');
+      adminTimeEl.innerHTML = adminOpts.join('');
+
       if (current && !(selectedDate && slotIsUnavailable(selectedDate, current))) {
         setupTimeEl.value = current;
+      }
+      if (adminCurrent) {
+        adminTimeEl.value = adminCurrent;
       }
     }
 
