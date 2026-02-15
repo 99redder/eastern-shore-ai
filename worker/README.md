@@ -11,18 +11,20 @@ This worker receives contact/domain-offer form submissions and emails them to `e
 
 - Verify a sending domain in Resend (for `FROM_EMAIL` in `wrangler.toml`, e.g. `noreply@easternshore.ai`).
 
-## 3) Set secret
+## 3) Set secrets
 
 - `wrangler secret put RESEND_API_KEY`
+- `wrangler secret put STRIPE_SECRET_KEY`
 
 ## 4) Deploy
 
 - `cd worker`
 - `wrangler deploy`
 
-Default endpoint used by the site:
+Default endpoints used by the site:
 
-- `https://eastern-shore-ai-contact.99redder.workers.dev/api/contact`
+- Contact/questions: `https://eastern-shore-ai-contact.99redder.workers.dev/api/contact`
+- Stripe checkout session: `https://eastern-shore-ai-contact.99redder.workers.dev/api/checkout-session`
 
 ## Notes
 

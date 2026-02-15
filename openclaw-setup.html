@@ -97,14 +97,41 @@
 
   <script>
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+    const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const form = document.getElementById('setup-page-form');
     const statusEl = document.getElementById('status');
     const submitBtn = form.querySelector('button[type="submit"]');
     const bookPayBtn = document.getElementById('book-pay-btn');
 
-    bookPayBtn.addEventListener('click', () => {
-      // Stripe wiring goes here later.
-      alert('Book + Pay flow coming next.');
+    bookPayBtn.addEventListener('click', async () => {
+      const setupDate = document.getElementById('setup-date').value;
+      const setupTime = document.getElementById('setup-time').value;
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!setupDate || !setupTime) {
+        alert('Please choose your setup date and time first.');
+        return;
+      }
+
+      bookPayBtn.disabled = true;
+      bookPayBtn.textContent = 'Redirecting…';
+
+      try {
+        const res = await fetch(CHECKOUT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ setupDate, setupTime, name, email })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.checkoutUrl) throw new Error('Checkout session failed');
+        window.location.href = data.checkoutUrl;
+      } catch {
+        alert('Could not start checkout right now. Please try again.');
+        bookPayBtn.disabled = false;
+        bookPayBtn.textContent = 'Book + Pay Now';
+      }
     });
 
     form.addEventListener('submit', async (e) => {
