@@ -198,14 +198,99 @@
       if (e.target === successModal) closeSuccessModal();
     });
 
+    function setupAtKey(date, time) {
+      return date && time ? `${date}T${time}` : '';
+    }
+
+    async function loadAvailability() {
+      try {
+        const res = await fetch(AVAILABILITY_API_URL, { headers: { 'Content-Type': 'application/json' } });
+        const data = await res.json();
+        unavailableSlots = new Set((data.unavailable || []).filter(Boolean));
+      } catch {
+        unavailableSlots = new Set();
+      }
+    }
+
+    function slotIsUnavailable(date, time) {
+      return unavailableSlots.has(setupAtKey(date, time));
+    }
+
+    const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
+    if (adminMode) {
+      adminPanel.classList.add('active');
+      adminKeyEl.value = localStorage.getItem('esa_admin_key') || '';
+    }
+
+    async function loadAdminData() {
+      if (!adminMode) return;
+      const key = adminKeyEl.value.trim();
+      if (!key) {
+        adminListEl.textContent = 'Enter admin key to load data.';
+        return;
+      }
+      localStorage.setItem('esa_admin_key', key);
+      try {
+        const res = await fetch(`${BOOKINGS_API_URL}?key=${encodeURIComponent(key)}&limit=30`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        const lines = [];
+        for (const b of (data.bookings || [])) lines.push(`[BOOKING] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}`);
+        for (const s of (data.blockedSlots || [])) lines.push(`[BLOCKED] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}`);
+        adminListEl.textContent = lines.length ? lines.join('\n') : 'No records yet.';
+      } catch (e) {
+        adminListEl.textContent = `Error loading admin data: ${e.message || e}`;
+      }
+    }
+
+    async function setBlockedSlot(active) {
+      const key = adminKeyEl.value.trim();
+      const setupDate = adminDateEl.value;
+      const setupTime = adminTimeEl.value;
+      if (!key || !setupDate || !setupTime) {
+        alert('Admin key + date + time are required.');
+        return;
+      }
+      try {
+        const res = await fetch(`${BLOCK_SLOT_API_URL}?key=${encodeURIComponent(key)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            setupDate,
+            setupTime,
+            reason: adminReasonEl.value.trim(),
+            active
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update slot');
+        await loadAvailability();
+        await loadAdminData();
+      } catch (e) {
+        alert(`Could not update slot: ${e.message || e}`);
+      }
+    }
+
+    if (adminMode) {
+      adminBlockBtn.addEventListener('click', () => setBlockedSlot(true));
+      adminUnblockBtn.addEventListener('click', () => setBlockedSlot(false));
+      adminRefreshBtn.addEventListener('click', loadAdminData);
+      adminKeyEl.addEventListener('change', loadAdminData);
+    }
+
     bookPayBtn.addEventListener('click', async () => {
-      const setupDate = document.getElementById('setup-date').value;
-      const setupTime = document.getElementById('setup-time').value;
+      const setupDate = setupDateEl.value;
+      const setupTime = setupTimeEl.value;
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
 
       if (!setupDate || !setupTime) {
         alert('Please choose your setup date and time first.');
+        return;
+      }
+
+      if (slotIsUnavailable(setupDate, setupTime)) {
+        alert('That slot is unavailable. Please choose another date/time.');
         return;
       }
 
@@ -243,6 +328,10 @@
       openSuccessModal(`Your OpenClaw setup appointment is confirmed for ${dateText} at ${timeText}.`);
       window.history.replaceState({}, '', '/openclaw-setup.html');
     }
+
+    loadAvailability().then(() => {
+      if (adminMode) loadAdminData();
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

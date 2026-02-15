@@ -28,7 +28,9 @@ Default endpoints used by the site:
 - Contact/questions: `https://eastern-shore-ai-contact.99redder.workers.dev/api/contact`
 - Stripe checkout session: `https://eastern-shore-ai-contact.99redder.workers.dev/api/checkout-session`
 - Stripe webhook: `https://eastern-shore-ai-contact.99redder.workers.dev/api/stripe-webhook`
+- Public availability read: `https://eastern-shore-ai-contact.99redder.workers.dev/api/availability`
 - Admin bookings read: `https://eastern-shore-ai-contact.99redder.workers.dev/api/bookings?key=YOUR_ADMIN_API_KEY&limit=20`
+- Admin block/unblock slot: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/admin/block-slot?key=YOUR_ADMIN_API_KEY`
 
 ## Notes
 
