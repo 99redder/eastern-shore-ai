@@ -220,6 +220,21 @@
       line-height: 1.4;
     }
 
+    .feature-logos {
+      margin-top: 0.45rem;
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .feature-logos img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      filter: brightness(0) saturate(100%) invert(87%) sepia(23%) saturate(1624%) hue-rotate(145deg) brightness(103%) contrast(101%);
+      opacity: 0.95;
+    }
+
     .card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -517,6 +532,11 @@
         <article class="card feature-card">
           <h3>Multi-Channel Messaging</h3>
           <p>Run one assistant across Signal, Telegram, Discord, iMessage, and more with consistent behavior and context.</p>
+          <div class="feature-logos" aria-label="Discord, Telegram, and Apple logos">
+            <img src="https://cdn.simpleicons.org/discord" alt="Discord" />
+            <img src="https://cdn.simpleicons.org/telegram" alt="Telegram" />
+            <img src="https://cdn.simpleicons.org/apple" alt="Apple" />
+          </div>
         </article>
         <article class="card feature-card">
           <h3>Tools + Browser Control</h3>
