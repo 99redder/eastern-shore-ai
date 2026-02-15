@@ -332,6 +332,12 @@
 
     .setup-modal-copy li { margin: 0.35rem 0; }
 
+    .setup-modal-actions {
+      margin-top: 0.9rem;
+      display: flex;
+      justify-content: flex-start;
+    }
+
     .legal-copy {
       color: #b8c9ef;
       font-size: 0.92rem;
@@ -427,8 +433,44 @@
             <li>Validation, documentation, and launch handoff</li>
             <li>Provide ongoing technical assistance for no additional cost</li>
           </ul>
+          <div class="setup-modal-actions">
+            <button type="button" class="btn btn-primary" id="setup-contact-link">Request Setup Consultation</button>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="setup-contact-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setup-contact-modal-title">
+      <div class="modal-head">
+        <h2 id="setup-contact-modal-title">Request OpenClaw Setup Consultation</h2>
+        <button class="modal-close" id="setup-contact-modal-close" aria-label="Close">✕</button>
+      </div>
+
+      <form id="setup-contact-form">
+        <div class="form-grid">
+          <div>
+            <label for="setup-name">Your Name</label>
+            <input id="setup-name" name="name" required />
+          </div>
+          <div>
+            <label for="setup-email">Your Email</label>
+            <input id="setup-email" name="email" type="email" required />
+          </div>
+          <div class="full">
+            <label for="setup-message">Project Details</label>
+            <textarea id="setup-message" name="message" placeholder="Tell us what you need help setting up." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" id="setup-contact-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Request</button>
+        </div>
+
+        <p class="form-status" id="setup-contact-status" aria-live="polite"></p>
+      </form>
     </div>
   </div>
 
@@ -506,6 +548,13 @@
     const setupModal = document.getElementById('setup-modal');
     const setupLink = document.getElementById('openclaw-setup-link');
     const setupCloseBtn = document.getElementById('setup-modal-close');
+    const setupContactLink = document.getElementById('setup-contact-link');
+    const setupContactModal = document.getElementById('setup-contact-modal');
+    const setupContactCloseBtn = document.getElementById('setup-contact-modal-close');
+    const setupContactCancelBtn = document.getElementById('setup-contact-cancel-btn');
+    const setupContactForm = document.getElementById('setup-contact-form');
+    const setupContactStatus = document.getElementById('setup-contact-status');
+    const setupContactSubmitBtn = setupContactForm.querySelector('button[type="submit"]');
     const openBtn = document.getElementById('buy-domain-link');
     const contactLink = document.getElementById('contact-link');
     const termsLink = document.getElementById('terms-link');
@@ -584,6 +633,13 @@
 
     setupCloseBtn.addEventListener('click', closeSetupModal);
 
+    setupContactLink.addEventListener('click', () => {
+      openSimpleModal(setupContactModal);
+    });
+
+    setupContactCloseBtn.addEventListener('click', () => closeSimpleModal(setupContactModal));
+    setupContactCancelBtn.addEventListener('click', () => closeSimpleModal(setupContactModal));
+
     openBtn.addEventListener('click', (e) => {
       e.preventDefault();
       openModal('offer');
@@ -625,11 +681,58 @@
       if (e.target === privacyModal) closeSimpleModal(privacyModal);
     });
 
+    setupContactModal.addEventListener('click', (e) => {
+      if (e.target === setupContactModal) closeSimpleModal(setupContactModal);
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
       if (e.key === 'Escape' && setupModal.classList.contains('active')) closeSetupModal();
       if (e.key === 'Escape' && termsModal.classList.contains('active')) closeSimpleModal(termsModal);
       if (e.key === 'Escape' && privacyModal.classList.contains('active')) closeSimpleModal(privacyModal);
+      if (e.key === 'Escape' && setupContactModal.classList.contains('active')) closeSimpleModal(setupContactModal);
+    });
+
+    setupContactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('setup-name').value.trim();
+      const email = document.getElementById('setup-email').value.trim();
+      const message = document.getElementById('setup-message').value.trim();
+
+      setupContactSubmitBtn.disabled = true;
+      setupContactSubmitBtn.textContent = 'Sending…';
+      setupContactStatus.textContent = '';
+      setupContactStatus.className = 'form-status';
+
+      try {
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'setup_consultation',
+            name,
+            email,
+            offer: '',
+            message,
+            website: ''
+          })
+        });
+
+        if (!res.ok) throw new Error('Request failed');
+
+        setupContactStatus.textContent = 'Request sent successfully.';
+        setupContactStatus.className = 'form-status ok';
+        setTimeout(() => {
+          closeSimpleModal(setupContactModal);
+          setupContactForm.reset();
+        }, 900);
+      } catch (err) {
+        setupContactStatus.textContent = 'Could not send right now. Please try again.';
+        setupContactStatus.className = 'form-status err';
+      } finally {
+        setupContactSubmitBtn.disabled = false;
+        setupContactSubmitBtn.textContent = 'Send Request';
+      }
     });
 
     form.addEventListener('submit', async (e) => {
