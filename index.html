@@ -163,6 +163,21 @@
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 1rem;
+      position: relative;
+    }
+
+    .card--setup-offer {
+      padding-bottom: 2.3rem;
+    }
+
+    .lobster-icon {
+      position: absolute;
+      right: 0.7rem;
+      bottom: 0.45rem;
+      font-size: 1.15rem;
+      line-height: 1;
+      filter: saturate(1.2);
+      user-select: none;
     }
 
     .card h3 {
@@ -425,9 +440,10 @@
     </section>
 
     <section class="grid">
-      <article class="card">
+      <article class="card card--setup-offer">
         <h3>OpenClaw Setup</h3>
         <p>$100 no additional fees, 30 days of technical support. Get your assistant stack configured correctly, including safe security setup and best-practice hardening.</p>
+        <span class="lobster-icon" aria-label="red lobster">🦞</span>
       </article>
       <article class="card">
         <h3>Design</h3>
