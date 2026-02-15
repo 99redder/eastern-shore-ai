@@ -6,3 +6,8 @@ compatibility_date = "2026-02-15"
 ALLOWED_ORIGINS = "https://easternshore.ai,https://www.easternshore.ai"
 TO_EMAIL = "easternshoreai@outlook.com"
 FROM_EMAIL = "noreply@easternshore.ai"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "eastern-shore-ai-bookings"
+database_id = "59d029fc-5f2b-42af-bdff-c5814a717879"

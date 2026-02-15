@@ -15,6 +15,7 @@ This worker receives contact/domain-offer form submissions and emails them to `e
 
 - `wrangler secret put RESEND_API_KEY`
 - `wrangler secret put STRIPE_SECRET_KEY`
+- `wrangler secret put STRIPE_WEBHOOK_SECRET`
 
 ## 4) Deploy
 
@@ -25,6 +26,7 @@ Default endpoints used by the site:
 
 - Contact/questions: `https://eastern-shore-ai-contact.99redder.workers.dev/api/contact`
 - Stripe checkout session: `https://eastern-shore-ai-contact.99redder.workers.dev/api/checkout-session`
+- Stripe webhook: `https://eastern-shore-ai-contact.99redder.workers.dev/api/stripe-webhook`
 
 ## Notes
 
