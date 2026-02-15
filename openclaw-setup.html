@@ -71,6 +71,10 @@
     .admin-controls.active { display:block; }
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
     .admin-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:8px; padding:.6rem; background:#0a1230; font-size:.85rem; color:var(--muted); }
+    .faq-section { margin-top:1rem; display:grid; gap:0.7rem; }
+    .faq-item { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:0.85rem 1rem; }
+    .faq-item h3 { margin:0 0 0.35rem; color:var(--cyan); font-size:0.98rem; }
+    .faq-item p { margin:0; color:var(--muted); line-height:1.5; font-size:0.92rem; }
     .brand-header { display:flex; align-items:center; gap:0.7rem; margin-bottom:0.6rem; }
     .brand-header svg { width:44px; height:44px; flex-shrink:0; }
     .brand-header-text { font-weight:700; font-size:1.1rem; color:var(--cyan); letter-spacing:0.04em; text-transform:uppercase; line-height:1; }
@@ -167,6 +171,21 @@
         <div class="form-actions"><button class="btn btn-primary" type="submit">Send Questions</button></div>
         <p class="form-status" id="status"></p>
       </form>
+    </section>
+
+    <section class="faq-section" aria-label="OpenClaw setup FAQ">
+      <article class="faq-item">
+        <h3>What is included in OpenClaw Setup?</h3>
+        <p>Installation, secure configuration, hardening, channel onboarding, and launch handoff so your setup is production-ready.</p>
+      </article>
+      <article class="faq-item">
+        <h3>In-person available?</h3>
+        <p>Yes — in-person throughout Eastern Shore, MD plus Zoom-based remote support.</p>
+      </article>
+      <article class="faq-item">
+        <h3>Ongoing help after setup?</h3>
+        <p>Yes — ongoing technical assistance included at no additional cost.</p>
+      </article>
     </section>
 
     <section class="card admin-panel" id="admin-panel">
