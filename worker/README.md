@@ -9,7 +9,7 @@ This worker receives contact/domain-offer form submissions and emails them to `e
 
 ## 2) Configure sender domain in Resend
 
-- Verify a sending domain in Resend (for `FROM_EMAIL` in `wrangler.toml`).
+- Verify a sending domain in Resend (for `FROM_EMAIL` in `wrangler.toml`, e.g. `noreply@easternshore.ai`).
 
 ## 3) Set secret
 
