@@ -15,6 +15,9 @@
   <meta name="twitter:description" content="OpenClaw Setup and OpenClaw Setup Eastern Shore Maryland services by Eastern Shore AI." />
   <link rel="canonical" href="https://easternshore.ai" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;800&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #070b14;
@@ -57,16 +60,13 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--cyan);
+      gap: 0.75rem;
       text-transform: uppercase;
     }
 
     .logo-mark {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       flex-shrink: 0;
     }
 
@@ -76,14 +76,34 @@
       display: block;
     }
 
-    .brand-text { line-height: 1; }
+    .brand-text {
+      line-height: 1;
+      font-family: 'Exo 2', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: 0.06em;
+      background: linear-gradient(135deg, #35e7ff 0%, #a48bff 50%, #35e7ff 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand-ai {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+    }
 
     .brand-text small {
       display: block;
-      margin-top: 0.22rem;
-      color: var(--muted);
-      font-size: 0.58rem;
-      letter-spacing: 0.16em;
+      margin-top: 0.3rem;
+      font-family: 'Rajdhani', system-ui, sans-serif;
+      font-weight: 500;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      background: none;
+      -webkit-text-fill-color: var(--muted);
     }
 
     .nav {
@@ -527,8 +547,8 @@
           </svg>
         </div>
         <div class="brand-text">
-          Eastern Shore AI
-          <small>BUILD · LEARN · AUTOMATE</small>
+          Eastern Shore <span class="brand-ai">AI</span>
+          <small>BUILD &nbsp;·&nbsp; LEARN &nbsp;·&nbsp; AUTOMATE</small>
         </div>
       </div>
       <div style="color:#8fa3d8;font-size:0.9rem;">AI Services, Setup, and Education</div>
@@ -693,7 +713,7 @@
   <div class="modal-overlay" id="domain-modal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="domain-modal-title">
       <div class="modal-head">
-        <h2 id="domain-modal-title">Make an Offer — easternshoreai.com</h2>
+        <h2 id="domain-modal-title">Make an Offer — easternshore.ai</h2>
         <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
       </div>
 
