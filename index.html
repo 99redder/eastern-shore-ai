@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Eastern Shore AI</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
     :root {
       --bg: #070b14;
@@ -82,9 +83,7 @@
       letter-spacing: 0.02em;
     }
 
-    .brand-text {
-      line-height: 1;
-    }
+    .brand-text { line-height: 1; }
 
     .brand-text small {
       display: block;
@@ -110,6 +109,7 @@
       border-radius: 999px;
       font-size: 0.92rem;
       transition: all 0.2s ease;
+      cursor: pointer;
     }
 
     .nav a:hover {
@@ -168,11 +168,125 @@
       line-height: 1.5;
     }
 
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 16, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      width: min(620px, 96vw);
+      background: linear-gradient(160deg, #101b39, #0d142d);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1rem;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .modal h2 {
+      margin: 0;
+      color: var(--cyan);
+      font-size: 1.2rem;
+    }
+
+    .modal-close {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.35rem 0.55rem;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+      margin-top: 0.7rem;
+    }
+
+    .form-grid .full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #0a1230;
+      color: var(--text);
+      padding: 0.65rem 0.7rem;
+      font: inherit;
+    }
+
+    textarea { min-height: 110px; resize: vertical; }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      margin-top: 0.9rem;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 0.55rem 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: linear-gradient(145deg, var(--violet), #6279ff);
+      border-color: #7084ff;
+    }
+
+    .hint {
+      margin: 0.5rem 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
     footer {
       margin: 2rem 0 1rem;
       color: #8092c3;
       font-size: 0.85rem;
       text-align: center;
+    }
+
+    .footer-link {
+      display: inline-block;
+      margin-top: 0.4rem;
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(53, 231, 255, 0.45);
+    }
+
+    .footer-link:hover {
+      color: #8ff3ff;
+      border-bottom-color: #8ff3ff;
     }
   </style>
 </head>
@@ -190,10 +304,10 @@
     </header>
 
     <nav class="nav" aria-label="Main links">
-      <a href="#">Buy This Domain</a>
+      <a href="#" id="buy-domain-link">Buy This Domain Now</a>
       <a href="#">OpenClaw Setup</a>
       <a href="#">Website Design</a>
-      <a href="#">AI Hands on Tutoring</a>
+      <a href="#">AI Lessons</a>
     </nav>
 
     <section class="hero">
@@ -210,24 +324,151 @@
         <p>Set up useful AI routines that save time and reduce repetitive work.</p>
       </article>
       <article class="card">
-        <h3>OpenClaw</h3>
-        <p>Get your assistant stack configured correctly with real-world best practices.</p>
+        <h3>OpenClaw Setup</h3>
+        <p>Get your assistant stack configured correctly, including safe security setup and best-practice hardening.</p>
       </article>
       <article class="card">
         <h3>Design</h3>
-        <p>Launch clean, modern web pages with clear messaging and conversion-focused layouts.</p>
+        <p>Launch clean, modern websites and web applications with clear messaging and conversion-focused layouts.</p>
       </article>
       <article class="card">
-        <h3>Tutoring</h3>
-        <p>Hands-on guidance so you can confidently build and maintain your own AI workflows.</p>
+        <h3>AI Lessons</h3>
+        <p>Learn cutting-edge tech basics in person or via Zoom with practical, hands-on guidance.</p>
       </article>
     </section>
 
-    <footer>© <span id="year"></span> Eastern Shore AI</footer>
+    <footer>
+      © <span id="year"></span> Eastern Shore AI<br>
+      <a href="#" class="footer-link" id="contact-link">Contact Us</a>
+    </footer>
+  </div>
+
+  <div class="modal-overlay" id="domain-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="domain-modal-title">
+      <div class="modal-head">
+        <h2 id="domain-modal-title">Make an Offer — easternshoreai.com</h2>
+        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+
+      <form id="offer-form">
+        <div class="form-grid">
+          <div>
+            <label for="name">Your Name</label>
+            <input id="name" name="name" required />
+          </div>
+          <div>
+            <label for="email">Your Email</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div class="full">
+            <label for="offer">Offer Amount (USD)</label>
+            <input id="offer" name="offer" placeholder="e.g. 2500" required />
+          </div>
+          <div class="full">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Anything you'd like to include"></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" id="cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Offer</button>
+        </div>
+        <p class="hint">Submitting opens your default mail app addressed to easternshoreai@outlook.com.</p>
+      </form>
+    </div>
   </div>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    const modal = document.getElementById('domain-modal');
+    const openBtn = document.getElementById('buy-domain-link');
+    const contactLink = document.getElementById('contact-link');
+    const closeBtn = document.getElementById('modal-close');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const form = document.getElementById('offer-form');
+    const titleEl = document.getElementById('domain-modal-title');
+    const offerLabel = document.querySelector('label[for="offer"]');
+    const offerInput = document.getElementById('offer');
+    const sendBtn = form.querySelector('button[type="submit"]');
+    const hintEl = form.querySelector('.hint');
+
+    let formMode = 'offer';
+
+    function applyFormMode(mode) {
+      formMode = mode;
+      if (mode === 'contact') {
+        titleEl.textContent = 'General Inquiry';
+        offerLabel.textContent = 'Budget (optional)';
+        offerInput.placeholder = 'optional';
+        offerInput.required = false;
+        sendBtn.textContent = 'Send Inquiry';
+        hintEl.textContent = 'Submitting opens your default mail app addressed to easternshoreai@outlook.com.';
+      } else {
+        titleEl.textContent = 'Make an Offer — easternshoreai.com';
+        offerLabel.textContent = 'Offer Amount (USD)';
+        offerInput.placeholder = 'e.g. 2500';
+        offerInput.required = true;
+        sendBtn.textContent = 'Send Offer';
+        hintEl.textContent = 'Submitting opens your default mail app addressed to easternshoreai@outlook.com.';
+      }
+    }
+
+    function openModal(mode = 'offer') {
+      applyFormMode(mode);
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    openBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('offer');
+    });
+
+    contactLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('contact');
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const offer = document.getElementById('offer').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      const subject = formMode === 'contact'
+        ? encodeURIComponent('General Inquiry: Eastern Shore AI')
+        : encodeURIComponent(`Domain Offer: easternshoreai.com ($${offer})`);
+
+      const body = encodeURIComponent(
+        formMode === 'contact'
+          ? `Name: ${name}\nEmail: ${email}\nBudget: ${offer || '(not provided)'}\n\nInquiry:\n${message || '(none)'}`
+          : `Name: ${name}\nEmail: ${email}\nOffer: $${offer}\n\nMessage:\n${message || '(none)'}`
+      );
+
+      window.location.href = `mailto:easternshoreai@outlook.com?subject=${subject}&body=${body}`;
+      closeModal();
+      form.reset();
+      applyFormMode('offer');
+    });
   </script>
 </body>
 </html>
