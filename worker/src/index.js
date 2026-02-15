@@ -10,7 +10,7 @@ export default {
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Vary': 'Origin'
     };
@@ -23,7 +23,9 @@ export default {
 
     // Stripe webhook comes from Stripe servers (no browser Origin), so skip origin check there.
     if (url.pathname !== '/api/stripe-webhook') {
-      if (request.method !== 'POST') {
+      const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
+      const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
+      if (!isBookingsRead && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -42,6 +44,10 @@ export default {
 
     if (url.pathname === '/api/stripe-webhook') {
       return handleStripeWebhook(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/bookings') {
+      return handleBookings(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
