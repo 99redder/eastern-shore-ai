@@ -298,6 +298,32 @@
       color: #8ff3ff;
       border-bottom-color: #8ff3ff;
     }
+
+    .setup-modal-content {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr);
+      gap: 1rem;
+      align-items: start;
+      margin-top: 0.4rem;
+    }
+
+    .setup-modal-image {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(53, 231, 255, 0.25);
+    }
+
+    .setup-modal-copy ul {
+      margin: 0.6rem 0 0;
+      padding-left: 1.2rem;
+      color: #b8c9ef;
+    }
+
+    .setup-modal-copy li { margin: 0.35rem 0; }
+
+    @media (max-width: 820px) {
+      .setup-modal-content { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -314,7 +340,7 @@
     </header>
 
     <nav class="nav" aria-label="Main links">
-      <a href="#">OpenClaw Setup</a>
+      <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
       <a href="#">Website Design</a>
       <a href="#">AI Lessons</a>
       <a href="#" id="buy-domain-link">Buy This Domain Now</a>
@@ -351,6 +377,28 @@
       © <span id="year"></span> Eastern Shore AI<br>
       <a href="#" class="footer-link" id="contact-link">Contact Us</a>
     </footer>
+  </div>
+
+  <div class="modal-overlay" id="setup-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="setup-modal-title">
+      <div class="modal-head">
+        <h2 id="setup-modal-title">OpenClaw Setup + Security Service</h2>
+        <button class="modal-close" id="setup-modal-close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="setup-modal-content">
+        <img class="setup-modal-image" src="./openclaw-setup-modal.png" alt="OpenClaw setup service preview" />
+        <div class="setup-modal-copy">
+          <p>We fully set up and secure OpenClaw for customers who want it done right the first time.</p>
+          <ul>
+            <li>End-to-end OpenClaw install and channel onboarding</li>
+            <li>Security hardening and exposure review</li>
+            <li>Trusted proxy/auth configuration and safe defaults</li>
+            <li>Validation, documentation, and launch handoff</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="modal-overlay" id="domain-modal" aria-hidden="true">
@@ -394,6 +442,9 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     const modal = document.getElementById('domain-modal');
+    const setupModal = document.getElementById('setup-modal');
+    const setupLink = document.getElementById('openclaw-setup-link');
+    const setupCloseBtn = document.getElementById('setup-modal-close');
     const openBtn = document.getElementById('buy-domain-link');
     const contactLink = document.getElementById('contact-link');
     const closeBtn = document.getElementById('modal-close');
@@ -439,6 +490,23 @@
       modal.setAttribute('aria-hidden', 'true');
     }
 
+    function openSetupModal() {
+      setupModal.classList.add('active');
+      setupModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSetupModal() {
+      setupModal.classList.remove('active');
+      setupModal.setAttribute('aria-hidden', 'true');
+    }
+
+    setupLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSetupModal();
+    });
+
+    setupCloseBtn.addEventListener('click', closeSetupModal);
+
     openBtn.addEventListener('click', (e) => {
       e.preventDefault();
       openModal('offer');
@@ -456,8 +524,13 @@
       if (e.target === modal) closeModal();
     });
 
+    setupModal.addEventListener('click', (e) => {
+      if (e.target === setupModal) closeSetupModal();
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+      if (e.key === 'Escape' && setupModal.classList.contains('active')) closeSetupModal();
     });
 
     form.addEventListener('submit', async (e) => {
