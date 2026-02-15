@@ -31,6 +31,34 @@
     .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
     .form-status { margin-top:.6rem; color:var(--muted); min-height:1.2em; }
     .form-status.ok { color:#7dffb1; } .form-status.err { color:#ff8ea8; }
+
+    body { padding-bottom: 86px; }
+
+    footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      margin: 0;
+      padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom));
+      color: #8092c3;
+      font-size: 0.85rem;
+      text-align: center;
+      background: rgba(8, 12, 28, 0.9);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+
+    .footer-link {
+      display: inline-block;
+      margin: 0.2rem 0.4rem 0;
+      color: var(--cyan);
+      text-decoration: underline;
+    }
+
+    .footer-link:hover { color: #8ff3ff; }
+
     .success-modal-overlay { position:fixed; inset:0; background:rgba(2,6,16,.72); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
     .success-modal-overlay.active { display:flex; }
     .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #101b39, #0d142d); border:1px solid var(--line); border-radius:14px; padding:1rem; }
@@ -142,6 +170,13 @@
         </div>
       </div>
     </section>
+
+    <footer>
+      © <span id="year"></span> Eastern Shore AI<br>
+      <a href="/#" class="footer-link">Contact Us</a>
+      <a href="/#" class="footer-link">Terms of Use</a>
+      <a href="/#" class="footer-link">Privacy Policy</a>
+    </footer>
   </div>
 
   <div class="success-modal-overlay" id="success-modal" aria-hidden="true">
@@ -155,6 +190,7 @@
   </div>
 
   <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
