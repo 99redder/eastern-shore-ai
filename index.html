@@ -279,16 +279,29 @@
     .form-status.ok { color: #7dffb1; }
     .form-status.err { color: #ff8ea8; }
 
+    body {
+      padding-bottom: 86px;
+    }
+
     footer {
-      margin: 2rem 0 1rem;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 200;
+      margin: 0;
+      padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom));
       color: #8092c3;
       font-size: 0.85rem;
       text-align: center;
+      background: rgba(8, 12, 28, 0.9);
+      border-top: 1px solid var(--line);
+      backdrop-filter: blur(8px);
     }
 
     .footer-link {
       display: inline-block;
-      margin-top: 0.4rem;
+      margin: 0.2rem 0.4rem 0;
       color: var(--cyan);
       text-decoration: none;
       border-bottom: 1px dashed rgba(53, 231, 255, 0.45);
@@ -320,6 +333,14 @@
     }
 
     .setup-modal-copy li { margin: 0.35rem 0; }
+
+    .legal-copy {
+      color: #b8c9ef;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .legal-copy p { margin: 0.5rem 0; }
 
     @media (max-width: 820px) {
       .setup-modal-content { grid-template-columns: 1fr; }
@@ -376,6 +397,8 @@
     <footer>
       © <span id="year"></span> Eastern Shore AI<br>
       <a href="#" class="footer-link" id="contact-link">Contact Us</a>
+      <a href="#" class="footer-link" id="terms-link">Terms of Use</a>
+      <a href="#" class="footer-link" id="privacy-link">Privacy Policy</a>
     </footer>
   </div>
 
@@ -398,6 +421,34 @@
             <li>Provide ongoing technical assistance for no additional cost</li>
           </ul>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="terms-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+      <div class="modal-head">
+        <h2 id="terms-modal-title">Terms of Use</h2>
+        <button class="modal-close" id="terms-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="legal-copy">
+        <p>By using this website, you agree to use it lawfully and responsibly. All content is provided for general informational purposes and may change at any time without notice.</p>
+        <p>Service timelines, outcomes, and availability depend on project scope and cooperation. Any custom engagement terms, pricing, and deliverables are confirmed in writing before work begins.</p>
+        <p>To the fullest extent allowed by law, Eastern Shore AI is not liable for indirect, incidental, or consequential damages arising from use of this site or related services.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="privacy-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
+      <div class="modal-head">
+        <h2 id="privacy-modal-title">Privacy Policy</h2>
+        <button class="modal-close" id="privacy-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="legal-copy">
+        <p>We collect only the information you voluntarily submit through forms (such as name, email, and message details) to respond to inquiries and provide requested services.</p>
+        <p>Submitted information is used for communication and project-related follow-up. We do not sell your personal data. We may use trusted service providers to process form delivery and email notifications.</p>
+        <p>If you want your submitted information corrected or deleted, contact us and we will handle it promptly, subject to legal or operational retention requirements.</p>
       </div>
     </div>
   </div>
@@ -448,6 +499,12 @@
     const setupCloseBtn = document.getElementById('setup-modal-close');
     const openBtn = document.getElementById('buy-domain-link');
     const contactLink = document.getElementById('contact-link');
+    const termsLink = document.getElementById('terms-link');
+    const privacyLink = document.getElementById('privacy-link');
+    const termsModal = document.getElementById('terms-modal');
+    const privacyModal = document.getElementById('privacy-modal');
+    const termsCloseBtn = document.getElementById('terms-modal-close');
+    const privacyCloseBtn = document.getElementById('privacy-modal-close');
     const closeBtn = document.getElementById('modal-close');
     const cancelBtn = document.getElementById('cancel-btn');
     const form = document.getElementById('offer-form');
@@ -501,6 +558,16 @@
       setupModal.setAttribute('aria-hidden', 'true');
     }
 
+    function openSimpleModal(el) {
+      el.classList.add('active');
+      el.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSimpleModal(el) {
+      el.classList.remove('active');
+      el.setAttribute('aria-hidden', 'true');
+    }
+
     setupLink.addEventListener('click', (e) => {
       e.preventDefault();
       openSetupModal();
@@ -518,8 +585,20 @@
       openModal('contact');
     });
 
+    termsLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSimpleModal(termsModal);
+    });
+
+    privacyLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSimpleModal(privacyModal);
+    });
+
     closeBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
+    termsCloseBtn.addEventListener('click', () => closeSimpleModal(termsModal));
+    privacyCloseBtn.addEventListener('click', () => closeSimpleModal(privacyModal));
 
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
@@ -529,9 +608,19 @@
       if (e.target === setupModal) closeSetupModal();
     });
 
+    termsModal.addEventListener('click', (e) => {
+      if (e.target === termsModal) closeSimpleModal(termsModal);
+    });
+
+    privacyModal.addEventListener('click', (e) => {
+      if (e.target === privacyModal) closeSimpleModal(privacyModal);
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
       if (e.key === 'Escape' && setupModal.classList.contains('active')) closeSetupModal();
+      if (e.key === 'Escape' && termsModal.classList.contains('active')) closeSimpleModal(termsModal);
+      if (e.key === 'Escape' && privacyModal.classList.contains('active')) closeSimpleModal(privacyModal);
     });
 
     form.addEventListener('submit', async (e) => {
