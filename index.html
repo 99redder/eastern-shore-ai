@@ -151,6 +151,21 @@
       line-height: 1.6;
     }
 
+    .hero {
+      position: relative;
+      padding-right: 4.2rem;
+    }
+
+    .hero-lobster {
+      position: absolute;
+      right: 0.4rem;
+      bottom: -0.1rem;
+      font-size: 2.5rem;
+      line-height: 1;
+      user-select: none;
+      filter: saturate(1.2);
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -437,6 +452,7 @@
         Practical AI help for everyday projects: custom automations, guided setup, modern websites,
         and hands-on tutoring to level up fast.
       </p>
+      <span class="hero-lobster" aria-label="red lobster">🦞</span>
     </section>
 
     <section class="grid">
