@@ -60,7 +60,7 @@ Response shape: `{ ok: boolean, error?: string }`
 ## Code Conventions
 
 - **No frameworks or build tools** — pages are self-contained HTML with inline CSS/JS
-- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), dark theme, mobile-responsive with breakpoints at 820px, 760px, and 480px
+- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), cyberpunk toxic green + purple color scheme (dark: `--cyan: #39ff14`, `--violet: #bf5af2`; light: `--cyan: #0d8a1a`, `--violet: #7b2fc9`), mobile-responsive with breakpoints at 820px, 760px, and 480px
 - **JS**: Vanilla, async/await, camelCase functions and variables
 - **HTML classes/IDs**: kebab-case (`.btn-primary`, `#setup-modal`)
 - **Accessibility**: ARIA attributes (`aria-hidden`, `aria-labelledby`, `aria-modal`)
