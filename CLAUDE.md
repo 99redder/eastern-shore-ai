@@ -9,7 +9,7 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 ## Tech Stack
 
 - **Frontend**: Vanilla HTML, CSS, JavaScript (no framework, no build step)
-- **Fonts**: Google Fonts — Chakra Petch (headings, nav, buttons), DM Sans (body text), Rajdhani (brand tagline only)
+- **Fonts**: Google Fonts — Hanken Grotesk (headings, nav, buttons), DM Sans (body text), Rajdhani (brand tagline only)
 - **Backend**: Cloudflare Workers (`worker/src/index.js`)
 - **Database**: Cloudflare D1 (SQLite)
 - **Payments**: Stripe (checkout sessions + webhooks)
@@ -61,7 +61,7 @@ Response shape: `{ ok: boolean, error?: string }`
 ## Code Conventions
 
 - **No frameworks or build tools** — pages are self-contained HTML with inline CSS/JS
-- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), cyberpunk neon magenta + electric cyan color scheme (dark: `--cyan: #00f0ff`, `--violet: #ff2d7b`; light: `--cyan: #0088aa`, `--violet: #d41a60`), mobile-responsive with breakpoints at 820px, 760px, and 480px
+- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), clean minimal color scheme with matrix green accents (dark: gray bg `#1a1a1a`, `--cyan: #00ff41`; light: white bg, black text, `--cyan: #008f28`), mobile-responsive with breakpoints at 820px, 760px, and 480px
 - **JS**: Vanilla, async/await, camelCase functions and variables
 - **HTML classes/IDs**: kebab-case (`.btn-primary`, `#setup-modal`)
 - **Accessibility**: ARIA attributes (`aria-hidden`, `aria-labelledby`, `aria-modal`)
