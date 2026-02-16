@@ -25,7 +25,7 @@ export default {
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
       const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
-      const isAdminBlockWrite = url.pathname === '/api/admin/block-slot' && request.method === 'POST';
+      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -58,6 +58,10 @@ export default {
 
     if (url.pathname === '/api/admin/block-slot') {
       return handleAdminBlockSlot(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/admin/block-day') {
+      return handleAdminBlockDay(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -162,6 +166,14 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
 
     if (blocked) {
       return json({ ok: false, error: 'That date/time is unavailable. Please choose another slot.' }, 409, corsHeaders);
+    }
+
+    const blockedDay = await env.DB.prepare(
+      `SELECT id FROM blocked_days WHERE setup_date = ?1 AND active = 1 LIMIT 1`
+    ).bind(setupDate).first();
+
+    if (blockedDay) {
+      return json({ ok: false, error: 'That day is unavailable. Please choose another date.' }, 409, corsHeaders);
     }
   }
 
@@ -319,7 +331,14 @@ async function handleBookings(request, env, corsHeaders, url) {
      LIMIT ?1`
   ).bind(limit).all();
 
-  return json({ ok: true, bookings: rows.results || [], blockedSlots: blocked.results || [] }, 200, corsHeaders);
+  const blockedDays = await env.DB.prepare(
+    `SELECT id, setup_date, reason, active, created_at, updated_at
+     FROM blocked_days
+     ORDER BY created_at DESC
+     LIMIT ?1`
+  ).bind(limit).all();
+
+  return json({ ok: true, bookings: rows.results || [], blockedSlots: blocked.results || [], blockedDays: blockedDays.results || [] }, 200, corsHeaders);
 }
 
 async function handleAvailability(request, env, corsHeaders, url) {
@@ -348,12 +367,18 @@ async function handleAvailability(request, env, corsHeaders, url) {
     ).all();
   }
 
+  const blockedDayRows = await env.DB.prepare(
+    `SELECT setup_date FROM blocked_days WHERE active = 1`
+  ).all();
+
   const unavailable = Array.from(new Set([
     ...(bookedRows.results || []).map(r => r.setup_at).filter(Boolean),
     ...(blockedRows.results || []).map(r => r.setup_at).filter(Boolean)
   ]));
 
-  return json({ ok: true, unavailable }, 200, corsHeaders);
+  const blockedDates = Array.from(new Set((blockedDayRows.results || []).map(r => r.setup_date).filter(Boolean)));
+
+  return json({ ok: true, unavailable, blockedDates }, 200, corsHeaders);
 }
 
 async function handleAdminBlockSlot(request, env, corsHeaders, url) {
@@ -394,6 +419,43 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
   ).bind(setupDate, setupTime, setupAt, reason || null, active).run();
 
   return json({ ok: true, setupAt, active: !!active }, 200, corsHeaders);
+}
+
+async function handleAdminBlockDay(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const provided = (url.searchParams.get('key') || '').trim();
+  const expected = (env.ADMIN_API_KEY || '').trim();
+  if (!expected) return json({ ok: false, error: 'Admin API key not configured' }, 500, corsHeaders);
+  if (!provided || provided !== expected) return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
+
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const setupDate = (data.setupDate || '').toString().trim();
+  const reason = (data.reason || '').toString().trim();
+  const active = data.active === false ? 0 : 1;
+
+  if (!setupDate) {
+    return json({ ok: false, error: 'Missing setup date' }, 400, corsHeaders);
+  }
+
+  await env.DB.prepare(
+    `INSERT INTO blocked_days (setup_date, reason, active)
+     VALUES (?1, ?2, ?3)
+     ON CONFLICT(setup_date) DO UPDATE SET
+       reason=excluded.reason,
+       active=excluded.active,
+       updated_at=datetime('now')`
+  ).bind(setupDate, reason || null, active).run();
+
+  return json({ ok: true, setupDate, active: !!active }, 200, corsHeaders);
 }
 
 async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
