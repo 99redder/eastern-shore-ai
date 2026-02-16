@@ -944,9 +944,9 @@
       .about-panel img { max-width: 300px; margin: 0 auto; }
       .form-grid { grid-template-columns: 1fr; }
 
-      .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+      .mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
       .header-nav {
-        display: none;
+        display: none !important;
         position: absolute;
         top: 100%;
         left: 0;
@@ -960,7 +960,7 @@
       body[data-theme="light"] .header-nav {
         background: #ffffff;
       }
-      .header-nav.open { display: flex; }
+      .header-nav.open { display: flex !important; }
       .header-nav a {
         font-size: 0.95rem;
         padding: 0.75rem 1.2rem;
