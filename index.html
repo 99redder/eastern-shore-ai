@@ -82,7 +82,7 @@
       font-weight: 800;
       font-size: 1.15rem;
       letter-spacing: 0.06em;
-      background: linear-gradient(135deg, #ff5fd2 0%, #ff8de6 50%, #ff5fd2 100%);
+      background: linear-gradient(135deg, #35e7ff 0%, #6db3ff 50%, #35e7ff 100%);
       background-size: 200% auto;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -159,6 +159,31 @@
       padding-right: 4.6rem;
     }
 
+    .hero-slide { display: none; }
+    .hero-slide.active { display: block; }
+
+    .hero-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(10, 18, 48, 0.7);
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 1.5rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10;
+      line-height: 1;
+    }
+
+    .hero-arrow-left { left: 0.5rem; }
+    .hero-arrow-right { right: 0.5rem; }
+    .hero-arrow:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .offer-panel { display: none; }
+    .offer-panel.active { display: block; }
+
     .hero-lobster {
       position: absolute;
       right: 1.1rem;
@@ -170,13 +195,13 @@
     }
 
     .hero-link {
-      color: #ff5fd2;
+      color: #ff3b3b;
       text-decoration: none;
       display: inline-block;
     }
 
     .hero-link:hover {
-      color: #ff8de6;
+      color: #ff6b6b;
       text-decoration: none;
     }
 
@@ -530,8 +555,7 @@
       }
 
       .hero {
-        padding: 1.4rem 1rem;
-        padding-right: 1rem;
+        padding: 1.4rem 2.2rem;
       }
 
       .hero-lobster {
@@ -617,55 +641,130 @@
     </nav>
 
     <section class="hero">
-      <h1><a class="hero-link" href="/openclaw-setup.html">$100 OpenClaw Setup in Eastern Shore, MD</a></h1>
-      <p class="subtitle">
-        The Future Is Here. Get up and running with the latest AI craze.
-      </p>
-      <p class="subtitle" style="margin-top:0.4rem;"><em>** for a limited time, taxes not included</em></p>
-      <span class="hero-lobster" aria-label="red lobster">🦞</span>
-    </section>
+      <button class="hero-arrow hero-arrow-left" aria-label="Previous slide">&#8249;</button>
+      <button class="hero-arrow hero-arrow-right" aria-label="Next slide">&#8250;</button>
 
-    <section class="offer-grid">
-      <article class="card card--setup-offer">
-        <div>
-          <h3>OpenClaw Setup</h3>
-          <p>$100 no additional fees (taxes not included), 30 days of continued technical support via Zoom, Discord, or in-person if needed. Get your assistant stack configured correctly, including safe security setup and best-practice hardening. We'll set it up and teach you along the way.</p>
-          <div class="setup-faq">
-            <h4>What is included?</h4>
-            <p>Installation, secure configuration, hardening, channel onboarding, and launch handoff so your setup is production-ready.</p>
-            <h4>In-person available?</h4>
-            <p>Yes — in-person throughout Eastern Shore, MD plus Zoom-based remote support.</p>
-            <h4>Ongoing help after setup?</h4>
-            <p>Yes — ongoing technical assistance included at no additional cost for 30 days after installation.</p>
-          </div>
-        </div>
-        <div style="margin-top:2rem;">
-          <a href="/openclaw-setup.html" class="btn btn-primary" id="book-now-btn">Book Now</a>
-        </div>
-        <span class="lobster-icon" aria-label="red lobster">🦞</span>
-      </article>
+      <div class="hero-slide active" data-slide="0">
+        <h1><a class="hero-link" href="/openclaw-setup.html">$100 OpenClaw Setup in Eastern Shore, MD</a></h1>
+        <p class="subtitle">The Future Is Here. Get up and running with the latest AI craze.</p>
+        <p class="subtitle" style="margin-top:0.4rem;"><em>** for a limited time, taxes not included</em></p>
+        <span class="hero-lobster" aria-label="red lobster">🦞</span>
+      </div>
 
-      <div class="feature-stack">
-        <h3 class="feature-stack-title">OpenClaw Features</h3>
-        <article class="card feature-card">
-          <h3>Multi-Channel Messaging</h3>
-          <p>Run one assistant across Signal, Telegram, Discord, iMessage, and more with consistent behavior and context.</p>
-          <div class="feature-logos" aria-label="Discord, Telegram, and Apple logos">
-            <img src="https://cdn.simpleicons.org/discord" alt="Discord" />
-            <img src="https://cdn.simpleicons.org/telegram" alt="Telegram" />
-            <img src="https://cdn.simpleicons.org/apple" alt="Apple" />
-          </div>
-        </article>
-        <article class="card feature-card">
-          <h3>Tools + Browser Control</h3>
-          <p>Use OpenClaw tools for web search, file actions, shell commands, and browser automation from one dashboard.</p>
-        </article>
-        <article class="card feature-card">
-          <h3>Automation + Scheduling</h3>
-          <p>Trigger reminders, recurring jobs, and follow-up workflows with cron-based automations built into OpenClaw.</p>
-        </article>
+      <div class="hero-slide" data-slide="1">
+        <h1><a class="hero-link" href="#">Website Design Services</a></h1>
+        <p class="subtitle">Clean, modern websites built for speed, clarity, and conversion.</p>
+      </div>
+
+      <div class="hero-slide" data-slide="2">
+        <h1><a class="hero-link" href="#">AI Lessons &amp; Tutoring</a></h1>
+        <p class="subtitle">Hands-on, practical tutoring so you can actually ship things with modern AI tooling.</p>
       </div>
     </section>
+
+    <div class="offer-grid-wrap">
+      <div class="offer-panel active" data-panel="0">
+        <section class="offer-grid">
+          <article class="card card--setup-offer">
+            <div>
+              <h3>OpenClaw Setup</h3>
+              <p>$100 no additional fees (taxes not included), 30 days of continued technical support via Zoom, Discord, or in-person if needed. Get your assistant stack configured correctly, including safe security setup and best-practice hardening. We'll set it up and teach you along the way.</p>
+              <div class="setup-faq">
+                <h4>What is included?</h4>
+                <p>Installation, secure configuration, hardening, channel onboarding, and launch handoff so your setup is production-ready.</p>
+                <h4>In-person available?</h4>
+                <p>Yes — in-person throughout Eastern Shore, MD plus Zoom-based remote support.</p>
+                <h4>Ongoing help after setup?</h4>
+                <p>Yes — ongoing technical assistance included at no additional cost for 30 days after installation.</p>
+              </div>
+            </div>
+            <div style="margin-top:2rem;">
+              <a href="/openclaw-setup.html" class="btn btn-primary" id="book-now-btn">Book Now</a>
+            </div>
+            <span class="lobster-icon" aria-label="red lobster">🦞</span>
+          </article>
+
+          <div class="feature-stack">
+            <h3 class="feature-stack-title">OpenClaw Features</h3>
+            <article class="card feature-card">
+              <h3>Multi-Channel Messaging</h3>
+              <p>Run one assistant across Signal, Telegram, Discord, iMessage, and more with consistent behavior and context.</p>
+              <div class="feature-logos" aria-label="Discord, Telegram, and Apple logos">
+                <img src="https://cdn.simpleicons.org/discord" alt="Discord" />
+                <img src="https://cdn.simpleicons.org/telegram" alt="Telegram" />
+                <img src="https://cdn.simpleicons.org/apple" alt="Apple" />
+              </div>
+            </article>
+            <article class="card feature-card">
+              <h3>Tools + Browser Control</h3>
+              <p>Use OpenClaw tools for web search, file actions, shell commands, and browser automation from one dashboard.</p>
+            </article>
+            <article class="card feature-card">
+              <h3>Automation + Scheduling</h3>
+              <p>Trigger reminders, recurring jobs, and follow-up workflows with cron-based automations built into OpenClaw.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <div class="offer-panel" data-panel="1">
+        <section class="offer-grid">
+          <article class="card card--setup-offer">
+            <div>
+              <h3>Website Design</h3>
+              <p>Landing pages, small business sites, contact forms wired to reliable backend delivery, SEO basics, and mobile-friendly layouts. Clean and fast.</p>
+            </div>
+            <div style="margin-top:2rem;">
+              <a href="#" class="btn btn-primary" id="website-design-cta">Request a Quote</a>
+            </div>
+          </article>
+          <div class="feature-stack">
+            <h3 class="feature-stack-title">What You Get</h3>
+            <article class="card feature-card">
+              <h3>Landing Pages</h3>
+              <p>Focused pages built for conversion and clarity.</p>
+            </article>
+            <article class="card feature-card">
+              <h3>Contact Forms</h3>
+              <p>Wired to reliable backend delivery — no mailto.</p>
+            </article>
+            <article class="card feature-card">
+              <h3>SEO + Performance</h3>
+              <p>Titles, descriptions, sitemap, fast load times.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <div class="offer-panel" data-panel="2">
+        <section class="offer-grid">
+          <article class="card card--setup-offer">
+            <div>
+              <h3>AI Lessons</h3>
+              <p>Hands-on tutoring with Claude Code, Codex, Gemini, prompt engineering, Cloudflare Workers, and automation workflows. Available in person on the Eastern Shore or via Zoom.</p>
+            </div>
+            <div style="margin-top:2rem;">
+              <a href="#" class="btn btn-primary" id="ai-lessons-cta">Ask About Lessons</a>
+            </div>
+          </article>
+          <div class="feature-stack">
+            <h3 class="feature-stack-title">Topics Covered</h3>
+            <article class="card feature-card">
+              <h3>Prompt Engineering</h3>
+              <p>Learn to get consistent, high-quality results from AI models.</p>
+            </article>
+            <article class="card feature-card">
+              <h3>Cloudflare + Workers</h3>
+              <p>Deploy serverless APIs and static sites on the edge.</p>
+            </article>
+            <article class="card feature-card">
+              <h3>Automation</h3>
+              <p>Build workflows, cron jobs, and safe security practices.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+    </div>
 
 
     <footer>
@@ -863,6 +962,36 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Hero carousel + synced offer panels
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    const offerPanels = document.querySelectorAll('.offer-panel');
+    const leftArrow = document.querySelector('.hero-arrow-left');
+    const rightArrow = document.querySelector('.hero-arrow-right');
+    let currentSlide = 0;
+
+    function goToSlide(index) {
+      if (index < 0) index = heroSlides.length - 1;
+      if (index >= heroSlides.length) index = 0;
+      heroSlides[currentSlide].classList.remove('active');
+      offerPanels[currentSlide].classList.remove('active');
+      currentSlide = index;
+      heroSlides[currentSlide].classList.add('active');
+      offerPanels[currentSlide].classList.add('active');
+    }
+
+    leftArrow.addEventListener('click', () => goToSlide(currentSlide - 1));
+    rightArrow.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+    // Wire carousel CTA buttons to existing modals
+    document.getElementById('website-design-cta').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('contact');
+    });
+    document.getElementById('ai-lessons-cta').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('contact');
+    });
 
     const modal = document.getElementById('domain-modal');
     const setupModal = document.getElementById('setup-modal');
