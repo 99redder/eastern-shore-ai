@@ -66,13 +66,18 @@
       left: 0;
       right: 0;
       z-index: 300;
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      padding: 0 1.2rem;
       height: 56px;
       background: #0c0d14;
       border-bottom: 1px solid var(--line);
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      height: 100%;
     }
     body[data-theme="light"] .site-header {
       background: #ffffff;
@@ -327,18 +332,18 @@
     .portfolio-item {
       display: none;
       text-align: center;
-      padding: 1rem;
+      padding: 0.5rem;
     }
     .portfolio-item.active { display: block; }
     .portfolio-item img {
       width: 100%;
-      max-width: 480px;
+      max-width: 280px;
       border-radius: 2px;
       border: 1px solid var(--line);
     }
     .portfolio-item-label {
-      margin-top: 0.5rem;
-      font-size: 0.85rem;
+      margin-top: 0.3rem;
+      font-size: 0.78rem;
       color: var(--cyan);
     }
     .portfolio-item-label a {
@@ -351,7 +356,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      margin-top: 0.6rem;
+      margin-top: 0.3rem;
     }
     .portfolio-arrow {
       background: rgba(10, 11, 16, 0.7);
@@ -936,24 +941,95 @@
 
       .modal { padding: 0.8rem; }
     }
+
+    /* Pink electric storm — one-time onload animation */
+    .storm-wrap {
+      position: relative;
+    }
+    .storm-wrap::before,
+    .storm-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 60px;
+      pointer-events: none;
+      z-index: 50;
+      opacity: 0;
+    }
+    .storm-wrap::before { left: -60px; }
+    .storm-wrap::after { right: -60px; }
+
+    .storm-active::before,
+    .storm-active::after {
+      animation: lightning 2.5s ease-out forwards;
+    }
+    .storm-active::before {
+      background:
+        radial-gradient(ellipse at 70% 20%, rgba(255,79,216,0.7) 0%, transparent 60%),
+        radial-gradient(ellipse at 30% 60%, rgba(255,79,216,0.5) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 85%, rgba(255,79,216,0.4) 0%, transparent 55%);
+      box-shadow:
+        0 0 30px rgba(255,79,216,0.3),
+        inset 0 0 20px rgba(255,79,216,0.15);
+    }
+    .storm-active::after {
+      background:
+        radial-gradient(ellipse at 30% 30%, rgba(255,79,216,0.7) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 55%, rgba(255,79,216,0.5) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 80%, rgba(255,79,216,0.4) 0%, transparent 55%);
+      box-shadow:
+        0 0 30px rgba(255,79,216,0.3),
+        inset 0 0 20px rgba(255,79,216,0.15);
+      animation-delay: 0.15s;
+    }
+
+    @keyframes lightning {
+      0%   { opacity: 0; }
+      4%   { opacity: 0.9; }
+      6%   { opacity: 0.15; }
+      10%  { opacity: 1; }
+      13%  { opacity: 0.1; }
+      16%  { opacity: 0.85; }
+      20%  { opacity: 0; }
+      28%  { opacity: 0; }
+      30%  { opacity: 0.95; }
+      32%  { opacity: 0.2; }
+      35%  { opacity: 0.8; }
+      38%  { opacity: 0; }
+      50%  { opacity: 0; }
+      52%  { opacity: 0.7; }
+      54%  { opacity: 0.1; }
+      57%  { opacity: 0.6; }
+      60%  { opacity: 0; }
+      75%  { opacity: 0; }
+      77%  { opacity: 0.5; }
+      79%  { opacity: 0.05; }
+      82%  { opacity: 0.35; }
+      85%  { opacity: 0; }
+      100% { opacity: 0; }
+    }
   </style>
 </head>
 <body>
   <header class="site-header">
-    <a href="/" class="header-logo">Eastern Shore AI</a>
-    <nav class="header-nav" aria-label="Main links">
-      <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
-      <a href="#" id="website-design-link">Website Design</a>
-      <a href="#" id="ai-lessons-link">Tech Lessons</a>
-      <a href="#" id="buy-domain-link">Buy This Domain Now</a>
-    </nav>
-    <div class="header-right">
-      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
+    <div class="site-header-inner">
+      <a href="/" class="header-logo">Eastern Shore AI</a>
+      <nav class="header-nav" aria-label="Main links">
+        <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
+        <a href="#" id="website-design-link">Website Design</a>
+        <a href="#" id="ai-lessons-link">Tech Lessons</a>
+        <a href="#" id="buy-domain-link">Buy This Domain Now</a>
+      </nav>
+      <div class="header-right">
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
+      </div>
     </div>
   </header>
 
   <div class="container">
 
+    <div class="storm-wrap" id="storm-wrap">
     <section class="hero">
       <button class="hero-arrow hero-arrow-left" aria-label="Previous slide">&#8249;</button>
       <button class="hero-arrow hero-arrow-right" aria-label="Next slide">&#8250;</button>
@@ -1013,9 +1089,7 @@
                 <p>Yes — ongoing technical assistance included at no additional cost for 30 days after installation.</p>
               </div>
             </div>
-            <div style="margin-top:2rem;">
-              <a href="/openclaw-setup.html" class="btn btn-primary" id="book-now-btn">Book Now</a>
-            </div>
+            <a href="/openclaw-setup.html" class="btn btn-primary" id="book-now-btn" style="position:absolute; top:0.8rem; right:0.8rem; z-index:5;">Book Now</a>
             <span class="lobster-icon" aria-label="red lobster">🦞</span>
           </article>
 
@@ -1163,6 +1237,7 @@
         <span class="coupon-code">LEARN2X</span>
       </div>
     </div>
+    </div>
 
     <footer>
       © <span id="year"></span> Eastern Shore AI, LLC<br>
@@ -1260,6 +1335,11 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Pink electric storm on load
+    const stormEl = document.getElementById('storm-wrap');
+    requestAnimationFrame(() => stormEl.classList.add('storm-active'));
+    setTimeout(() => stormEl.classList.remove('storm-active'), 3000);
 
     const themeToggleBtn = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('esa_theme') || 'dark';
