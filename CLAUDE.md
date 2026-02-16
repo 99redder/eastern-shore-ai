@@ -61,7 +61,7 @@ Response shape: `{ ok: boolean, error?: string }`
 ## Code Conventions
 
 - **No frameworks or build tools** — pages are self-contained HTML with inline CSS/JS
-- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), clean minimal color scheme with matrix green accents (dark: gray bg `#1a1a1a`, `--cyan: #00ff41`; light: white bg, black text, `--cyan: #008f28`), mobile-responsive with breakpoints at 820px, 760px, and 480px
+- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), Blade Runner 2049 cyberpunk scheme with neon pink accents and sharp edges (dark: `#0d0d0f` bg, `--cyan: #ff0066`; light: white bg, black text, `--cyan: #cc0052`), border-radius 2-3px throughout, mobile-responsive with breakpoints at 820px, 760px, and 480px
 - **JS**: Vanilla, async/await, camelCase functions and variables
 - **HTML classes/IDs**: kebab-case (`.btn-primary`, `#setup-modal`)
 - **Accessibility**: ARIA attributes (`aria-hidden`, `aria-labelledby`, `aria-modal`)
