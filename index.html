@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw Setup | Eastern Shore AI</title>
+  <title>Eastern Shore AI</title>
   <meta name="description" content="OpenClaw Setup and OpenClaw Setup Eastern Shore Maryland services by Eastern Shore AI. Secure setup, hardening, and hands-on support in person or via Zoom." />
   <meta name="keywords" content="OpenClaw Setup, OpenClaw Setup Eastern Shore Maryland, OpenClaw security setup, Eastern Shore AI" />
   <meta property="og:title" content="OpenClaw Setup | Eastern Shore AI" />
@@ -559,8 +559,8 @@
 
     <nav class="nav" aria-label="Main links">
       <a href="/openclaw-setup.html" id="openclaw-setup-link">OpenClaw Setup</a>
-      <a href="#">Website Design</a>
-      <a href="#">AI Lessons</a>
+      <a href="#" id="website-design-link">Website Design</a>
+      <a href="#" id="ai-lessons-link">AI Lessons</a>
       <a href="#" id="buy-domain-link">Buy This Domain Now</a>
     </nav>
 
@@ -713,6 +713,46 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="website-design-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="website-design-modal-title">
+      <div class="modal-head">
+        <h2 id="website-design-modal-title">Website Design</h2>
+        <button class="modal-close" id="website-design-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="legal-copy">
+        <p>Clean, modern websites built for speed, clarity, and conversion.</p>
+        <p><strong>What you get:</strong></p>
+        <ul>
+          <li>Landing pages + small business sites</li>
+          <li>Contact forms wired to reliable backend delivery (no mailto)</li>
+          <li>SEO basics (titles, descriptions, sitemap/robots)</li>
+          <li>Performance + mobile-friendly layout</li>
+        </ul>
+        <p><a href="#" class="footer-link" id="website-design-contact-cta">Request a quote</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ai-lessons-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ai-lessons-modal-title">
+      <div class="modal-head">
+        <h2 id="ai-lessons-modal-title">AI Lessons</h2>
+        <button class="modal-close" id="ai-lessons-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="legal-copy">
+        <p>Hands-on, practical tutoring so you can actually ship things with modern AI tooling.</p>
+        <p><strong>Topics include:</strong></p>
+        <ul>
+          <li>Claude Code, Codex, Gemini, and prompt engineering</li>
+          <li>Cloudflare + Workers basics</li>
+          <li>Automation workflows + safe security practices</li>
+        </ul>
+        <p>Available in person in the Eastern Shore Maryland area or via Zoom.</p>
+        <p><a href="#" class="footer-link" id="ai-lessons-contact-cta">Ask about lessons</a></p>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="domain-modal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="domain-modal-title">
       <div class="modal-head">
@@ -757,6 +797,17 @@
     const setupModal = document.getElementById('setup-modal');
     const setupLink = document.getElementById('openclaw-setup-link');
     const setupCloseBtn = document.getElementById('setup-modal-close');
+
+    const websiteDesignLink = document.getElementById('website-design-link');
+    const websiteDesignModal = document.getElementById('website-design-modal');
+    const websiteDesignCloseBtn = document.getElementById('website-design-modal-close');
+    const websiteDesignContactCta = document.getElementById('website-design-contact-cta');
+
+    const aiLessonsLink = document.getElementById('ai-lessons-link');
+    const aiLessonsModal = document.getElementById('ai-lessons-modal');
+    const aiLessonsCloseBtn = document.getElementById('ai-lessons-modal-close');
+    const aiLessonsContactCta = document.getElementById('ai-lessons-contact-cta');
+
     const setupContactLink = document.getElementById('setup-contact-link');
     const setupContactModal = document.getElementById('setup-contact-modal');
     const setupContactCloseBtn = document.getElementById('setup-contact-modal-close');
@@ -764,6 +815,7 @@
     const setupContactForm = document.getElementById('setup-contact-form');
     const setupContactStatus = document.getElementById('setup-contact-status');
     const setupContactSubmitBtn = setupContactForm.querySelector('button[type="submit"]');
+
     const openBtn = document.getElementById('buy-domain-link');
     const contactLink = document.getElementById('contact-link');
     const termsLink = document.getElementById('terms-link');
@@ -841,6 +893,28 @@
 
     setupCloseBtn.addEventListener('click', closeSetupModal);
 
+    websiteDesignLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSimpleModal(websiteDesignModal);
+    });
+    websiteDesignCloseBtn.addEventListener('click', () => closeSimpleModal(websiteDesignModal));
+    websiteDesignContactCta.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeSimpleModal(websiteDesignModal);
+      openModal('contact');
+    });
+
+    aiLessonsLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSimpleModal(aiLessonsModal);
+    });
+    aiLessonsCloseBtn.addEventListener('click', () => closeSimpleModal(aiLessonsModal));
+    aiLessonsContactCta.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeSimpleModal(aiLessonsModal);
+      openModal('contact');
+    });
+
     setupContactLink.addEventListener('click', () => {
       openSimpleModal(setupContactModal);
     });
@@ -881,6 +955,14 @@
       if (e.target === setupModal) closeSetupModal();
     });
 
+    websiteDesignModal.addEventListener('click', (e) => {
+      if (e.target === websiteDesignModal) closeSimpleModal(websiteDesignModal);
+    });
+
+    aiLessonsModal.addEventListener('click', (e) => {
+      if (e.target === aiLessonsModal) closeSimpleModal(aiLessonsModal);
+    });
+
     termsModal.addEventListener('click', (e) => {
       if (e.target === termsModal) closeSimpleModal(termsModal);
     });
@@ -896,6 +978,8 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
       if (e.key === 'Escape' && setupModal.classList.contains('active')) closeSetupModal();
+      if (e.key === 'Escape' && websiteDesignModal.classList.contains('active')) closeSimpleModal(websiteDesignModal);
+      if (e.key === 'Escape' && aiLessonsModal.classList.contains('active')) closeSimpleModal(aiLessonsModal);
       if (e.key === 'Escape' && termsModal.classList.contains('active')) closeSimpleModal(termsModal);
       if (e.key === 'Escape' && privacyModal.classList.contains('active')) closeSimpleModal(privacyModal);
       if (e.key === 'Escape' && setupContactModal.classList.contains('active')) closeSimpleModal(setupContactModal);
