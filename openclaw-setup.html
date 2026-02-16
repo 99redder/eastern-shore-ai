@@ -180,6 +180,27 @@
       display:inline-flex; align-items:center; justify-content:center;
       font-size:1rem; line-height:1; cursor:pointer;
     }
+    .back-btn {
+      position:fixed; top:14px; left:56px; z-index:160;
+      display:inline-flex; align-items:center; gap:0.35rem;
+      text-decoration:none;
+      font-family:'Titillium Web', system-ui, sans-serif;
+      font-weight:600; font-size:0.82rem; letter-spacing:0.03em;
+      color:var(--cyan);
+      border:1px solid var(--cyan);
+      border-radius:2px;
+      padding:0.35rem 0.75rem;
+      background:rgba(0,229,255,0.06);
+      transition:background 0.2s, box-shadow 0.2s, color 0.2s;
+    }
+    .back-btn:hover {
+      background:rgba(0,229,255,0.14);
+      box-shadow:0 0 14px rgba(0,229,255,0.3);
+      color:#fff;
+    }
+    .back-btn svg {
+      width:14px; height:14px; fill:currentColor; flex-shrink:0;
+    }
 
     /* Session flow interactive layout */
     .flow-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
@@ -225,11 +246,15 @@
       line-height:1.65;
       font-size:0.93rem;
     }
+    body[data-theme="light"] .back-btn { background:rgba(0,153,187,0.08); }
+    body[data-theme="light"] .back-btn:hover { background:rgba(0,153,187,0.16); color:var(--cyan); }
     body[data-theme="light"] .flow-step:hover { background:rgba(200,80,255,0.06); }
     body[data-theme="light"] .flow-step.active { background:rgba(138,46,192,0.08); }
     body[data-theme="light"] .flow-detail { background:#f5f5f5; }
 
     @media (max-width: 760px) {
+      .back-btn { font-size:0.75rem; padding:0.3rem 0.55rem; left:50px; }
+      .back-btn svg { width:12px; height:12px; }
       .booking-grid, .admin-grid { grid-template-columns:1fr; }
       .form-grid { grid-template-columns:1fr; }
       .tax-summary-grid { grid-template-columns:1fr; }
@@ -282,7 +307,7 @@
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
     <a href="#pick-setup" class="top-book-btn">Book + Pay Now</a>
     <nav aria-label="Site navigation">
-      <a href="/">← Back to Eastern Shore AI</a>
+      <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
     </nav>
   </header>
   <main>
@@ -575,14 +600,14 @@
     // Session flow interactive steps
     const flowDescriptions = [
       "We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.",
-      "Your OpenClaw assistant is typically up and running within 15 minutes on your hardware or cloud.",
+      "Your OpenClaw assistant is typically up and running within 15 minutes on your hardware or cloud server.",
       "Immediately after install we run a full security audit and harden your setup before anything else.",
       "Once the setup is secure, we'll go through the basics.",
-      "We'll add whatever skills and tools you'd like \u2014 we'll walk through all your options in person.",
+      "Next, we'll add whatever skills and tools you'd like \u2014 we'll walk through all your options in person.",
       "If desired, we'll customize your dashboard layout and preferences. We've built custom tooling to make security audits and other functionality easier and we'll install that for you, if desired.",
-      "We'll go through tips for handling basic issues so you're confident on your own.",
+      "We'll go through tips for handling basic issues so you're confident on your own but we're still always just a call, text or Discord message away.",
       "Any questions you might have, we'll stay until they're all answered. If you don't have any, that's okay too! We can demo some of the cool things we use OpenClaw for instead.",
-      "Continued help via Zoom, Discord, or in-person for 30 days after your session."
+      "Continued support via Zoom, Discord, or in-person for 30 days after your session is included with your purchase."
     ];
     document.getElementById('flow-steps').addEventListener('click', e => {
       const step = e.target.closest('.flow-step');
