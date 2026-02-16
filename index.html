@@ -17,37 +17,37 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Titillium+Web:wght@300;400;600;700&family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0d0d0f;
-      --bg2: #151518;
-      --card: #1a1a1e;
-      --text: #e0dde8;
-      --muted: #888899;
-      --cyan: #ff0066;
-      --violet: #ff0066;
-      --pink: #ff0066;
-      --line: #2a2a30;
+      --bg: #0a0b10;
+      --bg2: #10121a;
+      --card: #141620;
+      --text: #d8dce8;
+      --muted: #7a7e96;
+      --cyan: #00e5ff;
+      --violet: #c850ff;
+      --pink: #c850ff;
+      --line: #222438;
     }
 
     body[data-theme="light"] {
-      --bg: #ffffff;
-      --bg2: #f5f5f5;
+      --bg: #f4f4f8;
+      --bg2: #eaeaf0;
       --card: #ffffff;
-      --text: #111111;
-      --muted: #555555;
-      --cyan: #cc0052;
-      --violet: #cc0052;
-      --pink: #cc0052;
-      --line: #dddddd;
+      --text: #111118;
+      --muted: #555566;
+      --cyan: #0099bb;
+      --violet: #8a2ec0;
+      --pink: #8a2ec0;
+      --line: #d0d0dd;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -71,7 +71,7 @@
       gap: 1.2rem;
       padding: 0 1.2rem;
       height: 56px;
-      background: #111114;
+      background: #0c0d14;
       border-bottom: 1px solid var(--line);
     }
     body[data-theme="light"] .site-header {
@@ -80,15 +80,15 @@
     }
 
     .header-logo {
-      width: 110px;
       flex-shrink: 0;
-    }
-    .header-logo img {
-      width: 100%;
-      height: auto;
-      display: block;
-      object-fit: contain;
-      border-radius: 2px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
     }
 
     .header-nav {
@@ -143,10 +143,22 @@
       text-transform: uppercase;
     }
 
+    .brand-hero {
+      text-align: center;
+      padding: 2rem 1rem 1.2rem;
+    }
+    .brand-hero img {
+      max-width: 340px;
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+
     .hero {
-      background: rgba(255,0,102,0.04);
+      background: rgba(200,80,255,0.04);
       border: 1px solid var(--line);
-      border-radius: 3px;
+      border-radius: 0;
       padding: 2rem;
       margin-bottom: 1.2rem;
     }
@@ -190,7 +202,7 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(13, 13, 15, 0.7);
+      background: rgba(10, 11, 16, 0.7);
       border: 1px solid var(--line);
       color: var(--text);
       font-size: 1.5rem;
@@ -212,9 +224,9 @@
     }
 
     body[data-theme="light"] .hero-arrow:hover {
-      border-color:#cc0052;
-      color:#cc0052;
-      box-shadow:0 0 10px rgba(255,0,102,0.18);
+      border-color:#9b30d9;
+      color:#9b30d9;
+      box-shadow:0 0 10px rgba(200,80,255,0.18);
     }
 
     .offer-panel {
@@ -238,7 +250,7 @@
       overflow: hidden;
       border-radius: 2px;
       border: 1px solid var(--line);
-      background: rgba(13, 13, 15, 0.5);
+      background: rgba(10, 11, 16, 0.5);
     }
     .portfolio-item {
       display: none;
@@ -270,7 +282,7 @@
       margin-top: 0.6rem;
     }
     .portfolio-arrow {
-      background: rgba(13, 13, 15, 0.7);
+      background: rgba(10, 11, 16, 0.7);
       border: 1px solid var(--line);
       color: var(--text);
       font-size: 1.1rem;
@@ -320,7 +332,7 @@
       display: inline-block;
     }
     .hero-link-blue:hover {
-      color: #ff3388;
+      color: #c850ff;
       text-decoration: none;
     }
 
@@ -377,17 +389,61 @@
       width: 18px;
       height: 18px;
       object-fit: contain;
-      filter: brightness(0) saturate(100%) invert(20%) sepia(95%) saturate(5000%) hue-rotate(330deg) brightness(105%) contrast(100%);
+      filter: brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(2000%) hue-rotate(160deg) brightness(110%) contrast(95%);
       opacity: 0.95;
     }
     body[data-theme="light"] .feature-logos img {
-      filter: brightness(0) saturate(100%) invert(15%) sepia(90%) saturate(4000%) hue-rotate(330deg) brightness(90%) contrast(100%);
+      filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(3000%) hue-rotate(250deg) brightness(90%) contrast(100%);
+    }
+
+    /* Battle-damaged hull edges — worn spaceship panels */
+    .card,
+    .faq-item,
+    .hero,
+    .modal,
+    .portfolio-carousel-inner {
+      clip-path: polygon(
+        0 8px,
+        8px 0,
+        35% 0,
+        35.5% 4px,
+        37% 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% 65%,
+        calc(100% - 3px) 66%,
+        100% 67.5%,
+        100% calc(100% - 6px),
+        calc(100% - 6px) 100%,
+        62% 100%,
+        61.5% calc(100% - 3px),
+        60% 100%,
+        10px 100%,
+        0 calc(100% - 10px),
+        3px calc(100% - 14px),
+        0 calc(100% - 18px)
+      );
+      border-radius: 0;
+    }
+    .btn,
+    .btn-primary {
+      clip-path: polygon(
+        0 4px,
+        4px 0,
+        calc(100% - 7px) 0,
+        100% 7px,
+        100% calc(100% - 4px),
+        calc(100% - 4px) 100%,
+        7px 100%,
+        0 calc(100% - 7px)
+      );
+      border-radius: 0;
     }
 
     .card {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 3px;
+      border-radius: 0;
       padding: 1rem;
       position: relative;
     }
@@ -402,9 +458,9 @@
       text-decoration: none;
       padding: 0.75rem 2.8rem;
       font-size: 1.05rem;
-      background: linear-gradient(145deg, #cc0052, #aa0044);
-      border-color: #ff3388;
-      box-shadow: 0 0 16px rgba(255,0,102,0.3);
+      background: linear-gradient(145deg, #9b30d9, #7b22b8);
+      border-color: #c850ff;
+      box-shadow: 0 0 16px rgba(200,80,255,0.3);
       color: #fff;
       -webkit-text-fill-color: #fff;
     }
@@ -457,7 +513,7 @@
     .faq-item {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 3px;
+      border-radius: 0;
       padding: 0.85rem 1rem;
     }
 
@@ -489,9 +545,9 @@
 
     .modal {
       width: min(620px, 96vw);
-      background: linear-gradient(160deg, #1a1a1e, #151518);
+      background: linear-gradient(160deg, #141620, #10121a);
       border: 1px solid var(--line);
-      border-radius: 3px;
+      border-radius: 0;
       padding: 1rem;
       box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
     }
@@ -539,7 +595,7 @@
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 2px;
-      background: #151518;
+      background: #10121a;
       color: var(--text);
       padding: 0.65rem 0.7rem;
       font: inherit;
@@ -558,7 +614,7 @@
       border: 1px solid var(--line);
       background: transparent;
       color: var(--text);
-      border-radius: 2px;
+      border-radius: 0;
       padding: 0.55rem 0.85rem;
       cursor: pointer;
       font-weight: 600;
@@ -566,8 +622,8 @@
     }
 
     .btn-primary {
-      background: linear-gradient(145deg, #cc0052, #aa0044);
-      border-color: #ff3388;
+      background: linear-gradient(145deg, #9b30d9, #7b22b8);
+      border-color: #c850ff;
     }
 
     .hint {
@@ -583,13 +639,13 @@
       min-height: 1.2em;
     }
 
-    .form-status.ok { color: #ff0066; }
+    .form-status.ok { color: #00e5ff; }
     .form-status.err { color: #ff5555; }
 
     footer {
       margin-top: 2rem;
       padding: 1.5rem 1rem;
-      color: #888899;
+      color: #7a7e96;
       font-size: 0.85rem;
       text-align: center;
       border-top: 1px solid var(--line);
@@ -603,15 +659,15 @@
     }
 
     .footer-link:hover {
-      color: #ff3388;
+      color: #c850ff;
     }
 
     body[data-theme="light"] .footer-link {
-      color:#cc0052;
+      color:#9b30d9;
     }
 
     body[data-theme="light"] .footer-link:hover {
-      color:#e60060;
+      color:#a840e0;
     }
 
     body[data-theme="light"] .modal-overlay {
@@ -637,7 +693,7 @@
     }
     body[data-theme="light"] input::placeholder,
     body[data-theme="light"] textarea::placeholder {
-      color: #888899;
+      color: #7a7e96;
     }
     body[data-theme="light"] .btn {
       border-color: #dddddd;
@@ -647,15 +703,15 @@
       background: #f0f0f0;
     }
     body[data-theme="light"] .btn.btn-primary {
-      background: linear-gradient(145deg, #cc0052, #aa0044);
-      border-color: #ff3388;
+      background: linear-gradient(145deg, #9b30d9, #7b22b8);
+      border-color: #c850ff;
       color: #fff;
-      box-shadow: 0 2px 8px rgba(255,0,102,0.25);
+      box-shadow: 0 2px 8px rgba(200,80,255,0.25);
     }
     body[data-theme="light"] .btn-primary:hover {
-      background: linear-gradient(145deg, #e6005a, #cc0052);
+      background: linear-gradient(145deg, #a838d8, #9b30d9);
     }
-    body[data-theme="light"] .form-status.ok { color: #cc0052; }
+    body[data-theme="light"] .form-status.ok { color: #9b30d9; }
     body[data-theme="light"] .form-status.err { color: #cc2233; }
     body[data-theme="light"] .legal-copy {
       color: #666666;
@@ -670,23 +726,23 @@
       color: #111111;
     }
     body[data-theme="light"] .portfolio-arrow:hover {
-      border-color: #cc0052;
-      color: #cc0052;
+      border-color: #9b30d9;
+      color: #9b30d9;
     }
     body[data-theme="light"] .portfolio-dot {
       background: #dddddd;
     }
     body[data-theme="light"] .portfolio-dot.active {
-      background: #cc0052;
+      background: #9b30d9;
     }
     body[data-theme="light"] .portfolio-item-desc {
       color: #666666;
     }
-    .what-you-get-list { color: #888899; }
+    .what-you-get-list { color: #7a7e96; }
     body[data-theme="light"] .what-you-get-list { color: #333333; }
 
     .legal-copy {
-      color: #888899;
+      color: #7a7e96;
       font-size: 0.92rem;
       line-height: 1.6;
     }
@@ -699,7 +755,7 @@
     }
 
     .legal-copy a:hover {
-      color: #ff3388;
+      color: #c850ff;
     }
 
     @media (max-width: 820px) {
@@ -708,7 +764,7 @@
 
       .header-nav { gap: 0.8rem; }
       .header-nav a { font-size: 0.82rem; }
-      .header-logo { width: 80px; }
+      .header-logo { font-size: 0.75rem; }
 
       .hero {
         padding: 1.4rem 3rem;
@@ -738,7 +794,7 @@
 
       h1 { font-size: 1.4rem; }
 
-      .header-logo { width: 60px; }
+      .header-logo { font-size: 0.68rem; }
       .header-nav { gap: 0.5rem; }
       .header-nav a { font-size: 0.75rem; }
 
@@ -753,9 +809,7 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="header-logo">
-      <img src="/logo.png" alt="Eastern Shore AI logo" />
-    </div>
+    <a href="/" class="header-logo">Eastern Shore AI</a>
     <nav class="header-nav" aria-label="Main links">
       <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
       <a href="#" id="website-design-link">Website Design</a>
@@ -768,6 +822,10 @@
   </header>
 
   <div class="container">
+
+    <div class="brand-hero">
+      <img src="/logo.jpg" alt="Eastern Shore AI — neon cyberpunk logo" />
+    </div>
 
     <section class="hero">
       <button class="hero-arrow hero-arrow-left" aria-label="Previous slide">&#8249;</button>

@@ -9,7 +9,7 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 ## Tech Stack
 
 - **Frontend**: Vanilla HTML, CSS, JavaScript (no framework, no build step)
-- **Fonts**: Google Fonts — Hanken Grotesk (headings, nav, buttons), DM Sans (body text), Rajdhani (brand tagline only)
+- **Fonts**: Google Fonts — Hanken Grotesk (headings, nav, buttons), Titillium Web (body text), Orbitron (header logo), Rajdhani (brand tagline only)
 - **Backend**: Cloudflare Workers (`worker/src/index.js`)
 - **Database**: Cloudflare D1 (SQLite)
 - **Payments**: Stripe (checkout sessions + webhooks)
@@ -61,7 +61,7 @@ Response shape: `{ ok: boolean, error?: string }`
 ## Code Conventions
 
 - **No frameworks or build tools** — pages are self-contained HTML with inline CSS/JS
-- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), Blade Runner 2049 cyberpunk scheme with neon pink accents and sharp edges (dark: `#0d0d0f` bg, `--cyan: #ff0066`; light: white bg, black text, `--cyan: #cc0052`), border-radius 2-3px throughout, mobile-responsive with breakpoints at 820px, 760px, and 480px
+- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--violet`, `--text`), cyberpunk scheme with cyan (`#00e5ff`) + purple (`#c850ff`) neon accents on dark blue-tinted backgrounds (`#0a0b10`); light theme uses neutral grays with `--cyan: #0099bb` and `--violet: #8a2ec0`. Battle-damaged hull edges via `clip-path: polygon()` on cards and buttons. Mobile-responsive with breakpoints at 820px, 760px, and 480px
 - **JS**: Vanilla, async/await, camelCase functions and variables
 - **HTML classes/IDs**: kebab-case (`.btn-primary`, `#setup-modal`)
 - **Accessibility**: ARIA attributes (`aria-hidden`, `aria-labelledby`, `aria-modal`)
