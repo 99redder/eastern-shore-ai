@@ -1185,36 +1185,23 @@
       autoAdvanceTimer = setInterval(() => goToSlide(currentSlide + 1), AUTO_ADVANCE_MS);
     }
 
-    function goToSlide(index) {
-      if (index < 0) index = heroSlides.length - 1;
-      if (index >= heroSlides.length) index = 0;
-      if (index === currentSlide) return;
-      const prev = currentSlide;
-      currentSlide = index;
-      updateDots();
-      // Fade out old
-      heroSlides[prev].style.opacity = '0';
-      heroSlides[prev].style.transform = 'translateY(8px)';
+    let currentPanel = 0;
+
+    function goToPanel(index) {
+      if (index === currentPanel) return;
+      const prev = currentPanel;
+      currentPanel = index;
       offerPanels[prev].style.opacity = '0';
       offerPanels[prev].style.transform = 'translateY(8px)';
       setTimeout(() => {
-        heroSlides[prev].classList.remove('active');
         offerPanels[prev].classList.remove('active');
-        heroSlides[prev].style.cssText = '';
         offerPanels[prev].style.cssText = '';
-        // Show new (start hidden, then animate in)
-        const newSlide = heroSlides[currentSlide];
-        const newPanel = offerPanels[currentSlide];
-        newSlide.style.display = 'block';
-        newSlide.style.opacity = '0';
-        newSlide.style.transform = 'translateY(8px)';
+        const newPanel = offerPanels[currentPanel];
         newPanel.style.display = 'block';
         newPanel.style.opacity = '0';
         newPanel.style.transform = 'translateY(8px)';
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            newSlide.classList.add('active');
-            newSlide.style.cssText = '';
             newPanel.classList.add('active');
             newPanel.style.cssText = '';
           });
@@ -1222,10 +1209,41 @@
       }, 200);
     }
 
+    function goToSlide(index, syncPanel) {
+      if (index < 0) index = heroSlides.length - 1;
+      if (index >= heroSlides.length) index = 0;
+      if (index === currentSlide) {
+        if (syncPanel && index !== currentPanel) goToPanel(index);
+        return;
+      }
+      const prev = currentSlide;
+      currentSlide = index;
+      updateDots();
+      // Fade out old hero slide
+      heroSlides[prev].style.opacity = '0';
+      heroSlides[prev].style.transform = 'translateY(8px)';
+      setTimeout(() => {
+        heroSlides[prev].classList.remove('active');
+        heroSlides[prev].style.cssText = '';
+        const newSlide = heroSlides[currentSlide];
+        newSlide.style.display = 'block';
+        newSlide.style.opacity = '0';
+        newSlide.style.transform = 'translateY(8px)';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            newSlide.classList.add('active');
+            newSlide.style.cssText = '';
+          });
+        });
+      }, 200);
+      // Only update panel below if explicitly requested
+      if (syncPanel) goToPanel(index);
+    }
+
     leftArrow.addEventListener('click', () => { goToSlide(currentSlide - 1); resetAutoAdvance(); });
     rightArrow.addEventListener('click', () => { goToSlide(currentSlide + 1); resetAutoAdvance(); });
     heroDots.forEach(dot => {
-      dot.addEventListener('click', () => { goToSlide(parseInt(dot.dataset.dot)); resetAutoAdvance(); });
+      dot.addEventListener('click', () => { goToSlide(parseInt(dot.dataset.dot), true); resetAutoAdvance(); });
     });
 
     // Start auto-advance
@@ -1267,9 +1285,9 @@
     const websiteDesignLink = document.getElementById('website-design-link');
     const aiLessonsLink = document.getElementById('ai-lessons-link');
 
-    setupLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(1); resetAutoAdvance(); });
-    websiteDesignLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(2); resetAutoAdvance(); });
-    aiLessonsLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(3); resetAutoAdvance(); });
+    setupLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(1, true); resetAutoAdvance(); });
+    websiteDesignLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(2, true); resetAutoAdvance(); });
+    aiLessonsLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(3, true); resetAutoAdvance(); });
 
     const modal = document.getElementById('domain-modal');
     const openBtn = document.getElementById('buy-domain-link');
