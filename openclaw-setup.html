@@ -326,9 +326,21 @@
             <div class="admin-list" id="admin-list">No data yet.</div>
             <div class="admin-calendar-wrap">
               <div class="admin-calendar-head">
-                <div class="admin-calendar-title">Tax Ledger</div>
+                <div class="admin-calendar-title" id="admin-calendar-title">Availability Calendar</div>
               </div>
-              <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
+              <div class="admin-calendar-grid" id="admin-calendar-grid"></div>
+              <div class="admin-legend">
+                <span><i class="admin-dot booked"></i>Booked</span>
+                <span><i class="admin-dot blocked"></i>Blocked</span>
+              </div>
+            </div>
+          </div>
+
+        <section class="admin-calendar-wrap" style="margin-top:1rem; grid-column:1 / -1;">
+          <div class="admin-calendar-head">
+            <div class="admin-calendar-title">Tax Ledger</div>
+          </div>
+          <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
                 <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
                   <label style="min-width:80px;">Year</label>
                   <select id="tax-year" style="max-width:160px;"></select>
@@ -391,18 +403,8 @@
                   <div class="admin-list" id="tax-list">No data yet.</div>
                 </div>
               </div>
-            </div>
-            <div class="admin-calendar-wrap">
-              <div class="admin-calendar-head">
-                <div class="admin-calendar-title" id="admin-calendar-title">Availability Calendar</div>
-              </div>
-              <div class="admin-calendar-grid" id="admin-calendar-grid"></div>
-              <div class="admin-legend">
-                <span><i class="admin-dot booked"></i>Booked</span>
-                <span><i class="admin-dot blocked"></i>Blocked</span>
-              </div>
-            </div>
-          </div>
+        </section>
+
         </div>
       </div>
     </section>
