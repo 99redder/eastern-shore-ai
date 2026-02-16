@@ -558,9 +558,11 @@
       padding-bottom: 1rem;
       position: relative;
     }
-    .card--setup-offer:has(#book-now-btn) > div:first-child > h3,
-    .card--setup-offer:has(#book-now-btn) > div:first-child > p:first-of-type {
-      padding-right: 160px;
+    .card--setup-offer:has(#book-now-btn) > div:first-child::before {
+      content: '';
+      float: right;
+      width: 170px;
+      height: 2.2em;
     }
 
     .card--setup-offer .btn-primary {
@@ -950,9 +952,8 @@
 
       input, textarea { font-size: 16px; }
 
-      .card--setup-offer:has(#book-now-btn) > div:first-child > h3,
-      .card--setup-offer:has(#book-now-btn) > div:first-child > p:first-of-type {
-        padding-right: 0;
+      .card--setup-offer:has(#book-now-btn) > div:first-child::before {
+        display: none;
       }
       .card--setup-offer .btn-primary {
         width: 100%;
