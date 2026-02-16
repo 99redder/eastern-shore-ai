@@ -104,6 +104,14 @@
       background:none;
       -webkit-text-fill-color:var(--muted);
     }
+    .top-book-btn {
+      position:fixed; top:1rem; right:1rem; z-index:300;
+      text-decoration:none; font-weight:600; font-size:0.9rem;
+      padding:0.55rem 1.1rem; border-radius:10px;
+      background:linear-gradient(145deg,#4a6cf7,#3b5de7); border:1px solid #5a7aff;
+      color:#fff; box-shadow:0 0 16px rgba(74,108,247,0.3);
+    }
+    .top-book-btn:hover { background:linear-gradient(145deg,#5a7cff,#4a6cf7); }
     @media (max-width: 760px) { .booking-grid, .admin-grid { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -144,11 +152,13 @@
     <section class="card">
       <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
       <h2>What You Should Expect</h2>
-      <p>Sessions are blocked off for two hours, but setup can take much less time depending on which features you're looking for. Here's how a typical session flows:</p>
+      <p>Sessions are blocked off for ~two hours, but setup can take less time depending on which features you're looking for. Here's how a typical session flows:</p>
       <ul>
+        <li><strong>Intro and Assessment (~10 min)</strong> - We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.</li>
         <li><strong>Agent install (~15 min)</strong> — Your OpenClaw assistant is typically up and running within 15 minutes on your hardware or cloud</li>
         <li><strong>Security audit & hardening (~15–30 min)</strong> — Immediately after install we run a full security audit and harden your setup before anything else</li>
-        <li><strong>Skills & tooling</strong> — Once secure, we add whatever skills and tools you'd like — we'll walk through all your options in person</li>
+        <li><strong>Feature Orientation (~10 min)</strong> - Once the setup is secure, we'll go through the basics.</li>
+        <li><strong>Skills & tooling (~15 min)</strong> — We'll add whatever skills and tools you'd like — we'll walk through all your options in person</li>
         <li><strong>Dashboard & customization</strong> — If desired, we'll customize your dashboard layout and preferences</li>
         <li><strong>Troubleshooting walkthrough</strong> — We'll go through tips for handling basic issues so you're confident on your own</li>
         <li><strong>Questions</strong> — Any questions you might have, we'll stay until they're all answered. If you don't have any, that's okay too — we can demo some of the cool things we use OpenClaw for instead</li>
@@ -156,7 +166,7 @@
       </ul>
     </section>
 
-    <section class="card" style="margin-top:1rem;">
+    <section id="pick-setup" class="card" style="margin-top:1rem;">
       <h2>Pick Your Setup Day</h2>
       <div class="booking-grid">
         <div>
