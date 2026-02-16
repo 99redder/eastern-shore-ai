@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://easternshore.ai/sitemap.xml
+Sitemap: https://www.easternshore.ai/sitemap.xml

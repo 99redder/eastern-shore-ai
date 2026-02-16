@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eastern Shore AI</title>
-  <meta name="description" content="OpenClaw Setup and OpenClaw Setup Eastern Shore Maryland services by Eastern Shore AI. Secure setup, hardening, and hands-on support in person or via Zoom." />
-  <meta name="keywords" content="OpenClaw Setup, OpenClaw Setup Eastern Shore Maryland, OpenClaw security setup, Eastern Shore AI" />
-  <meta property="og:title" content="OpenClaw Setup | Eastern Shore AI" />
-  <meta property="og:description" content="OpenClaw Setup and OpenClaw Setup Eastern Shore Maryland services with secure configuration, hardening, and ongoing support." />
+  <title>Eastern Shore AI — OpenClaw Setup, Web Design & Tech Lessons</title>
+  <meta name="description" content="Eastern Shore AI offers OpenClaw Setup, website design, and tech lessons on the Eastern Shore of Maryland. Secure setup, hardening, and hands-on support in person or via Zoom." />
+  <meta name="keywords" content="OpenClaw Setup, OpenClaw Setup Eastern Shore Maryland, Eastern Shore AI, web design Eastern Shore, tech lessons Maryland" />
+  <meta property="og:title" content="Eastern Shore AI — OpenClaw Setup, Web Design & Tech Lessons" />
+  <meta property="og:description" content="Eastern Shore AI offers OpenClaw Setup, website design, and tech lessons on the Eastern Shore of Maryland. Secure setup, hardening, and hands-on support." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://easternshore.ai" />
+  <meta property="og:url" content="https://www.easternshore.ai" />
+  <meta property="og:image" content="https://www.easternshore.ai/carousel.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="OpenClaw Setup | Eastern Shore AI" />
-  <meta name="twitter:description" content="OpenClaw Setup and OpenClaw Setup Eastern Shore Maryland services by Eastern Shore AI." />
-  <link rel="canonical" href="https://easternshore.ai" />
+  <meta name="twitter:title" content="Eastern Shore AI — OpenClaw Setup, Web Design & Tech Lessons" />
+  <meta name="twitter:description" content="Eastern Shore AI offers OpenClaw Setup, website design, and tech lessons on the Eastern Shore of Maryland." />
+  <meta name="twitter:image" content="https://www.easternshore.ai/carousel.png" />
+  <link rel="canonical" href="https://www.easternshore.ai" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -113,6 +115,7 @@
       transition: color 0.2s;
       cursor: pointer;
       white-space: nowrap;
+      padding: 0.5rem 0.25rem;
     }
     .header-nav a:hover {
       color: #ff4fd8;
@@ -163,7 +166,7 @@
       display: block;
       border-radius: 0;
     }
-    .about-panel-text h3 {
+    .about-panel-text h2, .about-panel-text h3 {
       margin: 0 0 0.5rem;
       color: #ff4fd8;
       text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
@@ -281,6 +284,18 @@
       background: transparent;
       cursor: pointer;
       padding: 0;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hero-dot::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      padding: 0;
       transition: background 0.2s, box-shadow 0.2s;
     }
     .hero-dot.active {
@@ -380,6 +395,17 @@
       border: none;
       cursor: pointer;
       padding: 0;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .portfolio-dot::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
     }
     .portfolio-dot.active { background: var(--cyan); }
 
@@ -693,7 +719,8 @@
       background: transparent;
       color: var(--text);
       border-radius: 0;
-      padding: 0.55rem 0.85rem;
+      padding: 0.7rem 1rem;
+      min-height: 44px;
       cursor: pointer;
       font-weight: 600;
       font-family: 'Titillium Web', system-ui, sans-serif;
@@ -773,7 +800,7 @@
 
     footer {
       margin-top: 2rem;
-      padding: 1.5rem 1rem;
+      padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
       color: #7a7e96;
       font-size: 0.85rem;
       text-align: center;
@@ -783,6 +810,7 @@
     .footer-link {
       display: inline-block;
       margin: 0.2rem 0.4rem 0;
+      padding: 0.4rem 0.3rem;
       color: #ff4fd8;
       text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
       text-decoration: underline;
@@ -1054,6 +1082,7 @@
     </div>
   </header>
 
+  <main>
   <div class="container">
 
     <div class="storm-wrap" id="storm-wrap">
@@ -1109,7 +1138,7 @@
       <div class="hero-slide" data-slide="1">
         <h1><a class="hero-link" href="#">$100 OpenClaw Setup in Eastern Shore, MD</a></h1>
         <p class="subtitle">The Future Is Here. Get up and running with the latest AI craze.</p>
-        <span class="hero-lobster" aria-label="red lobster">🦞</span>
+        <span class="hero-lobster" aria-hidden="true">🦞</span>
       </div>
 
       <div class="hero-slide" data-slide="2">
@@ -1135,7 +1164,7 @@
         <div class="card about-panel">
           <img src="logo.jpg" alt="Eastern Shore AI — neon cyberpunk logo" />
           <div class="about-panel-text">
-            <h3>What We Do</h3>
+            <h2>What We Do</h2>
             <p>Eastern Shore AI builds practical AI-powered tools, websites, and offers hands-on tech tutoring. Based on the Eastern Shore of Maryland, we focus on shipping fast and keeping things simple.</p>
             <p>Browse our services above or get in touch to learn more.</p>
           </div>
@@ -1158,7 +1187,7 @@
               </div>
             </div>
             <a href="/openclaw-setup.html" class="btn btn-primary" id="book-now-btn" style="position:absolute; top:0.8rem; right:0.8rem; z-index:5;">Book Now</a>
-            <span class="lobster-icon" aria-label="red lobster">🦞</span>
+            <span class="lobster-icon" aria-hidden="true">🦞</span>
           </article>
 
           <div class="feature-stack">
@@ -1315,6 +1344,7 @@
       <a href="#" class="footer-link" id="privacy-link">Privacy Policy</a>
     </footer>
   </div>
+  </main>
 
   <div class="modal-overlay" id="about-modal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
@@ -1763,14 +1793,22 @@
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Eastern Shore AI",
-    "url": "https://easternshore.ai",
+    "url": "https://www.easternshore.ai",
+    "logo": "https://www.easternshore.ai/carousel.png",
+    "image": "https://www.easternshore.ai/carousel.png",
     "email": "easternshoreai@outlook.com",
     "areaServed": {
       "@type": "AdministrativeArea",
       "name": "Eastern Shore Maryland"
     },
-    "serviceType": "OpenClaw Setup",
-    "description": "OpenClaw Setup and security hardening services in Eastern Shore Maryland and via Zoom."
+    "address": {
+      "@type": "PostalAddress",
+      "addressRegion": "MD",
+      "addressCountry": "US"
+    },
+    "priceRange": "$",
+    "serviceType": ["OpenClaw Setup", "Website Design", "Tech Lessons"],
+    "description": "Eastern Shore AI offers OpenClaw Setup, website design, and tech tutoring on the Eastern Shore of Maryland and via Zoom."
   }
   </script>
 
@@ -1782,10 +1820,16 @@
     "provider": {
       "@type": "Organization",
       "name": "Eastern Shore AI",
-      "url": "https://easternshore.ai"
+      "url": "https://www.easternshore.ai"
     },
     "areaServed": "Eastern Shore Maryland",
-    "description": "Secure OpenClaw setup, hardening, and ongoing technical support."
+    "description": "Secure OpenClaw setup, hardening, and ongoing technical support.",
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "USD",
+      "price": "100.00",
+      "availability": "https://schema.org/InStock"
+    }
   }
   </script>
 
