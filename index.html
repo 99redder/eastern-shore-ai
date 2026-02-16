@@ -174,8 +174,17 @@
       padding-right: 4.6rem;
     }
 
-    .hero-slide { display: none; }
-    .hero-slide.active { display: block; }
+    .hero-slide {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .hero-slide.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     .hero-arrow {
       position: absolute;
@@ -208,8 +217,17 @@
       box-shadow:0 0 10px rgba(255,0,102,0.18);
     }
 
-    .offer-panel { display: none; }
-    .offer-panel.active { display: block; }
+    .offer-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .offer-panel.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     .portfolio-carousel {
       margin-top: 1.2rem;
@@ -1039,11 +1057,37 @@
     function goToSlide(index) {
       if (index < 0) index = heroSlides.length - 1;
       if (index >= heroSlides.length) index = 0;
-      heroSlides[currentSlide].classList.remove('active');
-      offerPanels[currentSlide].classList.remove('active');
+      if (index === currentSlide) return;
+      const prev = currentSlide;
       currentSlide = index;
-      heroSlides[currentSlide].classList.add('active');
-      offerPanels[currentSlide].classList.add('active');
+      // Fade out old
+      heroSlides[prev].style.opacity = '0';
+      heroSlides[prev].style.transform = 'translateY(8px)';
+      offerPanels[prev].style.opacity = '0';
+      offerPanels[prev].style.transform = 'translateY(8px)';
+      setTimeout(() => {
+        heroSlides[prev].classList.remove('active');
+        offerPanels[prev].classList.remove('active');
+        heroSlides[prev].style.cssText = '';
+        offerPanels[prev].style.cssText = '';
+        // Show new (start hidden, then animate in)
+        const newSlide = heroSlides[currentSlide];
+        const newPanel = offerPanels[currentSlide];
+        newSlide.style.display = 'block';
+        newSlide.style.opacity = '0';
+        newSlide.style.transform = 'translateY(8px)';
+        newPanel.style.display = 'block';
+        newPanel.style.opacity = '0';
+        newPanel.style.transform = 'translateY(8px)';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            newSlide.classList.add('active');
+            newSlide.style.cssText = '';
+            newPanel.classList.add('active');
+            newPanel.style.cssText = '';
+          });
+        });
+      }, 200);
     }
 
     leftArrow.addEventListener('click', () => goToSlide(currentSlide - 1));
