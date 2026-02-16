@@ -52,7 +52,7 @@ Response shape: `{ ok: boolean, error?: string }`
 ## Code Conventions
 
 - **No frameworks or build tools** — pages are self-contained HTML with inline CSS/JS
-- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), dark theme, mobile-first responsive
+- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--text`), dark theme, mobile-responsive with breakpoints at 820px, 760px, and 480px
 - **JS**: Vanilla, async/await, camelCase functions and variables
 - **HTML classes/IDs**: kebab-case (`.btn-primary`, `#setup-modal`)
 - **Accessibility**: ARIA attributes (`aria-hidden`, `aria-labelledby`, `aria-modal`)
@@ -65,6 +65,25 @@ Response shape: `{ ok: boolean, error?: string }`
 - Forms validate client-side before API calls, show inline status feedback
 - Stripe checkout redirects back to the setup page with success/cancel query params
 - Worker checks D1 for booking slot conflicts before creating checkout sessions
+
+## Responsive / Mobile Design
+
+Both pages use inline `<style>` media queries for mobile optimization. The booking flow on `openclaw-setup.html` is prioritized for mobile usability.
+
+### Breakpoints
+
+| Breakpoint | Scope | Purpose |
+|---|---|---|
+| `820px` | `index.html` | Stacks offer grid, modal content, form grids; centers topbar/nav; full-width Book Now button; repositions hero lobster emoji |
+| `760px` | `openclaw-setup.html` | Stacks booking/admin/form grids; converts top-right "Book + Pay Now" button into a full-width fixed bottom CTA bar (above footer); increases body bottom padding for sticky CTA + footer |
+| `480px` | Both pages | Further reduces font sizes, card/container padding for small phones (iPhone SE) |
+
+### Key mobile patterns
+
+- **Sticky bottom CTA** (`openclaw-setup.html`): On mobile, `.top-book-btn` becomes `position:fixed; bottom:calc(52px + env(safe-area-inset-bottom))` — a full-width bar above the footer, always visible for booking
+- **iOS zoom prevention**: All `input`, `textarea`, `select` elements set to `font-size:16px` at mobile breakpoints to prevent Safari auto-zoom on focus
+- **Safe area insets**: Footer uses `env(safe-area-inset-bottom)` for notched devices; sticky CTA is offset accordingly
+- **Single-column forms**: `.form-grid` switches from 2-column to 1-column at mobile breakpoints for touch-friendly input sizing
 
 ## Testing
 

@@ -26,8 +26,10 @@ export default {
       const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
       const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day'].includes(url.pathname) && request.method === 'POST';
+      const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv'].includes(url.pathname) && request.method === 'GET';
+      const isTaxWrite = ['/api/tax/expense','/api/tax/income'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isPostRoute) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -62,6 +64,22 @@ export default {
 
     if (url.pathname === '/api/admin/block-day') {
       return handleAdminBlockDay(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/transactions') {
+      return handleTaxTransactions(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/expense') {
+      return handleTaxExpense(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/income') {
+      return handleTaxIncome(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/export.csv') {
+      return handleTaxExportCsv(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -326,19 +344,33 @@ async function handleStripeWebhook(request, env, corsHeaders) {
   return json({ ok: true }, 200, corsHeaders);
 }
 
+function requireAdmin(request, env, corsHeaders, url) {
+  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
+  const expected = (env.ADMIN_PASSWORD || '').trim();
+  if (!expected) return { ok: false, res: json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders) };
+  if (!provided || provided !== expected) return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
+  return { ok: true };
+}
+
+function toCents(amount) {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return null;
+  return Math.round(n * 100);
+}
+
+function csvEscape(v) {
+  const s = (v ?? '').toString();
+  if (/[\n\r",]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
 async function handleBookings(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
-  const expected = (env.ADMIN_PASSWORD || '').trim();
-  if (!expected) {
-    return json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders);
-  }
-  if (!provided || provided !== expected) {
-    return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
-  }
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
 
   const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 20)));
   const rows = await env.DB.prepare(
@@ -410,10 +442,8 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
-  const expected = (env.ADMIN_PASSWORD || '').trim();
-  if (!expected) return json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders);
-  if (!provided || provided !== expected) return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
 
   let data;
   try {
@@ -450,10 +480,8 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
-  const expected = (env.ADMIN_PASSWORD || '').trim();
-  if (!expected) return json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders);
-  if (!provided || provided !== expected) return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
 
   let data;
   try {
@@ -480,6 +508,172 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
   ).bind(setupDate, reason || null, active).run();
 
   return json({ ok: true, setupDate, active: !!active }, 200, corsHeaders);
+}
+
+async function handleTaxTransactions(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const year = (url.searchParams.get('year') || '').trim();
+  const type = (url.searchParams.get('type') || 'all').trim();
+  if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Missing/invalid year' }, 400, corsHeaders);
+
+  const limit = Math.max(1, Math.min(500, Number(url.searchParams.get('limit') || 200)));
+
+  const expensesP = (type === 'all' || type === 'expense')
+    ? env.DB.prepare(
+        `SELECT id, expense_date AS date, vendor, category, amount_cents, paid_via, notes, created_at
+         FROM tax_expenses
+         WHERE substr(expense_date,1,4) = ?1
+         ORDER BY expense_date DESC, id DESC
+         LIMIT ?2`
+      ).bind(year, limit).all()
+    : Promise.resolve({ results: [] });
+
+  const incomeP = (type === 'all' || type === 'income')
+    ? env.DB.prepare(
+        `SELECT id, income_date AS date, source, category, amount_cents, stripe_session_id, notes, created_at
+         FROM tax_income
+         WHERE substr(income_date,1,4) = ?1
+         ORDER BY income_date DESC, id DESC
+         LIMIT ?2`
+      ).bind(year, limit).all()
+    : Promise.resolve({ results: [] });
+
+  const [expenses, income] = await Promise.all([expensesP, incomeP]);
+
+  return json({
+    ok: true,
+    year,
+    expenses: expenses.results || [],
+    income: income.results || []
+  }, 200, corsHeaders);
+}
+
+async function handleTaxExpense(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const expenseDate = (data.date || '').toString().trim();
+  const vendor = (data.vendor || '').toString().trim();
+  const category = (data.category || '').toString().trim();
+  const paidVia = (data.paidVia || '').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  const cents = toCents(data.amount);
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(expenseDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
+  if (!category) return json({ ok: false, error: 'Missing category' }, 400, corsHeaders);
+  if (cents === null) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
+
+  const r = await env.DB.prepare(
+    `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notes || null).run();
+
+  return json({ ok: true, id: r.meta?.last_row_id || null }, 200, corsHeaders);
+}
+
+async function handleTaxIncome(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const incomeDate = (data.date || '').toString().trim();
+  const source = (data.source || '').toString().trim();
+  const category = (data.category || '').toString().trim();
+  const stripeSessionId = (data.stripeSessionId || '').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  const cents = toCents(data.amount);
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(incomeDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
+  if (!category) return json({ ok: false, error: 'Missing category' }, 400, corsHeaders);
+  if (cents === null) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
+
+  const r = await env.DB.prepare(
+    `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+  ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null).run();
+
+  return json({ ok: true, id: r.meta?.last_row_id || null }, 200, corsHeaders);
+}
+
+async function handleTaxExportCsv(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const year = (url.searchParams.get('year') || '').trim();
+  const type = (url.searchParams.get('type') || 'all').trim();
+  if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Missing/invalid year' }, 400, corsHeaders);
+
+  const expenses = (type === 'all' || type === 'expense')
+    ? await env.DB.prepare(
+        `SELECT expense_date AS date, vendor, category, amount_cents, paid_via, notes, created_at
+         FROM tax_expenses
+         WHERE substr(expense_date,1,4) = ?1
+         ORDER BY expense_date ASC, id ASC`
+      ).bind(year).all()
+    : { results: [] };
+
+  const income = (type === 'all' || type === 'income')
+    ? await env.DB.prepare(
+        `SELECT income_date AS date, source, category, amount_cents, stripe_session_id, notes, created_at
+         FROM tax_income
+         WHERE substr(income_date,1,4) = ?1
+         ORDER BY income_date ASC, id ASC`
+      ).bind(year).all()
+    : { results: [] };
+
+  const lines = [];
+  lines.push(['date','type','category','vendor_or_source','amount','paid_via','stripe_session_id','notes','created_at'].join(','));
+
+  for (const r of (income.results || [])) {
+    lines.push([
+      csvEscape(r.date),
+      'income',
+      csvEscape(r.category),
+      csvEscape(r.source || ''),
+      (Number(r.amount_cents || 0) / 100).toFixed(2),
+      '',
+      csvEscape(r.stripe_session_id || ''),
+      csvEscape(r.notes || ''),
+      csvEscape(r.created_at || '')
+    ].join(','));
+  }
+
+  for (const r of (expenses.results || [])) {
+    lines.push([
+      csvEscape(r.date),
+      'expense',
+      csvEscape(r.category),
+      csvEscape(r.vendor || ''),
+      (Number(r.amount_cents || 0) / 100).toFixed(2),
+      csvEscape(r.paid_via || ''),
+      '',
+      csvEscape(r.notes || ''),
+      csvEscape(r.created_at || '')
+    ].join(','));
+  }
+
+  const csv = lines.join('\n');
+  const filename = `eastern-shore-ai-tax-${year}-${type}.csv`;
+
+  return new Response(csv, {
+    status: 200,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="${filename}"`
+    }
+  });
 }
 
 async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {

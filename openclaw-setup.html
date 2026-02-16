@@ -326,6 +326,74 @@
             <div class="admin-list" id="admin-list">No data yet.</div>
             <div class="admin-calendar-wrap">
               <div class="admin-calendar-head">
+                <div class="admin-calendar-title">Tax Ledger</div>
+              </div>
+              <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
+                <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
+                  <label style="min-width:80px;">Year</label>
+                  <select id="tax-year" style="max-width:160px;"></select>
+                  <label style="min-width:70px;">Type</label>
+                  <select id="tax-type" style="max-width:200px;">
+                    <option value="all">All</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expenses</option>
+                  </select>
+                  <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
+                  <button type="button" class="btn btn-primary" id="tax-export-btn">Download CSV</button>
+                </div>
+
+                <div class="admin-grid" style="grid-template-columns:1fr 1fr; gap:.6rem;">
+                  <div class="admin-calendar-wrap">
+                    <div class="admin-calendar-head"><div class="admin-calendar-title">Add Expense</div></div>
+                    <div class="admin-row" style="flex-direction:column; align-items:stretch;">
+                      <label>Date</label>
+                      <input id="tax-expense-date" type="date" />
+                      <label>Vendor</label>
+                      <input id="tax-expense-vendor" placeholder="e.g. Amazon, Cloudflare" />
+                      <label>Category</label>
+                      <select id="tax-expense-category"></select>
+                      <label>Amount (USD)</label>
+                      <input id="tax-expense-amount" type="number" step="0.01" placeholder="0.00" />
+                      <label>Paid via</label>
+                      <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
+                      <label>Notes</label>
+                      <input id="tax-expense-notes" placeholder="optional" />
+                      <div class="form-actions" style="justify-content:flex-start;">
+                        <button type="button" class="btn btn-primary" id="tax-add-expense-btn">Add Expense</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="admin-calendar-wrap">
+                    <div class="admin-calendar-head"><div class="admin-calendar-title">Add Income</div></div>
+                    <div class="admin-row" style="flex-direction:column; align-items:stretch;">
+                      <label>Date</label>
+                      <input id="tax-income-date" type="date" />
+                      <label>Source</label>
+                      <input id="tax-income-source" placeholder="e.g. Stripe, Client" />
+                      <label>Category</label>
+                      <select id="tax-income-category"></select>
+                      <label>Amount (USD)</label>
+                      <input id="tax-income-amount" type="number" step="0.01" placeholder="0.00" />
+                      <label>Stripe session id (optional)</label>
+                      <input id="tax-income-stripe" placeholder="cs_test_..." />
+                      <label>Notes</label>
+                      <input id="tax-income-notes" placeholder="optional" />
+                      <div class="form-actions" style="justify-content:flex-start;">
+                        <button type="button" class="btn btn-primary" id="tax-add-income-btn">Add Income</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 style="margin:.1rem 0 .4rem;">Tax Transactions (Selected Year)</h3>
+                  <div class="admin-list" id="tax-list">No data yet.</div>
+                </div>
+              </div>
+            </div>
+            <div class="admin-calendar-wrap">
+              <div class="admin-calendar-head">
                 <div class="admin-calendar-title" id="admin-calendar-title">Availability Calendar</div>
               </div>
               <div class="admin-calendar-grid" id="admin-calendar-grid"></div>
@@ -340,7 +408,7 @@
     </section>
 
     <footer>
-      © <span id="year"></span> Eastern Shore AI<br>
+      © <span id="year"></span> Eastern Shore AI, LLC<br>
       <a href="#setup-page-form" class="footer-link">Contact Us</a>
       <a href="#" class="footer-link" id="about-link">About Us</a>
       <a href="/" class="footer-link">Terms of Use</a>
@@ -381,6 +449,10 @@
     const BOOKINGS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/bookings');
     const BLOCK_SLOT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-slot');
     const BLOCK_DAY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-day');
+    const TAX_TX_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/transactions');
+    const TAX_EXPENSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense');
+    const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
+    const TAX_EXPORT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/export.csv');
 
     const form = document.getElementById('setup-page-form');
     const statusEl = document.getElementById('status');
@@ -402,6 +474,29 @@
     const adminControls = document.getElementById('admin-controls');
     const adminKeyEl = document.getElementById('admin-key');
     const adminUnlockBtn = document.getElementById('admin-unlock-btn');
+
+    const taxYearEl = document.getElementById('tax-year');
+    const taxTypeEl = document.getElementById('tax-type');
+    const taxRefreshBtn = document.getElementById('tax-refresh-btn');
+    const taxExportBtn = document.getElementById('tax-export-btn');
+    const taxListEl = document.getElementById('tax-list');
+
+    const taxExpenseDateEl = document.getElementById('tax-expense-date');
+    const taxExpenseVendorEl = document.getElementById('tax-expense-vendor');
+    const taxExpenseCategoryEl = document.getElementById('tax-expense-category');
+    const taxExpenseAmountEl = document.getElementById('tax-expense-amount');
+    const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
+    const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
+    const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
+
+    const taxIncomeDateEl = document.getElementById('tax-income-date');
+    const taxIncomeSourceEl = document.getElementById('tax-income-source');
+    const taxIncomeCategoryEl = document.getElementById('tax-income-category');
+    const taxIncomeAmountEl = document.getElementById('tax-income-amount');
+    const taxIncomeStripeEl = document.getElementById('tax-income-stripe');
+    const taxIncomeNotesEl = document.getElementById('tax-income-notes');
+    const taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
+
     const adminDateEl = document.getElementById('admin-date');
     const adminTimeEl = document.getElementById('admin-time');
     const adminReasonEl = document.getElementById('admin-reason');
@@ -716,6 +811,150 @@
       setAdminUnlocked(false);
       let adminPassword = '';
 
+      const TAX_EXPENSE_CATEGORIES = [
+        'Advertising/Marketing',
+        'Software/SaaS',
+        'Hosting/Cloud',
+        'Hardware',
+        'Office Supplies',
+        'Travel',
+        'Meals',
+        'Education',
+        'Professional Services',
+        'Other'
+      ];
+
+      const TAX_INCOME_CATEGORIES = [
+        'OpenClaw Setup',
+        'Consulting',
+        'Website Design',
+        'AI Lessons',
+        'Domain Sale',
+        'Other'
+      ];
+
+      function initTaxUiDefaults() {
+        const now = nowEtParts();
+        const thisYear = Number(now.date.split('-')[0] || new Date().getFullYear());
+        const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
+        taxYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        taxYearEl.value = String(thisYear);
+
+        taxExpenseCategoryEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        taxIncomeCategoryEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+
+        taxExpenseDateEl.value = now.date;
+        taxIncomeDateEl.value = now.date;
+      }
+
+      async function loadTaxTransactions() {
+        if (!adminUnlocked) return;
+        const year = taxYearEl.value;
+        const type = taxTypeEl.value;
+        try {
+          const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=500`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed');
+
+          const lines = [];
+          for (const r of (data.income || [])) {
+            lines.push(`[INCOME] ${r.date} | ${r.category} | $${(r.amount_cents/100).toFixed(2)} | ${r.source || ''} | ${r.notes || ''}`);
+          }
+          for (const r of (data.expenses || [])) {
+            lines.push(`[EXPENSE] ${r.date} | ${r.category} | $${(r.amount_cents/100).toFixed(2)} | ${r.vendor || ''} | ${r.notes || ''}`);
+          }
+
+          taxListEl.textContent = lines.length ? lines.join('\n') : 'No transactions yet.';
+        } catch (e) {
+          taxListEl.textContent = `Error loading tax transactions: ${e.message || e}`;
+        }
+      }
+
+      async function addTaxExpense() {
+        const payload = {
+          date: taxExpenseDateEl.value,
+          vendor: taxExpenseVendorEl.value.trim(),
+          category: taxExpenseCategoryEl.value,
+          amount: taxExpenseAmountEl.value,
+          paidVia: taxExpensePaidViaEl.value.trim(),
+          notes: taxExpenseNotesEl.value.trim()
+        };
+        if (!payload.date || !payload.category || !payload.amount) {
+          alert('Expense date, category, and amount are required.');
+          return;
+        }
+        try {
+          const res = await fetch(TAX_EXPENSE_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed');
+          taxExpenseAmountEl.value = '';
+          taxExpenseNotesEl.value = '';
+          await loadTaxTransactions();
+        } catch (e) {
+          alert(`Could not add expense: ${e.message || e}`);
+        }
+      }
+
+      async function addTaxIncome() {
+        const payload = {
+          date: taxIncomeDateEl.value,
+          source: taxIncomeSourceEl.value.trim(),
+          category: taxIncomeCategoryEl.value,
+          amount: taxIncomeAmountEl.value,
+          stripeSessionId: taxIncomeStripeEl.value.trim(),
+          notes: taxIncomeNotesEl.value.trim()
+        };
+        if (!payload.date || !payload.category || !payload.amount) {
+          alert('Income date, category, and amount are required.');
+          return;
+        }
+        try {
+          const res = await fetch(TAX_INCOME_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed');
+          taxIncomeAmountEl.value = '';
+          taxIncomeNotesEl.value = '';
+          await loadTaxTransactions();
+        } catch (e) {
+          alert(`Could not add income: ${e.message || e}`);
+        }
+      }
+
+      async function downloadTaxCsv() {
+        const year = taxYearEl.value;
+        const type = taxTypeEl.value;
+        try {
+          const res = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || 'Export failed');
+          }
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `eastern-shore-ai-tax-${year}-${type}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (e) {
+          alert(`Could not export CSV: ${e.message || e}`);
+        }
+      }
+
       adminUnlockBtn.addEventListener('click', async () => {
         const key = adminKeyEl.value.trim();
         if (!key) return;
@@ -727,7 +966,9 @@
           if (!res.ok) throw new Error(data.error || 'Invalid password');
           adminPassword = key;
           setAdminUnlocked(true);
+          initTaxUiDefaults();
           await loadAdminData();
+          await loadTaxTransactions();
         } catch (e) {
           alert(`Admin unlock failed: ${e.message || e}`);
         }
@@ -738,6 +979,13 @@
       adminBlockDayBtn.addEventListener('click', () => setBlockedDay(true));
       adminUnblockDayBtn.addEventListener('click', () => setBlockedDay(false));
       adminRefreshBtn.addEventListener('click', loadAdminData);
+
+      taxRefreshBtn.addEventListener('click', loadTaxTransactions);
+      taxYearEl.addEventListener('change', loadTaxTransactions);
+      taxTypeEl.addEventListener('change', loadTaxTransactions);
+      taxAddExpenseBtn.addEventListener('click', addTaxExpense);
+      taxAddIncomeBtn.addEventListener('click', addTaxIncome);
+      taxExportBtn.addEventListener('click', downloadTaxCsv);
     }
 
     bookPayBtn.addEventListener('click', async () => {
