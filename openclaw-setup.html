@@ -21,7 +21,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Titillium+Web:wght@400;600;700&family=Rajdhani:wght@500;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
   <style>
     :root { --bg:#0a0b10; --bg2:#10121a; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; --violet:#c850ff; }
-    body[data-theme="light"] { --bg:#f4f4f8; --bg2:#eaeaf0; --card:#ffffff; --text:#111118; --muted:#555566; --cyan:#0099bb; --line:#d0d0dd; --violet:#8a2ec0; }
+
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body { margin:0; font-family:'Titillium Web',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--text);
@@ -104,8 +104,6 @@
 
     .footer-link:hover { color: #ff7ae4; }
 
-    body[data-theme="light"] .footer-link { color:#cc3fb0; }
-    body[data-theme="light"] .footer-link:hover { color:#ff4fd8; }
 
     .success-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
     .success-modal-overlay.active { display:flex; }
@@ -120,7 +118,6 @@
     .admin-panel.active { display:block; }
     body.admin-mode .user-section,
     body.admin-mode .top-book-btn,
-    body.admin-mode .theme-toggle,
     body.admin-mode .success-modal-overlay,
     body.admin-mode footer { display:none !important; }
     body.admin-mode .admin-panel { margin-top:0; }
@@ -173,15 +170,7 @@
       font-family:'Titillium Web', system-ui, sans-serif;
     }
     .top-book-btn:hover { background:linear-gradient(145deg,#ff7ae4,#ff4fd8); box-shadow:0 0 28px rgba(255,79,216,0.6); }
-    .theme-toggle {
-      position:fixed; top:14px; left:14px; z-index:160;
-      border:1px solid var(--line); background:transparent; color:var(--text);
-      border-radius:999px; width:2.1rem; height:2.1rem;
-      display:inline-flex; align-items:center; justify-content:center;
-      font-size:1rem; line-height:1; cursor:pointer;
-    }
     .back-btn {
-      position:fixed; top:14px; left:56px; z-index:160;
       display:inline-flex; align-items:center; gap:0.35rem;
       text-decoration:none;
       font-family:'Titillium Web', system-ui, sans-serif;
@@ -190,6 +179,7 @@
       border:1px solid var(--cyan);
       border-radius:2px;
       padding:0.35rem 0.75rem;
+      margin-bottom:0.8rem;
       background:rgba(0,229,255,0.06);
       transition:background 0.2s, box-shadow 0.2s, color 0.2s;
     }
@@ -246,15 +236,8 @@
       line-height:1.65;
       font-size:0.93rem;
     }
-    body[data-theme="light"] .back-btn { background:rgba(0,153,187,0.08); }
-    body[data-theme="light"] .back-btn:hover { background:rgba(0,153,187,0.16); color:var(--cyan); }
-    body[data-theme="light"] .flow-step:hover { background:rgba(200,80,255,0.06); }
-    body[data-theme="light"] .flow-step.active { background:rgba(138,46,192,0.08); }
-    body[data-theme="light"] .flow-detail { background:#f5f5f5; }
 
     @media (max-width: 760px) {
-      .back-btn { font-size:0.75rem; padding:0.3rem 0.55rem; left:50px; }
-      .back-btn svg { width:12px; height:12px; }
       .booking-grid, .admin-grid { grid-template-columns:1fr; }
       .form-grid { grid-template-columns:1fr; }
       .tax-summary-grid { grid-template-columns:1fr; }
@@ -304,16 +287,15 @@
 </head>
 <body>
   <header>
-    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
     <a href="#pick-setup" class="top-book-btn">Book + Pay Now</a>
-    <nav aria-label="Site navigation">
-      <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
-    </nav>
   </header>
   <main>
   <div class="container">
 
     <section class="card user-section">
+      <nav aria-label="Site navigation">
+        <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
+      </nav>
       <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
       <h2>What You Should Expect</h2>
       <p>Sessions are blocked off for ~two hours, but setup can take less time depending on which features you're looking for. Here's how a typical session flows:</p>
@@ -581,21 +563,6 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const savedTheme = localStorage.getItem('esa_theme') || 'dark';
-    function applyTheme(theme) {
-      document.body.setAttribute('data-theme', theme);
-      const nextLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-      themeToggleBtn.textContent = theme === 'dark' ? '☀' : '☾';
-      themeToggleBtn.setAttribute('title', nextLabel);
-      themeToggleBtn.setAttribute('aria-label', nextLabel);
-    }
-    applyTheme(savedTheme);
-    themeToggleBtn.addEventListener('click', () => {
-      const next = (document.body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('esa_theme', next);
-      applyTheme(next);
-    });
 
     // Session flow interactive steps
     const flowDescriptions = [
