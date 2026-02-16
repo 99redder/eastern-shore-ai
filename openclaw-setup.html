@@ -341,6 +341,11 @@
             <div class="admin-calendar-title">Tax Ledger</div>
           </div>
           <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
+                <div id="tax-summary" class="admin-calendar-wrap" style="margin:0;">
+                  <div class="admin-calendar-head"><div class="admin-calendar-title">Year Totals Snapshot</div></div>
+                  <div class="admin-list" id="tax-summary-list">No data yet.</div>
+                </div>
+
                 <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
                   <label style="min-width:80px;">Year</label>
                   <select id="tax-year" style="max-width:160px;"></select>
@@ -481,6 +486,7 @@
     const taxTypeEl = document.getElementById('tax-type');
     const taxRefreshBtn = document.getElementById('tax-refresh-btn');
     const taxExportBtn = document.getElementById('tax-export-btn');
+    const taxSummaryListEl = document.getElementById('tax-summary-list');
     const taxListEl = document.getElementById('tax-list');
 
     const taxExpenseDateEl = document.getElementById('tax-expense-date');
@@ -855,7 +861,7 @@
         const year = taxYearEl.value;
         const type = taxTypeEl.value;
         try {
-          const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=500`, {
+          const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=5000`, {
             headers: { 'X-Admin-Password': adminPassword }
           });
           const data = await res.json();
@@ -869,8 +875,50 @@
             lines.push(`[EXPENSE] ${r.date} | ${r.category} | $${(r.amount_cents/100).toFixed(2)} | ${r.vendor || ''} | ${r.notes || ''}`);
           }
 
+          // Totals snapshot for selected year
+          const incomeByCategory = new Map();
+          const expenseByCategory = new Map();
+          let incomeTotal = 0;
+          let expenseTotal = 0;
+
+          for (const r of (data.income || [])) {
+            const c = r.category || 'Uncategorized';
+            const v = Number(r.amount_cents || 0);
+            incomeTotal += v;
+            incomeByCategory.set(c, (incomeByCategory.get(c) || 0) + v);
+          }
+          for (const r of (data.expenses || [])) {
+            const c = r.category || 'Uncategorized';
+            const v = Number(r.amount_cents || 0);
+            expenseTotal += v;
+            expenseByCategory.set(c, (expenseByCategory.get(c) || 0) + v);
+          }
+
+          const summaryLines = [];
+          summaryLines.push(`Year: ${year}`);
+          summaryLines.push(`Income Total: $${(incomeTotal/100).toFixed(2)}`);
+          summaryLines.push(`Expense Total: $${(expenseTotal/100).toFixed(2)}`);
+          summaryLines.push(`Net: $${((incomeTotal - expenseTotal)/100).toFixed(2)}`);
+
+          const sortedIncome = [...incomeByCategory.entries()].sort((a,b) => b[1]-a[1]);
+          const sortedExpense = [...expenseByCategory.entries()].sort((a,b) => b[1]-a[1]);
+
+          if (sortedIncome.length) {
+            summaryLines.push('');
+            summaryLines.push('Income by category:');
+            for (const [cat, cents] of sortedIncome) summaryLines.push(`  - ${cat}: $${(cents/100).toFixed(2)}`);
+          }
+
+          if (sortedExpense.length) {
+            summaryLines.push('');
+            summaryLines.push('Expenses by category:');
+            for (const [cat, cents] of sortedExpense) summaryLines.push(`  - ${cat}: $${(cents/100).toFixed(2)}`);
+          }
+
+          taxSummaryListEl.textContent = summaryLines.join('\n');
           taxListEl.textContent = lines.length ? lines.join('\n') : 'No transactions yet.';
         } catch (e) {
+          taxSummaryListEl.textContent = `Error loading summary: ${e.message || e}`;
           taxListEl.textContent = `Error loading tax transactions: ${e.message || e}`;
         }
       }
