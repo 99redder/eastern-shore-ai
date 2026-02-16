@@ -70,6 +70,11 @@
     .success-modal p { margin:.45rem 0; }
     .admin-panel { margin-top:1rem; display:none; }
     .admin-panel.active { display:block; }
+    body.admin-mode .user-section,
+    body.admin-mode .top-book-btn,
+    body.admin-mode .success-modal-overlay,
+    body.admin-mode footer { display:none !important; }
+    body.admin-mode .admin-panel { margin-top:0; }
     .admin-lock { border:1px solid var(--line); border-radius:10px; padding:.75rem; background:#0a1230; margin-top:.6rem; }
     .admin-controls { display:none; margin-top:.8rem; }
     .admin-controls.active { display:block; }
@@ -133,9 +138,9 @@
 <body>
   <a href="#pick-setup" class="top-book-btn">Book + Pay Now</a>
   <div class="container">
-    <p><a href="/">← Back to Eastern Shore AI</a></p>
+    <p class="user-section"><a href="/">← Back to Eastern Shore AI</a></p>
 
-    <div class="brand-header">
+    <div class="brand-header user-section">
       <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="lg1" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
@@ -165,7 +170,7 @@
       </div>
     </div>
 
-    <section class="card">
+    <section class="card user-section">
       <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
       <h2>What You Should Expect</h2>
       <p>Sessions are blocked off for ~two hours, but setup can take less time depending on which features you're looking for. Here's how a typical session flows:</p>
@@ -209,7 +214,7 @@
       </div>
     </section>
 
-    <section class="card" style="margin-top:1rem;">
+    <section class="card user-section" style="margin-top:1rem;">
       <h2>Questions Before Your Setup?</h2>
       <form id="setup-page-form">
         <div class="form-grid">
@@ -410,6 +415,7 @@
     const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
     let adminUnlocked = false;
     if (adminMode) {
+      document.body.classList.add('admin-mode');
       adminPanel.classList.add('active');
       adminKeyEl.value = sessionStorage.getItem('esa_admin_key') || '';
     }
