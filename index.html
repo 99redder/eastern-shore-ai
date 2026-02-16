@@ -945,68 +945,89 @@
     /* Pink electric storm — one-time onload animation */
     .storm-wrap {
       position: relative;
+      overflow: visible;
     }
-    .storm-wrap::before,
-    .storm-wrap::after {
-      content: '';
+    .storm-bolt {
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 60px;
+      width: 180px;
       pointer-events: none;
       z-index: 50;
       opacity: 0;
     }
-    .storm-wrap::before { left: -60px; }
-    .storm-wrap::after { right: -60px; }
-
-    .storm-active::before,
-    .storm-active::after {
-      animation: lightning 2.5s ease-out forwards;
+    .storm-bolt--left { right: 100%; margin-right: 10px; }
+    .storm-bolt--right { left: 100%; margin-left: 10px; }
+    .storm-bolt svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
     }
-    .storm-active::before {
-      background:
-        radial-gradient(ellipse at 70% 20%, rgba(255,79,216,0.7) 0%, transparent 60%),
-        radial-gradient(ellipse at 30% 60%, rgba(255,79,216,0.5) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 85%, rgba(255,79,216,0.4) 0%, transparent 55%);
-      box-shadow:
-        0 0 30px rgba(255,79,216,0.3),
-        inset 0 0 20px rgba(255,79,216,0.15);
-    }
-    .storm-active::after {
-      background:
-        radial-gradient(ellipse at 30% 30%, rgba(255,79,216,0.7) 0%, transparent 60%),
-        radial-gradient(ellipse at 70% 55%, rgba(255,79,216,0.5) 0%, transparent 50%),
-        radial-gradient(ellipse at 40% 80%, rgba(255,79,216,0.4) 0%, transparent 55%);
-      box-shadow:
-        0 0 30px rgba(255,79,216,0.3),
-        inset 0 0 20px rgba(255,79,216,0.15);
-      animation-delay: 0.15s;
+    .storm-bolt line {
+      stroke: #ff4fd8;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(255,79,216,0.8)) drop-shadow(0 0 18px rgba(255,79,216,0.4));
     }
 
-    @keyframes lightning {
+    .storm-active .storm-bolt { animation: boltFlash 2.8s ease-out forwards; }
+    .storm-active .storm-bolt--right { animation-delay: 0.12s; }
+
+    @keyframes boltFlash {
       0%   { opacity: 0; }
-      4%   { opacity: 0.9; }
-      6%   { opacity: 0.15; }
-      10%  { opacity: 1; }
-      13%  { opacity: 0.1; }
-      16%  { opacity: 0.85; }
-      20%  { opacity: 0; }
+      3%   { opacity: 1; }
+      5%   { opacity: 0.1; }
+      8%   { opacity: 1; }
+      11%  { opacity: 0; }
+      18%  { opacity: 0; }
+      20%  { opacity: 1; }
+      22%  { opacity: 0.15; }
+      25%  { opacity: 0.9; }
       28%  { opacity: 0; }
-      30%  { opacity: 0.95; }
-      32%  { opacity: 0.2; }
-      35%  { opacity: 0.8; }
-      38%  { opacity: 0; }
-      50%  { opacity: 0; }
-      52%  { opacity: 0.7; }
-      54%  { opacity: 0.1; }
-      57%  { opacity: 0.6; }
-      60%  { opacity: 0; }
-      75%  { opacity: 0; }
-      77%  { opacity: 0.5; }
-      79%  { opacity: 0.05; }
-      82%  { opacity: 0.35; }
+      40%  { opacity: 0; }
+      42%  { opacity: 0.85; }
+      43%  { opacity: 0.1; }
+      45%  { opacity: 0.7; }
+      48%  { opacity: 0; }
+      62%  { opacity: 0; }
+      64%  { opacity: 0.6; }
+      65%  { opacity: 0.05; }
+      67%  { opacity: 0.5; }
+      70%  { opacity: 0; }
       85%  { opacity: 0; }
+      87%  { opacity: 0.3; }
+      89%  { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* Pink rain — follows lightning */
+    .storm-rain {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 49;
+      overflow: hidden;
+      opacity: 0;
+    }
+    .storm-active .storm-rain {
+      animation: rainFade 4.5s ease-out forwards;
+      animation-delay: 1.2s;
+    }
+    .rain-drop {
+      position: absolute;
+      width: 1px;
+      background: linear-gradient(to bottom, rgba(255,79,216,0.6), transparent);
+      animation: rainFall 0.6s linear infinite;
+      opacity: 0.7;
+    }
+    @keyframes rainFall {
+      0%   { transform: translateY(-20px); }
+      100% { transform: translateY(100vh); }
+    }
+    @keyframes rainFade {
+      0%   { opacity: 0; }
+      8%   { opacity: 0.8; }
+      60%  { opacity: 0.6; }
+      85%  { opacity: 0.2; }
       100% { opacity: 0; }
     }
   </style>
@@ -1030,6 +1051,47 @@
   <div class="container">
 
     <div class="storm-wrap" id="storm-wrap">
+      <div class="storm-bolt storm-bolt--left">
+        <svg viewBox="0 0 180 800" preserveAspectRatio="none">
+          <line x1="140" y1="0" x2="90" y2="80" stroke-width="3"/>
+          <line x1="90" y1="80" x2="130" y2="95" stroke-width="2.5"/>
+          <line x1="130" y1="95" x2="60" y2="210" stroke-width="2.8"/>
+          <line x1="60" y1="210" x2="110" y2="230" stroke-width="2"/>
+          <line x1="110" y1="230" x2="45" y2="380" stroke-width="2.5"/>
+          <line x1="45" y1="380" x2="95" y2="400" stroke-width="1.8"/>
+          <line x1="95" y1="400" x2="50" y2="520" stroke-width="2.2"/>
+          <line x1="50" y1="520" x2="100" y2="545" stroke-width="1.5"/>
+          <line x1="100" y1="545" x2="70" y2="650" stroke-width="2"/>
+          <line x1="70" y1="650" x2="120" y2="700" stroke-width="1.5"/>
+          <line x1="120" y1="700" x2="80" y2="800" stroke-width="1.8"/>
+          <!-- branch -->
+          <line x1="60" y1="210" x2="20" y2="290" stroke-width="1.5"/>
+          <line x1="130" y1="95" x2="165" y2="160" stroke-width="1.2"/>
+          <line x1="45" y1="380" x2="15" y2="440" stroke-width="1.2"/>
+          <line x1="100" y1="545" x2="145" y2="600" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="storm-rain" id="storm-rain"></div>
+      <div class="storm-bolt storm-bolt--right">
+        <svg viewBox="0 0 180 800" preserveAspectRatio="none">
+          <line x1="40" y1="0" x2="100" y2="90" stroke-width="3"/>
+          <line x1="100" y1="90" x2="55" y2="110" stroke-width="2.5"/>
+          <line x1="55" y1="110" x2="120" y2="240" stroke-width="2.8"/>
+          <line x1="120" y1="240" x2="70" y2="260" stroke-width="2"/>
+          <line x1="70" y1="260" x2="135" y2="400" stroke-width="2.5"/>
+          <line x1="135" y1="400" x2="80" y2="425" stroke-width="1.8"/>
+          <line x1="80" y1="425" x2="130" y2="540" stroke-width="2.2"/>
+          <line x1="130" y1="540" x2="75" y2="560" stroke-width="1.5"/>
+          <line x1="75" y1="560" x2="110" y2="670" stroke-width="2"/>
+          <line x1="110" y1="670" x2="60" y2="720" stroke-width="1.5"/>
+          <line x1="60" y1="720" x2="100" y2="800" stroke-width="1.8"/>
+          <!-- branch -->
+          <line x1="120" y1="240" x2="160" y2="310" stroke-width="1.5"/>
+          <line x1="55" y1="110" x2="20" y2="170" stroke-width="1.2"/>
+          <line x1="135" y1="400" x2="165" y2="460" stroke-width="1.2"/>
+          <line x1="75" y1="560" x2="35" y2="620" stroke-width="1"/>
+        </svg>
+      </div>
     <section class="hero">
       <button class="hero-arrow hero-arrow-left" aria-label="Previous slide">&#8249;</button>
       <button class="hero-arrow hero-arrow-right" aria-label="Next slide">&#8250;</button>
@@ -1336,10 +1398,27 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Pink electric storm on load
+    // Pink electric storm + rain on load
     const stormEl = document.getElementById('storm-wrap');
+    const rainEl = document.getElementById('storm-rain');
+    // Generate rain drops
+    for (let i = 0; i < 60; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'rain-drop';
+      drop.style.left = Math.random() * 100 + '%';
+      drop.style.height = (12 + Math.random() * 20) + 'px';
+      drop.style.animationDuration = (0.4 + Math.random() * 0.5) + 's';
+      drop.style.animationDelay = (Math.random() * 0.8) + 's';
+      drop.style.opacity = (0.3 + Math.random() * 0.5);
+      rainEl.appendChild(drop);
+    }
     requestAnimationFrame(() => stormEl.classList.add('storm-active'));
-    setTimeout(() => stormEl.classList.remove('storm-active'), 3000);
+    // Clean up everything after animations finish
+    setTimeout(() => {
+      stormEl.classList.remove('storm-active');
+      rainEl.remove();
+      document.querySelectorAll('.storm-bolt').forEach(el => el.remove());
+    }, 6000);
 
     const themeToggleBtn = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('esa_theme') || 'dark';
