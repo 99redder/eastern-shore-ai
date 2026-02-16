@@ -615,7 +615,7 @@
       </div>
       <div class="topbar-right">
         <span>AI Services, Setup, and Education</span>
-        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
       </div>
     </header>
 
@@ -856,7 +856,7 @@
     function applyTheme(theme) {
       document.body.setAttribute('data-theme', theme);
       const nextLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-      themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      themeToggleBtn.textContent = theme === 'dark' ? '☀' : '☾';
       themeToggleBtn.setAttribute('title', nextLabel);
       themeToggleBtn.setAttribute('aria-label', nextLabel);
     }

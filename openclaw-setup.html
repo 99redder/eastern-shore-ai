@@ -186,7 +186,7 @@
   </style>
 </head>
 <body>
-  <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
+  <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
   <a href="#pick-setup" class="top-book-btn">Book + Pay Now</a>
   <div class="container">
     <p class="user-section"><a href="/">← Back to Eastern Shore AI</a></p>
@@ -435,7 +435,7 @@
     function applyTheme(theme) {
       document.body.setAttribute('data-theme', theme);
       const nextLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-      themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      themeToggleBtn.textContent = theme === 'dark' ? '☀' : '☾';
       themeToggleBtn.setAttribute('title', nextLabel);
       themeToggleBtn.setAttribute('aria-label', nextLabel);
     }
