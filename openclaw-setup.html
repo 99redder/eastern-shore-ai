@@ -374,6 +374,37 @@
       { value: '18:00-20:00', label: '1800 - 2000' }
     ];
 
+    function nowEtParts() {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).formatToParts(new Date());
+      const get = (t) => parts.find(p => p.type === t)?.value;
+      return {
+        date: `${get('year')}-${get('month')}-${get('day')}`,
+        time: `${get('hour')}:${get('minute')}`
+      };
+    }
+
+    function slotStart(timeBlock) {
+      return (timeBlock || '').split('-')[0] || '';
+    }
+
+    function isPastEtSlot(date, timeBlock) {
+      if (!date || !timeBlock) return false;
+      const now = nowEtParts();
+      const start = slotStart(timeBlock);
+      if (!start) return false;
+      if (date < now.date) return true;
+      if (date > now.date) return false;
+      return start <= now.time;
+    }
+
     function setupAtKey(date, time) {
       return date && time ? `${date}T${time}` : '';
     }
@@ -385,12 +416,20 @@
       const userOpts = ['<option value="">Select time block…</option>'];
       const adminOpts = ['<option value="">Select block…</option>'];
 
+      // past date guard (ET)
+      if (selectedDate) {
+        const now = nowEtParts();
+        if (selectedDate < now.date) {
+          userOpts.push('<option value="" disabled>Date has already passed</option>');
+        }
+      }
+
       if (selectedDate && blockedDates.has(selectedDate)) {
         userOpts.push('<option value="" disabled>Entire day is blocked</option>');
       }
 
       for (const slot of TIME_SLOTS) {
-        const unavailable = selectedDate && slotIsUnavailable(selectedDate, slot.value);
+        const unavailable = selectedDate && (slotIsUnavailable(selectedDate, slot.value) || isPastEtSlot(selectedDate, slot.value));
         userOpts.push(`<option value="${slot.value}" ${unavailable ? 'disabled' : ''}>${slot.label}${unavailable ? ' (unavailable)' : ''}</option>`);
         adminOpts.push(`<option value="${slot.value}">${slot.label}</option>`);
       }
@@ -398,7 +437,7 @@
       setupTimeEl.innerHTML = userOpts.join('');
       adminTimeEl.innerHTML = adminOpts.join('');
 
-      if (current && !(selectedDate && slotIsUnavailable(selectedDate, current))) {
+      if (current && !(selectedDate && (slotIsUnavailable(selectedDate, current) || isPastEtSlot(selectedDate, current)))) {
         setupTimeEl.value = current;
       }
       if (adminCurrent) {
@@ -423,6 +462,11 @@
       if (blockedDates.has(date)) return true;
       return unavailableSlots.has(setupAtKey(date, time));
     }
+
+    // prevent selecting past days in UI (ET date)
+    try {
+      setupDateEl.min = nowEtParts().date;
+    } catch {}
 
     setupDateEl.addEventListener('change', renderTimeOptions);
     const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
@@ -609,6 +653,11 @@
 
       if (!setupDate || !setupTime) {
         alert('Please choose your setup date and time first.');
+        return;
+      }
+
+      if (isPastEtSlot(setupDate, setupTime)) {
+        alert('That time block has already passed (Eastern Time). Please choose another slot.');
         return;
       }
 

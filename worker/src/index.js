@@ -141,6 +141,30 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const customerEmail = (data.email || '').toString().trim();
   const customerName = (data.name || '').toString().trim();
 
+  // Reject past dates/blocks using America/New_York.
+  {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+    const get = (t) => parts.find(p => p.type === t)?.value;
+    const today = `${get('year')}-${get('month')}-${get('day')}`;
+    const nowHm = `${get('hour')}:${get('minute')}`;
+    const start = setupTime.split('-')[0] || '';
+
+    if (setupDate && today && setupDate < today) {
+      return json({ ok: false, error: 'Selected date is in the past (ET). Choose a future date.' }, 400, corsHeaders);
+    }
+    if (setupDate && today && setupDate === today && start && start <= nowHm) {
+      return json({ ok: false, error: 'Selected time block has already passed (ET). Choose a later block.' }, 400, corsHeaders);
+    }
+  }
+
   if (!setupDate || !setupTime) {
     return json({ ok: false, error: 'Missing setup date/time' }, 400, corsHeaders);
   }
