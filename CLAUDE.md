@@ -9,6 +9,7 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 ## Tech Stack
 
 - **Frontend**: Vanilla HTML, CSS, JavaScript (no framework, no build step)
+- **Fonts**: Google Fonts — Chakra Petch (headings, nav, buttons), DM Sans (body text), Rajdhani (brand tagline only)
 - **Backend**: Cloudflare Workers (`worker/src/index.js`)
 - **Database**: Cloudflare D1 (SQLite)
 - **Payments**: Stripe (checkout sessions + webhooks)
