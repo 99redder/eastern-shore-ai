@@ -38,14 +38,22 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 cd worker && wrangler deploy
 ```
 
-Worker secrets (configured in Cloudflare dashboard): `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+Worker secrets (configured in Cloudflare dashboard): `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_PASSWORD`
 
 ## API Endpoints
 
 All routes in `worker/src/index.js`:
 - `POST /api/contact` — Form submissions (domain offers, questions)
-- `POST /api/checkout-session` — Creates Stripe checkout with booking conflict check
-- `POST /api/stripe-webhook` — Stripe payment confirmation, records bookings in D1
+- `POST /api/checkout-session` — Creates Stripe checkout with booking conflict + past-time checks
+- `POST /api/stripe-webhook` — Stripe payment confirmation, records bookings in D1, auto-inserts tax income row
+- `GET /api/availability` — Public unavailable slots + blocked dates
+- `GET /api/bookings` — Admin read: bookings + blocked slots + blocked days
+- `POST /api/admin/block-slot` — Admin block/unblock a specific 2-hour slot
+- `POST /api/admin/block-day` — Admin block/unblock an entire day
+- `GET /api/tax/transactions` — Admin tax transactions by year/type
+- `POST /api/tax/expense` — Admin add expense entry
+- `POST /api/tax/income` — Admin add income entry
+- `GET /api/tax/export.csv` — Admin CSV export for selected year/type
 
 Response shape: `{ ok: boolean, error?: string }`
 
@@ -169,30 +177,34 @@ Configured webhook endpoint:
 Required secrets:
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
-
-Other related secrets:
-- `ADMIN_API_KEY` (admin booking controls)
-- `RESEND_API_KEY` (email)
+- `ADMIN_PASSWORD` (shared admin password for dashboard APIs)
+- `RESEND_API_KEY`
 
 Set via:
 ```bash
 wrangler secret put STRIPE_SECRET_KEY
 wrangler secret put STRIPE_WEBHOOK_SECRET
+wrangler secret put ADMIN_PASSWORD
+wrangler secret put RESEND_API_KEY
 ```
 
-### D1 booking persistence
+### D1 persistence (booking + admin + tax)
 
 Database: `eastern-shore-ai-bookings`
 
-Tables used by Stripe flow:
-- `bookings`
-  - stores pending and paid records
-- `blocked_slots`
-  - admin-blocked unavailable slots
+Tables:
+- `bookings` — pending/paid setup bookings
+- `blocked_slots` — blocked 2-hour setup blocks
+- `blocked_days` — full-day blocks
+- `tax_expenses` — manual expense entries (USD)
+- `tax_income` — manual + Stripe-imported income entries (USD)
 
 Migrations:
 - `0001_create_bookings.sql`
 - `0002_create_blocked_slots.sql`
+- `0003_create_blocked_days.sql`
+- `0004_create_tax_tables.sql`
+- `0005_tax_income_unique_stripe_session.sql`
 
 ### Public/admin availability behavior
 
@@ -200,19 +212,29 @@ Migrations:
   - returns unavailable `setup_at` values from:
     - paid/confirmed bookings
     - active blocked slots
-- Frontend disables unavailable time blocks in dropdown
+  - returns `blockedDates` from active `blocked_days`
+- Frontend disables unavailable blocks and blocked days in dropdown
 - Checkout route re-validates conflicts server-side (authoritative)
+- Checkout also rejects past date/time blocks using `America/New_York`
 
-### Admin operations affecting Stripe booking
+### Admin operations (booking + tax)
 
 Hidden admin mode on booking page:
 - `openclaw-setup.html?admin=1`
 
-Admin APIs:
-- `GET /api/bookings?key=...`
-- `POST /api/admin/block-slot?key=...`
+Auth:
+- Admin requests use `X-Admin-Password` header (value must match Worker secret `ADMIN_PASSWORD`)
 
-Blocking a slot prevents new Stripe checkout sessions for that slot.
+Admin APIs:
+- `GET /api/bookings`
+- `POST /api/admin/block-slot`
+- `POST /api/admin/block-day`
+- `GET /api/tax/transactions`
+- `POST /api/tax/expense`
+- `POST /api/tax/income`
+- `GET /api/tax/export.csv`
+
+Blocking a slot/day prevents new Stripe checkout sessions for those times.
 
 ### Troubleshooting checklist
 
@@ -234,4 +256,33 @@ When moving from test to live:
 - Rotate all test keys to live keys
 - Recreate/verify webhook endpoint in live Stripe mode
 - Set live `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`
+- Set/rotate `ADMIN_PASSWORD`
 - Run one full end-to-end live verification payment
+
+## Admin Dashboard (openclaw-setup.html) — Current UX
+
+- Admin mode hides public booking marketing sections; shows admin controls only.
+- Booking admin includes:
+  - block/unblock individual 2-hour slots
+  - block/unblock entire day
+  - availability calendar with day markers (booked vs blocked)
+- Tax Ledger is a separate admin section/card with:
+  - year selector (defaults to current year)
+  - type filter (`all`, `income`, `expense`)
+  - side-by-side yearly totals snapshot (income vs expenses, bold totals)
+  - category totals
+  - manual Add Expense / Add Income forms (USD)
+  - CSV download export for selected year/type
+
+## Stripe → Tax Auto-Import
+
+On `checkout.session.completed`, webhook now:
+1. Upserts booking to `bookings` as `paid` (existing behavior)
+2. Inserts tax income row in `tax_income` with:
+   - source: `Stripe`
+   - category: `OpenClaw Setup`
+   - amount from Stripe `amount_total`
+   - `stripe_session_id` for dedupe
+
+Deduplication is enforced by unique index:
+- `ux_tax_income_stripe_session_id` on `tax_income(stripe_session_id)` where non-null.
