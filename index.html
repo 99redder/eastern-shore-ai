@@ -1013,7 +1013,7 @@
       animation-delay: 1.2s;
     }
     .storm-rain.rain-steady {
-      opacity: 0.5;
+      opacity: 0.8;
       transition: opacity 0.8s ease;
     }
     .storm-rain.rain-stopping {
@@ -1022,10 +1022,10 @@
     }
     .rain-drop {
       position: absolute;
-      width: 1px;
-      background: linear-gradient(to bottom, rgba(255,79,216,0.6), transparent);
+      width: 2px;
+      background: linear-gradient(to bottom, rgba(255,79,216,0.85), transparent);
       animation: rainFall 0.6s linear infinite;
-      opacity: 0.7;
+      opacity: 0.85;
     }
     @keyframes rainFall {
       0%   { transform: translateY(-20px); }
@@ -1033,8 +1033,8 @@
     }
     @keyframes rainIntro {
       0%   { opacity: 0; }
-      50%  { opacity: 0.6; }
-      100% { opacity: 0.5; }
+      50%  { opacity: 0.9; }
+      100% { opacity: 0.8; }
     }
   </style>
 </head>
@@ -1498,6 +1498,16 @@
       const prev = currentSlide;
       currentSlide = index;
       updateDots();
+      // Toggle rain: show on slide 0, hide on others
+      if (rainEl) {
+        if (currentSlide === 0) {
+          rainEl.classList.remove('rain-stopping');
+          rainEl.classList.add('rain-steady');
+        } else {
+          rainEl.classList.remove('rain-steady');
+          rainEl.classList.add('rain-stopping');
+        }
+      }
       // Fade out old hero slide
       heroSlides[prev].style.opacity = '0';
       heroSlides[prev].style.transform = 'translateY(8px)';
