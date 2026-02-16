@@ -85,6 +85,12 @@
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
     .admin-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:8px; padding:.6rem; background:#0a1230; font-size:.85rem; color:var(--muted); }
     .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:10px; background:#0a1230; padding:.7rem; }
+    .tax-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+    .tax-summary-col { border:1px solid var(--line); border-radius:8px; padding:.6rem; background:#10193a; }
+    .tax-summary-col h4 { margin:.1rem 0 .45rem; color:var(--cyan); font-size:.9rem; }
+    .tax-summary-line { display:flex; justify-content:space-between; gap:.6rem; padding:.12rem 0; color:var(--muted); }
+    .tax-summary-line strong { color:var(--text); font-weight:700; }
+    .tax-entry-wrap { margin-top:1rem; }
     .admin-calendar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
     .admin-calendar-title { font-size:.9rem; color:var(--cyan); }
     .admin-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:.25rem; }
@@ -141,6 +147,7 @@
     @media (max-width: 760px) {
       .booking-grid, .admin-grid { grid-template-columns:1fr; }
       .form-grid { grid-template-columns:1fr; }
+      .tax-summary-grid { grid-template-columns:1fr; }
 
       /* Sticky bottom CTA bar for booking */
       .top-book-btn {
@@ -343,7 +350,7 @@
           <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
                 <div id="tax-summary" class="admin-calendar-wrap" style="margin:0;">
                   <div class="admin-calendar-head"><div class="admin-calendar-title">Year Totals Snapshot</div></div>
-                  <div class="admin-list" id="tax-summary-list">No data yet.</div>
+                  <div class="tax-summary-grid" id="tax-summary-list">No data yet.</div>
                 </div>
 
                 <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
@@ -359,7 +366,7 @@
                   <button type="button" class="btn btn-primary" id="tax-export-btn">Download CSV</button>
                 </div>
 
-                <div class="admin-grid" style="grid-template-columns:1fr 1fr; gap:.6rem;">
+                <div class="admin-grid tax-entry-wrap" style="grid-template-columns:1fr 1fr; gap:.6rem;">
                   <div class="admin-calendar-wrap">
                     <div class="admin-calendar-head"><div class="admin-calendar-title">Add Expense</div></div>
                     <div class="admin-row" style="flex-direction:column; align-items:stretch;">
@@ -894,31 +901,33 @@
             expenseByCategory.set(c, (expenseByCategory.get(c) || 0) + v);
           }
 
-          const summaryLines = [];
-          summaryLines.push(`Year: ${year}`);
-          summaryLines.push(`Income Total: $${(incomeTotal/100).toFixed(2)}`);
-          summaryLines.push(`Expense Total: $${(expenseTotal/100).toFixed(2)}`);
-          summaryLines.push(`Net: $${((incomeTotal - expenseTotal)/100).toFixed(2)}`);
-
           const sortedIncome = [...incomeByCategory.entries()].sort((a,b) => b[1]-a[1]);
           const sortedExpense = [...expenseByCategory.entries()].sort((a,b) => b[1]-a[1]);
 
-          if (sortedIncome.length) {
-            summaryLines.push('');
-            summaryLines.push('Income by category:');
-            for (const [cat, cents] of sortedIncome) summaryLines.push(`  - ${cat}: $${(cents/100).toFixed(2)}`);
-          }
+          const incomeRows = sortedIncome.length
+            ? sortedIncome.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+            : '<div class="tax-summary-line"><span>No income entries</span><strong>$0.00</strong></div>';
 
-          if (sortedExpense.length) {
-            summaryLines.push('');
-            summaryLines.push('Expenses by category:');
-            for (const [cat, cents] of sortedExpense) summaryLines.push(`  - ${cat}: $${(cents/100).toFixed(2)}`);
-          }
+          const expenseRows = sortedExpense.length
+            ? sortedExpense.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+            : '<div class="tax-summary-line"><span>No expense entries</span><strong>$0.00</strong></div>';
 
-          taxSummaryListEl.textContent = summaryLines.join('\n');
+          taxSummaryListEl.innerHTML = `
+            <div class="tax-summary-col">
+              <h4>Income (${year})</h4>
+              <div class="tax-summary-line"><span>Total</span><strong>$${(incomeTotal/100).toFixed(2)}</strong></div>
+              ${incomeRows}
+            </div>
+            <div class="tax-summary-col">
+              <h4>Expenses (${year})</h4>
+              <div class="tax-summary-line"><span>Total</span><strong>$${(expenseTotal/100).toFixed(2)}</strong></div>
+              ${expenseRows}
+              <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong>$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
+            </div>
+          `;
           taxListEl.textContent = lines.length ? lines.join('\n') : 'No transactions yet.';
         } catch (e) {
-          taxSummaryListEl.textContent = `Error loading summary: ${e.message || e}`;
+          taxSummaryListEl.innerHTML = `<div class="tax-summary-col"><h4>Summary</h4><div class="tax-summary-line"><span>Error</span><strong>${(e.message || e)}</strong></div></div>`;
           taxListEl.textContent = `Error loading tax transactions: ${e.message || e}`;
         }
       }
