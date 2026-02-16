@@ -1648,6 +1648,15 @@
       });
     });
 
+    // Pause carousel when tab is hidden to prevent queued transitions on return
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoAdvance();
+      } else {
+        resetAutoAdvance();
+      }
+    });
+
     // Start auto-advance
     resetAutoAdvance();
 
