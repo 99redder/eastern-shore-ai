@@ -566,7 +566,8 @@
     if (adminMode) {
       document.body.classList.add('admin-mode');
       adminPanel.classList.add('active');
-      adminKeyEl.value = sessionStorage.getItem('esa_admin_key') || '';
+      // Do not persist admin password in storage.
+      adminKeyEl.value = '';
     }
 
     function setAdminUnlocked(on) {
@@ -641,7 +642,9 @@
       if (!adminMode || !adminUnlocked) return;
       const key = adminKeyEl.value.trim();
       try {
-        const res = await fetch(`${BOOKINGS_API_URL}?key=${encodeURIComponent(key)}&limit=200`);
+        const res = await fetch(`${BOOKINGS_API_URL}?limit=200`, {
+          headers: { 'X-Admin-Password': key }
+        });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         const lines = [];
@@ -660,13 +663,13 @@
       const setupDate = adminDateEl.value;
       const setupTime = adminTimeEl.value;
       if (!key || !setupDate || !setupTime) {
-        alert('Admin key + date + time are required.');
+        alert('Admin password + date + time are required.');
         return;
       }
       try {
-        const res = await fetch(`${BLOCK_SLOT_API_URL}?key=${encodeURIComponent(key)}`, {
+        const res = await fetch(`${BLOCK_SLOT_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
           body: JSON.stringify({
             setupDate,
             setupTime,
@@ -687,13 +690,13 @@
       const key = adminKeyEl.value.trim();
       const setupDate = adminDateEl.value;
       if (!key || !setupDate) {
-        alert('Admin key + date are required.');
+        alert('Admin password + date are required.');
         return;
       }
       try {
-        const res = await fetch(`${BLOCK_DAY_API_URL}?key=${encodeURIComponent(key)}`, {
+        const res = await fetch(`${BLOCK_DAY_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
           body: JSON.stringify({
             setupDate,
             reason: adminReasonEl.value.trim(),
@@ -711,24 +714,24 @@
 
     if (adminMode) {
       setAdminUnlocked(false);
+      let adminPassword = '';
+
       adminUnlockBtn.addEventListener('click', async () => {
         const key = adminKeyEl.value.trim();
         if (!key) return;
         try {
-          const res = await fetch(`${BOOKINGS_API_URL}?key=${encodeURIComponent(key)}&limit=1`);
+          const res = await fetch(`${BOOKINGS_API_URL}?limit=1`, {
+            headers: { 'X-Admin-Password': key }
+          });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Invalid password');
-          sessionStorage.setItem('esa_admin_key', key);
+          adminPassword = key;
           setAdminUnlocked(true);
           await loadAdminData();
         } catch (e) {
           alert(`Admin unlock failed: ${e.message || e}`);
         }
       });
-
-      if (adminKeyEl.value) {
-        adminUnlockBtn.click();
-      }
 
       adminBlockBtn.addEventListener('click', () => setBlockedSlot(true));
       adminUnblockBtn.addEventListener('click', () => setBlockedSlot(false));

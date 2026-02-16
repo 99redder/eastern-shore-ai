@@ -11,7 +11,7 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
       'Vary': 'Origin'
     };
 
@@ -331,10 +331,10 @@ async function handleBookings(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const provided = (url.searchParams.get('key') || '').trim();
-  const expected = (env.ADMIN_API_KEY || '').trim();
+  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
+  const expected = (env.ADMIN_PASSWORD || '').trim();
   if (!expected) {
-    return json({ ok: false, error: 'Admin API key not configured' }, 500, corsHeaders);
+    return json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders);
   }
   if (!provided || provided !== expected) {
     return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
@@ -410,9 +410,9 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const provided = (url.searchParams.get('key') || '').trim();
-  const expected = (env.ADMIN_API_KEY || '').trim();
-  if (!expected) return json({ ok: false, error: 'Admin API key not configured' }, 500, corsHeaders);
+  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
+  const expected = (env.ADMIN_PASSWORD || '').trim();
+  if (!expected) return json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders);
   if (!provided || provided !== expected) return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
 
   let data;
@@ -450,9 +450,9 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const provided = (url.searchParams.get('key') || '').trim();
-  const expected = (env.ADMIN_API_KEY || '').trim();
-  if (!expected) return json({ ok: false, error: 'Admin API key not configured' }, 500, corsHeaders);
+  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
+  const expected = (env.ADMIN_PASSWORD || '').trim();
+  if (!expected) return json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders);
   if (!provided || provided !== expected) return json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders);
 
   let data;
