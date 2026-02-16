@@ -75,6 +75,20 @@
     .admin-controls.active { display:block; }
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
     .admin-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:8px; padding:.6rem; background:#0a1230; font-size:.85rem; color:var(--muted); }
+    .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:10px; background:#0a1230; padding:.7rem; }
+    .admin-calendar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+    .admin-calendar-title { font-size:.9rem; color:var(--cyan); }
+    .admin-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:.25rem; }
+    .admin-cal-dow { font-size:.72rem; color:var(--muted); text-align:center; padding:.2rem 0; }
+    .admin-cal-day { min-height:46px; border:1px solid var(--line); border-radius:8px; padding:.25rem; font-size:.72rem; color:var(--text); position:relative; background:#10193a; }
+    .admin-cal-day.empty { background:transparent; border-color:transparent; }
+    .admin-cal-day-num { font-size:.72rem; }
+    .admin-cal-dots { position:absolute; left:.25rem; right:.25rem; bottom:.25rem; display:flex; gap:.2rem; flex-wrap:wrap; }
+    .admin-dot { width:7px; height:7px; border-radius:50%; }
+    .admin-dot.booked { background:#ff7a7a; }
+    .admin-dot.blocked { background:#ffc15a; }
+    .admin-legend { display:flex; gap:.7rem; align-items:center; margin-top:.5rem; color:var(--muted); font-size:.75rem; }
+    .admin-legend span { display:inline-flex; align-items:center; gap:.3rem; }
     .faq-section { margin-top:1rem; display:grid; gap:0.7rem; }
     .faq-item { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:0.85rem 1rem; }
     .faq-item h3 { margin:0 0 0.35rem; color:var(--cyan); font-size:0.98rem; }
@@ -256,6 +270,16 @@
           <div>
             <h3 style="margin:.1rem 0 .4rem;">Recent Bookings / Blocks</h3>
             <div class="admin-list" id="admin-list">No data yet.</div>
+            <div class="admin-calendar-wrap">
+              <div class="admin-calendar-head">
+                <div class="admin-calendar-title" id="admin-calendar-title">Availability Calendar</div>
+              </div>
+              <div class="admin-calendar-grid" id="admin-calendar-grid"></div>
+              <div class="admin-legend">
+                <span><i class="admin-dot booked"></i>Booked</span>
+                <span><i class="admin-dot blocked"></i>Blocked</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -307,6 +331,8 @@
     const adminTimeEl = document.getElementById('admin-time');
     const adminReasonEl = document.getElementById('admin-reason');
     const adminListEl = document.getElementById('admin-list');
+    const adminCalendarGridEl = document.getElementById('admin-calendar-grid');
+    const adminCalendarTitleEl = document.getElementById('admin-calendar-title');
     const adminBlockBtn = document.getElementById('admin-block-btn');
     const adminUnblockBtn = document.getElementById('admin-unblock-btn');
     const adminRefreshBtn = document.getElementById('admin-refresh-btn');
@@ -394,17 +420,68 @@
       adminControls.classList.toggle('active', adminUnlocked);
     }
 
+    function renderAdminCalendar(bookings = [], blockedSlots = []) {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const daysInMonth = last.getDate();
+      const startDow = first.getDay();
+
+      const bookedByDay = new Map();
+      const blockedByDay = new Map();
+
+      for (const b of bookings) {
+        const d = (b.setup_date || '').trim();
+        if (!d) continue;
+        bookedByDay.set(d, (bookedByDay.get(d) || 0) + 1);
+      }
+      for (const s of blockedSlots) {
+        if (!s.active) continue;
+        const d = (s.setup_date || '').trim();
+        if (!d) continue;
+        blockedByDay.set(d, (blockedByDay.get(d) || 0) + 1);
+      }
+
+      const monthName = now.toLocaleString('en-US', { month: 'long' });
+      adminCalendarTitleEl.textContent = `Availability Calendar — ${monthName} ${year}`;
+
+      const parts = [];
+      const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      for (const d of dows) parts.push(`<div class="admin-cal-dow">${d}</div>`);
+
+      for (let i = 0; i < startDow; i++) {
+        parts.push('<div class="admin-cal-day empty"></div>');
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const mm = String(month + 1).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        const key = `${year}-${mm}-${dd}`;
+        const bCount = bookedByDay.get(key) || 0;
+        const xCount = blockedByDay.get(key) || 0;
+        const dots = [];
+        for (let i = 0; i < Math.min(3, bCount); i++) dots.push('<i class="admin-dot booked" title="Booked"></i>');
+        for (let i = 0; i < Math.min(3, xCount); i++) dots.push('<i class="admin-dot blocked" title="Blocked"></i>');
+        parts.push(`<div class="admin-cal-day"><div class="admin-cal-day-num">${day}</div><div class="admin-cal-dots">${dots.join('')}</div></div>`);
+      }
+
+      adminCalendarGridEl.innerHTML = parts.join('');
+    }
+
     async function loadAdminData() {
       if (!adminMode || !adminUnlocked) return;
       const key = adminKeyEl.value.trim();
       try {
-        const res = await fetch(`${BOOKINGS_API_URL}?key=${encodeURIComponent(key)}&limit=30`);
+        const res = await fetch(`${BOOKINGS_API_URL}?key=${encodeURIComponent(key)}&limit=200`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         const lines = [];
         for (const b of (data.bookings || [])) lines.push(`[BOOKING] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}`);
         for (const s of (data.blockedSlots || [])) lines.push(`[BLOCKED] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}`);
         adminListEl.textContent = lines.length ? lines.join('\n') : 'No records yet.';
+        renderAdminCalendar(data.bookings || [], data.blockedSlots || []);
       } catch (e) {
         adminListEl.textContent = `Error loading admin data: ${e.message || e}`;
       }
