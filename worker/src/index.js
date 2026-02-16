@@ -222,6 +222,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
   const body = new URLSearchParams({
     mode: 'payment',
+    allow_promotion_codes: 'true',
     success_url: `${siteOrigin}/openclaw-setup.html?paid=1`,
     cancel_url: `${siteOrigin}/openclaw-setup.html?canceled=1`,
     'line_items[0][price_data][currency]': 'usd',
