@@ -664,6 +664,30 @@
     body[data-theme="light"] .legal-copy {
       color: #495a82;
     }
+    body[data-theme="light"] .portfolio-carousel-inner {
+      background: rgba(237, 243, 255, 0.6);
+      border-color: #c8d6f4;
+    }
+    body[data-theme="light"] .portfolio-arrow {
+      background: #ffffff;
+      border-color: #c8d6f4;
+      color: #13213f;
+    }
+    body[data-theme="light"] .portfolio-arrow:hover {
+      border-color: #165de0;
+      color: #165de0;
+    }
+    body[data-theme="light"] .portfolio-dot {
+      background: #c8d6f4;
+    }
+    body[data-theme="light"] .portfolio-dot.active {
+      background: #165de0;
+    }
+    body[data-theme="light"] .portfolio-item-desc {
+      color: #495a82;
+    }
+    .what-you-get-list { color: #b8c9ef; }
+    body[data-theme="light"] .what-you-get-list { color: #2d3f6b; }
 
     .legal-copy {
       color: #b8c9ef;
@@ -838,22 +862,22 @@
             <div class="portfolio-carousel" id="portfolio-carousel">
               <div class="portfolio-carousel-inner">
                 <div class="portfolio-item active" data-portfolio="0">
-                  <img src="./portfolio-cbfchurch.png" alt="cbfchurch.com screenshot" loading="lazy" />
+                  <a href="https://www.cbfchurch.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-cbfchurch.png" alt="cbfchurch.com screenshot" loading="lazy" /></a>
                   <p class="portfolio-item-label"><a href="https://www.cbfchurch.com" target="_blank" rel="noopener noreferrer">www.cbfchurch.com</a></p>
                   <p class="portfolio-item-desc">Church website with service info, ministries, and community outreach in Somersworth, NH.</p>
                 </div>
                 <div class="portfolio-item" data-portfolio="1">
-                  <img src="./portfolio-stockstickies.png" alt="stockstickies.com screenshot" loading="lazy" />
+                  <a href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-stockstickies.png" alt="stockstickies.com screenshot" loading="lazy" /></a>
                   <p class="portfolio-item-label"><a href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a></p>
                   <p class="portfolio-item-desc">Desktop sticky notes for tracking stocks and managing portfolio watchlists.</p>
                 </div>
                 <div class="portfolio-item" data-portfolio="2">
-                  <img src="./portfolio-florencemaegifts.png" alt="florencemaegifts.com screenshot" loading="lazy" />
+                  <a href="https://www.florencemaegifts.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-florencemaegifts.png" alt="florencemaegifts.com screenshot" loading="lazy" /></a>
                   <p class="portfolio-item-label"><a href="https://www.florencemaegifts.com" target="_blank" rel="noopener noreferrer">www.florencemaegifts.com</a></p>
                   <p class="portfolio-item-desc">E-commerce shop for premium handmade crochet items with Stripe checkout.</p>
                 </div>
                 <div class="portfolio-item" data-portfolio="3">
-                  <img src="./portfolio-bibleplannerapp.png" alt="bibleplannerapp.com screenshot" loading="lazy" />
+                  <a href="https://www.bibleplannerapp.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-bibleplannerapp.png" alt="bibleplannerapp.com screenshot" loading="lazy" /></a>
                   <p class="portfolio-item-label"><a href="https://www.bibleplannerapp.com" target="_blank" rel="noopener noreferrer">www.bibleplannerapp.com</a></p>
                   <p class="portfolio-item-desc">Bible reading plan app with structured daily schedules and progress tracking.</p>
                 </div>
@@ -874,7 +898,7 @@
           <div class="feature-stack">
             <article class="card feature-card">
               <h3 class="feature-stack-title" style="margin-top:0;">What You Get</h3>
-              <ul style="margin:0.5rem 0 0; padding-left:1.2rem; color:#b8c9ef; line-height:1.8;">
+              <ul class="what-you-get-list" style="margin:0.5rem 0 0; padding-left:1.2rem; line-height:1.8;">
                 <li><strong>Landing Pages</strong> — Focused pages built for conversion and clarity.</li>
                 <li><strong>Contact Forms</strong> — Wired to reliable backend delivery, no mailto.</li>
                 <li><strong>SEO + Performance</strong> — Titles, descriptions, sitemap, fast load times.</li>
