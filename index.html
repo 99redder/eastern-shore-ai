@@ -1500,6 +1500,16 @@
       if (index === currentPanel) return;
       const prev = currentPanel;
       currentPanel = index;
+      // Toggle rain: show on panel 0, hide on others
+      if (rainEl) {
+        if (currentPanel === 0) {
+          rainEl.classList.remove('rain-stopping');
+          rainEl.classList.add('rain-steady');
+        } else {
+          rainEl.classList.remove('rain-steady');
+          rainEl.classList.add('rain-stopping');
+        }
+      }
       offerPanels[prev].style.opacity = '0';
       offerPanels[prev].style.transform = 'translateY(8px)';
       setTimeout(() => {
@@ -1528,16 +1538,6 @@
       const prev = currentSlide;
       currentSlide = index;
       updateDots();
-      // Toggle rain: show on slide 0, hide on others
-      if (rainEl) {
-        if (currentSlide === 0) {
-          rainEl.classList.remove('rain-stopping');
-          rainEl.classList.add('rain-steady');
-        } else {
-          rainEl.classList.remove('rain-steady');
-          rainEl.classList.add('rain-stopping');
-        }
-      }
       // Fade out old hero slide
       heroSlides[prev].style.opacity = '0';
       heroSlides[prev].style.transform = 'translateY(8px)';
