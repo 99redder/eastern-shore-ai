@@ -338,6 +338,24 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         customerEmail,
         amount
       ).run();
+
+      const incomeDate = /^\d{4}-\d{2}-\d{2}$/.test(setupDate || '')
+        ? setupDate
+        : new Date().toISOString().slice(0, 10);
+
+      await env.DB.prepare(
+        `INSERT INTO tax_income (
+          income_date, source, category, amount_cents, stripe_session_id, notes
+        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+        ON CONFLICT(stripe_session_id) DO NOTHING`
+      ).bind(
+        incomeDate,
+        'Stripe',
+        'OpenClaw Setup',
+        amount,
+        sessionId,
+        customerName ? `Auto-imported from Stripe checkout for ${customerName}` : 'Auto-imported from Stripe checkout'
+      ).run();
     }
   }
 
