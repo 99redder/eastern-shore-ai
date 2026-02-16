@@ -517,6 +517,58 @@
     @media (max-width: 820px) {
       .setup-modal-content { grid-template-columns: 1fr; }
       .offer-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+
+      .topbar {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.4rem;
+      }
+
+      .nav {
+        justify-content: center;
+      }
+
+      .hero {
+        padding: 1.4rem 1rem;
+        padding-right: 1rem;
+      }
+
+      .hero-lobster {
+        position: static;
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 2.4rem;
+      }
+
+      input, textarea { font-size: 16px; }
+
+      .card--setup-offer .btn-primary {
+        width: 100%;
+        text-align: center;
+        display: inline-flex;
+        justify-content: center;
+        padding: 0.85rem 1rem;
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 0.6rem; }
+
+      h1 { font-size: 1.4rem; }
+
+      .brand-text { font-size: 1rem; }
+      .brand-ai { font-size: 1.15rem; }
+
+      .nav a { font-size: 0.84rem; padding: 0.45rem 0.7rem; }
+
+      .hero { padding: 1rem 0.8rem; }
+
+      .card { padding: 0.75rem; }
+      .feature-card { padding: 0.55rem 0.65rem; }
+
+      .modal { padding: 0.8rem; }
     }
   </style>
 </head>
@@ -619,6 +671,7 @@
     <footer>
       © <span id="year"></span> Eastern Shore AI<br>
       <a href="#" class="footer-link" id="contact-link">Contact Us</a>
+      <a href="#" class="footer-link" id="about-link">About Us</a>
       <a href="#" class="footer-link" id="terms-link">Terms of Use</a>
       <a href="#" class="footer-link" id="privacy-link">Privacy Policy</a>
     </footer>
@@ -680,6 +733,24 @@
 
         <p class="form-status" id="setup-contact-status" aria-live="polite"></p>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="about-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
+      <div class="modal-head">
+        <h2 id="about-modal-title">About Us</h2>
+        <button class="modal-close" id="about-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="legal-copy">
+        <p><strong>Eastern Shore AI</strong> builds practical AI-powered tools and small business websites, with a focus on fast shipping and clean UX.</p>
+        <p>This is a starter blurb — edit it however you want.</p>
+        <p>
+          <a class="footer-link" href="https://x.com/99redder" target="_blank" rel="noopener noreferrer">Twitter / X</a>
+          &nbsp;·&nbsp;
+          <a class="footer-link" href="https://github.com/99redder" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
+      </div>
     </div>
   </div>
 
@@ -818,8 +889,11 @@
 
     const openBtn = document.getElementById('buy-domain-link');
     const contactLink = document.getElementById('contact-link');
+    const aboutLink = document.getElementById('about-link');
     const termsLink = document.getElementById('terms-link');
     const privacyLink = document.getElementById('privacy-link');
+    const aboutModal = document.getElementById('about-modal');
+    const aboutCloseBtn = document.getElementById('about-modal-close');
     const termsModal = document.getElementById('terms-modal');
     const privacyModal = document.getElementById('privacy-modal');
     const termsCloseBtn = document.getElementById('terms-modal-close');
@@ -932,6 +1006,11 @@
       openModal('contact');
     });
 
+    aboutLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSimpleModal(aboutModal);
+    });
+
     termsLink.addEventListener('click', (e) => {
       e.preventDefault();
       openSimpleModal(termsModal);
@@ -944,6 +1023,7 @@
 
     closeBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
+    aboutCloseBtn.addEventListener('click', () => closeSimpleModal(aboutModal));
     termsCloseBtn.addEventListener('click', () => closeSimpleModal(termsModal));
     privacyCloseBtn.addEventListener('click', () => closeSimpleModal(privacyModal));
 
@@ -963,6 +1043,10 @@
       if (e.target === aiLessonsModal) closeSimpleModal(aiLessonsModal);
     });
 
+    aboutModal.addEventListener('click', (e) => {
+      if (e.target === aboutModal) closeSimpleModal(aboutModal);
+    });
+
     termsModal.addEventListener('click', (e) => {
       if (e.target === termsModal) closeSimpleModal(termsModal);
     });
@@ -980,6 +1064,7 @@
       if (e.key === 'Escape' && setupModal.classList.contains('active')) closeSetupModal();
       if (e.key === 'Escape' && websiteDesignModal.classList.contains('active')) closeSimpleModal(websiteDesignModal);
       if (e.key === 'Escape' && aiLessonsModal.classList.contains('active')) closeSimpleModal(aiLessonsModal);
+      if (e.key === 'Escape' && aboutModal.classList.contains('active')) closeSimpleModal(aboutModal);
       if (e.key === 'Escape' && termsModal.classList.contains('active')) closeSimpleModal(termsModal);
       if (e.key === 'Escape' && privacyModal.classList.contains('active')) closeSimpleModal(privacyModal);
       if (e.key === 'Escape' && setupContactModal.classList.contains('active')) closeSimpleModal(setupContactModal);

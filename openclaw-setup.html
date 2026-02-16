@@ -68,6 +68,10 @@
     .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #101b39, #0d142d); border:1px solid var(--line); border-radius:14px; padding:1rem; }
     .success-modal h3 { margin:.1rem 0 .4rem; color:var(--cyan); }
     .success-modal p { margin:.45rem 0; }
+
+    /* Simple modal (re-uses success modal styles) */
+    .simple-modal-actions { display:flex; justify-content:flex-end; margin-top:1rem; }
+    .simple-modal-links { margin-top:.7rem; display:flex; gap:.8rem; flex-wrap:wrap; }
     .admin-panel { margin-top:1rem; display:none; }
     .admin-panel.active { display:block; }
     body.admin-mode .user-section,
@@ -126,13 +130,56 @@
     }
     .top-book-btn {
       position:fixed; top:1rem; right:1rem; z-index:300;
-      text-decoration:none; font-weight:600; font-size:0.9rem;
-      padding:0.55rem 1.1rem; border-radius:10px;
+      text-decoration:none; font-weight:700; font-size:1.15rem;
+      padding:0.75rem 1.6rem; border-radius:12px;
       background:linear-gradient(145deg,#4a6cf7,#3b5de7); border:1px solid #5a7aff;
-      color:#fff; box-shadow:0 0 16px rgba(74,108,247,0.3);
+      color:#fff; box-shadow:0 0 22px rgba(74,108,247,0.45);
+      text-transform:uppercase; letter-spacing:0.04em;
     }
-    .top-book-btn:hover { background:linear-gradient(145deg,#5a7cff,#4a6cf7); }
-    @media (max-width: 760px) { .booking-grid, .admin-grid { grid-template-columns:1fr; } }
+    .top-book-btn:hover { background:linear-gradient(145deg,#5a7cff,#4a6cf7); box-shadow:0 0 28px rgba(74,108,247,0.6); }
+
+    @media (max-width: 760px) {
+      .booking-grid, .admin-grid { grid-template-columns:1fr; }
+      .form-grid { grid-template-columns:1fr; }
+
+      /* Sticky bottom CTA bar for booking */
+      .top-book-btn {
+        position:fixed; top:auto; bottom:calc(52px + env(safe-area-inset-bottom));
+        left:0; right:0; width:100%;
+        border-radius:0; text-align:center;
+        font-size:1.1rem; padding:0.85rem 1rem;
+        box-shadow:0 -4px 20px rgba(74,108,247,0.4);
+      }
+
+      body { padding-bottom:140px; }
+
+      .container { padding:0.8rem; }
+
+      h1 { font-size:1.3rem; }
+      h2 { font-size:1.1rem; }
+
+      input, textarea, select { font-size:16px; }
+
+      .book-pay-panel { padding:0.75rem; }
+      .btn-wide { font-size:1.05rem; padding:0.75rem; }
+
+      .card { padding:0.8rem; }
+      ul { padding-left:1.1rem; }
+      li { margin-bottom:0.4rem; }
+
+      .success-modal { padding:0.8rem; }
+
+      .admin-cal-day { min-height:38px; }
+      .admin-calendar-grid { gap:0.15rem; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size:1.15rem; }
+      .brand-header-text { font-size:1rem; }
+      .brand-header-text .brand-ai { font-size:1.15rem; }
+      .card { padding:0.65rem; }
+      .container { padding:0.6rem; }
+    }
   </style>
 </head>
 <body>
@@ -294,10 +341,26 @@
 
     <footer>
       © <span id="year"></span> Eastern Shore AI<br>
-      <a href="/#" class="footer-link">Contact Us</a>
-      <a href="/#" class="footer-link">Terms of Use</a>
-      <a href="/#" class="footer-link">Privacy Policy</a>
+      <a href="#setup-page-form" class="footer-link">Contact Us</a>
+      <a href="#" class="footer-link" id="about-link">About Us</a>
+      <a href="/" class="footer-link">Terms of Use</a>
+      <a href="/" class="footer-link">Privacy Policy</a>
     </footer>
+  </div>
+
+  <div class="success-modal-overlay" id="about-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
+      <h3 id="about-title">About Us</h3>
+      <p><strong>Eastern Shore AI</strong> builds practical AI-powered tools and small business websites, with a focus on fast shipping and clean UX.</p>
+      <p>This is a starter blurb — edit it however you want.</p>
+      <div class="simple-modal-links">
+        <a class="footer-link" href="https://x.com/99redder" target="_blank" rel="noopener noreferrer">Twitter / X</a>
+        <a class="footer-link" href="https://github.com/99redder" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      <div class="simple-modal-actions">
+        <button type="button" class="btn btn-primary" id="about-close-btn">Close</button>
+      </div>
+    </div>
   </div>
 
   <div class="success-modal-overlay" id="success-modal" aria-hidden="true">
@@ -323,6 +386,10 @@
     const statusEl = document.getElementById('status');
     const submitBtn = form.querySelector('button[type="submit"]');
     const bookPayBtn = document.getElementById('book-pay-btn');
+    const aboutLink = document.getElementById('about-link');
+    const aboutModal = document.getElementById('about-modal');
+    const aboutCloseBtn = document.getElementById('about-close-btn');
+
     const successModal = document.getElementById('success-modal');
     const successDetails = document.getElementById('success-details');
     const successCloseBtn = document.getElementById('success-close-btn');
@@ -360,6 +427,26 @@
       successModal.classList.remove('active');
       successModal.setAttribute('aria-hidden', 'true');
     }
+
+    function openAboutModal() {
+      aboutModal.classList.add('active');
+      aboutModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAboutModal() {
+      aboutModal.classList.remove('active');
+      aboutModal.setAttribute('aria-hidden', 'true');
+    }
+
+    aboutLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAboutModal();
+    });
+
+    aboutCloseBtn.addEventListener('click', closeAboutModal);
+    aboutModal.addEventListener('click', (e) => {
+      if (e.target === aboutModal) closeAboutModal();
+    });
 
     successCloseBtn.addEventListener('click', closeSuccessModal);
     successModal.addEventListener('click', (e) => {
@@ -467,6 +554,11 @@
     try {
       setupDateEl.min = nowEtParts().date;
     } catch {}
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && aboutModal.classList.contains('active')) closeAboutModal();
+      if (e.key === 'Escape' && successModal.classList.contains('active')) closeSuccessModal();
+    });
 
     setupDateEl.addEventListener('change', renderTimeOptions);
     const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
