@@ -80,9 +80,14 @@
       background:var(--card);
       color:var(--text);
       border-radius:999px;
-      padding:.4rem .7rem;
-      font-size:.82rem;
+      width:2.1rem;
+      height:2.1rem;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1rem;
       cursor:pointer;
+      line-height:1;
     }
 
     .brand {
@@ -138,6 +143,18 @@
       border-color: var(--cyan);
       box-shadow: 0 0 0 1px var(--cyan) inset, 0 0 16px rgba(53, 231, 255, 0.25);
       color: var(--cyan);
+    }
+
+    body[data-theme="light"] .nav a {
+      color:#102047;
+      background:#f7faff;
+      border-color:#9ab3eb;
+    }
+
+    body[data-theme="light"] .nav a:hover {
+      color:#0b4cc4;
+      border-color:#4e7de8;
+      box-shadow: 0 0 0 1px #4e7de8 inset, 0 0 10px rgba(78,125,232,0.18);
     }
 
     .hero {
@@ -504,6 +521,14 @@
       color: #8ff3ff;
     }
 
+    body[data-theme="light"] .footer-link {
+      color:#4c83ef;
+    }
+
+    body[data-theme="light"] .footer-link:hover {
+      color:#73a0ff;
+    }
+
 
 
     .legal-copy {
@@ -590,7 +615,7 @@
       </div>
       <div class="topbar-right">
         <span>AI Services, Setup, and Education</span>
-        <button type="button" class="theme-toggle" id="theme-toggle">Light mode</button>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">🌙</button>
       </div>
     </header>
 
@@ -830,7 +855,10 @@
 
     function applyTheme(theme) {
       document.body.setAttribute('data-theme', theme);
-      themeToggleBtn.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+      const nextLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+      themeToggleBtn.setAttribute('title', nextLabel);
+      themeToggleBtn.setAttribute('aria-label', nextLabel);
     }
 
     applyTheme(savedTheme);
