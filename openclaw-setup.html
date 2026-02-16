@@ -143,10 +143,59 @@
       font-size:1rem; line-height:1; cursor:pointer;
     }
 
+    /* Session flow interactive layout */
+    .flow-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
+    .flow-steps { display:flex; flex-direction:column; gap:0; }
+    .flow-step {
+      padding:0.65rem 0.85rem;
+      border-left:3px solid var(--line);
+      cursor:pointer;
+      transition:border-color 0.2s, background 0.2s;
+    }
+    .flow-step:hover { background:rgba(0,240,255,0.04); }
+    .flow-step.active {
+      border-left-color:var(--cyan);
+      background:rgba(0,240,255,0.06);
+    }
+    .flow-step-title {
+      font-family:'Chakra Petch', system-ui, sans-serif;
+      font-weight:600;
+      font-size:0.95rem;
+      color:var(--text);
+    }
+    .flow-step.active .flow-step-title { color:var(--cyan); }
+    .flow-step-time {
+      font-size:0.78rem;
+      color:var(--muted);
+      margin-top:0.15rem;
+    }
+    .flow-detail {
+      background:#0e0a1a;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:1.2rem;
+      position:sticky;
+      top:1rem;
+    }
+    .flow-detail h3 {
+      margin:0 0 0.5rem;
+      color:var(--cyan);
+      font-size:1.05rem;
+    }
+    .flow-detail p {
+      margin:0;
+      line-height:1.65;
+      font-size:0.93rem;
+    }
+    body[data-theme="light"] .flow-step:hover { background:rgba(0,136,170,0.06); }
+    body[data-theme="light"] .flow-step.active { background:rgba(0,136,170,0.08); }
+    body[data-theme="light"] .flow-detail { background:#f8f0ff; }
+
     @media (max-width: 760px) {
       .booking-grid, .admin-grid { grid-template-columns:1fr; }
       .form-grid { grid-template-columns:1fr; }
       .tax-summary-grid { grid-template-columns:1fr; }
+      .flow-grid { grid-template-columns:1fr; }
 
       /* Sticky bottom CTA bar for booking */
       .top-book-btn {
@@ -203,17 +252,50 @@
       <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
       <h2>What You Should Expect</h2>
       <p>Sessions are blocked off for ~two hours, but setup can take less time depending on which features you're looking for. Here's how a typical session flows:</p>
-      <ul>
-        <li><strong>Intro and Assessment (~10 min)</strong> - We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.</li>
-        <li><strong>Agent install (~15 min)</strong> — Your OpenClaw assistant is typically up and running within 15 minutes on your hardware or cloud</li>
-        <li><strong>Security audit & hardening (~15–30 min)</strong> — Immediately after install we run a full security audit and harden your setup before anything else</li>
-        <li><strong>Feature Orientation (~10 min)</strong> - Once the setup is secure, we'll go through the basics.</li>
-        <li><strong>Skills & tooling (~15 min)</strong> — We'll add whatever skills and tools you'd like — we'll walk through all your options in person</li>
-        <li><strong>Dashboard & customization (~10 min)</strong> — If desired, we'll customize your dashboard layout and preferences. We've built custom tooling to make security audits and other functionality easier and we'll install that for you, if desired</li>
-        <li><strong>Troubleshooting walkthrough (~15 min)</strong> — We'll go through tips for handling basic issues so you're confident on your own</li>
-        <li><strong>Questions</strong> — Any questions you might have, we'll stay until they're all answered. If you don't have any, that's okay too! We can demo some of the cool things we use OpenClaw for instead</li>
-        <li><strong>30 days of follow-up support</strong> — Continued help via Zoom, Discord, or in-person for 30 days after your session</li>
-      </ul>
+      <div class="flow-grid">
+        <div class="flow-steps" id="flow-steps">
+          <div class="flow-step active" data-flow="0">
+            <div class="flow-step-title">Intro and Assessment</div>
+            <div class="flow-step-time">~10 min</div>
+          </div>
+          <div class="flow-step" data-flow="1">
+            <div class="flow-step-title">Agent Install</div>
+            <div class="flow-step-time">~15 min</div>
+          </div>
+          <div class="flow-step" data-flow="2">
+            <div class="flow-step-title">Security Audit &amp; Hardening</div>
+            <div class="flow-step-time">~15–30 min</div>
+          </div>
+          <div class="flow-step" data-flow="3">
+            <div class="flow-step-title">Feature Orientation</div>
+            <div class="flow-step-time">~10 min</div>
+          </div>
+          <div class="flow-step" data-flow="4">
+            <div class="flow-step-title">Skills &amp; Tooling</div>
+            <div class="flow-step-time">~15 min</div>
+          </div>
+          <div class="flow-step" data-flow="5">
+            <div class="flow-step-title">Dashboard &amp; Customization</div>
+            <div class="flow-step-time">~10 min</div>
+          </div>
+          <div class="flow-step" data-flow="6">
+            <div class="flow-step-title">Troubleshooting Walkthrough</div>
+            <div class="flow-step-time">~15 min</div>
+          </div>
+          <div class="flow-step" data-flow="7">
+            <div class="flow-step-title">Questions</div>
+            <div class="flow-step-time">Open-ended</div>
+          </div>
+          <div class="flow-step" data-flow="8">
+            <div class="flow-step-title">30 Days of Follow-Up Support</div>
+            <div class="flow-step-time">Post-session</div>
+          </div>
+        </div>
+        <div class="flow-detail" id="flow-detail">
+          <h3 id="flow-detail-title">Intro and Assessment</h3>
+          <p id="flow-detail-desc">We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.</p>
+        </div>
+      </div>
     </section>
 
     <section id="pick-setup" class="card user-section" style="margin-top:1rem;">
@@ -447,6 +529,28 @@
       const next = (document.body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
       localStorage.setItem('esa_theme', next);
       applyTheme(next);
+    });
+
+    // Session flow interactive steps
+    const flowDescriptions = [
+      "We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.",
+      "Your OpenClaw assistant is typically up and running within 15 minutes on your hardware or cloud.",
+      "Immediately after install we run a full security audit and harden your setup before anything else.",
+      "Once the setup is secure, we'll go through the basics.",
+      "We'll add whatever skills and tools you'd like \u2014 we'll walk through all your options in person.",
+      "If desired, we'll customize your dashboard layout and preferences. We've built custom tooling to make security audits and other functionality easier and we'll install that for you, if desired.",
+      "We'll go through tips for handling basic issues so you're confident on your own.",
+      "Any questions you might have, we'll stay until they're all answered. If you don't have any, that's okay too! We can demo some of the cool things we use OpenClaw for instead.",
+      "Continued help via Zoom, Discord, or in-person for 30 days after your session."
+    ];
+    document.getElementById('flow-steps').addEventListener('click', e => {
+      const step = e.target.closest('.flow-step');
+      if (!step) return;
+      const idx = parseInt(step.dataset.flow, 10);
+      document.querySelectorAll('.flow-step').forEach(s => s.classList.remove('active'));
+      step.classList.add('active');
+      document.getElementById('flow-detail-title').textContent = step.querySelector('.flow-step-title').textContent;
+      document.getElementById('flow-detail-desc').textContent = flowDescriptions[idx];
     });
 
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
