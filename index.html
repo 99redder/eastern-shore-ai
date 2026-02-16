@@ -87,53 +87,32 @@
 
     .brand {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      text-transform: uppercase;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.35rem;
     }
 
     .logo-mark {
-      width: 42px;
-      height: 42px;
+      width: 170px;
+      max-width: 42vw;
       flex-shrink: 0;
     }
 
     .logo-mark img {
       width: 100%;
-      height: 100%;
+      height: auto;
       display: block;
-      object-fit: cover;
+      object-fit: contain;
       border-radius: 10px;
     }
 
-    .brand-text {
-      line-height: 1;
-      font-family: 'Exo 2', system-ui, sans-serif;
-      font-weight: 800;
-      font-size: 1.15rem;
-      letter-spacing: 0.06em;
-      background: linear-gradient(135deg, #35e7ff 0%, #6db3ff 50%, #35e7ff 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .brand-ai {
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-    }
-
-    .brand-text small {
-      display: block;
-      margin-top: 0.3rem;
+    .brand-tagline {
       font-family: 'Rajdhani', system-ui, sans-serif;
-      font-weight: 500;
-      font-size: 0.62rem;
+      font-weight: 700;
+      font-size: 0.68rem;
       letter-spacing: 0.22em;
-      background: none;
-      -webkit-text-fill-color: var(--muted);
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
     .nav {
@@ -586,8 +565,8 @@
 
       h1 { font-size: 1.4rem; }
 
-      .brand-text { font-size: 1rem; }
-      .brand-ai { font-size: 1.15rem; }
+      .logo-mark { width: 135px; max-width: 55vw; }
+      .brand-tagline { font-size: 0.58rem; letter-spacing: 0.17em; }
 
       .nav a { font-size: 0.84rem; padding: 0.45rem 0.7rem; }
 
@@ -607,10 +586,7 @@
         <div class="logo-mark" aria-hidden="true">
           <img src="/logo.png" alt="Eastern Shore AI logo" />
         </div>
-        <div class="brand-text">
-          Eastern Shore <span class="brand-ai">AI</span>
-          <small>BUILD &nbsp;·&nbsp; LEARN &nbsp;·&nbsp; AUTOMATE</small>
-        </div>
+        <div class="brand-tagline">BUILD &nbsp;·&nbsp; LEARN &nbsp;·&nbsp; AUTOMATE</div>
       </div>
       <div class="topbar-right">
         <span>AI Services, Setup, and Education</span>
