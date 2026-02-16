@@ -176,6 +176,8 @@
       border-radius: 0;
       padding: 2rem;
       margin-bottom: 1.2rem;
+      height: 220px;
+      overflow: hidden;
     }
 
     h1, h2, h3, h4 { font-family: 'Titillium Web', system-ui, sans-serif; }
@@ -206,11 +208,29 @@
       opacity: 0;
       transform: translateY(8px);
       transition: opacity 0.35s ease, transform 0.35s ease;
+      height: 100%;
     }
     .hero-slide.active {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       opacity: 1;
       transform: translateY(0);
+    }
+    .hero-slide-image {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+    }
+    .hero-slide-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
     }
 
     .hero-arrow {
@@ -239,10 +259,14 @@
     }
 
     .hero-dots {
+      position: absolute;
+      bottom: 0.6rem;
+      left: 0;
+      right: 0;
       display: flex;
       justify-content: center;
       gap: 0.5rem;
-      margin-top: 0.8rem;
+      z-index: 11;
     }
     .hero-dot {
       width: 10px;
@@ -811,6 +835,7 @@
 
       .hero {
         padding: 1.4rem 3rem;
+        height: 180px;
       }
 
       .hero-lobster {
@@ -841,7 +866,7 @@
       .header-nav { gap: 0.5rem; }
       .header-nav a { font-size: 0.75rem; }
 
-      .hero { padding: 1rem 2.5rem; }
+      .hero { padding: 1rem 2.5rem; height: 160px; }
 
       .card { padding: 0.75rem; }
       .feature-card { padding: 0.55rem 0.65rem; }
@@ -870,8 +895,8 @@
       <button class="hero-arrow hero-arrow-left" aria-label="Previous slide">&#8249;</button>
       <button class="hero-arrow hero-arrow-right" aria-label="Next slide">&#8250;</button>
 
-      <div class="hero-slide active" data-slide="0" style="margin:-2rem -4.6rem -2rem -3rem; padding:0; overflow:hidden;">
-        <img src="/carousel.png" alt="Eastern Shore AI" style="width:100%; display:block; border-radius:0; opacity:0.85;" />
+      <div class="hero-slide hero-slide-image active" data-slide="0">
+        <img src="/carousel.png" alt="Eastern Shore AI" />
       </div>
 
       <div class="hero-slide" data-slide="1">
@@ -1226,7 +1251,7 @@
         heroSlides[prev].classList.remove('active');
         heroSlides[prev].style.cssText = '';
         const newSlide = heroSlides[currentSlide];
-        newSlide.style.display = 'block';
+        newSlide.style.display = 'flex';
         newSlide.style.opacity = '0';
         newSlide.style.transform = 'translateY(8px)';
         requestAnimationFrame(() => {
@@ -1244,6 +1269,14 @@
     rightArrow.addEventListener('click', () => { goToSlide(currentSlide + 1); resetAutoAdvance(); });
     heroDots.forEach(dot => {
       dot.addEventListener('click', () => { goToSlide(parseInt(dot.dataset.dot), true); resetAutoAdvance(); });
+    });
+
+    // Clicking a hero slide syncs the panel below
+    heroSlides.forEach(slide => {
+      slide.addEventListener('click', () => {
+        const idx = parseInt(slide.dataset.slide);
+        if (idx !== currentPanel) goToPanel(idx);
+      });
     });
 
     // Start auto-advance
