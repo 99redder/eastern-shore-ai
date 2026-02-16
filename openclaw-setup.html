@@ -11,10 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;800&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     :root { --bg:#070b14; --bg2:#0e1630; --card:#121b38; --text:#e8eeff; --muted:#9fb0d8; --cyan:#35e7ff; --line:#24335f; --violet:#8f7bff; }
+    body[data-theme="light"] { --bg:#edf3ff; --bg2:#dfe9ff; --card:#ffffff; --text:#13213f; --muted:#495a82; --cyan:#165de0; --line:#c8d6f4; --violet:#5e49d7; }
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body { margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--text);
       background:radial-gradient(circle at 20% 10%, #182a57 0%, var(--bg) 40%), linear-gradient(140deg, var(--bg), var(--bg2)); }
+    body[data-theme="light"] { background:radial-gradient(circle at 20% 10%, #ffffff 0%, var(--bg) 45%), linear-gradient(140deg, var(--bg), var(--bg2)); }
     .container { max-width:920px; margin:0 auto; padding:1.2rem; }
     a { color:var(--cyan); }
     .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:1rem; }
@@ -143,6 +145,11 @@
       text-transform:uppercase; letter-spacing:0.04em;
     }
     .top-book-btn:hover { background:linear-gradient(145deg,#5a7cff,#4a6cf7); box-shadow:0 0 28px rgba(74,108,247,0.6); }
+    .theme-toggle {
+      position:fixed; top:14px; right:14px; z-index:160;
+      border:1px solid var(--line); background:var(--card); color:var(--text);
+      border-radius:999px; padding:.42rem .7rem; font-size:.82rem; cursor:pointer;
+    }
 
     @media (max-width: 760px) {
       .booking-grid, .admin-grid { grid-template-columns:1fr; }
@@ -190,6 +197,7 @@
   </style>
 </head>
 <body>
+  <button type="button" class="theme-toggle" id="theme-toggle">Light mode</button>
   <a href="#pick-setup" class="top-book-btn">Book + Pay Now</a>
   <div class="container">
     <p class="user-section"><a href="/">← Back to Eastern Shore AI</a></p>
@@ -457,6 +465,20 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('esa_theme') || 'dark';
+    function applyTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+      themeToggleBtn.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+    }
+    applyTheme(savedTheme);
+    themeToggleBtn.addEventListener('click', () => {
+      const next = (document.body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('esa_theme', next);
+      applyTheme(next);
+    });
+
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');

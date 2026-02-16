@@ -31,6 +31,18 @@
       --line: #24335f;
     }
 
+    body[data-theme="light"] {
+      --bg: #edf3ff;
+      --bg2: #dfe9ff;
+      --card: #ffffff;
+      --text: #13213f;
+      --muted: #495a82;
+      --cyan: #165de0;
+      --violet: #5e49d7;
+      --pink: #cc2f9b;
+      --line: #c8d6f4;
+    }
+
     * { box-sizing: border-box; }
 
     body {
@@ -40,6 +52,11 @@
                   linear-gradient(140deg, var(--bg), var(--bg2));
       color: var(--text);
       min-height: 100vh;
+    }
+
+    body[data-theme="light"] {
+      background: radial-gradient(circle at 20% 10%, #ffffff 0%, var(--bg) 45%),
+                  linear-gradient(140deg, var(--bg), var(--bg2));
     }
 
     .container {
@@ -55,6 +72,17 @@
       gap: 1rem;
       padding: 0.75rem 0;
       border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-right { display:flex; align-items:center; gap:.6rem; color:var(--muted); font-size:0.9rem; }
+    .theme-toggle {
+      border:1px solid var(--line);
+      background:var(--card);
+      color:var(--text);
+      border-radius:999px;
+      padding:.4rem .7rem;
+      font-size:.82rem;
+      cursor:pointer;
     }
 
     .brand {
@@ -604,7 +632,10 @@
           <small>BUILD &nbsp;·&nbsp; LEARN &nbsp;·&nbsp; AUTOMATE</small>
         </div>
       </div>
-      <div style="color:#8fa3d8;font-size:0.9rem;">AI Services, Setup, and Education</div>
+      <div class="topbar-right">
+        <span>AI Services, Setup, and Education</span>
+        <button type="button" class="theme-toggle" id="theme-toggle">Light mode</button>
+      </div>
     </header>
 
     <nav class="nav" aria-label="Main links">
@@ -837,6 +868,22 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('esa_theme') || 'dark';
+
+    function applyTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+      themeToggleBtn.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+    }
+
+    applyTheme(savedTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      const next = (document.body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('esa_theme', next);
+      applyTheme(next);
+    });
 
     // Hero carousel + synced offer panels
     const heroSlides = document.querySelectorAll('.hero-slide');
