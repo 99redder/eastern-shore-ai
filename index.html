@@ -1009,8 +1009,16 @@
       opacity: 0;
     }
     .storm-active .storm-rain {
-      animation: rainFade 4.5s ease-out forwards;
+      animation: rainIntro 2s ease-out forwards;
       animation-delay: 1.2s;
+    }
+    .storm-rain.rain-steady {
+      opacity: 0.5;
+      transition: opacity 0.8s ease;
+    }
+    .storm-rain.rain-stopping {
+      opacity: 0;
+      transition: opacity 1s ease;
     }
     .rain-drop {
       position: absolute;
@@ -1023,12 +1031,10 @@
       0%   { transform: translateY(-20px); }
       100% { transform: translateY(100vh); }
     }
-    @keyframes rainFade {
+    @keyframes rainIntro {
       0%   { opacity: 0; }
-      8%   { opacity: 0.8; }
-      60%  { opacity: 0.6; }
-      85%  { opacity: 0.2; }
-      100% { opacity: 0; }
+      50%  { opacity: 0.6; }
+      100% { opacity: 0.5; }
     }
   </style>
 </head>
@@ -1413,12 +1419,12 @@
       rainEl.appendChild(drop);
     }
     requestAnimationFrame(() => stormEl.classList.add('storm-active'));
-    // Clean up everything after animations finish
+    // Remove lightning after it finishes, keep rain steady
     setTimeout(() => {
       stormEl.classList.remove('storm-active');
-      rainEl.remove();
       document.querySelectorAll('.storm-bolt').forEach(el => el.remove());
-    }, 6000);
+      rainEl.classList.add('rain-steady');
+    }, 3500);
 
     const themeToggleBtn = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('esa_theme') || 'dark';
