@@ -276,8 +276,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   if (env.DB) {
     await env.DB.prepare(
       `INSERT INTO bookings (
-        stripe_session_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents
-      ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, ?7)`
+        stripe_session_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents, service_type
+      ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
     ).bind(
       stripeData.id,
       setupDate,
@@ -285,7 +285,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
       setupAt,
       customerName || null,
       customerEmail || null,
-      serviceConfig.amountCents
+      serviceConfig.amountCents,
+      serviceConfig.key
     ).run();
   }
 
@@ -340,8 +341,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         `INSERT INTO bookings (
           stripe_session_id, stripe_payment_intent_id, status,
           setup_date, setup_time, setup_at,
-          customer_name, customer_email, amount_cents, paid_at
-        ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, datetime('now'))
+          customer_name, customer_email, amount_cents, service_type, paid_at
+        ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, ?9, datetime('now'))
         ON CONFLICT(stripe_session_id) DO UPDATE SET
           stripe_payment_intent_id=excluded.stripe_payment_intent_id,
           status='paid',
@@ -351,6 +352,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           customer_name=COALESCE(excluded.customer_name, bookings.customer_name),
           customer_email=COALESCE(excluded.customer_email, bookings.customer_email),
           amount_cents=excluded.amount_cents,
+          service_type=COALESCE(excluded.service_type, bookings.service_type),
           paid_at=datetime('now'),
           updated_at=datetime('now')`
       ).bind(
@@ -361,7 +363,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         setupAt,
         customerName,
         customerEmail,
-        amount
+        amount,
+        serviceType
       ).run();
 
       const incomeDate = /^\d{4}-\d{2}-\d{2}$/.test(setupDate || '')
@@ -417,7 +420,7 @@ async function handleBookings(request, env, corsHeaders, url) {
 
   const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 20)));
   const rows = await env.DB.prepare(
-    `SELECT id, stripe_session_id, stripe_payment_intent_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents, paid_at, created_at, updated_at
+    `SELECT id, stripe_session_id, stripe_payment_intent_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents, service_type, paid_at, created_at, updated_at
      FROM bookings
      ORDER BY created_at DESC
      LIMIT ?1`

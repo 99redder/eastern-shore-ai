@@ -887,7 +887,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         const lines = [];
-        for (const b of (data.bookings || [])) lines.push(`[BOOKING] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}`);
+        for (const b of (data.bookings || [])) { const svc = b.service_type === 'lessons' ? 'LESSONS' : 'OPENCLAW'; lines.push(`[BOOKING:${svc}] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}`); }
         for (const s of (data.blockedSlots || [])) lines.push(`[BLOCKED SLOT] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}`);
         for (const d of (data.blockedDays || [])) lines.push(`[BLOCKED DAY] ${d.active ? 'active' : 'inactive'} | ${d.setup_date} | ${d.reason || '(no reason)'}`);
         adminListEl.textContent = lines.length ? lines.join('\n') : 'No records yet.';
