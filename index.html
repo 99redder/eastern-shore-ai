@@ -879,31 +879,21 @@
     }
 
     .neon-switch {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      border-radius: 999px;
+      width: 2rem;
+      height: 2rem;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      margin-bottom: 0.6rem;
+      justify-content: center;
       cursor: pointer;
-      background: transparent;
-      border: 1px solid var(--line);
-      border-radius: 2px;
-      padding: 0.35rem 0.7rem;
-      color: #7a7e96;
-      font-family: 'Titillium Web', system-ui, sans-serif;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
+      line-height: 1;
       transition: color 0.3s, border-color 0.3s;
     }
     .neon-switch:hover { color: #ff4fd8; border-color: #ff4fd8; }
     .neon-switch.off { color: #555; border-color: #333; }
-    .neon-switch-lever {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      transition: transform 0.2s;
-    }
-    .neon-switch.off .neon-switch-lever { transform: rotate(180deg); }
     #neon-logo {
       transition: filter 0.6s ease, opacity 0.6s ease;
     }
@@ -1234,6 +1224,7 @@
         <a href="#" id="buy-domain-link">Buy This Domain Now</a>
       </nav>
       <div class="header-right">
+        <button type="button" class="neon-switch" id="neon-switch" aria-label="Toggle neon sign" title="Toggle neon sign"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg></button>
         <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
       </div>
     </div>
@@ -1503,10 +1494,6 @@
     </div>
 
     <footer>
-      <button type="button" class="neon-switch" id="neon-switch" aria-label="Toggle neon sign">
-        <svg class="neon-switch-lever" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg>
-        Neon Sign
-      </button><br>
       © <span id="year"></span> Eastern Shore AI, LLC<br>
       <a href="#" class="footer-link" id="contact-link">Contact Us</a>
       <a href="#" class="footer-link" id="about-link">About Us</a>
@@ -2098,45 +2085,72 @@
       function neonBuzz(turnOn) {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const now = audioCtx.currentTime;
-        const dur = turnOn ? 0.5 : 0.35;
-        const gain = audioCtx.createGain();
-        gain.connect(audioCtx.destination);
+        const dur = turnOn ? 0.8 : 0.5;
+        const master = audioCtx.createGain();
+        master.gain.setValueAtTime(0.12, now);
+        master.connect(audioCtx.destination);
 
-        // Base electrical hum
-        const osc1 = audioCtx.createOscillator();
-        osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(turnOn ? 90 : 120, now);
-        if (turnOn) osc1.frequency.linearRampToValueAtTime(60, now + dur);
-        else osc1.frequency.linearRampToValueAtTime(40, now + dur);
-        osc1.connect(gain);
-        osc1.start(now);
-        osc1.stop(now + dur);
+        // 60Hz mains hum (sine — clean, warm)
+        const hum = audioCtx.createOscillator();
+        hum.type = 'sine';
+        hum.frequency.setValueAtTime(60, now);
+        const humGain = audioCtx.createGain();
+        hum.connect(humGain);
+        humGain.connect(master);
+        hum.start(now);
+        hum.stop(now + dur);
 
-        // High voltage crackle
-        const osc2 = audioCtx.createOscillator();
-        osc2.type = 'square';
-        osc2.frequency.setValueAtTime(turnOn ? 2400 : 1800, now);
-        osc2.frequency.linearRampToValueAtTime(turnOn ? 3200 : 600, now + dur * 0.3);
-        osc2.frequency.linearRampToValueAtTime(turnOn ? 2800 : 200, now + dur);
-        const osc2Gain = audioCtx.createGain();
-        osc2Gain.gain.setValueAtTime(0.04, now);
-        osc2Gain.gain.linearRampToValueAtTime(0, now + dur);
-        osc2.connect(osc2Gain);
-        osc2Gain.connect(gain);
-        osc2.start(now);
-        osc2.stop(now + dur);
+        // 120Hz harmonic (the classic fluorescent ballast buzz)
+        const buzz = audioCtx.createOscillator();
+        buzz.type = 'sine';
+        buzz.frequency.setValueAtTime(120, now);
+        const buzzGain = audioCtx.createGain();
+        buzz.connect(buzzGain);
+        buzzGain.connect(master);
+        buzz.start(now);
+        buzz.stop(now + dur);
 
-        // Envelope
+        // Gentle high-freq sizzle via filtered noise
+        const bufLen = audioCtx.sampleRate * dur;
+        const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+        const data = noiseBuf.getChannelData(0);
+        for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuf;
+        const bandpass = audioCtx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.setValueAtTime(3000, now);
+        bandpass.Q.setValueAtTime(2, now);
+        const noiseGain = audioCtx.createGain();
+        noise.connect(bandpass);
+        bandpass.connect(noiseGain);
+        noiseGain.connect(master);
+        noise.start(now);
+
         if (turnOn) {
-          gain.gain.setValueAtTime(0, now);
-          gain.gain.linearRampToValueAtTime(0.18, now + 0.03);
-          gain.gain.linearRampToValueAtTime(0.12, now + 0.1);
-          gain.gain.setValueAtTime(0.14, now + 0.15);
-          gain.gain.linearRampToValueAtTime(0, now + dur);
+          // Soft click, hum ramps up, sizzle fades
+          humGain.gain.setValueAtTime(0, now);
+          humGain.gain.linearRampToValueAtTime(0.6, now + 0.08);
+          humGain.gain.setValueAtTime(0.3, now + 0.12);
+          humGain.gain.linearRampToValueAtTime(0.5, now + 0.3);
+          humGain.gain.linearRampToValueAtTime(0, now + dur);
+          buzzGain.gain.setValueAtTime(0, now);
+          buzzGain.gain.linearRampToValueAtTime(0.4, now + 0.1);
+          buzzGain.gain.linearRampToValueAtTime(0.25, now + 0.4);
+          buzzGain.gain.linearRampToValueAtTime(0, now + dur);
+          noiseGain.gain.setValueAtTime(0.15, now);
+          noiseGain.gain.linearRampToValueAtTime(0.04, now + 0.2);
+          noiseGain.gain.linearRampToValueAtTime(0, now + dur);
         } else {
-          gain.gain.setValueAtTime(0.15, now);
-          gain.gain.linearRampToValueAtTime(0.08, now + 0.05);
-          gain.gain.linearRampToValueAtTime(0, now + dur);
+          // Hum dies down, soft thunk
+          humGain.gain.setValueAtTime(0.5, now);
+          humGain.gain.linearRampToValueAtTime(0.15, now + 0.1);
+          humGain.gain.linearRampToValueAtTime(0, now + dur);
+          buzzGain.gain.setValueAtTime(0.3, now);
+          buzzGain.gain.linearRampToValueAtTime(0.05, now + 0.08);
+          buzzGain.gain.linearRampToValueAtTime(0, now + dur * 0.6);
+          noiseGain.gain.setValueAtTime(0.08, now);
+          noiseGain.gain.linearRampToValueAtTime(0, now + 0.15);
         }
       }
 
