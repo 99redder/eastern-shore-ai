@@ -97,19 +97,17 @@
       text-transform: uppercase;
       text-decoration: none;
       white-space: nowrap;
-      animation: logo-glitch-glow 4s ease-in-out infinite;
+      display: inline-block;
+      animation: logo-glitch-glow 10s ease-in-out infinite;
     }
     @keyframes logo-glitch-glow {
-      0%, 39%   { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
-      40%       { text-shadow: 0 0 18px rgba(255,79,216,0.7), 0 0 40px rgba(255,79,216,0.3); transform: translate(-2px, 1px) skewX(-3deg); }
-      41%       { text-shadow: 0 0 24px rgba(0,229,255,0.8), 0 0 50px rgba(0,229,255,0.3); transform: translate(2px, -1px) skewX(2deg); }
-      42%       { text-shadow: 0 0 30px rgba(255,79,216,0.9), 0 0 60px rgba(255,79,216,0.4); transform: translate(-1px, 0) skewX(-1deg); }
-      43%       { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
-      44%, 89%  { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
-      90%       { text-shadow: 0 0 22px rgba(0,229,255,0.8), 0 0 50px rgba(0,229,255,0.3); transform: translate(1px, 1px) skewX(2deg); }
-      91%       { text-shadow: 0 0 28px rgba(255,79,216,0.9), 0 0 55px rgba(255,79,216,0.4); transform: translate(-2px, -1px) skewX(-2deg); }
-      92%       { text-shadow: 0 0 18px rgba(255,79,216,0.6); transform: translate(1px, 0) skewX(1deg); }
-      93%, 100% { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
+      0%, 58%   { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
+      60%       { text-shadow: 0 0 14px rgba(255,79,216,0.5), 0 0 30px rgba(255,79,216,0.2); transform: translate(-2px, 1px) skewX(-2deg); }
+      63%       { text-shadow: 0 0 22px rgba(0,229,255,0.7), 0 0 45px rgba(0,229,255,0.25); transform: translate(2px, -1px) skewX(1.5deg); }
+      66%       { text-shadow: 0 0 28px rgba(255,79,216,0.85), 0 0 55px rgba(255,79,216,0.35); transform: translate(-1px, 0) skewX(-1deg); }
+      69%       { text-shadow: 0 0 18px rgba(0,229,255,0.6), 0 0 40px rgba(0,229,255,0.2); transform: translate(1px, 1px) skewX(0.5deg); }
+      72%       { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
+      73%, 100% { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
     }
 
     .header-nav {
@@ -1563,23 +1561,17 @@
         return chars.join('');
       }
       function runGlitch() {
-        // First glitch burst at ~40% of 4s = 1600ms
+        // Single glitch burst at ~60% of 10s = 6000ms, slower steps
         setTimeout(() => {
           logo.textContent = glitchBurst();
-          setTimeout(() => { logo.textContent = glitchBurst(); }, 40);
-          setTimeout(() => { logo.textContent = glitchBurst(); }, 80);
-          setTimeout(() => { logo.textContent = original; }, 120);
-        }, 1600);
-        // Second glitch burst at ~90% of 4s = 3600ms
-        setTimeout(() => {
-          logo.textContent = glitchBurst();
-          setTimeout(() => { logo.textContent = glitchBurst(); }, 40);
-          setTimeout(() => { logo.textContent = glitchBurst(); }, 80);
-          setTimeout(() => { logo.textContent = original; }, 120);
-        }, 3600);
+          setTimeout(() => { logo.textContent = glitchBurst(); }, 300);
+          setTimeout(() => { logo.textContent = glitchBurst(); }, 600);
+          setTimeout(() => { logo.textContent = glitchBurst(); }, 900);
+          setTimeout(() => { logo.textContent = original; }, 1200);
+        }, 6000);
       }
       runGlitch();
-      setInterval(runGlitch, 4000);
+      setInterval(runGlitch, 10000);
     })();
 
     // Pink electric storm + rain on load
