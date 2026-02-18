@@ -2102,7 +2102,7 @@
 
         // 120Hz harmonic (the classic fluorescent ballast buzz)
         const buzz = audioCtx.createOscillator();
-        buzz.type = 'sine';
+        buzz.type = 'sawtooth';
         buzz.frequency.setValueAtTime(120, now);
         const buzzGain = audioCtx.createGain();
         buzz.connect(buzzGain);
@@ -2110,7 +2110,27 @@
         buzz.start(now);
         buzz.stop(now + dur);
 
-        // Gentle high-freq sizzle via filtered noise
+        // 180Hz 3rd harmonic — adds grittiness
+        const buzz3 = audioCtx.createOscillator();
+        buzz3.type = 'sine';
+        buzz3.frequency.setValueAtTime(180, now);
+        const buzz3Gain = audioCtx.createGain();
+        buzz3.connect(buzz3Gain);
+        buzz3Gain.connect(master);
+        buzz3.start(now);
+        buzz3.stop(now + dur);
+
+        // 240Hz 4th harmonic — the angry buzz
+        const buzz4 = audioCtx.createOscillator();
+        buzz4.type = 'triangle';
+        buzz4.frequency.setValueAtTime(240, now);
+        const buzz4Gain = audioCtx.createGain();
+        buzz4.connect(buzz4Gain);
+        buzz4Gain.connect(master);
+        buzz4.start(now);
+        buzz4.stop(now + dur);
+
+        // High-freq sizzle via filtered noise
         const bufLen = audioCtx.sampleRate * dur;
         const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
         const data = noiseBuf.getChannelData(0);
@@ -2128,28 +2148,39 @@
         noise.start(now);
 
         if (turnOn) {
-          // Soft click, hum ramps up, sizzle fades
           humGain.gain.setValueAtTime(0, now);
           humGain.gain.linearRampToValueAtTime(0.6, now + 0.08);
           humGain.gain.setValueAtTime(0.3, now + 0.12);
           humGain.gain.linearRampToValueAtTime(0.5, now + 0.3);
           humGain.gain.linearRampToValueAtTime(0, now + dur);
           buzzGain.gain.setValueAtTime(0, now);
-          buzzGain.gain.linearRampToValueAtTime(0.4, now + 0.1);
-          buzzGain.gain.linearRampToValueAtTime(0.25, now + 0.4);
+          buzzGain.gain.linearRampToValueAtTime(0.5, now + 0.1);
+          buzzGain.gain.linearRampToValueAtTime(0.35, now + 0.4);
           buzzGain.gain.linearRampToValueAtTime(0, now + dur);
+          buzz3Gain.gain.setValueAtTime(0, now);
+          buzz3Gain.gain.linearRampToValueAtTime(0.3, now + 0.1);
+          buzz3Gain.gain.linearRampToValueAtTime(0.2, now + 0.4);
+          buzz3Gain.gain.linearRampToValueAtTime(0, now + dur);
+          buzz4Gain.gain.setValueAtTime(0, now);
+          buzz4Gain.gain.linearRampToValueAtTime(0.25, now + 0.12);
+          buzz4Gain.gain.linearRampToValueAtTime(0.15, now + 0.4);
+          buzz4Gain.gain.linearRampToValueAtTime(0, now + dur);
           noiseGain.gain.setValueAtTime(0.15, now);
-          noiseGain.gain.linearRampToValueAtTime(0.04, now + 0.2);
+          noiseGain.gain.linearRampToValueAtTime(0.06, now + 0.2);
           noiseGain.gain.linearRampToValueAtTime(0, now + dur);
         } else {
-          // Hum dies down, soft thunk
           humGain.gain.setValueAtTime(0.5, now);
           humGain.gain.linearRampToValueAtTime(0.15, now + 0.1);
           humGain.gain.linearRampToValueAtTime(0, now + dur);
-          buzzGain.gain.setValueAtTime(0.3, now);
-          buzzGain.gain.linearRampToValueAtTime(0.05, now + 0.08);
+          buzzGain.gain.setValueAtTime(0.4, now);
+          buzzGain.gain.linearRampToValueAtTime(0.1, now + 0.08);
           buzzGain.gain.linearRampToValueAtTime(0, now + dur * 0.6);
-          noiseGain.gain.setValueAtTime(0.08, now);
+          buzz3Gain.gain.setValueAtTime(0.25, now);
+          buzz3Gain.gain.linearRampToValueAtTime(0.05, now + 0.1);
+          buzz3Gain.gain.linearRampToValueAtTime(0, now + dur * 0.5);
+          buzz4Gain.gain.setValueAtTime(0.2, now);
+          buzz4Gain.gain.linearRampToValueAtTime(0, now + 0.12);
+          noiseGain.gain.setValueAtTime(0.1, now);
           noiseGain.gain.linearRampToValueAtTime(0, now + 0.15);
         }
       }
