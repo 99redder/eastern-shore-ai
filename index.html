@@ -878,6 +878,52 @@
       border-top: 1px solid var(--line);
     }
 
+    .neon-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 0.35rem 0.7rem;
+      color: #7a7e96;
+      font-family: 'Titillium Web', system-ui, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .neon-switch:hover { color: #ff4fd8; border-color: #ff4fd8; }
+    .neon-switch.off { color: #555; border-color: #333; }
+    .neon-switch-lever {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      transition: transform 0.2s;
+    }
+    .neon-switch.off .neon-switch-lever { transform: rotate(180deg); }
+    #neon-logo {
+      transition: filter 0.6s ease, opacity 0.6s ease;
+    }
+    #neon-logo.off {
+      filter: brightness(0.15) saturate(0);
+      opacity: 0.7;
+    }
+    #neon-logo.flicker {
+      animation: neon-flicker 0.4s steps(2, end);
+    }
+    @keyframes neon-flicker {
+      0%   { filter: brightness(1) saturate(1); opacity: 1; }
+      15%  { filter: brightness(0.3) saturate(0.3); opacity: 0.5; }
+      30%  { filter: brightness(0.9) saturate(0.8); opacity: 0.9; }
+      45%  { filter: brightness(0.2) saturate(0.1); opacity: 0.4; }
+      60%  { filter: brightness(1.1) saturate(1.1); opacity: 1; }
+      75%  { filter: brightness(0.4) saturate(0.2); opacity: 0.6; }
+      100% { filter: brightness(1) saturate(1); opacity: 1; }
+    }
+
     .footer-link {
       display: inline-block;
       margin: 0.2rem 0.4rem 0;
@@ -1273,7 +1319,7 @@
     <div class="offer-grid-wrap">
       <div class="offer-panel active" data-panel="0">
         <div class="card about-panel">
-          <img src="logo.jpg" alt="Eastern Shore AI — neon cyberpunk logo" />
+          <img src="logo.jpg" alt="Eastern Shore AI — neon cyberpunk logo" id="neon-logo" />
           <div class="about-panel-text">
             <h2>What We Do</h2>
             <div class="about-panel-images">
@@ -1457,6 +1503,10 @@
     </div>
 
     <footer>
+      <button type="button" class="neon-switch" id="neon-switch" aria-label="Toggle neon sign">
+        <svg class="neon-switch-lever" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg>
+        Neon Sign
+      </button><br>
       © <span id="year"></span> Eastern Shore AI, LLC<br>
       <a href="#" class="footer-link" id="contact-link">Contact Us</a>
       <a href="#" class="footer-link" id="about-link">About Us</a>
@@ -2036,6 +2086,85 @@
       }
     ]
   }
+  </script>
+  <script>
+    // Neon sign lightswitch
+    (function() {
+      const btn = document.getElementById('neon-switch');
+      const logo = document.getElementById('neon-logo');
+      let isOn = true;
+      let audioCtx;
+
+      function neonBuzz(turnOn) {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        const dur = turnOn ? 0.5 : 0.35;
+        const gain = audioCtx.createGain();
+        gain.connect(audioCtx.destination);
+
+        // Base electrical hum
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(turnOn ? 90 : 120, now);
+        if (turnOn) osc1.frequency.linearRampToValueAtTime(60, now + dur);
+        else osc1.frequency.linearRampToValueAtTime(40, now + dur);
+        osc1.connect(gain);
+        osc1.start(now);
+        osc1.stop(now + dur);
+
+        // High voltage crackle
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'square';
+        osc2.frequency.setValueAtTime(turnOn ? 2400 : 1800, now);
+        osc2.frequency.linearRampToValueAtTime(turnOn ? 3200 : 600, now + dur * 0.3);
+        osc2.frequency.linearRampToValueAtTime(turnOn ? 2800 : 200, now + dur);
+        const osc2Gain = audioCtx.createGain();
+        osc2Gain.gain.setValueAtTime(0.04, now);
+        osc2Gain.gain.linearRampToValueAtTime(0, now + dur);
+        osc2.connect(osc2Gain);
+        osc2Gain.connect(gain);
+        osc2.start(now);
+        osc2.stop(now + dur);
+
+        // Envelope
+        if (turnOn) {
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.18, now + 0.03);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.1);
+          gain.gain.setValueAtTime(0.14, now + 0.15);
+          gain.gain.linearRampToValueAtTime(0, now + dur);
+        } else {
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.linearRampToValueAtTime(0.08, now + 0.05);
+          gain.gain.linearRampToValueAtTime(0, now + dur);
+        }
+      }
+
+      btn.addEventListener('click', () => {
+        neonBuzz(!isOn);
+
+        if (isOn) {
+          // Turn off — flicker then go dark
+          logo.classList.add('flicker');
+          setTimeout(() => {
+            logo.classList.remove('flicker');
+            logo.classList.add('off');
+            logo.src = 'logo-off.png';
+          }, 400);
+          btn.classList.add('off');
+        } else {
+          // Turn on — swap image, flicker, then full brightness
+          logo.src = 'logo.jpg';
+          logo.classList.remove('off');
+          logo.classList.add('flicker');
+          setTimeout(() => {
+            logo.classList.remove('flicker');
+          }, 400);
+          btn.classList.remove('off');
+        }
+        isOn = !isOn;
+      });
+    })();
   </script>
 </body>
 </html>
