@@ -1,3 +1,23 @@
+// ===== ROUTE HANDLER INDEX =====
+// POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
+// POST /api/checkout-session    → handleCheckoutSession() — Create Stripe checkout with conflict + past-time checks
+// POST /api/stripe-webhook      → handleStripeWebhook()   — Stripe payment confirmation, records booking in D1, auto-inserts tax income
+// GET  /api/availability        → handleAvailability()    — Public unavailable slots + blocked dates
+// GET  /api/bookings            → handleBookings()        — Admin: read bookings + blocked slots + blocked days
+// POST /api/admin/block-slot    → handleAdminBlockSlot()  — Admin: block/unblock a specific 2-hour slot
+// POST /api/admin/block-day     → handleAdminBlockDay()   — Admin: block/unblock an entire day
+// GET  /api/tax/transactions    → handleTaxTransactions() — Admin: tax entries by year/type
+// POST /api/tax/expense         → handleTaxExpense()      — Admin: add expense entry
+// POST /api/tax/income          → handleTaxIncome()       — Admin: add income entry
+// GET  /api/tax/export.csv      → handleTaxExportCsv()    — Admin: CSV export for selected year/type
+//
+// ===== UTILITY FUNCTIONS =====
+// requireAdmin(request, env)           — Validate X-Admin-Password header
+// toCents(v)                           — Convert dollar string to integer cents
+// csvEscape(s)                         — Escape string for CSV output
+// verifyStripeSignature(payload, sig, secret) — HMAC-SHA256 Stripe webhook verification
+// json(data, status, headers)          — Build JSON Response
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
@@ -86,6 +106,13 @@ export default {
   }
 };
 
+/**
+ * POST /api/contact — Process contact form submissions and send via Resend
+ * @param {Request} request - JSON body: {name, email, message, mode, offer?, honey?}
+ * @param {Object} env - Worker env (RESEND_API_KEY, TO_EMAIL, FROM_EMAIL)
+ * @param {Object} corsHeaders
+ * @returns {Response} {ok: true} or {ok: false, error: string}
+ */
 async function handleContact(request, env, corsHeaders) {
   let data;
   try {
@@ -146,6 +173,12 @@ async function handleContact(request, env, corsHeaders) {
   return json({ ok: true }, 200, corsHeaders);
 }
 
+/**
+ * POST /api/checkout-session — Create Stripe checkout session with booking conflict + past-time checks
+ * @param {Request} request - JSON body: {setupDate, setupTime, customerName, customerEmail, serviceType?}
+ * @param {Object} env - Worker env (STRIPE_SECRET_KEY, DB)
+ * @returns {Response} {ok: true, checkoutUrl, id} or error
+ */
 async function handleCheckoutSession(request, env, corsHeaders, originAllowed, allowedOrigins) {
   let data;
   try {
@@ -293,6 +326,12 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   return json({ ok: true, checkoutUrl: stripeData.url, id: stripeData.id }, 200, corsHeaders);
 }
 
+/**
+ * POST /api/stripe-webhook — Verify Stripe signature, upsert booking as paid, auto-insert tax income
+ * @param {Request} request - Raw body with Stripe-Signature header
+ * @param {Object} env - Worker env (STRIPE_WEBHOOK_SECRET, DB)
+ * @returns {Response} {ok: true} or error
+ */
 async function handleStripeWebhook(request, env, corsHeaders) {
   if (request.method !== 'POST') {
     return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -390,6 +429,9 @@ async function handleStripeWebhook(request, env, corsHeaders) {
   return json({ ok: true }, 200, corsHeaders);
 }
 
+// ===== Utility Functions =====
+
+/** Validate admin password from X-Admin-Password header or ?key query param */
 function requireAdmin(request, env, corsHeaders, url) {
   const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
   const expected = (env.ADMIN_PASSWORD || '').trim();
@@ -398,18 +440,24 @@ function requireAdmin(request, env, corsHeaders, url) {
   return { ok: true };
 }
 
+/** @param {string|number} amount - Dollar amount @returns {number|null} Integer cents */
 function toCents(amount) {
   const n = Number(amount);
   if (!Number.isFinite(n)) return null;
   return Math.round(n * 100);
 }
 
+/** @param {*} v - Value to escape for CSV output @returns {string} */
 function csvEscape(v) {
   const s = (v ?? '').toString();
   if (/[\n\r",]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
   return s;
 }
 
+/**
+ * GET /api/bookings — Admin: fetch all bookings + blocked slots + blocked days
+ * @returns {Response} {ok: true, bookings, blockedSlots, blockedDays}
+ */
 async function handleBookings(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
@@ -443,6 +491,10 @@ async function handleBookings(request, env, corsHeaders, url) {
   return json({ ok: true, bookings: rows.results || [], blockedSlots: blocked.results || [], blockedDays: blockedDays.results || [] }, 200, corsHeaders);
 }
 
+/**
+ * GET /api/availability — Public: return unavailable setup_at values and blocked dates
+ * @returns {Response} {ok: true, unavailable: string[], blockedDates: string[]}
+ */
 async function handleAvailability(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: true, unavailable: [] }, 200, corsHeaders);
@@ -483,6 +535,11 @@ async function handleAvailability(request, env, corsHeaders, url) {
   return json({ ok: true, unavailable, blockedDates }, 200, corsHeaders);
 }
 
+/**
+ * POST /api/admin/block-slot — Block or unblock a specific 2-hour setup slot
+ * @param {Request} request - JSON body: {setupDate, setupTime, active}
+ * @returns {Response} {ok: true}
+ */
 async function handleAdminBlockSlot(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
@@ -521,6 +578,11 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
   return json({ ok: true, setupAt, active: !!active }, 200, corsHeaders);
 }
 
+/**
+ * POST /api/admin/block-day — Block or unblock an entire day
+ * @param {Request} request - JSON body: {date, active}
+ * @returns {Response} {ok: true}
+ */
 async function handleAdminBlockDay(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
@@ -556,6 +618,10 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
   return json({ ok: true, setupDate, active: !!active }, 200, corsHeaders);
 }
 
+/**
+ * GET /api/tax/transactions — Admin: fetch tax entries filtered by year and type
+ * @returns {Response} {ok: true, income: [], expenses: []}
+ */
 async function handleTaxTransactions(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
@@ -597,6 +663,11 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
   }, 200, corsHeaders);
 }
 
+/**
+ * POST /api/tax/expense — Admin: add a manual expense entry
+ * @param {Request} request - JSON body: {date, category, description, amount}
+ * @returns {Response} {ok: true, id}
+ */
 async function handleTaxExpense(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
@@ -624,6 +695,11 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
   return json({ ok: true, id: r.meta?.last_row_id || null }, 200, corsHeaders);
 }
 
+/**
+ * POST /api/tax/income — Admin: add a manual income entry
+ * @param {Request} request - JSON body: {date, category, description, amount}
+ * @returns {Response} {ok: true, id}
+ */
 async function handleTaxIncome(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
@@ -651,6 +727,10 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
   return json({ ok: true, id: r.meta?.last_row_id || null }, 200, corsHeaders);
 }
 
+/**
+ * GET /api/tax/export.csv — Admin: download CSV of tax entries for selected year/type
+ * @returns {Response} CSV file attachment
+ */
 async function handleTaxExportCsv(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
@@ -722,6 +802,13 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
   });
 }
 
+/**
+ * Verify Stripe webhook signature using HMAC-SHA256
+ * @param {string} payload - Raw request body
+ * @param {string} stripeSignature - Stripe-Signature header value
+ * @param {string} webhookSecret - STRIPE_WEBHOOK_SECRET
+ * @returns {Promise<boolean>}
+ */
 async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
   // Stripe-Signature header format: t=timestamp,v1=signature[,v1=signature2]
   const parts = Object.fromEntries(
@@ -754,6 +841,7 @@ async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
   return { ok: mismatch === 0 };
 }
 
+/** @param {Object} payload @param {number} [status=200] @param {Object} [headers] @returns {Response} */
 function json(payload, status = 200, headers = {}) {
   return new Response(JSON.stringify(payload), {
     status,

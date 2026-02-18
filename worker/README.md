@@ -16,7 +16,7 @@ This worker receives contact/domain-offer form submissions and emails them to `e
 - `wrangler secret put RESEND_API_KEY`
 - `wrangler secret put STRIPE_SECRET_KEY`
 - `wrangler secret put STRIPE_WEBHOOK_SECRET`
-- `wrangler secret put ADMIN_API_KEY`
+- `wrangler secret put ADMIN_PASSWORD`
 
 ## 4) Deploy
 

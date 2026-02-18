@@ -20,6 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Titillium+Web:wght@400;600;700&family=Rajdhani:wght@500;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
   <style>
+    /* ===== Theme & CSS Variables ===== */
     :root { --bg:#0a0b10; --bg2:#10121a; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; --violet:#c850ff; }
 
     * { box-sizing:border-box; }
@@ -28,7 +29,7 @@
       background:var(--bg); }
     .container { max-width:920px; margin:0 auto; padding:1.2rem; }
     a { color:#ff4fd8; text-shadow:0 0 8px rgba(255,79,216,0.35); }
-    /* Battle-damaged hull edges — worn spaceship panels */
+    /* ===== Battle-Damaged Hull Edges (clip-path) ===== */
     .card,
     .faq-item,
     .success-modal,
@@ -64,6 +65,7 @@
     .top-book-btn {
       clip-path: none;
     }
+    /* ===== Cards, Buttons & Forms ===== */
     .card { background:var(--card); border:1px solid var(--line); border-radius:0; padding:1rem; }
     .card.user-section:first-of-type { padding-right: 220px; }
     h1, h2, h3, h4 { font-family:'Titillium Web', system-ui, sans-serif; }
@@ -85,6 +87,7 @@
     .form-status { margin-top:.6rem; color:var(--muted); min-height:1.2em; }
     .form-status.ok { color:#00e5ff; } .form-status.err { color:#ff5555; }
 
+    /* ===== Footer ===== */
     footer {
       margin-top: 2rem;
       padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
@@ -105,6 +108,7 @@
     .footer-link:hover { color: #ff7ae4; }
 
 
+    /* ===== Success Modal ===== */
     .success-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
     .success-modal-overlay.active { display:flex; }
     .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #141620, #10121a); border:1px solid var(--line); border-radius:0; padding:1rem; }
@@ -114,6 +118,7 @@
     /* Simple modal (re-uses success modal styles) */
     .simple-modal-actions { display:flex; justify-content:flex-end; margin-top:1rem; }
     .simple-modal-links { margin-top:.7rem; display:flex; gap:.8rem; flex-wrap:wrap; }
+    /* ===== Admin Panel ===== */
     .admin-panel { margin-top:1rem; display:none; }
     .admin-panel.active { display:block; }
     body.admin-mode .user-section,
@@ -127,6 +132,7 @@
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
     .admin-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:2px; padding:.6rem; background:#10121a; font-size:.85rem; color:var(--muted); }
     .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:2px; background:#10121a; padding:.7rem; }
+    /* ===== Tax Ledger ===== */
     .tax-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
     .tax-summary-col { border:1px solid var(--line); border-radius:2px; padding:.6rem; background:#141620; }
     .tax-summary-col h4 { margin:.1rem 0 .45rem; color:var(--cyan); font-size:.9rem; }
@@ -148,9 +154,11 @@
     .admin-legend { display:flex; gap:.7rem; align-items:center; margin-top:.5rem; color:var(--muted); font-size:.75rem; }
     .admin-legend span { display:inline-flex; align-items:center; gap:.3rem; }
     .faq-section { margin-top:1rem; display:grid; gap:0.7rem; }
+    /* ===== FAQ ===== */
     .faq-item { background:var(--card); border:1px solid var(--line); border-radius:0; padding:0.85rem 1rem; }
     .faq-item h3 { margin:0 0 0.35rem; color:var(--cyan); font-size:0.98rem; }
     .faq-item p { margin:0; color:var(--muted); line-height:1.5; font-size:0.92rem; }
+    /* ===== Header & Navigation ===== */
     .brand-header { display:flex; flex-direction:column; align-items:flex-start; gap:0.35rem; margin-bottom:0.6rem; }
     .brand-header img { width:170px; max-width:55vw; flex-shrink:0; display:block; object-fit:contain; border-radius:2px; }
     .brand-tagline {
@@ -194,6 +202,7 @@
     }
 
     /* Session flow interactive layout */
+    /* ===== Session Flow Interactive Layout ===== */
     .flow-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
     .flow-steps { display:flex; flex-direction:column; gap:0; }
     .flow-step {
@@ -238,6 +247,7 @@
       font-size:0.93rem;
     }
 
+    /* ===== Responsive: 760px ===== */
     @media (max-width: 760px) {
       .booking-grid, .admin-grid { grid-template-columns:1fr; }
       .form-grid { grid-template-columns:1fr; }
@@ -277,6 +287,7 @@
       .admin-calendar-grid { gap:0.15rem; }
     }
 
+    /* ===== Responsive: 480px ===== */
     @media (max-width: 480px) {
       h1 { font-size:1.15rem; }
       .brand-header img { width:135px; max-width:70vw; }
@@ -287,12 +298,14 @@
   </style>
 </head>
 <body>
+  <!-- ===== SECTION: Page Header & Navigation ===== -->
   <header>
     <a href="#pick-setup" class="top-book-btn">Book + Pay Now</a>
   </header>
   <main>
   <div class="container">
 
+    <!-- ===== SECTION: Session Flow / What to Expect ===== -->
     <section class="card user-section">
       <nav aria-label="Site navigation">
         <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
@@ -346,6 +359,7 @@
       </div>
     </section>
 
+    <!-- ===== SECTION: Booking Form ===== -->
     <section id="pick-setup" class="card user-section" style="margin-top:1rem;">
       <h2>Pick Your Setup Day</h2>
       <div class="booking-grid">
@@ -373,6 +387,7 @@
       </div>
     </section>
 
+    <!-- ===== SECTION: FAQ & Contact Form ===== -->
     <section class="card user-section" style="margin-top:1rem;">
       <h2>Questions Before Your Setup?</h2>
       <form id="setup-page-form">
@@ -395,6 +410,7 @@
       </form>
     </section>
 
+    <!-- ===== SECTION: Admin Panel (hidden, ?admin=1) ===== -->
     <section class="card admin-panel" id="admin-panel">
       <h2>Admin Booking Controls</h2>
       <div class="admin-lock" id="admin-lock">
@@ -449,6 +465,7 @@
             </div>
           </div>
 
+        <!-- ===== SECTION: Admin Tax Ledger ===== -->
         <section class="admin-calendar-wrap" style="margin-top:1rem; grid-column:1 / -1;">
           <div class="admin-calendar-head">
             <div class="admin-calendar-title">Tax Ledger</div>
@@ -527,6 +544,7 @@
       </div>
     </section>
 
+    <!-- ===== SECTION: Footer ===== -->
     <footer>
       © <span id="year"></span> Eastern Shore AI, LLC<br>
       <a href="#" class="footer-link" id="contact-link">Contact Us</a>
@@ -537,6 +555,7 @@
   </div>
   </main>
 
+  <!-- ===== SECTION: Modal Overlays ===== -->
   <div class="success-modal-overlay" id="about-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
       <h3 id="about-title">About Us</h3>
@@ -589,6 +608,7 @@
     </div>
   </div>
 
+  <!-- ===== SECTION: Success Modal (post-payment) ===== -->
   <div class="success-modal-overlay" id="success-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
       <h3 id="success-title">Payment Received — Setup Booked ✅</h3>
@@ -600,10 +620,50 @@
   </div>
 
   <script>
+    // ===== FUNCTION INDEX =====
+    // Time Utils:      nowEtParts() — Current date/time in America/New_York
+    //                  slotStart(timeBlock) — Extract start hour from "HH:00 – HH:00" slot
+    //                  isPastEtSlot(date, timeBlock) — Check if slot is in the past
+    //                  setupAtKey(date, time) — Build "YYYY-MM-DDTHH:00" key for availability lookup
+    // Availability:    loadAvailability() — Fetch unavailable slots + blocked dates from API
+    //                  slotIsUnavailable(date, time) — Check if a specific slot is unavailable
+    //                  renderTimeOptions() — Rebuild time dropdown based on selected date + availability
+    // Booking:         (inline) — Form submit handler creates Stripe checkout session
+    // Admin:           setAdminUnlocked(on) — Show/hide admin controls after password auth
+    //                  loadAdminData() — Fetch bookings + blocked slots/days for admin view
+    //                  renderAdminCalendar(bookings, blockedSlots, blockedDays) — Draw month grid with markers
+    // Admin Actions:   setBlockedSlot(active) — Block/unblock a specific 2-hour slot via API
+    //                  setBlockedDay(active) — Block/unblock an entire day via API
+    // Tax Ledger:      loadTaxTransactions() — Fetch + render tax entries for selected year/type
+    //                  (inline) — Add expense / Add income form handlers
+    //                  (inline) — CSV export download handler
+    // Modals:          openSuccessModal(text) / closeSuccessModal() — Post-payment success modal
+    //                  openSimpleModal(el) / closeSimpleModal(el) — About/Terms/Privacy/Contact modals
+
+    // ===== KEY DOM ELEMENTS =====
+    // #setup-date              — Date picker for booking
+    // #setup-time              — Time slot dropdown
+    // #setup-name, #setup-email — Customer info fields
+    // #book-btn                — "Book + Pay Now" submit button
+    // #book-status             — Booking status feedback text
+    // .top-book-btn            — Fixed/sticky CTA linking to #pick-setup
+    // .back-btn                — Home navigation link (in first card)
+    // #success-modal           — Post-payment success overlay
+    // #success-date, #success-time — Confirmation details in success modal
+    // #admin-panel             — Admin dashboard section (hidden by default)
+    // #admin-pw                — Admin password input
+    // #admin-unlock-btn        — Admin login button
+    // #admin-date, #admin-time — Admin slot selection for blocking
+    // #admin-block-date        — Admin date for day blocking
+    // #admin-bookings-list     — Admin bookings display
+    // #admin-cal               — Admin availability calendar grid
+    // #tax-year, #tax-type     — Tax ledger year/type filters
+    // #tax-transactions        — Tax entries display container
+    // #about-modal, #contact-modal, #terms-modal, #privacy-modal — Info modals
+
     document.getElementById('year').textContent = new Date().getFullYear();
 
-
-    // Session flow interactive steps
+    // ===== Session Flow Interactive Steps =====
     const flowDescriptions = [
       "We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.",
       "Your OpenClaw assistant is typically up and running within 15 minutes on your hardware or cloud server.",
@@ -704,9 +764,12 @@
     const adminUnblockDayBtn = document.getElementById('admin-unblock-day-btn');
     const adminRefreshBtn = document.getElementById('admin-refresh-btn');
 
+    // ===== Availability State =====
     let unavailableSlots = new Set();
     let blockedDates = new Set();
 
+    // ===== Modals =====
+    /** @param {string} text - Message to display in success modal */
     function openSuccessModal(text) {
       successDetails.textContent = text;
       successModal.classList.add('active');
@@ -718,6 +781,7 @@
       successModal.setAttribute('aria-hidden', 'true');
     }
 
+    /** @param {HTMLElement} el - Modal overlay element */
     function openSimpleModal(el) {
       el.classList.add('active');
       el.setAttribute('aria-hidden', 'false');
@@ -783,6 +847,8 @@
       { value: '18:00-20:00', label: '1800 - 2000' }
     ];
 
+    // ===== Time Utilities =====
+    /** @returns {{ date: string, hour: number }} Current date (YYYY-MM-DD) and hour in ET */
     function nowEtParts() {
       const parts = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'America/New_York',
@@ -800,10 +866,12 @@
       };
     }
 
+    /** @param {string} timeBlock - e.g. "10:00-12:00" @returns {number} Start hour */
     function slotStart(timeBlock) {
       return (timeBlock || '').split('-')[0] || '';
     }
 
+    /** @param {string} date - YYYY-MM-DD @param {string} timeBlock - e.g. "10:00-12:00" @returns {boolean} */
     function isPastEtSlot(date, timeBlock) {
       if (!date || !timeBlock) return false;
       const now = nowEtParts();
@@ -818,6 +886,8 @@
       return date && time ? `${date}T${time}` : '';
     }
 
+    // ===== Availability & Booking =====
+    /** Rebuild time dropdown options based on selected date, availability, and current time */
     function renderTimeOptions() {
       const selectedDate = setupDateEl.value;
       const current = setupTimeEl.value;
@@ -854,6 +924,7 @@
       }
     }
 
+    /** Fetch unavailable slots and blocked dates from /api/availability */
     async function loadAvailability() {
       try {
         const res = await fetch(AVAILABILITY_API_URL, { headers: { 'Content-Type': 'application/json' } });
@@ -867,6 +938,7 @@
       renderTimeOptions();
     }
 
+    /** @param {string} date - YYYY-MM-DD @param {string} time - e.g. "10:00-12:00" @returns {boolean} */
     function slotIsUnavailable(date, time) {
       if (blockedDates.has(date)) return true;
       return unavailableSlots.has(setupAtKey(date, time));
@@ -895,12 +967,20 @@
       adminKeyEl.value = '';
     }
 
+    // ===== Admin Controls =====
+    /** @param {boolean} on - true to show admin controls, false to hide */
     function setAdminUnlocked(on) {
       adminUnlocked = !!on;
       adminLock.style.display = adminUnlocked ? 'none' : 'block';
       adminControls.classList.toggle('active', adminUnlocked);
     }
 
+    /**
+     * Draw admin calendar grid showing booked/blocked days for the month
+     * @param {Array} bookings - Booking records from D1
+     * @param {Array} blockedSlots - Blocked 2-hour slot records
+     * @param {Array} blockedDays - Blocked full-day records
+     */
     function renderAdminCalendar(bookings = [], blockedSlots = [], blockedDays = []) {
       const now = new Date();
       const year = now.getFullYear();
@@ -971,6 +1051,7 @@
       adminCalendarGridEl.innerHTML = parts.join('');
     }
 
+    /** Fetch bookings, blocked slots/days from /api/bookings and refresh admin UI */
     async function loadAdminData() {
       if (!adminMode || !adminUnlocked) return;
       const key = adminKeyEl.value.trim();
@@ -991,6 +1072,7 @@
       }
     }
 
+    /** @param {boolean} active - true to block, false to unblock the selected slot */
     async function setBlockedSlot(active) {
       const key = adminKeyEl.value.trim();
       const setupDate = adminDateEl.value;
@@ -1019,6 +1101,7 @@
       }
     }
 
+    /** @param {boolean} active - true to block, false to unblock the selected day */
     async function setBlockedDay(active) {
       const key = adminKeyEl.value.trim();
       const setupDate = adminDateEl.value;
@@ -1045,6 +1128,7 @@
       }
     }
 
+    // ===== Admin Mode Initialization & Tax Ledger =====
     if (adminMode) {
       setAdminUnlocked(false);
       let adminPassword = '';
