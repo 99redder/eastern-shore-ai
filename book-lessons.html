@@ -1,0 +1,1285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Tech Lessons | Eastern Shore AI</title>
+  <meta name="description" content="Book Tech Lessons: 2-hour hands-on tutoring session for $100 on the Eastern Shore or via Zoom." />
+  <meta property="og:title" content="Book Tech Lessons | Eastern Shore AI" />
+  <meta property="og:description" content="Book Tech Lessons: 2-hour hands-on tutoring session for $100 on the Eastern Shore or via Zoom." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.easternshore.ai/book-lessons.html" />
+  <meta property="og:image" content="https://www.easternshore.ai/carousel.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Book Tech Lessons | Eastern Shore AI" />
+  <meta name="twitter:description" content="Book Tech Lessons: 2-hour hands-on tutoring session for $100 on the Eastern Shore or via Zoom." />
+  <meta name="twitter:image" content="https://www.easternshore.ai/carousel.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href="https://www.easternshore.ai/book-lessons.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Titillium+Web:wght@400;600;700&family=Rajdhani:wght@500;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0a0b10; --bg2:#10121a; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; --violet:#c850ff; }
+
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; font-family:'Titillium Web',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--text);
+      background:var(--bg); }
+    .container { max-width:920px; margin:0 auto; padding:1.2rem; }
+    a { color:#ff4fd8; text-shadow:0 0 8px rgba(255,79,216,0.35); }
+    /* Battle-damaged hull edges — worn spaceship panels */
+    .card,
+    .faq-item,
+    .success-modal,
+    .book-pay-panel,
+    .flow-detail,
+    .admin-calendar-wrap,
+    .admin-lock {
+      clip-path: polygon(
+        0 8px,
+        8px 0,
+        35% 0,
+        35.5% 4px,
+        37% 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% 65%,
+        calc(100% - 3px) 66%,
+        100% 67.5%,
+        100% calc(100% - 6px),
+        calc(100% - 6px) 100%,
+        62% 100%,
+        61.5% calc(100% - 3px),
+        60% 100%,
+        10px 100%,
+        0 calc(100% - 10px),
+        3px calc(100% - 14px),
+        0 calc(100% - 18px)
+      );
+      border-radius: 0 !important;
+    }
+    .btn,
+    .btn-primary,
+    .top-book-btn {
+      clip-path: none;
+    }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:0; padding:1rem; }
+    .card.user-section:first-of-type { padding-right: 220px; }
+    h1, h2, h3, h4 { font-family:'Titillium Web', system-ui, sans-serif; }
+    h1 { margin:.2rem 0 .6rem; color:var(--cyan); }
+    p { color:var(--muted); line-height:1.6; }
+    ul { color:var(--muted); line-height:1.6; }
+    .btn { border:1px solid var(--line); background:transparent; color:var(--text); border-radius:2px; padding:.55rem .85rem; cursor:pointer; font-weight:600; font-family:'Titillium Web', system-ui, sans-serif; }
+    .btn-primary { background:linear-gradient(145deg,#ff4fd8,#cc3fb0); border-color:#ff4fd8; color:#fff; box-shadow:0 0 16px rgba(255,79,216,0.35); }
+    .booking-grid { display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
+    .book-pay-panel { background:#141620; border:1px solid var(--line); border-radius:0; padding:.9rem; }
+    .book-pay-panel p { margin:.2rem 0 .8rem; font-size:.92rem; }
+    .btn-wide { width:100%; display:inline-flex; justify-content:center; text-decoration:none; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.7rem; }
+    .full { grid-column:1 / -1; }
+    label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:.25rem; }
+    input,textarea,select { width:100%; border:1px solid var(--line); border-radius:2px; background:#10121a; color:var(--text); padding:.65rem .7rem; font:inherit; }
+    textarea { min-height:120px; resize:vertical; }
+    .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
+    .form-status { margin-top:.6rem; color:var(--muted); min-height:1.2em; }
+    .form-status.ok { color:#00e5ff; } .form-status.err { color:#ff5555; }
+
+    footer {
+      margin-top: 2rem;
+      padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      color: #7a7e96;
+      font-size: 0.85rem;
+      text-align: center;
+      border-top: 1px solid var(--line);
+    }
+
+    .footer-link {
+      display: inline-block;
+      margin: 0.2rem 0.4rem 0;
+      color: #ff4fd8;
+      text-shadow: 0 0 8px rgba(255,79,216,0.35);
+      text-decoration: underline;
+    }
+
+    .footer-link:hover { color: #ff7ae4; }
+
+
+    .success-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
+    .success-modal-overlay.active { display:flex; }
+    .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #141620, #10121a); border:1px solid var(--line); border-radius:0; padding:1rem; }
+    .success-modal h3 { margin:.1rem 0 .4rem; color:var(--cyan); }
+    .success-modal p { margin:.45rem 0; }
+
+    /* Simple modal (re-uses success modal styles) */
+    .simple-modal-actions { display:flex; justify-content:flex-end; margin-top:1rem; }
+    .simple-modal-links { margin-top:.7rem; display:flex; gap:.8rem; flex-wrap:wrap; }
+    .admin-panel { margin-top:1rem; display:none; }
+    .admin-panel.active { display:block; }
+    body.admin-mode .user-section,
+    body.admin-mode .top-book-btn,
+    body.admin-mode .success-modal-overlay,
+    body.admin-mode footer { display:none !important; }
+    body.admin-mode .admin-panel { margin-top:0; }
+    .admin-lock { border:1px solid var(--line); border-radius:2px; padding:.75rem; background:#10121a; margin-top:.6rem; }
+    .admin-controls { display:none; margin-top:.8rem; }
+    .admin-controls.active { display:block; }
+    .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
+    .admin-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:2px; padding:.6rem; background:#10121a; font-size:.85rem; color:var(--muted); }
+    .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:2px; background:#10121a; padding:.7rem; }
+    .tax-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+    .tax-summary-col { border:1px solid var(--line); border-radius:2px; padding:.6rem; background:#141620; }
+    .tax-summary-col h4 { margin:.1rem 0 .45rem; color:var(--cyan); font-size:.9rem; }
+    .tax-summary-line { display:flex; justify-content:space-between; gap:.6rem; padding:.12rem 0; color:var(--muted); }
+    .tax-summary-line strong { color:var(--text); font-weight:700; }
+    .tax-entry-wrap { margin-top:1rem; }
+    .admin-calendar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+    .admin-calendar-title { font-size:.9rem; color:var(--cyan); }
+    .admin-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:.25rem; }
+    .admin-cal-dow { font-size:.72rem; color:var(--muted); text-align:center; padding:.2rem 0; }
+    .admin-cal-day { min-height:46px; border:1px solid var(--line); border-radius:2px; padding:.25rem; font-size:.72rem; color:var(--text); position:relative; background:#141620; }
+    .admin-cal-day.empty { background:transparent; border-color:transparent; }
+    .admin-cal-day-num { font-size:.72rem; }
+    .admin-cal-dots { position:absolute; left:.25rem; right:.25rem; bottom:.25rem; display:flex; gap:.2rem; flex-wrap:wrap; }
+    .admin-dot { width:7px; height:7px; border-radius:50%; }
+    .admin-dot.booked { background:#ff5555; }
+    .admin-dot.blocked { background:#ffaa2a; }
+    .admin-legend { display:flex; gap:.7rem; align-items:center; margin-top:.5rem; color:var(--muted); font-size:.75rem; }
+    .admin-legend span { display:inline-flex; align-items:center; gap:.3rem; }
+    .faq-section { margin-top:1rem; display:grid; gap:0.7rem; }
+    .faq-item { background:var(--card); border:1px solid var(--line); border-radius:0; padding:0.85rem 1rem; }
+    .faq-item h3 { margin:0 0 0.35rem; color:var(--cyan); font-size:0.98rem; }
+    .faq-item p { margin:0; color:var(--muted); line-height:1.5; font-size:0.92rem; }
+    .brand-header { display:flex; flex-direction:column; align-items:flex-start; gap:0.35rem; margin-bottom:0.6rem; }
+    .brand-header img { width:170px; max-width:55vw; flex-shrink:0; display:block; object-fit:contain; border-radius:2px; }
+    .brand-tagline {
+      font-family:'Rajdhani', system-ui, sans-serif;
+      font-weight:700;
+      font-size:0.68rem;
+      letter-spacing:0.22em;
+      color:var(--muted);
+      text-transform:uppercase;
+    }
+    .top-book-btn {
+      position:fixed; top:1rem; right:1rem; z-index:300;
+      text-decoration:none; font-weight:700; font-size:1.15rem;
+      padding:0.75rem 1.6rem; border-radius:0;
+      background:linear-gradient(145deg,#ff4fd8,#cc3fb0); border:1px solid #ff4fd8;
+      color:#fff; box-shadow:0 0 22px rgba(255,79,216,0.45);
+      text-transform:uppercase; letter-spacing:0.04em;
+      font-family:'Titillium Web', system-ui, sans-serif;
+    }
+    .top-book-btn:hover { background:linear-gradient(145deg,#ff7ae4,#ff4fd8); box-shadow:0 0 28px rgba(255,79,216,0.6); }
+    .back-btn {
+      display:inline-flex; align-items:center; gap:0.35rem;
+      text-decoration:none;
+      font-family:'Titillium Web', system-ui, sans-serif;
+      font-weight:600; font-size:0.82rem; letter-spacing:0.03em;
+      color:var(--cyan);
+      border:1px solid var(--cyan);
+      border-radius:2px;
+      padding:0.35rem 0.75rem;
+      margin-bottom:0.8rem;
+      background:rgba(0,229,255,0.06);
+      transition:background 0.2s, box-shadow 0.2s, color 0.2s;
+    }
+    .back-btn:hover {
+      background:rgba(0,229,255,0.14);
+      box-shadow:0 0 14px rgba(0,229,255,0.3);
+      color:#fff;
+    }
+    .back-btn svg {
+      width:14px; height:14px; fill:currentColor; flex-shrink:0;
+    }
+
+    /* Session flow interactive layout */
+    .flow-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
+    .flow-steps { display:flex; flex-direction:column; gap:0; }
+    .flow-step {
+      padding:0.65rem 0.85rem;
+      border-left:3px solid var(--line);
+      cursor:pointer;
+      transition:border-color 0.2s, background 0.2s;
+    }
+    .flow-step:hover { background:rgba(200,80,255,0.04); }
+    .flow-step.active {
+      border-left-color:var(--cyan);
+      background:rgba(200,80,255,0.06);
+    }
+    .flow-step-title {
+      font-family:'Titillium Web', system-ui, sans-serif;
+      font-weight:600;
+      font-size:0.95rem;
+      color:var(--text);
+    }
+    .flow-step.active .flow-step-title { color:var(--cyan); }
+    .flow-step-time {
+      font-size:0.78rem;
+      color:var(--muted);
+      margin-top:0.15rem;
+    }
+    .flow-detail {
+      background:#10121a;
+      border:1px solid var(--line);
+      border-radius:0;
+      padding:1.2rem;
+      position:sticky;
+      top:1rem;
+    }
+    .flow-detail h3 {
+      margin:0 0 0.5rem;
+      color:var(--cyan);
+      font-size:1.05rem;
+    }
+    .flow-detail p {
+      margin:0;
+      line-height:1.65;
+      font-size:0.93rem;
+    }
+
+    @media (max-width: 760px) {
+      .booking-grid, .admin-grid { grid-template-columns:1fr; }
+      .form-grid { grid-template-columns:1fr; }
+      .tax-summary-grid { grid-template-columns:1fr; }
+      .flow-grid { grid-template-columns:1fr; }
+
+      /* Sticky bottom CTA bar for booking — no clip-path at full width */
+      .top-book-btn {
+        position:fixed; top:auto; bottom:env(safe-area-inset-bottom, 0px);
+        left:0; right:0; width:100%;
+        border-radius:0; text-align:center;
+        font-size:1.1rem; padding:0.85rem 1rem;
+        box-shadow:0 -4px 20px rgba(255,79,216,0.4);
+        clip-path:none;
+      }
+
+      body { padding-bottom:80px; }
+
+      .container { padding:0.8rem; }
+      .card.user-section:first-of-type { padding-right: 1rem; }
+
+      h1 { font-size:1.3rem; }
+      h2 { font-size:1.1rem; }
+
+      input, textarea, select { font-size:16px; }
+
+      .book-pay-panel { padding:0.75rem; }
+      .btn-wide { font-size:1.05rem; padding:0.75rem; }
+
+      .card { padding:0.8rem; }
+      ul { padding-left:1.1rem; }
+      li { margin-bottom:0.4rem; }
+
+      .success-modal { padding:0.8rem; }
+
+      .admin-cal-day { min-height:38px; }
+      .admin-calendar-grid { gap:0.15rem; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size:1.15rem; }
+      .brand-header img { width:135px; max-width:70vw; }
+      .brand-tagline { font-size:0.58rem; letter-spacing:0.17em; }
+      .card { padding:0.65rem; }
+      .container { padding:0.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="#pick-setup" class="top-book-btn">Book Lessons Now</a>
+  </header>
+  <main>
+  <div class="container">
+
+    <section class="card user-section">
+      <nav aria-label="Site navigation">
+        <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
+      </nav>
+      <h1>Tech Lessons & Tutoring</h1>
+      <h2>What You Should Expect</h2>
+      <p>Each session is blocked for two hours and tailored to what you want to learn. Here's a typical lesson flow:</p>
+      <div class="flow-grid">
+        <div class="flow-steps" id="flow-steps">
+          <div class="flow-step active" data-flow="0">
+            <div class="flow-step-title">Intro and Skill Check</div>
+            <div class="flow-step-time">~10 min</div>
+          </div>
+          <div class="flow-step" data-flow="1">
+            <div class="flow-step-title">Goal Alignment</div>
+            <div class="flow-step-time">~15 min</div>
+          </div>
+          <div class="flow-step" data-flow="2">
+            <div class="flow-step-title">Hands-On Walkthrough</div>
+            <div class="flow-step-time">~15–30 min</div>
+          </div>
+          <div class="flow-step" data-flow="3">
+            <div class="flow-step-title">Build Together</div>
+            <div class="flow-step-time">~10 min</div>
+          </div>
+          <div class="flow-step" data-flow="4">
+            <div class="flow-step-title">Troubleshooting &amp; Best Practices</div>
+            <div class="flow-step-time">~15 min</div>
+          </div>
+        </div>
+        <div class="flow-detail" id="flow-detail">
+          <h3 id="flow-detail-title">Intro and Assessment</h3>
+          <p id="flow-detail-desc">We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pick-setup" class="card user-section" style="margin-top:1rem;">
+      <h2>Pick Your Lesson Day</h2>
+      <div class="booking-grid">
+        <div>
+          <div class="form-grid" style="margin-top:0;">
+            <div>
+              <label for="setup-date">Preferred Lesson Date</label>
+              <input id="setup-date" type="date" />
+            </div>
+            <div>
+              <label for="setup-time">Preferred Time Block</label>
+              <select id="setup-time">
+                <option value="">Select time block…</option>
+              </select>
+            </div>
+          </div>
+          <p style="margin-top:1rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 for a 2-hour session (+ taxes where applicable)</p>
+        </div>
+
+        <aside class="book-pay-panel">
+          <h3 style="margin:.1rem 0 .2rem;">Reserve Your Lesson Slot</h3>
+          <p>Choose your date, then use Book Lessons Now to secure your setup session.</p>
+          <button type="button" class="btn btn-primary btn-wide" id="book-pay-btn">Book Lessons Now</button>
+        </aside>
+      </div>
+    </section>
+
+    <section class="card user-section" style="margin-top:1rem;">
+      <h2>Questions Before Your Lesson?</h2>
+      <form id="setup-page-form">
+        <div class="form-grid">
+          <div>
+            <label for="name">Your Name</label>
+            <input id="name" required />
+          </div>
+          <div>
+            <label for="email">Your Email</label>
+            <input id="email" type="email" required />
+          </div>
+          <div class="full">
+            <label for="message">Questions</label>
+            <textarea id="message" required placeholder="Share what you want to focus on so we can tailor your lesson."></textarea>
+          </div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">Send Questions</button></div>
+        <p class="form-status" id="status"></p>
+      </form>
+    </section>
+
+    <section class="card admin-panel" id="admin-panel">
+      <h2>Admin Booking Controls</h2>
+      <div class="admin-lock" id="admin-lock">
+        <label for="admin-key">Admin Password</label>
+        <div style="display:flex; gap:.5rem; margin-top:.35rem;">
+          <input id="admin-key" type="password" placeholder="Enter admin password" />
+          <button type="button" class="btn btn-primary" id="admin-unlock-btn">Unlock</button>
+        </div>
+      </div>
+
+      <div class="admin-controls" id="admin-controls">
+        <div class="admin-grid" style="margin-top:.7rem;">
+          <div>
+            <h3 style="margin:.1rem 0 .4rem;">Block / Unblock Slot</h3>
+            <div class="form-grid" style="margin-top:0;">
+              <div>
+                <label for="admin-date">Date</label>
+                <input id="admin-date" type="date" />
+              </div>
+              <div>
+                <label for="admin-time">Time Block</label>
+                <select id="admin-time">
+                  <option value="">Select block…</option>
+                </select>
+              </div>
+              <div class="full">
+                <label for="admin-reason">Reason (optional)</label>
+                <input id="admin-reason" placeholder="Unavailable / booked elsewhere" />
+              </div>
+            </div>
+            <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary" id="admin-block-btn">Block Slot</button>
+              <button type="button" class="btn" id="admin-unblock-btn">Unblock Slot</button>
+              <button type="button" class="btn btn-primary" id="admin-block-day-btn">Block Entire Day</button>
+              <button type="button" class="btn" id="admin-unblock-day-btn">Unblock Day</button>
+              <button type="button" class="btn" id="admin-refresh-btn">Refresh</button>
+            </div>
+          </div>
+          <div>
+            <h3 style="margin:.1rem 0 .4rem;">Recent Bookings / Blocks</h3>
+            <div class="admin-list" id="admin-list">No data yet.</div>
+            <div class="admin-calendar-wrap">
+              <div class="admin-calendar-head">
+                <div class="admin-calendar-title" id="admin-calendar-title">Availability Calendar</div>
+              </div>
+              <div class="admin-calendar-grid" id="admin-calendar-grid"></div>
+              <div class="admin-legend">
+                <span><i class="admin-dot booked"></i>Booked</span>
+                <span><i class="admin-dot blocked"></i>Blocked</span>
+              </div>
+            </div>
+          </div>
+
+        <section class="admin-calendar-wrap" style="margin-top:1rem; grid-column:1 / -1;">
+          <div class="admin-calendar-head">
+            <div class="admin-calendar-title">Tax Ledger</div>
+          </div>
+          <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
+                <div id="tax-summary" class="admin-calendar-wrap" style="margin:0;">
+                  <div class="admin-calendar-head"><div class="admin-calendar-title">Year Totals Snapshot</div></div>
+                  <div class="tax-summary-grid" id="tax-summary-list">No data yet.</div>
+                </div>
+
+                <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
+                  <label style="min-width:80px;">Year</label>
+                  <select id="tax-year" style="max-width:160px;"></select>
+                  <label style="min-width:70px;">Type</label>
+                  <select id="tax-type" style="max-width:200px;">
+                    <option value="all">All</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expenses</option>
+                  </select>
+                  <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
+                  <button type="button" class="btn btn-primary" id="tax-export-btn">Download CSV</button>
+                </div>
+
+                <div class="admin-grid tax-entry-wrap" style="grid-template-columns:1fr 1fr; gap:.6rem;">
+                  <div class="admin-calendar-wrap">
+                    <div class="admin-calendar-head"><div class="admin-calendar-title">Add Expense</div></div>
+                    <div class="admin-row" style="flex-direction:column; align-items:stretch;">
+                      <label>Date</label>
+                      <input id="tax-expense-date" type="date" />
+                      <label>Vendor</label>
+                      <input id="tax-expense-vendor" placeholder="e.g. Amazon, Cloudflare" />
+                      <label>Category</label>
+                      <select id="tax-expense-category"></select>
+                      <label>Amount (USD)</label>
+                      <input id="tax-expense-amount" type="number" step="0.01" placeholder="0.00" />
+                      <label>Paid via</label>
+                      <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
+                      <label>Notes</label>
+                      <input id="tax-expense-notes" placeholder="optional" />
+                      <div class="form-actions" style="justify-content:flex-start;">
+                        <button type="button" class="btn btn-primary" id="tax-add-expense-btn">Add Expense</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="admin-calendar-wrap">
+                    <div class="admin-calendar-head"><div class="admin-calendar-title">Add Income</div></div>
+                    <div class="admin-row" style="flex-direction:column; align-items:stretch;">
+                      <label>Date</label>
+                      <input id="tax-income-date" type="date" />
+                      <label>Source</label>
+                      <input id="tax-income-source" placeholder="e.g. Stripe, Client" />
+                      <label>Category</label>
+                      <select id="tax-income-category"></select>
+                      <label>Amount (USD)</label>
+                      <input id="tax-income-amount" type="number" step="0.01" placeholder="0.00" />
+                      <label>Stripe session id (optional)</label>
+                      <input id="tax-income-stripe" placeholder="cs_test_..." />
+                      <label>Notes</label>
+                      <input id="tax-income-notes" placeholder="optional" />
+                      <div class="form-actions" style="justify-content:flex-start;">
+                        <button type="button" class="btn btn-primary" id="tax-add-income-btn">Add Income</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 style="margin:.1rem 0 .4rem;">Tax Transactions (Selected Year)</h3>
+                  <div class="admin-list" id="tax-list">No data yet.</div>
+                </div>
+              </div>
+        </section>
+
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © <span id="year"></span> Eastern Shore AI, LLC<br>
+      <a href="#setup-page-form" class="footer-link">Contact Us</a>
+      <a href="#" class="footer-link" id="about-link">About Us</a>
+      <a href="/" class="footer-link">Terms of Use</a>
+      <a href="/" class="footer-link">Privacy Policy</a>
+    </footer>
+  </div>
+  </main>
+
+  <div class="success-modal-overlay" id="about-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
+      <h3 id="about-title">About Us</h3>
+      <p><strong>Eastern Shore AI, LLC</strong> builds practical AI-powered tools and small business websites, with a focus on fast shipping and clean UX.</p>
+      <p>This is a starter blurb — edit it however you want.</p>
+      <div class="simple-modal-links">
+        <a class="footer-link" href="https://x.com/99redder" target="_blank" rel="noopener noreferrer">Twitter / X</a>
+        <a class="footer-link" href="https://github.com/99redder" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+      <div class="simple-modal-actions">
+        <button type="button" class="btn btn-primary" id="about-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="success-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <h3 id="success-title">Payment Received — Lesson Booked ✅</h3>
+      <p id="success-details">Your tech lesson appointment is confirmed.</p>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-primary" id="success-close-btn">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+
+    // Session flow interactive steps
+    const flowDescriptions = [
+      "We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.",
+      "Your OpenClaw assistant is typically up and running within 15 minutes on your hardware or cloud server.",
+      "Immediately after install we run a full security audit and harden your setup before anything else.",
+      "Once the setup is secure, we'll go through the basics.",
+      "Next, we'll add whatever skills and tools you'd like \u2014 we'll walk through all your options in person.",
+      "If desired, we'll customize your dashboard layout and preferences. We've built custom tooling to make security audits and other functionality easier and we'll install that for you, if desired.",
+      "We'll go through tips for handling basic issues so you're confident on your own but we're still always just a call, text or Discord message away.",
+      "Any questions you might have, we'll stay until they're all answered. If you don't have any, that's okay too! We can demo some of the cool things we use OpenClaw for instead.",
+      "Continued support via Zoom, Discord, or in-person for 30 days after your session is included with your purchase."
+    ];
+    document.getElementById('flow-steps').addEventListener('click', e => {
+      const step = e.target.closest('.flow-step');
+      if (!step) return;
+      const idx = parseInt(step.dataset.flow, 10);
+      document.querySelectorAll('.flow-step').forEach(s => s.classList.remove('active'));
+      step.classList.add('active');
+      document.getElementById('flow-detail-title').textContent = step.querySelector('.flow-step-title').textContent;
+      document.getElementById('flow-detail-desc').textContent = flowDescriptions[idx];
+    });
+
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+    const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
+    const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
+    const BOOKINGS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/bookings');
+    const BLOCK_SLOT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-slot');
+    const BLOCK_DAY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-day');
+    const TAX_TX_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/transactions');
+    const TAX_EXPENSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense');
+    const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
+    const TAX_EXPORT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/export.csv');
+
+    const form = document.getElementById('setup-page-form');
+    const statusEl = document.getElementById('status');
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const bookPayBtn = document.getElementById('book-pay-btn');
+    const aboutLink = document.getElementById('about-link');
+    const aboutModal = document.getElementById('about-modal');
+    const aboutCloseBtn = document.getElementById('about-close-btn');
+
+    const successModal = document.getElementById('success-modal');
+    const successDetails = document.getElementById('success-details');
+    const successCloseBtn = document.getElementById('success-close-btn');
+
+    const setupDateEl = document.getElementById('setup-date');
+    const setupTimeEl = document.getElementById('setup-time');
+
+    const adminPanel = document.getElementById('admin-panel');
+    const adminLock = document.getElementById('admin-lock');
+    const adminControls = document.getElementById('admin-controls');
+    const adminKeyEl = document.getElementById('admin-key');
+    const adminUnlockBtn = document.getElementById('admin-unlock-btn');
+
+    const taxYearEl = document.getElementById('tax-year');
+    const taxTypeEl = document.getElementById('tax-type');
+    const taxRefreshBtn = document.getElementById('tax-refresh-btn');
+    const taxExportBtn = document.getElementById('tax-export-btn');
+    const taxSummaryListEl = document.getElementById('tax-summary-list');
+    const taxListEl = document.getElementById('tax-list');
+
+    const taxExpenseDateEl = document.getElementById('tax-expense-date');
+    const taxExpenseVendorEl = document.getElementById('tax-expense-vendor');
+    const taxExpenseCategoryEl = document.getElementById('tax-expense-category');
+    const taxExpenseAmountEl = document.getElementById('tax-expense-amount');
+    const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
+    const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
+    const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
+
+    const taxIncomeDateEl = document.getElementById('tax-income-date');
+    const taxIncomeSourceEl = document.getElementById('tax-income-source');
+    const taxIncomeCategoryEl = document.getElementById('tax-income-category');
+    const taxIncomeAmountEl = document.getElementById('tax-income-amount');
+    const taxIncomeStripeEl = document.getElementById('tax-income-stripe');
+    const taxIncomeNotesEl = document.getElementById('tax-income-notes');
+    const taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
+
+    const adminDateEl = document.getElementById('admin-date');
+    const adminTimeEl = document.getElementById('admin-time');
+    const adminReasonEl = document.getElementById('admin-reason');
+    const adminListEl = document.getElementById('admin-list');
+    const adminCalendarGridEl = document.getElementById('admin-calendar-grid');
+    const adminCalendarTitleEl = document.getElementById('admin-calendar-title');
+    const adminBlockBtn = document.getElementById('admin-block-btn');
+    const adminUnblockBtn = document.getElementById('admin-unblock-btn');
+    const adminBlockDayBtn = document.getElementById('admin-block-day-btn');
+    const adminUnblockDayBtn = document.getElementById('admin-unblock-day-btn');
+    const adminRefreshBtn = document.getElementById('admin-refresh-btn');
+
+    let unavailableSlots = new Set();
+    let blockedDates = new Set();
+
+    function openSuccessModal(text) {
+      successDetails.textContent = text;
+      successModal.classList.add('active');
+      successModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSuccessModal() {
+      successModal.classList.remove('active');
+      successModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openAboutModal() {
+      aboutModal.classList.add('active');
+      aboutModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAboutModal() {
+      aboutModal.classList.remove('active');
+      aboutModal.setAttribute('aria-hidden', 'true');
+    }
+
+    aboutLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAboutModal();
+    });
+
+    aboutCloseBtn.addEventListener('click', closeAboutModal);
+    aboutModal.addEventListener('click', (e) => {
+      if (e.target === aboutModal) closeAboutModal();
+    });
+
+    successCloseBtn.addEventListener('click', closeSuccessModal);
+    successModal.addEventListener('click', (e) => {
+      if (e.target === successModal) closeSuccessModal();
+    });
+
+    const TIME_SLOTS = [
+      { value: '10:00-12:00', label: '1000 - 1200' },
+      { value: '12:00-14:00', label: '1200 - 1400' },
+      { value: '14:00-16:00', label: '1400 - 1600' },
+      { value: '16:00-18:00', label: '1600 - 1800' },
+      { value: '18:00-20:00', label: '1800 - 2000' }
+    ];
+
+    function nowEtParts() {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).formatToParts(new Date());
+      const get = (t) => parts.find(p => p.type === t)?.value;
+      return {
+        date: `${get('year')}-${get('month')}-${get('day')}`,
+        time: `${get('hour')}:${get('minute')}`
+      };
+    }
+
+    function slotStart(timeBlock) {
+      return (timeBlock || '').split('-')[0] || '';
+    }
+
+    function isPastEtSlot(date, timeBlock) {
+      if (!date || !timeBlock) return false;
+      const now = nowEtParts();
+      const start = slotStart(timeBlock);
+      if (!start) return false;
+      if (date < now.date) return true;
+      if (date > now.date) return false;
+      return start <= now.time;
+    }
+
+    function setupAtKey(date, time) {
+      return date && time ? `${date}T${time}` : '';
+    }
+
+    function renderTimeOptions() {
+      const selectedDate = setupDateEl.value;
+      const current = setupTimeEl.value;
+      const adminCurrent = adminTimeEl.value;
+      const userOpts = ['<option value="">Select time block…</option>'];
+      const adminOpts = ['<option value="">Select block…</option>'];
+
+      // past date guard (ET)
+      if (selectedDate) {
+        const now = nowEtParts();
+        if (selectedDate < now.date) {
+          userOpts.push('<option value="" disabled>Date has already passed</option>');
+        }
+      }
+
+      if (selectedDate && blockedDates.has(selectedDate)) {
+        userOpts.push('<option value="" disabled>Entire day is blocked</option>');
+      }
+
+      for (const slot of TIME_SLOTS) {
+        const unavailable = selectedDate && (slotIsUnavailable(selectedDate, slot.value) || isPastEtSlot(selectedDate, slot.value));
+        userOpts.push(`<option value="${slot.value}" ${unavailable ? 'disabled' : ''}>${slot.label}${unavailable ? ' (unavailable)' : ''}</option>`);
+        adminOpts.push(`<option value="${slot.value}">${slot.label}</option>`);
+      }
+
+      setupTimeEl.innerHTML = userOpts.join('');
+      adminTimeEl.innerHTML = adminOpts.join('');
+
+      if (current && !(selectedDate && (slotIsUnavailable(selectedDate, current) || isPastEtSlot(selectedDate, current)))) {
+        setupTimeEl.value = current;
+      }
+      if (adminCurrent) {
+        adminTimeEl.value = adminCurrent;
+      }
+    }
+
+    async function loadAvailability() {
+      try {
+        const res = await fetch(AVAILABILITY_API_URL, { headers: { 'Content-Type': 'application/json' } });
+        const data = await res.json();
+        unavailableSlots = new Set((data.unavailable || []).filter(Boolean));
+        blockedDates = new Set((data.blockedDates || []).filter(Boolean));
+      } catch {
+        unavailableSlots = new Set();
+        blockedDates = new Set();
+      }
+      renderTimeOptions();
+    }
+
+    function slotIsUnavailable(date, time) {
+      if (blockedDates.has(date)) return true;
+      return unavailableSlots.has(setupAtKey(date, time));
+    }
+
+    // prevent selecting past days in UI (ET date)
+    try {
+      setupDateEl.min = nowEtParts().date;
+    } catch {}
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && aboutModal.classList.contains('active')) closeAboutModal();
+      if (e.key === 'Escape' && successModal.classList.contains('active')) closeSuccessModal();
+    });
+
+    setupDateEl.addEventListener('change', renderTimeOptions);
+    const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
+    let adminUnlocked = false;
+    if (adminMode) {
+      document.body.classList.add('admin-mode');
+      adminPanel.classList.add('active');
+      // Do not persist admin password in storage.
+      adminKeyEl.value = '';
+    }
+
+    function setAdminUnlocked(on) {
+      adminUnlocked = !!on;
+      adminLock.style.display = adminUnlocked ? 'none' : 'block';
+      adminControls.classList.toggle('active', adminUnlocked);
+    }
+
+    function renderAdminCalendar(bookings = [], blockedSlots = [], blockedDays = []) {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const daysInMonth = last.getDate();
+      const startDow = first.getDay();
+
+      const bookedByDay = new Map();
+      const blockedByDay = new Map();
+      const blockedWholeDay = new Set();
+
+      for (const b of bookings) {
+        const d = (b.setup_date || '').trim();
+        if (!d) continue;
+        bookedByDay.set(d, (bookedByDay.get(d) || 0) + 1);
+      }
+      for (const s of blockedSlots) {
+        if (!s.active) continue;
+        const d = (s.setup_date || '').trim();
+        if (!d) continue;
+        blockedByDay.set(d, (blockedByDay.get(d) || 0) + 1);
+      }
+      for (const d of blockedDays) {
+        if (!d.active) continue;
+        const key = (d.setup_date || '').trim();
+        if (!key) continue;
+        blockedWholeDay.add(key);
+        blockedByDay.set(key, (blockedByDay.get(key) || 0) + 1);
+      }
+
+      const monthName = now.toLocaleString('en-US', { month: 'long' });
+      adminCalendarTitleEl.textContent = `Availability Calendar — ${monthName} ${year}`;
+
+      const parts = [];
+      const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      for (const d of dows) parts.push(`<div class="admin-cal-dow">${d}</div>`);
+
+      for (let i = 0; i < startDow; i++) {
+        parts.push('<div class="admin-cal-day empty"></div>');
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const mm = String(month + 1).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        const key = `${year}-${mm}-${dd}`;
+        const bCount = bookedByDay.get(key) || 0;
+        const xCount = blockedByDay.get(key) || 0;
+        const dots = [];
+        for (let i = 0; i < Math.min(3, bCount); i++) dots.push('<i class="admin-dot booked" title="Booked"></i>');
+        if (blockedWholeDay.has(key)) {
+          dots.push('<i class="admin-dot blocked" title="Entire day blocked"></i>');
+        } else {
+          for (let i = 0; i < Math.min(3, xCount); i++) dots.push('<i class="admin-dot blocked" title="Blocked"></i>');
+        }
+        parts.push(`<div class="admin-cal-day"><div class="admin-cal-day-num">${day}</div><div class="admin-cal-dots">${dots.join('')}</div></div>`);
+      }
+
+      adminCalendarGridEl.innerHTML = parts.join('');
+    }
+
+    async function loadAdminData() {
+      if (!adminMode || !adminUnlocked) return;
+      const key = adminKeyEl.value.trim();
+      try {
+        const res = await fetch(`${BOOKINGS_API_URL}?limit=200`, {
+          headers: { 'X-Admin-Password': key }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        const lines = [];
+        for (const b of (data.bookings || [])) lines.push(`[BOOKING] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}`);
+        for (const s of (data.blockedSlots || [])) lines.push(`[BLOCKED SLOT] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}`);
+        for (const d of (data.blockedDays || [])) lines.push(`[BLOCKED DAY] ${d.active ? 'active' : 'inactive'} | ${d.setup_date} | ${d.reason || '(no reason)'}`);
+        adminListEl.textContent = lines.length ? lines.join('\n') : 'No records yet.';
+        renderAdminCalendar(data.bookings || [], data.blockedSlots || [], data.blockedDays || []);
+      } catch (e) {
+        adminListEl.textContent = `Error loading admin data: ${e.message || e}`;
+      }
+    }
+
+    async function setBlockedSlot(active) {
+      const key = adminKeyEl.value.trim();
+      const setupDate = adminDateEl.value;
+      const setupTime = adminTimeEl.value;
+      if (!key || !setupDate || !setupTime) {
+        alert('Admin password + date + time are required.');
+        return;
+      }
+      try {
+        const res = await fetch(`${BLOCK_SLOT_API_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          body: JSON.stringify({
+            setupDate,
+            setupTime,
+            reason: adminReasonEl.value.trim(),
+            active
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update slot');
+        await loadAvailability();
+        await loadAdminData();
+      } catch (e) {
+        alert(`Could not update slot: ${e.message || e}`);
+      }
+    }
+
+    async function setBlockedDay(active) {
+      const key = adminKeyEl.value.trim();
+      const setupDate = adminDateEl.value;
+      if (!key || !setupDate) {
+        alert('Admin password + date are required.');
+        return;
+      }
+      try {
+        const res = await fetch(`${BLOCK_DAY_API_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          body: JSON.stringify({
+            setupDate,
+            reason: adminReasonEl.value.trim(),
+            active
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update day');
+        await loadAvailability();
+        await loadAdminData();
+      } catch (e) {
+        alert(`Could not update day: ${e.message || e}`);
+      }
+    }
+
+    if (adminMode) {
+      setAdminUnlocked(false);
+      let adminPassword = '';
+
+      const TAX_EXPENSE_CATEGORIES = [
+        'Startup cost',
+        'Advertising/Marketing',
+        'Software/SaaS',
+        'Hosting/Cloud',
+        'Hardware',
+        'Office Supplies',
+        'Travel',
+        'Meals',
+        'Education',
+        'Professional Services',
+        'Other'
+      ];
+
+      const TAX_INCOME_CATEGORIES = [
+        'OpenClaw Setup',
+        'Consulting',
+        'Website Design',
+        'AI Lessons',
+        'Domain Sale',
+        'Other'
+      ];
+
+      function initTaxUiDefaults() {
+        const now = nowEtParts();
+        const thisYear = Number(now.date.split('-')[0] || new Date().getFullYear());
+        const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
+        taxYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        taxYearEl.value = String(thisYear);
+
+        taxExpenseCategoryEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        taxIncomeCategoryEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+
+        taxExpenseDateEl.value = now.date;
+        taxIncomeDateEl.value = now.date;
+      }
+
+      async function loadTaxTransactions() {
+        if (!adminUnlocked) return;
+        const year = taxYearEl.value;
+        const type = taxTypeEl.value;
+        try {
+          const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=5000`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed');
+
+          const lines = [];
+          for (const r of (data.income || [])) {
+            lines.push(`[INCOME] ${r.date} | ${r.category} | $${(r.amount_cents/100).toFixed(2)} | ${r.source || ''} | ${r.notes || ''}`);
+          }
+          for (const r of (data.expenses || [])) {
+            lines.push(`[EXPENSE] ${r.date} | ${r.category} | $${(r.amount_cents/100).toFixed(2)} | ${r.vendor || ''} | ${r.notes || ''}`);
+          }
+
+          // Totals snapshot for selected year
+          const incomeByCategory = new Map();
+          const expenseByCategory = new Map();
+          let incomeTotal = 0;
+          let expenseTotal = 0;
+
+          for (const r of (data.income || [])) {
+            const c = r.category || 'Uncategorized';
+            const v = Number(r.amount_cents || 0);
+            incomeTotal += v;
+            incomeByCategory.set(c, (incomeByCategory.get(c) || 0) + v);
+          }
+          for (const r of (data.expenses || [])) {
+            const c = r.category || 'Uncategorized';
+            const v = Number(r.amount_cents || 0);
+            expenseTotal += v;
+            expenseByCategory.set(c, (expenseByCategory.get(c) || 0) + v);
+          }
+
+          const sortedIncome = [...incomeByCategory.entries()].sort((a,b) => b[1]-a[1]);
+          const sortedExpense = [...expenseByCategory.entries()].sort((a,b) => b[1]-a[1]);
+
+          const incomeRows = sortedIncome.length
+            ? sortedIncome.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+            : '<div class="tax-summary-line"><span>No income entries</span><strong>$0.00</strong></div>';
+
+          const expenseRows = sortedExpense.length
+            ? sortedExpense.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+            : '<div class="tax-summary-line"><span>No expense entries</span><strong>$0.00</strong></div>';
+
+          taxSummaryListEl.innerHTML = `
+            <div class="tax-summary-col">
+              <h4>Income (${year})</h4>
+              <div class="tax-summary-line"><span>Total</span><strong>$${(incomeTotal/100).toFixed(2)}</strong></div>
+              ${incomeRows}
+            </div>
+            <div class="tax-summary-col">
+              <h4>Expenses (${year})</h4>
+              <div class="tax-summary-line"><span>Total</span><strong>$${(expenseTotal/100).toFixed(2)}</strong></div>
+              ${expenseRows}
+              <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong>$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
+            </div>
+          `;
+          taxListEl.textContent = lines.length ? lines.join('\n') : 'No transactions yet.';
+        } catch (e) {
+          taxSummaryListEl.innerHTML = `<div class="tax-summary-col"><h4>Summary</h4><div class="tax-summary-line"><span>Error</span><strong>${(e.message || e)}</strong></div></div>`;
+          taxListEl.textContent = `Error loading tax transactions: ${e.message || e}`;
+        }
+      }
+
+      async function addTaxExpense() {
+        const payload = {
+          date: taxExpenseDateEl.value,
+          vendor: taxExpenseVendorEl.value.trim(),
+          category: taxExpenseCategoryEl.value,
+          amount: taxExpenseAmountEl.value,
+          paidVia: taxExpensePaidViaEl.value.trim(),
+          notes: taxExpenseNotesEl.value.trim()
+        };
+        if (!payload.date || !payload.category || !payload.amount) {
+          alert('Expense date, category, and amount are required.');
+          return;
+        }
+        try {
+          const res = await fetch(TAX_EXPENSE_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed');
+          taxExpenseAmountEl.value = '';
+          taxExpenseNotesEl.value = '';
+          await loadTaxTransactions();
+        } catch (e) {
+          alert(`Could not add expense: ${e.message || e}`);
+        }
+      }
+
+      async function addTaxIncome() {
+        const payload = {
+          date: taxIncomeDateEl.value,
+          source: taxIncomeSourceEl.value.trim(),
+          category: taxIncomeCategoryEl.value,
+          amount: taxIncomeAmountEl.value,
+          stripeSessionId: taxIncomeStripeEl.value.trim(),
+          notes: taxIncomeNotesEl.value.trim()
+        };
+        if (!payload.date || !payload.category || !payload.amount) {
+          alert('Income date, category, and amount are required.');
+          return;
+        }
+        try {
+          const res = await fetch(TAX_INCOME_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed');
+          taxIncomeAmountEl.value = '';
+          taxIncomeNotesEl.value = '';
+          await loadTaxTransactions();
+        } catch (e) {
+          alert(`Could not add income: ${e.message || e}`);
+        }
+      }
+
+      async function downloadTaxCsv() {
+        const year = taxYearEl.value;
+        const type = taxTypeEl.value;
+        try {
+          const res = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || 'Export failed');
+          }
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `eastern-shore-ai-tax-${year}-${type}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (e) {
+          alert(`Could not export CSV: ${e.message || e}`);
+        }
+      }
+
+      adminUnlockBtn.addEventListener('click', async () => {
+        const key = adminKeyEl.value.trim();
+        if (!key) return;
+        try {
+          const res = await fetch(`${BOOKINGS_API_URL}?limit=1`, {
+            headers: { 'X-Admin-Password': key }
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Invalid password');
+          adminPassword = key;
+          setAdminUnlocked(true);
+          initTaxUiDefaults();
+          await loadAdminData();
+          await loadTaxTransactions();
+        } catch (e) {
+          alert(`Admin unlock failed: ${e.message || e}`);
+        }
+      });
+
+      adminBlockBtn.addEventListener('click', () => setBlockedSlot(true));
+      adminUnblockBtn.addEventListener('click', () => setBlockedSlot(false));
+      adminBlockDayBtn.addEventListener('click', () => setBlockedDay(true));
+      adminUnblockDayBtn.addEventListener('click', () => setBlockedDay(false));
+      adminRefreshBtn.addEventListener('click', loadAdminData);
+
+      taxRefreshBtn.addEventListener('click', loadTaxTransactions);
+      taxYearEl.addEventListener('change', loadTaxTransactions);
+      taxTypeEl.addEventListener('change', loadTaxTransactions);
+      taxAddExpenseBtn.addEventListener('click', addTaxExpense);
+      taxAddIncomeBtn.addEventListener('click', addTaxIncome);
+      taxExportBtn.addEventListener('click', downloadTaxCsv);
+    }
+
+    bookPayBtn.addEventListener('click', async () => {
+      const setupDate = setupDateEl.value;
+      const setupTime = setupTimeEl.value;
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      if (!setupDate || !setupTime) {
+        alert('Please choose your lesson date and time first.');
+        return;
+      }
+
+      if (isPastEtSlot(setupDate, setupTime)) {
+        alert('That time block has already passed (Eastern Time). Please choose another slot.');
+        return;
+      }
+
+      if (slotIsUnavailable(setupDate, setupTime)) {
+        alert('That slot is unavailable. Please choose another date/time.');
+        return;
+      }
+
+      localStorage.setItem('esa_last_lessons_slot', JSON.stringify({ setupDate, setupTime }));
+
+      bookPayBtn.disabled = true;
+      bookPayBtn.textContent = 'Redirecting…';
+
+      try {
+        const res = await fetch(CHECKOUT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ setupDate, setupTime, name, email, service: 'lessons' })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.checkoutUrl) throw new Error('Checkout session failed');
+        window.location.href = data.checkoutUrl;
+      } catch {
+        alert('Could not start checkout right now. Please try again.');
+        bookPayBtn.disabled = false;
+        bookPayBtn.textContent = 'Book Lessons Now';
+      }
+    });
+
+    const qs = new URLSearchParams(window.location.search);
+    if (qs.get('paid') === '1') {
+      let dateText = 'your selected date';
+      let timeText = 'your selected time';
+      try {
+        const saved = JSON.parse(localStorage.getItem('esa_last_lessons_slot') || '{}');
+        if (saved.setupDate) dateText = saved.setupDate;
+        if (saved.setupTime) timeText = saved.setupTime;
+      } catch {}
+      openSuccessModal(`Your tech lesson session is confirmed for ${dateText} at ${timeText}.`);
+      window.history.replaceState({}, '', '/book-lessons.html');
+    }
+
+    loadAvailability().then(() => {
+      if (adminMode) loadAdminData();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
+      try {
+        const preferredDate = document.getElementById('setup-date').value;
+        const preferredTime = document.getElementById('setup-time').value;
+        const rawQuestions = document.getElementById('message').value.trim();
+        const combinedMessage = `Preferred lesson date: ${preferredDate || 'not provided'}\nPreferred time: ${preferredTime || 'not provided'}\n\nLesson goals/questions:\n${rawQuestions}`;
+
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'lessons_questions',
+            name: document.getElementById('name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            offer: '',
+            message: combinedMessage,
+            website: ''
+          })
+        });
+        if (!res.ok) throw new Error('Request failed');
+        statusEl.textContent = 'Questions sent successfully. We will respond to you within 24 hours.';
+        statusEl.className = 'form-status ok';
+        form.reset();
+      } catch {
+        statusEl.textContent = 'Could not send right now. Please try again.';
+        statusEl.className = 'form-status err';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Questions';
+      }
+    });
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Tech Lessons",
+    "description": "Hands-on 2-hour tech tutoring sessions on AI tools, coding workflows, and automation on the Eastern Shore of Maryland or Zoom.",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Eastern Shore AI",
+      "url": "https://www.easternshore.ai"
+    },
+    "areaServed": {
+      "@type": "Place",
+      "name": "Eastern Shore Maryland"
+    },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "USD",
+      "price": "100.00",
+      "availability": "https://schema.org/InStock"
+    }
+  }
+  </script>
+</body>
+</html>
