@@ -167,19 +167,28 @@
     }
 
     .about-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.5rem;
+      align-items: center;
     }
-    .about-panel > h2 {
-      margin: 0;
+    .about-panel > img {
+      max-width: 380px;
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 0;
+    }
+    .about-panel-text h2 {
+      margin: 0 0 0.5rem;
       color: #ff4fd8;
       text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
     }
     .about-panel-images {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
     }
     .about-panel-item {
       text-align: center;
@@ -192,8 +201,8 @@
       display: block;
     }
     .about-panel-item h3 {
-      margin: 0.5rem 0 0;
-      font-size: 0.95rem;
+      margin: 0.4rem 0 0;
+      font-size: 0.85rem;
       color: #ff4fd8;
       text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
     }
@@ -202,7 +211,6 @@
       color: var(--muted);
       line-height: 1.6;
       font-size: 0.93rem;
-      text-align: center;
     }
 
     .hero {
@@ -954,9 +962,10 @@
       .offer-grid { grid-template-columns: 1fr; }
       .coupon-grid { grid-template-columns: 1fr 1fr; }
       .offer-grid-wrap { height: 400px; }
-      .about-panel { text-align: center; }
+      .about-panel { grid-template-columns: 1fr; text-align: center; }
+      .about-panel > img { max-width: 300px; margin: 0 auto; }
       .about-panel-images { grid-template-columns: 1fr; }
-      .about-panel-item img { max-width: 300px; margin: 0 auto; }
+      .about-panel-item img { max-width: 280px; margin: 0 auto; }
       .form-grid { grid-template-columns: 1fr; }
 
       .mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
@@ -1232,18 +1241,21 @@
     <div class="offer-grid-wrap">
       <div class="offer-panel active" data-panel="0">
         <div class="card about-panel">
-          <h2>What We Do</h2>
-          <div class="about-panel-images">
-            <div class="about-panel-item">
-              <img src="images/1.png" alt="AI Agent Setup" />
-              <h3>AI Agent Setup</h3>
+          <img src="logo.jpg" alt="Eastern Shore AI — neon cyberpunk logo" />
+          <div class="about-panel-text">
+            <h2>What We Do</h2>
+            <div class="about-panel-images">
+              <div class="about-panel-item">
+                <img src="images/1.png" alt="AI Agent Setup" />
+                <h3>AI Agent Setup</h3>
+              </div>
+              <div class="about-panel-item">
+                <img src="images/2.png" alt="Web application development" />
+                <h3>Develop and Manage Your Web Applications</h3>
+              </div>
             </div>
-            <div class="about-panel-item">
-              <img src="images/2.png" alt="Web application development" />
-              <h3>Develop and Manage Your Web Applications</h3>
-            </div>
+            <p class="about-panel-tagline">Want to learn the latest AI tools but not sure where to start? Let Eastern Shore AI get you up to speed.</p>
           </div>
-          <p class="about-panel-tagline">Want to learn the latest AI tools but not sure where to start? Let Eastern Shore AI get you up to speed.</p>
         </div>
       </div>
 
