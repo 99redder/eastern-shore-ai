@@ -86,8 +86,12 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
-    .header-logo {
+    .header-logo-wrap {
       flex-shrink: 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .header-logo {
       font-family: 'Orbitron', sans-serif;
       font-weight: 700;
       font-size: 1.5rem;
@@ -1169,7 +1173,7 @@
 <body>
   <header class="site-header">
     <div class="site-header-inner">
-      <a href="/" class="header-logo">Eastern Shore AI</a>
+      <div class="header-logo-wrap"><a href="/" class="header-logo">Eastern Shore AI</a></div>
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
       <nav class="header-nav" id="header-nav" aria-label="Main links">
         <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
