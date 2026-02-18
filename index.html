@@ -78,8 +78,9 @@
       gap: 1.2rem;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 0 1rem;
+      padding: 0 1rem 0 calc(1rem + 280px);
       height: 100%;
+      position: relative;
     }
     body[data-theme="light"] .site-header {
       background: #ffffff;
@@ -87,9 +88,12 @@
     }
 
     .header-logo-wrap {
-      flex-shrink: 0;
-      overflow: hidden;
-      position: relative;
+      position: absolute;
+      left: 1rem;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
     }
     .header-logo {
       font-family: 'Orbitron', sans-serif;
@@ -1017,7 +1021,9 @@
         border-bottom: 1px solid var(--line);
       }
       .header-nav a:last-child { border-bottom: none; }
-      .header-logo { font-size: 1.15rem; }
+      .site-header-inner { padding-left: 1rem; }
+      .header-logo-wrap { position: static; }
+      .header-logo { font-size: 1.15rem; animation: none; }
       .header-right { margin-left: 0; }
 
       .hero {
@@ -1062,7 +1068,7 @@
 
       h1 { font-size: 1.4rem; }
 
-      .header-logo { font-size: 0.95rem; }
+      .header-logo { font-size: 0.95rem; animation: none; }
 
       .hero { padding: 0.8rem 2.2rem; height: 120px; }
       .hero h1 { font-size: 0.95rem; margin: 0 0 0.15rem; }
