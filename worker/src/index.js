@@ -158,6 +158,21 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const setupTime = (data.setupTime || '').toString().trim();
   const customerEmail = (data.email || '').toString().trim();
   const customerName = (data.name || '').toString().trim();
+  const requestedService = (data.service || 'openclaw_setup').toString().trim().toLowerCase();
+
+  const serviceConfig = requestedService === 'lessons'
+    ? {
+        key: 'lessons',
+        label: 'Tech Tutoring (2 hour session)',
+        amountCents: 10000,
+        successPath: '/book-lessons.html'
+      }
+    : {
+        key: 'openclaw_setup',
+        label: 'OpenClaw Setup',
+        amountCents: 10000,
+        successPath: '/openclaw-setup.html'
+      };
 
   // Reject past dates/blocks using America/New_York.
   {
@@ -223,19 +238,23 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const body = new URLSearchParams({
     mode: 'payment',
     allow_promotion_codes: 'true',
-    success_url: `${siteOrigin}/openclaw-setup.html?paid=1`,
-    cancel_url: `${siteOrigin}/openclaw-setup.html?canceled=1`,
+    success_url: `${siteOrigin}${serviceConfig.successPath}?paid=1`,
+    cancel_url: `${siteOrigin}${serviceConfig.successPath}?canceled=1`,
     'line_items[0][price_data][currency]': 'usd',
-    'line_items[0][price_data][unit_amount]': '10000',
-    'line_items[0][price_data][product_data][name]': 'OpenClaw Setup',
+    'line_items[0][price_data][unit_amount]': String(serviceConfig.amountCents),
+    'line_items[0][price_data][product_data][name]': serviceConfig.label,
     'line_items[0][quantity]': '1',
     'metadata[setup_date]': setupDate,
     'metadata[setup_time]': setupTime,
     'metadata[setup_at]': setupAt,
+    'metadata[service_type]': serviceConfig.key,
+    'metadata[service_label]': serviceConfig.label,
     'metadata[customer_name]': customerName || '(not provided)',
     'payment_intent_data[metadata][setup_date]': setupDate,
     'payment_intent_data[metadata][setup_time]': setupTime,
     'payment_intent_data[metadata][setup_at]': setupAt,
+    'payment_intent_data[metadata][service_type]': serviceConfig.key,
+    'payment_intent_data[metadata][service_label]': serviceConfig.label,
   });
 
   if (customerEmail) body.set('customer_email', customerEmail);
@@ -258,14 +277,15 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     await env.DB.prepare(
       `INSERT INTO bookings (
         stripe_session_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents
-      ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, 10000)`
+      ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, ?7)`
     ).bind(
       stripeData.id,
       setupDate,
       setupTime,
       setupAt,
       customerName || null,
-      customerEmail || null
+      customerEmail || null,
+      serviceConfig.amountCents
     ).run();
   }
 
@@ -309,6 +329,10 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const setupAt = session.metadata?.setup_at || (setupDate && setupTime ? `${setupDate}T${setupTime}` : null);
     const customerName = session.metadata?.customer_name || session.customer_details?.name || null;
     const customerEmail = session.customer_details?.email || session.customer_email || null;
+    const serviceType = (session.metadata?.service_type || 'openclaw_setup').toString();
+    const serviceLabel = (session.metadata?.service_label || '').toString().trim();
+    const incomeCategory = serviceType === 'lessons' ? 'AI Lessons' : 'OpenClaw Setup';
+    const incomeSource = serviceType === 'lessons' ? 'Stripe - Lessons' : 'Stripe';
     const amount = Number(session.amount_total || 10000);
 
     if (sessionId) {
@@ -351,11 +375,11 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         ON CONFLICT(stripe_session_id) DO NOTHING`
       ).bind(
         incomeDate,
-        'Stripe',
-        'OpenClaw Setup',
+        incomeSource,
+        incomeCategory,
         amount,
         sessionId,
-        customerName ? `Auto-imported from Stripe checkout for ${customerName}` : 'Auto-imported from Stripe checkout'
+        customerName ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}` : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`
       ).run();
     }
   }
