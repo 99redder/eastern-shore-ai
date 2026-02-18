@@ -167,28 +167,42 @@
     }
 
     .about-panel {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 1.5rem;
-      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
     }
-    .about-panel img {
-      max-width: 380px;
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 0;
-    }
-    .about-panel-text h2, .about-panel-text h3 {
-      margin: 0 0 0.5rem;
+    .about-panel > h2 {
+      margin: 0;
       color: #ff4fd8;
       text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
     }
-    .about-panel-text p {
-      margin: 0 0 0.6rem;
+    .about-panel-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .about-panel-item {
+      text-align: center;
+    }
+    .about-panel-item img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 2px;
+      display: block;
+    }
+    .about-panel-item h3 {
+      margin: 0.5rem 0 0;
+      font-size: 0.95rem;
+      color: #ff4fd8;
+      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
+    }
+    .about-panel-tagline {
+      margin: 0;
       color: var(--muted);
       line-height: 1.6;
       font-size: 0.93rem;
+      text-align: center;
     }
 
     .hero {
@@ -940,8 +954,9 @@
       .offer-grid { grid-template-columns: 1fr; }
       .coupon-grid { grid-template-columns: 1fr 1fr; }
       .offer-grid-wrap { height: 400px; }
-      .about-panel { grid-template-columns: 1fr; text-align: center; }
-      .about-panel img { max-width: 300px; margin: 0 auto; }
+      .about-panel { text-align: center; }
+      .about-panel-images { grid-template-columns: 1fr; }
+      .about-panel-item img { max-width: 300px; margin: 0 auto; }
       .form-grid { grid-template-columns: 1fr; }
 
       .mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
@@ -1217,13 +1232,18 @@
     <div class="offer-grid-wrap">
       <div class="offer-panel active" data-panel="0">
         <div class="card about-panel">
-          <img src="logo.jpg" alt="Eastern Shore AI — neon cyberpunk logo" />
-          <div class="about-panel-text">
-            <h2>What We Do</h2>
-            <p>Eastern Shore AI builds practical AI-powered tools, websites, and offers hands-on tech tutoring. Based on the Eastern Shore of Maryland, we focus on shipping fast and keeping things simple.</p>
-            <p>Browse our services above or get in touch to learn more.</p><br>
-            <h3>Simply put: We can build and manage a product for you or your business or teach you how to get started using cutting edge AI tools, such as Claude Code, Codex, or OpenClaw for yourself. We can teach in-person, via Zoom, or via Discord - your choice.</h3>
+          <h2>What We Do</h2>
+          <div class="about-panel-images">
+            <div class="about-panel-item">
+              <img src="images/1.png" alt="AI Agent Setup" />
+              <h3>AI Agent Setup</h3>
+            </div>
+            <div class="about-panel-item">
+              <img src="images/2.png" alt="Web application development" />
+              <h3>Develop and Manage Your Web Applications</h3>
+            </div>
           </div>
+          <p class="about-panel-tagline">Want to learn the latest AI tools but not sure where to start? Let Eastern Shore AI get you up to speed.</p>
         </div>
       </div>
 
