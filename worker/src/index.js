@@ -470,6 +470,16 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           ).run();
         }
 
+        // Clean up stale pending rows for same slot after successful payment
+        if (setupAt) {
+          await env.DB.prepare(
+            `DELETE FROM bookings
+             WHERE status = 'pending'
+               AND setup_at = ?1
+               AND stripe_session_id != ?2`
+          ).bind(setupAt, sessionId).run();
+        }
+
         // Auto-insert Stripe processing fee as expense for accurate net reporting
         const paymentIntentId = (session.payment_intent || '').toString().trim();
         const feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
