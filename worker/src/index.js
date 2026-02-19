@@ -381,6 +381,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const setupAt = session.metadata?.setup_at || (setupDate && setupTime ? `${setupDate}T${setupTime}` : null);
     const customerName = session.metadata?.customer_name || session.customer_details?.name || null;
     const customerEmail = session.customer_details?.email || session.customer_email || null;
+    const customerPhone = session.metadata?.customer_phone || null;
+    const preferredContactMethod = (session.metadata?.preferred_contact_method || 'email').toString();
     const serviceType = (session.metadata?.service_type || 'openclaw_setup').toString();
     const serviceLabel = (session.metadata?.service_label || '').toString().trim();
     const incomeCategory = serviceType === 'lessons' ? 'AI Lessons' : 'OpenClaw Setup';
@@ -388,53 +390,62 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const amount = Number(session.amount_total || 10000);
 
     if (sessionId) {
-      await env.DB.prepare(
-        `INSERT INTO bookings (
-          stripe_session_id, stripe_payment_intent_id, status,
-          setup_date, setup_time, setup_at,
-          customer_name, customer_email, amount_cents, service_type, paid_at
-        ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, ?9, datetime('now'))
-        ON CONFLICT(stripe_session_id) DO UPDATE SET
-          stripe_payment_intent_id=excluded.stripe_payment_intent_id,
-          status='paid',
-          setup_date=COALESCE(excluded.setup_date, bookings.setup_date),
-          setup_time=COALESCE(excluded.setup_time, bookings.setup_time),
-          setup_at=COALESCE(excluded.setup_at, bookings.setup_at),
-          customer_name=COALESCE(excluded.customer_name, bookings.customer_name),
-          customer_email=COALESCE(excluded.customer_email, bookings.customer_email),
-          amount_cents=excluded.amount_cents,
-          service_type=COALESCE(excluded.service_type, bookings.service_type),
-          paid_at=datetime('now'),
-          updated_at=datetime('now')`
-      ).bind(
-        sessionId,
-        session.payment_intent || null,
-        setupDate,
-        setupTime,
-        setupAt,
-        customerName,
-        customerEmail,
-        amount,
-        serviceType
-      ).run();
+      try {
+        await env.DB.prepare(
+          `INSERT INTO bookings (
+            stripe_session_id, stripe_payment_intent_id, status,
+            setup_date, setup_time, setup_at,
+            customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at
+          ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, datetime('now'))
+          ON CONFLICT(stripe_session_id) DO UPDATE SET
+            stripe_payment_intent_id=excluded.stripe_payment_intent_id,
+            status='paid',
+            setup_date=COALESCE(excluded.setup_date, bookings.setup_date),
+            setup_time=COALESCE(excluded.setup_time, bookings.setup_time),
+            setup_at=COALESCE(excluded.setup_at, bookings.setup_at),
+            customer_name=COALESCE(excluded.customer_name, bookings.customer_name),
+            customer_email=COALESCE(excluded.customer_email, bookings.customer_email),
+            customer_phone=COALESCE(excluded.customer_phone, bookings.customer_phone),
+            preferred_contact_method=COALESCE(excluded.preferred_contact_method, bookings.preferred_contact_method),
+            amount_cents=excluded.amount_cents,
+            service_type=COALESCE(excluded.service_type, bookings.service_type),
+            paid_at=datetime('now'),
+            updated_at=datetime('now')`
+        ).bind(
+          sessionId,
+          session.payment_intent || null,
+          setupDate,
+          setupTime,
+          setupAt,
+          customerName,
+          customerEmail,
+          customerPhone,
+          preferredContactMethod,
+          amount,
+          serviceType
+        ).run();
 
-      const incomeDate = /^\d{4}-\d{2}-\d{2}$/.test(setupDate || '')
-        ? setupDate
-        : new Date().toISOString().slice(0, 10);
+        const incomeDate = /^\d{4}-\d{2}-\d{2}$/.test(setupDate || '')
+          ? setupDate
+          : new Date().toISOString().slice(0, 10);
 
-      await env.DB.prepare(
-        `INSERT INTO tax_income (
-          income_date, source, category, amount_cents, stripe_session_id, notes
-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)
-        ON CONFLICT(stripe_session_id) DO NOTHING`
-      ).bind(
-        incomeDate,
-        incomeSource,
-        incomeCategory,
-        amount,
-        sessionId,
-        customerName ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}` : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`
-      ).run();
+        await env.DB.prepare(
+          `INSERT INTO tax_income (
+            income_date, source, category, amount_cents, stripe_session_id, notes
+          ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+          ON CONFLICT(stripe_session_id) DO NOTHING`
+        ).bind(
+          incomeDate,
+          incomeSource,
+          incomeCategory,
+          amount,
+          sessionId,
+          customerName ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}` : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`
+        ).run();
+      } catch (e) {
+        console.error('Stripe webhook DB write failed', e);
+        return json({ ok: false, error: `Webhook DB write failed: ${e?.message || e}` }, 500, corsHeaders);
+      }
     }
   }
 
