@@ -394,6 +394,27 @@
         <aside class="book-pay-panel">
           <h3 style="margin:.1rem 0 .2rem;">Reserve Your Spot</h3>
           <p>Choose your date, then use Book + Pay Now to secure your setup session.</p>
+          <div class="form-grid" style="margin-top:.6rem; grid-template-columns:1fr;">
+            <div>
+              <label for="book-name">Your Name</label>
+              <input id="book-name" required />
+            </div>
+            <div>
+              <label for="book-email">Your Email</label>
+              <input id="book-email" type="email" required />
+            </div>
+            <div>
+              <label for="book-phone">Phone Number (optional)</label>
+              <input id="book-phone" type="tel" placeholder="(555) 123-4567" />
+            </div>
+            <div>
+              <label for="book-preferred-contact-method">Preferred Contact Method</label>
+              <select id="book-preferred-contact-method" required>
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+              </select>
+            </div>
+          </div>
           <button type="button" class="btn btn-primary btn-wide" id="book-pay-btn">Book + Pay Now</button>
         </aside>
       </div>
@@ -1660,10 +1681,15 @@
     bookPayBtn.addEventListener('click', async () => {
       const setupDate = setupDateEl.value;
       const setupTime = setupTimeEl.value;
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone')?.value.trim() || '';
-      const preferredContactMethod = document.getElementById('preferred-contact-method')?.value || 'email';
+      const name = document.getElementById('book-name')?.value.trim() || '';
+      const email = document.getElementById('book-email')?.value.trim() || '';
+      const phone = document.getElementById('book-phone')?.value.trim() || '';
+      const preferredContactMethod = document.getElementById('book-preferred-contact-method')?.value || 'email';
+
+      if (!name || !email) {
+        alert('Name and email are required to book.');
+        return;
+      }
 
       if (!setupDate || !setupTime) {
         alert('Please choose your setup date and time first.');
