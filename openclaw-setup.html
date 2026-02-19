@@ -130,7 +130,14 @@
     .admin-controls { display:none; margin-top:.8rem; }
     .admin-controls.active { display:block; }
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
-    .admin-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:2px; padding:.6rem; background:#10121a; font-size:.85rem; color:var(--muted); }
+    .admin-list { max-height:320px; overflow:auto; border:1px solid var(--line); border-radius:2px; padding:.4rem; background:#10121a; font-size:.85rem; color:var(--muted); }
+    .tax-row { display:grid; grid-template-columns:auto 1fr auto auto; gap:.45rem; align-items:center; padding:.38rem .35rem; border-bottom:1px dashed var(--line); }
+    .tax-row:last-child { border-bottom:none; }
+    .tax-row .type { font-size:.72rem; padding:.08rem .32rem; border:1px solid var(--line); border-radius:999px; color:var(--text); }
+    .tax-row .desc { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tax-row .amt { color:var(--text); font-weight:700; }
+    .tax-row .edit { padding:.2rem .5rem; font-size:.75rem; }
+
     .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:2px; background:#10121a; padding:.7rem; }
     /* ===== Tax Ledger ===== */
     .tax-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
@@ -696,6 +703,8 @@
     const TAX_TX_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/transactions');
     const TAX_EXPENSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense');
     const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
+    const TAX_EXPENSE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/update');
+    const TAX_INCOME_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income/update');
     const TAX_EXPORT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/export.csv');
 
     const form = document.getElementById('setup-page-form');
@@ -1160,6 +1169,49 @@
         'Other'
       ];
 
+      function escHtml(v) {
+        return String(v == null ? '' : v)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatTaxRowLabel(type, r) {
+        const counterparty = type === 'income' ? (r.source || '') : (r.vendor || '');
+        return `${r.date} | ${r.category || ''} | ${counterparty} | ${r.notes || ''}`;
+      }
+
+      async function editTaxRecord(type, r) {
+        const date = prompt('Date (YYYY-MM-DD):', r.date || '');
+        if (date === null) return;
+        const category = prompt('Category:', r.category || '');
+        if (category === null) return;
+        const amount = prompt('Amount (USD):', ((Number(r.amount_cents||0))/100).toFixed(2));
+        if (amount === null) return;
+        const notes = prompt('Notes (optional):', r.notes || '');
+        if (notes === null) return;
+
+        const payload = { id: r.id, date: date.trim(), category: category.trim(), amount: amount.trim(), notes: notes.trim() };
+        if (type === 'income') {
+          payload.source = prompt('Source (optional):', r.source || '') || '';
+          payload.stripeSessionId = prompt('Stripe session id (optional):', r.stripe_session_id || '') || '';
+        } else {
+          payload.vendor = prompt('Vendor (optional):', r.vendor || '') || '';
+          payload.paidVia = prompt('Paid via (optional):', r.paid_via || '') || '';
+        }
+
+        const url = type === 'income' ? TAX_INCOME_UPDATE_API_URL : TAX_EXPENSE_UPDATE_API_URL;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Update failed');
+      }
+
       function initTaxUiDefaults() {
         const now = nowEtParts();
         const thisYear = Number(now.date.split('-')[0] || new Date().getFullYear());
@@ -1185,13 +1237,15 @@
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Failed');
 
-          const lines = [];
-          for (const r of (data.income || [])) {
-            lines.push(`[INCOME] ${r.date} | ${r.category} | $${(r.amount_cents/100).toFixed(2)} | ${r.source || ''} | ${r.notes || ''}`);
-          }
-          for (const r of (data.expenses || [])) {
-            lines.push(`[EXPENSE] ${r.date} | ${r.category} | $${(r.amount_cents/100).toFixed(2)} | ${r.vendor || ''} | ${r.notes || ''}`);
-          }
+          const items = [
+            ...(data.income || []).map(r => ({ type: 'income', ...r })),
+            ...(data.expenses || []).map(r => ({ type: 'expense', ...r }))
+          ].sort((a,b) => {
+            const ad = String(a.date || '');
+            const bd = String(b.date || '');
+            if (ad !== bd) return bd.localeCompare(ad);
+            return Number(b.id || 0) - Number(a.id || 0);
+          });
 
           // Totals snapshot for selected year
           const incomeByCategory = new Map();
@@ -1236,7 +1290,35 @@
               <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong>$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
             </div>
           `;
-          taxListEl.textContent = lines.length ? lines.join('\n') : 'No transactions yet.';
+                    if (!items.length) {
+            taxListEl.textContent = 'No transactions yet.';
+          } else {
+            taxListEl.innerHTML = items.map((r) => `
+              <div class="tax-row" data-type="${r.type}" data-id="${r.id}">
+                <span class="type">${r.type.toUpperCase()}</span>
+                <span class="desc" title="${escHtml(formatTaxRowLabel(r.type, r))}">${escHtml(formatTaxRowLabel(r.type, r))}</span>
+                <span class="amt">$${(Number(r.amount_cents || 0)/100).toFixed(2)}</span>
+                <button type="button" class="btn edit" data-tax-edit="1">Edit</button>
+              </div>
+            `).join('');
+
+            taxListEl.querySelectorAll('[data-tax-edit="1"]').forEach((btn) => {
+              btn.addEventListener('click', async () => {
+                const row = btn.closest('.tax-row');
+                const id = Number(row?.getAttribute('data-id') || 0);
+                const type = row?.getAttribute('data-type');
+                const sourceList = type === 'income' ? (data.income || []) : (data.expenses || []);
+                const record = sourceList.find(x => Number(x.id) === id);
+                if (!record) return;
+                try {
+                  await editTaxRecord(type, record);
+                  await loadTaxTransactions();
+                } catch (e) {
+                  alert(`Could not update transaction: ${e.message || e}`);
+                }
+              });
+            });
+          }
         } catch (e) {
           taxSummaryListEl.innerHTML = `<div class="tax-summary-col"><h4>Summary</h4><div class="tax-summary-line"><span>Error</span><strong>${(e.message || e)}</strong></div></div>`;
           taxListEl.textContent = `Error loading tax transactions: ${e.message || e}`;

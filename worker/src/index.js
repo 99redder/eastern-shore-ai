@@ -9,6 +9,8 @@
 // GET  /api/tax/transactions    → handleTaxTransactions() — Admin: tax entries by year/type
 // POST /api/tax/expense         → handleTaxExpense()      — Admin: add expense entry
 // POST /api/tax/income          → handleTaxIncome()       — Admin: add income entry
+// POST /api/tax/expense/update  → handleTaxExpenseUpdate() — Admin: edit expense entry
+// POST /api/tax/income/update   → handleTaxIncomeUpdate()  — Admin: edit income entry
 // GET  /api/tax/export.csv      → handleTaxExportCsv()    — Admin: CSV export for selected year/type
 //
 // ===== UTILITY FUNCTIONS =====
@@ -47,7 +49,7 @@ export default {
       const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv'].includes(url.pathname) && request.method === 'GET';
-      const isTaxWrite = ['/api/tax/expense','/api/tax/income'].includes(url.pathname) && request.method === 'POST';
+      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -725,6 +727,89 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
   ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null).run();
 
   return json({ ok: true, id: r.meta?.last_row_id || null }, 200, corsHeaders);
+}
+
+
+/**
+ * POST /api/tax/expense/update — Admin: edit an existing expense entry
+ */
+async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || 0);
+  const expenseDate = (data.date || '').toString().trim();
+  const vendor = (data.vendor || '').toString().trim();
+  const category = (data.category || '').toString().trim();
+  const paidVia = (data.paidVia || '').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  const cents = toCents(data.amount);
+
+  if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(expenseDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
+  if (!category) return json({ ok: false, error: 'Missing category' }, 400, corsHeaders);
+  if (cents === null) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
+
+  const existing = await env.DB.prepare('SELECT id FROM tax_expenses WHERE id = ?1').bind(id).first();
+  if (!existing) return json({ ok: false, error: 'Expense not found' }, 404, corsHeaders);
+
+  await env.DB.prepare(
+    `UPDATE tax_expenses
+     SET expense_date = ?1,
+         vendor = ?2,
+         category = ?3,
+         amount_cents = ?4,
+         paid_via = ?5,
+         notes = ?6
+     WHERE id = ?7`
+  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notes || null, id).run();
+
+  return json({ ok: true, id }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/tax/income/update — Admin: edit an existing income entry
+ */
+async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || 0);
+  const incomeDate = (data.date || '').toString().trim();
+  const source = (data.source || '').toString().trim();
+  const category = (data.category || '').toString().trim();
+  const stripeSessionId = (data.stripeSessionId || '').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  const cents = toCents(data.amount);
+
+  if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(incomeDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
+  if (!category) return json({ ok: false, error: 'Missing category' }, 400, corsHeaders);
+  if (cents === null) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
+
+  const existing = await env.DB.prepare('SELECT id FROM tax_income WHERE id = ?1').bind(id).first();
+  if (!existing) return json({ ok: false, error: 'Income not found' }, 404, corsHeaders);
+
+  await env.DB.prepare(
+    `UPDATE tax_income
+     SET income_date = ?1,
+         source = ?2,
+         category = ?3,
+         amount_cents = ?4,
+         stripe_session_id = ?5,
+         notes = ?6
+     WHERE id = ?7`
+  ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null, id).run();
+
+  return json({ ok: true, id }, 200, corsHeaders);
 }
 
 /**
