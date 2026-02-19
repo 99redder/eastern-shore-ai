@@ -141,6 +141,7 @@
     .tax-row .amt { color:var(--text); font-weight:700; }
     .tax-row .edit { padding:.2rem .5rem; font-size:.75rem; }
     .tax-row .delete { padding:.2rem .5rem; font-size:.75rem; border-color:#5a2222; color:#ff9b9b; }
+    .btn.delete { border-color:#5a2222; color:#ff9b9b; }
 
     .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:2px; background:#10121a; padding:.7rem; }
     /* ===== Tax Ledger ===== */
@@ -1121,12 +1122,12 @@
 
         const blockedSlotRows = (data.blockedSlots || []).map((s) => {
           const key = `${s.setup_date || ''}|${s.setup_time || ''}`;
-          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED SLOT] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}</span><button type="button" class="btn" data-blocked-slot-delete="${key}">Delete</button></div>`;
+          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED SLOT] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}</span><button type="button" class="btn delete" data-blocked-slot-delete="${key}">Delete</button></div>`;
         });
 
         const blockedDayRows = (data.blockedDays || []).map((d) => {
           const key = `${d.setup_date || ''}`;
-          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED DAY] ${d.active ? 'active' : 'inactive'} | ${d.setup_date} | ${d.reason || '(no reason)'}</span><button type="button" class="btn" data-blocked-day-delete="${key}">Delete</button></div>`;
+          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED DAY] ${d.active ? 'active' : 'inactive'} | ${d.setup_date} | ${d.reason || '(no reason)'}</span><button type="button" class="btn delete" data-blocked-day-delete="${key}">Delete</button></div>`;
         });
 
         const html = [...bookingRows, ...blockedSlotRows, ...blockedDayRows].join('');
