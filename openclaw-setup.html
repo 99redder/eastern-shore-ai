@@ -412,6 +412,17 @@
             <label for="email">Your Email</label>
             <input id="email" type="email" required />
           </div>
+          <div>
+            <label for="phone">Phone Number (optional)</label>
+            <input id="phone" type="tel" placeholder="(555) 123-4567" />
+          </div>
+          <div>
+            <label for="preferred-contact-method">Preferred Contact Method</label>
+            <select id="preferred-contact-method" required>
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
+          </div>
           <div class="full">
             <label for="message">Questions</label>
             <textarea id="message" required placeholder="Share any questions before your setup session."></textarea>
@@ -1651,6 +1662,8 @@
       const setupTime = setupTimeEl.value;
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone')?.value.trim() || '';
+      const preferredContactMethod = document.getElementById('preferred-contact-method')?.value || 'email';
 
       if (!setupDate || !setupTime) {
         alert('Please choose your setup date and time first.');
@@ -1676,7 +1689,7 @@
         const res = await fetch(CHECKOUT_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ setupDate, setupTime, name, email })
+          body: JSON.stringify({ setupDate, setupTime, name, email, phone, preferredContactMethod })
         });
 
         const data = await res.json();
@@ -1726,7 +1739,9 @@
         const preferredDate = document.getElementById('setup-date').value;
         const preferredTime = document.getElementById('setup-time').value;
         const rawQuestions = document.getElementById('message').value.trim();
-        const combinedMessage = `Preferred setup date: ${preferredDate || 'not provided'}\nPreferred time: ${preferredTime || 'not provided'}\n\nQuestions:\n${rawQuestions}`;
+        const preferredContactMethod = document.getElementById('preferred-contact-method')?.value || 'email';
+        const phone = document.getElementById('phone')?.value.trim() || '';
+        const combinedMessage = `Preferred setup date: ${preferredDate || 'not provided'}\nPreferred time: ${preferredTime || 'not provided'}\nPreferred contact method: ${preferredContactMethod}\nPhone: ${phone || 'not provided'}\n\nQuestions:\n${rawQuestions}`;
 
         const res = await fetch(CONTACT_API_URL, {
           method: 'POST',

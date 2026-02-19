@@ -196,6 +196,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const customerEmail = (data.email || '').toString().trim();
   const customerName = (data.name || '').toString().trim();
   const requestedService = (data.service || 'openclaw_setup').toString().trim().toLowerCase();
+  const customerPhone = (data.phone || '').toString().trim();
+  const preferredContactMethod = (data.preferredContactMethod || 'email').toString().trim().toLowerCase();
 
   const serviceConfig = requestedService === 'lessons'
     ? {
@@ -287,11 +289,15 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'metadata[service_type]': serviceConfig.key,
     'metadata[service_label]': serviceConfig.label,
     'metadata[customer_name]': customerName || '(not provided)',
+    'metadata[customer_phone]': customerPhone || '',
+    'metadata[preferred_contact_method]': preferredContactMethod || 'email',
     'payment_intent_data[metadata][setup_date]': setupDate,
     'payment_intent_data[metadata][setup_time]': setupTime,
     'payment_intent_data[metadata][setup_at]': setupAt,
     'payment_intent_data[metadata][service_type]': serviceConfig.key,
     'payment_intent_data[metadata][service_label]': serviceConfig.label,
+    'payment_intent_data[metadata][customer_phone]': customerPhone || '',
+    'payment_intent_data[metadata][preferred_contact_method]': preferredContactMethod || 'email',
   });
 
   if (customerEmail) body.set('customer_email', customerEmail);
@@ -313,8 +319,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   if (env.DB) {
     await env.DB.prepare(
       `INSERT INTO bookings (
-        stripe_session_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents, service_type
-      ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
+        stripe_session_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type
+      ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
     ).bind(
       stripeData.id,
       setupDate,
@@ -322,6 +328,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
       setupAt,
       customerName || null,
       customerEmail || null,
+      customerPhone || null,
+      preferredContactMethod || 'email',
       serviceConfig.amountCents,
       serviceConfig.key
     ).run();
@@ -472,7 +480,7 @@ async function handleBookings(request, env, corsHeaders, url) {
 
   const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 20)));
   const rows = await env.DB.prepare(
-    `SELECT id, stripe_session_id, stripe_payment_intent_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, amount_cents, service_type, paid_at, created_at, updated_at
+    `SELECT id, stripe_session_id, stripe_payment_intent_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at, created_at, updated_at
      FROM bookings
      ORDER BY created_at DESC
      LIMIT ?1`
