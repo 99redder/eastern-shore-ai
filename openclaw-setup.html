@@ -531,8 +531,10 @@
                       <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
                       <label>Notes</label>
                       <input id="tax-expense-notes" placeholder="optional" />
-                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem;">
+                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
                         <button type="button" class="btn btn-primary" id="tax-add-expense-btn">Add Expense</button>
+                        <button type="button" class="btn btn-primary" id="tax-update-expense-btn" style="display:none;">Save Expense Update</button>
+                        <button type="button" class="btn" id="tax-cancel-expense-edit-btn" style="display:none;">Cancel Edit</button>
                         <button type="button" class="btn" id="tax-clear-expense-btn">Clear</button>
                       </div>
                     </div>
@@ -553,8 +555,10 @@
                       <input id="tax-income-stripe" placeholder="cs_test_..." />
                       <label>Notes</label>
                       <input id="tax-income-notes" placeholder="optional" />
-                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem;">
+                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
                         <button type="button" class="btn btn-primary" id="tax-add-income-btn">Add Income</button>
+                        <button type="button" class="btn btn-primary" id="tax-update-income-btn" style="display:none;">Save Income Update</button>
+                        <button type="button" class="btn" id="tax-cancel-income-edit-btn" style="display:none;">Cancel Edit</button>
                         <button type="button" class="btn" id="tax-clear-income-btn">Clear</button>
                       </div>
                     </div>
@@ -778,6 +782,8 @@
     const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
     const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
     const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
+    const taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
+    const taxCancelExpenseEditBtn = document.getElementById('tax-cancel-expense-edit-btn');
     const taxClearExpenseBtn = document.getElementById('tax-clear-expense-btn');
 
     const taxIncomeDateEl = document.getElementById('tax-income-date');
@@ -787,6 +793,8 @@
     const taxIncomeStripeEl = document.getElementById('tax-income-stripe');
     const taxIncomeNotesEl = document.getElementById('tax-income-notes');
     const taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
+    const taxUpdateIncomeBtn = document.getElementById('tax-update-income-btn');
+    const taxCancelIncomeEditBtn = document.getElementById('tax-cancel-income-edit-btn');
     const taxClearIncomeBtn = document.getElementById('tax-clear-income-btn');
 
     const adminDateEl = document.getElementById('admin-date');
@@ -1208,32 +1216,48 @@
       }
 
       async function editTaxRecord(type, r) {
-        const date = prompt('Date (YYYY-MM-DD):', r.date || '');
-        if (date === null) return;
-        const category = prompt('Category:', r.category || '');
-        if (category === null) return;
-        const amount = prompt('Amount (USD):', ((Number(r.amount_cents||0))/100).toFixed(2));
-        if (amount === null) return;
-        const notes = prompt('Notes (optional):', r.notes || '');
-        if (notes === null) return;
-
-        const payload = { id: r.id, date: date.trim(), category: category.trim(), amount: amount.trim(), notes: notes.trim() };
-        if (type === 'income') {
-          payload.source = prompt('Source (optional):', r.source || '') || '';
-          payload.stripeSessionId = prompt('Stripe session id (optional):', r.stripe_session_id || '') || '';
+        if (type === 'expense') {
+          editingExpenseId = Number(r.id || 0);
+          taxExpenseDateEl.value = r.date || '';
+          taxExpenseVendorEl.value = r.vendor || '';
+          taxExpenseCategoryEl.value = r.category || TAX_EXPENSE_CATEGORIES[0];
+          taxExpenseAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
+          taxExpensePaidViaEl.value = r.paid_via || '';
+          taxExpenseNotesEl.value = r.notes || '';
+          taxAddExpenseBtn.style.display = 'none';
+          taxUpdateExpenseBtn.style.display = '';
+          taxCancelExpenseEditBtn.style.display = '';
+          taxExpenseAmountEl.focus();
         } else {
-          payload.vendor = prompt('Vendor (optional):', r.vendor || '') || '';
-          payload.paidVia = prompt('Paid via (optional):', r.paid_via || '') || '';
+          editingIncomeId = Number(r.id || 0);
+          taxIncomeDateEl.value = r.date || '';
+          taxIncomeSourceEl.value = r.source || '';
+          taxIncomeCategoryEl.value = r.category || TAX_INCOME_CATEGORIES[0];
+          taxIncomeAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
+          taxIncomeStripeEl.value = r.stripe_session_id || '';
+          taxIncomeNotesEl.value = r.notes || '';
+          taxAddIncomeBtn.style.display = 'none';
+          taxUpdateIncomeBtn.style.display = '';
+          taxCancelIncomeEditBtn.style.display = '';
+          taxIncomeAmountEl.focus();
         }
+      }
 
-        const url = type === 'income' ? TAX_INCOME_UPDATE_API_URL : TAX_EXPENSE_UPDATE_API_URL;
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || 'Update failed');
+      let editingExpenseId = null;
+      let editingIncomeId = null;
+
+      function resetExpenseEditMode() {
+        editingExpenseId = null;
+        taxAddExpenseBtn.style.display = '';
+        taxUpdateExpenseBtn.style.display = 'none';
+        taxCancelExpenseEditBtn.style.display = 'none';
+      }
+
+      function resetIncomeEditMode() {
+        editingIncomeId = null;
+        taxAddIncomeBtn.style.display = '';
+        taxUpdateIncomeBtn.style.display = 'none';
+        taxCancelIncomeEditBtn.style.display = 'none';
       }
 
       function initTaxUiDefaults() {
@@ -1357,6 +1381,7 @@
         taxExpensePaidViaEl.value = '';
         taxExpenseNotesEl.value = '';
         if (taxExpenseCategoryEl.options.length) taxExpenseCategoryEl.selectedIndex = 0;
+        resetExpenseEditMode();
       }
 
       function clearTaxIncomeForm() {
@@ -1367,6 +1392,7 @@
         taxIncomeStripeEl.value = '';
         taxIncomeNotesEl.value = '';
         if (taxIncomeCategoryEl.options.length) taxIncomeCategoryEl.selectedIndex = 0;
+        resetIncomeEditMode();
       }
 
       async function addTaxExpense() {
@@ -1383,7 +1409,9 @@
           return;
         }
         try {
-          const res = await fetch(TAX_EXPENSE_API_URL, {
+          const targetUrl = editingExpenseId ? TAX_EXPENSE_UPDATE_API_URL : TAX_EXPENSE_API_URL;
+          if (editingExpenseId) payload.id = editingExpenseId;
+          const res = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
             body: JSON.stringify(payload)
@@ -1411,7 +1439,9 @@
           return;
         }
         try {
-          const res = await fetch(TAX_INCOME_API_URL, {
+          const targetUrl = editingIncomeId ? TAX_INCOME_UPDATE_API_URL : TAX_INCOME_API_URL;
+          if (editingIncomeId) payload.id = editingIncomeId;
+          const res = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
             body: JSON.stringify(payload)
@@ -1498,8 +1528,12 @@
       taxYearEl.addEventListener('change', loadTaxTransactions);
       taxTypeEl.addEventListener('change', loadTaxTransactions);
       taxAddExpenseBtn.addEventListener('click', addTaxExpense);
+      taxUpdateExpenseBtn.addEventListener('click', addTaxExpense);
+      taxCancelExpenseEditBtn.addEventListener('click', clearTaxExpenseForm);
       taxClearExpenseBtn.addEventListener('click', clearTaxExpenseForm);
       taxAddIncomeBtn.addEventListener('click', addTaxIncome);
+      taxUpdateIncomeBtn.addEventListener('click', addTaxIncome);
+      taxCancelIncomeEditBtn.addEventListener('click', clearTaxIncomeForm);
       taxClearIncomeBtn.addEventListener('click', clearTaxIncomeForm);
       taxExportBtn.addEventListener('click', downloadTaxCsv);
     }
