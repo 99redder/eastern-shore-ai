@@ -505,8 +505,9 @@
                       <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
                       <label>Notes</label>
                       <input id="tax-expense-notes" placeholder="optional" />
-                      <div class="form-actions" style="justify-content:flex-start;">
+                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem;">
                         <button type="button" class="btn btn-primary" id="tax-add-expense-btn">Add Expense</button>
+                        <button type="button" class="btn" id="tax-clear-expense-btn">Clear</button>
                       </div>
                     </div>
                   </div>
@@ -526,8 +527,9 @@
                       <input id="tax-income-stripe" placeholder="cs_test_..." />
                       <label>Notes</label>
                       <input id="tax-income-notes" placeholder="optional" />
-                      <div class="form-actions" style="justify-content:flex-start;">
+                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem;">
                         <button type="button" class="btn btn-primary" id="tax-add-income-btn">Add Income</button>
+                        <button type="button" class="btn" id="tax-clear-income-btn">Clear</button>
                       </div>
                     </div>
                   </div>
@@ -743,6 +745,7 @@
     const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
     const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
     const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
+    const taxClearExpenseBtn = document.getElementById('tax-clear-expense-btn');
 
     const taxIncomeDateEl = document.getElementById('tax-income-date');
     const taxIncomeSourceEl = document.getElementById('tax-income-source');
@@ -751,6 +754,7 @@
     const taxIncomeStripeEl = document.getElementById('tax-income-stripe');
     const taxIncomeNotesEl = document.getElementById('tax-income-notes');
     const taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
+    const taxClearIncomeBtn = document.getElementById('tax-clear-income-btn');
 
     const adminDateEl = document.getElementById('admin-date');
     const adminTimeEl = document.getElementById('admin-time');
@@ -1239,6 +1243,26 @@
         }
       }
 
+      function clearTaxExpenseForm() {
+        const now = nowEtParts();
+        taxExpenseDateEl.value = now.date;
+        taxExpenseVendorEl.value = '';
+        taxExpenseAmountEl.value = '';
+        taxExpensePaidViaEl.value = '';
+        taxExpenseNotesEl.value = '';
+        if (taxExpenseCategoryEl.options.length) taxExpenseCategoryEl.selectedIndex = 0;
+      }
+
+      function clearTaxIncomeForm() {
+        const now = nowEtParts();
+        taxIncomeDateEl.value = now.date;
+        taxIncomeSourceEl.value = '';
+        taxIncomeAmountEl.value = '';
+        taxIncomeStripeEl.value = '';
+        taxIncomeNotesEl.value = '';
+        if (taxIncomeCategoryEl.options.length) taxIncomeCategoryEl.selectedIndex = 0;
+      }
+
       async function addTaxExpense() {
         const payload = {
           date: taxExpenseDateEl.value,
@@ -1260,8 +1284,7 @@
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Failed');
-          taxExpenseAmountEl.value = '';
-          taxExpenseNotesEl.value = '';
+          clearTaxExpenseForm();
           await loadTaxTransactions();
         } catch (e) {
           alert(`Could not add expense: ${e.message || e}`);
@@ -1289,8 +1312,7 @@
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Failed');
-          taxIncomeAmountEl.value = '';
-          taxIncomeNotesEl.value = '';
+          clearTaxIncomeForm();
           await loadTaxTransactions();
         } catch (e) {
           alert(`Could not add income: ${e.message || e}`);
@@ -1351,7 +1373,9 @@
       taxYearEl.addEventListener('change', loadTaxTransactions);
       taxTypeEl.addEventListener('change', loadTaxTransactions);
       taxAddExpenseBtn.addEventListener('click', addTaxExpense);
+      taxClearExpenseBtn.addEventListener('click', clearTaxExpenseForm);
       taxAddIncomeBtn.addEventListener('click', addTaxIncome);
+      taxClearIncomeBtn.addEventListener('click', clearTaxIncomeForm);
       taxExportBtn.addEventListener('click', downloadTaxCsv);
     }
 
@@ -1407,7 +1431,17 @@
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
       } catch {}
-      openSuccessModal(`Your OpenClaw setup appointment is confirmed for ${dateText} at ${timeText}.`);
+      openSuccessModal(`Payment successful — you purchased an OpenClaw setup session ($100.00) for ${dateText} at ${timeText}.`);
+      window.history.replaceState({}, '', '/openclaw-setup.html');
+    } else if (qs.get('canceled') === '1') {
+      let dateText = 'your selected date';
+      let timeText = 'your selected time';
+      try {
+        const saved = JSON.parse(localStorage.getItem('esa_last_setup_slot') || '{}');
+        if (saved.setupDate) dateText = saved.setupDate;
+        if (saved.setupTime) timeText = saved.setupTime;
+      } catch {}
+      openSuccessModal(`Checkout canceled — no charge was made. Your selected OpenClaw setup time was ${dateText} at ${timeText}.`);
       window.history.replaceState({}, '', '/openclaw-setup.html');
     }
 
