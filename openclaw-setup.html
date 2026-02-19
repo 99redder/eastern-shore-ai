@@ -129,6 +129,9 @@
     .admin-lock { border:1px solid var(--line); border-radius:2px; padding:.75rem; background:#10121a; margin-top:.6rem; }
     .admin-controls { display:none; margin-top:.8rem; }
     .admin-controls.active { display:block; }
+    .admin-collapsible-card { border:1px solid var(--line); border-radius:2px; padding:.55rem; background:#10121a; }
+    .admin-collapsible-head { display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.35rem; }
+    .admin-collapsible-body-collapsed { display:none; }
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; }
     .admin-list { max-height:320px; overflow:auto; border:1px solid var(--line); border-radius:2px; padding:.4rem; background:#10121a; font-size:.85rem; color:var(--muted); }
     .tax-row { display:grid; grid-template-columns:auto 1fr auto auto; gap:.45rem; align-items:center; padding:.38rem .35rem; border-bottom:1px dashed var(--line); }
@@ -429,6 +432,12 @@
       </div>
 
       <div class="admin-controls" id="admin-controls">
+        <div class="admin-collapsible-card" id="booking-controls-card">
+          <div class="admin-collapsible-head">
+            <h3 style="margin:0;">Admin Booking Controls</h3>
+            <button type="button" class="btn" id="booking-collapse-btn" aria-expanded="true">Minimize</button>
+          </div>
+          <div id="booking-controls-body">
         <div class="admin-grid" style="margin-top:.7rem;">
           <div>
             <h3 style="margin:.1rem 0 .4rem;">Block / Unblock Slot</h3>
@@ -472,8 +481,18 @@
             </div>
           </div>
 
+        </div>
+          </div>
+        </div>
+
+        <div class="admin-collapsible-card" id="tax-ledger-card" style="margin-top:1rem;">
+          <div class="admin-collapsible-head">
+            <h3 style="margin:0;">Tax Ledger</h3>
+            <button type="button" class="btn" id="tax-collapse-btn" aria-expanded="true">Minimize</button>
+          </div>
+          <div id="tax-ledger-body">
         <!-- ===== SECTION: Admin Tax Ledger ===== -->
-        <section class="admin-calendar-wrap" style="margin-top:1rem; grid-column:1 / -1;">
+        <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
           <div class="admin-calendar-head">
             <div class="admin-calendar-title">Tax Ledger</div>
           </div>
@@ -739,6 +758,11 @@
     const adminControls = document.getElementById('admin-controls');
     const adminKeyEl = document.getElementById('admin-key');
     const adminUnlockBtn = document.getElementById('admin-unlock-btn');
+
+    const bookingCollapseBtn = document.getElementById('booking-collapse-btn');
+    const bookingControlsBody = document.getElementById('booking-controls-body');
+    const taxCollapseBtn = document.getElementById('tax-collapse-btn');
+    const taxLedgerBody = document.getElementById('tax-ledger-body');
 
     const taxYearEl = document.getElementById('tax-year');
     const taxTypeEl = document.getElementById('tax-type');
@@ -1425,6 +1449,25 @@
           alert(`Could not export CSV: ${e.message || e}`);
         }
       }
+
+      function wireCollapse(btn, body) {
+        if (!btn || !body) return;
+        btn.addEventListener('click', () => {
+          const isOpen = btn.getAttribute('aria-expanded') !== 'false';
+          if (isOpen) {
+            body.classList.add('admin-collapsible-body-collapsed');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.textContent = 'Expand';
+          } else {
+            body.classList.remove('admin-collapsible-body-collapsed');
+            btn.setAttribute('aria-expanded', 'true');
+            btn.textContent = 'Minimize';
+          }
+        });
+      }
+
+      wireCollapse(bookingCollapseBtn, bookingControlsBody);
+      wireCollapse(taxCollapseBtn, taxLedgerBody);
 
       adminUnlockBtn.addEventListener('click', async () => {
         const key = adminKeyEl.value.trim();
