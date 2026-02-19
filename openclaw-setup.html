@@ -150,7 +150,7 @@
     .tax-summary-line { display:flex; justify-content:space-between; gap:.6rem; padding:.12rem 0; color:var(--muted); }
     .tax-summary-line strong { color:var(--text); font-weight:700; }
     .tax-entry-wrap { margin-top:1rem; }
-    .admin-calendar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+    .admin-calendar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; gap:.45rem; }
     .admin-calendar-title { font-size:.9rem; color:var(--cyan); }
     .admin-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:.25rem; }
     .admin-cal-dow { font-size:.72rem; color:var(--muted); text-align:center; padding:.2rem 0; }
@@ -471,7 +471,9 @@
             <div class="admin-list" id="admin-list">No data yet.</div>
             <div class="admin-calendar-wrap">
               <div class="admin-calendar-head">
+                <button type="button" class="btn" id="admin-cal-prev-btn">← Prev</button>
                 <div class="admin-calendar-title" id="admin-calendar-title">Availability Calendar</div>
+                <button type="button" class="btn" id="admin-cal-next-btn">Next →</button>
               </div>
               <div class="admin-calendar-grid" id="admin-calendar-grid"></div>
               <div class="admin-legend">
@@ -806,6 +808,8 @@
     const adminListEl = document.getElementById('admin-list');
     const adminCalendarGridEl = document.getElementById('admin-calendar-grid');
     const adminCalendarTitleEl = document.getElementById('admin-calendar-title');
+    const adminCalPrevBtn = document.getElementById('admin-cal-prev-btn');
+    const adminCalNextBtn = document.getElementById('admin-cal-next-btn');
     const adminBlockBtn = document.getElementById('admin-block-btn');
     const adminUnblockBtn = document.getElementById('admin-unblock-btn');
     const adminBlockDayBtn = document.getElementById('admin-block-day-btn');
@@ -815,6 +819,7 @@
     // ===== Availability State =====
     let unavailableSlots = new Set();
     let blockedDates = new Set();
+    let adminCalendarCursor = null; // Date at first day of month being viewed
 
     // ===== Modals =====
     /** @param {string} text - Message to display in success modal */
@@ -1030,9 +1035,9 @@
      * @param {Array} blockedDays - Blocked full-day records
      */
     function renderAdminCalendar(bookings = [], blockedSlots = [], blockedDays = []) {
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
+      const cursor = adminCalendarCursor || new Date();
+      const year = cursor.getFullYear();
+      const month = cursor.getMonth();
       const first = new Date(year, month, 1);
       const last = new Date(year, month + 1, 0);
       const daysInMonth = last.getDate();
@@ -1067,7 +1072,7 @@
         blockedByDay.set(key, (blockedByDay.get(key) || 0) + 1);
       }
 
-      const monthName = now.toLocaleString('en-US', { month: 'long' });
+      const monthName = first.toLocaleString('en-US', { month: 'long' });
       adminCalendarTitleEl.textContent = `Availability Calendar — ${monthName} ${year}`;
 
       const parts = [];
@@ -1109,11 +1114,65 @@
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
-        const lines = [];
-        for (const b of (data.bookings || [])) { const svc = b.service_type === 'lessons' ? 'LESSONS' : 'OPENCLAW'; lines.push(`[BOOKING:${svc}] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}`); }
-        for (const s of (data.blockedSlots || [])) lines.push(`[BLOCKED SLOT] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}`);
-        for (const d of (data.blockedDays || [])) lines.push(`[BLOCKED DAY] ${d.active ? 'active' : 'inactive'} | ${d.setup_date} | ${d.reason || '(no reason)'}`);
-        adminListEl.textContent = lines.length ? lines.join('\n') : 'No records yet.';
+        const bookingRows = (data.bookings || []).map((b) => {
+          const svc = b.service_type === 'lessons' ? 'LESSONS' : 'OPENCLAW';
+          return `<div>[BOOKING:${svc}] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}</div>`;
+        });
+
+        const blockedSlotRows = (data.blockedSlots || []).map((s) => {
+          const key = `${s.setup_date || ''}|${s.setup_time || ''}`;
+          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED SLOT] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}</span><button type="button" class="btn" data-blocked-slot-delete="${key}">Delete</button></div>`;
+        });
+
+        const blockedDayRows = (data.blockedDays || []).map((d) => {
+          const key = `${d.setup_date || ''}`;
+          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED DAY] ${d.active ? 'active' : 'inactive'} | ${d.setup_date} | ${d.reason || '(no reason)'}</span><button type="button" class="btn" data-blocked-day-delete="${key}">Delete</button></div>`;
+        });
+
+        const html = [...bookingRows, ...blockedSlotRows, ...blockedDayRows].join('');
+        adminListEl.innerHTML = html || 'No records yet.';
+
+        adminListEl.querySelectorAll('[data-blocked-slot-delete]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const raw = btn.getAttribute('data-blocked-slot-delete') || '';
+            const [setupDate, setupTime] = raw.split('|');
+            if (!setupDate || !setupTime) return;
+            const ok = confirm(`Delete blocked slot ${setupDate} ${setupTime}?`);
+            if (!ok) return;
+            try {
+              await fetch(`${BLOCK_SLOT_API_URL}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+                body: JSON.stringify({ setupDate, setupTime, reason: '', active: false })
+              });
+              await loadAvailability();
+              await loadAdminData();
+            } catch (e) {
+              alert(`Could not delete blocked slot: ${e.message || e}`);
+            }
+          });
+        });
+
+        adminListEl.querySelectorAll('[data-blocked-day-delete]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const setupDate = btn.getAttribute('data-blocked-day-delete') || '';
+            if (!setupDate) return;
+            const ok = confirm(`Delete blocked day ${setupDate}?`);
+            if (!ok) return;
+            try {
+              await fetch(`${BLOCK_DAY_API_URL}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+                body: JSON.stringify({ setupDate, reason: '', active: false })
+              });
+              await loadAvailability();
+              await loadAdminData();
+            } catch (e) {
+              alert(`Could not delete blocked day: ${e.message || e}`);
+            }
+          });
+        });
+
         renderAdminCalendar(data.bookings || [], data.blockedSlots || [], data.blockedDays || []);
       } catch (e) {
         adminListEl.textContent = `Error loading admin data: ${e.message || e}`;
@@ -1546,6 +1605,8 @@
           if (!res.ok) throw new Error(data.error || 'Invalid password');
           adminPassword = key;
           setAdminUnlocked(true);
+          const n = new Date();
+          adminCalendarCursor = new Date(n.getFullYear(), n.getMonth(), 1);
           initTaxUiDefaults();
           await loadAdminData();
           await loadTaxTransactions();
@@ -1559,6 +1620,16 @@
       adminBlockDayBtn.addEventListener('click', () => setBlockedDay(true));
       adminUnblockDayBtn.addEventListener('click', () => setBlockedDay(false));
       adminRefreshBtn.addEventListener('click', loadAdminData);
+      adminCalPrevBtn?.addEventListener('click', () => {
+        const c = adminCalendarCursor || new Date();
+        adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() - 1, 1);
+        loadAdminData();
+      });
+      adminCalNextBtn?.addEventListener('click', () => {
+        const c = adminCalendarCursor || new Date();
+        adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() + 1, 1);
+        loadAdminData();
+      });
 
       taxRefreshBtn.addEventListener('click', loadTaxTransactions);
       taxYearEl.addEventListener('change', loadTaxTransactions);
