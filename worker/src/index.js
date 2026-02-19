@@ -11,6 +11,8 @@
 // POST /api/tax/income          → handleTaxIncome()       — Admin: add income entry
 // POST /api/tax/expense/update  → handleTaxExpenseUpdate() — Admin: edit expense entry
 // POST /api/tax/income/update   → handleTaxIncomeUpdate()  — Admin: edit income entry
+// POST /api/tax/expense/delete  → handleTaxExpenseDelete() — Admin: delete expense entry
+// POST /api/tax/income/delete   → handleTaxIncomeDelete()  — Admin: delete income entry
 // GET  /api/tax/export.csv      → handleTaxExportCsv()    — Admin: CSV export for selected year/type
 //
 // ===== UTILITY FUNCTIONS =====
@@ -49,7 +51,7 @@ export default {
       const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv'].includes(url.pathname) && request.method === 'GET';
-      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update'].includes(url.pathname) && request.method === 'POST';
+      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -809,6 +811,47 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
      WHERE id = ?7`
   ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null, id).run();
 
+  return json({ ok: true, id }, 200, corsHeaders);
+}
+
+
+/**
+ * POST /api/tax/expense/delete — Admin: delete expense entry
+ */
+async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const id = Number(data.id || 0);
+  if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
+
+  const existing = await env.DB.prepare('SELECT id FROM tax_expenses WHERE id = ?1').bind(id).first();
+  if (!existing) return json({ ok: false, error: 'Expense not found' }, 404, corsHeaders);
+
+  await env.DB.prepare('DELETE FROM tax_expenses WHERE id = ?1').bind(id).run();
+  return json({ ok: true, id }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/tax/income/delete — Admin: delete income entry
+ */
+async function handleTaxIncomeDelete(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const id = Number(data.id || 0);
+  if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
+
+  const existing = await env.DB.prepare('SELECT id FROM tax_income WHERE id = ?1').bind(id).first();
+  if (!existing) return json({ ok: false, error: 'Income not found' }, 404, corsHeaders);
+
+  await env.DB.prepare('DELETE FROM tax_income WHERE id = ?1').bind(id).run();
   return json({ ok: true, id }, 200, corsHeaders);
 }
 
