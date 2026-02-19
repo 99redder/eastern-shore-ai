@@ -317,6 +317,55 @@
   <main>
   <div class="container">
 
+    <!-- ===== SECTION: Booking Form ===== -->
+    <section id="pick-setup" class="card user-section" style="margin-top:1rem;">
+      <h2>Pick Your Setup Day</h2>
+      <div class="booking-grid" style="grid-template-columns:1fr;">
+        <div>
+          <div class="form-grid" style="margin-top:0;">
+            <div>
+              <label for="setup-date">Preferred Setup Date</label>
+              <input id="setup-date" type="date" />
+            </div>
+            <div>
+              <label for="setup-time">Preferred Time Block</label>
+              <select id="setup-time">
+                <option value="">Select time block…</option>
+              </select>
+            </div>
+          </div>
+          <p style="margin-top:1rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 + MD state taxes</p>
+        </div>
+
+        <aside class="book-pay-panel" style="margin-top:.85rem;">
+          <h3 style="margin:.1rem 0 .2rem;">Reserve Your Spot</h3>
+          <p>Choose your date, then use Book + Pay Now to secure your setup session.</p>
+          <div class="form-grid" style="margin-top:.6rem; grid-template-columns:1fr 1fr;">
+            <div>
+              <label for="book-name">Your Name</label>
+              <input id="book-name" required />
+            </div>
+            <div>
+              <label for="book-email">Your Email</label>
+              <input id="book-email" type="email" required />
+            </div>
+            <div>
+              <label for="book-phone">Phone Number (optional)</label>
+              <input id="book-phone" type="tel" placeholder="(555) 123-4567" />
+            </div>
+            <div>
+              <label for="book-preferred-contact-method">Preferred Contact Method</label>
+              <select id="book-preferred-contact-method" required>
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+              </select>
+            </div>
+          </div>
+          <div class="full"><button type="button" class="btn btn-primary btn-wide" id="book-pay-btn" style="margin-top:.6rem; width:100%;">Book + Pay Now</button></div>
+        </aside>
+      </div>
+    </section>
+
     <!-- ===== SECTION: Session Flow / What to Expect ===== -->
     <section class="card user-section">
       <nav aria-label="Site navigation">
@@ -368,55 +417,6 @@
           <h3 id="flow-detail-title">Intro and Assessment</h3>
           <p id="flow-detail-desc">We'll chat and see what you're looking to accomplish and what your technical background is to see how to optimize setup and daily operation for maximum effectiveness.</p>
         </div>
-      </div>
-    </section>
-
-    <!-- ===== SECTION: Booking Form ===== -->
-    <section id="pick-setup" class="card user-section" style="margin-top:1rem;">
-      <h2>Pick Your Setup Day</h2>
-      <div class="booking-grid" style="grid-template-columns:1fr;">
-        <div>
-          <div class="form-grid" style="margin-top:0;">
-            <div>
-              <label for="setup-date">Preferred Setup Date</label>
-              <input id="setup-date" type="date" />
-            </div>
-            <div>
-              <label for="setup-time">Preferred Time Block</label>
-              <select id="setup-time">
-                <option value="">Select time block…</option>
-              </select>
-            </div>
-          </div>
-          <p style="margin-top:1rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 + MD state taxes</p>
-        </div>
-
-        <aside class="book-pay-panel" style="margin-top:.85rem;">
-          <h3 style="margin:.1rem 0 .2rem;">Reserve Your Spot</h3>
-          <p>Choose your date, then use Book + Pay Now to secure your setup session.</p>
-          <div class="form-grid" style="margin-top:.6rem; grid-template-columns:1fr 1fr;">
-            <div>
-              <label for="book-name">Your Name</label>
-              <input id="book-name" required />
-            </div>
-            <div>
-              <label for="book-email">Your Email</label>
-              <input id="book-email" type="email" required />
-            </div>
-            <div>
-              <label for="book-phone">Phone Number (optional)</label>
-              <input id="book-phone" type="tel" placeholder="(555) 123-4567" />
-            </div>
-            <div>
-              <label for="book-preferred-contact-method">Preferred Contact Method</label>
-              <select id="book-preferred-contact-method" required>
-                <option value="email">Email</option>
-                <option value="phone">Phone</option>
-              </select>
-            </div>
-          </div>
-          <div class="full"><button type="button" class="btn btn-primary btn-wide" id="book-pay-btn" style="margin-top:.6rem; width:100%;">Book + Pay Now</button></div>
-        </aside>
       </div>
     </section>
 
