@@ -191,6 +191,7 @@
       font-family:'Titillium Web', system-ui, sans-serif;
     }
     .top-book-btn:hover { background:linear-gradient(145deg,#ff7ae4,#ff4fd8); box-shadow:0 0 28px rgba(255,79,216,0.6); }
+    .book-pay-panel .top-book-btn { position:static; right:auto; top:auto; z-index:auto; display:block; text-align:center; }
     .back-btn {
       display:inline-flex; align-items:center; gap:0.35rem;
       text-decoration:none;
@@ -311,9 +312,6 @@
 </head>
 <body>
   <!-- ===== SECTION: Page Header & Navigation ===== -->
-  <header>
-    <a href="#pick-setup" class="top-book-btn">Book + Pay Now</a>
-  </header>
   <main>
   <div class="container">
 
@@ -365,7 +363,7 @@
               </select>
             </div>
           </div>
-          <div class="full"><button type="button" class="btn btn-primary btn-wide" id="book-pay-btn" style="margin-top:.6rem; width:100%;">Book + Pay Now</button></div>
+          <div class="full"><button type="button" class="top-book-btn" id="book-pay-btn" style="margin-top:.6rem; width:100%;">Book + Pay Now</button></div>
         </aside>
       </div>
     </section>
