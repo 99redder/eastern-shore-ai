@@ -391,39 +391,61 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
     if (sessionId) {
       try {
-        await env.DB.prepare(
-          `INSERT INTO bookings (
-            stripe_session_id, stripe_payment_intent_id, status,
-            setup_date, setup_time, setup_at,
-            customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at
-          ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, datetime('now'))
-          ON CONFLICT(stripe_session_id) DO UPDATE SET
-            stripe_payment_intent_id=excluded.stripe_payment_intent_id,
-            status='paid',
-            setup_date=COALESCE(excluded.setup_date, bookings.setup_date),
-            setup_time=COALESCE(excluded.setup_time, bookings.setup_time),
-            setup_at=COALESCE(excluded.setup_at, bookings.setup_at),
-            customer_name=COALESCE(excluded.customer_name, bookings.customer_name),
-            customer_email=COALESCE(excluded.customer_email, bookings.customer_email),
-            customer_phone=COALESCE(excluded.customer_phone, bookings.customer_phone),
-            preferred_contact_method=COALESCE(excluded.preferred_contact_method, bookings.preferred_contact_method),
-            amount_cents=excluded.amount_cents,
-            service_type=COALESCE(excluded.service_type, bookings.service_type),
-            paid_at=datetime('now'),
-            updated_at=datetime('now')`
-        ).bind(
-          sessionId,
-          session.payment_intent || null,
-          setupDate,
-          setupTime,
-          setupAt,
-          customerName,
-          customerEmail,
-          customerPhone,
-          preferredContactMethod,
-          amount,
-          serviceType
-        ).run();
+        const existingBooking = await env.DB.prepare(
+          `SELECT id FROM bookings WHERE stripe_session_id = ?1 LIMIT 1`
+        ).bind(sessionId).first();
+
+        if (existingBooking?.id) {
+          await env.DB.prepare(
+            `UPDATE bookings
+             SET stripe_payment_intent_id = COALESCE(?1, stripe_payment_intent_id),
+                 status = 'paid',
+                 setup_date = COALESCE(?2, setup_date),
+                 setup_time = COALESCE(?3, setup_time),
+                 setup_at = COALESCE(?4, setup_at),
+                 customer_name = COALESCE(?5, customer_name),
+                 customer_email = COALESCE(?6, customer_email),
+                 customer_phone = COALESCE(?7, customer_phone),
+                 preferred_contact_method = COALESCE(?8, preferred_contact_method),
+                 amount_cents = COALESCE(?9, amount_cents),
+                 service_type = COALESCE(?10, service_type),
+                 paid_at = datetime('now'),
+                 updated_at = datetime('now')
+             WHERE id = ?11`
+          ).bind(
+            session.payment_intent || null,
+            setupDate,
+            setupTime,
+            setupAt,
+            customerName,
+            customerEmail,
+            customerPhone,
+            preferredContactMethod,
+            amount,
+            serviceType,
+            existingBooking.id
+          ).run();
+        } else {
+          await env.DB.prepare(
+            `INSERT INTO bookings (
+              stripe_session_id, stripe_payment_intent_id, status,
+              setup_date, setup_time, setup_at,
+              customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at
+            ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, datetime('now'))`
+          ).bind(
+            sessionId,
+            session.payment_intent || null,
+            setupDate,
+            setupTime,
+            setupAt,
+            customerName,
+            customerEmail,
+            customerPhone,
+            preferredContactMethod,
+            amount,
+            serviceType
+          ).run();
+        }
 
         const incomeDate = /^\d{4}-\d{2}-\d{2}$/.test(setupDate || '')
           ? setupDate
