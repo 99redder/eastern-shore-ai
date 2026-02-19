@@ -469,6 +469,30 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             customerName ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}` : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`
           ).run();
         }
+
+        // Auto-insert Stripe processing fee as expense for accurate net reporting
+        const paymentIntentId = (session.payment_intent || '').toString().trim();
+        const feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
+        if (feeCents > 0) {
+          const feeNote = `Auto Stripe fee for session ${sessionId}`;
+          const existingFee = await env.DB.prepare(
+            `SELECT id FROM tax_expenses WHERE notes = ?1 LIMIT 1`
+          ).bind(feeNote).first();
+
+          if (!existingFee?.id) {
+            await env.DB.prepare(
+              `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes)
+               VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+            ).bind(
+              incomeDate,
+              'Stripe',
+              'Payment Processing Fees',
+              feeCents,
+              'stripe',
+              feeNote
+            ).run();
+          }
+        }
       } catch (e) {
         console.error('Stripe webhook DB write failed', e);
         return json({ ok: false, error: `Webhook DB write failed: ${e?.message || e}` }, 500, corsHeaders);
@@ -974,6 +998,40 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
       'Content-Disposition': `attachment; filename="${filename}"`
     }
   });
+}
+
+/**
+ * Fetch Stripe fee (in cents) for a payment intent id.
+ * Returns 0 if not found.
+ */
+async function fetchStripeFeeCents(stripeSecretKey, paymentIntentId) {
+  if (!stripeSecretKey || !paymentIntentId) return 0;
+  const piRes = await fetch(`https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}`, {
+    headers: { Authorization: `Bearer ${stripeSecretKey}` }
+  });
+  const pi = await piRes.json().catch(() => ({}));
+  if (!piRes.ok) return 0;
+
+  const chargeId = pi?.latest_charge;
+  if (!chargeId) return 0;
+
+  const chRes = await fetch(`https://api.stripe.com/v1/charges/${encodeURIComponent(chargeId)}`, {
+    headers: { Authorization: `Bearer ${stripeSecretKey}` }
+  });
+  const ch = await chRes.json().catch(() => ({}));
+  if (!chRes.ok) return 0;
+
+  const btId = ch?.balance_transaction;
+  if (!btId) return 0;
+
+  const btRes = await fetch(`https://api.stripe.com/v1/balance_transactions/${encodeURIComponent(btId)}`, {
+    headers: { Authorization: `Bearer ${stripeSecretKey}` }
+  });
+  const bt = await btRes.json().catch(() => ({}));
+  if (!btRes.ok) return 0;
+
+  const fee = Number(bt?.fee || 0);
+  return Number.isFinite(fee) && fee > 0 ? fee : 0;
 }
 
 /**
