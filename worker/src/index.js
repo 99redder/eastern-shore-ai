@@ -451,19 +451,24 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           ? setupDate
           : new Date().toISOString().slice(0, 10);
 
-        await env.DB.prepare(
-          `INSERT INTO tax_income (
-            income_date, source, category, amount_cents, stripe_session_id, notes
-          ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)
-          ON CONFLICT(stripe_session_id) DO NOTHING`
-        ).bind(
-          incomeDate,
-          incomeSource,
-          incomeCategory,
-          amount,
-          sessionId,
-          customerName ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}` : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`
-        ).run();
+        const existingIncome = await env.DB.prepare(
+          `SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`
+        ).bind(sessionId).first();
+
+        if (!existingIncome?.id) {
+          await env.DB.prepare(
+            `INSERT INTO tax_income (
+              income_date, source, category, amount_cents, stripe_session_id, notes
+            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+          ).bind(
+            incomeDate,
+            incomeSource,
+            incomeCategory,
+            amount,
+            sessionId,
+            customerName ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}` : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`
+          ).run();
+        }
       } catch (e) {
         console.error('Stripe webhook DB write failed', e);
         return json({ ok: false, error: `Webhook DB write failed: ${e?.message || e}` }, 500, corsHeaders);
