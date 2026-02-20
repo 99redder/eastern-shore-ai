@@ -1506,7 +1506,7 @@
               </div>
             </div>
             <div style="margin-top:1.5rem;">
-              <a href="/ai-agent-repair.html" class="btn btn-primary" id="ai-agent-repair-cta">Get Free Quote</a>
+              <a href="#" class="btn btn-primary" id="ai-agent-repair-cta">Get Free Quote</a>
             </div>
           </article>
           <div class="feature-stack">
@@ -1917,6 +1917,11 @@
       openModal('contact');
     });
 
+    document.getElementById('ai-agent-repair-cta').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('repair');
+    });
+
     // ===== Portfolio Carousel =====
     const portfolioItems = document.querySelectorAll('.portfolio-item');
     const portfolioDots = document.querySelectorAll('.portfolio-dot');
@@ -1986,6 +1991,12 @@
         offerInput.placeholder = 'optional';
         offerInput.required = false;
         sendBtn.textContent = 'Get Your Free Quote Now';
+      } else if (mode === 'repair') {
+        titleEl.textContent = 'Get a Free AI Agent Repair Quote';
+        offerLabel.textContent = 'Budget (optional)';
+        offerInput.placeholder = 'optional';
+        offerInput.required = false;
+        sendBtn.textContent = 'Request Quote';
       } else {
         titleEl.textContent = 'Make an offer for the easternshore.ai domain name';
         offerLabel.textContent = 'Offer Amount (USD)';
@@ -2132,7 +2143,7 @@
         statusEl.className = 'form-status err';
       } finally {
         sendBtn.disabled = false;
-        sendBtn.textContent = formMode === 'contact' ? 'Get Your Free Quote Now' : 'Send Offer';
+        sendBtn.textContent = formMode === 'offer' ? 'Send Offer' : formMode === 'repair' ? 'Request Quote' : 'Get Your Free Quote Now';
       }
     });
   </script>
