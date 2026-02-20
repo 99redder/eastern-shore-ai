@@ -1046,7 +1046,7 @@
       .about-panel-item img { max-width: 280px; margin: 0 auto; }
       .form-grid { grid-template-columns: 1fr; }
 
-      .mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
+      .mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; order: 1; margin-right: auto; }
       .header-nav {
         display: none !important;
         position: absolute;
@@ -1069,10 +1069,10 @@
         border-bottom: 1px solid var(--line);
       }
       .header-nav a:last-child { border-bottom: none; }
-      .site-header-inner { padding-left: 1rem; }
-      .header-logo-wrap { position: static; }
+      .site-header-inner { padding-left: 1rem; padding-right: 1rem; justify-content: space-between; }
+      .header-logo-wrap { position: static; order: 2; }
       .header-logo { font-size: 1.15rem; animation: none; }
-      .header-right { margin-left: 0; }
+      .header-right { margin-left: 0; order: 3; }
 
       .hero {
         padding: 1.2rem 2.8rem;
