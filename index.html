@@ -818,6 +818,8 @@
       font-size: 0.82rem;
     }
 
+    .repair-only { display: none; }
+
     .form-status {
       margin-top: 0.6rem;
       font-size: 0.85rem;
@@ -1637,6 +1639,21 @@
             <label for="offer">Offer Amount (USD)</label>
             <input id="offer" name="offer" placeholder="e.g. 2500" required />
           </div>
+          <div class="repair-only">
+            <label for="repair-phone">Phone Number (optional)</label>
+            <input id="repair-phone" type="tel" placeholder="(555) 123-4567" />
+          </div>
+          <div class="repair-only">
+            <label for="repair-os">Operating System (optional)</label>
+            <input id="repair-os" placeholder="e.g. Windows 11, macOS, Ubuntu…" />
+          </div>
+          <div class="full repair-only">
+            <label for="repair-contact-method">Preferred Contact Method</label>
+            <select id="repair-contact-method">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
+          </div>
           <div class="full">
             <label for="message">Message</label>
             <textarea id="message" name="message" placeholder="Anything you'd like to include"></textarea>
@@ -1985,6 +2002,8 @@
       formMode = mode;
       statusEl.textContent = '';
       statusEl.className = 'form-status';
+      document.querySelectorAll('.repair-only').forEach(el => { el.style.display = mode === 'repair' ? '' : 'none'; });
+      if (mode === 'repair') document.getElementById('repair-contact-method').value = 'email';
       if (mode === 'contact') {
         titleEl.textContent = 'Website Design Quote';
         offerLabel.textContent = 'Budget (optional)';
@@ -2103,6 +2122,12 @@
       const email = document.getElementById('email').value.trim();
       const offer = document.getElementById('offer').value.trim();
       const message = document.getElementById('message').value.trim();
+      const repairPhone = document.getElementById('repair-phone')?.value.trim() || '';
+      const repairOs = document.getElementById('repair-os')?.value.trim() || '';
+      const repairContact = document.getElementById('repair-contact-method')?.value || '';
+      const finalMessage = formMode === 'repair'
+        ? [repairPhone ? `Phone: ${repairPhone}` : '', repairOs ? `OS: ${repairOs}` : '', `Preferred Contact: ${repairContact}`].filter(Boolean).join('\n') + (message ? '\n\n' + message : '')
+        : message;
 
       if (CONTACT_API_URL.includes('YOUR-WORKER-URL')) {
         statusEl.textContent = 'Contact service not configured yet.';
@@ -2124,7 +2149,7 @@
             name,
             email,
             offer,
-            message,
+            message: finalMessage,
             website: ''
           })
         });
