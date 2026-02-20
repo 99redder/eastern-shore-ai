@@ -65,7 +65,6 @@
       clip-path: none;
     }
     .card { background:var(--card); border:1px solid var(--line); border-radius:0; padding:1rem; }
-    .card.user-section:first-of-type { padding-right: 220px; }
     h1, h2, h3, h4 { font-family:'Titillium Web', system-ui, sans-serif; }
     h1 { margin:.2rem 0 .6rem; color:var(--cyan); }
     p { color:var(--muted); line-height:1.6; }
@@ -171,6 +170,7 @@
       font-family:'Titillium Web', system-ui, sans-serif;
     }
     .top-book-btn:hover { background:linear-gradient(145deg,#ff7ae4,#ff4fd8); box-shadow:0 0 28px rgba(255,79,216,0.6); }
+    .book-pay-panel .top-book-btn { position:static; right:auto; top:auto; z-index:auto; display:block; text-align:center; }
     .back-btn {
       display:inline-flex; align-items:center; gap:0.35rem;
       text-decoration:none;
@@ -244,20 +244,7 @@
       .tax-summary-grid { grid-template-columns:1fr; }
       .flow-grid { grid-template-columns:1fr; }
 
-      /* Sticky bottom CTA bar for booking — no clip-path at full width */
-      .top-book-btn {
-        position:fixed; top:auto; bottom:env(safe-area-inset-bottom, 0px);
-        left:0; right:0; width:100%;
-        border-radius:0; text-align:center;
-        font-size:1.1rem; padding:0.85rem 1rem;
-        box-shadow:0 -4px 20px rgba(255,79,216,0.4);
-        clip-path:none;
-      }
-
-      body { padding-bottom:80px; }
-
       .container { padding:0.8rem; }
-      .card.user-section:first-of-type { padding-right: 1rem; }
 
       h1 { font-size:1.3rem; }
       h2 { font-size:1.1rem; }
@@ -287,9 +274,6 @@
   </style>
 </head>
 <body>
-  <header>
-    <a href="#pick-setup" class="top-book-btn">Book Lessons Now</a>
-  </header>
   <main>
   <div class="container">
 
@@ -340,7 +324,7 @@
               </select>
             </div>
           </div>
-          <div class="full"><button type="button" class="btn btn-primary btn-wide" id="book-pay-btn" style="margin-top:.6rem; width:100%;">Book Lessons Now</button></div>
+          <button type="button" class="top-book-btn" id="book-pay-btn" style="margin-top:.6rem;">Book Lessons Now</button>
         </aside>
       </div>
     </section>
