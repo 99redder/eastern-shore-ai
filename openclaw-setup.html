@@ -1689,6 +1689,11 @@
         return;
       }
 
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+
       if (!setupDate || !setupTime) {
         alert('Please choose your setup date and time first.');
         return;
