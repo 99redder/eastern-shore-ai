@@ -463,8 +463,9 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           ).run();
         }
 
-        const incomeDate = /^\d{4}-\d{2}-\d{2}$/.test(setupDate || '')
-          ? setupDate
+        // Use the payment event timestamp for accounting date, not the appointment date
+        const incomeDate = event.created
+          ? new Date(event.created * 1000).toISOString().slice(0, 10)
           : new Date().toISOString().slice(0, 10);
 
         const existingIncome = await env.DB.prepare(
