@@ -480,12 +480,10 @@
     <!-- ===== SECTION: Admin Panel (hidden, ?admin=1) ===== -->
     <section class="card admin-panel" id="admin-panel">
       <h2>Admin Booking Controls</h2>
-      <div class="admin-lock" id="admin-lock">
-        <label for="admin-key">Admin Password</label>
-        <div style="display:flex; gap:.5rem; margin-top:.35rem;">
-          <input id="admin-key" type="password" placeholder="Enter admin password" />
-          <button type="button" class="btn btn-primary" id="admin-unlock-btn">Unlock</button>
-        </div>
+      <div class="admin-lock" id="admin-lock" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2.5rem 1rem; gap:1rem;">
+        <label for="admin-key" style="font-size:1.1rem; color:var(--cyan); letter-spacing:.08em;">Admin Password</label>
+        <input id="admin-key" type="password" placeholder="Enter admin password" style="max-width:320px; font-size:1rem; padding:.6rem .9rem;" />
+        <button type="button" class="btn btn-primary" id="admin-unlock-btn" style="max-width:320px; width:100%; font-size:1.15rem; padding:.85rem 2rem; letter-spacing:.06em;">Unlock</button>
       </div>
 
       <div class="admin-controls" id="admin-controls">
