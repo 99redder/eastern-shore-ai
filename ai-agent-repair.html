@@ -97,6 +97,19 @@
         </form>
       </section>
 
+  <div class="modal-overlay" id="success-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h2>Thank You!</h2>
+        <button class="modal-close" id="success-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div style="text-align:center; padding: 1rem 0;">
+        <p style="font-size: 1.1rem; margin-bottom: 1rem;">We'll get back to you within 12 hours.</p>
+        <button type="button" class="btn" id="success-modal-ok" style="padding: 0.8rem 2rem; font-size: 1.1rem; background: linear-gradient(145deg, #ff4fd8, #cc3fb0); border-color: #ff4fd8;">OK</button>
+      </div>
+    </div>
+  </div>
+
       <footer>© <span id="year"></span> Eastern Shore AI, LLC</footer>
     </div>
   </main>
@@ -138,7 +151,7 @@
         });
 
         if (!res.ok) throw new Error('Request failed');
-        statusEl.textContent = 'Quote request sent. We will reach out within 24 hours.';
+        statusEl.textContent = ''; document.getElementById('success-modal').classList.add('active'); document.getElementById('success-modal').setAttribute('aria-hidden', 'false');
         statusEl.className = 'form-status ok';
         form.reset();
       } catch {
@@ -149,6 +162,6 @@
         submitBtn.textContent = 'Get Free Quote';
       }
     });
-  </script>
+  document.getElementById('success-modal-close').addEventListener('click', () => { document.getElementById('success-modal').classList.remove('active'); document.getElementById('success-modal').setAttribute('aria-hidden', 'true'); form.reset(); }); document.getElementById('success-modal-ok').addEventListener('click', () => { document.getElementById('success-modal').classList.remove('active'); document.getElementById('success-modal').setAttribute('aria-hidden', 'true'); form.reset(); }); </script>
 </body>
 </html>

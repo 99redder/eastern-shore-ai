@@ -1653,6 +1653,19 @@
     </div>
   </div>
 
+
+  <div class="modal-overlay" id="success-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h2>Thank You!</h2>
+        <button class="modal-close" id="success-modal-close" aria-label="Close">✕</button>
+      </div>
+      <div style="text-align:center; padding: 1rem 0;">
+        <p style="font-size: 1.1rem; margin-bottom: 1rem;">We'll get back to you within 12 hours.</p>
+        <button type="button" class="btn btn-primary" id="success-modal-ok">OK</button>
+      </div>
+    </div>
+  </div>
   <script>
     // ===== FUNCTION INDEX =====
     // Theme:      applyTheme(theme) — Apply dark/light theme to body
@@ -2032,6 +2045,20 @@
     });
 
     closeBtn.addEventListener('click', closeModal);
+    document.getElementById('success-modal-close').addEventListener('click', () => {
+      document.getElementById('success-modal').classList.remove('active');
+      document.getElementById('success-modal').setAttribute('aria-hidden', 'true');
+      closeModal();
+      form.reset();
+      applyFormMode('offer');
+    });
+    document.getElementById('success-modal-ok').addEventListener('click', () => {
+      document.getElementById('success-modal').classList.remove('active');
+      document.getElementById('success-modal').setAttribute('aria-hidden', 'true');
+      closeModal();
+      form.reset();
+      applyFormMode('offer');
+    });
     aboutCloseBtn.addEventListener('click', () => closeSimpleModal(aboutModal));
     termsCloseBtn.addEventListener('click', () => closeSimpleModal(termsModal));
     privacyCloseBtn.addEventListener('click', () => closeSimpleModal(privacyModal));
@@ -2093,7 +2120,7 @@
 
         if (!res.ok) throw new Error('Request failed');
 
-        statusEl.textContent = 'Sent successfully.';
+        statusEl.textContent = ''; document.getElementById('success-modal').classList.add('active'); document.getElementById('success-modal').setAttribute('aria-hidden', 'false');
         statusEl.className = 'form-status ok';
         setTimeout(() => {
           closeModal();
