@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agent Repair | Eastern Shore AI</title>
+  <meta name="description" content="AI Agent Repair for broken automations, failing prompts, and misconfigured AI workflows. Get a free quote from Eastern Shore AI." />
+  <meta property="og:title" content="AI Agent Repair | Eastern Shore AI" />
+  <meta property="og:description" content="Fix broken AI workflows, automations, and agent behavior. Free quote available." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.easternshore.ai/ai-agent-repair.html" />
+  <meta property="og:image" content="https://www.easternshore.ai/carousel.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Agent Repair | Eastern Shore AI" />
+  <meta name="twitter:description" content="Fix broken AI workflows, automations, and agent behavior. Free quote available." />
+  <meta name="twitter:image" content="https://www.easternshore.ai/carousel.png" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href="https://www.easternshore.ai/ai-agent-repair.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#0a0b10; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:'Titillium Web',system-ui,sans-serif; }
+    .container { max-width:920px; margin:0 auto; padding:1.2rem; }
+    .card { background:var(--card); border:1px solid var(--line); padding:1rem; }
+    h1, h2, h3 { margin:.2rem 0 .6rem; }
+    h1, h2 { color:var(--cyan); }
+    p, li, label { color:var(--muted); }
+    .back-btn {
+      display:inline-flex; align-items:center; gap:.35rem; text-decoration:none;
+      color:var(--cyan); border:1px solid var(--cyan); padding:.35rem .75rem; margin-bottom:.8rem;
+      background:rgba(0,229,255,0.06);
+    }
+    .back-btn svg { width:14px; height:14px; fill:currentColor; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.7rem; }
+    .full { grid-column:1 / -1; }
+    input, textarea, select {
+      width:100%; border:1px solid var(--line); background:#10121a; color:var(--text); padding:.65rem .7rem; font:inherit;
+    }
+    textarea { min-height:130px; resize:vertical; }
+    .btn { border:1px solid #ff4fd8; background:linear-gradient(145deg,#ff4fd8,#cc3fb0); color:#fff; padding:.65rem 1rem; cursor:pointer; font-weight:700; }
+    .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
+    .form-status { margin-top:.6rem; min-height:1.2em; color:var(--muted); }
+    .form-status.ok { color:#00e5ff; }
+    .form-status.err { color:#ff5555; }
+    footer { margin-top:2rem; padding:1.5rem 1rem; color:#7a7e96; font-size:.85rem; text-align:center; border-top:1px solid var(--line); }
+    @media (max-width:760px){ .form-grid{grid-template-columns:1fr;} .container{padding:.8rem;} input,textarea,select{font-size:16px;} }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="container">
+      <section class="card" style="margin-top:1rem;">
+        <nav aria-label="Site navigation">
+          <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
+        </nav>
+        <h1>AI Agent Repair</h1>
+        <p>Broken prompts? Agent keeps failing tasks? Integrations throwing errors? We diagnose the root cause, repair it, and harden your workflow so it stays stable.</p>
+
+        <h2>Free Quote Request</h2>
+        <form id="repair-quote-form">
+          <div class="form-grid">
+            <div>
+              <label for="name">Your Name</label>
+              <input id="name" required />
+            </div>
+            <div>
+              <label for="email">Your Email</label>
+              <input id="email" type="email" required />
+            </div>
+            <div>
+              <label for="phone">Phone Number (optional)</label>
+              <input id="phone" type="tel" placeholder="(555) 123-4567" />
+            </div>
+            <div>
+              <label for="preferred-contact-method">Preferred Contact Method</label>
+              <select id="preferred-contact-method" required>
+                <option value="email">Email</option>
+                <option value="phone">Phone</option>
+              </select>
+            </div>
+            <div class="full">
+              <label for="platform">What platform is your agent on?</label>
+              <input id="platform" placeholder="OpenClaw, n8n, Zapier, custom stack, etc." />
+            </div>
+            <div class="full">
+              <label for="message">What needs repair?</label>
+              <textarea id="message" required placeholder="Describe what is broken, error symptoms, and what outcome you want."></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn" type="submit">Get Free Quote</button>
+          </div>
+          <p class="form-status" id="status"></p>
+        </form>
+      </section>
+
+      <footer>© <span id="year"></span> Eastern Shore AI, LLC</footer>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+    const form = document.getElementById('repair-quote-form');
+    const statusEl = document.getElementById('status');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
+
+      try {
+        const preferredContactMethod = document.getElementById('preferred-contact-method').value;
+        const phone = document.getElementById('phone').value.trim();
+        const platform = document.getElementById('platform').value.trim();
+        const issue = document.getElementById('message').value.trim();
+
+        const combinedMessage = `Service: AI Agent Repair (Free Quote)\nPlatform: ${platform || 'not provided'}\nPreferred contact method: ${preferredContactMethod}\nPhone: ${phone || 'not provided'}\n\nIssue details:\n${issue}`;
+
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'ai_agent_repair_quote',
+            name: document.getElementById('name').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            offer: '',
+            message: combinedMessage,
+            website: ''
+          })
+        });
+
+        if (!res.ok) throw new Error('Request failed');
+        statusEl.textContent = 'Quote request sent. We will reach out within 24 hours.';
+        statusEl.className = 'form-status ok';
+        form.reset();
+      } catch {
+        statusEl.textContent = 'Could not send right now. Please try again.';
+        statusEl.className = 'form-status err';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Get Free Quote';
+      }
+    });
+  </script>
+</body>
+</html>

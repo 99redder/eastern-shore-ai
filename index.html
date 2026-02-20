@@ -1235,6 +1235,7 @@
         <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
         <a href="#" id="website-design-link">Website Design</a>
         <a href="#" id="ai-lessons-link">Tech Lessons</a>
+        <a href="#" id="ai-agent-repair-link">AI Agent Repair</a>
         <a href="#" id="buy-domain-link">Buy This Domain Now</a>
       </nav>
       <div class="header-right">
@@ -1314,11 +1315,17 @@
         <p class="subtitle">Hands-on, practical tutoring so you can actually ship things with modern AI tooling.</p>
       </div>
 
+      <div class="hero-slide" data-slide="4">
+        <h1><a class="hero-link-blue" href="#">AI Agent Repair</a></h1>
+        <p class="subtitle">We diagnose broken agents, repair workflows, and stabilize your automations fast.</p>
+      </div>
+
       <div class="hero-dots">
         <button class="hero-dot active" data-dot="0" aria-label="Slide 1"></button>
         <button class="hero-dot" data-dot="1" aria-label="Slide 2"></button>
         <button class="hero-dot" data-dot="2" aria-label="Slide 3"></button>
         <button class="hero-dot" data-dot="3" aria-label="Slide 4"></button>
+        <button class="hero-dot" data-dot="4" aria-label="Slide 5"></button>
       </div>
     </section>
 
@@ -1479,6 +1486,42 @@
             <article class="card feature-card">
               <h3>Cryptocurrency</h3>
               <p>Wallets, exchanges, blockchain basics, and safe trading practices.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== SECTION: AI Agent Repair Offer (Tab 4) ===== -->
+      <div class="offer-panel" data-panel="4">
+        <section class="offer-grid">
+          <article class="card card--setup-offer">
+            <div>
+              <h3>AI Agent Repair</h3>
+              <p>Fix broken prompts, failing automations, bad tool chains, and unstable agent behavior. We diagnose the root cause, repair your workflow, and harden it so it stays reliable.</p>
+              <div class="setup-faq">
+                <h4>What we repair</h4>
+                <p>OpenClaw workflows, prompt pipelines, webhook issues, tool failures, and flaky multi-step automations.</p>
+                <h4>How fast?</h4>
+                <p>Most quote requests are reviewed within 24 hours and prioritized based on production impact.</p>
+              </div>
+            </div>
+            <div style="margin-top:1rem;">
+              <a href="/ai-agent-repair.html" class="btn btn-primary" id="ai-agent-repair-cta">Get Free Quote</a>
+            </div>
+          </article>
+          <div class="feature-stack">
+            <h3 class="feature-stack-title">Repair Outcomes</h3>
+            <article class="card feature-card">
+              <h3>Root Cause Analysis</h3>
+              <p>We isolate exactly where and why your agent fails before changing anything.</p>
+            </article>
+            <article class="card feature-card">
+              <h3>Stability Hardening</h3>
+              <p>Add guardrails, retries, and validation so failures stop recurring.</p>
+            </article>
+            <article class="card feature-card">
+              <h3>Clear Next Steps</h3>
+              <p>You get documented fixes and recommendations for future upgrades.</p>
             </article>
           </div>
         </section>
@@ -1887,10 +1930,12 @@
     const setupLink = document.getElementById('openclaw-setup-link');
     const websiteDesignLink = document.getElementById('website-design-link');
     const aiLessonsLink = document.getElementById('ai-lessons-link');
+    const aiAgentRepairLink = document.getElementById('ai-agent-repair-link');
 
     setupLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(1, true); resetAutoAdvance(); });
     websiteDesignLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(2, true); resetAutoAdvance(); });
     aiLessonsLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(3, true); resetAutoAdvance(); });
+    aiAgentRepairLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(4, true); resetAutoAdvance(); });
 
     const modal = document.getElementById('domain-modal');
     const openBtn = document.getElementById('buy-domain-link');
@@ -2087,7 +2132,7 @@
       "addressCountry": "US"
     },
     "priceRange": "$",
-    "serviceType": ["OpenClaw Setup", "Website Design", "Tech Lessons"],
+    "serviceType": ["OpenClaw Setup", "Website Design", "Tech Lessons", "AI Agent Repair"],
     "description": "Eastern Shore AI offers OpenClaw Setup, website design, and tech tutoring on the Eastern Shore of Maryland and via Zoom."
   }
   </script>
