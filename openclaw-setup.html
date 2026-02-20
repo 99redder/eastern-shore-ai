@@ -784,6 +784,7 @@
     const privacyCloseBtn = document.getElementById('privacy-close-btn');
 
     const successModal = document.getElementById('success-modal');
+    const successTitle = document.getElementById('success-title');
     const successDetails = document.getElementById('success-details');
     const successCloseBtn = document.getElementById('success-close-btn');
 
@@ -851,7 +852,8 @@
 
     // ===== Modals =====
     /** @param {string} text - Message to display in success modal */
-    function openSuccessModal(text) {
+    function openSuccessModal(text, title) {
+      if (title) successTitle.textContent = title;
       successDetails.textContent = text;
       successModal.classList.add('active');
       successModal.setAttribute('aria-hidden', 'false');
@@ -1733,7 +1735,7 @@
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
       } catch {}
-      openSuccessModal(`Payment successful — you purchased an OpenClaw setup session ($100.00) for ${dateText} at ${timeText}.`);
+      openSuccessModal(`Payment successful — you purchased an OpenClaw setup session ($100.00) for ${dateText} at ${timeText}.`, 'Payment Received — Setup Booked ✅');
       window.history.replaceState({}, '', '/openclaw-setup.html');
     } else if (qs.get('canceled') === '1') {
       let dateText = 'your selected date';
@@ -1743,7 +1745,7 @@
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
       } catch {}
-      openSuccessModal(`Checkout canceled — no charge was made. Your selected OpenClaw setup time was ${dateText} at ${timeText}.`);
+      openSuccessModal(`Checkout canceled — no charge was made. Your selected OpenClaw setup time was ${dateText} at ${timeText}.`, 'Checkout Canceled');
       window.history.replaceState({}, '', '/openclaw-setup.html');
     }
 
