@@ -114,6 +114,7 @@
     .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #141620, #10121a); border:1px solid var(--line); border-radius:0; padding:1rem; }
     .success-modal h3 { margin:.1rem 0 .4rem; color:var(--cyan); }
     .success-modal p { margin:.45rem 0; }
+    .error-modal h3 { color:var(--violet); }
 
     /* Simple modal (re-uses success modal styles) */
     .simple-modal-actions { display:flex; justify-content:flex-end; margin-top:1rem; }
@@ -682,6 +683,16 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="error-modal" aria-hidden="true">
+    <div class="success-modal error-modal" role="dialog" aria-modal="true" aria-labelledby="error-title">
+      <h3 id="error-title">Heads Up</h3>
+      <p id="error-details"></p>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-primary" id="error-close-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== FUNCTION INDEX =====
     // Time Utils:      nowEtParts() — Current date/time in America/New_York
@@ -788,6 +799,10 @@
     const successDetails = document.getElementById('success-details');
     const successCloseBtn = document.getElementById('success-close-btn');
 
+    const errorModal = document.getElementById('error-modal');
+    const errorDetails = document.getElementById('error-details');
+    const errorCloseBtn = document.getElementById('error-close-btn');
+
     const setupDateEl = document.getElementById('setup-date');
     const setupTimeEl = document.getElementById('setup-time');
 
@@ -864,6 +879,17 @@
       successModal.setAttribute('aria-hidden', 'true');
     }
 
+    function openErrorModal(text) {
+      errorDetails.textContent = text;
+      errorModal.classList.add('active');
+      errorModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeErrorModal() {
+      errorModal.classList.remove('active');
+      errorModal.setAttribute('aria-hidden', 'true');
+    }
+
     /** @param {HTMLElement} el - Modal overlay element */
     function openSimpleModal(el) {
       el.classList.add('active');
@@ -920,6 +946,11 @@
     successCloseBtn.addEventListener('click', closeSuccessModal);
     successModal.addEventListener('click', (e) => {
       if (e.target === successModal) closeSuccessModal();
+    });
+
+    errorCloseBtn.addEventListener('click', closeErrorModal);
+    errorModal.addEventListener('click', (e) => {
+      if (e.target === errorModal) closeErrorModal();
     });
 
     const TIME_SLOTS = [
@@ -1685,27 +1716,27 @@
       const preferredContactMethod = document.getElementById('book-preferred-contact-method')?.value || 'email';
 
       if (!name || !email) {
-        alert('Name and email are required to book.');
+        openErrorModal('Name and email are required to book.');
         return;
       }
 
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        alert('Please enter a valid email address.');
+        openErrorModal('Please enter a valid email address.');
         return;
       }
 
       if (!setupDate || !setupTime) {
-        alert('Please choose your setup date and time first.');
+        openErrorModal('Please choose your setup date and time first.');
         return;
       }
 
       if (isPastEtSlot(setupDate, setupTime)) {
-        alert('That time block has already passed (Eastern Time). Please choose another slot.');
+        openErrorModal('That time block has already passed (Eastern Time). Please choose another slot.');
         return;
       }
 
       if (slotIsUnavailable(setupDate, setupTime)) {
-        alert('That slot is unavailable. Please choose another date/time.');
+        openErrorModal('That slot is unavailable. Please choose another date/time.');
         return;
       }
 
@@ -1725,7 +1756,7 @@
         if (!res.ok || !data.checkoutUrl) throw new Error('Checkout session failed');
         window.location.href = data.checkoutUrl;
       } catch {
-        alert('Could not start checkout right now. Please try again.');
+        openErrorModal('Could not start checkout right now. Please try again.');
         bookPayBtn.disabled = false;
         bookPayBtn.textContent = 'Book + Pay Now';
       }
