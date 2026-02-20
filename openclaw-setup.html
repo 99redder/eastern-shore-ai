@@ -1745,7 +1745,7 @@
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
       } catch {}
-      openSuccessModal(`Checkout canceled — no charge was made. Your selected OpenClaw setup time was ${dateText} at ${timeText}.`, 'Checkout Canceled');
+      openSuccessModal(`Checkout canceled — no charge was made.`, 'Checkout Canceled');
       window.history.replaceState({}, '', '/openclaw-setup.html');
     }
 
