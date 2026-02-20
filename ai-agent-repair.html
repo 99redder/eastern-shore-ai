@@ -45,6 +45,11 @@
     .form-status { margin-top:.6rem; min-height:1.2em; color:var(--muted); }
     .form-status.ok { color:#00e5ff; }
     .form-status.err { color:#ff5555; }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; align-items:center; justify-content:center; }
+    .modal-overlay.active { display:flex; }
+    .modal { background:#141620; border:1px solid #222438; padding:1.5rem; max-width:420px; width:90%; }
+    .modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+    .modal-close { background:none; border:none; color:#d8dce8; font-size:1.2rem; cursor:pointer; }
     footer { margin-top:2rem; padding:1.5rem 1rem; color:#7a7e96; font-size:.85rem; text-align:center; border-top:1px solid var(--line); }
     @media (max-width:760px){ .form-grid{grid-template-columns:1fr;} .container{padding:.8rem;} input,textarea,select{font-size:16px;} }
   </style>
