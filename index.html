@@ -1644,8 +1644,8 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn" id="cancel-btn">Cancel</button>
-          <button type="submit" class="btn btn-primary">Send Offer</button>
+          
+          <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1.1rem;">Send Offer</button>
         </div>
         
         <p class="form-status" id="form-status" aria-live="polite"></p>
@@ -1950,7 +1950,6 @@
     const termsCloseBtn = document.getElementById('terms-modal-close');
     const privacyCloseBtn = document.getElementById('privacy-modal-close');
     const closeBtn = document.getElementById('modal-close');
-    const cancelBtn = document.getElementById('cancel-btn');
     const form = document.getElementById('offer-form');
     const titleEl = document.getElementById('domain-modal-title');
     const offerLabel = document.querySelector('label[for="offer"]');
@@ -1969,7 +1968,7 @@
       statusEl.textContent = '';
       statusEl.className = 'form-status';
       if (mode === 'contact') {
-        titleEl.textContent = 'General Inquiry';
+        titleEl.textContent = 'Website Design Quote';
         offerLabel.textContent = 'Budget (optional)';
         offerInput.placeholder = 'optional';
         offerInput.required = false;
@@ -2033,7 +2032,6 @@
     });
 
     closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
     aboutCloseBtn.addEventListener('click', () => closeSimpleModal(aboutModal));
     termsCloseBtn.addEventListener('click', () => closeSimpleModal(termsModal));
     privacyCloseBtn.addEventListener('click', () => closeSimpleModal(privacyModal));
