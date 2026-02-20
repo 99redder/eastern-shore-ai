@@ -2002,7 +2002,7 @@
       formMode = mode;
       statusEl.textContent = '';
       statusEl.className = 'form-status';
-      document.querySelectorAll('.repair-only').forEach(el => { el.style.display = mode === 'repair' ? '' : 'none'; });
+      document.querySelectorAll('.repair-only').forEach(el => { el.style.display = mode === 'repair' ? 'block' : 'none'; });
       if (mode === 'repair') document.getElementById('repair-contact-method').value = 'email';
       if (mode === 'contact') {
         titleEl.textContent = 'Website Design Quote';
