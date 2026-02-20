@@ -84,14 +84,13 @@ Both pages use inline `<style>` media queries for mobile optimization. The booki
 | Breakpoint | Scope | Purpose |
 |---|---|---|
 | `820px` | `index.html` | Stacks offer grid, modal content, form grids; centers topbar/nav; full-width Book Now button; repositions hero lobster emoji |
-| `760px` | `openclaw-setup.html` | Stacks booking/admin/form grids; converts top-right "Book + Pay Now" button into a full-width fixed bottom CTA bar (above footer); increases body bottom padding for sticky CTA + footer |
+| `760px` | `openclaw-setup.html` | Stacks booking/admin/form grids |
 | `480px` | Both pages | Further reduces font sizes, card/container padding for small phones (iPhone SE) |
 
 ### Key mobile patterns
 
-- **Sticky bottom CTA** (`openclaw-setup.html`): On mobile, `.top-book-btn` becomes `position:fixed; bottom:calc(52px + env(safe-area-inset-bottom))` — a full-width bar above the footer, always visible for booking
 - **iOS zoom prevention**: All `input`, `textarea`, `select` elements set to `font-size:16px` at mobile breakpoints to prevent Safari auto-zoom on focus
-- **Safe area insets**: Footer uses `env(safe-area-inset-bottom)` for notched devices; sticky CTA is offset accordingly
+- **Safe area insets**: Footer uses `env(safe-area-inset-bottom)` for notched devices
 - **Single-column forms**: `.form-grid` switches from 2-column to 1-column at mobile breakpoints for touch-friendly input sizing
 
 ## Testing
@@ -287,3 +286,73 @@ On `checkout.session.completed`, webhook now:
 
 Deduplication is enforced by unique index:
 - `ux_tax_income_stripe_session_id` on `tax_income(stripe_session_id)` where non-null.
+
+
+## Session Update — 2026-02-19 (Major Booking/Admin/Stripe hardening)
+
+### High-impact fixes shipped
+- Booking + lessons pages now collect booking contact info in the booking card itself (not hidden in questions form):
+  - Name (required)
+  - Email (required)
+  - Phone (optional)
+  - Preferred contact method (Email/Phone)
+- Booking card layout compacted to 2-column field rows; CTA spans full width.
+- OpenClaw booking card moved to top; "What You Should Expect" moved to separate card below.
+- OpenClaw floating top-right CTA removed; in-card CTA now uses that visual style/glow.
+
+### Admin UX changes
+- Admin Booking Controls and Tax Ledger are now separate collapsible cards.
+- Both cards default to minimized.
+- Availability calendar now supports month navigation (Prev/Next).
+- Blocked slot/day rows now include delete buttons.
+- Tax transaction list now renders one row per item (readable, with Edit/Delete actions).
+- Tax edits now use full inline forms (all fields), not prompt dialogs.
+
+### Stripe webhook + tax ledger behavior (important)
+- Auto income insert on `checkout.session.completed` remains enabled.
+- Added automatic Stripe fee accounting:
+  - webhook fetches Stripe balance transaction fee
+  - inserts `tax_expenses` row with category `Payment Processing Fees`
+  - dedupes fee rows per session via note key (`Auto Stripe fee for session <id>`)
+- Critical schema/logic lesson:
+  - Do **not** assume `ON CONFLICT(stripe_session_id)` works unless an actual UNIQUE constraint exists in that table.
+  - `bookings` table currently lacks UNIQUE on `stripe_session_id` in production DB, so webhook logic now uses explicit select-then-update/insert.
+  - `tax_income` webhook insert also switched off `ON CONFLICT` dependency to explicit existence check.
+
+### Cloudflare Wrangler deployment gotcha (very important)
+- `wrangler deploy` targets Worker deployment (no `--remote` needed).
+- D1 migration commands must use `--remote` for production database changes.
+- If migration output says `Resource location: local`, production schema did not change.
+
+### Current migration set
+- Added: `worker/migrations/0007_add_booking_contact_fields.sql`
+  - `bookings.customer_phone`
+  - `bookings.preferred_contact_method` (default `email`)
+
+### Operational notes
+- Stripe 500 webhook errors were traced to SQL upsert assumptions, then fixed in worker.
+- Once webhook event is retried and returns 200, income/fees appear in tax ledger after refresh.
+- Weekly OpenClaw cron backup job exists to auto-export D1 + tax CSV snapshots to local workspace backups.
+
+## Session Update — 2026-02-19 (UX polish: modals, validation, card order)
+
+### openclaw-setup.html
+- **Cancel modal fix**: Stripe cancel redirect (`?canceled=1`) now shows title "Checkout Canceled" instead of the payment success title. Cancel message body is just "Checkout canceled — no charge was made." (slot time removed — unnecessary on cancel).
+- **Dynamic modal title**: `openSuccessModal(text, title)` now accepts an optional title param and sets `#success-title` text. Both the paid and canceled call sites pass explicit titles.
+- **Branded error modal**: All booking-flow `alert()` calls replaced with a styled `#error-modal` (same overlay/card pattern as success modal, violet `--violet` title "Heads Up", OK button). Covers: missing name/email, invalid email format, no date/time selected, past slot, unavailable slot, checkout API failure.
+- **Email format validation**: Added regex check (`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`) before the API call; shows error modal instead of the generic checkout failure message.
+
+### book-lessons.html
+- **Card order** now matches `openclaw-setup.html`: booking card (with Home back-button and h1) first, "What You Should Expect" flow card second, questions form third.
+- **Floating top-right button removed**: `<header>` with `.top-book-btn` link deleted. Associated sticky-bottom mobile CSS and `body { padding-bottom:80px }` and `padding-right: 220px` first-card rule all removed.
+- **In-card CTA restyled**: "Book Lessons Now" button now uses `.top-book-btn` class (pink gradient, neon glow shadow, uppercase, 1.15rem) with `.book-pay-panel .top-book-btn { position:static }` override. Not full-width — sized naturally.
+- **Branded error modal**: Same `#error-modal` pattern added (CSS, HTML, JS open/close functions, event listeners). All booking-flow alerts replaced with `openErrorModal()`.
+- **Email format validation**: Same regex check added before checkout API call.
+- **Cancel modal fix**: Same title/body fix as openclaw — "Checkout Canceled" title, no slot time in body.
+- **Dynamic modal title**: `openSuccessModal` updated to accept title param; paid/canceled call sites pass explicit titles.
+
+### Modal pattern (both pages)
+Both booking pages now share the same modal architecture:
+- `#success-modal` — payment confirmation (cyan title, dynamic via `openSuccessModal(text, title)`)
+- `#error-modal` — booking validation errors (violet title "Heads Up", via `openErrorModal(text)`)
+- Both close on button click or overlay click
