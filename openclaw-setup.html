@@ -143,6 +143,7 @@
     .tax-row .edit { padding:.2rem .5rem; font-size:.75rem; }
     .tax-row .delete { padding:.2rem .5rem; font-size:.75rem; border-color:#5a2222; color:#ff9b9b; }
     .btn.delete { border-color:#5a2222; color:#ff9b9b; }
+    .btn.tx-filter-btn.active { background:linear-gradient(145deg,var(--cyan),#007ab5); border-color:var(--cyan); color:#000; }
 
     .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:2px; background:#10121a; padding:.7rem; }
     /* ===== Tax Ledger ===== */
@@ -598,7 +599,15 @@
                 </div>
 
                 <div>
-                  <h3 style="margin:.1rem 0 .4rem;">Tax Transactions (Selected Year)</h3>
+                  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:.5rem; margin:.1rem 0 .4rem;">
+                    <h3 style="margin:0; white-space:nowrap;">Tax Transactions (Selected Year)</h3>
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap;">
+                      <button type="button" class="btn tx-filter-btn active" data-filter="all">All</button>
+                      <button type="button" class="btn tx-filter-btn" data-filter="income">Income</button>
+                      <button type="button" class="btn tx-filter-btn" data-filter="expense">Expenses</button>
+                    </div>
+                    <select id="tx-category-filter" style="display:none; max-width:200px;"></select>
+                  </div>
                   <div class="admin-list" id="tax-list">No data yet.</div>
                 </div>
               </div>
@@ -823,6 +832,11 @@
     const taxExportBtn = document.getElementById('tax-export-btn');
     const taxSummaryListEl = document.getElementById('tax-summary-list');
     const taxListEl = document.getElementById('tax-list');
+    const txCategoryFilterEl = document.getElementById('tx-category-filter');
+    const txFilterBtns = document.querySelectorAll('.tx-filter-btn');
+    let allTxItems = [];
+    let loadedTaxData = { income: [], expenses: [] };
+    let activeTxFilter = 'all';
 
     const taxExpenseDateEl = document.getElementById('tax-expense-date');
     const taxExpenseVendorEl = document.getElementById('tax-expense-vendor');
@@ -1415,6 +1429,62 @@
         taxIncomeDateEl.value = now.date;
       }
 
+      function renderTxList() {
+        let filtered = allTxItems;
+        if (activeTxFilter !== 'all') {
+          filtered = filtered.filter(r => r.type === activeTxFilter);
+        }
+        const selCat = txCategoryFilterEl.value;
+        if (activeTxFilter === 'expense' && selCat) {
+          filtered = filtered.filter(r => (r.category || '') === selCat);
+        }
+        if (!filtered.length) {
+          taxListEl.textContent = activeTxFilter === 'all' ? 'No transactions yet.' : `No ${activeTxFilter} entries.`;
+          return;
+        }
+        taxListEl.innerHTML = filtered.map((r) => `
+          <div class="tax-row" data-type="${r.type}" data-id="${r.id}">
+            <span class="type">${r.type.toUpperCase()}</span>
+            <span class="desc" title="${escHtml(formatTaxRowLabel(r.type, r))}">${escHtml(formatTaxRowLabel(r.type, r))}</span>
+            <span class="amt">$${(Number(r.amount_cents || 0)/100).toFixed(2)}</span>
+            <div style="display:flex; gap:.3rem;"><button type="button" class="btn edit" data-tax-edit="1">Edit</button><button type="button" class="btn delete" data-tax-delete="1">Delete</button></div>
+          </div>
+        `).join('');
+
+        taxListEl.querySelectorAll('[data-tax-edit="1"]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const row = btn.closest('.tax-row');
+            const id = Number(row?.getAttribute('data-id') || 0);
+            const type = row?.getAttribute('data-type');
+            const sourceList = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+            const record = sourceList.find(x => Number(x.id) === id);
+            if (!record) return;
+            try {
+              await editTaxRecord(type, record);
+            } catch (e) {
+              alert(`Could not open transaction for edit: ${e.message || e}`);
+            }
+          });
+        });
+
+        taxListEl.querySelectorAll('[data-tax-delete="1"]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const row = btn.closest('.tax-row');
+            const id = Number(row?.getAttribute('data-id') || 0);
+            const type = row?.getAttribute('data-type');
+            const sourceList = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+            const record = sourceList.find(x => Number(x.id) === id);
+            if (!record) return;
+            try {
+              await deleteTaxRecord(type, record);
+              await loadTaxTransactions();
+            } catch (e) {
+              alert(`Could not delete transaction: ${e.message || e}`);
+            }
+          });
+        });
+      }
+
       async function loadTaxTransactions() {
         if (!adminUnlocked) return;
         const year = taxYearEl.value;
@@ -1479,51 +1549,11 @@
               <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong>$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
             </div>
           `;
-                    if (!items.length) {
-            taxListEl.textContent = 'No transactions yet.';
-          } else {
-            taxListEl.innerHTML = items.map((r) => `
-              <div class="tax-row" data-type="${r.type}" data-id="${r.id}">
-                <span class="type">${r.type.toUpperCase()}</span>
-                <span class="desc" title="${escHtml(formatTaxRowLabel(r.type, r))}">${escHtml(formatTaxRowLabel(r.type, r))}</span>
-                <span class="amt">$${(Number(r.amount_cents || 0)/100).toFixed(2)}</span>
-                <div style="display:flex; gap:.3rem;"><button type="button" class="btn edit" data-tax-edit="1">Edit</button><button type="button" class="btn delete" data-tax-delete="1">Delete</button></div>
-              </div>
-            `).join('');
-
-            taxListEl.querySelectorAll('[data-tax-edit="1"]').forEach((btn) => {
-              btn.addEventListener('click', async () => {
-                const row = btn.closest('.tax-row');
-                const id = Number(row?.getAttribute('data-id') || 0);
-                const type = row?.getAttribute('data-type');
-                const sourceList = type === 'income' ? (data.income || []) : (data.expenses || []);
-                const record = sourceList.find(x => Number(x.id) === id);
-                if (!record) return;
-                try {
-                  await editTaxRecord(type, record);
-                } catch (e) {
-                  alert(`Could not open transaction for edit: ${e.message || e}`);
-                }
-              });
-            });
-
-            taxListEl.querySelectorAll('[data-tax-delete="1"]').forEach((btn) => {
-              btn.addEventListener('click', async () => {
-                const row = btn.closest('.tax-row');
-                const id = Number(row?.getAttribute('data-id') || 0);
-                const type = row?.getAttribute('data-type');
-                const sourceList = type === 'income' ? (data.income || []) : (data.expenses || []);
-                const record = sourceList.find(x => Number(x.id) === id);
-                if (!record) return;
-                try {
-                  await deleteTaxRecord(type, record);
-                  await loadTaxTransactions();
-                } catch (e) {
-                  alert(`Could not delete transaction: ${e.message || e}`);
-                }
-              });
-            });
-          }
+                    allTxItems = items;
+          loadedTaxData = data;
+          txCategoryFilterEl.innerHTML = '<option value="">All Categories</option>' +
+            TAX_EXPENSE_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+          renderTxList();
         } catch (e) {
           taxSummaryListEl.innerHTML = `<div class="tax-summary-col"><h4>Summary</h4><div class="tax-summary-line"><span>Error</span><strong>${(e.message || e)}</strong></div></div>`;
           taxListEl.textContent = `Error loading tax transactions: ${e.message || e}`;
@@ -1696,6 +1726,17 @@
       taxRefreshBtn.addEventListener('click', loadTaxTransactions);
       taxYearEl.addEventListener('change', loadTaxTransactions);
       taxTypeEl.addEventListener('change', loadTaxTransactions);
+      txFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTxFilter = btn.getAttribute('data-filter');
+          txFilterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          txCategoryFilterEl.style.display = activeTxFilter === 'expense' ? '' : 'none';
+          if (activeTxFilter !== 'expense') txCategoryFilterEl.value = '';
+          renderTxList();
+        });
+      });
+      txCategoryFilterEl.addEventListener('change', renderTxList);
       taxAddExpenseBtn.addEventListener('click', addTaxExpense);
       taxUpdateExpenseBtn.addEventListener('click', addTaxExpense);
       taxCancelExpenseEditBtn.addEventListener('click', clearTaxExpenseForm);
