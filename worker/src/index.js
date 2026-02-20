@@ -98,8 +98,24 @@ export default {
       return handleTaxExpense(request, env, corsHeaders, url);
     }
 
+    if (url.pathname === '/api/tax/expense/update') {
+      return handleTaxExpenseUpdate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/expense/delete') {
+      return handleTaxExpenseDelete(request, env, corsHeaders, url);
+    }
+
     if (url.pathname === '/api/tax/income') {
       return handleTaxIncome(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/income/update') {
+      return handleTaxIncomeUpdate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/income/delete') {
+      return handleTaxIncomeDelete(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/tax/export.csv') {
