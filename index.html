@@ -819,6 +819,7 @@
     }
 
     .repair-only { display: none; }
+    .contact-only { display: none; }
 
     .form-status {
       margin-top: 0.6rem;
@@ -1647,6 +1648,10 @@
             <label for="repair-phone">Phone Number (optional)</label>
             <input id="repair-phone" type="tel" placeholder="(555) 123-4567" />
           </div>
+          <div class="contact-only">
+            <label for="contact-phone">Phone Number (optional)</label>
+            <input id="contact-phone" type="tel" placeholder="(555) 123-4567" />
+          </div>
           <div class="full">
             <label for="message">Message</label>
             <textarea id="message" name="message" placeholder="What did you have in mind? Enter anything you'd like us to know!"></textarea>
@@ -1654,6 +1659,13 @@
           <div class="full repair-only">
             <label for="repair-contact-method">Preferred Contact Method</label>
             <select id="repair-contact-method">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
+          </div>
+          <div class="full contact-only">
+            <label for="contact-method">Preferred Contact Method</label>
+            <select id="contact-method">
               <option value="email">Email</option>
               <option value="phone">Phone</option>
             </select>
@@ -2004,6 +2016,8 @@
       statusEl.className = 'form-status';
       document.querySelectorAll('.repair-only').forEach(el => { el.style.display = mode === 'repair' ? 'block' : 'none'; });
       if (mode === 'repair') document.getElementById('repair-contact-method').value = 'email';
+      document.querySelectorAll('.contact-only').forEach(el => { el.style.display = mode === 'contact' ? 'block' : 'none'; });
+      if (mode === 'contact') document.getElementById('contact-method').value = 'email';
       if (mode === 'contact') {
         titleEl.textContent = 'Website Design Quote';
         offerLabel.textContent = 'Budget (optional)';
@@ -2125,8 +2139,12 @@
       const repairPhone = document.getElementById('repair-phone')?.value.trim() || '';
       const repairOs = document.getElementById('repair-os')?.value.trim() || '';
       const repairContact = document.getElementById('repair-contact-method')?.value || '';
+      const contactPhone = document.getElementById('contact-phone')?.value.trim() || '';
+      const contactMethod = document.getElementById('contact-method')?.value || '';
       const finalMessage = formMode === 'repair'
         ? [repairPhone ? `Phone: ${repairPhone}` : '', repairOs ? `OS: ${repairOs}` : '', `Preferred Contact: ${repairContact}`].filter(Boolean).join('\n') + (message ? '\n\n' + message : '')
+        : formMode === 'contact'
+        ? [contactPhone ? `Phone: ${contactPhone}` : '', `Preferred Contact: ${contactMethod}`].filter(Boolean).join('\n') + (message ? '\n\n' + message : '')
         : message;
 
       if (CONTACT_API_URL.includes('YOUR-WORKER-URL')) {
