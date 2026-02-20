@@ -110,6 +110,7 @@
     .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #141620, #10121a); border:1px solid var(--line); border-radius:0; padding:1rem; }
     .success-modal h3 { margin:.1rem 0 .4rem; color:var(--cyan); }
     .success-modal p { margin:.45rem 0; }
+    .error-modal h3 { color:var(--violet); }
 
     /* Simple modal (re-uses success modal styles) */
     .simple-modal-actions { display:flex; justify-content:flex-end; margin-top:1rem; }
@@ -292,44 +293,11 @@
   <main>
   <div class="container">
 
-    <section class="card user-section">
+    <section id="pick-setup" class="card user-section" style="margin-top:1rem; margin-bottom:1rem;">
       <nav aria-label="Site navigation">
         <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
       </nav>
       <h1>Tech Lessons & Tutoring</h1>
-      <h2>What You Should Expect</h2>
-      <p>Each session is blocked for two hours and tailored to what you want to learn. Here's a typical lesson flow:</p>
-      <div class="flow-grid">
-        <div class="flow-steps" id="flow-steps">
-          <div class="flow-step active" data-flow="0">
-            <div class="flow-step-title">Intro and Skill Check</div>
-            <div class="flow-step-time">~10 min</div>
-          </div>
-          <div class="flow-step" data-flow="1">
-            <div class="flow-step-title">Goal Alignment</div>
-            <div class="flow-step-time">~15 min</div>
-          </div>
-          <div class="flow-step" data-flow="2">
-            <div class="flow-step-title">Hands-On Walkthrough</div>
-            <div class="flow-step-time">~15–30 min</div>
-          </div>
-          <div class="flow-step" data-flow="3">
-            <div class="flow-step-title">Build Together</div>
-            <div class="flow-step-time">~10 min</div>
-          </div>
-          <div class="flow-step" data-flow="4">
-            <div class="flow-step-title">Troubleshooting &amp; Best Practices</div>
-            <div class="flow-step-time">~15 min</div>
-          </div>
-        </div>
-        <div class="flow-detail" id="flow-detail">
-          <h3 id="flow-detail-title">Intro and Assessment</h3>
-          <p id="flow-detail-desc">Quick intro and skill check so we tailor the session to your exact goals and current level.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="pick-setup" class="card user-section" style="margin-top:1rem;">
       <h2>Pick Your Lesson Day</h2>
       <div class="booking-grid" style="grid-template-columns:1fr;">
         <div>
@@ -374,6 +342,39 @@
           </div>
           <div class="full"><button type="button" class="btn btn-primary btn-wide" id="book-pay-btn" style="margin-top:.6rem; width:100%;">Book Lessons Now</button></div>
         </aside>
+      </div>
+    </section>
+
+    <section class="card user-section">
+      <h2>What You Should Expect</h2>
+      <p>Each session is blocked for two hours and tailored to what you want to learn. Here's a typical lesson flow:</p>
+      <div class="flow-grid">
+        <div class="flow-steps" id="flow-steps">
+          <div class="flow-step active" data-flow="0">
+            <div class="flow-step-title">Intro and Skill Check</div>
+            <div class="flow-step-time">~10 min</div>
+          </div>
+          <div class="flow-step" data-flow="1">
+            <div class="flow-step-title">Goal Alignment</div>
+            <div class="flow-step-time">~15 min</div>
+          </div>
+          <div class="flow-step" data-flow="2">
+            <div class="flow-step-title">Hands-On Walkthrough</div>
+            <div class="flow-step-time">~15–30 min</div>
+          </div>
+          <div class="flow-step" data-flow="3">
+            <div class="flow-step-title">Build Together</div>
+            <div class="flow-step-time">~10 min</div>
+          </div>
+          <div class="flow-step" data-flow="4">
+            <div class="flow-step-title">Troubleshooting &amp; Best Practices</div>
+            <div class="flow-step-time">~15 min</div>
+          </div>
+        </div>
+        <div class="flow-detail" id="flow-detail">
+          <h3 id="flow-detail-title">Intro and Assessment</h3>
+          <p id="flow-detail-desc">Quick intro and skill check so we tailor the session to your exact goals and current level.</p>
+        </div>
       </div>
     </section>
 
@@ -615,6 +616,16 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="error-modal" aria-hidden="true">
+    <div class="success-modal error-modal" role="dialog" aria-modal="true" aria-labelledby="error-title">
+      <h3 id="error-title">Heads Up</h3>
+      <p id="error-details"></p>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-primary" id="error-close-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -673,8 +684,13 @@
     const privacyCloseBtn = document.getElementById('privacy-close-btn');
 
     const successModal = document.getElementById('success-modal');
+    const successTitle = document.getElementById('success-title');
     const successDetails = document.getElementById('success-details');
     const successCloseBtn = document.getElementById('success-close-btn');
+
+    const errorModal = document.getElementById('error-modal');
+    const errorDetails = document.getElementById('error-details');
+    const errorCloseBtn = document.getElementById('error-close-btn');
 
     const setupDateEl = document.getElementById('setup-date');
     const setupTimeEl = document.getElementById('setup-time');
@@ -725,7 +741,8 @@
     let unavailableSlots = new Set();
     let blockedDates = new Set();
 
-    function openSuccessModal(text) {
+    function openSuccessModal(text, title) {
+      if (title) successTitle.textContent = title;
       successDetails.textContent = text;
       successModal.classList.add('active');
       successModal.setAttribute('aria-hidden', 'false');
@@ -734,6 +751,17 @@
     function closeSuccessModal() {
       successModal.classList.remove('active');
       successModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openErrorModal(text) {
+      errorDetails.textContent = text;
+      errorModal.classList.add('active');
+      errorModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeErrorModal() {
+      errorModal.classList.remove('active');
+      errorModal.setAttribute('aria-hidden', 'true');
     }
 
     function openSimpleModal(el) {
@@ -791,6 +819,11 @@
     successCloseBtn.addEventListener('click', closeSuccessModal);
     successModal.addEventListener('click', (e) => {
       if (e.target === successModal) closeSuccessModal();
+    });
+
+    errorCloseBtn.addEventListener('click', closeErrorModal);
+    errorModal.addEventListener('click', (e) => {
+      if (e.target === errorModal) closeErrorModal();
     });
 
     const TIME_SLOTS = [
@@ -1311,22 +1344,27 @@
       const preferredContactMethod = document.getElementById('book-preferred-contact-method')?.value || 'email';
 
       if (!name || !email) {
-        alert('Name and email are required to book.');
+        openErrorModal('Name and email are required to book.');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        openErrorModal('Please enter a valid email address.');
         return;
       }
 
       if (!setupDate || !setupTime) {
-        alert('Please choose your lesson date and time first.');
+        openErrorModal('Please choose your lesson date and time first.');
         return;
       }
 
       if (isPastEtSlot(setupDate, setupTime)) {
-        alert('That time block has already passed (Eastern Time). Please choose another slot.');
+        openErrorModal('That time block has already passed (Eastern Time). Please choose another slot.');
         return;
       }
 
       if (slotIsUnavailable(setupDate, setupTime)) {
-        alert('That slot is unavailable. Please choose another date/time.');
+        openErrorModal('That slot is unavailable. Please choose another date/time.');
         return;
       }
 
@@ -1346,7 +1384,7 @@
         if (!res.ok || !data.checkoutUrl) throw new Error('Checkout session failed');
         window.location.href = data.checkoutUrl;
       } catch {
-        alert('Could not start checkout right now. Please try again.');
+        openErrorModal('Could not start checkout right now. Please try again.');
         bookPayBtn.disabled = false;
         bookPayBtn.textContent = 'Book Lessons Now';
       }
@@ -1361,17 +1399,10 @@
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
       } catch {}
-      openSuccessModal(`Payment successful — you purchased a tech lesson session ($100.00) for ${dateText} at ${timeText}.`);
+      openSuccessModal(`Payment successful — you purchased a tech lesson session ($100.00) for ${dateText} at ${timeText}.`, 'Payment Received — Lesson Booked ✅');
       window.history.replaceState({}, '', '/book-lessons.html');
     } else if (qs.get('canceled') === '1') {
-      let dateText = 'your selected date';
-      let timeText = 'your selected time';
-      try {
-        const saved = JSON.parse(localStorage.getItem('esa_last_lessons_slot') || '{}');
-        if (saved.setupDate) dateText = saved.setupDate;
-        if (saved.setupTime) timeText = saved.setupTime;
-      } catch {}
-      openSuccessModal(`Checkout canceled — no charge was made. Your selected tech lesson time was ${dateText} at ${timeText}.`);
+      openSuccessModal(`Checkout canceled — no charge was made.`, 'Checkout Canceled');
       window.history.replaceState({}, '', '/book-lessons.html');
     }
 
