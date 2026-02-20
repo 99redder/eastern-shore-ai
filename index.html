@@ -1506,7 +1506,7 @@
               </div>
             </div>
             <div style="margin-top:1.5rem;">
-              <a href="/ai-agent-repair.html" class="btn btn-primary" id="ai-agent-repair-cta">Get Free Quote</a>
+              <a href="#" class="btn btn-primary" id="ai-agent-repair-cta" style="display:inline-block; padding:0.55rem 2rem; text-decoration:none;">Get Free Quote</a>
             </div>
           </article>
           <div class="feature-stack">
@@ -1824,7 +1824,13 @@
         if (currentPanel === 0) {
           rainEl.classList.remove('rain-stopping');
           rainEl.classList.add('rain-steady');
-        } else {
+        } else if (mode === 'repair') {
+        titleEl.textContent = 'AI Agent Repair Quote';
+        offerLabel.textContent = 'Platform (optional)';
+        offerInput.placeholder = 'OpenClaw, n8n, Zapier, etc.';
+        offerInput.required = false;
+        sendBtn.textContent = 'Get Free Quote';
+      } else {
           rainEl.classList.remove('rain-steady');
           rainEl.classList.add('rain-stopping');
         }
@@ -1903,6 +1909,12 @@
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         stopAutoAdvance();
+      } else if (mode === 'repair') {
+        titleEl.textContent = 'AI Agent Repair Quote';
+        offerLabel.textContent = 'Platform (optional)';
+        offerInput.placeholder = 'OpenClaw, n8n, Zapier, etc.';
+        offerInput.required = false;
+        sendBtn.textContent = 'Get Free Quote';
       } else {
         resetAutoAdvance();
       }
@@ -1915,6 +1927,11 @@
     document.getElementById('website-design-cta').addEventListener('click', (e) => {
       e.preventDefault();
       openModal('contact');
+
+    document.getElementById('ai-agent-repair-cta').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('repair');
+    });
     });
 
     // ===== Portfolio Carousel =====
@@ -1986,6 +2003,12 @@
         offerInput.placeholder = 'optional';
         offerInput.required = false;
         sendBtn.textContent = 'Get Your Free Quote Now';
+      } else if (mode === 'repair') {
+        titleEl.textContent = 'AI Agent Repair Quote';
+        offerLabel.textContent = 'Platform (optional)';
+        offerInput.placeholder = 'OpenClaw, n8n, Zapier, etc.';
+        offerInput.required = false;
+        sendBtn.textContent = 'Get Free Quote';
       } else {
         titleEl.textContent = 'Make an offer for the easternshore.ai domain name';
         offerLabel.textContent = 'Offer Amount (USD)';
@@ -2027,6 +2050,11 @@
     contactLink.addEventListener('click', (e) => {
       e.preventDefault();
       openModal('contact');
+
+    document.getElementById('ai-agent-repair-cta').addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal('repair');
+    });
     });
 
     aboutLink.addEventListener('click', (e) => {
@@ -2310,7 +2338,13 @@
           noiseGain.gain.setValueAtTime(0.15, now);
           noiseGain.gain.linearRampToValueAtTime(0.06, now + 0.2);
           noiseGain.gain.linearRampToValueAtTime(0, now + dur);
-        } else {
+        } else if (mode === 'repair') {
+        titleEl.textContent = 'AI Agent Repair Quote';
+        offerLabel.textContent = 'Platform (optional)';
+        offerInput.placeholder = 'OpenClaw, n8n, Zapier, etc.';
+        offerInput.required = false;
+        sendBtn.textContent = 'Get Free Quote';
+      } else {
           humGain.gain.setValueAtTime(0.5, now);
           humGain.gain.linearRampToValueAtTime(0.15, now + 0.1);
           humGain.gain.linearRampToValueAtTime(0, now + dur);
@@ -2339,7 +2373,13 @@
             logo.src = 'logo-off.png';
           }, 400);
           btn.classList.add('off');
-        } else {
+        } else if (mode === 'repair') {
+        titleEl.textContent = 'AI Agent Repair Quote';
+        offerLabel.textContent = 'Platform (optional)';
+        offerInput.placeholder = 'OpenClaw, n8n, Zapier, etc.';
+        offerInput.required = false;
+        sendBtn.textContent = 'Get Free Quote';
+      } else {
           // Turn on — swap image, flicker, then full brightness
           logo.src = 'logo.jpg';
           logo.classList.remove('off');
