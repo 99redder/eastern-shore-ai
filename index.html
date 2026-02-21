@@ -2015,6 +2015,7 @@
     const sendBtn = form.querySelector('button[type="submit"]');
     const hintEl = form.querySelector('.hint');
     const statusEl = document.getElementById('form-status');
+    const messageEl = document.getElementById('message');
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
 
     // ===== Contact / Domain Offer Form =====
@@ -2041,12 +2042,14 @@
         offerInput.placeholder = 'e.g. OpenClaw, ChatGPT, Zapier, LangChain…';
         offerInput.required = false;
         sendBtn.textContent = 'Get Your Free Quote Now';
+        messageEl.placeholder = "What is the issue you're experiencing? Tell us anything you'd like us to know!";
       } else {
         titleEl.textContent = 'Make an offer for the easternshore.ai domain name';
         offerLabel.textContent = 'Offer Amount (USD)';
         offerInput.placeholder = 'e.g. 2500';
         offerInput.required = true;
         sendBtn.textContent = 'Send Offer';
+        messageEl.placeholder = "What did you have in mind? Enter anything you'd like us to know!";
       }
     }
 
