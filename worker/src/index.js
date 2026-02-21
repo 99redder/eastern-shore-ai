@@ -216,14 +216,42 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const preferredContactMethod = (data.preferredContactMethod || 'email').toString().trim().toLowerCase();
   const lessonTopic = (data.lessonTopic || '').toString().trim();
   const lessonCountRaw = Number.parseInt((data.lessonCount ?? '1').toString(), 10);
-  const lessonCount = Number.isFinite(lessonCountRaw) ? Math.min(Math.max(lessonCountRaw, 1), 10) : 1;
+  const lessonCount = Number.isFinite(lessonCountRaw) ? Math.min(Math.max(lessonCountRaw, 1), 2) : 1;
+  const extraSlotsInput = Array.isArray(data.extraSlots) ? data.extraSlots : [];
+  const normalizedExtraSlots = extraSlotsInput
+    .map((s) => ({
+      setupDate: (s?.setupDate || '').toString().trim(),
+      setupTime: (s?.setupTime || '').toString().trim()
+    }))
+    .filter((s) => s.setupDate && s.setupTime)
+    .slice(0, 1);
+
+  const requestedSlots = [{ setupDate, setupTime }, ...normalizedExtraSlots]
+    .filter((s) => s.setupDate && s.setupTime);
+
+  const uniqueSlots = [];
+  const seenSlots = new Set();
+  for (const slot of requestedSlots) {
+    const key = `${slot.setupDate}T${slot.setupTime}`;
+    if (seenSlots.has(key)) continue;
+    seenSlots.add(key);
+    uniqueSlots.push(slot);
+  }
+
+  const effectiveLessonCount = requestedService === 'lessons'
+    ? Math.min(Math.max(lessonCount, 1), 2)
+    : 1;
+
+  if (requestedService === 'lessons' && uniqueSlots.length !== effectiveLessonCount) {
+    return json({ ok: false, error: 'Please provide one unique time slot per lesson.' }, 400, corsHeaders);
+  }
 
   const serviceConfig = requestedService === 'lessons'
     ? {
         key: 'lessons',
         label: 'Tech Tutoring (2 hour session)',
         amountCents: 10000,
-        quantity: lessonCount,
+        quantity: uniqueSlots.length || 1,
         successPath: '/book-lessons.html'
       }
     : {
@@ -270,31 +298,63 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     return json({ ok: false, error: 'Stripe not configured' }, 500, corsHeaders);
   }
 
+  const allSlots = requestedService === 'lessons'
+    ? uniqueSlots
+    : [{ setupDate, setupTime }];
   const setupAt = `${setupDate}T${setupTime}`;
 
+  // Validate past-time for every selected slot
+  {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+    const get = (t) => parts.find(p => p.type === t)?.value;
+    const today = `${get('year')}-${get('month')}-${get('day')}`;
+    const nowHm = `${get('hour')}:${get('minute')}`;
+
+    for (const slot of allSlots) {
+      const start = (slot.setupTime || '').split('-')[0] || '';
+      if (slot.setupDate && today && slot.setupDate < today) {
+        return json({ ok: false, error: 'Selected date is in the past (ET). Choose a future date.' }, 400, corsHeaders);
+      }
+      if (slot.setupDate && today && slot.setupDate === today && start && start <= nowHm) {
+        return json({ ok: false, error: 'Selected time block has already passed (ET). Choose a later block.' }, 400, corsHeaders);
+      }
+    }
+  }
+
   if (env.DB) {
-    const existing = await env.DB.prepare(
-      `SELECT id FROM bookings WHERE setup_at = ?1 AND status IN ('paid','confirmed') LIMIT 1`
-    ).bind(setupAt).first();
+    for (const slot of allSlots) {
+      const slotAt = `${slot.setupDate}T${slot.setupTime}`;
+      const existing = await env.DB.prepare(
+        `SELECT id FROM bookings WHERE setup_at = ?1 AND status IN ('paid','confirmed') LIMIT 1`
+      ).bind(slotAt).first();
 
-    if (existing) {
-      return json({ ok: false, error: 'That date/time is already booked. Please choose another slot.' }, 409, corsHeaders);
-    }
+      if (existing) {
+        return json({ ok: false, error: 'One of the selected date/time slots is already booked. Please choose another slot.' }, 409, corsHeaders);
+      }
 
-    const blocked = await env.DB.prepare(
-      `SELECT id FROM blocked_slots WHERE setup_at = ?1 AND active = 1 LIMIT 1`
-    ).bind(setupAt).first();
+      const blocked = await env.DB.prepare(
+        `SELECT id FROM blocked_slots WHERE setup_at = ?1 AND active = 1 LIMIT 1`
+      ).bind(slotAt).first();
 
-    if (blocked) {
-      return json({ ok: false, error: 'That date/time is unavailable. Please choose another slot.' }, 409, corsHeaders);
-    }
+      if (blocked) {
+        return json({ ok: false, error: 'One of the selected date/time slots is unavailable. Please choose another slot.' }, 409, corsHeaders);
+      }
 
-    const blockedDay = await env.DB.prepare(
-      `SELECT id FROM blocked_days WHERE setup_date = ?1 AND active = 1 LIMIT 1`
-    ).bind(setupDate).first();
+      const blockedDay = await env.DB.prepare(
+        `SELECT id FROM blocked_days WHERE setup_date = ?1 AND active = 1 LIMIT 1`
+      ).bind(slot.setupDate).first();
 
-    if (blockedDay) {
-      return json({ ok: false, error: 'That day is unavailable. Please choose another date.' }, 409, corsHeaders);
+      if (blockedDay) {
+        return json({ ok: false, error: 'One of the selected days is unavailable. Please choose another date.' }, 409, corsHeaders);
+      }
     }
   }
 
@@ -318,6 +378,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'metadata[preferred_contact_method]': preferredContactMethod || 'email',
     'metadata[lesson_topic]': lessonTopic || '',
     'metadata[lesson_count]': String(serviceConfig.quantity || 1),
+    'metadata[slots_json]': JSON.stringify(allSlots),
     'payment_intent_data[metadata][setup_date]': setupDate,
     'payment_intent_data[metadata][setup_time]': setupTime,
     'payment_intent_data[metadata][setup_at]': setupAt,
@@ -346,22 +407,29 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   }
 
   if (env.DB) {
-    await env.DB.prepare(
-      `INSERT INTO bookings (
-        stripe_session_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type
-      ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
-    ).bind(
-      stripeData.id,
-      setupDate,
-      setupTime,
-      setupAt,
-      customerName || null,
-      customerEmail || null,
-      customerPhone || null,
-      preferredContactMethod || 'email',
-      serviceConfig.amountCents * (serviceConfig.quantity || 1),
-      serviceConfig.key
-    ).run();
+    const totalAmount = serviceConfig.amountCents * (serviceConfig.quantity || 1);
+    const splitAmount = Math.round(totalAmount / Math.max(allSlots.length, 1));
+    for (let i = 0; i < allSlots.length; i++) {
+      const slot = allSlots[i];
+      const slotAt = `${slot.setupDate}T${slot.setupTime}`;
+      const slotAmount = i === 0 ? (totalAmount - (splitAmount * (allSlots.length - 1))) : splitAmount;
+      await env.DB.prepare(
+        `INSERT INTO bookings (
+          stripe_session_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type
+        ) VALUES (?1, 'pending', ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`
+      ).bind(
+        stripeData.id,
+        slot.setupDate,
+        slot.setupTime,
+        slotAt,
+        customerName || null,
+        customerEmail || null,
+        customerPhone || null,
+        preferredContactMethod || 'email',
+        slotAmount,
+        serviceConfig.key
+      ).run();
+    }
   }
 
   return json({ ok: true, checkoutUrl: stripeData.url, id: stripeData.id }, 200, corsHeaders);
@@ -420,60 +488,83 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
     if (sessionId) {
       try {
-        const existingBooking = await env.DB.prepare(
-          `SELECT id FROM bookings WHERE stripe_session_id = ?1 LIMIT 1`
-        ).bind(sessionId).first();
+        let slots = [];
+        try {
+          const parsed = JSON.parse(session.metadata?.slots_json || '[]');
+          if (Array.isArray(parsed)) {
+            slots = parsed
+              .map((s) => ({
+                setupDate: (s?.setupDate || '').toString().trim(),
+                setupTime: (s?.setupTime || '').toString().trim()
+              }))
+              .filter((s) => s.setupDate && s.setupTime);
+          }
+        } catch {}
+        if (!slots.length && setupDate && setupTime) {
+          slots = [{ setupDate, setupTime }];
+        }
 
-        if (existingBooking?.id) {
-          await env.DB.prepare(
-            `UPDATE bookings
-             SET stripe_payment_intent_id = COALESCE(?1, stripe_payment_intent_id),
-                 status = 'paid',
-                 setup_date = COALESCE(?2, setup_date),
-                 setup_time = COALESCE(?3, setup_time),
-                 setup_at = COALESCE(?4, setup_at),
-                 customer_name = COALESCE(?5, customer_name),
-                 customer_email = COALESCE(?6, customer_email),
-                 customer_phone = COALESCE(?7, customer_phone),
-                 preferred_contact_method = COALESCE(?8, preferred_contact_method),
-                 amount_cents = COALESCE(?9, amount_cents),
-                 service_type = COALESCE(?10, service_type),
-                 paid_at = datetime('now'),
-                 updated_at = datetime('now')
-             WHERE id = ?11`
-          ).bind(
-            session.payment_intent || null,
-            setupDate,
-            setupTime,
-            setupAt,
-            customerName,
-            customerEmail,
-            customerPhone,
-            preferredContactMethod,
-            amount,
-            serviceType,
-            existingBooking.id
-          ).run();
-        } else {
-          await env.DB.prepare(
-            `INSERT INTO bookings (
-              stripe_session_id, stripe_payment_intent_id, status,
-              setup_date, setup_time, setup_at,
-              customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at
-            ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, datetime('now'))`
-          ).bind(
-            sessionId,
-            session.payment_intent || null,
-            setupDate,
-            setupTime,
-            setupAt,
-            customerName,
-            customerEmail,
-            customerPhone,
-            preferredContactMethod,
-            amount,
-            serviceType
-          ).run();
+        const splitAmount = Math.round(amount / Math.max(slots.length, 1));
+        for (let i = 0; i < slots.length; i++) {
+          const slot = slots[i];
+          const slotAt = `${slot.setupDate}T${slot.setupTime}`;
+          const slotAmount = i === 0 ? (amount - (splitAmount * (slots.length - 1))) : splitAmount;
+
+          const existingSlotBooking = await env.DB.prepare(
+            `SELECT id FROM bookings WHERE stripe_session_id = ?1 AND setup_at = ?2 LIMIT 1`
+          ).bind(sessionId, slotAt).first();
+
+          if (existingSlotBooking?.id) {
+            await env.DB.prepare(
+              `UPDATE bookings
+               SET stripe_payment_intent_id = COALESCE(?1, stripe_payment_intent_id),
+                   status = 'paid',
+                   setup_date = COALESCE(?2, setup_date),
+                   setup_time = COALESCE(?3, setup_time),
+                   setup_at = COALESCE(?4, setup_at),
+                   customer_name = COALESCE(?5, customer_name),
+                   customer_email = COALESCE(?6, customer_email),
+                   customer_phone = COALESCE(?7, customer_phone),
+                   preferred_contact_method = COALESCE(?8, preferred_contact_method),
+                   amount_cents = COALESCE(?9, amount_cents),
+                   service_type = COALESCE(?10, service_type),
+                   paid_at = datetime('now'),
+                   updated_at = datetime('now')
+               WHERE id = ?11`
+            ).bind(
+              session.payment_intent || null,
+              slot.setupDate,
+              slot.setupTime,
+              slotAt,
+              customerName,
+              customerEmail,
+              customerPhone,
+              preferredContactMethod,
+              slotAmount,
+              serviceType,
+              existingSlotBooking.id
+            ).run();
+          } else {
+            await env.DB.prepare(
+              `INSERT INTO bookings (
+                stripe_session_id, stripe_payment_intent_id, status,
+                setup_date, setup_time, setup_at,
+                customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at
+              ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, datetime('now'))`
+            ).bind(
+              sessionId,
+              session.payment_intent || null,
+              slot.setupDate,
+              slot.setupTime,
+              slotAt,
+              customerName,
+              customerEmail,
+              customerPhone,
+              preferredContactMethod,
+              slotAmount,
+              serviceType
+            ).run();
+          }
         }
 
         // Use the payment event timestamp for accounting date, not the appointment date
@@ -500,14 +591,15 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           ).run();
         }
 
-        // Clean up stale pending rows for same slot after successful payment
-        if (setupAt) {
+        // Clean up stale pending rows for same slot(s) after successful payment
+        for (const slot of slots) {
+          const slotAt = `${slot.setupDate}T${slot.setupTime}`;
           await env.DB.prepare(
             `DELETE FROM bookings
              WHERE status = 'pending'
                AND setup_at = ?1
                AND stripe_session_id != ?2`
-          ).bind(setupAt, sessionId).run();
+          ).bind(slotAt, sessionId).run();
         }
 
         // Auto-insert Stripe processing fee as expense for accurate net reporting

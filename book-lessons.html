@@ -373,9 +373,16 @@
               <select id="book-lesson-count" required>
                 <option value="1">1 lesson</option>
                 <option value="2">2 lessons</option>
-                <option value="3">3 lessons</option>
-                <option value="4">4 lessons</option>
-                <option value="5">5 lessons</option>
+              </select>
+            </div>
+            <div id="lesson-slot-2-wrap" style="display:none;">
+              <label for="setup-date-2">Second Lesson Date</label>
+              <input id="setup-date-2" type="date" />
+            </div>
+            <div id="lesson-slot-2-time-wrap" style="display:none;">
+              <label for="setup-time-2">Second Lesson Time Block</label>
+              <select id="setup-time-2">
+                <option value="">Select time block…</option>
               </select>
             </div>
           </div>
@@ -789,6 +796,10 @@
     const bookTopicEl = document.getElementById('book-topic');
     const bookLessonCountEl = document.getElementById('book-lesson-count');
     const bookTotalNoteEl = document.getElementById('book-total-note');
+    const setupDate2El = document.getElementById('setup-date-2');
+    const setupTime2El = document.getElementById('setup-time-2');
+    const lessonSlot2WrapEl = document.getElementById('lesson-slot-2-wrap');
+    const lessonSlot2TimeWrapEl = document.getElementById('lesson-slot-2-time-wrap');
 
     const adminPanel = document.getElementById('admin-panel');
     const adminLock = document.getElementById('admin-lock');
@@ -964,6 +975,16 @@
       const lessonCount = Math.max(1, Number.parseInt(bookLessonCountEl.value || '1', 10) || 1);
       const totalCents = lessonCount * LESSON_BASE_PRICE_CENTS;
       bookTotalNoteEl.textContent = `Total today: $${(totalCents / 100).toFixed(2)} (${lessonCount} × $100)`;
+
+      const needsSecond = lessonCount > 1;
+      if (lessonSlot2WrapEl) lessonSlot2WrapEl.style.display = needsSecond ? 'block' : 'none';
+      if (lessonSlot2TimeWrapEl) lessonSlot2TimeWrapEl.style.display = needsSecond ? 'block' : 'none';
+      if (!needsSecond) {
+        if (setupDate2El) setupDate2El.value = '';
+        if (setupTime2El) setupTime2El.value = '';
+      } else {
+        renderSecondSlotTimeOptions();
+      }
     }
 
     function nowEtParts() {
@@ -1035,6 +1056,42 @@
       if (adminCurrent) {
         adminTimeEl.value = adminCurrent;
       }
+
+      renderSecondSlotTimeOptions();
+    }
+
+    function renderSecondSlotTimeOptions() {
+      if (!setupDate2El || !setupTime2El) return;
+      const selectedDate2 = setupDate2El.value;
+      const current2 = setupTime2El.value;
+      const firstDate = setupDateEl.value;
+      const firstTime = setupTimeEl.value;
+      const opts = ['<option value="">Select time block…</option>'];
+
+      if (selectedDate2) {
+        const now = nowEtParts();
+        if (selectedDate2 < now.date) {
+          opts.push('<option value="" disabled>Date has already passed</option>');
+        }
+      }
+
+      if (selectedDate2 && blockedDates.has(selectedDate2)) {
+        opts.push('<option value="" disabled>Entire day is blocked</option>');
+      }
+
+      for (const slot of TIME_SLOTS) {
+        const sameAsFirst = selectedDate2 && firstDate && selectedDate2 === firstDate && slot.value === firstTime;
+        const unavailable = selectedDate2 && (slotIsUnavailable(selectedDate2, slot.value) || isPastEtSlot(selectedDate2, slot.value) || sameAsFirst);
+        const unavailableText = sameAsFirst ? ' (already selected above)' : (unavailable ? ' (unavailable)' : '');
+        opts.push(`<option value="${slot.value}" ${unavailable ? 'disabled' : ''}>${slot.label}${unavailableText}</option>`);
+      }
+
+      setupTime2El.innerHTML = opts.join('');
+      if (current2 && !(selectedDate2 && (slotIsUnavailable(selectedDate2, current2) || isPastEtSlot(selectedDate2, current2)))) {
+        if (!(selectedDate2 === firstDate && current2 === firstTime)) {
+          setupTime2El.value = current2;
+        }
+      }
     }
 
     async function loadAvailability() {
@@ -1057,7 +1114,9 @@
 
     // prevent selecting past days in UI (ET date)
     try {
-      setupDateEl.min = nowEtParts().date;
+      const minDate = nowEtParts().date;
+      setupDateEl.min = minDate;
+      if (setupDate2El) setupDate2El.min = minDate;
     } catch {}
 
     document.addEventListener('keydown', (e) => {
@@ -1069,6 +1128,8 @@
     });
 
     setupDateEl.addEventListener('change', renderTimeOptions);
+    setupTimeEl.addEventListener('change', renderSecondSlotTimeOptions);
+    setupDate2El?.addEventListener('change', renderSecondSlotTimeOptions);
     bookLessonCountEl?.addEventListener('change', updateLessonTotal);
     const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
     let adminUnlocked = false;
@@ -1494,7 +1555,7 @@
       }
 
       if (!setupDate || !setupTime) {
-        openErrorModal('Please choose your lesson date and time first.');
+        openErrorModal('Please choose your first lesson date and time.');
         return;
       }
 
@@ -1508,7 +1569,26 @@
         return;
       }
 
-      localStorage.setItem('esa_last_lessons_slot', JSON.stringify({ setupDate, setupTime, lessonTopic, lessonCount }));
+      const extraSlots = [];
+      if (lessonCount > 1) {
+        const setupDate2 = setupDate2El?.value || '';
+        const setupTime2 = setupTime2El?.value || '';
+        if (!setupDate2 || !setupTime2) {
+          openErrorModal('Please choose date and time for your second lesson.');
+          return;
+        }
+        if (setupDate2 === setupDate && setupTime2 === setupTime) {
+          openErrorModal('Your second lesson must be a different time slot.');
+          return;
+        }
+        if (isPastEtSlot(setupDate2, setupTime2) || slotIsUnavailable(setupDate2, setupTime2)) {
+          openErrorModal('Your second lesson slot is unavailable. Please pick another one.');
+          return;
+        }
+        extraSlots.push({ setupDate: setupDate2, setupTime: setupTime2 });
+      }
+
+      localStorage.setItem('esa_last_lessons_slot', JSON.stringify({ setupDate, setupTime, lessonTopic, lessonCount, extraSlots }));
 
       bookPayBtn.disabled = true;
       bookPayBtn.textContent = 'Redirecting…';
@@ -1526,6 +1606,7 @@
             preferredContactMethod,
             lessonTopic,
             lessonCount,
+            extraSlots,
             service: 'lessons'
           })
         });
@@ -1546,15 +1627,19 @@
       let timeText = 'your selected time';
       let topicText = 'your selected topic';
       let lessonCount = 1;
+      let extraSlotsText = '';
       try {
         const saved = JSON.parse(localStorage.getItem('esa_last_lessons_slot') || '{}');
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
         if (saved.lessonTopic) topicText = saved.lessonTopic;
         if (saved.lessonCount) lessonCount = Math.max(1, Number.parseInt(saved.lessonCount, 10) || 1);
+        if (Array.isArray(saved.extraSlots) && saved.extraSlots.length) {
+          extraSlotsText = ` Additional slot: ${saved.extraSlots.map(s => `${s.setupDate} at ${s.setupTime}`).join(', ')}.`;
+        }
       } catch {}
       const total = (lessonCount * LESSON_BASE_PRICE_CENTS) / 100;
-      openSuccessModal(`Payment successful — you purchased ${lessonCount} tech lesson${lessonCount > 1 ? 's' : ''} ($${total.toFixed(2)}) starting ${dateText} at ${timeText}. Topic: ${topicText}.`, 'Payment Received — Lesson Booked ✅');
+      openSuccessModal(`Payment successful — you purchased ${lessonCount} tech lesson${lessonCount > 1 ? 's' : ''} ($${total.toFixed(2)}) starting ${dateText} at ${timeText}.${extraSlotsText} Topic: ${topicText}.`, 'Payment Received — Lesson Booked ✅');
       window.history.replaceState({}, '', '/book-lessons.html');
     } else if (qs.get('canceled') === '1') {
       openSuccessModal(`Checkout canceled — no charge was made.`, 'Checkout Canceled');
