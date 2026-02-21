@@ -26,7 +26,7 @@
     html { scroll-behavior:smooth; }
     body { margin:0; font-family:'Titillium Web',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--text);
       background:var(--bg); }
-    .container { max-width:920px; margin:0 auto; padding:1.2rem; }
+    .container { max-width:1100px; margin:0 auto; padding:1.2rem; }
     a { color:#ff4fd8; text-shadow:0 0 8px rgba(255,79,216,0.35); }
     /* Battle-damaged hull edges — worn spaceship panels */
     .card,
@@ -341,7 +341,7 @@
 
         <aside class="book-pay-panel" style="margin-top:.85rem;">
           <h3 style="margin:.1rem 0 .2rem;">Reserve Your Lesson Slot</h3>
-          <p>Choose your date, then use Book Lessons + Pay Now to secure your 2-hour lesson session.</p>
+          <p>Choose your date, lesson topic, and session count, then use Book Lessons + Pay Now to secure your spot.</p>
           <div class="form-grid" style="margin-top:.6rem; grid-template-columns:1fr 1fr;">
             <div>
               <label for="book-name">Your Name</label>
@@ -362,7 +362,24 @@
                 <option value="phone">Phone</option>
               </select>
             </div>
+            <div>
+              <label for="book-topic">Desired Lesson Topic</label>
+              <select id="book-topic" required>
+                <option value="">Select topic…</option>
+              </select>
+            </div>
+            <div>
+              <label for="book-lesson-count">Number of Lessons</label>
+              <select id="book-lesson-count" required>
+                <option value="1">1 lesson</option>
+                <option value="2">2 lessons</option>
+                <option value="3">3 lessons</option>
+                <option value="4">4 lessons</option>
+                <option value="5">5 lessons</option>
+              </select>
+            </div>
           </div>
+          <p id="book-total-note" style="margin:.5rem 0 0; font-size:.9rem; color:var(--text);">Total today: $100.00 (1 × $100)</p>
           <div class="full"><button type="button" class="top-book-btn" id="book-pay-btn" style="margin-top:.6rem; width:100%;">Book Lessons + Pay Now</button></div>
         </aside>
       </div>
@@ -769,6 +786,9 @@
 
     const setupDateEl = document.getElementById('setup-date');
     const setupTimeEl = document.getElementById('setup-time');
+    const bookTopicEl = document.getElementById('book-topic');
+    const bookLessonCountEl = document.getElementById('book-lesson-count');
+    const bookTotalNoteEl = document.getElementById('book-total-note');
 
     const adminPanel = document.getElementById('admin-panel');
     const adminLock = document.getElementById('admin-lock');
@@ -908,6 +928,43 @@
       { value: '16:00-18:00', label: '1600 - 1800' },
       { value: '18:00-20:00', label: '1800 - 2000' }
     ];
+    const LESSON_BASE_PRICE_CENTS = 10000;
+    const FALLBACK_TOPICS = [
+      'The Latest Coding Tools',
+      'Cloudflare + Workers',
+      'AI Agents',
+      'Cryptocurrency'
+    ];
+
+    function renderTopicOptions(topics = []) {
+      const clean = [...new Set((topics || []).map(t => (t || '').trim()).filter(Boolean))];
+      const finalTopics = clean.length ? clean : FALLBACK_TOPICS;
+      const current = bookTopicEl?.value || '';
+      if (!bookTopicEl) return;
+      bookTopicEl.innerHTML = `<option value="">Select topic…</option>${finalTopics.map(t => `<option value="${t.replace(/"/g, '&quot;')}">${t}</option>`).join('')}`;
+      if (current && finalTopics.includes(current)) bookTopicEl.value = current;
+    }
+
+    async function loadTopicsFromIndex() {
+      try {
+        const res = await fetch('/index.html', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to load index topics');
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const topicNodes = doc.querySelectorAll('[data-panel="3"] .feature-stack .feature-card h3');
+        const topics = [...topicNodes].map(n => n.textContent || '');
+        renderTopicOptions(topics);
+      } catch {
+        renderTopicOptions(FALLBACK_TOPICS);
+      }
+    }
+
+    function updateLessonTotal() {
+      if (!bookLessonCountEl || !bookTotalNoteEl) return;
+      const lessonCount = Math.max(1, Number.parseInt(bookLessonCountEl.value || '1', 10) || 1);
+      const totalCents = lessonCount * LESSON_BASE_PRICE_CENTS;
+      bookTotalNoteEl.textContent = `Total today: $${(totalCents / 100).toFixed(2)} (${lessonCount} × $100)`;
+    }
 
     function nowEtParts() {
       const parts = new Intl.DateTimeFormat('en-CA', {
@@ -1012,6 +1069,7 @@
     });
 
     setupDateEl.addEventListener('change', renderTimeOptions);
+    bookLessonCountEl?.addEventListener('change', updateLessonTotal);
     const adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
     let adminUnlocked = false;
     if (adminMode) {
@@ -1417,9 +1475,16 @@
       const email = document.getElementById('book-email')?.value.trim() || '';
       const phone = document.getElementById('book-phone')?.value.trim() || '';
       const preferredContactMethod = document.getElementById('book-preferred-contact-method')?.value || 'email';
+      const lessonTopic = bookTopicEl?.value?.trim() || '';
+      const lessonCount = Math.max(1, Number.parseInt(bookLessonCountEl?.value || '1', 10) || 1);
 
       if (!name || !email) {
         openErrorModal('Name and email are required to book.');
+        return;
+      }
+
+      if (!lessonTopic) {
+        openErrorModal('Please choose a desired lesson topic.');
         return;
       }
 
@@ -1443,7 +1508,7 @@
         return;
       }
 
-      localStorage.setItem('esa_last_lessons_slot', JSON.stringify({ setupDate, setupTime }));
+      localStorage.setItem('esa_last_lessons_slot', JSON.stringify({ setupDate, setupTime, lessonTopic, lessonCount }));
 
       bookPayBtn.disabled = true;
       bookPayBtn.textContent = 'Redirecting…';
@@ -1452,7 +1517,17 @@
         const res = await fetch(CHECKOUT_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ setupDate, setupTime, name, email, phone, preferredContactMethod, service: 'lessons' })
+          body: JSON.stringify({
+            setupDate,
+            setupTime,
+            name,
+            email,
+            phone,
+            preferredContactMethod,
+            lessonTopic,
+            lessonCount,
+            service: 'lessons'
+          })
         });
 
         const data = await res.json();
@@ -1469,17 +1544,25 @@
     if (qs.get('paid') === '1') {
       let dateText = 'your selected date';
       let timeText = 'your selected time';
+      let topicText = 'your selected topic';
+      let lessonCount = 1;
       try {
         const saved = JSON.parse(localStorage.getItem('esa_last_lessons_slot') || '{}');
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
+        if (saved.lessonTopic) topicText = saved.lessonTopic;
+        if (saved.lessonCount) lessonCount = Math.max(1, Number.parseInt(saved.lessonCount, 10) || 1);
       } catch {}
-      openSuccessModal(`Payment successful — you purchased a tech lesson session ($100.00) for ${dateText} at ${timeText}.`, 'Payment Received — Lesson Booked ✅');
+      const total = (lessonCount * LESSON_BASE_PRICE_CENTS) / 100;
+      openSuccessModal(`Payment successful — you purchased ${lessonCount} tech lesson${lessonCount > 1 ? 's' : ''} ($${total.toFixed(2)}) starting ${dateText} at ${timeText}. Topic: ${topicText}.`, 'Payment Received — Lesson Booked ✅');
       window.history.replaceState({}, '', '/book-lessons.html');
     } else if (qs.get('canceled') === '1') {
       openSuccessModal(`Checkout canceled — no charge was made.`, 'Checkout Canceled');
       window.history.replaceState({}, '', '/book-lessons.html');
     }
+
+    loadTopicsFromIndex();
+    updateLessonTotal();
 
     loadAvailability().then(() => {
       if (adminMode) loadAdminData();

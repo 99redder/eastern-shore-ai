@@ -214,18 +214,23 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const requestedService = (data.service || 'openclaw_setup').toString().trim().toLowerCase();
   const customerPhone = (data.phone || '').toString().trim();
   const preferredContactMethod = (data.preferredContactMethod || 'email').toString().trim().toLowerCase();
+  const lessonTopic = (data.lessonTopic || '').toString().trim();
+  const lessonCountRaw = Number.parseInt((data.lessonCount ?? '1').toString(), 10);
+  const lessonCount = Number.isFinite(lessonCountRaw) ? Math.min(Math.max(lessonCountRaw, 1), 10) : 1;
 
   const serviceConfig = requestedService === 'lessons'
     ? {
         key: 'lessons',
         label: 'Tech Tutoring (2 hour session)',
         amountCents: 10000,
+        quantity: lessonCount,
         successPath: '/book-lessons.html'
       }
     : {
         key: 'openclaw_setup',
         label: 'OpenClaw Setup',
         amountCents: 10000,
+        quantity: 1,
         successPath: '/openclaw-setup.html'
       };
 
@@ -255,6 +260,10 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
 
   if (!setupDate || !setupTime) {
     return json({ ok: false, error: 'Missing setup date/time' }, 400, corsHeaders);
+  }
+
+  if (requestedService === 'lessons' && !lessonTopic) {
+    return json({ ok: false, error: 'Missing lesson topic' }, 400, corsHeaders);
   }
 
   if (!env.STRIPE_SECRET_KEY) {
@@ -298,7 +307,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'line_items[0][price_data][currency]': 'usd',
     'line_items[0][price_data][unit_amount]': String(serviceConfig.amountCents),
     'line_items[0][price_data][product_data][name]': serviceConfig.label,
-    'line_items[0][quantity]': '1',
+    'line_items[0][quantity]': String(serviceConfig.quantity || 1),
     'metadata[setup_date]': setupDate,
     'metadata[setup_time]': setupTime,
     'metadata[setup_at]': setupAt,
@@ -307,11 +316,15 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'metadata[customer_name]': customerName || '(not provided)',
     'metadata[customer_phone]': customerPhone || '',
     'metadata[preferred_contact_method]': preferredContactMethod || 'email',
+    'metadata[lesson_topic]': lessonTopic || '',
+    'metadata[lesson_count]': String(serviceConfig.quantity || 1),
     'payment_intent_data[metadata][setup_date]': setupDate,
     'payment_intent_data[metadata][setup_time]': setupTime,
     'payment_intent_data[metadata][setup_at]': setupAt,
     'payment_intent_data[metadata][service_type]': serviceConfig.key,
     'payment_intent_data[metadata][service_label]': serviceConfig.label,
+    'payment_intent_data[metadata][lesson_topic]': lessonTopic || '',
+    'payment_intent_data[metadata][lesson_count]': String(serviceConfig.quantity || 1),
     'payment_intent_data[metadata][customer_phone]': customerPhone || '',
     'payment_intent_data[metadata][preferred_contact_method]': preferredContactMethod || 'email',
   });
@@ -346,7 +359,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
       customerEmail || null,
       customerPhone || null,
       preferredContactMethod || 'email',
-      serviceConfig.amountCents,
+      serviceConfig.amountCents * (serviceConfig.quantity || 1),
       serviceConfig.key
     ).run();
   }
