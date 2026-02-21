@@ -103,7 +103,7 @@
       margin: 0 auto;
     }
     .footer-newsletter {
-      flex: 0 0 280px;
+      flex: 1;
       min-width: 0;
     }
     .footer-newsletter-label {
@@ -119,6 +119,10 @@
       text-align: center;
       min-width: 0;
       padding-top: 0.25rem;
+    }
+    .footer-right {
+      flex: 1;
+      min-width: 0;
     }
 
     .footer-link {
@@ -312,6 +316,7 @@
     @media (max-width: 820px) {
       .footer-inner { flex-direction: column; align-items: stretch; gap: 1.5rem; }
       .footer-newsletter { flex: none; width: 100%; }
+      .footer-right { display: none; }
     }
 
     /* ===== Responsive: 760px ===== */
@@ -738,6 +743,7 @@
           <a href="#" class="footer-link" id="terms-link">Terms of Use</a>
           <a href="#" class="footer-link" id="privacy-link">Privacy Policy</a>
         </div>
+        <div class="footer-right"></div>
       </div>
     </footer>
   </div>
