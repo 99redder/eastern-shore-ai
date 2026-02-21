@@ -70,7 +70,8 @@
     h1 { margin:.2rem 0 .6rem; color:var(--cyan); }
     p { color:var(--muted); line-height:1.6; }
     ul { color:var(--muted); line-height:1.6; }
-    .btn { border:1px solid var(--line); background:transparent; color:var(--text); border-radius:2px; padding:.55rem .85rem; cursor:pointer; font-weight:600; font-family:'Titillium Web', system-ui, sans-serif; }
+    .btn { border:1px solid var(--line); background:transparent; color:var(--text); border-radius:2px; padding:.55rem .85rem; cursor:pointer; font-weight:600; font-family:'Titillium Web', system-ui, sans-serif; transition:background 0.15s, color 0.15s, border-color 0.15s; }
+    label.btn:hover { background:rgba(255,79,216,0.12); color:#ff4fd8; border-color:#ff4fd8; }
     .btn-primary { background:linear-gradient(145deg,#ff4fd8,#cc3fb0); border-color:#ff4fd8; color:#fff; box-shadow:0 0 16px rgba(255,79,216,0.35); }
     .booking-grid { display:grid; grid-template-columns:1fr 280px; gap:1rem; align-items:start; }
     .book-pay-panel { background:#141620; border:1px solid var(--line); border-radius:0; padding:.9rem; }
