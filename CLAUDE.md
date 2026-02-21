@@ -360,3 +360,30 @@ Both booking pages now share the same modal architecture:
 - `#success-modal` — payment confirmation (cyan title, dynamic via `openSuccessModal(text, title)`)
 - `#error-modal` — booking validation errors (violet title "Heads Up", via `openErrorModal(text)`)
 - Both close on button click or overlay click
+
+## Session Update — 2026-02-20 (Footer newsletter, homepage polish)
+
+### Brevo newsletter embed — all 4 pages (`index.html`, `book-lessons.html`, `openclaw-setup.html`, `ai-agent-repair.html`)
+- Replaced placeholder footer content with Brevo (Sendinblue) HTML form embed
+- Form styled to match site branding:
+  - Container background `#141620`, border `#222438`, no default Brevo padding (`padding: 0.7rem !important`)
+  - "Newsletter" label in `var(--cyan)` / Hanken Grotesk
+  - Subtext in muted `#7a7e96`
+  - Email input: `background:#0a0b10; border:1px solid #222438; color:#d8dce8; font-family:Titillium Web; font-size:18px; height:3.5rem`
+  - Subscribe button: inline with input (flex row, `gap:0.4rem`), `background:linear-gradient(145deg,#ff4fd8,#c850ff); box-shadow:0 0 12px rgba(255,79,216,0.6); height:3.5rem; font-family:Hanken Grotesk`
+- Brevo CSS linked in `<head>`: `https://sibforms.com/forms/end-form/build/sib-styles.css`
+- Brevo JS deferred before `</body>`: `https://sibforms.com/forms/end-form/build/main.js` with required config globals (`REQUIRED_CODE_ERROR_MESSAGE`, `LOCALE`, etc.)
+- Honeypot spam field included: `<input type="text" name="email_address_check" value="" class="input--hidden">`
+
+### Footer layout — all 4 pages
+- Footer restructured to 2-column flex layout: `.footer-inner { display:flex; align-items:flex-start; gap:2.5rem; }`
+  - Left: `.footer-newsletter` — Brevo signup form
+  - Right: `.footer-info` — copyright, phone, X/Twitter, nav links
+- Both columns equal width: `flex:1` on each (50/50 split)
+- Mobile (`max-width:820px`): stacks to single column, newsletter full-width
+
+### `index.html` — AI Agents Topics Covered card
+- Removed "Emails, and" from the Topics Covered description so it now reads "…Newsletters, Workflows, and more…"
+
+### General Instructions added to CLAUDE.md
+- Auto-push after every commit — no confirmation needed
