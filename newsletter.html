@@ -81,7 +81,20 @@
       clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
       max-width: 520px;
       width: 100%;
-      padding: 2.8rem 2.4rem 2.4rem;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .card-banner {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16 / 7;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .card-body {
+      padding: 2rem 2.4rem 2.4rem;
     }
 
     .logo {
@@ -270,7 +283,7 @@
     .footer-note a:hover { color: var(--cyan); }
 
     @media (max-width: 480px) {
-      .card { padding: 2rem 1.4rem 1.8rem; }
+      .card-body { padding: 1.6rem 1.4rem 1.8rem; }
       .headline { font-size: 1.55rem; }
       .subscribe-btn { padding: 0 1rem; font-size: 0.82rem; }
     }
@@ -281,6 +294,8 @@
   <div class="blob-violet"></div>
 
   <div class="card">
+    <img src="/carousel.png" alt="Eastern Shore AI" class="card-banner" />
+    <div class="card-body">
     <div class="logo">Eastern Shore AI</div>
 
     <h1 class="headline">Stay in the loop.<br><span>AI, straight to you.</span></h1>
@@ -340,7 +355,8 @@
       © <script>document.write(new Date().getFullYear())</script> Eastern Shore AI, LLC &nbsp;·&nbsp;
       <a href="https://www.easternshore.ai" target="_blank" rel="noopener noreferrer">easternshore.ai</a>
     </p>
-  </div>
+    </div><!-- /.card-body -->
+  </div><!-- /.card -->
 
   <script>
     window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
