@@ -374,6 +374,7 @@
     #sib-container.sib-container--large { padding: 0.7rem !important; }
   </style>
   <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
   <!-- ===== SECTION: Page Header & Navigation ===== -->
@@ -609,6 +610,7 @@
                   </select>
                   <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
                   <button type="button" class="btn btn-primary" id="tax-export-btn">Download CSV</button>
+                  <button type="button" class="btn" id="tax-zip-btn">⬇ Year Package (.zip)</button>
                 </div>
 
                 <div class="admin-grid tax-entry-wrap" style="grid-template-columns:1fr 1fr; gap:.6rem;">
@@ -627,6 +629,8 @@
                       <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
                       <label>Notes</label>
                       <input id="tax-expense-notes" placeholder="optional" />
+                      <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
+                      <input id="tax-expense-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="font-size:0.85rem; color:var(--text);" />
                       <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
                         <button type="button" class="btn btn-primary" id="tax-add-expense-btn">Add Expense</button>
                         <button type="button" class="btn btn-primary" id="tax-update-expense-btn" style="display:none;">Save Expense Update</button>
@@ -651,6 +655,8 @@
                       <input id="tax-income-stripe" placeholder="cs_test_..." />
                       <label>Notes</label>
                       <input id="tax-income-notes" placeholder="optional" />
+                      <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
+                      <input id="tax-income-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="font-size:0.85rem; color:var(--text);" />
                       <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
                         <button type="button" class="btn btn-primary" id="tax-add-income-btn">Add Income</button>
                         <button type="button" class="btn btn-primary" id="tax-update-income-btn" style="display:none;">Save Income Update</button>
@@ -897,6 +903,8 @@
     const TAX_EXPENSE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/delete');
     const TAX_INCOME_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income/delete');
     const TAX_EXPORT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/export.csv');
+    const TAX_RECEIPT_UPLOAD_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt/upload');
+    const TAX_RECEIPT_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt');
 
     const form = document.getElementById('setup-page-form');
     const statusEl = document.getElementById('status');
@@ -1557,14 +1565,18 @@
           taxListEl.textContent = activeTxFilter === 'all' ? 'No transactions yet.' : `No ${activeTxFilter} entries.`;
           return;
         }
-        taxListEl.innerHTML = filtered.map((r) => `
+        taxListEl.innerHTML = filtered.map((r) => {
+          const receiptBtn = r.receipt_key
+            ? `<a href="${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}" target="_blank" class="btn" style="font-size:0.78rem; padding:0.2rem 0.5rem;">Receipt ↗</a>`
+            : `<label class="btn" style="font-size:0.78rem; padding:0.2rem 0.5rem; cursor:pointer;" title="Upload receipt">+ Receipt<input type="file" accept=".pdf,.jpg,.jpeg,.png" class="inline-receipt-input" data-upload-type="${r.type}" data-upload-id="${r.id}" style="display:none;"></label>`;
+          return `
           <div class="tax-row" data-type="${r.type}" data-id="${r.id}">
             <span class="type">${r.type.toUpperCase()}</span>
             <span class="desc" title="${escHtml(formatTaxRowLabel(r.type, r))}">${escHtml(formatTaxRowLabel(r.type, r))}</span>
             <span class="amt">$${(Number(r.amount_cents || 0)/100).toFixed(2)}</span>
-            <div style="display:flex; gap:.3rem;"><button type="button" class="btn edit" data-tax-edit="1">Edit</button><button type="button" class="btn delete" data-tax-delete="1">Delete</button></div>
-          </div>
-        `).join('');
+            <div style="display:flex; gap:.3rem; flex-wrap:wrap;">${receiptBtn}<button type="button" class="btn edit" data-tax-edit="1">Edit</button><button type="button" class="btn delete" data-tax-delete="1">Delete</button></div>
+          </div>`;
+        }).join('');
 
         taxListEl.querySelectorAll('[data-tax-edit="1"]').forEach((btn) => {
           btn.addEventListener('click', async () => {
@@ -1595,6 +1607,20 @@
               await loadTaxTransactions();
             } catch (e) {
               alert(`Could not delete transaction: ${e.message || e}`);
+            }
+          });
+        });
+
+        taxListEl.querySelectorAll('.inline-receipt-input').forEach((input) => {
+          input.addEventListener('change', async () => {
+            if (!input.files[0]) return;
+            const type = input.getAttribute('data-upload-type');
+            const id = input.getAttribute('data-upload-id');
+            try {
+              await uploadReceipt(type, id, input);
+              await loadTaxTransactions();
+            } catch (e) {
+              alert(`Receipt upload failed: ${e.message || e}`);
             }
           });
         });
@@ -1682,6 +1708,8 @@
         taxExpenseAmountEl.value = '';
         taxExpensePaidViaEl.value = '';
         taxExpenseNotesEl.value = '';
+        const expReceiptEl = document.getElementById('tax-expense-receipt');
+        if (expReceiptEl) expReceiptEl.value = '';
         if (taxExpenseCategoryEl.options.length) taxExpenseCategoryEl.selectedIndex = 0;
         resetExpenseEditMode();
       }
@@ -1693,6 +1721,8 @@
         taxIncomeAmountEl.value = '';
         taxIncomeStripeEl.value = '';
         taxIncomeNotesEl.value = '';
+        const incReceiptEl = document.getElementById('tax-income-receipt');
+        if (incReceiptEl) incReceiptEl.value = '';
         if (taxIncomeCategoryEl.options.length) taxIncomeCategoryEl.selectedIndex = 0;
         resetIncomeEditMode();
       }
@@ -1720,6 +1750,11 @@
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Failed');
+          const receiptInput = document.getElementById('tax-expense-receipt');
+          if (data.id && receiptInput) {
+            await uploadReceipt('expense', data.id, receiptInput).catch(() => {});
+            receiptInput.value = '';
+          }
           clearTaxExpenseForm();
           await loadTaxTransactions();
         } catch (e) {
@@ -1750,11 +1785,31 @@
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Failed');
+          const receiptInput = document.getElementById('tax-income-receipt');
+          if (data.id && receiptInput) {
+            await uploadReceipt('income', data.id, receiptInput).catch(() => {});
+            receiptInput.value = '';
+          }
           clearTaxIncomeForm();
           await loadTaxTransactions();
         } catch (e) {
           alert(`Could not add income: ${e.message || e}`);
         }
+      }
+
+      async function uploadReceipt(type, id, fileInput) {
+        if (!fileInput.files[0]) return;
+        const fd = new FormData();
+        fd.append('type', type);
+        fd.append('id', String(id));
+        fd.append('file', fileInput.files[0]);
+        const res = await fetch(TAX_RECEIPT_UPLOAD_URL, {
+          method: 'POST',
+          headers: { 'X-Admin-Password': adminPassword },
+          body: fd
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Receipt upload failed');
       }
 
       async function downloadTaxCsv() {
@@ -1861,6 +1916,60 @@
       taxCancelIncomeEditBtn.addEventListener('click', clearTaxIncomeForm);
       taxClearIncomeBtn.addEventListener('click', clearTaxIncomeForm);
       taxExportBtn.addEventListener('click', downloadTaxCsv);
+
+      const taxZipBtn = document.getElementById('tax-zip-btn');
+      if (taxZipBtn) {
+        taxZipBtn.addEventListener('click', async () => {
+          if (typeof JSZip === 'undefined') { alert('JSZip not loaded — try refreshing the page.'); return; }
+          const year = taxYearEl.value;
+          taxZipBtn.textContent = 'Building…';
+          taxZipBtn.disabled = true;
+          try {
+            const zip = new JSZip();
+            const folder = zip.folder(`eastern-shore-ai-tax-${year}`);
+
+            // Fetch CSV
+            const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, {
+              headers: { 'X-Admin-Password': adminPassword }
+            });
+            if (!csvRes.ok) throw new Error('CSV fetch failed');
+            folder.file(`eastern-shore-ai-tax-${year}.csv`, await csvRes.blob());
+
+            // Fetch all transactions to get receipt_keys
+            const txRes = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
+              headers: { 'X-Admin-Password': adminPassword }
+            });
+            const txData = await txRes.json();
+            const allRecords = [
+              ...(txData.expenses || []).map(r => ({ ...r, recType: 'expense' })),
+              ...(txData.income || []).map(r => ({ ...r, recType: 'income' }))
+            ];
+
+            const receiptsFolder = folder.folder('receipts');
+            for (const r of allRecords) {
+              if (!r.receipt_key) continue;
+              const ext = r.receipt_key.split('.').pop();
+              const filename = `${r.recType}-${r.id}-${r.date || ''}.${ext}`;
+              const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}`);
+              if (rRes.ok) receiptsFolder.file(filename, await rRes.blob());
+            }
+
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `eastern-shore-ai-tax-${year}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+          } catch (e) {
+            alert(`ZIP build failed: ${e.message || e}`);
+          } finally {
+            taxZipBtn.textContent = '⬇ Year Package (.zip)';
+            taxZipBtn.disabled = false;
+          }
+        });
+      }
     }
 
     bookPayBtn.addEventListener('click', async () => {

@@ -14,6 +14,8 @@
 // POST /api/tax/expense/delete  → handleTaxExpenseDelete() — Admin: delete expense entry
 // POST /api/tax/income/delete   → handleTaxIncomeDelete()  — Admin: delete income entry
 // GET  /api/tax/export.csv      → handleTaxExportCsv()    — Admin: CSV export for selected year/type
+// POST /api/tax/receipt/upload  → handleTaxReceiptUpload() — Admin: upload receipt to R2, attach to record
+// GET  /api/tax/receipt         → handleTaxReceiptGet()   — Admin: retrieve receipt from R2
 //
 // ===== UTILITY FUNCTIONS =====
 // requireAdmin(request, env)           — Validate X-Admin-Password header
@@ -50,8 +52,8 @@ export default {
       const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
       const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day'].includes(url.pathname) && request.method === 'POST';
-      const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv'].includes(url.pathname) && request.method === 'GET';
-      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete'].includes(url.pathname) && request.method === 'POST';
+      const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
+      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -120,6 +122,14 @@ export default {
 
     if (url.pathname === '/api/tax/export.csv') {
       return handleTaxExportCsv(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/receipt/upload') {
+      return handleTaxReceiptUpload(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/receipt') {
+      return handleTaxReceiptGet(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -841,7 +851,7 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
 
   const expensesP = (type === 'all' || type === 'expense')
     ? env.DB.prepare(
-        `SELECT id, expense_date AS date, vendor, category, amount_cents, paid_via, notes, created_at
+        `SELECT id, expense_date AS date, vendor, category, amount_cents, paid_via, notes, receipt_key, created_at
          FROM tax_expenses
          WHERE substr(expense_date,1,4) = ?1
          ORDER BY expense_date DESC, id DESC
@@ -851,7 +861,7 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
 
   const incomeP = (type === 'all' || type === 'income')
     ? env.DB.prepare(
-        `SELECT id, income_date AS date, source, category, amount_cents, stripe_session_id, notes, created_at
+        `SELECT id, income_date AS date, source, category, amount_cents, stripe_session_id, notes, receipt_key, created_at
          FROM tax_income
          WHERE substr(income_date,1,4) = ?1
          ORDER BY income_date DESC, id DESC
@@ -1030,8 +1040,12 @@ async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
   const id = Number(data.id || 0);
   if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
 
-  const existing = await env.DB.prepare('SELECT id FROM tax_expenses WHERE id = ?1').bind(id).first();
+  const existing = await env.DB.prepare('SELECT id, receipt_key FROM tax_expenses WHERE id = ?1').bind(id).first();
   if (!existing) return json({ ok: false, error: 'Expense not found' }, 404, corsHeaders);
+
+  if (existing.receipt_key && env.RECEIPTS) {
+    await env.RECEIPTS.delete(existing.receipt_key).catch(() => {});
+  }
 
   await env.DB.prepare('DELETE FROM tax_expenses WHERE id = ?1').bind(id).run();
   return json({ ok: true, id }, 200, corsHeaders);
@@ -1050,11 +1064,93 @@ async function handleTaxIncomeDelete(request, env, corsHeaders, url) {
   const id = Number(data.id || 0);
   if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
 
-  const existing = await env.DB.prepare('SELECT id FROM tax_income WHERE id = ?1').bind(id).first();
+  const existing = await env.DB.prepare('SELECT id, receipt_key FROM tax_income WHERE id = ?1').bind(id).first();
   if (!existing) return json({ ok: false, error: 'Income not found' }, 404, corsHeaders);
+
+  if (existing.receipt_key && env.RECEIPTS) {
+    await env.RECEIPTS.delete(existing.receipt_key).catch(() => {});
+  }
 
   await env.DB.prepare('DELETE FROM tax_income WHERE id = ?1').bind(id).run();
   return json({ ok: true, id }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/tax/receipt/upload — Admin: upload a receipt file to R2 and attach to a tax record
+ * Multipart form fields: type (expense|income), id, file (PDF/JPG/PNG ≤ 10MB)
+ */
+async function handleTaxReceiptUpload(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let formData;
+  try { formData = await request.formData(); } catch { return json({ ok: false, error: 'Invalid form data' }, 400, corsHeaders); }
+
+  const type = (formData.get('type') || '').toString().trim();
+  const id = Number(formData.get('id') || 0);
+  const file = formData.get('file');
+
+  if (!['expense', 'income'].includes(type)) return json({ ok: false, error: 'Invalid type' }, 400, corsHeaders);
+  if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
+  if (!file || typeof file.arrayBuffer !== 'function') return json({ ok: false, error: 'Missing file' }, 400, corsHeaders);
+
+  const allowedTypes = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png' };
+  const ext = allowedTypes[file.type];
+  if (!ext) return json({ ok: false, error: 'File must be PDF, JPG, or PNG' }, 400, corsHeaders);
+
+  const bytes = await file.arrayBuffer();
+  if (bytes.byteLength > 10 * 1024 * 1024) return json({ ok: false, error: 'File exceeds 10MB limit' }, 400, corsHeaders);
+
+  // Verify record exists
+  const table = type === 'expense' ? 'tax_expenses' : 'tax_income';
+  const existing = await env.DB.prepare(`SELECT id, receipt_key FROM ${table} WHERE id = ?1`).bind(id).first();
+  if (!existing) return json({ ok: false, error: `${type} record not found` }, 404, corsHeaders);
+
+  // Delete old R2 object if replacing
+  if (existing.receipt_key) {
+    await env.RECEIPTS.delete(existing.receipt_key).catch(() => {});
+  }
+
+  const key = `receipts/${type}/${id}.${ext}`;
+  await env.RECEIPTS.put(key, bytes, { httpMetadata: { contentType: file.type } });
+
+  const col = type === 'expense' ? 'receipt_key' : 'receipt_key';
+  await env.DB.prepare(`UPDATE ${table} SET receipt_key = ?1 WHERE id = ?2`).bind(key, id).run();
+
+  return json({ ok: true, key }, 200, corsHeaders);
+}
+
+/**
+ * GET /api/tax/receipt — Admin: retrieve a receipt from R2
+ * Query params: key (R2 object key), key2 (admin password — alternative auth since ?key is taken)
+ */
+async function handleTaxReceiptGet(request, env, corsHeaders, url) {
+  if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
+
+  // Support ?key2=<password> as alternate auth param since ?key is used for the R2 key
+  const adminPw = request.headers.get('X-Admin-Password') || url.searchParams.get('key2') || '';
+  if (!adminPw || adminPw !== env.ADMIN_PASSWORD) {
+    return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
+
+  const r2Key = url.searchParams.get('key') || '';
+  if (!r2Key) return json({ ok: false, error: 'Missing key' }, 400, corsHeaders);
+
+  const obj = await env.RECEIPTS.get(r2Key);
+  if (!obj) return json({ ok: false, error: 'Receipt not found' }, 404, corsHeaders);
+
+  const contentType = obj.httpMetadata?.contentType || 'application/octet-stream';
+  return new Response(obj.body, {
+    status: 200,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': contentType,
+      'Content-Disposition': `inline; filename="receipt.${r2Key.split('.').pop()}"`,
+      'Cache-Control': 'private, max-age=3600'
+    }
+  });
 }
 
 /**

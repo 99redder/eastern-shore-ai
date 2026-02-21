@@ -11,3 +11,7 @@ FROM_EMAIL = "noreply@easternshore.ai"
 binding = "DB"
 database_name = "eastern-shore-ai-bookings"
 database_id = "59d029fc-5f2b-42af-bdff-c5814a717879"
+
+[[r2_buckets]]
+binding = "RECEIPTS"
+bucket_name = "eastern-shore-ai-receipts"
