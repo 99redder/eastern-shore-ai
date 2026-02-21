@@ -1,5 +1,9 @@
 # CLAUDE.md — Eastern Shore AI
 
+## General Instructions
+
+- **Auto-push**: After committing changes, always push to `origin/main` automatically. No need to ask for confirmation before pushing.
+
 ## Project Overview
 
 Marketing and booking website for Eastern Shore AI, a local AI consulting business selling OpenClaw setup services. Static frontend hosted on GitHub Pages, serverless API on Cloudflare Workers.
