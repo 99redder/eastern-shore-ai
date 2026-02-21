@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eastern Shore AI — Newsletter</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;600;700&family=Titillium+Web:wght@300;400;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --card: #141620;
+      --text: #d8dce8;
+      --muted: #7a7e96;
+      --cyan: #00e5ff;
+      --violet: #c850ff;
+      --line: #222438;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Titillium Web', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* background grid decoration */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* cyan glow blobs */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -120px;
+      right: -120px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0,229,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .blob-violet {
+      position: fixed;
+      bottom: -140px;
+      left: -100px;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, rgba(200,80,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--card);
+      border: 1px solid var(--line);
+      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+      max-width: 520px;
+      width: 100%;
+      padding: 2.8rem 2.4rem 2.4rem;
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 1.8rem;
+      opacity: 0.85;
+    }
+
+    .headline {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
+
+    .headline span {
+      color: var(--cyan);
+    }
+
+    .subtext {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    /* Brevo overrides */
+    #sib-container.sib-container--large { padding: 0 !important; background: transparent !important; border: none !important; }
+    #sib-container { border: none !important; }
+    #sib-form-container { background: transparent !important; }
+    .sib-form { background: transparent !important; padding: 0 !important; }
+
+    #error-message {
+      font-size: 13px;
+      text-align: left;
+      font-family: 'Titillium Web', sans-serif;
+      color: #ff8080;
+      background-color: #1a0808;
+      border-radius: 2px;
+      border: 1px solid #ff4949;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    #success-message {
+      font-size: 14px;
+      text-align: center;
+      font-family: 'Titillium Web', sans-serif;
+      color: var(--cyan);
+      background-color: #061414;
+      border-radius: 2px;
+      border: 1px solid #00c8d4;
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .input-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .email-input {
+      width: 100%;
+      height: 3rem;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      color: var(--text);
+      font-family: 'Titillium Web', sans-serif;
+      font-size: 1rem;
+      padding: 0 0.9rem;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .email-input:focus {
+      border-color: var(--cyan);
+    }
+
+    .email-input::placeholder {
+      color: var(--muted);
+    }
+
+    .subscribe-btn {
+      flex-shrink: 0;
+      height: 3rem;
+      padding: 0 1.6rem;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      box-shadow: 0 0 14px rgba(255,79,216,0.55);
+      border: none;
+      border-radius: 2px;
+      color: #fff;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      white-space: nowrap;
+      box-sizing: border-box;
+      transition: box-shadow 0.2s;
+    }
+
+    .subscribe-btn:hover {
+      box-shadow: 0 0 22px rgba(255,79,216,0.8);
+    }
+
+    .entry__error {
+      display: block;
+      font-size: 12px;
+      font-family: 'Titillium Web', sans-serif;
+      color: #ff8080;
+      background-color: #1a0808;
+      border-radius: 2px;
+      border: 1px solid #ff4949;
+      padding: 0.3rem 0.6rem;
+      margin-top: 0.4rem;
+    }
+
+    .entry__error:empty { display: none; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 1.8rem 0 1.2rem;
+    }
+
+    .what-you-get {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 0.6rem;
+    }
+
+    .perks {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .perks li {
+      font-size: 0.88rem;
+      color: var(--muted);
+      padding-left: 1.1rem;
+      position: relative;
+    }
+
+    .perks li::before {
+      content: '›';
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .footer-note {
+      margin-top: 1.8rem;
+      font-size: 0.75rem;
+      color: #555870;
+      text-align: center;
+    }
+
+    .footer-note a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .footer-note a:hover { color: var(--cyan); }
+
+    @media (max-width: 480px) {
+      .card { padding: 2rem 1.4rem 1.8rem; }
+      .headline { font-size: 1.55rem; }
+      .subscribe-btn { padding: 0 1rem; font-size: 0.82rem; }
+    }
+  </style>
+  <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
+</head>
+<body>
+  <div class="blob-violet"></div>
+
+  <div class="card">
+    <div class="logo">Eastern Shore AI</div>
+
+    <h1 class="headline">Stay in the loop.<br><span>AI, straight to you.</span></h1>
+    <p class="subtext">Practical AI tips, local tech updates, and new service announcements — no fluff, no spam. Unsubscribe any time.</p>
+
+    <!-- Brevo form -->
+    <div class="sib-form">
+      <div id="sib-form-container" class="sib-form-container">
+        <div id="error-message" class="sib-form-message-panel" style="display:none;">
+          <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
+            <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon" style="width:1em;height:1em;margin-right:0.4em;vertical-align:middle;"><path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-11.49 120h22.979c6.823 0 12.274 5.682 11.99 12.5l-7 168c-.268 6.428-5.556 11.5-11.99 11.5h-8.979c-6.433 0-11.722-5.073-11.99-11.5l-7-168c-.283-6.818 5.167-12.5 11.99-12.5zM256 340c-15.464 0-28 12.536-28 28s12.536 28 28 28 28-12.536 28-28-12.536-28-28-28z"/></svg>
+            <span class="sib-form-message-panel__inner-text">Your subscription could not be saved. Please try again.</span>
+          </div>
+        </div>
+        <div></div>
+        <div id="success-message" class="sib-form-message-panel" style="display:none;">
+          <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
+            <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon" style="width:1em;height:1em;margin-right:0.4em;vertical-align:middle;"><path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 464c-118.664 0-216-96.055-216-216 0-118.663 96.055-216 216-216 118.664 0 216 96.055 216 216 0 118.663-96.055 216-216 216zm141.63-274.961L217.15 376.071c-4.705 4.667-12.303 4.637-16.97-.068l-85.878-86.572c-4.667-4.705-4.637-12.303.068-16.97l8.52-8.451c4.705-4.667 12.303-4.637 16.97.068l68.976 69.533 163.441-162.13c4.705-4.667 12.303-4.637 16.97.068l8.451 8.52c4.668 4.705 4.637 12.303-.068 16.97z"/></svg>
+            <span class="sib-form-message-panel__inner-text">You're subscribed! Welcome to the Eastern Shore AI newsletter.</span>
+          </div>
+        </div>
+        <div></div>
+        <div id="sib-container" class="sib-container--large sib-container--vertical">
+          <form id="sib-form" method="POST" action="https://b893ca94.sibforms.com/serve/MUIFAFHNpDgPU-nDfEV3TZttituEiSyIy4p0twQYehCWbO2QZjGgiYIf52Tzi8BjJZHKZaEdmpJZ8wZjawIvJ54EGnqgFvTS-rjUbDTxDA5ftlMluW-n-7ML1FaJ098ByQDvenhzBTDbOJfcfDg1fBs0YLFY3Jvggh62UAvuUmlC3dv5iF1pqPDzqeODqH3UpQhEaJF7yQfUR4bGrA==" data-type="subscription">
+            <div class="sib-input sib-form-block">
+              <div class="form__entry entry_block">
+                <div class="input-row">
+                  <div class="input-wrap entry__field">
+                    <input class="input email-input" type="text" id="EMAIL" name="EMAIL" autocomplete="email" placeholder="your@email.com" data-required="true" required />
+                  </div>
+                  <button class="sib-form-block__button sib-form-block__button-with-loader subscribe-btn" form="sib-form" type="submit">
+                    <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512" style="width:1em;height:1em;"><path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z"/></svg>
+                    SUBSCRIBE
+                  </button>
+                </div>
+                <label class="entry__error entry__error--primary"></label>
+              </div>
+            </div>
+            <input type="text" name="email_address_check" value="" class="input--hidden">
+            <input type="hidden" name="locale" value="en">
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <p class="what-you-get">What you'll get</p>
+    <ul class="perks">
+      <li>Practical AI tips you can use immediately</li>
+      <li>New services and local availability updates</li>
+      <li>Exclusive discounts for subscribers</li>
+      <li>No spam — ever. Unsubscribe with one click.</li>
+    </ul>
+
+    <p class="footer-note">
+      © <script>document.write(new Date().getFullYear())</script> Eastern Shore AI, LLC &nbsp;·&nbsp;
+      <a href="https://www.easternshore.ai" target="_blank" rel="noopener noreferrer">easternshore.ai</a>
+    </p>
+  </div>
+
+  <script>
+    window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
+    window.LOCALE = 'en';
+    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+    window.REQUIRED_ERROR_MESSAGE = "This field cannot be left blank. ";
+    window.GENERIC_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
+    window.translation = { common: { selectedList: '{quantity} list selected', selectedLists: '{quantity} lists selected', selectedOption: '{quantity} selected', selectedOptions: '{quantity} selected' } };
+    var AUTOHIDE = Boolean(0);
+  </script>
+  <script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>
+</body>
+</html>
