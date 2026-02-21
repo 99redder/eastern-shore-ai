@@ -519,9 +519,13 @@
     </section>
 
     <!-- ===== SECTION: Admin Panel (hidden, ?admin=1) ===== -->
-    <section class="card admin-panel" id="admin-panel">
-      <h2>Administrative Access</h2>
-      <div class="admin-lock" id="admin-lock" style="padding:2.5rem 1rem;">
+    <section class="card admin-panel" id="admin-panel" style="padding:0; overflow:hidden;">
+      <img src="/carousel.png" alt="" aria-hidden="true" style="width:100%; aspect-ratio:16/5; object-fit:cover; object-position:center top; display:block;" />
+      <div style="padding:1.5rem 2rem 0;">
+        <h2 style="margin:0 0 0.25rem;">Eastern Shore AI</h2>
+        <p style="margin:0 0 1rem; color:var(--muted); font-size:0.9rem; letter-spacing:.06em; text-transform:uppercase;">Administrative Access</p>
+      </div>
+      <div class="admin-lock" id="admin-lock" style="padding:1rem 1rem 2.5rem; margin:0 1rem;">
         <div style="display:flex; flex-direction:column; gap:1rem; width:320px; margin:0 auto;">
           <label for="admin-key" style="font-size:1.1rem; color:var(--cyan); letter-spacing:.08em; text-align:center;">Admin Password</label>
           <input id="admin-key" type="password" placeholder="Enter admin password" style="font-size:1rem; padding:.6rem .9rem;" />
@@ -529,7 +533,7 @@
         </div>
       </div>
 
-      <div class="admin-controls" id="admin-controls">
+      <div class="admin-controls" id="admin-controls" style="padding:0 1rem 1rem;">
         <div class="admin-collapsible-card" id="booking-controls-card">
           <div class="admin-collapsible-head">
             <h3 style="margin:0;">Admin Booking Controls</h3>
@@ -630,7 +634,11 @@
                       <label>Notes</label>
                       <input id="tax-expense-notes" placeholder="optional" />
                       <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
-                      <input id="tax-expense-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="font-size:0.85rem; color:var(--text);" />
+                      <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                        <label for="tax-expense-receipt" class="btn" style="cursor:pointer; white-space:nowrap; margin:0;">Browse…</label>
+                        <input id="tax-expense-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />
+                        <span id="tax-expense-receipt-name" style="font-size:0.8rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">No file chosen</span>
+                      </div>
                       <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
                         <button type="button" class="btn btn-primary" id="tax-add-expense-btn">Add Expense</button>
                         <button type="button" class="btn btn-primary" id="tax-update-expense-btn" style="display:none;">Save Expense Update</button>
@@ -656,7 +664,11 @@
                       <label>Notes</label>
                       <input id="tax-income-notes" placeholder="optional" />
                       <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
-                      <input id="tax-income-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="font-size:0.85rem; color:var(--text);" />
+                      <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                        <label for="tax-income-receipt" class="btn" style="cursor:pointer; white-space:nowrap; margin:0;">Browse…</label>
+                        <input id="tax-income-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />
+                        <span id="tax-income-receipt-name" style="font-size:0.8rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">No file chosen</span>
+                      </div>
                       <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
                         <button type="button" class="btn btn-primary" id="tax-add-income-btn">Add Income</button>
                         <button type="button" class="btn btn-primary" id="tax-update-income-btn" style="display:none;">Save Income Update</button>
@@ -1710,6 +1722,8 @@
         taxExpenseNotesEl.value = '';
         const expReceiptEl = document.getElementById('tax-expense-receipt');
         if (expReceiptEl) expReceiptEl.value = '';
+        const expReceiptNameEl = document.getElementById('tax-expense-receipt-name');
+        if (expReceiptNameEl) expReceiptNameEl.textContent = 'No file chosen';
         if (taxExpenseCategoryEl.options.length) taxExpenseCategoryEl.selectedIndex = 0;
         resetExpenseEditMode();
       }
@@ -1723,6 +1737,8 @@
         taxIncomeNotesEl.value = '';
         const incReceiptEl = document.getElementById('tax-income-receipt');
         if (incReceiptEl) incReceiptEl.value = '';
+        const incReceiptNameEl = document.getElementById('tax-income-receipt-name');
+        if (incReceiptNameEl) incReceiptNameEl.textContent = 'No file chosen';
         if (taxIncomeCategoryEl.options.length) taxIncomeCategoryEl.selectedIndex = 0;
         resetIncomeEditMode();
       }
@@ -1915,6 +1931,12 @@
       taxUpdateIncomeBtn.addEventListener('click', addTaxIncome);
       taxCancelIncomeEditBtn.addEventListener('click', clearTaxIncomeForm);
       taxClearIncomeBtn.addEventListener('click', clearTaxIncomeForm);
+      document.getElementById('tax-expense-receipt').addEventListener('change', function() {
+        document.getElementById('tax-expense-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+      });
+      document.getElementById('tax-income-receipt').addEventListener('change', function() {
+        document.getElementById('tax-income-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+      });
       taxExportBtn.addEventListener('click', downloadTaxCsv);
 
       const taxZipBtn = document.getElementById('tax-zip-btn');

@@ -32,7 +32,8 @@ export default {
       .map(v => v.trim())
       .filter(Boolean);
     const allowAll = allowedOrigins.includes('*');
-    const originAllowed = allowAll || allowedOrigins.includes(origin);
+    // No Origin header = direct browser navigation (new tab link), not a cross-origin fetch — always allow.
+    const originAllowed = allowAll || !origin || allowedOrigins.includes(origin);
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
