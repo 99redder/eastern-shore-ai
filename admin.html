@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Admin — Eastern Shore AI</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    /* ===== Theme & CSS Variables ===== */
+    :root { --bg:#0a0b10; --bg2:#10121a; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; --violet:#c850ff; }
+    body[data-theme="light"] { --bg:#f4f4f8; --bg2:#eaeaf0; --card:#ffffff; --text:#111118; --muted:#555566; --cyan:#0099bb; --violet:#8a2ec0; --line:#d0d0dd; }
+
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; overflow-x:hidden; max-width:100vw; }
+    body { margin:0; font-family:'Titillium Web',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--text);
+      background:var(--bg); overflow-x:hidden; max-width:100vw; font-size:1.08rem; }
+    main { display:block; overflow-x:hidden; position:relative; width:100%; }
+    .container { max-width:1440px; margin:0 auto; padding:1.2rem; overflow-x:clip; }
+    a { color:#ff4fd8; text-shadow:0 0 8px rgba(255,79,216,0.35); }
+
+    /* ===== Battle-Damaged Hull Edges (clip-path) ===== */
+    .card,
+    .success-modal,
+    .admin-calendar-wrap,
+    .admin-lock {
+      clip-path: polygon(
+        0 8px,
+        8px 0,
+        35% 0,
+        35.5% 4px,
+        37% 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% 65%,
+        calc(100% - 3px) 66%,
+        100% 67.5%,
+        100% calc(100% - 6px),
+        calc(100% - 6px) 100%,
+        62% 100%,
+        61.5% calc(100% - 3px),
+        60% 100%,
+        10px 100%,
+        0 calc(100% - 10px),
+        3px calc(100% - 14px),
+        0 calc(100% - 18px)
+      );
+      border-radius: 0 !important;
+    }
+    .btn, .btn-primary { clip-path: none; }
+
+    /* ===== Cards, Buttons & Forms ===== */
+    .card { background:var(--card); border:1px solid var(--line); border-radius:0; padding:1rem; overflow-x:clip; }
+    h1, h2, h3, h4 { font-family:'Titillium Web', system-ui, sans-serif; }
+    h1 { margin:.2rem 0 .6rem; color:var(--cyan); }
+    h3 { font-size:1.25rem; }
+    h4 { font-size:1.05rem; }
+    p { color:var(--muted); line-height:1.6; }
+    label { display:block; font-size:1rem; color:var(--muted); margin-bottom:.25rem; }
+    .btn { border:1px solid var(--line); background:transparent; color:var(--text); border-radius:2px; padding:.75rem 1.2rem; cursor:pointer; font-weight:600; font-family:'Titillium Web', system-ui, sans-serif; transition:background 0.15s, color 0.15s, border-color 0.15s; font-size:1rem; }
+    label.btn:hover { background:rgba(255,79,216,0.12); color:#ff4fd8; border-color:#ff4fd8; }
+    .btn-primary { background:linear-gradient(145deg,#ff4fd8,#cc3fb0); border-color:#ff4fd8; color:#fff; box-shadow:0 0 16px rgba(255,79,216,0.35); }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-top:.7rem; }
+    .form-grid > * { min-width:0; overflow:hidden; }
+    .full { grid-column:1 / -1; }
+    input, textarea, select { width:100%; min-width:0; max-width:100%; border:1px solid var(--line); border-radius:2px; background:#10121a; color:var(--text); padding:.65rem .7rem; font:inherit; }
+    textarea { min-height:120px; resize:vertical; }
+    .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
+    .btn.delete { border-color:#5a2222; color:#ff9b9b; }
+
+    /* ===== Site Header ===== */
+    .site-header { background:var(--bg2); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:200; }
+    .site-header-inner { display:flex; align-items:center; gap:1rem; max-width:1440px; margin:0 auto; padding:.6rem 1.2rem; }
+    .header-logo { font-family:'Orbitron', system-ui, sans-serif; font-weight:700; font-size:1rem; letter-spacing:.08em; text-decoration:none; color:var(--text); text-shadow:none; }
+    .header-logo span { color:var(--cyan); }
+    .header-nav { display:flex; align-items:center; gap:1rem; margin-left:.5rem; }
+    .header-nav a { font-family:'Hanken Grotesk', system-ui, sans-serif; font-size:.88rem; font-weight:600; text-decoration:none; color:var(--cyan); text-shadow:none; letter-spacing:.03em; }
+    .header-nav a:hover { color:#fff; }
+    .theme-toggle { margin-left:auto; background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:2px; padding:.35rem .6rem; font-size:1rem; cursor:pointer; line-height:1; }
+    .theme-toggle:hover { border-color:var(--cyan); color:var(--cyan); }
+
+    /* ===== Success / Error / Confirm Modals ===== */
+    .success-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
+    .success-modal-overlay.active { display:flex; }
+    #tax-category-modal { z-index:1250; }
+    #tax-category-edit-modal { z-index:1300; }
+    #confirm-modal, #success-modal, #error-modal { z-index:1400; }
+    .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #141620, #10121a); border:1px solid var(--line); border-radius:0; padding:1rem; }
+    .success-modal h3 { margin:.1rem 0 .4rem; color:var(--cyan); }
+    .success-modal p { margin:.45rem 0; }
+    .error-modal h3 { color:var(--violet); }
+
+    /* ===== Admin Panel ===== */
+    .admin-panel { margin-top:1rem; }
+    .admin-lock { border:1px solid var(--line); border-radius:2px; padding:.75rem; background:#10121a; margin-top:.6rem; }
+    .admin-controls { display:none; margin-top:.8rem; }
+    .admin-controls.active { display:block; }
+    .admin-collapsible-card { border:1px solid var(--line); border-radius:2px; padding:.85rem; background:#10121a; }
+    .admin-collapsible-head { display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.35rem; }
+    .admin-collapsible-body-collapsed { display:none; }
+    .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+    .admin-list { max-height:520px; overflow:auto; border:1px solid var(--line); border-radius:2px; padding:.4rem; background:#10121a; font-size:1rem; color:var(--muted); }
+    .admin-row { display:flex; }
+
+    /* ===== Tax Ledger ===== */
+    .tax-row { display:grid; grid-template-columns:auto 1fr auto auto; gap:.45rem; align-items:center; padding:.55rem .5rem; border-bottom:1px dashed var(--line); gap:.6rem; }
+    .tax-row:last-child { border-bottom:none; }
+    .tax-row .type { font-size:.85rem; padding:.1rem .4rem; border:1px solid var(--line); border-radius:999px; color:var(--text); }
+    .tax-row .desc { min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tax-row .amt { color:var(--text); font-weight:700; }
+    .tax-row .edit { padding:.35rem .75rem; font-size:.95rem; }
+    .tax-row .delete { padding:.35rem .75rem; font-size:.95rem; border-color:#5a2222; color:#ff9b9b; }
+    .btn.tx-filter-btn.active { background:linear-gradient(145deg,var(--cyan),#007ab5); border-color:var(--cyan); color:#000; }
+    .admin-calendar-wrap { margin-top:.7rem; border:1px solid var(--line); border-radius:2px; background:#10121a; padding:1rem; }
+    .tax-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+    .tax-summary-col { border:1px solid var(--line); border-radius:2px; padding:.6rem; background:#141620; }
+    .tax-summary-col h4 { margin:.1rem 0 .45rem; color:var(--cyan); font-size:1rem; }
+    .tax-summary-line { display:flex; justify-content:space-between; gap:.6rem; padding:.12rem 0; color:var(--muted); }
+    .tax-summary-line strong { color:var(--text); font-weight:700; }
+    .tax-entry-wrap { margin-top:1rem; }
+
+    /* ===== Admin Calendar ===== */
+    .admin-calendar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.8rem; gap:.45rem; }
+    .admin-calendar-title { font-size:1.05rem; color:var(--cyan); }
+    .admin-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:.25rem; }
+    .admin-cal-dow { font-size:.85rem; color:var(--muted); text-align:center; padding:.2rem 0; }
+    .admin-cal-day { min-height:58px; border:1px solid var(--line); border-radius:2px; padding:.25rem; font-size:.85rem; color:var(--text); position:relative; background:#141620; }
+    .admin-cal-day.empty { background:transparent; border-color:transparent; }
+    .admin-cal-day-num { font-size:.85rem; }
+    .admin-cal-dots { position:absolute; left:.25rem; right:.25rem; bottom:.25rem; display:flex; gap:.2rem; flex-wrap:wrap; }
+    .admin-dot { width:7px; height:7px; border-radius:50%; }
+    .admin-dot.booked-openclaw { background:#ff5555; }
+    .admin-dot.booked-lessons { background:#c850ff; }
+    .admin-dot.blocked { background:#ffaa2a; }
+    .admin-legend { display:flex; gap:.7rem; align-items:center; margin-top:.5rem; color:var(--muted); font-size:.92rem; }
+    .admin-legend span { display:inline-flex; align-items:center; gap:.3rem; }
+
+    /* ===== Responsive: 760px ===== */
+    @media (max-width: 760px) {
+      .admin-grid { grid-template-columns:1fr; }
+      .form-grid { grid-template-columns:1fr; }
+      .tax-summary-grid { grid-template-columns:1fr; }
+      .container { padding:0.8rem; }
+      .admin-cal-day { min-height:38px; }
+      .admin-calendar-grid { gap:0.15rem; }
+      input, textarea, select { font-size:16px; }
+    }
+
+    @media (max-width: 480px) {
+      .card { padding:0.65rem; }
+      .container { padding:0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
+      <nav class="header-nav">
+        <a href="/openclaw-setup.html">← Booking Page</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">◐</button>
+    </div>
+  </header>
+
+  <main>
+  <div class="container">
+
+    <!-- ===== SECTION: Admin Panel ===== -->
+    <section class="card admin-panel" id="admin-panel" style="padding:0; overflow:hidden;">
+      <img src="/carousel.png" alt="" aria-hidden="true" style="width:100%; aspect-ratio:32/5; object-fit:cover; object-position:center top; display:block;" />
+      <div style="padding:1.5rem 2rem 0;">
+        <h2 style="margin:0 0 0.25rem;">Eastern Shore AI</h2>
+        <p style="margin:0 0 1rem; color:var(--muted); font-size:0.9rem; letter-spacing:.06em; text-transform:uppercase;">Administrative Access</p>
+      </div>
+      <div class="admin-lock" id="admin-lock" style="padding:1rem 1rem 2.5rem; margin:0 1rem;">
+        <div style="display:flex; flex-direction:column; gap:1rem; width:320px; margin:0 auto;">
+          <label for="admin-key" style="font-size:1.1rem; color:var(--cyan); letter-spacing:.08em; text-align:center;">Admin Password</label>
+          <input id="admin-key" type="password" placeholder="Enter admin password" style="font-size:1rem; padding:.6rem .9rem;" />
+          <button type="button" class="btn btn-primary" id="admin-unlock-btn" style="font-size:1.15rem; padding:.85rem 2rem; letter-spacing:.06em;">Login</button>
+        </div>
+      </div>
+
+      <div class="admin-controls" id="admin-controls" style="padding:0 1rem 1rem;">
+        <div class="admin-collapsible-card" id="booking-controls-card">
+          <div class="admin-collapsible-head">
+            <h3 style="margin:0;">Admin Booking Controls</h3>
+            <button type="button" class="btn" id="booking-collapse-btn" aria-expanded="false">Expand</button>
+          </div>
+          <div id="booking-controls-body" class="admin-collapsible-body-collapsed">
+        <div class="admin-grid" style="margin-top:.7rem;">
+          <div>
+            <h3 style="margin:.1rem 0 .4rem;">Block / Unblock Slot</h3>
+            <div class="form-grid" style="margin-top:0;">
+              <div>
+                <label for="admin-date">Date</label>
+                <input id="admin-date" type="date" />
+              </div>
+              <div>
+                <label for="admin-time">Time Block</label>
+                <select id="admin-time">
+                  <option value="">Select block…</option>
+                </select>
+              </div>
+              <div class="full">
+                <label for="admin-reason">Reason (optional)</label>
+                <input id="admin-reason" placeholder="Unavailable / booked elsewhere" />
+              </div>
+            </div>
+            <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary" id="admin-block-btn">Block Slot</button>
+              <button type="button" class="btn" id="admin-unblock-btn">Unblock Slot</button>
+              <button type="button" class="btn btn-primary" id="admin-block-day-btn">Block Entire Day</button>
+              <button type="button" class="btn" id="admin-unblock-day-btn">Unblock Day</button>
+              <button type="button" class="btn" id="admin-refresh-btn">Refresh</button>
+            </div>
+          </div>
+          <div>
+            <h3 style="margin:.1rem 0 .4rem;">Recent Bookings / Blocks</h3>
+            <div class="admin-list" id="admin-list">No data yet.</div>
+            <div class="admin-calendar-wrap">
+              <div class="admin-calendar-head">
+                <button type="button" class="btn" id="admin-cal-prev-btn">← Prev</button>
+                <div class="admin-calendar-title" id="admin-calendar-title">Availability Calendar</div>
+                <button type="button" class="btn" id="admin-cal-next-btn">Next →</button>
+              </div>
+              <div class="admin-calendar-grid" id="admin-calendar-grid"></div>
+              <div class="admin-legend">
+                <span><i class="admin-dot booked-openclaw"></i>OpenClaw</span>
+                <span><i class="admin-dot booked-lessons"></i>Lessons</span>
+                <span><i class="admin-dot blocked"></i>Blocked</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+          </div>
+        </div>
+
+        <div class="admin-collapsible-card" id="tax-ledger-card" style="margin-top:1rem;">
+          <div class="admin-collapsible-head">
+            <h3 style="margin:0;">Tax Ledger</h3>
+            <button type="button" class="btn" id="tax-collapse-btn" aria-expanded="false">Expand</button>
+          </div>
+          <div id="tax-ledger-body" class="admin-collapsible-body-collapsed">
+        <!-- ===== SECTION: Admin Tax Ledger ===== -->
+        <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+          <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
+                <div id="tax-summary" class="admin-calendar-wrap" style="margin:0;">
+                  <div class="admin-calendar-head"><div class="admin-calendar-title">Year Totals Snapshot</div></div>
+                  <div class="tax-summary-grid" id="tax-summary-list">No data yet.</div>
+                </div>
+
+                <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
+                  <label style="min-width:80px;">Year</label>
+                  <select id="tax-year" style="max-width:160px;"></select>
+                  <label style="min-width:70px;">Type</label>
+                  <select id="tax-type" style="max-width:200px;">
+                    <option value="all">All</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expenses</option>
+                  </select>
+                  <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
+                  <button type="button" class="btn btn-primary" id="tax-export-btn">Download CSV</button>
+                  <button type="button" class="btn" id="tax-zip-btn">⬇ Year Package (.zip)</button>
+                </div>
+
+                <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
+                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
+                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                  <button type="button" class="btn btn-primary" id="tax-manage-categories-btn" onclick="window.openTaxCategoryManager && window.openTaxCategoryManager()">Manage Categories</button>
+                </div>
+
+                <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem; display:none;">
+                  <div class="admin-calendar-wrap">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Expense</div><button type="button" class="btn" id="tax-minimize-expense-btn">Minimize</button></div>
+                    <div class="admin-row" id="tax-expense-fields" style="flex-direction:column; align-items:stretch;">
+                      <label>Date</label>
+                      <input id="tax-expense-date" type="date" />
+                      <label>Vendor</label>
+                      <input id="tax-expense-vendor" placeholder="e.g. Amazon, Cloudflare" />
+                      <label>Category</label>
+                      <select id="tax-expense-category"></select>
+                      <label>Amount (USD)</label>
+                      <input id="tax-expense-amount" type="number" step="0.01" placeholder="0.00" />
+                      <label>Paid via</label>
+                      <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
+                      <label>Notes</label>
+                      <input id="tax-expense-notes" placeholder="optional" />
+                      <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
+                      <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                        <label for="tax-expense-receipt" class="btn" style="cursor:pointer; white-space:nowrap; margin:0;">Browse…</label>
+                        <input id="tax-expense-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />
+                        <span id="tax-expense-receipt-name" style="font-size:0.8rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">No file chosen</span>
+                      </div>
+                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary" id="tax-add-expense-btn">Add Expense</button>
+                        <button type="button" class="btn btn-primary" id="tax-update-expense-btn" style="display:none;">Save Expense Update</button>
+                        <button type="button" class="btn" id="tax-cancel-expense-edit-btn" style="display:none;">Cancel Edit</button>
+                        <button type="button" class="btn" id="tax-clear-expense-btn">Clear</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tax-entry-wrap" id="tax-income-panel" style="margin-top:.5rem; display:none;">
+                  <div class="admin-calendar-wrap">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Income</div><button type="button" class="btn" id="tax-minimize-income-btn">Minimize</button></div>
+                    <div class="admin-row" id="tax-income-fields" style="flex-direction:column; align-items:stretch;">
+                      <label>Date</label>
+                      <input id="tax-income-date" type="date" />
+                      <label>Source</label>
+                      <input id="tax-income-source" placeholder="e.g. Stripe, Client" />
+                      <label>Category</label>
+                      <select id="tax-income-category"></select>
+                      <label>Amount (USD)</label>
+                      <input id="tax-income-amount" type="number" step="0.01" placeholder="0.00" />
+                      <label>Stripe session id (optional)</label>
+                      <input id="tax-income-stripe" placeholder="cs_test_..." />
+                      <label>Notes</label>
+                      <input id="tax-income-notes" placeholder="optional" />
+                      <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
+                      <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+                        <label for="tax-income-receipt" class="btn" style="cursor:pointer; white-space:nowrap; margin:0;">Browse…</label>
+                        <input id="tax-income-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />
+                        <span id="tax-income-receipt-name" style="font-size:0.8rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">No file chosen</span>
+                      </div>
+                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary" id="tax-add-income-btn" style="padding:.85rem 1.35rem; font-size:1.05rem;">Add Income</button>
+                        <button type="button" class="btn btn-primary" id="tax-update-income-btn" style="display:none;">Save Income Update</button>
+                        <button type="button" class="btn" id="tax-cancel-income-edit-btn" style="display:none;">Cancel Edit</button>
+                        <button type="button" class="btn" id="tax-clear-income-btn" style="padding:.85rem 1.35rem; font-size:1.05rem;">Clear</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:.5rem; margin:.1rem 0 .4rem;">
+                    <h3 style="margin:0; white-space:nowrap;">Tax Transactions (Selected Year)</h3>
+                    <div style="display:flex; gap:.3rem; flex-wrap:wrap;">
+                      <button type="button" class="btn tx-filter-btn active" data-filter="all">All</button>
+                      <button type="button" class="btn tx-filter-btn" data-filter="income">Income</button>
+                      <button type="button" class="btn tx-filter-btn" data-filter="expense">Expenses</button>
+                    </div>
+                    <select id="tx-category-filter" style="display:none; max-width:200px;"></select>
+                  </div>
+                  <div class="admin-list" id="tax-list">No data yet.</div>
+                </div>
+              </div>
+        </section>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+  </main>
+
+  <!-- ===== SECTION: Success Modal ===== -->
+  <div class="success-modal-overlay" id="success-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
+      <h3 id="success-title">Done ✅</h3>
+      <p id="success-details"></p>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-primary" id="success-close-btn">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="error-modal" aria-hidden="true">
+    <div class="success-modal error-modal" role="dialog" aria-modal="true" aria-labelledby="error-title">
+      <h3 id="error-title">Heads Up</h3>
+      <p id="error-details"></p>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-primary" id="error-close-btn">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="confirm-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <h3 id="confirm-title">Please Confirm</h3>
+      <p id="confirm-details"></p>
+      <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="confirm-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirm-ok-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="tax-category-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tax-category-title" style="width:min(920px,94vw); max-height:86vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:.5rem;">
+        <h3 id="tax-category-title" style="margin:.1rem 0 .4rem;">Manage Categories</h3>
+        <button type="button" class="btn" id="tax-category-x-btn" aria-label="Close category manager" title="Close">✕</button>
+      </div>
+      <div class="admin-grid" style="grid-template-columns:1fr 1fr; gap:.7rem;">
+        <div class="admin-calendar-wrap">
+          <div class="admin-calendar-head"><div class="admin-calendar-title">Expense Categories</div></div>
+          <div id="expense-categories-list" style="display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem;"></div>
+          <div style="margin-top:1.25rem; padding-top:.75rem; border-top:1px solid var(--line);">
+            <label style="display:block; margin-bottom:.35rem;">Add New Expense Category</label>
+            <div class="admin-row" style="gap:.4rem; flex-direction:column; align-items:stretch;">
+              <input id="new-expense-category" placeholder="Enter your new expense category, here" style="width:100%;" />
+              <button type="button" class="btn btn-primary" id="add-expense-category-btn" style="width:100%;">Add</button>
+            </div>
+          </div>
+        </div>
+        <div class="admin-calendar-wrap">
+          <div class="admin-calendar-head"><div class="admin-calendar-title">Income Categories</div></div>
+          <div id="income-categories-list" style="display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem;"></div>
+          <div style="margin-top:1.25rem; padding-top:.75rem; border-top:1px solid var(--line);">
+            <label style="display:block; margin-bottom:.35rem;">Add New Income category</label>
+            <div class="admin-row" style="gap:.4rem; flex-direction:column; align-items:stretch;">
+              <input id="new-income-category" placeholder="Enter your new income category, here" style="width:100%;" />
+              <button type="button" class="btn btn-primary" id="add-income-category-btn" style="width:100%;">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="tax-category-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="tax-category-edit-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tax-category-edit-title" style="width:min(540px,94vw);">
+      <h3 id="tax-category-edit-title">Edit Category</h3>
+      <label for="tax-category-edit-input">Category Name</label>
+      <input id="tax-category-edit-input" type="text" />
+      <div class="form-actions" style="margin-top:1rem; justify-content:flex-end; gap:.5rem;">
+        <button type="button" class="btn" id="tax-category-edit-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="tax-category-edit-save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Theme Toggle =====
+    (function() {
+      const saved = localStorage.getItem('esa_theme');
+      if (saved) document.body.setAttribute('data-theme', saved);
+    })();
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const current = document.body.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', next);
+      localStorage.setItem('esa_theme', next);
+    });
+
+    // ===== API URL Constants =====
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+    const BOOKINGS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/bookings');
+    const BLOCK_SLOT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-slot');
+    const BLOCK_DAY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-day');
+    const TAX_TX_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/transactions');
+    const TAX_EXPENSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense');
+    const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
+    const TAX_EXPENSE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/update');
+    const TAX_INCOME_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income/update');
+    const TAX_EXPENSE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/delete');
+    const TAX_INCOME_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income/delete');
+    const TAX_EXPORT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/export.csv');
+    const TAX_RECEIPT_UPLOAD_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt/upload');
+    const TAX_RECEIPT_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt');
+
+    // ===== DOM Refs =====
+    const adminLock = document.getElementById('admin-lock');
+    const adminControls = document.getElementById('admin-controls');
+    const adminKeyEl = document.getElementById('admin-key');
+    const adminUnlockBtn = document.getElementById('admin-unlock-btn');
+
+    const bookingCollapseBtn = document.getElementById('booking-collapse-btn');
+    const bookingControlsBody = document.getElementById('booking-controls-body');
+    const taxCollapseBtn = document.getElementById('tax-collapse-btn');
+    const taxLedgerBody = document.getElementById('tax-ledger-body');
+
+    const taxYearEl = document.getElementById('tax-year');
+    const taxTypeEl = document.getElementById('tax-type');
+    const taxRefreshBtn = document.getElementById('tax-refresh-btn');
+    const taxExportBtn = document.getElementById('tax-export-btn');
+    const taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
+    const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
+    const taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
+    const taxExpensePanel = document.getElementById('tax-expense-panel');
+    const taxIncomePanel = document.getElementById('tax-income-panel');
+    const taxExpenseFields = document.getElementById('tax-expense-fields');
+    const taxIncomeFields = document.getElementById('tax-income-fields');
+    const taxMinimizeExpenseBtn = document.getElementById('tax-minimize-expense-btn');
+    const taxMinimizeIncomeBtn = document.getElementById('tax-minimize-income-btn');
+    const taxCategoryModal = document.getElementById('tax-category-modal');
+    const taxCategoryCloseBtn = document.getElementById('tax-category-close-btn');
+    const taxCategoryXBtn = document.getElementById('tax-category-x-btn');
+    const expenseCategoriesListEl = document.getElementById('expense-categories-list');
+    const incomeCategoriesListEl = document.getElementById('income-categories-list');
+    const newExpenseCategoryEl = document.getElementById('new-expense-category');
+    const newIncomeCategoryEl = document.getElementById('new-income-category');
+    const addExpenseCategoryBtn = document.getElementById('add-expense-category-btn');
+    const addIncomeCategoryBtn = document.getElementById('add-income-category-btn');
+    const taxCategoryEditModal = document.getElementById('tax-category-edit-modal');
+    const taxCategoryEditInput = document.getElementById('tax-category-edit-input');
+    const taxCategoryEditSaveBtn = document.getElementById('tax-category-edit-save-btn');
+    const taxCategoryEditCancelBtn = document.getElementById('tax-category-edit-cancel-btn');
+    const taxSummaryListEl = document.getElementById('tax-summary-list');
+    const taxListEl = document.getElementById('tax-list');
+    const txCategoryFilterEl = document.getElementById('tx-category-filter');
+    const txFilterBtns = document.querySelectorAll('.tx-filter-btn');
+
+    const taxExpenseDateEl = document.getElementById('tax-expense-date');
+    const taxExpenseVendorEl = document.getElementById('tax-expense-vendor');
+    const taxExpenseCategoryEl = document.getElementById('tax-expense-category');
+    const taxExpenseAmountEl = document.getElementById('tax-expense-amount');
+    const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
+    const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
+    const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
+    const taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
+    const taxCancelExpenseEditBtn = document.getElementById('tax-cancel-expense-edit-btn');
+    const taxClearExpenseBtn = document.getElementById('tax-clear-expense-btn');
+
+    const taxIncomeDateEl = document.getElementById('tax-income-date');
+    const taxIncomeSourceEl = document.getElementById('tax-income-source');
+    const taxIncomeCategoryEl = document.getElementById('tax-income-category');
+    const taxIncomeAmountEl = document.getElementById('tax-income-amount');
+    const taxIncomeStripeEl = document.getElementById('tax-income-stripe');
+    const taxIncomeNotesEl = document.getElementById('tax-income-notes');
+    const taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
+    const taxUpdateIncomeBtn = document.getElementById('tax-update-income-btn');
+    const taxCancelIncomeEditBtn = document.getElementById('tax-cancel-income-edit-btn');
+    const taxClearIncomeBtn = document.getElementById('tax-clear-income-btn');
+
+    const adminDateEl = document.getElementById('admin-date');
+    const adminTimeEl = document.getElementById('admin-time');
+    const adminReasonEl = document.getElementById('admin-reason');
+    const adminListEl = document.getElementById('admin-list');
+    const adminCalendarGridEl = document.getElementById('admin-calendar-grid');
+    const adminCalendarTitleEl = document.getElementById('admin-calendar-title');
+    const adminCalPrevBtn = document.getElementById('admin-cal-prev-btn');
+    const adminCalNextBtn = document.getElementById('admin-cal-next-btn');
+    const adminBlockBtn = document.getElementById('admin-block-btn');
+    const adminUnblockBtn = document.getElementById('admin-unblock-btn');
+    const adminBlockDayBtn = document.getElementById('admin-block-day-btn');
+    const adminUnblockDayBtn = document.getElementById('admin-unblock-day-btn');
+    const adminRefreshBtn = document.getElementById('admin-refresh-btn');
+
+    const successModal = document.getElementById('success-modal');
+    const successTitle = document.getElementById('success-title');
+    const successDetails = document.getElementById('success-details');
+    const successCloseBtn = document.getElementById('success-close-btn');
+    const errorModal = document.getElementById('error-modal');
+    const errorDetails = document.getElementById('error-details');
+    const errorCloseBtn = document.getElementById('error-close-btn');
+    const confirmModal = document.getElementById('confirm-modal');
+    const confirmDetails = document.getElementById('confirm-details');
+    const confirmOkBtn = document.getElementById('confirm-ok-btn');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
+    // ===== State =====
+    let adminUnlocked = false;
+    let adminPassword = '';
+    let adminCalendarCursor = null;
+    let allTxItems = [];
+    let loadedTaxData = { income: [], expenses: [] };
+    let activeTxFilter = 'all';
+    let editingExpenseId = null;
+    let editingIncomeId = null;
+
+    // ===== Time Slots =====
+    const TIME_SLOTS = [
+      { value: '10:00-12:00', label: '1000 - 1200' },
+      { value: '12:00-14:00', label: '1200 - 1400' },
+      { value: '14:00-16:00', label: '1400 - 1600' },
+      { value: '16:00-18:00', label: '1600 - 1800' },
+      { value: '18:00-20:00', label: '1800 - 2000' }
+    ];
+
+    function initAdminTimeDropdown() {
+      const opts = ['<option value="">Select block…</option>'];
+      for (const slot of TIME_SLOTS) {
+        opts.push(`<option value="${slot.value}">${slot.label}</option>`);
+      }
+      adminTimeEl.innerHTML = opts.join('');
+    }
+    initAdminTimeDropdown();
+
+    // ===== Time Utilities =====
+    function nowEtParts() {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/New_York',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false
+      }).formatToParts(new Date());
+      const get = (t) => parts.find(p => p.type === t)?.value;
+      return {
+        date: `${get('year')}-${get('month')}-${get('day')}`,
+        time: `${get('hour')}:${get('minute')}`
+      };
+    }
+
+    // ===== Modals =====
+    function openSuccessModal(text, title) {
+      if (title) successTitle.textContent = title;
+      successDetails.textContent = text;
+      successModal.classList.add('active');
+      successModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSuccessModal() {
+      successModal.classList.remove('active');
+      successModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openErrorModal(text) {
+      errorDetails.textContent = text;
+      errorModal.classList.add('active');
+      errorModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeErrorModal() {
+      errorModal.classList.remove('active');
+      errorModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openConfirmModal(text, title = 'Please Confirm', confirmLabel = 'Confirm') {
+      return new Promise((resolve) => {
+        const confirmTitleEl = document.getElementById('confirm-title');
+        confirmTitleEl.textContent = title;
+        confirmDetails.textContent = text;
+        confirmOkBtn.textContent = confirmLabel;
+        confirmModal.classList.add('active');
+        confirmModal.setAttribute('aria-hidden', 'false');
+
+        const cleanup = () => {
+          confirmModal.classList.remove('active');
+          confirmModal.setAttribute('aria-hidden', 'true');
+          confirmOkBtn.removeEventListener('click', onOk);
+          confirmCancelBtn.removeEventListener('click', onCancel);
+          confirmModal.removeEventListener('click', onOverlay);
+        };
+        const onOk = () => { cleanup(); resolve(true); };
+        const onCancel = () => { cleanup(); resolve(false); };
+        const onOverlay = (e) => { if (e.target === confirmModal) onCancel(); };
+
+        confirmOkBtn.addEventListener('click', onOk);
+        confirmCancelBtn.addEventListener('click', onCancel);
+        confirmModal.addEventListener('click', onOverlay);
+      });
+    }
+
+    successCloseBtn.addEventListener('click', closeSuccessModal);
+    successModal.addEventListener('click', (e) => { if (e.target === successModal) closeSuccessModal(); });
+    errorCloseBtn.addEventListener('click', closeErrorModal);
+    errorModal.addEventListener('click', (e) => { if (e.target === errorModal) closeErrorModal(); });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && successModal.classList.contains('active')) closeSuccessModal();
+      if (e.key === 'Escape' && errorModal.classList.contains('active')) closeErrorModal();
+    });
+
+    // ===== Admin Controls =====
+    function setAdminUnlocked(on) {
+      adminUnlocked = !!on;
+      adminLock.style.display = adminUnlocked ? 'none' : 'block';
+      adminControls.classList.toggle('active', adminUnlocked);
+    }
+
+    function renderAdminCalendar(bookings = [], blockedSlots = [], blockedDays = []) {
+      const cursor = adminCalendarCursor || new Date();
+      const year = cursor.getFullYear();
+      const month = cursor.getMonth();
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const daysInMonth = last.getDate();
+      const startDow = first.getDay();
+
+      const openclawByDay = new Map();
+      const lessonsByDay = new Map();
+      const blockedByDay = new Map();
+      const blockedWholeDay = new Set();
+
+      for (const b of bookings) {
+        const d = (b.setup_date || '').trim();
+        if (!d) continue;
+        const isLessons = (b.service_type || '').toLowerCase() === 'lessons';
+        if (isLessons) {
+          lessonsByDay.set(d, (lessonsByDay.get(d) || 0) + 1);
+        } else {
+          openclawByDay.set(d, (openclawByDay.get(d) || 0) + 1);
+        }
+      }
+      for (const s of blockedSlots) {
+        if (!s.active) continue;
+        const d = (s.setup_date || '').trim();
+        if (!d) continue;
+        blockedByDay.set(d, (blockedByDay.get(d) || 0) + 1);
+      }
+      for (const d of blockedDays) {
+        if (!d.active) continue;
+        const key = (d.setup_date || '').trim();
+        if (!key) continue;
+        blockedWholeDay.add(key);
+        blockedByDay.set(key, (blockedByDay.get(key) || 0) + 1);
+      }
+
+      const monthName = first.toLocaleString('en-US', { month: 'long' });
+      adminCalendarTitleEl.textContent = `Availability Calendar — ${monthName} ${year}`;
+
+      const parts = [];
+      const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      for (const d of dows) parts.push(`<div class="admin-cal-dow">${d}</div>`);
+
+      for (let i = 0; i < startDow; i++) {
+        parts.push('<div class="admin-cal-day empty"></div>');
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const mm = String(month + 1).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        const key = `${year}-${mm}-${dd}`;
+        const openclawCount = openclawByDay.get(key) || 0;
+        const lessonsCount = lessonsByDay.get(key) || 0;
+        const xCount = blockedByDay.get(key) || 0;
+        const dots = [];
+        for (let i = 0; i < Math.min(3, openclawCount); i++) dots.push('<i class="admin-dot booked-openclaw" title="OpenClaw booking"></i>');
+        for (let i = 0; i < Math.min(3, lessonsCount); i++) dots.push('<i class="admin-dot booked-lessons" title="Lessons booking"></i>');
+        if (blockedWholeDay.has(key)) {
+          dots.push('<i class="admin-dot blocked" title="Entire day blocked"></i>');
+        } else {
+          for (let i = 0; i < Math.min(3, xCount); i++) dots.push('<i class="admin-dot blocked" title="Blocked"></i>');
+        }
+        parts.push(`<div class="admin-cal-day"><div class="admin-cal-day-num">${day}</div><div class="admin-cal-dots">${dots.join('')}</div></div>`);
+      }
+
+      adminCalendarGridEl.innerHTML = parts.join('');
+    }
+
+    async function loadAdminData() {
+      if (!adminUnlocked) return;
+      const key = adminKeyEl.value.trim();
+      try {
+        const res = await fetch(`${BOOKINGS_API_URL}?limit=200`, {
+          headers: { 'X-Admin-Password': key }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        const bookingRows = (data.bookings || []).map((b) => {
+          const svc = b.service_type === 'lessons' ? 'LESSONS' : 'OPENCLAW';
+          return `<div>[BOOKING:${svc}] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}</div>`;
+        });
+
+        const blockedSlotRows = (data.blockedSlots || []).map((s) => {
+          const k = `${s.setup_date || ''}|${s.setup_time || ''}`;
+          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED SLOT] ${s.active ? 'active' : 'inactive'} | ${s.setup_at} | ${s.reason || '(no reason)'}</span><button type="button" class="btn delete" data-blocked-slot-delete="${k}">Delete</button></div>`;
+        });
+
+        const blockedDayRows = (data.blockedDays || []).map((d) => {
+          const k = `${d.setup_date || ''}`;
+          return `<div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem;"><span>[BLOCKED DAY] ${d.active ? 'active' : 'inactive'} | ${d.setup_date} | ${d.reason || '(no reason)'}</span><button type="button" class="btn delete" data-blocked-day-delete="${k}">Delete</button></div>`;
+        });
+
+        const html = [...bookingRows, ...blockedSlotRows, ...blockedDayRows].join('');
+        adminListEl.innerHTML = html || 'No records yet.';
+
+        adminListEl.querySelectorAll('[data-blocked-slot-delete]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const raw = btn.getAttribute('data-blocked-slot-delete') || '';
+            const [setupDate, setupTime] = raw.split('|');
+            if (!setupDate || !setupTime) return;
+            const ok = await openConfirmModal(`Delete blocked slot ${setupDate} ${setupTime}?`, 'Delete Blocked Slot?', 'Delete');
+            if (!ok) return;
+            try {
+              await fetch(`${BLOCK_SLOT_API_URL}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+                body: JSON.stringify({ setupDate, setupTime, reason: '', active: false })
+              });
+              await loadAdminData();
+              openSuccessModal('Blocked slot deleted successfully.', 'Record Deleted ✅');
+            } catch (e) {
+              openErrorModal(`Could not delete blocked slot: ${e.message || e}`);
+            }
+          });
+        });
+
+        adminListEl.querySelectorAll('[data-blocked-day-delete]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const setupDate = btn.getAttribute('data-blocked-day-delete') || '';
+            if (!setupDate) return;
+            const ok = await openConfirmModal(`Delete blocked day ${setupDate}?`, 'Delete Blocked Day?', 'Delete');
+            if (!ok) return;
+            try {
+              await fetch(`${BLOCK_DAY_API_URL}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+                body: JSON.stringify({ setupDate, reason: '', active: false })
+              });
+              await loadAdminData();
+              openSuccessModal('Blocked day deleted successfully.', 'Record Deleted ✅');
+            } catch (e) {
+              openErrorModal(`Could not delete blocked day: ${e.message || e}`);
+            }
+          });
+        });
+
+        renderAdminCalendar(data.bookings || [], data.blockedSlots || [], data.blockedDays || []);
+      } catch (e) {
+        adminListEl.textContent = `Error loading admin data: ${e.message || e}`;
+      }
+    }
+
+    async function setBlockedSlot(active) {
+      const key = adminKeyEl.value.trim();
+      const setupDate = adminDateEl.value;
+      const setupTime = adminTimeEl.value;
+      if (!key || !setupDate || !setupTime) {
+        openErrorModal('Admin password + date + time are required.');
+        return;
+      }
+      const proceed = await openConfirmModal(
+        `${active ? 'Block' : 'Unblock'} slot ${setupDate} ${setupTime}?`,
+        active ? 'Block Slot?' : 'Unblock Slot?',
+        active ? 'Block' : 'Unblock'
+      );
+      if (!proceed) return;
+      try {
+        const res = await fetch(`${BLOCK_SLOT_API_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          body: JSON.stringify({
+            setupDate,
+            setupTime,
+            reason: adminReasonEl.value.trim(),
+            active
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update slot');
+        await loadAdminData();
+        openSuccessModal(`Slot ${active ? 'blocked' : 'unblocked'} successfully.`, active ? 'Slot Blocked ✅' : 'Slot Unblocked ✅');
+      } catch (e) {
+        openErrorModal(`Could not update slot: ${e.message || e}`);
+      }
+    }
+
+    async function setBlockedDay(active) {
+      const key = adminKeyEl.value.trim();
+      const setupDate = adminDateEl.value;
+      if (!key || !setupDate) {
+        openErrorModal('Admin password + date are required.');
+        return;
+      }
+      const proceed = await openConfirmModal(
+        `${active ? 'Block' : 'Unblock'} day ${setupDate}?`,
+        active ? 'Block Day?' : 'Unblock Day?',
+        active ? 'Block' : 'Unblock'
+      );
+      if (!proceed) return;
+      try {
+        const res = await fetch(`${BLOCK_DAY_API_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          body: JSON.stringify({
+            setupDate,
+            reason: adminReasonEl.value.trim(),
+            active
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to update day');
+        await loadAdminData();
+        openSuccessModal(`Day ${active ? 'blocked' : 'unblocked'} successfully.`, active ? 'Day Blocked ✅' : 'Day Unblocked ✅');
+      } catch (e) {
+        openErrorModal(`Could not update day: ${e.message || e}`);
+      }
+    }
+
+    // ===== Category Management =====
+    const DEFAULT_TAX_EXPENSE_CATEGORIES = [
+      'Startup cost', 'Advertising/Marketing', 'Software/SaaS', 'Hosting/Cloud',
+      'Hardware', 'Office Supplies', 'Travel', 'Meals', 'Education',
+      'Professional Services', 'Payment Processing Fees', 'Other'
+    ];
+
+    const DEFAULT_TAX_INCOME_CATEGORIES = [
+      'OpenClaw Setup', 'Consulting', 'Website Design', 'AI Lessons', 'Domain Sale', 'Other'
+    ];
+
+    let TAX_EXPENSE_CATEGORIES = [...DEFAULT_TAX_EXPENSE_CATEGORIES];
+    let TAX_INCOME_CATEGORIES = [...DEFAULT_TAX_INCOME_CATEGORIES];
+
+    function escHtml(v) {
+      return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function saveCategoryPrefs() {
+      localStorage.setItem('esa_tax_expense_categories', JSON.stringify(TAX_EXPENSE_CATEGORIES));
+      localStorage.setItem('esa_tax_income_categories', JSON.stringify(TAX_INCOME_CATEGORIES));
+    }
+
+    function loadCategoryPrefs() {
+      try {
+        const exp = JSON.parse(localStorage.getItem('esa_tax_expense_categories') || 'null');
+        const inc = JSON.parse(localStorage.getItem('esa_tax_income_categories') || 'null');
+        if (Array.isArray(exp) && exp.length) TAX_EXPENSE_CATEGORIES = [...new Set(exp.map(v => String(v).trim()).filter(Boolean))];
+        if (Array.isArray(inc) && inc.length) TAX_INCOME_CATEGORIES = [...new Set(inc.map(v => String(v).trim()).filter(Boolean))];
+      } catch {}
+    }
+
+    function renderCategoryOptions() {
+      taxExpenseCategoryEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+      taxIncomeCategoryEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+    }
+
+    function openCategoryEditModal(currentName) {
+      return new Promise((resolve) => {
+        taxCategoryEditInput.value = currentName || '';
+        taxCategoryEditModal.classList.add('active');
+        taxCategoryEditModal.setAttribute('aria-hidden', 'false');
+        taxCategoryEditInput.focus();
+        taxCategoryEditInput.select();
+
+        const cleanup = () => {
+          taxCategoryEditModal.classList.remove('active');
+          taxCategoryEditModal.setAttribute('aria-hidden', 'true');
+          taxCategoryEditSaveBtn.removeEventListener('click', onSave);
+          taxCategoryEditCancelBtn.removeEventListener('click', onCancel);
+          taxCategoryEditModal.removeEventListener('click', onOverlay);
+        };
+        const onSave = () => { const v = (taxCategoryEditInput.value || '').trim(); cleanup(); resolve(v || null); };
+        const onCancel = () => { cleanup(); resolve(null); };
+        const onOverlay = (e) => { if (e.target === taxCategoryEditModal) onCancel(); };
+
+        taxCategoryEditSaveBtn.addEventListener('click', onSave);
+        taxCategoryEditCancelBtn.addEventListener('click', onCancel);
+        taxCategoryEditModal.addEventListener('click', onOverlay);
+      });
+    }
+
+    function renderCategoryManagerLists() {
+      if (!expenseCategoriesListEl || !incomeCategoriesListEl) return;
+      expenseCategoriesListEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="expense" data-cat-name="${encodeURIComponent(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="expense" data-cat-name="${encodeURIComponent(c)}">Delete</button></div>`).join('');
+      incomeCategoriesListEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="income" data-cat-name="${encodeURIComponent(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="income" data-cat-name="${encodeURIComponent(c)}">Delete</button></div>`).join('');
+
+      (taxCategoryModal || document).querySelectorAll('[data-cat-edit]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const type = btn.getAttribute('data-cat-edit');
+          const oldName = decodeURIComponent(btn.getAttribute('data-cat-name') || '');
+          const newName = await openCategoryEditModal(oldName);
+          if (!newName || newName === oldName) return;
+          const list = type === 'income' ? TAX_INCOME_CATEGORIES : TAX_EXPENSE_CATEGORIES;
+          if (list.some(c => c.toLowerCase() === newName.toLowerCase())) {
+            openErrorModal('That category name already exists.');
+            return;
+          }
+          const rows = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+          if (rows.some(r => String(r.category || '') === oldName)) {
+            openErrorModal(`Can't rename "${oldName}" because records already use it. Reclassify those transactions first.`);
+            return;
+          }
+          if (type === 'income') {
+            TAX_INCOME_CATEGORIES = TAX_INCOME_CATEGORIES.map(c => c === oldName ? newName : c);
+          } else {
+            TAX_EXPENSE_CATEGORIES = TAX_EXPENSE_CATEGORIES.map(c => c === oldName ? newName : c);
+          }
+          saveCategoryPrefs();
+          renderCategoryOptions();
+          renderCategoryManagerLists();
+          openSuccessModal('Category updated.', 'Category Updated ✅');
+        });
+      });
+
+      (taxCategoryModal || document).querySelectorAll('[data-cat-del]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const type = btn.getAttribute('data-cat-del');
+          const name = decodeURIComponent(btn.getAttribute('data-cat-name') || '');
+          const rows = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+          if (rows.some(r => String(r.category || '') === name)) {
+            openErrorModal(`Can't delete "${name}". Reclassify transactions in this category before deleting it.`);
+            return;
+          }
+          const ok = await openConfirmModal(`Delete category "${name}"?`, 'Delete Category?', 'Delete');
+          if (!ok) return;
+          if (type === 'income') {
+            TAX_INCOME_CATEGORIES = TAX_INCOME_CATEGORIES.filter(c => c !== name);
+          } else {
+            TAX_EXPENSE_CATEGORIES = TAX_EXPENSE_CATEGORIES.filter(c => c !== name);
+          }
+          saveCategoryPrefs();
+          renderCategoryOptions();
+          renderCategoryManagerLists();
+          openSuccessModal('Category deleted.', 'Category Deleted ✅');
+        });
+      });
+    }
+
+    // ===== Tax Ledger =====
+    function formatTaxRowLabel(type, r) {
+      const counterparty = type === 'income' ? (r.source || '') : (r.vendor || '');
+      return `${r.date} | ${r.category || ''} | ${counterparty} | ${r.notes || ''}`;
+    }
+
+    async function editTaxRecord(type, r) {
+      if (type === 'expense') {
+        setTaxEntryMode('expense');
+        editingExpenseId = Number(r.id || 0);
+        taxExpenseDateEl.value = r.date || '';
+        taxExpenseVendorEl.value = r.vendor || '';
+        taxExpenseCategoryEl.value = r.category || TAX_EXPENSE_CATEGORIES[0];
+        taxExpenseAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
+        taxExpensePaidViaEl.value = r.paid_via || '';
+        taxExpenseNotesEl.value = r.notes || '';
+        taxAddExpenseBtn.style.display = 'none';
+        taxUpdateExpenseBtn.style.display = '';
+        taxCancelExpenseEditBtn.style.display = '';
+        taxExpenseAmountEl.focus();
+      } else {
+        setTaxEntryMode('income');
+        editingIncomeId = Number(r.id || 0);
+        taxIncomeDateEl.value = r.date || '';
+        taxIncomeSourceEl.value = r.source || '';
+        taxIncomeCategoryEl.value = r.category || TAX_INCOME_CATEGORIES[0];
+        taxIncomeAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
+        taxIncomeStripeEl.value = r.stripe_session_id || '';
+        taxIncomeNotesEl.value = r.notes || '';
+        taxAddIncomeBtn.style.display = 'none';
+        taxUpdateIncomeBtn.style.display = '';
+        taxCancelIncomeEditBtn.style.display = '';
+        taxIncomeAmountEl.focus();
+      }
+    }
+
+    function resetExpenseEditMode() {
+      editingExpenseId = null;
+      taxAddExpenseBtn.style.display = '';
+      taxUpdateExpenseBtn.style.display = 'none';
+      taxCancelExpenseEditBtn.style.display = 'none';
+    }
+
+    function resetIncomeEditMode() {
+      editingIncomeId = null;
+      taxAddIncomeBtn.style.display = '';
+      taxUpdateIncomeBtn.style.display = 'none';
+      taxCancelIncomeEditBtn.style.display = 'none';
+    }
+
+    async function deleteTaxRecord(type, r) {
+      const amount = (Number(r.amount_cents||0)/100).toFixed(2);
+      const confirmed = await openConfirmModal(
+        `Delete this ${type} record from ${r.date} for $${amount}? This cannot be undone.`,
+        'Delete Record?',
+        'Delete'
+      );
+      if (!confirmed) return false;
+
+      const url = type === 'income' ? TAX_INCOME_DELETE_API_URL : TAX_EXPENSE_DELETE_API_URL;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        body: JSON.stringify({ id: r.id })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Delete failed');
+      return true;
+    }
+
+    function setTaxEntryMode(mode) {
+      const showExpense = mode === 'expense';
+      const showIncome = mode === 'income';
+      if (taxExpensePanel) taxExpensePanel.style.display = showExpense ? '' : 'none';
+      if (taxIncomePanel) taxIncomePanel.style.display = showIncome ? '' : 'none';
+      if (taxExpenseFields) taxExpenseFields.style.display = showExpense ? '' : 'none';
+      if (taxIncomeFields) taxIncomeFields.style.display = showIncome ? '' : 'none';
+      if (taxMinimizeExpenseBtn) taxMinimizeExpenseBtn.textContent = 'Minimize';
+      if (taxMinimizeIncomeBtn) taxMinimizeIncomeBtn.textContent = 'Minimize';
+      if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
+      if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome);
+    }
+
+    function initTaxUiDefaults() {
+      const now = nowEtParts();
+      const thisYear = Number(now.date.split('-')[0] || new Date().getFullYear());
+      const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
+      taxYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+      taxYearEl.value = String(thisYear);
+
+      renderCategoryOptions();
+
+      taxExpenseDateEl.value = now.date;
+      taxIncomeDateEl.value = now.date;
+      setTaxEntryMode('none');
+    }
+
+    function renderTxList() {
+      let filtered = allTxItems;
+      if (activeTxFilter !== 'all') {
+        filtered = filtered.filter(r => r.type === activeTxFilter);
+      }
+      const selCat = txCategoryFilterEl.value;
+      if (activeTxFilter === 'expense' && selCat) {
+        filtered = filtered.filter(r => (r.category || '') === selCat);
+      }
+      if (!filtered.length) {
+        taxListEl.textContent = activeTxFilter === 'all' ? 'No transactions yet.' : `No ${activeTxFilter} entries.`;
+        return;
+      }
+      taxListEl.innerHTML = filtered.map((r) => {
+        const receiptBtn = r.receipt_key
+          ? `<a href="${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}" target="_blank" class="btn" style="font-size:0.78rem; padding:0.2rem 0.5rem;">Receipt ↗</a>`
+          : `<label class="btn" style="font-size:0.78rem; padding:0.2rem 0.5rem; cursor:pointer;" title="Upload receipt">+ Receipt<input type="file" accept=".pdf,.jpg,.jpeg,.png" class="inline-receipt-input" data-upload-type="${r.type}" data-upload-id="${r.id}" style="display:none;"></label>`;
+        return `
+        <div class="tax-row" data-type="${r.type}" data-id="${r.id}">
+          <span class="type">${r.type.toUpperCase()}</span>
+          <span class="desc" title="${escHtml(formatTaxRowLabel(r.type, r))}">${escHtml(formatTaxRowLabel(r.type, r))}</span>
+          <span class="amt">$${(Number(r.amount_cents || 0)/100).toFixed(2)}</span>
+          <div style="display:flex; gap:.3rem; flex-wrap:wrap;">${receiptBtn}<button type="button" class="btn edit" data-tax-edit="1">Edit</button><button type="button" class="btn delete" data-tax-delete="1">Delete</button></div>
+        </div>`;
+      }).join('');
+
+      taxListEl.querySelectorAll('[data-tax-edit="1"]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const row = btn.closest('.tax-row');
+          const id = Number(row?.getAttribute('data-id') || 0);
+          const type = row?.getAttribute('data-type');
+          const sourceList = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+          const record = sourceList.find(x => Number(x.id) === id);
+          if (!record) return;
+          try {
+            await editTaxRecord(type, record);
+            openSuccessModal('Record loaded into the form. Make your changes and click Update.', 'Edit Mode Ready ✏️');
+          } catch (e) {
+            openErrorModal(`Could not open transaction for edit: ${e.message || e}`);
+          }
+        });
+      });
+
+      taxListEl.querySelectorAll('[data-tax-delete="1"]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const row = btn.closest('.tax-row');
+          const id = Number(row?.getAttribute('data-id') || 0);
+          const type = row?.getAttribute('data-type');
+          const sourceList = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+          const record = sourceList.find(x => Number(x.id) === id);
+          if (!record) return;
+          try {
+            const deleted = await deleteTaxRecord(type, record);
+            if (!deleted) return;
+            await loadTaxTransactions();
+            openSuccessModal('Transaction deleted successfully.', 'Record Deleted ✅');
+          } catch (e) {
+            openErrorModal(`Could not delete transaction: ${e.message || e}`);
+          }
+        });
+      });
+
+      taxListEl.querySelectorAll('.inline-receipt-input').forEach((input) => {
+        input.addEventListener('change', async () => {
+          if (!input.files[0]) return;
+          const type = input.getAttribute('data-upload-type');
+          const id = input.getAttribute('data-upload-id');
+          try {
+            await uploadReceipt(type, id, input);
+            await loadTaxTransactions();
+          } catch (e) {
+            openErrorModal(`Receipt upload failed: ${e.message || e}`);
+          }
+        });
+      });
+    }
+
+    async function loadTaxTransactions() {
+      if (!adminUnlocked) return;
+      const year = taxYearEl.value;
+      const type = taxTypeEl.value;
+      try {
+        const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=5000`, {
+          headers: { 'X-Admin-Password': adminPassword }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+
+        const items = [
+          ...(data.income || []).map(r => ({ type: 'income', ...r })),
+          ...(data.expenses || []).map(r => ({ type: 'expense', ...r }))
+        ].sort((a,b) => {
+          const ad = String(a.date || '');
+          const bd = String(b.date || '');
+          if (ad !== bd) return bd.localeCompare(ad);
+          return Number(b.id || 0) - Number(a.id || 0);
+        });
+
+        const incomeByCategory = new Map();
+        const expenseByCategory = new Map();
+        let incomeTotal = 0;
+        let expenseTotal = 0;
+
+        for (const r of (data.income || [])) {
+          const c = r.category || 'Uncategorized';
+          const v = Number(r.amount_cents || 0);
+          incomeTotal += v;
+          incomeByCategory.set(c, (incomeByCategory.get(c) || 0) + v);
+        }
+        for (const r of (data.expenses || [])) {
+          const c = r.category || 'Uncategorized';
+          const v = Number(r.amount_cents || 0);
+          expenseTotal += v;
+          expenseByCategory.set(c, (expenseByCategory.get(c) || 0) + v);
+        }
+
+        const sortedIncome = [...incomeByCategory.entries()].sort((a,b) => b[1]-a[1]);
+        const sortedExpense = [...expenseByCategory.entries()].sort((a,b) => b[1]-a[1]);
+
+        const incomeRows = sortedIncome.length
+          ? sortedIncome.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+          : '<div class="tax-summary-line"><span>No income entries</span><strong>$0.00</strong></div>';
+
+        const expenseRows = sortedExpense.length
+          ? sortedExpense.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+          : '<div class="tax-summary-line"><span>No expense entries</span><strong>$0.00</strong></div>';
+
+        taxSummaryListEl.innerHTML = `
+          <div class="tax-summary-col">
+            <h4>Income (${year})</h4>
+            <div class="tax-summary-line"><span>Total</span><strong>$${(incomeTotal/100).toFixed(2)}</strong></div>
+            ${incomeRows}
+          </div>
+          <div class="tax-summary-col">
+            <h4>Expenses (${year})</h4>
+            <div class="tax-summary-line"><span>Total</span><strong>$${(expenseTotal/100).toFixed(2)}</strong></div>
+            ${expenseRows}
+            <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong>$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
+          </div>
+        `;
+        allTxItems = items;
+        loadedTaxData = data;
+        txCategoryFilterEl.innerHTML = '<option value="">All Categories</option>' +
+          TAX_EXPENSE_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        renderTxList();
+      } catch (e) {
+        taxSummaryListEl.innerHTML = `<div class="tax-summary-col"><h4>Summary</h4><div class="tax-summary-line"><span>Error</span><strong>${(e.message || e)}</strong></div></div>`;
+        taxListEl.textContent = `Error loading tax transactions: ${e.message || e}`;
+      }
+    }
+
+    function clearTaxExpenseForm() {
+      const now = nowEtParts();
+      taxExpenseDateEl.value = now.date;
+      taxExpenseVendorEl.value = '';
+      taxExpenseAmountEl.value = '';
+      taxExpensePaidViaEl.value = '';
+      taxExpenseNotesEl.value = '';
+      const expReceiptEl = document.getElementById('tax-expense-receipt');
+      if (expReceiptEl) expReceiptEl.value = '';
+      const expReceiptNameEl = document.getElementById('tax-expense-receipt-name');
+      if (expReceiptNameEl) expReceiptNameEl.textContent = 'No file chosen';
+      if (taxExpenseCategoryEl.options.length) taxExpenseCategoryEl.selectedIndex = 0;
+      resetExpenseEditMode();
+    }
+
+    function clearTaxIncomeForm() {
+      const now = nowEtParts();
+      taxIncomeDateEl.value = now.date;
+      taxIncomeSourceEl.value = '';
+      taxIncomeAmountEl.value = '';
+      taxIncomeStripeEl.value = '';
+      taxIncomeNotesEl.value = '';
+      const incReceiptEl = document.getElementById('tax-income-receipt');
+      if (incReceiptEl) incReceiptEl.value = '';
+      const incReceiptNameEl = document.getElementById('tax-income-receipt-name');
+      if (incReceiptNameEl) incReceiptNameEl.textContent = 'No file chosen';
+      if (taxIncomeCategoryEl.options.length) taxIncomeCategoryEl.selectedIndex = 0;
+      resetIncomeEditMode();
+    }
+
+    async function addTaxExpense() {
+      const payload = {
+        date: taxExpenseDateEl.value,
+        vendor: taxExpenseVendorEl.value.trim(),
+        category: taxExpenseCategoryEl.value,
+        amount: taxExpenseAmountEl.value,
+        paidVia: taxExpensePaidViaEl.value.trim(),
+        notes: taxExpenseNotesEl.value.trim()
+      };
+      if (!payload.date || !payload.category || !payload.amount) {
+        openErrorModal('Expense date, category, and amount are required.');
+        return;
+      }
+      const isEdit = !!editingExpenseId;
+      const proceed = await openConfirmModal(
+        isEdit ? 'Save changes to this expense record?' : 'Add this new expense record?',
+        isEdit ? 'Update Expense?' : 'Add Expense?',
+        isEdit ? 'Update' : 'Add'
+      );
+      if (!proceed) return;
+      try {
+        const targetUrl = isEdit ? TAX_EXPENSE_UPDATE_API_URL : TAX_EXPENSE_API_URL;
+        if (editingExpenseId) payload.id = editingExpenseId;
+        const res = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        const receiptInput = document.getElementById('tax-expense-receipt');
+        if (data.id && receiptInput) {
+          await uploadReceipt('expense', data.id, receiptInput).catch(() => {});
+          receiptInput.value = '';
+        }
+        clearTaxExpenseForm();
+        await loadTaxTransactions();
+        openSuccessModal(isEdit ? 'Expense record updated successfully.' : 'Expense record added successfully.', isEdit ? 'Expense Updated ✅' : 'Expense Added ✅');
+      } catch (e) {
+        openErrorModal(`Could not save expense: ${e.message || e}`);
+      }
+    }
+
+    async function addTaxIncome() {
+      const payload = {
+        date: taxIncomeDateEl.value,
+        source: taxIncomeSourceEl.value.trim(),
+        category: taxIncomeCategoryEl.value,
+        amount: taxIncomeAmountEl.value,
+        stripeSessionId: taxIncomeStripeEl.value.trim(),
+        notes: taxIncomeNotesEl.value.trim()
+      };
+      if (!payload.date || !payload.category || !payload.amount) {
+        openErrorModal('Income date, category, and amount are required.');
+        return;
+      }
+      const isEdit = !!editingIncomeId;
+      const proceed = await openConfirmModal(
+        isEdit ? 'Save changes to this income record?' : 'Add this new income record?',
+        isEdit ? 'Update Income?' : 'Add Income?',
+        isEdit ? 'Update' : 'Add'
+      );
+      if (!proceed) return;
+      try {
+        const targetUrl = isEdit ? TAX_INCOME_UPDATE_API_URL : TAX_INCOME_API_URL;
+        if (editingIncomeId) payload.id = editingIncomeId;
+        const res = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        const receiptInput = document.getElementById('tax-income-receipt');
+        if (data.id && receiptInput) {
+          await uploadReceipt('income', data.id, receiptInput).catch(() => {});
+          receiptInput.value = '';
+        }
+        clearTaxIncomeForm();
+        await loadTaxTransactions();
+        openSuccessModal(isEdit ? 'Income record updated successfully.' : 'Income record added successfully.', isEdit ? 'Income Updated ✅' : 'Income Added ✅');
+      } catch (e) {
+        openErrorModal(`Could not save income: ${e.message || e}`);
+      }
+    }
+
+    async function uploadReceipt(type, id, fileInput) {
+      if (!fileInput.files[0]) return;
+      const fd = new FormData();
+      fd.append('type', type);
+      fd.append('id', String(id));
+      fd.append('file', fileInput.files[0]);
+      const res = await fetch(TAX_RECEIPT_UPLOAD_URL, {
+        method: 'POST',
+        headers: { 'X-Admin-Password': adminPassword },
+        body: fd
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Receipt upload failed');
+    }
+
+    async function downloadTaxCsv() {
+      const year = taxYearEl.value;
+      const type = taxTypeEl.value;
+      try {
+        const res = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}`, {
+          headers: { 'X-Admin-Password': adminPassword }
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || 'Export failed');
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `eastern-shore-ai-tax-${year}-${type}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (e) {
+        openErrorModal(`Could not export CSV: ${e.message || e}`);
+      }
+    }
+
+    function wireCollapse(btn, body) {
+      if (!btn || !body) return;
+      btn.addEventListener('click', () => {
+        const isOpen = btn.getAttribute('aria-expanded') !== 'false';
+        if (isOpen) {
+          body.classList.add('admin-collapsible-body-collapsed');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = 'Expand';
+        } else {
+          body.classList.remove('admin-collapsible-body-collapsed');
+          btn.setAttribute('aria-expanded', 'true');
+          btn.textContent = 'Minimize';
+        }
+      });
+    }
+
+    wireCollapse(bookingCollapseBtn, bookingControlsBody);
+    wireCollapse(taxCollapseBtn, taxLedgerBody);
+
+    // ===== Admin Unlock =====
+    adminUnlockBtn.addEventListener('click', async () => {
+      const key = adminKeyEl.value.trim();
+      if (!key) return;
+      try {
+        const res = await fetch(`${BOOKINGS_API_URL}?limit=1`, {
+          headers: { 'X-Admin-Password': key }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Invalid password');
+        adminPassword = key;
+        setAdminUnlocked(true);
+        const n = new Date();
+        adminCalendarCursor = new Date(n.getFullYear(), n.getMonth(), 1);
+        loadCategoryPrefs();
+        initTaxUiDefaults();
+        await loadAdminData();
+        await loadTaxTransactions();
+      } catch (e) {
+        openErrorModal(`Admin unlock failed: ${e.message || e}`);
+      }
+    });
+
+    // Also allow Enter key on password input
+    adminKeyEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') adminUnlockBtn.click();
+    });
+
+    // ===== Booking Controls Event Listeners =====
+    adminBlockBtn.addEventListener('click', () => setBlockedSlot(true));
+    adminUnblockBtn.addEventListener('click', () => setBlockedSlot(false));
+    adminBlockDayBtn.addEventListener('click', () => setBlockedDay(true));
+    adminUnblockDayBtn.addEventListener('click', () => setBlockedDay(false));
+    adminRefreshBtn.addEventListener('click', loadAdminData);
+    adminCalPrevBtn?.addEventListener('click', () => {
+      const c = adminCalendarCursor || new Date();
+      adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() - 1, 1);
+      loadAdminData();
+    });
+    adminCalNextBtn?.addEventListener('click', () => {
+      const c = adminCalendarCursor || new Date();
+      adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() + 1, 1);
+      loadAdminData();
+    });
+
+    // ===== Tax Ledger Event Listeners =====
+    taxRefreshBtn.addEventListener('click', loadTaxTransactions);
+    taxYearEl.addEventListener('change', loadTaxTransactions);
+    taxTypeEl.addEventListener('change', loadTaxTransactions);
+    taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
+    taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
+
+    window.openTaxCategoryManager = () => {
+      if (!taxCategoryModal) {
+        openErrorModal('Category manager is unavailable on this page load. Please refresh and try again.');
+        return;
+      }
+      taxCategoryModal.classList.add('active');
+      taxCategoryModal.setAttribute('aria-hidden', 'false');
+      try {
+        renderCategoryManagerLists();
+      } catch (e) {
+        openErrorModal(`Could not load category manager: ${e.message || e}`);
+      }
+    };
+    taxManageCategoriesBtn?.addEventListener('click', window.openTaxCategoryManager);
+
+    const closeTaxCategoryModal = () => {
+      taxCategoryModal.classList.remove('active');
+      taxCategoryModal.setAttribute('aria-hidden', 'true');
+    };
+    taxCategoryCloseBtn?.addEventListener('click', closeTaxCategoryModal);
+    taxCategoryXBtn?.addEventListener('click', closeTaxCategoryModal);
+    taxCategoryModal?.addEventListener('click', (e) => {
+      if (e.target === taxCategoryModal) {
+        taxCategoryModal.classList.remove('active');
+        taxCategoryModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    addExpenseCategoryBtn?.addEventListener('click', () => {
+      const name = (newExpenseCategoryEl.value || '').trim();
+      if (!name) return;
+      if (TAX_EXPENSE_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
+        openErrorModal('Expense category already exists.');
+        return;
+      }
+      TAX_EXPENSE_CATEGORIES.push(name);
+      newExpenseCategoryEl.value = '';
+      saveCategoryPrefs();
+      renderCategoryOptions();
+      renderCategoryManagerLists();
+      openSuccessModal('Expense category added.', 'Category Added ✅');
+    });
+
+    addIncomeCategoryBtn?.addEventListener('click', () => {
+      const name = (newIncomeCategoryEl.value || '').trim();
+      if (!name) return;
+      if (TAX_INCOME_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
+        openErrorModal('Income category already exists.');
+        return;
+      }
+      TAX_INCOME_CATEGORIES.push(name);
+      newIncomeCategoryEl.value = '';
+      saveCategoryPrefs();
+      renderCategoryOptions();
+      renderCategoryManagerLists();
+      openSuccessModal('Income category added.', 'Category Added ✅');
+    });
+
+    taxMinimizeExpenseBtn?.addEventListener('click', () => {
+      const isHidden = taxExpenseFields?.style.display === 'none';
+      if (taxExpenseFields) taxExpenseFields.style.display = isHidden ? '' : 'none';
+      taxMinimizeExpenseBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+    });
+
+    taxMinimizeIncomeBtn?.addEventListener('click', () => {
+      const isHidden = taxIncomeFields?.style.display === 'none';
+      if (taxIncomeFields) taxIncomeFields.style.display = isHidden ? '' : 'none';
+      taxMinimizeIncomeBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+    });
+
+    txFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTxFilter = btn.getAttribute('data-filter');
+        txFilterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        txCategoryFilterEl.style.display = activeTxFilter === 'expense' ? '' : 'none';
+        if (activeTxFilter !== 'expense') txCategoryFilterEl.value = '';
+        renderTxList();
+      });
+    });
+
+    txCategoryFilterEl.addEventListener('change', renderTxList);
+    taxAddExpenseBtn.addEventListener('click', addTaxExpense);
+    taxUpdateExpenseBtn.addEventListener('click', addTaxExpense);
+    taxCancelExpenseEditBtn.addEventListener('click', clearTaxExpenseForm);
+    taxClearExpenseBtn.addEventListener('click', clearTaxExpenseForm);
+    taxAddIncomeBtn.addEventListener('click', addTaxIncome);
+    taxUpdateIncomeBtn.addEventListener('click', addTaxIncome);
+    taxCancelIncomeEditBtn.addEventListener('click', clearTaxIncomeForm);
+    taxClearIncomeBtn.addEventListener('click', clearTaxIncomeForm);
+
+    document.getElementById('tax-expense-receipt').addEventListener('change', function() {
+      document.getElementById('tax-expense-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+    });
+    document.getElementById('tax-income-receipt').addEventListener('change', function() {
+      document.getElementById('tax-income-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+    });
+
+    taxExportBtn.addEventListener('click', downloadTaxCsv);
+
+    const taxZipBtn = document.getElementById('tax-zip-btn');
+    if (taxZipBtn) {
+      taxZipBtn.addEventListener('click', async () => {
+        if (typeof JSZip === 'undefined') { openErrorModal('JSZip not loaded — try refreshing the page.'); return; }
+        const year = taxYearEl.value;
+        taxZipBtn.textContent = 'Building…';
+        taxZipBtn.disabled = true;
+        try {
+          const zip = new JSZip();
+          const folder = zip.folder(`eastern-shore-ai-tax-${year}`);
+
+          const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          });
+          if (!csvRes.ok) throw new Error('CSV fetch failed');
+          folder.file(`eastern-shore-ai-tax-${year}.csv`, await csvRes.blob());
+
+          const txRes = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          });
+          const txData = await txRes.json();
+          const allRecords = [
+            ...(txData.expenses || []).map(r => ({ ...r, recType: 'expense' })),
+            ...(txData.income || []).map(r => ({ ...r, recType: 'income' }))
+          ];
+
+          const receiptsFolder = folder.folder('receipts');
+          for (const r of allRecords) {
+            if (!r.receipt_key) continue;
+            const ext = r.receipt_key.split('.').pop();
+            const filename = `${r.recType}-${r.id}-${r.date || ''}.${ext}`;
+            const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}`);
+            if (rRes.ok) receiptsFolder.file(filename, await rRes.blob());
+          }
+
+          const blob = await zip.generateAsync({ type: 'blob' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `eastern-shore-ai-tax-${year}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        } catch (e) {
+          openErrorModal(`ZIP build failed: ${e.message || e}`);
+        } finally {
+          taxZipBtn.textContent = '⬇ Year Package (.zip)';
+          taxZipBtn.disabled = false;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
