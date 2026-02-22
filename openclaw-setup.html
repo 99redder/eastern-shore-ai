@@ -173,7 +173,7 @@
     .admin-panel.active { display:block; }
     body.admin-mode .user-section,
     body.admin-mode .top-book-btn,
-    body.admin-mode .success-modal-overlay:not(#confirm-modal):not(#error-modal):not(#tax-category-modal),
+    body.admin-mode .success-modal-overlay:not(#confirm-modal):not(#error-modal):not(#tax-category-modal):not(#tax-category-edit-modal),
     body.admin-mode footer { display:none !important; }
     body.admin-mode .admin-panel { margin-top:0; }
     .admin-lock { border:1px solid var(--line); border-radius:2px; padding:.75rem; background:#10121a; margin-top:.6rem; }
@@ -944,8 +944,8 @@
           <div style="margin-top:1.25rem; padding-top:.75rem; border-top:1px solid var(--line);">
             <label style="display:block; margin-bottom:.35rem;">Add New Category</label>
             <div class="admin-row" style="gap:.4rem;">
-              <input id="new-expense-category" placeholder="Enter your new expense category, here" />
-              <button type="button" class="btn btn-primary" id="add-expense-category-btn" style="min-width:120px;">Add</button>
+              <input id="new-expense-category" placeholder="Enter your new expense category, here" style="flex:1;" />
+              <button type="button" class="btn btn-primary" id="add-expense-category-btn" style="flex:1;">Add</button>
             </div>
           </div>
         </div>
@@ -955,8 +955,8 @@
           <div style="margin-top:1.25rem; padding-top:.75rem; border-top:1px solid var(--line);">
             <label style="display:block; margin-bottom:.35rem;">Add New Category</label>
             <div class="admin-row" style="gap:.4rem;">
-              <input id="new-income-category" placeholder="Enter your new income category, here" />
-              <button type="button" class="btn btn-primary" id="add-income-category-btn" style="min-width:120px;">Add</button>
+              <input id="new-income-category" placeholder="Enter your new income category, here" style="flex:1;" />
+              <button type="button" class="btn btn-primary" id="add-income-category-btn" style="flex:1;">Add</button>
             </div>
           </div>
         </div>
