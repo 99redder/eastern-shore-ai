@@ -577,7 +577,7 @@
   <section class="cta" id="contact">
     <h2>Ready to Work Smarter?</h2>
     <p>Book a free 15-minute call. We'll show you what's possible and give you a custom quote.</p>
-    <a href="mailto:easternshoreai@outlook.com?subject=AI Automation Inquiry" class="btn btn-primary">Book Your Free Call</a>
+    <a href="#" class="btn btn-primary quote-trigger">Book Your Free Call</a>
   </section>
 
   <footer>
@@ -649,6 +649,8 @@
   </div>
 
   <script>
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+
     // Modal functionality
     const modal = document.getElementById('quote-modal');
     const modalTitle = document.getElementById('modal-title');
@@ -662,7 +664,7 @@
         const text = this.textContent;
         const isRepair = text === 'AI Agent Repair';
         
-        modalTitle.textContent = text === 'Website Design' ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : 'Get a Quote');
+        modalTitle.textContent = text === 'Website Design' ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : (text === 'Book Your Free Call' ? 'Book Your Free Call' : 'Get a Quote'));
         
         // Show/hide repair-specific fields
         repairFields.forEach(field => {
@@ -681,22 +683,39 @@
       if (e.target === modal) modal.style.display = 'none';
     });
     
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
       const repairOs = formData.get('operating-system') || 'Not specified';
-      const subject = encodeURIComponent(modalTitle.textContent + ' - Eastern Shore AI');
-      const body = encodeURIComponent(
+      const contextTitle = modalTitle.textContent || 'Get a Quote';
+      const message =
+        'Request Type: ' + contextTitle + '\n' +
         'Name: ' + formData.get('name') + '\n' +
         'Email: ' + formData.get('email') + '\n' +
         'Phone: ' + (formData.get('phone') || 'Not provided') + '\n' +
         'Operating System: ' + repairOs + '\n' +
         'Preferred Contact: ' + formData.get('contact-method') + '\n' +
-        '\nMessage:\n' + formData.get('message')
-      );
-      window.location.href = 'mailto:easternshoreai@outlook.com?subject=' + subject + '&body=' + body;
-      modal.style.display = 'none';
-      form.reset();
+        '\nMessage:\n' + formData.get('message');
+
+      try {
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'contact',
+            name: formData.get('name'),
+            email: formData.get('email'),
+            message
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
+        alert('Thanks — your request was sent.');
+        modal.style.display = 'none';
+        form.reset();
+      } catch (err) {
+        alert('Could not send right now. Please try again in a moment.');
+      }
     });
 
     // Hamburger menu
@@ -834,10 +853,27 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     
     // Newsletter form
-    document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+    document.getElementById('newsletter-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const email = this.querySelector('input[type="email"]').value;
-      window.location.href = 'mailto:easternshoreai@outlook.com?subject=Newsletter Subscription&body=Please add this email to the newsletter: ' + encodeURIComponent(email);
+      try {
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'newsletter',
+            name: 'Newsletter Signup',
+            email,
+            message: 'Please add this email to the newsletter list.'
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
+        alert('Subscribed — thanks!');
+        this.reset();
+      } catch (err) {
+        alert('Could not submit newsletter signup right now. Please try again.');
+      }
     });
 
     // About modal
