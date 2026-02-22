@@ -281,9 +281,10 @@
     <div class="site-header-inner">
       <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
       <nav class="header-nav">
-        <a href="/#services">Services</a>
-        <a href="/#portfolio">Portfolio</a>
-        <a href="/#contact">Contact</a>
+        <a href="openclaw-setup.html">OpenClaw Setup</a>
+        <a href="book-lessons.html">Tech Lessons</a>
+        <a href="#" class="quote-trigger">Website Design</a>
+        <a href="#" class="quote-trigger">AI Agent Repair</a>
       </nav>
     </div>
   </header>
@@ -392,6 +393,72 @@
       </p>
     </div>
   </footer>
+
+  <!-- Quote Modal -->
+  <div class="modal-overlay" id="quote-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 12px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem;" id="modal-title">Get a Quote</h2>
+        <button class="modal-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <form id="quote-form" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Name</label>
+            <input type="text" name="name" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Email</label>
+            <input type="email" name="email" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">What do you need?</label>
+            <textarea name="message" rows="4" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center;">Send Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal functionality
+    const modal = document.getElementById('quote-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const form = document.getElementById('quote-form');
+    const closeBtn = document.querySelector('.modal-close');
+    
+    document.querySelectorAll('.quote-trigger').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const text = this.textContent;
+        modalTitle.textContent = text === 'Website Design' ? 'Get a Website Quote' : 'Get a Quote';
+        modal.style.display = 'flex';
+      });
+    });
+    
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+    
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const subject = encodeURIComponent(modalTitle.textContent + ' - Eastern Shore AI');
+      const body = encodeURIComponent(
+        'Name: ' + formData.get('name') + '\\n' +
+        'Email: ' + formData.get('email') + '\\n' +
+        'Message: ' + formData.get('message')
+      );
+      window.location.href = 'mailto:easternshoreai@outlook.com?subject=' + subject + '&body=' + body;
+      modal.style.display = 'none';
+      form.reset();
+    });
+  </script>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
