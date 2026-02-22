@@ -145,6 +145,26 @@
     /* Simple modal (re-uses success modal styles) */
     .simple-modal-actions { display:flex; justify-content:flex-end; margin-top:1rem; }
     .simple-modal-links { margin-top:.7rem; display:flex; gap:.8rem; flex-wrap:wrap; }
+
+    /* ===== OpenClaw Info Modal ===== */
+    #openclaw-info-modal .success-modal { width:min(700px,96vw); max-height:88vh; overflow-y:auto; }
+    .oc-tagline { font-size:1.15rem; font-weight:700; color:var(--text); margin:.2rem 0 .3rem; font-family:'Hanken Grotesk',system-ui,sans-serif; }
+    .oc-sub { margin:0 0 1rem; font-size:.95rem; }
+    .oc-features { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin:.8rem 0; }
+    .oc-feature { background:var(--bg2); border:1px solid var(--line); padding:.65rem .75rem; }
+    .oc-feature-title { font-weight:700; font-size:.88rem; color:var(--cyan); margin:0 0 .2rem; font-family:'Hanken Grotesk',system-ui,sans-serif; }
+    .oc-feature-desc { margin:0; font-size:.83rem; color:var(--muted); line-height:1.45; }
+    .oc-integrations { margin:.8rem 0 0; }
+    .oc-integrations-label { font-size:.78rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 .4rem; }
+    .oc-chips { display:flex; flex-wrap:wrap; gap:.3rem; }
+    .oc-chip { background:var(--bg2); border:1px solid var(--line); font-size:.78rem; color:var(--muted); padding:.2rem .5rem; }
+    .oc-quotes { margin:.9rem 0 0; border-top:1px solid var(--line); padding-top:.75rem; display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+    .oc-quote { font-size:.8rem; color:var(--muted); line-height:1.4; font-style:italic; }
+    .oc-quote cite { display:block; margin-top:.2rem; font-style:normal; font-size:.75rem; color:var(--cyan); font-weight:600; }
+    @media (max-width:560px) {
+      .oc-features { grid-template-columns:1fr; }
+      .oc-quotes { grid-template-columns:1fr; }
+    }
     /* ===== Admin Panel ===== */
     .admin-panel { margin-top:1rem; display:none; }
     .admin-panel.active { display:block; }
@@ -388,6 +408,7 @@
     <section id="pick-setup" class="card user-section" style="margin-top:1rem; margin-bottom:1rem;">
       <nav aria-label="Site navigation">
         <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
+        <a href="#" id="openclaw-info-link" style="font-size:.82rem; color:var(--cyan); text-shadow:none; text-decoration:underline; margin-left:.6rem;">What is OpenClaw?</a>
       </nav>
       <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
       <h2>Pick Your Setup Day</h2>
@@ -812,6 +833,61 @@
     </div>
   </div>
 
+  <!-- ===== SECTION: OpenClaw Info Modal ===== -->
+  <div class="success-modal-overlay" id="openclaw-info-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="oc-info-title">
+      <h3 id="oc-info-title" style="color:var(--cyan); margin:.1rem 0 .3rem;">What is OpenClaw?</h3>
+      <p class="oc-tagline">"The AI that actually does things."</p>
+      <p class="oc-sub">OpenClaw is a personal AI assistant that clears your inbox, sends emails, manages your calendar, and checks you in for flights — all through WhatsApp, Telegram, Discord, Slack, Signal, iMessage, or any chat app you already use. It runs locally on your machine, keeping your data private.</p>
+
+      <div class="oc-features">
+        <div class="oc-feature">
+          <p class="oc-feature-title">🖥️ Runs on Your Machine</p>
+          <p class="oc-feature-desc">Installs on Mac, Windows, or Linux. Your data stays local — no cloud lock-in.</p>
+        </div>
+        <div class="oc-feature">
+          <p class="oc-feature-title">💬 Any Chat App</p>
+          <p class="oc-feature-desc">Control it from WhatsApp, Telegram, Discord, Slack, Signal, or iMessage — wherever you already are.</p>
+        </div>
+        <div class="oc-feature">
+          <p class="oc-feature-title">🧠 Persistent Memory</p>
+          <p class="oc-feature-desc">Learns your preferences and remembers context across conversations.</p>
+        </div>
+        <div class="oc-feature">
+          <p class="oc-feature-title">🌐 Browser Control</p>
+          <p class="oc-feature-desc">Navigates websites, fills forms, and executes multi-step web tasks autonomously.</p>
+        </div>
+        <div class="oc-feature">
+          <p class="oc-feature-title">⚙️ Full System Access</p>
+          <p class="oc-feature-desc">Access files, run shell commands, execute scripts — full computer control via chat.</p>
+        </div>
+        <div class="oc-feature">
+          <p class="oc-feature-title">🔌 Skills &amp; Plugins</p>
+          <p class="oc-feature-desc">50+ integrations built-in, plus a skills marketplace (ClawHub). Self-extending via conversation.</p>
+        </div>
+      </div>
+
+      <div class="oc-integrations">
+        <p class="oc-integrations-label">Works with</p>
+        <div class="oc-chips">
+          <span class="oc-chip">WhatsApp</span><span class="oc-chip">Telegram</span><span class="oc-chip">Discord</span><span class="oc-chip">Slack</span><span class="oc-chip">Signal</span><span class="oc-chip">iMessage</span><span class="oc-chip">Gmail</span><span class="oc-chip">GitHub</span><span class="oc-chip">Spotify</span><span class="oc-chip">Twitter / X</span><span class="oc-chip">Browser</span><span class="oc-chip">Obsidian</span><span class="oc-chip">Hue</span><span class="oc-chip">Claude</span><span class="oc-chip">GPT</span><span class="oc-chip">50+ more</span>
+        </div>
+      </div>
+
+      <div class="oc-quotes">
+        <div class="oc-quote">"It's running my company."<cite>@therno</cite></div>
+        <div class="oc-quote">"OpenClaw is Jarvis. It already exists."<cite>@nofil_ai</cite></div>
+        <div class="oc-quote">"This is nuts. OpenClaw is a superpower."<cite>@robmartinson</cite></div>
+        <div class="oc-quote">"Feels like we're living in the future."<cite>@Philo01</cite></div>
+      </div>
+
+      <div class="simple-modal-actions" style="justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem;">
+        <a href="https://www.openclaw.ai" target="_blank" rel="noopener noreferrer" class="footer-link" style="margin:0;">Visit openclaw.ai →</a>
+        <button type="button" class="btn btn-primary" id="openclaw-info-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== SECTION: Success Modal (post-payment) ===== -->
   <div class="success-modal-overlay" id="success-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-title">
@@ -1047,6 +1123,19 @@
       el.classList.remove('active');
       el.setAttribute('aria-hidden', 'true');
     }
+
+    const openclawInfoLink = document.getElementById('openclaw-info-link');
+    const openclawInfoModal = document.getElementById('openclaw-info-modal');
+    const openclawInfoCloseBtn = document.getElementById('openclaw-info-close-btn');
+
+    openclawInfoLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openSimpleModal(openclawInfoModal);
+    });
+    openclawInfoCloseBtn.addEventListener('click', () => closeSimpleModal(openclawInfoModal));
+    openclawInfoModal.addEventListener('click', (e) => {
+      if (e.target === openclawInfoModal) closeSimpleModal(openclawInfoModal);
+    });
 
     contactLink.addEventListener('click', (e) => {
       e.preventDefault();
