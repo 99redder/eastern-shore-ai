@@ -25,6 +25,7 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 ```
 ├── index.html                 # Main homepage (self-contained HTML/CSS/JS)
 ├── openclaw-setup.html        # Setup booking page with Stripe checkout
+├── admin.html                 # Admin dashboard (noindex, password-protected)
 ├── favicon.svg
 ├── CNAME                      # GitHub Pages domain config
 ├── robots.txt / sitemap.xml   # SEO files
@@ -224,11 +225,21 @@ Migrations:
 
 ### Admin operations (booking + tax)
 
-Hidden admin mode on booking page:
-- `openclaw-setup.html?admin=1`
+Admin panel lives at `/admin.html` (dedicated page, `noindex`). Previously was at `openclaw-setup.html?admin=1` — that no longer activates anything.
 
 Auth:
 - Admin requests use `X-Admin-Password` header (value must match Worker secret `ADMIN_PASSWORD`)
+
+#### Changing the admin password
+
+**Via CLI:**
+```bash
+cd worker && wrangler secret put ADMIN_PASSWORD
+```
+No redeploy needed — Worker picks it up immediately.
+
+**Via Cloudflare dashboard:**
+dash.cloudflare.com → Workers & Pages → `eastern-shore-ai-contact` → Settings → Variables and Secrets → Edit `ADMIN_PASSWORD` → Deploy.
 
 Admin APIs:
 - `GET /api/bookings`
@@ -264,9 +275,11 @@ When moving from test to live:
 - Set/rotate `ADMIN_PASSWORD`
 - Run one full end-to-end live verification payment
 
-## Admin Dashboard (openclaw-setup.html) — Current UX
+## Admin Dashboard (`admin.html`) — Current UX
 
-- Admin mode hides public booking marketing sections; shows admin controls only.
+- Lives at `/admin.html` — dedicated standalone page, no public booking content.
+- Password lock on page load; unlock reveals all admin controls.
+- No header bar — goes straight to the admin lock/content.
 - Booking admin includes:
   - block/unblock individual 2-hour slots
   - block/unblock entire day
@@ -388,3 +401,20 @@ Both booking pages now share the same modal architecture:
 
 ### General Instructions added to CLAUDE.md
 - Auto-push after every commit — no confirmation needed
+
+## Session Update — 2026-02-22 (Admin panel migration)
+
+### Admin panel moved to `admin.html`
+- Created `admin.html`: dedicated standalone admin page at `/admin.html`
+  - `<meta name="robots" content="noindex">` — kept out of search indexes
+  - No header bar — page goes straight to the password lock then admin controls
+  - Password lock/unlock works identically to before; all admin functions preserved
+  - Includes JSZip CDN script for year-package ZIP export
+- Stripped all admin HTML, CSS, and JS from `openclaw-setup.html` (~1,400 lines removed)
+  - `openclaw-setup.html?admin=1` no longer activates anything
+  - Public booking page is now a clean standalone file focused on the booking flow
+- Admin-only modals (`#confirm-modal`, `#tax-category-modal`, `#tax-category-edit-modal`) now live only in `admin.html`; `#success-modal` and `#error-modal` remain in `openclaw-setup.html` for the booking flow
+
+### Add Expense bug fix (prior session, documented here)
+- Root cause: `body.admin-mode .success-modal-overlay { display:none !important; }` was hiding `#confirm-modal` even after `.active` was added, so the Promise-based confirm dialog never resolved
+- Fix: added `:not(#confirm-modal):not(#error-modal)` to that CSS selector so only the booking success overlay is hidden in admin mode
