@@ -909,6 +909,17 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="confirm-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <h3 id="confirm-title">Please Confirm</h3>
+      <p id="confirm-details"></p>
+      <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="confirm-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirm-ok-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== FUNCTION INDEX =====
     // Time Utils:      nowEtParts() — Current date/time in America/New_York
@@ -1020,6 +1031,10 @@
     const errorModal = document.getElementById('error-modal');
     const errorDetails = document.getElementById('error-details');
     const errorCloseBtn = document.getElementById('error-close-btn');
+    const confirmModal = document.getElementById('confirm-modal');
+    const confirmDetails = document.getElementById('confirm-details');
+    const confirmOkBtn = document.getElementById('confirm-ok-btn');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
 
     const setupDateEl = document.getElementById('setup-date');
     const setupTimeEl = document.getElementById('setup-time');
@@ -1111,6 +1126,32 @@
     function closeErrorModal() {
       errorModal.classList.remove('active');
       errorModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openConfirmModal(text, title = 'Please Confirm', confirmLabel = 'Confirm') {
+      return new Promise((resolve) => {
+        const confirmTitleEl = document.getElementById('confirm-title');
+        confirmTitleEl.textContent = title;
+        confirmDetails.textContent = text;
+        confirmOkBtn.textContent = confirmLabel;
+        confirmModal.classList.add('active');
+        confirmModal.setAttribute('aria-hidden', 'false');
+
+        const cleanup = () => {
+          confirmModal.classList.remove('active');
+          confirmModal.setAttribute('aria-hidden', 'true');
+          confirmOkBtn.removeEventListener('click', onOk);
+          confirmCancelBtn.removeEventListener('click', onCancel);
+          confirmModal.removeEventListener('click', onOverlay);
+        };
+        const onOk = () => { cleanup(); resolve(true); };
+        const onCancel = () => { cleanup(); resolve(false); };
+        const onOverlay = (e) => { if (e.target === confirmModal) onCancel(); };
+
+        confirmOkBtn.addEventListener('click', onOk);
+        confirmCancelBtn.addEventListener('click', onCancel);
+        confirmModal.addEventListener('click', onOverlay);
+      });
     }
 
     /** @param {HTMLElement} el - Modal overlay element */
@@ -1434,7 +1475,7 @@
             const raw = btn.getAttribute('data-blocked-slot-delete') || '';
             const [setupDate, setupTime] = raw.split('|');
             if (!setupDate || !setupTime) return;
-            const ok = confirm(`Delete blocked slot ${setupDate} ${setupTime}?`);
+            const ok = await openConfirmModal(`Delete blocked slot ${setupDate} ${setupTime}?`, 'Delete Blocked Slot?', 'Delete');
             if (!ok) return;
             try {
               await fetch(`${BLOCK_SLOT_API_URL}`, {
@@ -1444,8 +1485,9 @@
               });
               await loadAvailability();
               await loadAdminData();
+              openSuccessModal('Blocked slot deleted successfully.', 'Record Deleted ✅');
             } catch (e) {
-              alert(`Could not delete blocked slot: ${e.message || e}`);
+              openErrorModal(`Could not delete blocked slot: ${e.message || e}`);
             }
           });
         });
@@ -1454,7 +1496,7 @@
           btn.addEventListener('click', async () => {
             const setupDate = btn.getAttribute('data-blocked-day-delete') || '';
             if (!setupDate) return;
-            const ok = confirm(`Delete blocked day ${setupDate}?`);
+            const ok = await openConfirmModal(`Delete blocked day ${setupDate}?`, 'Delete Blocked Day?', 'Delete');
             if (!ok) return;
             try {
               await fetch(`${BLOCK_DAY_API_URL}`, {
@@ -1464,8 +1506,9 @@
               });
               await loadAvailability();
               await loadAdminData();
+              openSuccessModal('Blocked day deleted successfully.', 'Record Deleted ✅');
             } catch (e) {
-              alert(`Could not delete blocked day: ${e.message || e}`);
+              openErrorModal(`Could not delete blocked day: ${e.message || e}`);
             }
           });
         });
@@ -1482,9 +1525,15 @@
       const setupDate = adminDateEl.value;
       const setupTime = adminTimeEl.value;
       if (!key || !setupDate || !setupTime) {
-        alert('Admin password + date + time are required.');
+        openErrorModal('Admin password + date + time are required.');
         return;
       }
+      const proceed = await openConfirmModal(
+        `${active ? 'Block' : 'Unblock'} slot ${setupDate} ${setupTime}?`,
+        active ? 'Block Slot?' : 'Unblock Slot?',
+        active ? 'Block' : 'Unblock'
+      );
+      if (!proceed) return;
       try {
         const res = await fetch(`${BLOCK_SLOT_API_URL}`, {
           method: 'POST',
@@ -1500,8 +1549,9 @@
         if (!res.ok) throw new Error(data.error || 'Failed to update slot');
         await loadAvailability();
         await loadAdminData();
+        openSuccessModal(`Slot ${active ? 'blocked' : 'unblocked'} successfully.`, active ? 'Slot Blocked ✅' : 'Slot Unblocked ✅');
       } catch (e) {
-        alert(`Could not update slot: ${e.message || e}`);
+        openErrorModal(`Could not update slot: ${e.message || e}`);
       }
     }
 
@@ -1510,9 +1560,15 @@
       const key = adminKeyEl.value.trim();
       const setupDate = adminDateEl.value;
       if (!key || !setupDate) {
-        alert('Admin password + date are required.');
+        openErrorModal('Admin password + date are required.');
         return;
       }
+      const proceed = await openConfirmModal(
+        `${active ? 'Block' : 'Unblock'} day ${setupDate}?`,
+        active ? 'Block Day?' : 'Unblock Day?',
+        active ? 'Block' : 'Unblock'
+      );
+      if (!proceed) return;
       try {
         const res = await fetch(`${BLOCK_DAY_API_URL}`, {
           method: 'POST',
@@ -1527,8 +1583,9 @@
         if (!res.ok) throw new Error(data.error || 'Failed to update day');
         await loadAvailability();
         await loadAdminData();
+        openSuccessModal(`Day ${active ? 'blocked' : 'unblocked'} successfully.`, active ? 'Day Blocked ✅' : 'Day Unblocked ✅');
       } catch (e) {
-        alert(`Could not update day: ${e.message || e}`);
+        openErrorModal(`Could not update day: ${e.message || e}`);
       }
     }
 
@@ -1621,10 +1678,13 @@
       }
 
       async function deleteTaxRecord(type, r) {
-        const confirmed = confirm(`Delete ${type} record on ${r.date} for $${(Number(r.amount_cents||0)/100).toFixed(2)}? This cannot be undone.`);
-        if (!confirmed) return;
-        const doubleConfirm = confirm('Final confirmation: permanently delete this record?');
-        if (!doubleConfirm) return;
+        const amount = (Number(r.amount_cents||0)/100).toFixed(2);
+        const confirmed = await openConfirmModal(
+          `Delete this ${type} record from ${r.date} for $${amount}? This cannot be undone.`,
+          'Delete Record?',
+          'Delete'
+        );
+        if (!confirmed) return false;
 
         const url = type === 'income' ? TAX_INCOME_DELETE_API_URL : TAX_EXPENSE_DELETE_API_URL;
         const res = await fetch(url, {
@@ -1634,6 +1694,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || 'Delete failed');
+        return true;
       }
 
       function initTaxUiDefaults() {
@@ -1687,8 +1748,9 @@
             if (!record) return;
             try {
               await editTaxRecord(type, record);
+              openSuccessModal('Record loaded into the form. Make your changes and click Update.', 'Edit Mode Ready ✏️');
             } catch (e) {
-              alert(`Could not open transaction for edit: ${e.message || e}`);
+              openErrorModal(`Could not open transaction for edit: ${e.message || e}`);
             }
           });
         });
@@ -1702,10 +1764,12 @@
             const record = sourceList.find(x => Number(x.id) === id);
             if (!record) return;
             try {
-              await deleteTaxRecord(type, record);
+              const deleted = await deleteTaxRecord(type, record);
+              if (!deleted) return;
               await loadTaxTransactions();
+              openSuccessModal('Transaction deleted successfully.', 'Record Deleted ✅');
             } catch (e) {
-              alert(`Could not delete transaction: ${e.message || e}`);
+              openErrorModal(`Could not delete transaction: ${e.message || e}`);
             }
           });
         });
@@ -1719,7 +1783,7 @@
               await uploadReceipt(type, id, input);
               await loadTaxTransactions();
             } catch (e) {
-              alert(`Receipt upload failed: ${e.message || e}`);
+              openErrorModal(`Receipt upload failed: ${e.message || e}`);
             }
           });
         });
@@ -1840,11 +1904,18 @@
           notes: taxExpenseNotesEl.value.trim()
         };
         if (!payload.date || !payload.category || !payload.amount) {
-          alert('Expense date, category, and amount are required.');
+          openErrorModal('Expense date, category, and amount are required.');
           return;
         }
+        const isEdit = !!editingExpenseId;
+        const proceed = await openConfirmModal(
+          isEdit ? 'Save changes to this expense record?' : 'Add this new expense record?',
+          isEdit ? 'Update Expense?' : 'Add Expense?',
+          isEdit ? 'Update' : 'Add'
+        );
+        if (!proceed) return;
         try {
-          const targetUrl = editingExpenseId ? TAX_EXPENSE_UPDATE_API_URL : TAX_EXPENSE_API_URL;
+          const targetUrl = isEdit ? TAX_EXPENSE_UPDATE_API_URL : TAX_EXPENSE_API_URL;
           if (editingExpenseId) payload.id = editingExpenseId;
           const res = await fetch(targetUrl, {
             method: 'POST',
@@ -1860,8 +1931,9 @@
           }
           clearTaxExpenseForm();
           await loadTaxTransactions();
+          openSuccessModal(isEdit ? 'Expense record updated successfully.' : 'Expense record added successfully.', isEdit ? 'Expense Updated ✅' : 'Expense Added ✅');
         } catch (e) {
-          alert(`Could not add expense: ${e.message || e}`);
+          openErrorModal(`Could not save expense: ${e.message || e}`);
         }
       }
 
@@ -1875,11 +1947,18 @@
           notes: taxIncomeNotesEl.value.trim()
         };
         if (!payload.date || !payload.category || !payload.amount) {
-          alert('Income date, category, and amount are required.');
+          openErrorModal('Income date, category, and amount are required.');
           return;
         }
+        const isEdit = !!editingIncomeId;
+        const proceed = await openConfirmModal(
+          isEdit ? 'Save changes to this income record?' : 'Add this new income record?',
+          isEdit ? 'Update Income?' : 'Add Income?',
+          isEdit ? 'Update' : 'Add'
+        );
+        if (!proceed) return;
         try {
-          const targetUrl = editingIncomeId ? TAX_INCOME_UPDATE_API_URL : TAX_INCOME_API_URL;
+          const targetUrl = isEdit ? TAX_INCOME_UPDATE_API_URL : TAX_INCOME_API_URL;
           if (editingIncomeId) payload.id = editingIncomeId;
           const res = await fetch(targetUrl, {
             method: 'POST',
@@ -1895,8 +1974,9 @@
           }
           clearTaxIncomeForm();
           await loadTaxTransactions();
+          openSuccessModal(isEdit ? 'Income record updated successfully.' : 'Income record added successfully.', isEdit ? 'Income Updated ✅' : 'Income Added ✅');
         } catch (e) {
-          alert(`Could not add income: ${e.message || e}`);
+          openErrorModal(`Could not save income: ${e.message || e}`);
         }
       }
 
