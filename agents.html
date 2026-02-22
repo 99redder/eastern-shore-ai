@@ -24,6 +24,8 @@
       --violet: #c850ff;
       --pink: #ff4fd8;
       --line: #222438;
+      --cut-card: polygon(0 8px, 8px 0, 35% 0, 35.5% 4px, 37% 0, calc(100% - 12px) 0, 100% 12px, 100% 65%, calc(100% - 3px) 66%, 100% 67.5%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 62% 100%, 61.5% calc(100% - 3px), 60% 100%, 10px 100%, 0 calc(100% - 10px), 3px calc(100% - 14px), 0 calc(100% - 18px));
+      --cut-btn: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
     * { box-sizing: border-box; }
     body {
@@ -129,6 +131,7 @@
       display: inline-block;
       padding: 0.9rem 2rem;
       border-radius: 0;
+      clip-path: var(--cut-btn);
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
@@ -167,6 +170,7 @@
       background: var(--card);
       border-radius: 0;
       border: 1px solid var(--line);
+      clip-path: var(--cut-card);
     }
     .stat {
       text-align: center;
@@ -211,6 +215,7 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 0;
+      clip-path: var(--cut-card);
       padding: 2rem;
       transition: border-color 0.2s;
     }
@@ -222,7 +227,8 @@
       width: 48px;
       height: 48px;
       background: linear-gradient(135deg, var(--cyan), var(--violet));
-      border-radius: 10px;
+      border-radius: 0;
+      clip-path: var(--cut-btn);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -296,27 +302,7 @@
       z-index: 0;
       filter: saturate(1.08);
       transition: filter 0.6s ease, opacity 0.6s ease;
-      clip-path: polygon(
-        0 8px,
-        8px 0,
-        35% 0,
-        35.5% 4px,
-        37% 0,
-        calc(100% - 12px) 0,
-        100% 12px,
-        100% 65%,
-        calc(100% - 3px) 66%,
-        100% 67.5%,
-        100% calc(100% - 6px),
-        calc(100% - 6px) 100%,
-        62% 100%,
-        61.5% calc(100% - 3px),
-        60% 100%,
-        10px 100%,
-        0 calc(100% - 10px),
-        3px calc(100% - 14px),
-        0 calc(100% - 18px)
-      );
+      clip-path: var(--cut-card);
     }
     .results-logo.logo-full {
       filter: brightness(1.02) saturate(1.06);
@@ -360,6 +346,14 @@
     .results-section .trust-grid {
       position: relative;
       z-index: 1;
+    }
+
+
+    .card input,
+    .card select,
+    .card textarea {
+      border-radius: 0;
+      clip-path: var(--cut-btn);
     }
 
     /* CTA */
