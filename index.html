@@ -705,7 +705,7 @@
           </div>
           <div>
             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Message *</label>
-            <textarea name="message" rows="4" required placeholder="Tell us what you had in mind" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
+            <textarea name="message" rows="4" required placeholder="Include anything else you'd like to let us know" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
           </div>
           <div>
             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Preferred Contact Method</label>
@@ -729,6 +729,10 @@
     const form = document.getElementById('quote-form');
     const closeBtn = document.querySelector('.modal-close');
     const repairFields = document.querySelectorAll('.repair-field');
+    const callbackPrefWrap = document.getElementById('callback-pref-wrap');
+    const callbackDatetimeWrap = document.getElementById('callback-datetime-wrap');
+    const callbackPreferenceEl = document.getElementById('callback-preference');
+    const callbackDatetimeEl = document.getElementById('callback-datetime');
     
     document.querySelectorAll('.quote-trigger').forEach(link => {
       link.addEventListener('click', function(e) {
@@ -742,7 +746,13 @@
         repairFields.forEach(field => {
           field.style.display = isRepair ? 'block' : 'none';
         });
-        
+
+        const isCallFlow = (text === 'Book Your Free Call' || text === 'Get Your Free Assessment');
+        if (callbackPrefWrap) callbackPrefWrap.style.display = isCallFlow ? 'block' : 'none';
+        if (callbackDatetimeWrap) callbackDatetimeWrap.style.display = 'none';
+        if (callbackPreferenceEl) callbackPreferenceEl.value = 'ASAP';
+        if (callbackDatetimeEl) callbackDatetimeEl.value = '';
+
         modal.style.display = 'flex';
       });
     });
@@ -755,16 +765,27 @@
       if (e.target === modal) modal.style.display = 'none';
     });
     
+
+    callbackPreferenceEl?.addEventListener('change', () => {
+      const showDate = callbackPreferenceEl.value === 'Select Time and Date';
+      if (callbackDatetimeWrap) callbackDatetimeWrap.style.display = showDate ? 'block' : 'none';
+      if (!showDate && callbackDatetimeEl) callbackDatetimeEl.value = '';
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
       const repairOs = formData.get('operating-system') || 'Not specified';
       const contextTitle = modalTitle.textContent || 'Get a Quote';
+      const callbackPref = formData.get('callback-preference') || 'Not specified';
+      const callbackDate = formData.get('callback-datetime') || 'Not specified';
       const message =
         'Request Type: ' + contextTitle + '\n' +
         'Name: ' + formData.get('name') + '\n' +
         'Email: ' + formData.get('email') + '\n' +
         'Phone: ' + (formData.get('phone') || 'Not provided') + '\n' +
+        'When Would You Like Us To Call: ' + callbackPref + '\n' +
+        'Preferred Call Time & Date: ' + callbackDate + '\n' +
         'Operating System: ' + repairOs + '\n' +
         'Preferred Contact: ' + formData.get('contact-method') + '\n' +
         '\nMessage:\n' + formData.get('message');
