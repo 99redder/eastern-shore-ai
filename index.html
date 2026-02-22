@@ -710,11 +710,11 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
-        alert('Thanks — your request was sent.');
+        window.showStatusModal('Request Sent ✅', 'Thanks — your request was sent.');
         modal.style.display = 'none';
         form.reset();
       } catch (err) {
-        alert('Could not send right now. Please try again in a moment.');
+        window.showStatusModal('Could Not Send', 'Could not send right now. Please try again in a moment.');
       }
     });
 
@@ -733,6 +733,22 @@
         mobileMenuBtn.innerHTML = '&#9776;';
       });
     });
+
+    const statusModal = document.getElementById('status-modal');
+    const statusModalTitle = document.getElementById('status-modal-title');
+    const statusModalMessage = document.getElementById('status-modal-message');
+    const statusModalClose = document.getElementById('status-modal-close');
+    const statusModalOk = document.getElementById('status-modal-ok');
+
+    window.showStatusModal = function(title, message) {
+      statusModalTitle.textContent = title;
+      statusModalMessage.textContent = message;
+      statusModal.style.display = 'flex';
+    };
+    const closeStatusModal = () => { statusModal.style.display = 'none'; };
+    statusModalClose.addEventListener('click', closeStatusModal);
+    statusModalOk.addEventListener('click', closeStatusModal);
+    statusModal.addEventListener('click', (e) => { if (e.target === statusModal) closeStatusModal(); });
 
     const logoSwitch = document.getElementById('logo-switch');
     const resultsLogo = document.getElementById('results-logo');
@@ -833,6 +849,19 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="status-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1200; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; clip-path: var(--cut-card); max-width: 500px; width: 100%;">
+      <div style="padding: 1.25rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 id="status-modal-title" style="margin: 0; font-size: 1.15rem;">Status</h2>
+        <button class="modal-close" id="status-modal-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+      </div>
+      <div style="padding: 1.25rem;">
+        <p id="status-modal-message" style="margin:0 0 1rem;"></p>
+        <button type="button" class="btn btn-primary" id="status-modal-ok">OK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Privacy Modal -->
   <div class="modal-overlay" id="privacy-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
     <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; clip-path: var(--cut-card); max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
@@ -869,10 +898,10 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
-        alert('Subscribed — thanks!');
+        window.showStatusModal('Subscribed ✅', 'Subscribed — thanks!');
         this.reset();
       } catch (err) {
-        alert('Could not submit newsletter signup right now. Please try again.');
+        window.showStatusModal('Signup Failed', 'Could not submit newsletter signup right now. Please try again.');
       }
     });
 
