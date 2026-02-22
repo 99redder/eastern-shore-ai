@@ -109,6 +109,10 @@
       display: inline-block;
       animation: logo-glitch-glow 10s ease-in-out infinite;
     }
+    .header-logo span {
+      color: #00e5ff;
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+    }
     @keyframes logo-glitch-glow {
       0%, 58%   { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
       60%       { text-shadow: 0 0 14px rgba(255,79,216,0.5), 0 0 30px rgba(255,79,216,0.2); transform: translate(-2px, 1px) skewX(-2deg); }
@@ -1298,7 +1302,7 @@
   <!-- ===== SECTION: Site Header & Navigation ===== -->
   <header class="site-header">
     <div class="site-header-inner">
-      <div class="header-logo-wrap"><a href="/" class="header-logo">Eastern Shore AI</a></div>
+      <div class="header-logo-wrap"><a href="/" class="header-logo">Eastern Shore <span>AI</span></a></div>
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
       <nav class="header-nav" id="header-nav" aria-label="Main links">
         <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
