@@ -782,7 +782,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
-        window.showStatusModal('Request Sent ✅', 'Thanks — your request was sent.');
+        window.showStatusModal('Request Sent ✅', 'Thanks — your request was sent. We will get back to you within 24 hours.');
         modal.style.display = 'none';
         form.reset();
       } catch (err) {
@@ -986,7 +986,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
-        window.showStatusModal('Subscribed ✅', 'Subscribed — thanks!');
+        window.showStatusModal('Subscribed ✅', 'Subscribed — thanks! We will get back to you within 24 hours if follow-up is needed.');
         this.reset();
       } catch (err) {
         window.showStatusModal('Signup Failed', 'Could not submit newsletter signup right now. Please try again.');
