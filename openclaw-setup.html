@@ -137,6 +137,9 @@
     /* ===== Success Modal ===== */
     .success-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
     .success-modal-overlay.active { display:flex; }
+    #tax-category-modal { z-index: 1250; }
+    #tax-category-edit-modal { z-index: 1300; }
+    #confirm-modal, #success-modal, #error-modal { z-index: 1400; }
     .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #141620, #10121a); border:1px solid var(--line); border-radius:0; padding:1rem; }
     .success-modal h3 { margin:.1rem 0 .4rem; color:var(--cyan); }
     .success-modal p { margin:.45rem 0; }
