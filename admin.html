@@ -11,7 +11,6 @@
   <style>
     /* ===== Theme & CSS Variables ===== */
     :root { --bg:#0a0b10; --bg2:#10121a; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; --violet:#c850ff; }
-    body[data-theme="light"] { --bg:#f4f4f8; --bg2:#eaeaf0; --card:#ffffff; --text:#111118; --muted:#555566; --cyan:#0099bb; --violet:#8a2ec0; --line:#d0d0dd; }
 
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; overflow-x:hidden; max-width:100vw; }
@@ -71,15 +70,6 @@
     .btn.delete { border-color:#5a2222; color:#ff9b9b; }
 
     /* ===== Site Header ===== */
-    .site-header { background:var(--bg2); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:200; }
-    .site-header-inner { display:flex; align-items:center; gap:1rem; max-width:1440px; margin:0 auto; padding:.6rem 1.2rem; }
-    .header-logo { font-family:'Orbitron', system-ui, sans-serif; font-weight:700; font-size:1rem; letter-spacing:.08em; text-decoration:none; color:var(--text); text-shadow:none; }
-    .header-logo span { color:var(--cyan); }
-    .header-nav { display:flex; align-items:center; gap:1rem; margin-left:.5rem; }
-    .header-nav a { font-family:'Hanken Grotesk', system-ui, sans-serif; font-size:.88rem; font-weight:600; text-decoration:none; color:var(--cyan); text-shadow:none; letter-spacing:.03em; }
-    .header-nav a:hover { color:#fff; }
-    .theme-toggle { margin-left:auto; background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:2px; padding:.35rem .6rem; font-size:1rem; cursor:pointer; line-height:1; }
-    .theme-toggle:hover { border-color:var(--cyan); color:var(--cyan); }
 
     /* ===== Success / Error / Confirm Modals ===== */
     .success-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; padding:1rem; z-index:1200; }
@@ -156,17 +146,7 @@
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="site-header-inner">
-      <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
-      <nav class="header-nav">
-        <a href="/openclaw-setup.html">← Booking Page</a>
-      </nav>
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">◐</button>
-    </div>
-  </header>
-
-  <main>
+<main>
   <div class="container">
 
     <!-- ===== SECTION: Admin Panel ===== -->
@@ -441,19 +421,7 @@
   </div>
 
   <script>
-    // ===== Theme Toggle =====
-    (function() {
-      const saved = localStorage.getItem('esa_theme');
-      if (saved) document.body.setAttribute('data-theme', saved);
-    })();
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      const current = document.body.getAttribute('data-theme');
-      const next = current === 'light' ? 'dark' : 'light';
-      document.body.setAttribute('data-theme', next);
-      localStorage.setItem('esa_theme', next);
-    });
-
-    // ===== API URL Constants =====
+// ===== API URL Constants =====
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const BOOKINGS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/bookings');
     const BLOCK_SLOT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-slot');
