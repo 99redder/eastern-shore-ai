@@ -72,25 +72,51 @@
       border-bottom: 1px solid var(--line);
     }
     .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-direction: row;
       background: #000;
       border: 1.5px solid var(--pink);
       color: var(--pink);
-      border-radius: 2px;
-      padding: 0.3rem 0.55rem;
-      font-size: 1.1rem;
+      padding: 0.28rem 0.65rem 0.28rem 0.28rem;
+      clip-path: var(--cut-btn);
       cursor: pointer;
-      line-height: 1;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
       margin-left: 1.5rem;
       flex-shrink: 0;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      white-space: nowrap;
+      line-height: 1;
+      transition: opacity 0.2s;
     }
-    .theme-toggle:hover { background: #1a0010; }
+    .theme-toggle:hover { opacity: 0.8; }
+    .theme-toggle-knob {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--pink);
+      color: #000;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      clip-path: polygon(0 2px, 2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px));
+    }
     body[data-theme="light"] .theme-toggle {
-      background: transparent;
+      flex-direction: row-reverse;
+      background: #fff;
       border-color: var(--cyan);
       color: var(--cyan);
+      padding: 0.28rem 0.28rem 0.28rem 0.65rem;
     }
-    body[data-theme="light"] .theme-toggle:hover { background: #e0f4f8; }
+    body[data-theme="light"] .theme-toggle-knob {
+      background: var(--cyan);
+      color: #fff;
+    }
     .site-header-inner {
       display: flex;
       align-items: center;
@@ -506,7 +532,10 @@
         <a href="book-lessons.html">Tech Lessons</a>
         <a href="newsletter.html">Newsletter</a>
       </nav>
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">☀</button>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-toggle-knob">☽</span>
+        <span class="theme-toggle-label">DARK</span>
+      </button>
     </div>
   </header>
 
@@ -767,7 +796,9 @@
       if (saved) document.body.setAttribute('data-theme', saved);
       const btn = document.getElementById('theme-toggle');
       function updateIcon() {
-        btn.textContent = document.body.getAttribute('data-theme') === 'light' ? '🌙' : '☀';
+        const isLight = document.body.getAttribute('data-theme') === 'light';
+        btn.querySelector('.theme-toggle-knob').textContent = isLight ? '☀' : '☽';
+        btn.querySelector('.theme-toggle-label').textContent = isLight ? 'LIGHT' : 'DARK';
       }
       updateIcon();
       btn.addEventListener('click', () => {
