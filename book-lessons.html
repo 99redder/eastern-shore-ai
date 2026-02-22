@@ -23,7 +23,7 @@
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body { margin:0; font-family:'Titillium Web',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--text);
-      background:var(--bg); }
+      background:var(--bg); overflow-x:hidden; }
     .container { max-width:1100px; margin:0 auto; padding:1.2rem; }
     a { color:#ff4fd8; text-shadow:0 0 8px rgba(255,79,216,0.35); }
     /* Battle-damaged hull edges — worn spaceship panels */
@@ -341,7 +341,7 @@
         <aside class="book-pay-panel" style="margin-top:.85rem;">
           <h3 style="margin:.1rem 0 .2rem;">Reserve Your Lesson Slot</h3>
           <p>Choose your date, lesson topic, and session count, then use Book Lessons + Pay Now to secure your spot.</p>
-          <div class="form-grid" style="margin-top:.6rem; grid-template-columns:1fr 1fr;">
+          <div class="form-grid" style="margin-top:.6rem;">
             <div>
               <label for="book-name">Your Name</label>
               <input id="book-name" required />
