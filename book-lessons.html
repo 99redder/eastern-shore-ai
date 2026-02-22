@@ -205,7 +205,7 @@
       position: fixed;
       top: 1rem;
       left: 1rem;
-      z-index: 2;
+      z-index: 6000;
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
@@ -223,6 +223,7 @@
       clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
     .back-btn:hover { filter: brightness(1.06); }
+    #global-back-btn { pointer-events:auto; }
 
     /* Session flow interactive layout */
     .flow-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; align-items:start; }
@@ -317,13 +318,13 @@
   <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
 </head>
 <body>
+  <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
   <main>
   <div class="container">
 
     <section id="pick-setup" class="card user-section" style="margin-top:1rem; margin-bottom:1rem;">
       <nav aria-label="Site navigation">
-        <a href="/index.html" class="back-btn" aria-label="Back to homepage" style="position:fixed; top:1rem; left:1rem; z-index:5000;">← Back</a>
-      </nav>
+              </nav>
       <h1>Tech Lessons & Tutoring</h1>
       <h2>Pick Your Lesson Day</h2>
       <div class="booking-grid" style="grid-template-columns:1fr;">
