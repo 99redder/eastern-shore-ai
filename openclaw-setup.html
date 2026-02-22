@@ -636,7 +636,12 @@
                   <button type="button" class="btn" id="tax-zip-btn">⬇ Year Package (.zip)</button>
                 </div>
 
-                <div class="admin-grid tax-entry-wrap" style="grid-template-columns:1fr 1fr; gap:.6rem;">
+                <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
+                  <button type="button" class="btn tx-entry-mode-btn active" id="tax-mode-expense-btn">Add Expense</button>
+                  <button type="button" class="btn tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                </div>
+
+                <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem;">
                   <div class="admin-calendar-wrap">
                     <div class="admin-calendar-head"><div class="admin-calendar-title">Add Expense</div></div>
                     <div class="admin-row" style="flex-direction:column; align-items:stretch;">
@@ -666,7 +671,9 @@
                       </div>
                     </div>
                   </div>
+                </div>
 
+                <div class="tax-entry-wrap" id="tax-income-panel" style="margin-top:.5rem; display:none;">
                   <div class="admin-calendar-wrap">
                     <div class="admin-calendar-head"><div class="admin-calendar-title">Add Income</div></div>
                     <div class="admin-row" style="flex-direction:column; align-items:stretch;">
@@ -1054,6 +1061,10 @@
     const taxTypeEl = document.getElementById('tax-type');
     const taxRefreshBtn = document.getElementById('tax-refresh-btn');
     const taxExportBtn = document.getElementById('tax-export-btn');
+    const taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
+    const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
+    const taxExpensePanel = document.getElementById('tax-expense-panel');
+    const taxIncomePanel = document.getElementById('tax-income-panel');
     const taxSummaryListEl = document.getElementById('tax-summary-list');
     const taxListEl = document.getElementById('tax-list');
     const txCategoryFilterEl = document.getElementById('tx-category-filter');
@@ -1634,6 +1645,7 @@
 
       async function editTaxRecord(type, r) {
         if (type === 'expense') {
+          setTaxEntryMode('expense');
           editingExpenseId = Number(r.id || 0);
           taxExpenseDateEl.value = r.date || '';
           taxExpenseVendorEl.value = r.vendor || '';
@@ -1646,6 +1658,7 @@
           taxCancelExpenseEditBtn.style.display = '';
           taxExpenseAmountEl.focus();
         } else {
+          setTaxEntryMode('income');
           editingIncomeId = Number(r.id || 0);
           taxIncomeDateEl.value = r.date || '';
           taxIncomeSourceEl.value = r.source || '';
@@ -1697,6 +1710,14 @@
         return true;
       }
 
+      function setTaxEntryMode(mode) {
+        const showExpense = mode !== 'income';
+        if (taxExpensePanel) taxExpensePanel.style.display = showExpense ? '' : 'none';
+        if (taxIncomePanel) taxIncomePanel.style.display = showExpense ? 'none' : '';
+        if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
+        if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', !showExpense);
+      }
+
       function initTaxUiDefaults() {
 
         const now = nowEtParts();
@@ -1710,6 +1731,7 @@
 
         taxExpenseDateEl.value = now.date;
         taxIncomeDateEl.value = now.date;
+        setTaxEntryMode('expense');
       }
 
       function renderTxList() {
@@ -2079,6 +2101,8 @@
       taxRefreshBtn.addEventListener('click', loadTaxTransactions);
       taxYearEl.addEventListener('change', loadTaxTransactions);
       taxTypeEl.addEventListener('change', loadTaxTransactions);
+      taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
+      taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
       txFilterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           activeTxFilter = btn.getAttribute('data-filter');
