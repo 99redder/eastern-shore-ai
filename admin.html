@@ -230,11 +230,23 @@
         <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
           <div class="admin-grid" style="grid-template-columns:1fr; gap:.6rem;">
                 <div id="tax-summary" class="admin-calendar-wrap" style="margin:0;">
-                  <div class="admin-calendar-head"><div class="admin-calendar-title">Year Totals Snapshot</div></div>
+                  <div class="admin-calendar-head" style="justify-content:space-between; align-items:center; gap:.6rem; flex-wrap:wrap;">
+                    <div class="admin-calendar-title">Year Totals Snapshot</div>
+                    <div style="display:flex; align-items:center; gap:.4rem;">
+                      <label for="tax-summary-year" style="margin:0; min-width:40px;">Year</label>
+                      <select id="tax-summary-year" style="max-width:140px;"></select>
+                    </div>
+                  </div>
                   <div class="tax-summary-grid" id="tax-summary-list">No data yet.</div>
                 </div>
 
-                <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
+                <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
+                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
+                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                  <button type="button" class="btn btn-primary" id="tax-manage-categories-btn" onclick="window.openTaxCategoryManager && window.openTaxCategoryManager()">Manage Categories</button>
+                </div>
+
+                <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-top:.5rem;">
                   <label style="min-width:80px;">Year</label>
                   <select id="tax-year" style="max-width:160px;"></select>
                   <label style="min-width:70px;">Type</label>
@@ -246,12 +258,6 @@
                   <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
                   <button type="button" class="btn btn-primary" id="tax-export-btn">Download CSV</button>
                   <button type="button" class="btn" id="tax-zip-btn">⬇ Year Package (.zip)</button>
-                </div>
-
-                <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
-                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
-                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
-                  <button type="button" class="btn btn-primary" id="tax-manage-categories-btn" onclick="window.openTaxCategoryManager && window.openTaxCategoryManager()">Manage Categories</button>
                 </div>
 
                 <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem; display:none;">
@@ -449,6 +455,7 @@
     const taxLedgerBody = document.getElementById('tax-ledger-body');
 
     const taxYearEl = document.getElementById('tax-year');
+    const taxSummaryYearEl = document.getElementById('tax-summary-year');
     const taxTypeEl = document.getElementById('tax-type');
     const taxRefreshBtn = document.getElementById('tax-refresh-btn');
     const taxExportBtn = document.getElementById('tax-export-btn');
@@ -1057,8 +1064,11 @@
       const now = nowEtParts();
       const thisYear = Number(now.date.split('-')[0] || new Date().getFullYear());
       const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
-      taxYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+      const yearOpts = years.map(y => `<option value="${y}">${y}</option>`).join('');
+      taxYearEl.innerHTML = yearOpts;
+      if (taxSummaryYearEl) taxSummaryYearEl.innerHTML = yearOpts;
       taxYearEl.value = String(thisYear);
+      if (taxSummaryYearEl) taxSummaryYearEl.value = String(thisYear);
 
       renderCategoryOptions();
 
@@ -1147,13 +1157,21 @@
     async function loadTaxTransactions() {
       if (!adminUnlocked) return;
       const year = taxYearEl.value;
+      const summaryYear = taxSummaryYearEl?.value || year;
       const type = taxTypeEl.value;
       try {
-        const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=5000`, {
-          headers: { 'X-Admin-Password': adminPassword }
-        });
+        const [res, summaryRes] = await Promise.all([
+          fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=5000`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          }),
+          fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(summaryYear)}&type=all&limit=5000`, {
+            headers: { 'X-Admin-Password': adminPassword }
+          })
+        ]);
         const data = await res.json();
+        const summaryData = await summaryRes.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
+        if (!summaryRes.ok) throw new Error(summaryData.error || 'Failed to load summary');
 
         const items = [
           ...(data.income || []).map(r => ({ type: 'income', ...r })),
@@ -1170,13 +1188,13 @@
         let incomeTotal = 0;
         let expenseTotal = 0;
 
-        for (const r of (data.income || [])) {
+        for (const r of (summaryData.income || [])) {
           const c = r.category || 'Uncategorized';
           const v = Number(r.amount_cents || 0);
           incomeTotal += v;
           incomeByCategory.set(c, (incomeByCategory.get(c) || 0) + v);
         }
-        for (const r of (data.expenses || [])) {
+        for (const r of (summaryData.expenses || [])) {
           const c = r.category || 'Uncategorized';
           const v = Number(r.amount_cents || 0);
           expenseTotal += v;
@@ -1196,12 +1214,12 @@
 
         taxSummaryListEl.innerHTML = `
           <div class="tax-summary-col">
-            <h4>Income (${year})</h4>
+            <h4>Income (${summaryYear})</h4>
             <div class="tax-summary-line"><span>Total</span><strong>$${(incomeTotal/100).toFixed(2)}</strong></div>
             ${incomeRows}
           </div>
           <div class="tax-summary-col">
-            <h4>Expenses (${year})</h4>
+            <h4>Expenses (${summaryYear})</h4>
             <div class="tax-summary-line"><span>Total</span><strong>$${(expenseTotal/100).toFixed(2)}</strong></div>
             ${expenseRows}
             <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong>$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
@@ -1441,6 +1459,7 @@
     // ===== Tax Ledger Event Listeners =====
     taxRefreshBtn.addEventListener('click', loadTaxTransactions);
     taxYearEl.addEventListener('change', loadTaxTransactions);
+    taxSummaryYearEl?.addEventListener('change', loadTaxTransactions);
     taxTypeEl.addEventListener('change', loadTaxTransactions);
     taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
     taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
