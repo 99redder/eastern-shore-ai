@@ -79,6 +79,23 @@
     }
     .header-nav a:hover { color: var(--cyan); }
 
+    /* Hamburger — hidden on desktop */
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--text);
+      font-size: 1.3rem;
+      width: 2.2rem;
+      height: 2.2rem;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
     /* Hero */
     .hero {
       padding: 120px 1.5rem 80px;
@@ -399,7 +416,34 @@
     }
 
     @media (max-width: 768px) {
-      .header-nav { display: none; }
+      /* Show hamburger, center logo */
+      .mobile-menu-btn { display: flex; }
+      .site-header-inner { justify-content: flex-start; gap: 0; }
+      .header-logo { position: absolute; left: 50%; transform: translateX(-50%); }
+
+      /* Nav becomes a full-width dropdown below the header */
+      .header-nav {
+        display: none;
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        z-index: 299;
+        background: #0c0d14;
+        border-bottom: 1px solid var(--line);
+        flex-direction: column;
+        padding: 0.25rem 0;
+      }
+      .header-nav.open { display: flex; }
+      .header-nav a {
+        padding: 0.85rem 1.5rem;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+      }
+      .header-nav a:last-child { border-bottom: none; }
+
+      /* Rest of mobile adjustments */
       .hero { padding: 100px 1rem 60px; }
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
@@ -411,8 +455,9 @@
 <body>
   <header class="site-header">
     <div class="site-header-inner">
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
       <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
-      <nav class="header-nav">
+      <nav class="header-nav" id="header-nav">
         <a href="openclaw-setup.html" style="color:#C73E2D;">OpenClaw Setup</a>
         <a href="#" class="quote-trigger">Website Design</a>
         <a href="#" class="quote-trigger">AI Agent Repair</a>
@@ -652,6 +697,22 @@
       window.location.href = 'mailto:easternshoreai@outlook.com?subject=' + subject + '&body=' + body;
       modal.style.display = 'none';
       form.reset();
+    });
+
+    // Hamburger menu
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const headerNav = document.getElementById('header-nav');
+    mobileMenuBtn.addEventListener('click', () => {
+      const isOpen = headerNav.classList.toggle('open');
+      mobileMenuBtn.setAttribute('aria-expanded', isOpen);
+      mobileMenuBtn.innerHTML = isOpen ? '&#10005;' : '&#9776;';
+    });
+    headerNav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        headerNav.classList.remove('open');
+        mobileMenuBtn.setAttribute('aria-expanded', false);
+        mobileMenuBtn.innerHTML = '&#9776;';
+      });
     });
 
     const logoSwitch = document.getElementById('logo-switch');
