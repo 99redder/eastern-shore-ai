@@ -643,8 +643,8 @@
 
                 <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem; display:none;">
                   <div class="admin-calendar-wrap">
-                    <div class="admin-calendar-head"><div class="admin-calendar-title">Add Expense</div></div>
-                    <div class="admin-row" style="flex-direction:column; align-items:stretch;">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Expense</div><button type="button" class="btn" id="tax-minimize-expense-btn">Minimize</button></div>
+                    <div class="admin-row" id="tax-expense-fields" style="flex-direction:column; align-items:stretch;">
                       <label>Date</label>
                       <input id="tax-expense-date" type="date" />
                       <label>Vendor</label>
@@ -675,8 +675,8 @@
 
                 <div class="tax-entry-wrap" id="tax-income-panel" style="margin-top:.5rem; display:none;">
                   <div class="admin-calendar-wrap">
-                    <div class="admin-calendar-head"><div class="admin-calendar-title">Add Income</div></div>
-                    <div class="admin-row" style="flex-direction:column; align-items:stretch;">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Income</div><button type="button" class="btn" id="tax-minimize-income-btn">Minimize</button></div>
+                    <div class="admin-row" id="tax-income-fields" style="flex-direction:column; align-items:stretch;">
                       <label>Date</label>
                       <input id="tax-income-date" type="date" />
                       <label>Source</label>
@@ -1065,6 +1065,10 @@
     const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
     const taxExpensePanel = document.getElementById('tax-expense-panel');
     const taxIncomePanel = document.getElementById('tax-income-panel');
+    const taxExpenseFields = document.getElementById('tax-expense-fields');
+    const taxIncomeFields = document.getElementById('tax-income-fields');
+    const taxMinimizeExpenseBtn = document.getElementById('tax-minimize-expense-btn');
+    const taxMinimizeIncomeBtn = document.getElementById('tax-minimize-income-btn');
     const taxSummaryListEl = document.getElementById('tax-summary-list');
     const taxListEl = document.getElementById('tax-list');
     const txCategoryFilterEl = document.getElementById('tx-category-filter');
@@ -1715,6 +1719,10 @@
         const showIncome = mode === 'income';
         if (taxExpensePanel) taxExpensePanel.style.display = showExpense ? '' : 'none';
         if (taxIncomePanel) taxIncomePanel.style.display = showIncome ? '' : 'none';
+        if (taxExpenseFields) taxExpenseFields.style.display = showExpense ? '' : 'none';
+        if (taxIncomeFields) taxIncomeFields.style.display = showIncome ? '' : 'none';
+        if (taxMinimizeExpenseBtn) taxMinimizeExpenseBtn.textContent = 'Minimize';
+        if (taxMinimizeIncomeBtn) taxMinimizeIncomeBtn.textContent = 'Minimize';
         if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
         if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome);
       }
@@ -2104,6 +2112,16 @@
       taxTypeEl.addEventListener('change', loadTaxTransactions);
       taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
       taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
+      taxMinimizeExpenseBtn?.addEventListener('click', () => {
+        const isHidden = taxExpenseFields?.style.display === 'none';
+        if (taxExpenseFields) taxExpenseFields.style.display = isHidden ? '' : 'none';
+        taxMinimizeExpenseBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+      });
+      taxMinimizeIncomeBtn?.addEventListener('click', () => {
+        const isHidden = taxIncomeFields?.style.display === 'none';
+        if (taxIncomeFields) taxIncomeFields.style.display = isHidden ? '' : 'none';
+        taxMinimizeIncomeBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+      });
       txFilterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           activeTxFilter = btn.getAttribute('data-filter');
