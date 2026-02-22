@@ -404,16 +404,27 @@
       <div style="padding: 1.5rem;">
         <form id="quote-form" style="display: flex; flex-direction: column; gap: 1rem;">
           <div>
-            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Name</label>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Name *</label>
             <input type="text" name="name" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
           </div>
           <div>
-            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Email</label>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Email *</label>
             <input type="email" name="email" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
           </div>
           <div>
-            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">What do you need?</label>
-            <textarea name="message" rows="4" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Phone Number (optional)</label>
+            <input type="tel" name="phone" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Message *</label>
+            <textarea name="message" rows="4" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Preferred Contact Method</label>
+            <select name="contact-method" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
           </div>
           <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center;">Send Request</button>
         </form>
@@ -450,9 +461,11 @@
       const formData = new FormData(form);
       const subject = encodeURIComponent(modalTitle.textContent + ' - Eastern Shore AI');
       const body = encodeURIComponent(
-        'Name: ' + formData.get('name') + '\\n' +
-        'Email: ' + formData.get('email') + '\\n' +
-        'Message: ' + formData.get('message')
+        'Name: ' + formData.get('name') + '\n' +
+        'Email: ' + formData.get('email') + '\n' +
+        'Phone: ' + formData.get('phone') + '\n' +
+        'Preferred Contact: ' + formData.get('contact-method') + '\n' +
+        '\nMessage:\n' + formData.get('message')
       );
       window.location.href = 'mailto:easternshoreai@outlook.com?subject=' + subject + '&body=' + body;
       modal.style.display = 'none';
