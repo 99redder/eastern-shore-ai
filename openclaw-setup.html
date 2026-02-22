@@ -639,6 +639,7 @@
                 <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
                   <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
                   <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                  <button type="button" class="btn" id="tax-manage-categories-btn">Manage Categories</button>
                 </div>
 
                 <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem; display:none;">
@@ -927,6 +928,33 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="tax-category-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tax-category-title" style="width:min(980px,96vw);">
+      <h3 id="tax-category-title">Manage Categories</h3>
+      <div class="admin-grid" style="grid-template-columns:1fr 1fr; gap:.7rem;">
+        <div class="admin-calendar-wrap">
+          <div class="admin-calendar-head"><div class="admin-calendar-title">Expense Categories</div></div>
+          <div id="expense-categories-list" style="display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem;"></div>
+          <div class="admin-row" style="margin-top:.5rem; gap:.4rem;">
+            <input id="new-expense-category" placeholder="New expense category" />
+            <button type="button" class="btn btn-primary" id="add-expense-category-btn">Add</button>
+          </div>
+        </div>
+        <div class="admin-calendar-wrap">
+          <div class="admin-calendar-head"><div class="admin-calendar-title">Income Categories</div></div>
+          <div id="income-categories-list" style="display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem;"></div>
+          <div class="admin-row" style="margin-top:.5rem; gap:.4rem;">
+            <input id="new-income-category" placeholder="New income category" />
+            <button type="button" class="btn btn-primary" id="add-income-category-btn">Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="tax-category-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== FUNCTION INDEX =====
     // Time Utils:      nowEtParts() — Current date/time in America/New_York
@@ -1063,12 +1091,21 @@
     const taxExportBtn = document.getElementById('tax-export-btn');
     const taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
     const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
+    const taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
     const taxExpensePanel = document.getElementById('tax-expense-panel');
     const taxIncomePanel = document.getElementById('tax-income-panel');
     const taxExpenseFields = document.getElementById('tax-expense-fields');
     const taxIncomeFields = document.getElementById('tax-income-fields');
     const taxMinimizeExpenseBtn = document.getElementById('tax-minimize-expense-btn');
     const taxMinimizeIncomeBtn = document.getElementById('tax-minimize-income-btn');
+    const taxCategoryModal = document.getElementById('tax-category-modal');
+    const taxCategoryCloseBtn = document.getElementById('tax-category-close-btn');
+    const expenseCategoriesListEl = document.getElementById('expense-categories-list');
+    const incomeCategoriesListEl = document.getElementById('income-categories-list');
+    const newExpenseCategoryEl = document.getElementById('new-expense-category');
+    const newIncomeCategoryEl = document.getElementById('new-income-category');
+    const addExpenseCategoryBtn = document.getElementById('add-expense-category-btn');
+    const addIncomeCategoryBtn = document.getElementById('add-income-category-btn');
     const taxSummaryListEl = document.getElementById('tax-summary-list');
     const taxListEl = document.getElementById('tax-list');
     const txCategoryFilterEl = document.getElementById('tx-category-filter');
@@ -1609,7 +1646,7 @@
       setAdminUnlocked(false);
       let adminPassword = '';
 
-      const TAX_EXPENSE_CATEGORIES = [
+      const DEFAULT_TAX_EXPENSE_CATEGORIES = [
         'Startup cost',
         'Advertising/Marketing',
         'Software/SaaS',
@@ -1624,7 +1661,7 @@
         'Other'
       ];
 
-      const TAX_INCOME_CATEGORIES = [
+      const DEFAULT_TAX_INCOME_CATEGORIES = [
         'OpenClaw Setup',
         'Consulting',
         'Website Design',
@@ -1633,6 +1670,9 @@
         'Other'
       ];
 
+      let TAX_EXPENSE_CATEGORIES = [...DEFAULT_TAX_EXPENSE_CATEGORIES];
+      let TAX_INCOME_CATEGORIES = [...DEFAULT_TAX_INCOME_CATEGORIES];
+
       function escHtml(v) {
         return String(v == null ? '' : v)
           .replace(/&/g, '&amp;')
@@ -1640,6 +1680,81 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#39;');
+      }
+
+      function saveCategoryPrefs() {
+        localStorage.setItem('esa_tax_expense_categories', JSON.stringify(TAX_EXPENSE_CATEGORIES));
+        localStorage.setItem('esa_tax_income_categories', JSON.stringify(TAX_INCOME_CATEGORIES));
+      }
+
+      function loadCategoryPrefs() {
+        try {
+          const exp = JSON.parse(localStorage.getItem('esa_tax_expense_categories') || 'null');
+          const inc = JSON.parse(localStorage.getItem('esa_tax_income_categories') || 'null');
+          if (Array.isArray(exp) && exp.length) TAX_EXPENSE_CATEGORIES = [...new Set(exp.map(v => String(v).trim()).filter(Boolean))];
+          if (Array.isArray(inc) && inc.length) TAX_INCOME_CATEGORIES = [...new Set(inc.map(v => String(v).trim()).filter(Boolean))];
+        } catch {}
+      }
+
+      function renderCategoryOptions() {
+        taxExpenseCategoryEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+        taxIncomeCategoryEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+      }
+
+      function renderCategoryManagerLists() {
+        expenseCategoriesListEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="expense" data-cat-name="${escHtml(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="expense" data-cat-name="${escHtml(c)}">Delete</button></div>`).join('');
+        incomeCategoriesListEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="income" data-cat-name="${escHtml(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="income" data-cat-name="${escHtml(c)}">Delete</button></div>`).join('');
+
+        taxCategoryModal.querySelectorAll('[data-cat-edit]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const type = btn.getAttribute('data-cat-edit');
+            const oldName = btn.getAttribute('data-cat-name') || '';
+            const newName = prompt(`Rename category "${oldName}" to:`)?.trim();
+            if (!newName || newName === oldName) return;
+            const list = type === 'income' ? TAX_INCOME_CATEGORIES : TAX_EXPENSE_CATEGORIES;
+            if (list.some(c => c.toLowerCase() === newName.toLowerCase())) {
+              openErrorModal('That category name already exists.');
+              return;
+            }
+            const rows = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+            if (rows.some(r => String(r.category || '') === oldName)) {
+              openErrorModal(`Can't rename "${oldName}" because records already use it. Reclassify those transactions first.`);
+              return;
+            }
+            if (type === 'income') {
+              TAX_INCOME_CATEGORIES = TAX_INCOME_CATEGORIES.map(c => c === oldName ? newName : c);
+            } else {
+              TAX_EXPENSE_CATEGORIES = TAX_EXPENSE_CATEGORIES.map(c => c === oldName ? newName : c);
+            }
+            saveCategoryPrefs();
+            renderCategoryOptions();
+            renderCategoryManagerLists();
+            openSuccessModal('Category updated.', 'Category Updated ✅');
+          });
+        });
+
+        taxCategoryModal.querySelectorAll('[data-cat-del]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const type = btn.getAttribute('data-cat-del');
+            const name = btn.getAttribute('data-cat-name') || '';
+            const rows = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
+            if (rows.some(r => String(r.category || '') === name)) {
+              openErrorModal(`Can't delete "${name}". Reclassify transactions in this category before deleting it.`);
+              return;
+            }
+            const ok = await openConfirmModal(`Delete category "${name}"?`, 'Delete Category?', 'Delete');
+            if (!ok) return;
+            if (type === 'income') {
+              TAX_INCOME_CATEGORIES = TAX_INCOME_CATEGORIES.filter(c => c !== name);
+            } else {
+              TAX_EXPENSE_CATEGORIES = TAX_EXPENSE_CATEGORIES.filter(c => c !== name);
+            }
+            saveCategoryPrefs();
+            renderCategoryOptions();
+            renderCategoryManagerLists();
+            openSuccessModal('Category deleted.', 'Category Deleted ✅');
+          });
+        });
       }
 
       function formatTaxRowLabel(type, r) {
@@ -1735,8 +1850,7 @@
         taxYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
         taxYearEl.value = String(thisYear);
 
-        taxExpenseCategoryEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
-        taxIncomeCategoryEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        renderCategoryOptions();
 
         taxExpenseDateEl.value = now.date;
         taxIncomeDateEl.value = now.date;
@@ -2083,6 +2197,7 @@
           setAdminUnlocked(true);
           const n = new Date();
           adminCalendarCursor = new Date(n.getFullYear(), n.getMonth(), 1);
+          loadCategoryPrefs();
           initTaxUiDefaults();
           await loadAdminData();
           await loadTaxTransactions();
@@ -2112,6 +2227,49 @@
       taxTypeEl.addEventListener('change', loadTaxTransactions);
       taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
       taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
+      taxManageCategoriesBtn?.addEventListener('click', () => {
+        renderCategoryManagerLists();
+        taxCategoryModal.classList.add('active');
+        taxCategoryModal.setAttribute('aria-hidden', 'false');
+      });
+      taxCategoryCloseBtn?.addEventListener('click', () => {
+        taxCategoryModal.classList.remove('active');
+        taxCategoryModal.setAttribute('aria-hidden', 'true');
+      });
+      taxCategoryModal?.addEventListener('click', (e) => {
+        if (e.target === taxCategoryModal) {
+          taxCategoryModal.classList.remove('active');
+          taxCategoryModal.setAttribute('aria-hidden', 'true');
+        }
+      });
+      addExpenseCategoryBtn?.addEventListener('click', () => {
+        const name = (newExpenseCategoryEl.value || '').trim();
+        if (!name) return;
+        if (TAX_EXPENSE_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
+          openErrorModal('Expense category already exists.');
+          return;
+        }
+        TAX_EXPENSE_CATEGORIES.push(name);
+        newExpenseCategoryEl.value = '';
+        saveCategoryPrefs();
+        renderCategoryOptions();
+        renderCategoryManagerLists();
+        openSuccessModal('Expense category added.', 'Category Added ✅');
+      });
+      addIncomeCategoryBtn?.addEventListener('click', () => {
+        const name = (newIncomeCategoryEl.value || '').trim();
+        if (!name) return;
+        if (TAX_INCOME_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
+          openErrorModal('Income category already exists.');
+          return;
+        }
+        TAX_INCOME_CATEGORIES.push(name);
+        newIncomeCategoryEl.value = '';
+        saveCategoryPrefs();
+        renderCategoryOptions();
+        renderCategoryManagerLists();
+        openSuccessModal('Income category added.', 'Category Added ✅');
+      });
       taxMinimizeExpenseBtn?.addEventListener('click', () => {
         const isHidden = taxExpenseFields?.style.display === 'none';
         if (taxExpenseFields) taxExpenseFields.style.display = isHidden ? '' : 'none';
