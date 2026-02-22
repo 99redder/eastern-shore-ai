@@ -71,6 +71,29 @@
       z-index: 0;
     }
 
+    .back-btn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.6rem 0.95rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.78rem;
+      color: #fff;
+      text-decoration: none;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      border: 1px solid rgba(255, 79, 216, 0.45);
+      box-shadow: 0 0 12px rgba(255, 79, 216, 0.5);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+    }
+    .back-btn:hover { filter: brightness(1.06); }
+
     .card {
       position: relative;
       z-index: 1;
@@ -311,6 +334,7 @@
   <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
 </head>
 <body>
+  <a href="/index.html" class="back-btn" aria-label="Back to homepage">← Back</a>
   <div class="blob-violet"></div>
 
   <div class="card">
