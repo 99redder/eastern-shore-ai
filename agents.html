@@ -288,7 +288,30 @@
       pointer-events: none;
       z-index: 0;
       filter: saturate(1.08);
+      transition: opacity 0.2s ease;
     }
+    .results-logo.logo-full {
+      opacity: 1;
+    }
+    .logo-switch {
+      position: absolute;
+      right: clamp(0.5rem, 3.2vw, 2.3rem);
+      top: clamp(-235px, -16vw, -145px);
+      z-index: 2;
+      border: 1px solid var(--line);
+      background: rgba(10, 11, 16, 0.9);
+      color: var(--cyan);
+      border-radius: 999px;
+      width: 2rem;
+      height: 2rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .logo-switch:hover { border-color: var(--cyan); color: var(--pink); }
     .results-section .section-header,
     .results-section .trust-grid {
       position: relative;
@@ -334,6 +357,7 @@
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
       .results-logo { width: 170px; right: 0.6rem; top: -88px; opacity: 0.22; }
+      .logo-switch { right: 0.5rem; top: -106px; }
     }
   </style>
 </head>
@@ -435,7 +459,8 @@
   </section>
 
   <section class="section results-section" id="results">
-    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" />
+    <button class="logo-switch" id="logo-switch" type="button" aria-label="Toggle full logo opacity" title="Toggle full logo opacity">💡</button>
+    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" id="results-logo" />
     <div class="section-header">
       <h2>Proof This Works</h2>
       <p>Real-world outcomes from practical automation projects.</p>
@@ -577,6 +602,14 @@
       modal.style.display = 'none';
       form.reset();
     });
+
+    const logoSwitch = document.getElementById('logo-switch');
+    const resultsLogo = document.getElementById('results-logo');
+    if (logoSwitch && resultsLogo) {
+      logoSwitch.addEventListener('click', () => {
+        resultsLogo.classList.toggle('logo-full');
+      });
+    }
   </script>
 
   <!-- About Modal -->
