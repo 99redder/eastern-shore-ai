@@ -289,6 +289,27 @@
       z-index: 0;
       filter: saturate(1.08);
       transition: filter 0.6s ease, opacity 0.6s ease;
+      clip-path: polygon(
+        0 8px,
+        8px 0,
+        35% 0,
+        35.5% 4px,
+        37% 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% 65%,
+        calc(100% - 3px) 66%,
+        100% 67.5%,
+        100% calc(100% - 6px),
+        calc(100% - 6px) 100%,
+        62% 100%,
+        61.5% calc(100% - 3px),
+        60% 100%,
+        10px 100%,
+        0 calc(100% - 10px),
+        3px calc(100% - 14px),
+        0 calc(100% - 18px)
+      );
     }
     .results-logo.logo-full {
       filter: brightness(1.02) saturate(1.06);
