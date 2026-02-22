@@ -381,6 +381,16 @@
 
   <footer>
     <div style="max-width: 1100px; margin: 0 auto;">
+      <!-- Newsletter Section -->
+      <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: 12px;">
+        <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: var(--cyan); letter-spacing: 0.08em; text-transform: uppercase;">OUR NEWSLETTER</h3>
+        <p style="margin: 0 0 1rem; color: var(--muted); font-size: 0.9rem;">Subscribe and stay updated.</p>
+        <form id="newsletter-form" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <input type="email" placeholder="your@email.com" required style="flex: 1; min-width: 200px; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+      
       <p style="margin: 0 0 0.5rem;">
         © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp; 
         <a href="tel:+14106928562" style="color: var(--cyan);">(410) 692-8562</a> &nbsp;·&nbsp; 
@@ -473,6 +483,15 @@
       form.reset();
     });
   </script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    
+    // Newsletter form
+    document.getElementById('newsletter-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = this.querySelector('input[type="email"]').value;
+      window.location.href = 'mailto:easternshoreai@outlook.com?subject=Newsletter Subscription&body=Please add this email to the newsletter: ' + encodeURIComponent(email);
+    });
+  </script>
 </body>
 </html>
