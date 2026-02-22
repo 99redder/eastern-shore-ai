@@ -456,9 +456,9 @@
         <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Discord</a>
       </p>
       <p style="margin: 0; font-size: 0.85rem;">
-        <a href="/#contact" style="color: var(--muted); margin-right: 1rem;">Contact Us</a>
-        <a href="/#about" style="color: var(--muted); margin-right: 1rem;">About Us</a>
-        <a href="#" style="color: var(--muted); margin-right: 1rem;">Privacy Policy</a>
+        <a href="#" id="contact-link" style="color: var(--muted); margin-right: 1rem;">Contact Us</a>
+        <a href="#" id="about-link" style="color: var(--muted); margin-right: 1rem;">About Us</a>
+        <a href="#" id="privacy-link" style="color: var(--muted); margin-right: 1rem;">Privacy Policy</a>
       </p>
     </div>
   </footer>
@@ -556,6 +556,42 @@
       form.reset();
     });
   </script>
+
+  <!-- About Modal -->
+  <div class="modal-overlay" id="about-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 12px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem;">About Us</h2>
+        <button class="modal-close about-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <p><strong>Eastern Shore AI, LLC</strong> builds practical AI-powered tools and small business web applications, with a focus on fast shipping, clean UX, and unparalleled customer service - we're available 24/7.</p>
+        <p>Founded in February 2026 by <a href="https://x.com/99redder" target="_blank" style="color: var(--cyan);">Red</a>, a resident of Fruitland, MD and retired Navy veteran.</p>
+        <p>
+          <a href="https://x.com/easternshoreai" target="_blank" style="color: var(--cyan);">Twitter / X</a>
+          &nbsp;·&nbsp;
+          <a href="https://github.com/99redder" target="_blank" style="color: var(--cyan);">GitHub</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Modal -->
+  <div class="modal-overlay" id="privacy-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 12px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem;">Privacy Policy</h2>
+        <button class="modal-close privacy-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <p>We collect only the information you voluntarily submit through forms (such as name, email, and message details) to respond to inquiries and provide requested services.</p>
+        <p>Submitted information is used for communication and project-related follow-up. We do not sell your personal data. We may use trusted service providers to process form delivery and email notifications.</p>
+        <p>If you want your submitted information corrected or deleted, contact us and we will handle it promptly, subject to legal or operational retention requirements.</p>
+        <p>Contact: <a href="mailto:easternshoreai@outlook.com" style="color: var(--cyan);">easternshoreai@outlook.com</a></p>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
     
@@ -564,6 +600,30 @@
       e.preventDefault();
       const email = this.querySelector('input[type="email"]').value;
       window.location.href = 'mailto:easternshoreai@outlook.com?subject=Newsletter Subscription&body=Please add this email to the newsletter: ' + encodeURIComponent(email);
+    });
+
+    // About modal
+    const aboutModal = document.getElementById('about-modal');
+    document.getElementById('about-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      aboutModal.style.display = 'flex';
+    });
+    document.querySelector('.about-close').addEventListener('click', () => aboutModal.style.display = 'none');
+    aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.style.display = 'none'; });
+
+    // Privacy modal
+    const privacyModal = document.getElementById('privacy-modal');
+    document.getElementById('privacy-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      privacyModal.style.display = 'flex';
+    });
+    document.querySelector('.privacy-close').addEventListener('click', () => privacyModal.style.display = 'none');
+    privacyModal.addEventListener('click', (e) => { if (e.target === privacyModal) privacyModal.style.display = 'none'; });
+
+    // Contact modal - opens quote modal
+    document.getElementById('contact-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('quote-modal').style.display = 'flex';
     });
   </script>
 </body>
