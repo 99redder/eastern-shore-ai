@@ -649,7 +649,7 @@
   <section class="cta" id="contact">
     <h2>Ready to Work Smarter?</h2>
     <p>Book a free 15-minute call. We'll show you what's possible and give you a custom quote.</p>
-    <a href="#" class="btn btn-primary quote-trigger">Book Your Free Call</a>
+    <a href="#" class="btn btn-primary quote-trigger">Book Your Free Call or Site Visit</a>
   </section>
 
   <footer>
@@ -740,14 +740,14 @@
         const text = this.textContent;
         const isRepair = text === 'AI Agent Repair';
         
-        modalTitle.textContent = text === 'Website Design' ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call' || text === 'Get Your Free Assessment') ? 'Book Your Free Call' : 'Get a Quote'));
+        modalTitle.textContent = text === 'Website Design' ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment') ? 'Book Your Free Call or Site Visit' : 'Get a Quote'));
         
         // Show/hide repair-specific fields
         repairFields.forEach(field => {
           field.style.display = isRepair ? 'block' : 'none';
         });
 
-        const isCallFlow = (text === 'Book Your Free Call' || text === 'Get Your Free Assessment');
+        const isCallFlow = (text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment');
         if (callbackPrefWrap) callbackPrefWrap.style.display = isCallFlow ? 'block' : 'none';
         if (callbackDatetimeWrap) callbackDatetimeWrap.style.display = 'none';
         if (callbackPreferenceEl) callbackPreferenceEl.value = 'ASAP';
@@ -784,7 +784,7 @@
         'Name: ' + formData.get('name') + '\n' +
         'Email: ' + formData.get('email') + '\n' +
         'Phone: ' + (formData.get('phone') || 'Not provided') + '\n' +
-        'When Would You Like Us To Call: ' + callbackPref + '\n' +
+        'When Would You Like Us to Call or Visit: ' + callbackPref + '\n' +
         'Preferred Call Time & Date: ' + callbackDate + '\n' +
         'Operating System: ' + repairOs + '\n' +
         'Preferred Contact: ' + formData.get('contact-method') + '\n' +
