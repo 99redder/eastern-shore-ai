@@ -275,6 +275,26 @@
       color: var(--cyan);
     }
 
+    .results-section {
+      position: relative;
+      overflow: hidden;
+    }
+    .results-logo {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.25rem;
+      width: clamp(110px, 15vw, 190px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(1.05);
+    }
+    .results-section .section-header,
+    .results-section .trust-grid {
+      position: relative;
+      z-index: 1;
+    }
+
     /* CTA */
     .cta {
       background: var(--bg2);
@@ -313,6 +333,7 @@
       .hero { padding: 100px 1rem 60px; }
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
+      .results-logo { width: 110px; right: 0.9rem; top: 0.9rem; }
     }
   </style>
 </head>
@@ -413,7 +434,8 @@
     </div>
   </section>
 
-  <section class="section" id="results">
+  <section class="section results-section" id="results">
+    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" />
     <div class="section-header">
       <h2>Proof This Works</h2>
       <p>Real-world outcomes from practical automation projects.</p>
