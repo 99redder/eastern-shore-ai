@@ -236,6 +236,45 @@
       font-size: 0.95rem;
     }
 
+    /* Trust */
+    .trust-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.5rem;
+    }
+    .trust-quote {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      color: #e7ebf8;
+    }
+    .trust-author {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .before-after {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .before-after .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+    }
+    .before-after .label {
+      color: var(--muted);
+    }
+    .before-after .value {
+      font-weight: 700;
+      color: var(--cyan);
+    }
+
     /* CTA */
     .cta {
       background: var(--bg2);
@@ -273,6 +312,7 @@
       .header-nav { display: none; }
       .hero { padding: 100px 1rem 60px; }
       .stats { grid-template-columns: 1fr 1fr; }
+      .trust-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -369,6 +409,24 @@
         <div class="card-icon">🤝</div>
         <h3>4. We Stay With You</h3>
         <p>Most agencies disappear after delivery. We're your ongoing AI partner — we tweak, improve, and scale with you.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="results">
+    <div class="section-header">
+      <h2>Proof This Works</h2>
+      <p>Real-world outcomes from practical automation projects.</p>
+    </div>
+    <div class="trust-grid">
+      <div class="card">
+        <p class="trust-quote">Recent project result: a local service business automated lead follow-up and appointment reminders in under 3 weeks, which improved response speed and reduced missed appointments.</p>
+        <p class="trust-author">Based on a real client workflow redesign delivered by Eastern Shore AI.</p>
+      </div>
+      <div class="card before-after" aria-label="Before and after automation results">
+        <div class="row"><span class="label">Lead response time</span><span class="value">3 hrs → 8 mins</span></div>
+        <div class="row"><span class="label">Admin workload</span><span class="value">~11 hrs/wk saved</span></div>
+        <div class="row"><span class="label">No-show rate</span><span class="value">19% → 9%</span></div>
       </div>
     </div>
   </section>
