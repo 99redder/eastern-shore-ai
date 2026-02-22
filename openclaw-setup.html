@@ -929,8 +929,11 @@
   </div>
 
   <div class="success-modal-overlay" id="tax-category-modal" aria-hidden="true">
-    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tax-category-title" style="width:min(980px,96vw);">
-      <h3 id="tax-category-title">Manage Categories</h3>
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tax-category-title" style="width:min(920px,94vw); max-height:86vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:.5rem;">
+        <h3 id="tax-category-title" style="margin:.1rem 0 .4rem;">Manage Categories</h3>
+        <button type="button" class="btn" id="tax-category-x-btn" aria-label="Close category manager" title="Close">✕</button>
+      </div>
       <div class="admin-grid" style="grid-template-columns:1fr 1fr; gap:.7rem;">
         <div class="admin-calendar-wrap">
           <div class="admin-calendar-head"><div class="admin-calendar-title">Expense Categories</div></div>
@@ -1100,6 +1103,7 @@
     const taxMinimizeIncomeBtn = document.getElementById('tax-minimize-income-btn');
     const taxCategoryModal = document.getElementById('tax-category-modal');
     const taxCategoryCloseBtn = document.getElementById('tax-category-close-btn');
+    const taxCategoryXBtn = document.getElementById('tax-category-x-btn');
     const expenseCategoriesListEl = document.getElementById('expense-categories-list');
     const incomeCategoriesListEl = document.getElementById('income-categories-list');
     const newExpenseCategoryEl = document.getElementById('new-expense-category');
@@ -2242,10 +2246,12 @@
         }
       };
       taxManageCategoriesBtn?.addEventListener('click', window.openTaxCategoryManager);
-      taxCategoryCloseBtn?.addEventListener('click', () => {
+      const closeTaxCategoryModal = () => {
         taxCategoryModal.classList.remove('active');
         taxCategoryModal.setAttribute('aria-hidden', 'true');
-      });
+      };
+      taxCategoryCloseBtn?.addEventListener('click', closeTaxCategoryModal);
+      taxCategoryXBtn?.addEventListener('click', closeTaxCategoryModal);
       taxCategoryModal?.addEventListener('click', (e) => {
         if (e.target === taxCategoryModal) {
           taxCategoryModal.classList.remove('active');
