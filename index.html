@@ -747,7 +747,7 @@
           field.style.display = isRepair ? 'block' : 'none';
         });
 
-        const isCallFlow = (text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment');
+        const isCallFlow = /Free (Call|Assessment)/i.test(text);
         if (callbackPrefWrap) callbackPrefWrap.style.display = isCallFlow ? 'block' : 'none';
         if (callbackDatetimeWrap) callbackDatetimeWrap.style.display = 'none';
         if (callbackPreferenceEl) callbackPreferenceEl.value = 'ASAP';
