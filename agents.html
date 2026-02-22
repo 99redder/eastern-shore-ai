@@ -480,6 +480,10 @@
             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Email *</label>
             <input type="email" name="email" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
           </div>
+          <div class="repair-field" style="display: none;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Operating System (optional)</label>
+            <input type="text" name="operating-system" placeholder="e.g. Windows 11, macOS, Ubuntu…" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
           <div>
             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Phone Number (optional)</label>
             <input type="tel" name="phone" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
@@ -507,12 +511,21 @@
     const modalTitle = document.getElementById('modal-title');
     const form = document.getElementById('quote-form');
     const closeBtn = document.querySelector('.modal-close');
+    const repairFields = document.querySelectorAll('.repair-field');
     
     document.querySelectorAll('.quote-trigger').forEach(link => {
       link.addEventListener('click', function(e) {
         e.preventDefault();
         const text = this.textContent;
-        modalTitle.textContent = text === 'Website Design' ? 'Get a Website Quote' : 'Get a Quote';
+        const isRepair = text === 'AI Agent Repair';
+        
+        modalTitle.textContent = text === 'Website Design' ? 'Get a Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : 'Get a Quote');
+        
+        // Show/hide repair-specific fields
+        repairFields.forEach(field => {
+          field.style.display = isRepair ? 'block' : 'none';
+        });
+        
         modal.style.display = 'flex';
       });
     });
@@ -528,11 +541,13 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = new FormData(form);
+      const repairOs = formData.get('operating-system') || 'Not specified';
       const subject = encodeURIComponent(modalTitle.textContent + ' - Eastern Shore AI');
       const body = encodeURIComponent(
         'Name: ' + formData.get('name') + '\n' +
         'Email: ' + formData.get('email') + '\n' +
-        'Phone: ' + formData.get('phone') + '\n' +
+        'Phone: ' + (formData.get('phone') || 'Not provided') + '\n' +
+        'Operating System: ' + repairOs + '\n' +
         'Preferred Contact: ' + formData.get('contact-method') + '\n' +
         '\nMessage:\n' + formData.get('message')
       );
