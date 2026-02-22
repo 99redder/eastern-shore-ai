@@ -3,23 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eastern Shore AI — OpenClaw Setup, Web Design & Tech Lessons</title>
-  <meta name="description" content="Eastern Shore AI offers OpenClaw Setup, website design, and tech lessons on the Eastern Shore of Maryland. Secure setup, hardening, and hands-on support in person or via Zoom." />
-  <meta name="keywords" content="OpenClaw Setup, OpenClaw Setup Eastern Shore Maryland, Eastern Shore AI, web design Eastern Shore, tech lessons Maryland" />
-  <meta property="og:title" content="Eastern Shore AI — OpenClaw Setup, Web Design & Tech Lessons" />
-  <meta property="og:description" content="Eastern Shore AI offers OpenClaw Setup, website design, and tech lessons on the Eastern Shore of Maryland. Secure setup, hardening, and hands-on support." />
+  <title>AI Automation for Small Business — Eastern Shore AI</title>
+  <meta name="description" content="Stop wasting time on repetitive tasks. We build custom AI automation systems that save small businesses hours every week — without breaking the bank." />
+  <meta property="og:title" content="AI Automation for Small Business — Eastern Shore AI" />
+  <meta property="og:description" content="Stop wasting time on repetitive tasks. We build custom AI automation systems that save small businesses hours every week." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.easternshore.ai" />
+  <meta property="og:url" content="https://www.easternshore.ai/" />
   <meta property="og:image" content="https://www.easternshore.ai/carousel.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Eastern Shore AI — OpenClaw Setup, Web Design & Tech Lessons" />
-  <meta name="twitter:description" content="Eastern Shore AI offers OpenClaw Setup, website design, and tech lessons on the Eastern Shore of Maryland." />
-  <meta name="twitter:image" content="https://www.easternshore.ai/carousel.png" />
-  <link rel="canonical" href="https://www.easternshore.ai" />
+  <link rel="canonical" href="https://www.easternshore.ai/" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/fonts.css" />
   <style>
-    /* ===== Theme & CSS Variables ===== */
     :root {
       --bg: #0a0b10;
       --bg2: #10121a;
@@ -28,40 +22,24 @@
       --muted: #7a7e96;
       --cyan: #00e5ff;
       --violet: #c850ff;
-      --pink: #c850ff;
+      --pink: #ff4fd8;
       --line: #222438;
+      --cut-card: polygon(0 8px, 8px 0, 35% 0, 35.5% 4px, 37% 0, calc(100% - 12px) 0, 100% 12px, 100% 65%, calc(100% - 3px) 66%, 100% 67.5%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 62% 100%, 61.5% calc(100% - 3px), 60% 100%, 10px 100%, 0 calc(100% - 10px), 3px calc(100% - 14px), 0 calc(100% - 18px));
+      --cut-btn: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
-
-    body[data-theme="light"] {
-      --bg: #f4f4f8;
-      --bg2: #eaeaf0;
-      --card: #ffffff;
-      --text: #111118;
-      --muted: #555566;
-      --cyan: #0099bb;
-      --violet: #8a2ec0;
-      --pink: #8a2ec0;
-      --line: #d0d0dd;
-    }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-family: 'Titillium Web', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding-top: 56px;
+      line-height: 1.6;
     }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { color: var(--pink); }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0.5rem 1rem;
-    }
-
-    /* ===== Site Header & Navigation ===== */
+    /* Header */
     .site-header {
       position: fixed;
       top: 0;
@@ -75,850 +53,279 @@
     .site-header-inner {
       display: flex;
       align-items: center;
-      gap: 1.2rem;
+      justify-content: space-between;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 0 1rem 0 calc(1rem + 360px);
-      height: 100%;
-      position: relative;
-    }
-    body[data-theme="light"] .site-header {
-      background: #ffffff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
-
-    /* ===== Logo Glitch Animation ===== */
-    .header-logo-wrap {
-      position: absolute;
-      left: 1rem;
-      top: 0;
-      bottom: 0;
-      display: flex;
-      align-items: center;
+      padding: 0 1.5rem;
+      height: 56px;
     }
     .header-logo {
       font-family: 'Orbitron', sans-serif;
       font-weight: 700;
-      font-size: 1.5rem;
-      color: #ff4fd8;
+      font-size: 1.3rem;
+      color: var(--pink);
       text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
       letter-spacing: 0.08em;
       text-transform: uppercase;
       text-decoration: none;
-      white-space: nowrap;
-      display: inline-block;
-      animation: logo-glitch-glow 10s ease-in-out infinite;
     }
-    .header-logo span {
-      color: #00e5ff;
-      text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
-    }
-    @keyframes logo-glitch-glow {
-      0%, 58%   { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
-      60%       { text-shadow: 0 0 14px rgba(255,79,216,0.5), 0 0 30px rgba(255,79,216,0.2); transform: translate(-2px, 1px) skewX(-2deg); }
-      63%       { text-shadow: 0 0 22px rgba(0,229,255,0.7), 0 0 45px rgba(0,229,255,0.25); transform: translate(2px, -1px) skewX(1.5deg); }
-      66%       { text-shadow: 0 0 28px rgba(255,79,216,0.85), 0 0 55px rgba(255,79,216,0.35); transform: translate(-1px, 0) skewX(-1deg); }
-      69%       { text-shadow: 0 0 18px rgba(0,229,255,0.6), 0 0 40px rgba(0,229,255,0.2); transform: translate(1px, 1px) skewX(0.5deg); }
-      72%       { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
-      73%, 100% { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
-    }
-
-    .header-nav {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.9rem;
-      flex: 1;
-    }
+    .header-logo span { color: var(--cyan); }
+    .header-nav { display: flex; gap: 1.5rem; }
     .header-nav a {
-      text-decoration: none;
-      color: var(--cyan);
-      font-size: 0.88rem;
-      font-family: 'Titillium Web', system-ui, sans-serif;
+      color: var(--muted);
+      font-size: 0.9rem;
       font-weight: 500;
       transition: color 0.2s;
-      cursor: pointer;
-      white-space: nowrap;
-      padding: 0.5rem 0.25rem;
     }
-    .header-nav a:hover {
-      color: #ff4fd8;
-      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
-    }
+    .header-nav a:hover { color: var(--cyan); }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-left: auto;
-    }
-
-    .mobile-menu-btn {
-      display: none;
-      background: transparent;
-      border: 1px solid var(--line);
-      color: var(--text);
-      font-size: 1.3rem;
-      cursor: pointer;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
-      line-height: 1;
-      margin-left: auto;
-    }
-
-    .theme-toggle {
-      border:1px solid var(--line);
-      background:transparent;
-      color:var(--text);
-      border-radius:999px;
-      width:2rem;
-      height:2rem;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      font-size:0.9rem;
-      cursor:pointer;
-      line-height:1;
-    }
-
-    .brand-tagline {
-      font-family: 'Rajdhani', system-ui, sans-serif;
-      font-weight: 700;
-      font-size: 0.68rem;
-      letter-spacing: 0.22em;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    /* ===== About Panel / What We Do ===== */
-    .card.about-panel {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 3.5rem;
-      align-items: stretch;
-      padding: 0;
-      overflow: hidden;
-    }
-    .about-panel > img {
-      max-width: 420px;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      border-radius: 0;
-    }
-    .about-panel-text {
-      padding: 1rem 1rem 1rem 0;
-    }
-    .about-panel-text h2 {
-      margin: 0 0 0.5rem;
-      color: #ff4fd8;
-      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
-    }
-    .about-panel-images {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      margin-bottom: 0.6rem;
-      margin-left: 0.5rem;
-    }
-    .about-panel-item {
-      text-align: center;
-    }
-    .about-panel-item img {
-      width: 100%;
-      height: auto;
-      object-fit: cover;
-      border-radius: 2px;
-      display: block;
-    }
-    .about-panel-item h3 {
-      margin: 0.4rem 0 0;
-      font-size: 0.85rem;
-      color: #ff4fd8;
-      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
-    }
-    .about-panel-tagline {
-      margin: 0;
-      color: #ff4fd8;
-      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
-      line-height: 1.6;
-      font-size: 1rem;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    /* ===== Hero Carousel ===== */
+    /* Hero */
     .hero {
-      background: rgba(200,80,255,0.04);
-      border: 1px solid var(--line);
-      border-radius: 0;
-      padding: 1.2rem;
-      margin-bottom: 0.6rem;
-      height: 140px;
-      overflow: hidden;
-    }
-
-    h1, h2, h3, h4 { font-family: 'Titillium Web', system-ui, sans-serif; }
-
-    h1 {
-      margin: 0 0 0.7rem;
-      font-size: clamp(1.5rem, 3.2vw, 2.3rem);
-      line-height: 1.15;
-    }
-
-    .accent { color: var(--pink); }
-
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      max-width: 760px;
-      line-height: 1.6;
-    }
-
-    .hero {
+      padding: 120px 1.5rem 80px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
       position: relative;
-      padding-left: 3rem;
-      padding-right: 4.6rem;
+      overflow: hidden;
     }
-
-    .hero-slide {
-      display: none;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.35s ease, transform 0.35s ease;
-      height: 100%;
-    }
-    .hero-slide.active {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .hero-slide-image {
+    .hero::before {
+      content: '';
       position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      margin: 0;
-    }
-    .hero-slide-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.85;
-    }
-
-    .hero-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(10, 11, 16, 0.7);
-      border: 1px solid var(--line);
-      color: var(--text);
-      font-size: 1.5rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: 2px;
-      cursor: pointer;
-      z-index: 10;
-      line-height: 1;
-    }
-
-    .hero-arrow-left { left: 0.5rem; }
-    .hero-arrow-right { right: 0.5rem; }
-    .hero-arrow:hover { border-color: var(--cyan); color: var(--cyan); }
-
-    body[data-theme="light"] .hero-arrow {
-      background:#f5f5f5;
-      border-color:#dddddd;
-      color:#111111;
-    }
-
-    .hero-dots {
-      position: absolute;
-      bottom: 0.6rem;
+      top: 0;
       left: 0;
       right: 0;
+      bottom: 0;
+      background: url('/carousel.png') center/cover no-repeat;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      margin: 0 0 1.5rem;
+      line-height: 1.2;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(90deg, var(--cyan), var(--violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    .hero-buttons {
       display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      z-index: 11;
-    }
-    .hero-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 1px solid var(--line);
-      background: transparent;
-      cursor: pointer;
-      padding: 0;
-      position: relative;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .hero-dot::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 44px;
-      height: 44px;
-      padding: 0;
-      transition: background 0.2s, box-shadow 0.2s;
-    }
-    .hero-dot.active {
-      background: #ff4fd8;
-      border-color: #ff4fd8;
-      box-shadow: 0 0 6px rgba(255, 79, 216, 0.4);
-    }
-    .hero-dot:hover { border-color: #ff4fd8; }
-
-    body[data-theme="light"] .hero-arrow:hover {
-      border-color:#9b30d9;
-      color:#9b30d9;
-      box-shadow:0 0 10px rgba(200,80,255,0.18);
-    }
-
-    /* ===== Service Tab Panels ===== */
-    .offer-grid-wrap {
-      height: 420px;
-      position: relative;
-    }
-    .offer-panel {
-      display: none;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.35s ease, transform 0.35s ease;
-      height: 100%;
-      overflow-y: auto;
-    }
-    .offer-panel.active {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .offer-panel::-webkit-scrollbar { width: 6px; }
-    .offer-panel::-webkit-scrollbar-track { background: transparent; }
-    .offer-panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-    .offer-panel::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-    .portfolio-carousel {
-      margin-top: 1.2rem;
-      position: relative;
-    }
-    .portfolio-carousel-inner {
-      position: relative;
-      overflow: hidden;
-      border-radius: 2px;
-      border: 1px solid var(--line);
-      background: rgba(10, 11, 16, 0.5);
-    }
-    .portfolio-item {
-      display: none;
-      text-align: center;
-      padding: 0.5rem;
-    }
-    .portfolio-item.active { display: block; }
-    .portfolio-item img {
-      width: 100%;
-      max-width: 280px;
-      border-radius: 2px;
-      border: 1px solid var(--line);
-    }
-    .portfolio-item-label {
-      margin-top: 0.3rem;
-      font-size: 0.78rem;
-      color: var(--cyan);
-    }
-    .portfolio-item-label a {
-      color: var(--cyan);
-      text-decoration: none;
-    }
-    .portfolio-item-label a:hover { text-decoration: underline; }
-    .portfolio-nav {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-top: 0.3rem;
-    }
-    .portfolio-arrow {
-      background: rgba(10, 11, 16, 0.7);
-      border: 1px solid var(--line);
-      color: var(--text);
-      font-size: 1.1rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 2px;
-      cursor: pointer;
-      line-height: 1;
-    }
-    .portfolio-arrow:hover { border-color: var(--cyan); color: var(--cyan); }
-    .portfolio-dots {
-      display: flex;
-      gap: 0.4rem;
-    }
-    .portfolio-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: var(--line);
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      position: relative;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .portfolio-dot::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 44px;
-      height: 44px;
-    }
-    .portfolio-dot.active { background: var(--cyan); }
-
-    .hero-lobster {
-      position: absolute;
-      right: 1.1rem;
-      bottom: 0.35rem;
-      font-size: 3.3rem;
-      line-height: 1;
-      user-select: none;
-      filter: saturate(1.2);
-    }
-
-    .hero-link {
-      color: #ff3b3b;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .hero-link:hover {
-      color: #ff6b6b;
-      text-decoration: none;
-    }
-    .hero-link-blue {
-      color: #ff4fd8;
-      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
-      text-decoration: none;
-      display: inline-block;
-    }
-    .hero-link-blue:hover {
-      color: #ff7ae4;
-      text-decoration: none;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1rem;
-      margin-top: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
     }
-
-    .offer-grid {
-      display: grid;
-      grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
-      gap: 1rem;
-      margin-top: 1rem;
-      align-items: stretch;
-    }
-
-    /* ===== Feature Stack & Logos ===== */
-    .feature-stack {
-      display: grid;
-      gap: 0.3rem;
-      align-items: start;
-    }
-
-    .feature-stack-title {
-      margin: 0;
-      color: var(--cyan);
+    .btn {
+      display: inline-block;
+      padding: 0.9rem 2rem;
+      border-radius: 0;
+      clip-path: var(--cut-btn);
+      font-weight: 600;
       font-size: 1rem;
-      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
     }
-
-    .feature-card {
-      padding: 0.4rem 0.65rem;
-    }
-
-    .feature-card h3 {
-      font-size: 0.9rem;
-      margin: 0 0 0.1rem;
-    }
-
-    .feature-card p {
-      font-size: 0.84rem;
-      line-height: 1.35;
-      margin: 0;
-    }
-
-    .feature-logos {
-      margin-top: 0.45rem;
-      display: flex;
-      gap: 0.45rem;
-      align-items: center;
-    }
-
-    .feature-logos img {
-      width: 18px;
-      height: 18px;
-      object-fit: contain;
-      filter: brightness(0) saturate(100%) invert(70%) sepia(80%) saturate(2000%) hue-rotate(160deg) brightness(110%) contrast(95%);
-      opacity: 0.95;
-    }
-    body[data-theme="light"] .feature-logos img {
-      filter: brightness(0) saturate(100%) invert(25%) sepia(90%) saturate(3000%) hue-rotate(250deg) brightness(90%) contrast(100%);
-    }
-
-    /* ===== Battle-Damaged Hull Edges (clip-path) ===== */
-    .card,
-    .faq-item,
-    .hero,
-    .modal,
-    .portfolio-carousel-inner {
-      clip-path: polygon(
-        0 8px,
-        8px 0,
-        35% 0,
-        35.5% 4px,
-        37% 0,
-        calc(100% - 12px) 0,
-        100% 12px,
-        100% 65%,
-        calc(100% - 3px) 66%,
-        100% 67.5%,
-        100% calc(100% - 6px),
-        calc(100% - 6px) 100%,
-        62% 100%,
-        61.5% calc(100% - 3px),
-        60% 100%,
-        10px 100%,
-        0 calc(100% - 10px),
-        3px calc(100% - 14px),
-        0 calc(100% - 18px)
-      );
-      border-radius: 0;
-    }
-    .btn,
     .btn-primary {
-      clip-path: polygon(
-        0 4px,
-        4px 0,
-        calc(100% - 7px) 0,
-        100% 7px,
-        100% calc(100% - 4px),
-        calc(100% - 4px) 100%,
-        7px 100%,
-        0 calc(100% - 7px)
-      );
-      border-radius: 0;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      border: 1px solid #ff4fd8;
+      box-shadow: 0 0 14px rgba(255, 79, 216, 0.35);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(255, 79, 216, 0.5);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .btn-secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
     }
 
-    /* ===== Cards & Buttons ===== */
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      max-width: 900px;
+      margin: 3rem auto 0;
+      padding: 2rem;
+      background: var(--card);
+      border-radius: 0;
+      border: 1px solid var(--line);
+      clip-path: var(--cut-card);
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* Problem/Solution */
+    .section {
+      padding: 5rem 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section-header h2 {
+      font-size: 2rem;
+      margin: 0 0 1rem;
+    }
+    .section-header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
     .card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 0;
-      padding: 1rem;
-      position: relative;
+      clip-path: var(--cut-card);
+      padding: 2rem;
+      transition: border-color 0.2s;
     }
-
-    .card--setup-offer {
-      display: flex;
-      flex-direction: column;
-      padding-bottom: 1rem;
-      position: relative;
+    .card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
     }
-    .card--setup-offer:has(#book-now-btn) > div:first-child::before {
-      content: '';
-      float: right;
-      width: 170px;
-      height: 2.2em;
-    }
-
-    .card--setup-offer .btn-primary {
-      text-decoration: none;
-      padding: 0.75rem 2.8rem;
-      font-size: 1.05rem;
-      background: linear-gradient(145deg, #ff4fd8, #cc3fb0);
-      border-color: #ff4fd8;
-      box-shadow: 0 0 16px rgba(255,79,216,0.35);
-      color: #fff;
-      -webkit-text-fill-color: #fff;
-    }
-
-    .setup-faq {
-      margin-top: 0.7rem;
-    }
-
-    .setup-faq h4 {
-      margin: 0.55rem 0 0.15rem;
-      color: var(--cyan);
-      font-size: 0.88rem;
-    }
-
-    .setup-faq p {
-      margin: 0;
-      font-size: 0.84rem;
-      line-height: 1.45;
-    }
-
-    .lobster-icon {
-      position: absolute;
-      right: 0.7rem;
-      bottom: 0.45rem;
-      font-size: 2.4rem;
-      line-height: 1;
-      filter: saturate(1.2);
-      user-select: none;
-    }
-
-    .card h3 {
-      margin: 0 0 0.4rem;
-      color: var(--cyan);
-      font-size: 1rem;
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.5;
-    }
-
-    .faq-section {
-      margin-top: 1.4rem;
-      display: grid;
-      gap: 0.7rem;
-    }
-
-    .faq-item {
-      background: var(--card);
-      border: 1px solid var(--line);
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
       border-radius: 0;
-      padding: 0.85rem 1rem;
-    }
-
-    .faq-item h3 {
-      margin: 0 0 0.35rem;
-      color: var(--cyan);
-      font-size: 0.98rem;
-    }
-
-    .faq-item p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.5;
-      font-size: 0.92rem;
-    }
-
-    /* ===== Modals & Overlays ===== */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
+      clip-path: var(--cut-btn);
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
-      z-index: 1000;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      transition: box-shadow 0.2s;
     }
-
-    .modal-overlay.active { display: flex; }
-
-    .modal {
-      width: min(620px, 96vw);
-      background: linear-gradient(160deg, #141620, #10121a);
-      border: 1px solid var(--line);
-      border-radius: 0;
-      padding: 1rem;
-      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.5);
+    .card:hover .card-icon {
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
     }
-
-    .modal-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 0.7rem;
+    .card h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.25rem;
     }
-
-    .modal h2 {
+    .card p {
+      color: var(--muted);
       margin: 0;
-      color: var(--cyan);
-      font-size: 1.2rem;
+      font-size: 0.95rem;
     }
 
-    .modal-close {
-      border: 1px solid var(--line);
-      background: transparent;
-      color: var(--text);
-      border-radius: 2px;
-      padding: 0.35rem 0.55rem;
-      cursor: pointer;
-    }
-
-    .form-grid {
+    /* Trust */
+    .trust-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7rem;
-      margin-top: 0.7rem;
-    }
-
-    .form-grid .full { grid-column: 1 / -1; }
-
-    label {
-      display: block;
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-bottom: 0.25rem;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 2px;
-      background: #10121a;
-      color: var(--text);
-      padding: 0.65rem 0.7rem;
-      font: inherit;
-    }
-
-    textarea { min-height: 110px; resize: vertical; }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.6rem;
-      margin-top: 0.9rem;
-    }
-
-    .btn {
-      border: 1px solid var(--line);
-      background: transparent;
-      color: var(--text);
-      border-radius: 0;
-      padding: 0.7rem 1rem;
-      min-height: 44px;
-      cursor: pointer;
-      font-weight: 600;
-      font-family: 'Titillium Web', system-ui, sans-serif;
-    }
-
-    .btn-primary {
-      background: linear-gradient(145deg, #ff4fd8, #cc3fb0);
-      border-color: #ff4fd8;
-      box-shadow: 0 0 14px rgba(255, 79, 216, 0.35);
-    }
-
-    .hint {
-      margin: 0.5rem 0 0;
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
-
-    .repair-only { display: none; }
-    .contact-only { display: none; }
-
-    .form-status {
-      margin-top: 0.6rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-      min-height: 1.2em;
-    }
-
-    .form-status.ok { color: #00e5ff; }
-    .form-status.err { color: #ff5555; }
-
-    .coupon-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.6rem;
-      margin-top: 0.6rem;
-    }
-    .coupon {
-      border: 2px solid #ff4fd8;
-      box-shadow: 0 0 12px rgba(255, 79, 216, 0.2), inset 0 0 12px rgba(255, 79, 216, 0.04);
-      background: var(--card);
-      padding: 0.8rem 0.7rem;
-      text-align: center;
-      position: relative;
-      clip-path: none;
-      border-radius: 3px;
-    }
-    .coupon-badge {
-      display: inline-block;
-      background: #ff4fd8;
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.2rem 0.6rem;
-      margin-bottom: 0.4rem;
-      clip-path: polygon(0 3px, 3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px));
-    }
-    .coupon h3 {
-      margin: 0 0 0.2rem;
-      color: var(--cyan);
-      font-size: 0.92rem;
-    }
-    .coupon p {
-      margin: 0 0 0.3rem;
-      color: var(--cyan);
-      font-size: 0.8rem;
-      line-height: 1.45;
-    }
-    .coupon .coupon-code {
-      display: inline-block;
-      border: 1px dashed var(--cyan);
-      color: var(--cyan);
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      padding: 0.25rem 0.7rem;
-      margin-top: 0.3rem;
-    }
-
-    /* ===== Footer ===== */
-    footer {
-      margin-top: 2rem;
-      padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
-      color: #7a7e96;
-      font-size: 0.85rem;
-      border-top: 1px solid var(--line);
-    }
-    .footer-inner {
-      display: flex;
-      align-items: flex-start;
+      grid-template-columns: 1.2fr 0.8fr;
       gap: 1.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
     }
-    .footer-newsletter {
-      flex: 0.72;
-      min-width: 0;
-      max-width: 360px;
+    .trust-quote {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+      color: #e7ebf8;
     }
-    .footer-newsletter-label {
-      font-size: 0.7rem;
+    .trust-author {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .before-after {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .before-after .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+    }
+    .before-after .label {
+      color: var(--muted);
+    }
+    .before-after .value {
       font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
       color: var(--cyan);
-      margin: 0 0 0.4rem;
     }
-    .footer-info {
-      flex: 1.28;
-      text-align: center;
-      min-width: 0;
-      padding-top: 0.25rem;
+
+    .results-section {
+      position: relative;
+      overflow: visible;
     }
-    /* ===== Neon Sign Toggle ===== */
+    .results-logo {
+      position: absolute;
+      right: clamp(2.4rem, 5.2vw, 4.4rem);
+      top: clamp(-345px, -23vw, -235px);
+      width: clamp(220px, 30vw, 420px);
+      opacity: 0.26;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(1.08);
+      transition: filter 0.6s ease, opacity 0.6s ease;
+      clip-path: var(--cut-card);
+    }
+    .results-logo.logo-full {
+      filter: brightness(1.02) saturate(1.06);
+      opacity: 1;
+    }
+    .results-logo.flicker {
+      animation: neon-flicker 0.4s steps(2, end);
+    }
+    @keyframes neon-flicker {
+      0%   { filter: brightness(1) saturate(1); opacity: 1; }
+      15%  { filter: brightness(0.3) saturate(0.3); opacity: 0.5; }
+      30%  { filter: brightness(0.9) saturate(0.8); opacity: 0.9; }
+      45%  { filter: brightness(0.2) saturate(0.1); opacity: 0.4; }
+      60%  { filter: brightness(1.1) saturate(1.1); opacity: 1; }
+      75%  { filter: brightness(0.4) saturate(0.2); opacity: 0.6; }
+      100% { filter: brightness(1) saturate(1); opacity: 1; }
+    }
+    .logo-switch {
+      position: absolute;
+      right: clamp(-0.2rem, 1.2vw, 0.8rem);
+      top: clamp(-318px, -21.5vw, -218px);
+      z-index: 2;
+    }
     .neon-switch {
       border: 1px solid var(--line);
       background: transparent;
@@ -935,1621 +342,457 @@
     }
     .neon-switch:hover { color: #ff4fd8; border-color: #ff4fd8; }
     .neon-switch.off { color: #555; border-color: #333; }
-    #neon-logo {
-      transition: filter 0.6s ease, opacity 0.6s ease;
-    }
-    #neon-logo.off {
-      filter: brightness(0.15) saturate(0);
-      opacity: 0.7;
-    }
-    #neon-logo.flicker {
-      animation: neon-flicker 0.4s steps(2, end);
-    }
-    @keyframes neon-flicker {
-      0%   { filter: brightness(1) saturate(1); opacity: 1; }
-      15%  { filter: brightness(0.3) saturate(0.3); opacity: 0.5; }
-      30%  { filter: brightness(0.9) saturate(0.8); opacity: 0.9; }
-      45%  { filter: brightness(0.2) saturate(0.1); opacity: 0.4; }
-      60%  { filter: brightness(1.1) saturate(1.1); opacity: 1; }
-      75%  { filter: brightness(0.4) saturate(0.2); opacity: 0.6; }
-      100% { filter: brightness(1) saturate(1); opacity: 1; }
-    }
-
-    .footer-link {
-      display: inline-block;
-      margin: 0.2rem 0.4rem 0;
-      padding: 0.4rem 0.3rem;
-      color: #ff4fd8;
-      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
-      text-decoration: underline;
-    }
-
-    .footer-link:hover {
-      color: #ff7ae4;
-    }
-
-    body[data-theme="light"] .footer-link {
-      color:#cc3fb0;
-    }
-
-    body[data-theme="light"] .footer-link:hover {
-      color:#ff4fd8;
-    }
-
-    body[data-theme="light"] .modal-overlay {
-      background: rgba(0, 0, 0, 0.35);
-    }
-    body[data-theme="light"] .modal {
-      background: linear-gradient(160deg, #ffffff, #f5f5f5);
-      border-color: #dddddd;
-      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.12);
-    }
-    body[data-theme="light"] .modal-close {
-      border-color: #dddddd;
-      color: #111111;
-    }
-    body[data-theme="light"] .modal-close:hover {
-      background: #f0f0f0;
-    }
-    body[data-theme="light"] input,
-    body[data-theme="light"] textarea,
-    body[data-theme="light"] select {
-      background: #f5f5f5;
-      border-color: #dddddd;
-      color: #111111;
-    }
-    body[data-theme="light"] input::placeholder,
-    body[data-theme="light"] textarea::placeholder {
-      color: #7a7e96;
-    }
-    body[data-theme="light"] .btn {
-      border-color: #dddddd;
-      color: #111111;
-    }
-    body[data-theme="light"] .btn:hover {
-      background: #f0f0f0;
-    }
-    body[data-theme="light"] .btn.btn-primary {
-      background: linear-gradient(145deg, #ff4fd8, #cc3fb0);
-      border-color: #ff4fd8;
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(255,79,216,0.25);
-    }
-    body[data-theme="light"] .btn-primary:hover {
-      background: linear-gradient(145deg, #ff7ae4, #ff4fd8);
-    }
-    body[data-theme="light"] .form-status.ok { color: #9b30d9; }
-    body[data-theme="light"] .form-status.err { color: #cc2233; }
-    body[data-theme="light"] .legal-copy {
-      color: #666666;
-    }
-    body[data-theme="light"] .portfolio-carousel-inner {
-      background: rgba(245, 245, 245, 0.6);
-      border-color: #dddddd;
-    }
-    body[data-theme="light"] .portfolio-arrow {
-      background: #ffffff;
-      border-color: #dddddd;
-      color: #111111;
-    }
-    body[data-theme="light"] .portfolio-arrow:hover {
-      border-color: #9b30d9;
-      color: #9b30d9;
-    }
-    body[data-theme="light"] .portfolio-dot {
-      background: #dddddd;
-    }
-    body[data-theme="light"] .portfolio-dot.active {
-      background: #9b30d9;
-    }
-    body[data-theme="light"] .portfolio-item-desc {
-      color: #666666;
-    }
-    .what-you-get-list { color: #7a7e96; }
-    body[data-theme="light"] .what-you-get-list { color: #333333; }
-
-    /* Light-mode overrides for footer newsletter (Brevo inline dark styles) */
-    body[data-theme="light"] #sib-container {
-      background-color: #ffffff !important;
-      border-color: #d8dce8 !important;
-    }
-    body[data-theme="light"] #sib-form-container #error-message {
-      background-color: #ffeef0 !important;
-      border-color: #ffb8c1 !important;
-      color: #9d1c2d !important;
-    }
-    body[data-theme="light"] #sib-form-container #success-message {
-      background-color: #f3ecff !important;
-      border-color: #d5b8ff !important;
-      color: #6d28d9 !important;
-    }
-    body[data-theme="light"] #sib-container .sib-form-block p {
-      color: #444a61 !important;
-    }
-    body[data-theme="light"] #sib-container .sib-form-block:first-child p {
-      color: #8f2bd3 !important;
-    }
-    body[data-theme="light"] #sib-container .input {
-      background: #ffffff !important;
-      border-color: #d8dce8 !important;
-      color: #1b1d28 !important;
-    }
-
-    .legal-copy {
-      color: #7a7e96;
-      font-size: 0.92rem;
-      line-height: 1.6;
-    }
-
-    .legal-copy p { margin: 0.5rem 0; }
-
-    .legal-copy a {
-      color: var(--cyan);
-      text-decoration: underline;
-    }
-
-    .legal-copy a:hover {
-      color: #c850ff;
-    }
-
-    /* ===== Responsive: 820px ===== */
-    @media (max-width: 820px) {
-      .offer-grid { grid-template-columns: 1fr; }
-      .coupon-grid { grid-template-columns: 1fr 1fr; }
-      .offer-grid-wrap { height: 400px; }
-      .card.about-panel { grid-template-columns: 1fr; text-align: center; padding: 0; }
-      .about-panel > img { max-width: 100%; height: auto; }
-      .about-panel-text { padding: 0 1rem 1rem; }
-      .about-panel-images { grid-template-columns: 1fr; margin-left: 0; }
-      .about-panel-item img { max-width: 280px; margin: 0 auto; }
-      .form-grid { grid-template-columns: 1fr; }
-      .modal-overlay { align-items: flex-start; overflow-y: auto; }
-      #website-design-cta-mobile { display: inline-block !important; }
-      #website-design-cta { display: none !important; }
-      .footer-inner { flex-direction: column; align-items: stretch; gap: 1.5rem; }
-      .footer-newsletter { flex: none; width: 100%; }
-
-      .mobile-menu-btn { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; order: 1; margin-right: auto; margin-left: 0; animation: none !important; }
-      .header-nav {
-        display: none !important;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        flex-direction: column;
-        background: #0c0d14;
-        border-bottom: 1px solid var(--line);
-        padding: 0.5rem 0;
-        gap: 0;
-      }
-      body[data-theme="light"] .header-nav {
-        background: #ffffff;
-      }
-      .header-nav.open { display: flex !important; }
-      .header-nav a {
-        font-size: 0.95rem;
-        padding: 0.75rem 1.2rem;
-        border-bottom: 1px solid var(--line);
-      }
-      .header-nav a:last-child { border-bottom: none; }
-      .site-header-inner { padding-left: 1rem; padding-right: 1rem; justify-content: space-between; }
-      .header-logo-wrap { position: static; order: 2; }
-      .header-logo { font-size: 1.15rem; animation: none; }
-      .header-right { margin-left: 0; order: 3; }
-
-      .hero {
-        padding: 1.2rem 2.8rem;
-        height: 130px;
-      }
-      .hero h1 { font-size: 1.1rem; margin: 0 0 0.2rem; }
-      .hero .subtitle { font-size: 0.78rem; line-height: 1.4; }
-
-      .hero-lobster {
-        position: static;
-        display: block;
-        margin-top: 0.5rem;
-        font-size: 2.4rem;
-      }
-
-      input, textarea { font-size: 16px; }
-
-      .card--setup-offer:has(#book-now-btn) > div:first-child::before {
-        display: none;
-      }
-      #book-now-btn {
-        position: static !important;
-        top: auto !important;
-        right: auto !important;
-        order: -1;
-        margin-bottom: 0.75rem;
-      }
-      .card--setup-offer .btn-primary {
-        width: 100%;
-        text-align: center;
-        display: inline-flex;
-        justify-content: center;
-        padding: 0.85rem 1rem;
-        font-size: 1.1rem;
-      }
-    }
-
-    /* ===== Responsive: 480px ===== */
-    @media (max-width: 480px) {
-      .container { padding: 0.6rem; }
-      .coupon-grid { grid-template-columns: 1fr; }
-
-      h1 { font-size: 1.4rem; }
-
-      .header-logo { font-size: 0.95rem; animation: none; }
-
-      .hero { padding: 0.8rem 2.2rem; height: 120px; }
-      .hero h1 { font-size: 0.95rem; margin: 0 0 0.15rem; }
-      .hero .subtitle { font-size: 0.72rem; line-height: 1.3; }
-
-      .card { padding: 0.75rem; }
-      .feature-card { padding: 0.55rem 0.65rem; }
-
-      .modal { padding: 0.8rem; }
-    }
-
-    /* Pink electric storm — one-time onload animation */
-    .storm-wrap {
+    .results-section .section-header,
+    .results-section .trust-grid {
       position: relative;
-      overflow: visible;
-    }
-    .storm-bolt {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 180px;
-      pointer-events: none;
-      z-index: 50;
-      opacity: 0;
-    }
-    .storm-bolt--left { right: 100%; margin-right: 10px; }
-    .storm-bolt--right { left: 100%; margin-left: 10px; }
-    .storm-bolt svg {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
-    .storm-bolt line {
-      stroke: #ff4fd8;
-      stroke-linecap: round;
-      filter: drop-shadow(0 0 6px rgba(255,79,216,0.8)) drop-shadow(0 0 18px rgba(255,79,216,0.4));
+      z-index: 1;
     }
 
-    .storm-active .storm-bolt { animation: boltFlash 2.8s ease-out forwards; }
-    .storm-active .storm-bolt--right { animation-delay: 0.12s; }
 
-    @keyframes boltFlash {
-      0%   { opacity: 0; }
-      3%   { opacity: 1; }
-      5%   { opacity: 0.1; }
-      8%   { opacity: 1; }
-      11%  { opacity: 0; }
-      18%  { opacity: 0; }
-      20%  { opacity: 1; }
-      22%  { opacity: 0.15; }
-      25%  { opacity: 0.9; }
-      28%  { opacity: 0; }
-      40%  { opacity: 0; }
-      42%  { opacity: 0.85; }
-      43%  { opacity: 0.1; }
-      45%  { opacity: 0.7; }
-      48%  { opacity: 0; }
-      62%  { opacity: 0; }
-      64%  { opacity: 0.6; }
-      65%  { opacity: 0.05; }
-      67%  { opacity: 0.5; }
-      70%  { opacity: 0; }
-      85%  { opacity: 0; }
-      87%  { opacity: 0.3; }
-      89%  { opacity: 0; }
-      100% { opacity: 0; }
+    .card input,
+    .card select,
+    .card textarea {
+      border-radius: 0;
+      clip-path: var(--cut-btn);
     }
 
-    /* Pink rain — follows lightning */
-    .storm-rain {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 49;
-      overflow: hidden;
-      opacity: 0;
+    /* CTA */
+    .cta {
+      background: var(--bg2);
+      border-top: 1px solid var(--line);
+      text-align: center;
+      padding: 5rem 1.5rem;
     }
-    .storm-active .storm-rain {
-      animation: rainIntro 2s ease-out forwards;
-      animation-delay: 1.2s;
+    .cta h2 {
+      font-size: 2rem;
+      margin: 0 0 1rem;
     }
-    .storm-rain.rain-steady {
-      opacity: 0.65;
-      transition: opacity 0.8s ease;
+    .cta p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin: 0 0 2rem;
     }
-    .storm-rain.rain-stopping {
-      opacity: 0;
-      transition: opacity 1s ease;
+
+    /* Footer */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--line);
+      padding: 2rem 1.5rem;
+      text-align: center;
     }
-    .rain-drop {
-      position: absolute;
-      width: 1.5px;
-      background: linear-gradient(to bottom, rgba(255,79,216,0.72), transparent);
-      animation: rainFall 0.6s linear infinite;
-      opacity: 0.78;
+    footer p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.9rem;
     }
-    @keyframes rainFall {
-      0%   { transform: translateY(-20px); }
-      100% { transform: translateY(100vh); }
+    footer a {
+      color: var(--cyan);
     }
-    @keyframes rainIntro {
-      0%   { opacity: 0; }
-      50%  { opacity: 0.75; }
-      100% { opacity: 0.65; }
+
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .hero { padding: 100px 1rem 60px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .trust-grid { grid-template-columns: 1fr; }
+      .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
+      .logo-switch { right: 0.1rem; top: -168px; }
     }
   </style>
-  <!-- Brevo newsletter -->
-  <style>
-    @font-face { font-display:block; font-family:Roboto; src:url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/7529907e9eaf8ebb5220c5f9850e3811.woff2) format("woff2"),url(https://assets.brevo.com/font/Roboto/Latin/normal/normal/25c678feafdc175a70922a116c9be3e7.woff) format("woff") }
-    @font-face { font-display:fallback; font-family:Roboto; font-weight:600; src:url(https://assets.brevo.com/font/Roboto/Latin/medium/normal/6e9caeeafb1f3491be3e32744bc30440.woff2) format("woff2"),url(https://assets.brevo.com/font/Roboto/Latin/medium/normal/71501f0d8d5aa95960f6475d5487d4c2.woff) format("woff") }
-    @font-face { font-display:fallback; font-family:Roboto; font-weight:700; src:url(https://assets.brevo.com/font/Roboto/Latin/bold/normal/3ef7cf158f310cf752d5ad08cd0e7e60.woff2) format("woff2"),url(https://assets.brevo.com/font/Roboto/Latin/bold/normal/ece3a1d82f18b60bcce0211725c476aa.woff) format("woff") }
-    #sib-container input:-ms-input-placeholder { text-align:left; font-family:'Titillium Web',sans-serif; color:#555870; }
-    #sib-container input::placeholder { text-align:left; font-family:'Titillium Web',sans-serif; color:#555870; }
-    #sib-container a { text-decoration:underline; color:#00e5ff; }
-    #sib-container.sib-container--large { padding: 0.7rem !important; }
-  </style>
-  <link rel="stylesheet" href="https://sibforms.com/forms/end-form/build/sib-styles.css">
 </head>
 <body>
-  <!-- ===== SECTION: Site Header & Navigation ===== -->
   <header class="site-header">
     <div class="site-header-inner">
-      <div class="header-logo-wrap"><a href="/" class="header-logo">Eastern Shore <span>AI</span></a></div>
-      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
-      <nav class="header-nav" id="header-nav" aria-label="Main links">
-        <a href="#" id="openclaw-setup-link">OpenClaw Setup</a>
-        <a href="#" id="website-design-link">Website Design</a>
-        <a href="#" id="ai-lessons-link">Tech Lessons</a>
-        <a href="#" id="ai-agent-repair-link">AI Agent Repair</a>
-        <a href="#" id="buy-domain-link">Buy This Domain Now</a>
+      <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
+      <nav class="header-nav">
+        <a href="openclaw-setup.html">OpenClaw Setup</a>
+        <a href="#" class="quote-trigger">Website Design</a>
+        <a href="#" class="quote-trigger">AI Agent Repair</a>
+        <a href="book-lessons.html">Tech Lessons</a>
+        <a href="newsletter.html">Newsletter</a>
       </nav>
-      <div class="header-right">
-        <button type="button" class="neon-switch" id="neon-switch" aria-label="Toggle neon sign" title="Toggle neon sign"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg></button>
-        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
-      </div>
     </div>
   </header>
 
-  <main>
-  <div class="container">
-
-    <div class="storm-wrap" id="storm-wrap">
-      <div class="storm-bolt storm-bolt--left">
-        <svg viewBox="0 0 180 800" preserveAspectRatio="none">
-          <line x1="140" y1="0" x2="90" y2="80" stroke-width="3"/>
-          <line x1="90" y1="80" x2="130" y2="95" stroke-width="2.5"/>
-          <line x1="130" y1="95" x2="60" y2="210" stroke-width="2.8"/>
-          <line x1="60" y1="210" x2="110" y2="230" stroke-width="2"/>
-          <line x1="110" y1="230" x2="45" y2="380" stroke-width="2.5"/>
-          <line x1="45" y1="380" x2="95" y2="400" stroke-width="1.8"/>
-          <line x1="95" y1="400" x2="50" y2="520" stroke-width="2.2"/>
-          <line x1="50" y1="520" x2="100" y2="545" stroke-width="1.5"/>
-          <line x1="100" y1="545" x2="70" y2="650" stroke-width="2"/>
-          <line x1="70" y1="650" x2="120" y2="700" stroke-width="1.5"/>
-          <line x1="120" y1="700" x2="80" y2="800" stroke-width="1.8"/>
-          <!-- branch -->
-          <line x1="60" y1="210" x2="20" y2="290" stroke-width="1.5"/>
-          <line x1="130" y1="95" x2="165" y2="160" stroke-width="1.2"/>
-          <line x1="45" y1="380" x2="15" y2="440" stroke-width="1.2"/>
-          <line x1="100" y1="545" x2="145" y2="600" stroke-width="1"/>
-        </svg>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
+      <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn btn-primary">Get Your Free Audit</a>
+        <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
       </div>
-      <div class="storm-rain" id="storm-rain"></div>
-      <div class="storm-bolt storm-bolt--right">
-        <svg viewBox="0 0 180 800" preserveAspectRatio="none">
-          <line x1="40" y1="0" x2="100" y2="90" stroke-width="3"/>
-          <line x1="100" y1="90" x2="55" y2="110" stroke-width="2.5"/>
-          <line x1="55" y1="110" x2="120" y2="240" stroke-width="2.8"/>
-          <line x1="120" y1="240" x2="70" y2="260" stroke-width="2"/>
-          <line x1="70" y1="260" x2="135" y2="400" stroke-width="2.5"/>
-          <line x1="135" y1="400" x2="80" y2="425" stroke-width="1.8"/>
-          <line x1="80" y1="425" x2="130" y2="540" stroke-width="2.2"/>
-          <line x1="130" y1="540" x2="75" y2="560" stroke-width="1.5"/>
-          <line x1="75" y1="560" x2="110" y2="670" stroke-width="2"/>
-          <line x1="110" y1="670" x2="60" y2="720" stroke-width="1.5"/>
-          <line x1="60" y1="720" x2="100" y2="800" stroke-width="1.8"/>
-          <!-- branch -->
-          <line x1="120" y1="240" x2="160" y2="310" stroke-width="1.5"/>
-          <line x1="55" y1="110" x2="20" y2="170" stroke-width="1.2"/>
-          <line x1="135" y1="400" x2="165" y2="460" stroke-width="1.2"/>
-          <line x1="75" y1="560" x2="35" y2="620" stroke-width="1"/>
-        </svg>
-      </div>
-    <!-- ===== SECTION: Hero Carousel ===== -->
-    <section class="hero">
-      <button class="hero-arrow hero-arrow-left" aria-label="Previous slide">&#8249;</button>
-      <button class="hero-arrow hero-arrow-right" aria-label="Next slide">&#8250;</button>
-
-      <div class="hero-slide hero-slide-image active" data-slide="0">
-        <img src="/carousel.png" alt="Eastern Shore AI" />
-      </div>
-
-      <div class="hero-slide" data-slide="1">
-        <h1><a class="hero-link" href="#">$100 OpenClaw Setup in Eastern Shore, MD</a></h1>
-        <p class="subtitle">The Future Is Here. Get up and running with the latest AI craze.</p>
-        <span class="hero-lobster" aria-hidden="true">🦞</span>
-      </div>
-
-      <div class="hero-slide" data-slide="2">
-        <h1><a class="hero-link-blue" href="#">Website Design Services</a></h1>
-        <p class="subtitle">Clean, modern websites built for speed, clarity, and conversion.</p>
-      </div>
-
-      <div class="hero-slide" data-slide="3">
-        <h1><a class="hero-link-blue" href="#">Tech Lessons &amp; Tutoring</a></h1>
-        <p class="subtitle">Hands-on, practical tutoring so you can actually ship things with modern AI tooling.</p>
-      </div>
-
-      <div class="hero-slide" data-slide="4">
-        <h1><a class="hero-link-blue" href="#">AI Agent Repair</a></h1>
-        <p class="subtitle">We diagnose broken agents, repair workflows, and stabilize your automations fast.</p>
-      </div>
-
-      <div class="hero-dots">
-        <button class="hero-dot active" data-dot="0" aria-label="Slide 1"></button>
-        <button class="hero-dot" data-dot="1" aria-label="Slide 2"></button>
-        <button class="hero-dot" data-dot="2" aria-label="Slide 3"></button>
-        <button class="hero-dot" data-dot="3" aria-label="Slide 4"></button>
-        <button class="hero-dot" data-dot="4" aria-label="Slide 5"></button>
-      </div>
-    </section>
-
-    <!-- ===== SECTION: Service Tab Panels ===== -->
-    <div class="offer-grid-wrap">
-      <!-- ===== SECTION: What We Do / About Panel (Tab 0) ===== -->
-      <div class="offer-panel active" data-panel="0">
-        <div class="card about-panel">
-          <img src="logo.jpg" alt="Eastern Shore AI — neon cyberpunk logo" id="neon-logo" />
-          <div class="about-panel-text">
-            <h2>What We Do</h2>
-            <div class="about-panel-images">
-              <div class="about-panel-item">
-                <img src="images/1.png" alt="AI Agent Setup" />
-                <h3>AI Agent Setup & Repair</h3>
-              </div>
-              <div class="about-panel-item">
-                <img src="images/2.png" alt="Web application development" />
-                <h3>Develop and Manage Your Web Applications</h3>
-              </div>
-            </div>
-            <p class="about-panel-tagline">Want to learn the latest AI tools or make your business more efficient but you're not sure where to start? Let Eastern Shore AI get you up to speed.</p>
-          </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">20+</div>
+          <div class="stat-label">Hours Saved Weekly</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">60%</div>
+          <div class="stat-label">Cost Reduction</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">2-4</div>
+          <div class="stat-label">Weeks to Deploy</div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- ===== SECTION: OpenClaw Setup Offer (Tab 1) ===== -->
-      <div class="offer-panel" data-panel="1">
-        <section class="offer-grid">
-          <article class="card card--setup-offer">
-            <div>
-              <h3>OpenClaw Setup</h3>
-              <p>$100 no additional fees (taxes not included), 30 days of continued technical support via Zoom, Discord, or in-person if needed. Get your assistant stack configured correctly, including safe security setup and best-practice hardening. We'll set it up and teach you along the way.</p>
-              <div class="setup-faq">
-                <h4>What is included?</h4>
-                <p>Installation, secure configuration, hardening, channel onboarding, and launch handoff so your setup is production-ready.</p>
-                <h4>In-person available?</h4>
-                <p>Yes — in-person throughout Eastern Shore, MD plus Zoom-based remote support.</p>
-                <h4>Ongoing help after setup?</h4>
-                <p>Yes — ongoing technical assistance included at no additional cost for 30 days after installation.</p>
-              </div>
-            </div>
-            <a href="/openclaw-setup.html" class="btn btn-primary" id="book-now-btn" style="position:absolute; top:0.8rem; right:0.8rem; z-index:5;">Book Now</a>
-            <span class="lobster-icon" aria-hidden="true">🦞</span>
-          </article>
-
-          <div class="feature-stack">
-            <h3 class="feature-stack-title">OpenClaw Features</h3>
-            <article class="card feature-card">
-              <h3>Multi-Channel Messaging</h3>
-              <p>Run one assistant across Signal, Telegram, Discord, iMessage, and more with consistent behavior and context.</p>
-              <div class="feature-logos" aria-label="Discord, Telegram, and Apple logos">
-                <img src="/icons/discord.svg" alt="Discord" />
-                <img src="/icons/telegram.svg" alt="Telegram" />
-                <img src="/icons/apple.svg" alt="Apple" />
-              </div>
-            </article>
-            <article class="card feature-card">
-              <h3>Tools + Browser Control</h3>
-              <p>Use OpenClaw tools for web search, file actions, shell commands, and browser automation from one dashboard.</p>
-            </article>
-            <article class="card feature-card">
-              <h3>Automation + Scheduling</h3>
-              <p>Trigger reminders, recurring jobs, and follow-up workflows with cron-based automations built into OpenClaw.</p>
-            </article>
-          </div>
-        </section>
+  <section class="section" id="problems">
+    <div class="section-header">
+      <h2>What's Killing Your Productivity</h2>
+      <p>Most small businesses are drowning in tasks that should be automated.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">📧</div>
+        <h3>Email Chaos</h3>
+        <p>Sorting, responding, and following up on emails takes hours every day. AI can categorize, draft responses, and prioritize automatically.</p>
       </div>
-
-      <!-- ===== SECTION: Website Design Offer (Tab 2) ===== -->
-      <div class="offer-panel" data-panel="2">
-        <section class="offer-grid">
-          <article class="card card--setup-offer">
-            <a href="#" class="btn btn-primary" id="website-design-cta-mobile" style="display:none; width:100%; text-align:center; text-decoration:none; margin-bottom:0.8rem; padding:0.55rem 2rem;">Request a Quote</a>
-            <div>
-              <h3>Website Design</h3>
-              <p>Landing pages, small business sites, contact forms wired to reliable backend delivery, SEO basics, and mobile-friendly layouts. Clean and fast.</p>
-            </div>
-
-            <h4 style="margin:1rem 0 0.4rem; color:var(--cyan); font-size:0.95rem; font-weight:600;">Our Portfolio:</h4>
-            <div class="portfolio-carousel" id="portfolio-carousel">
-              <div class="portfolio-carousel-inner">
-                <div class="portfolio-item active" data-portfolio="0">
-                  <a href="https://www.cbfchurch.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-cbfchurch.png" alt="cbfchurch.com screenshot" loading="lazy" /></a>
-                  <p class="portfolio-item-label"><a href="https://www.cbfchurch.com" target="_blank" rel="noopener noreferrer">www.cbfchurch.com</a></p>
-                  <p class="portfolio-item-desc">Church website with service info, ministries, and community outreach in Somersworth, NH.</p>
-                </div>
-                <div class="portfolio-item" data-portfolio="1">
-                  <a href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-stockstickies.png" alt="stockstickies.com screenshot" loading="lazy" /></a>
-                  <p class="portfolio-item-label"><a href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a></p>
-                  <p class="portfolio-item-desc">Desktop sticky notes for tracking stocks and managing portfolio watchlists.</p>
-                </div>
-                <div class="portfolio-item" data-portfolio="2">
-                  <a href="https://www.florencemaegifts.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-florencemaegifts.png" alt="florencemaegifts.com screenshot" loading="lazy" /></a>
-                  <p class="portfolio-item-label"><a href="https://www.florencemaegifts.com" target="_blank" rel="noopener noreferrer">www.florencemaegifts.com</a></p>
-                  <p class="portfolio-item-desc">E-commerce shop for premium handmade crochet items with Stripe checkout.</p>
-                </div>
-                <div class="portfolio-item" data-portfolio="3">
-                  <a href="https://www.bibleplannerapp.com" target="_blank" rel="noopener noreferrer"><img src="./portfolio-bibleplannerapp.png" alt="bibleplannerapp.com screenshot" loading="lazy" /></a>
-                  <p class="portfolio-item-label"><a href="https://www.bibleplannerapp.com" target="_blank" rel="noopener noreferrer">www.bibleplannerapp.com</a></p>
-                  <p class="portfolio-item-desc">Bible reading plan app with structured daily schedules and progress tracking.</p>
-                </div>
-              </div>
-              <div class="portfolio-nav">
-                <button class="portfolio-arrow" id="portfolio-prev" aria-label="Previous site">&#8249;</button>
-                <div class="portfolio-dots">
-                  <button class="portfolio-dot active" data-dot="0" aria-label="Site 1"></button>
-                  <button class="portfolio-dot" data-dot="1" aria-label="Site 2"></button>
-                  <button class="portfolio-dot" data-dot="2" aria-label="Site 3"></button>
-                  <button class="portfolio-dot" data-dot="3" aria-label="Site 4"></button>
-                </div>
-                <button class="portfolio-arrow" id="portfolio-next" aria-label="Next site">&#8250;</button>
-              </div>
-            </div>
-
-          </article>
-          <div class="feature-stack">
-            <article class="card feature-card">
-              <h3 class="feature-stack-title" style="margin-top:0;">What You Get</h3>
-              <ul class="what-you-get-list" style="margin:0.5rem 0 0; padding-left:1.2rem; line-height:1.8;">
-                <li><strong>Landing Pages</strong> — Focused pages built for conversion and clarity.</li>
-                <li><strong>SEO + Performance</strong> — Titles, descriptions, sitemap, fast load times.</li>
-                <li><strong>Mobile-Responsive Design</strong> — Looks sharp on phones, tablets, and desktops.</li>
-                <li><strong>Custom Domain Setup</strong> — Connected, configured, and pointed correctly from day one.</li>
-                <li><strong>Google Analytics</strong> — Know who's visiting, where they come from, and what they do.</li>
-              </ul>
-            </article>
-            <div style="text-align:center; margin-top:0.45rem;">
-              <a href="#" class="btn btn-primary" id="website-design-cta" style="display:inline-block; padding:0.55rem 2rem; text-decoration:none;">Request a Quote</a>
-            </div>
-          </div>
-        </section>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Spreadsheet Hell</h3>
+        <p>Data entry, reconciliation, and reporting manually. One mistake costs you hours to fix. We automate it all.</p>
       </div>
-
-      <!-- ===== SECTION: Tech Lessons Offer (Tab 3) ===== -->
-      <div class="offer-panel" data-panel="3">
-        <section class="offer-grid">
-          <article class="card card--setup-offer">
-            <div>
-              <h3>Tech Lessons</h3>
-              <p>Hands-on tutoring with Claude Code, Codex, Gemini, prompt engineering, Cloudflare Workers, cryptocurrency, and automation workflows. Available in person on the Eastern Shore or via Zoom.</p>
-            </div>
-            <div style="margin-top:2rem;">
-              <a href="/book-lessons.html" class="btn btn-primary" id="ai-lessons-cta">Book Lessons Now</a>
-            </div>
-          </article>
-          <div class="feature-stack">
-            <h3 class="feature-stack-title">Topics Covered</h3>
-            <article class="card feature-card">
-              <h3>The Latest Coding Tools</h3>
-              <p>Claude Code, Codex, MiniMax, Cursor, CoPilot</p>
-            </article>
-            <article class="card feature-card">
-              <h3>Cloudflare + Workers</h3>
-              <p>Deploy serverless APIs and static sites on the edge.</p>
-            </article>
-            <article class="card feature-card">
-              <h3>AI Agents</h3>
-              <p>OpenClaw, Zapier, Automate Social Media, Newsletters, Workflows, and more…</p>
-            </article>
-            <article class="card feature-card">
-              <h3>Cryptocurrency</h3>
-              <p>Wallets, exchanges, blockchain basics, and safe trading practices.</p>
-            </article>
-          </div>
-        </section>
+      <div class="card">
+        <div class="card-icon">📅</div>
+        <h3>Scheduling Back & Forth</h3>
+        <p>Back-and-forth emails to book appointments waste everyone's time. Let AI handle it 24/7.</p>
       </div>
-
-      <!-- ===== SECTION: AI Agent Repair Offer (Tab 4) ===== -->
-      <div class="offer-panel" data-panel="4">
-        <section class="offer-grid">
-          <article class="card card--setup-offer">
-            <div>
-              <h3>AI Agent Repair</h3>
-              <p>Fix broken prompts, failing automations, bad tool chains, and unstable agent behavior. We diagnose the root cause, repair your workflow, and harden it so it stays reliable.</p>
-              <div class="setup-faq">
-                <h4>What we repair</h4>
-                <p>OpenClaw workflows, prompt pipelines, webhook issues, tool failures, and flaky multi-step automations.</p>
-                <h4>How fast?</h4>
-                <p>Most quote requests are reviewed within 24 hours and prioritized based on production impact.</p>
-              </div>
-            </div>
-            <div style="margin-top:1.5rem;">
-              <a href="#" class="btn btn-primary" id="ai-agent-repair-cta">Get Free Quote</a>
-            </div>
-          </article>
-          <div class="feature-stack">
-            <h3 class="feature-stack-title">Repair Outcomes</h3>
-            <article class="card feature-card">
-              <h3>Root Cause Analysis</h3>
-              <p>We isolate exactly where and why your agent fails before changing anything.</p>
-            </article>
-            <article class="card feature-card">
-              <h3>Stability Hardening</h3>
-              <p>Add guardrails, retries, and validation so failures stop recurring.</p>
-            </article>
-            <article class="card feature-card">
-              <h3>Clear Next Steps</h3>
-              <p>You get documented fixes and recommendations for future upgrades.</p>
-            </article>
-          </div>
-        </section>
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <h3>Expensive Software</h3>
+        <p>You're paying for enterprise tools you only use 10% of. We build exactly what you need for a fraction of the cost.</p>
       </div>
     </div>
+  </section>
 
-    <div class="coupon-grid">
-      <div class="coupon">
-        <div class="coupon-badge">Limited Time</div>
-        <h3>$199 Website Creation</h3>
-        <p>Doesn't include hosting or infrastructure fees (if applicable)</p>
-        <span class="coupon-code">WELCOME199</span>
+  <section class="section" id="how-it-works">
+    <div class="section-header">
+      <h2>How It Works</h2>
+      <p>Simple. Fast. No technical knowledge required.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>1. We Audit Your Operations</h3>
+        <p>We spend 30 minutes walking through your workflows. We find the biggest time-wasters and identify quick wins.</p>
       </div>
-      <div class="coupon">
-        <div class="coupon-badge">Bundle Deal</div>
-        <h3>Free Website Audit</h3>
-        <p>Book any service and receive a free website or system performance audit.</p>
-        <span class="coupon-code">FREEAUDIT</span>
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <h3>2. We Build Your Solution</h3>
+        <p>Custom AI automation tailored to your specific business. No cookie-cutter solutions — everything is built for you.</p>
       </div>
-      <div class="coupon">
-        <div class="coupon-badge">Referral</div>
-        <h3>Refer a Friend — $25 Off</h3>
-        <p>Both you and your referral get $25 off your next service.</p>
-        <span class="coupon-code">REFER25</span>
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>3. We Deploy & Train</h3>
+        <p>Systems go live in 2-4 weeks. We train your team and make sure everything runs smoothly.</p>
       </div>
-      <div class="coupon">
-        <div class="coupon-badge">Spring Special</div>
-        <h3>2 Lessons for $150</h3>
-        <p>Book two tech tutoring sessions and save $50 on the pair.</p>
-        <span class="coupon-code">LEARN2X</span>
+      <div class="card">
+        <div class="card-icon">🤝</div>
+        <h3>4. We Stay With You</h3>
+        <p>Most agencies disappear after delivery. We're your ongoing AI partner — we tweak, improve, and scale with you.</p>
       </div>
     </div>
-    </div>
+  </section>
 
-    <!-- ===== SECTION: Footer ===== -->
-    <footer>
-      <div class="footer-inner">
-        <div class="footer-newsletter">
-          <div class="sib-form" style="text-align:left; background-color:transparent; padding:0;">
-            <div id="sib-form-container" class="sib-form-container">
-              <div id="error-message" class="sib-form-message-panel" style="font-size:13px; text-align:left; font-family:'Titillium Web',sans-serif; color:#ff8080; background-color:#1a0808; border-radius:2px; border-color:#ff4949; max-width:100%;">
-                <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
-                  <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon"><path d="M256 40c118.621 0 216 96.075 216 216 0 119.291-96.61 216-216 216-119.244 0-216-96.562-216-216 0-119.203 96.602-216 216-216m0-32C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm-11.49 120h22.979c6.823 0 12.274 5.682 11.99 12.5l-7 168c-.268 6.428-5.556 11.5-11.99 11.5h-8.979c-6.433 0-11.722-5.073-11.99-11.5l-7-168c-.283-6.818 5.167-12.5 11.99-12.5zM256 340c-15.464 0-28 12.536-28 28s12.536 28 28 28 28-12.536 28-28-12.536-28-28-28z"/></svg>
-                  <span class="sib-form-message-panel__inner-text">Your subscription could not be saved. Please try again.</span>
-                </div>
-              </div>
-              <div></div>
-              <div id="success-message" class="sib-form-message-panel" style="font-size:13px; text-align:left; font-family:'Titillium Web',sans-serif; color:#00e5ff; background-color:#061414; border-radius:2px; border-color:#00c8d4; max-width:100%;">
-                <div class="sib-form-message-panel__text sib-form-message-panel__text--center">
-                  <svg viewBox="0 0 512 512" class="sib-icon sib-notification__icon"><path d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 464c-118.664 0-216-96.055-216-216 0-118.663 96.055-216 216-216 118.664 0 216 96.055 216 216 0 118.663-96.055 216-216 216zm141.63-274.961L217.15 376.071c-4.705 4.667-12.303 4.637-16.97-.068l-85.878-86.572c-4.667-4.705-4.637-12.303.068-16.97l8.52-8.451c4.705-4.667 12.303-4.637 16.97.068l68.976 69.533 163.441-162.13c4.705-4.667 12.303-4.637 16.97.068l8.451 8.52c4.668 4.705 4.637 12.303-.068 16.97z"/></svg>
-                  <span class="sib-form-message-panel__inner-text">Your subscription to the Eastern Shore AI newsletter was successful.</span>
-                </div>
-              </div>
-              <div></div>
-              <div id="sib-container" class="sib-container--large sib-container--vertical" style="text-align:left; background-color:#141620; max-width:100%; border-radius:2px; border-width:1px; border-color:#222438; border-style:solid; direction:ltr">
-                <form id="sib-form" method="POST" action="https://b893ca94.sibforms.com/serve/MUIFAFHNpDgPU-nDfEV3TZttituEiSyIy4p0twQYehCWbO2QZjGgiYIf52Tzi8BjJZHKZaEdmpJZ8wZjawIvJ54EGnqgFvTS-rjUbDTxDA5ftlMluW-n-7ML1FaJ098ByQDvenhzBTDbOJfcfDg1fBs0YLFY3Jvggh62UAvuUmlC3dv5iF1pqPDzqeODqH3UpQhEaJF7yQfUR4bGrA==" data-type="subscription">
-                  <div style="padding:3px 0;">
-                    <div class="sib-form-block" style="font-size:0.85rem; font-weight:700; font-family:'Hanken Grotesk',sans-serif; color:#00e5ff; background-color:transparent; letter-spacing:0.08em; text-transform:uppercase; text-align:left;"><p>OUR NEWSLETTER</p></div>
-                  </div>
-                  <div style="padding:3px 0;">
-                    <div class="sib-form-block" style="font-size:12px; font-family:'Titillium Web',sans-serif; color:#7a7e96; background-color:transparent; text-align:left;"><p>Subscribe and stay updated.</p></div>
-                  </div>
-                  <div style="padding:4px 0 0;">
-                    <div class="sib-input sib-form-block">
-                      <div class="form__entry entry_block">
-                        <div style="display:flex; gap:0.4rem; align-items:center;">
-                          <div class="entry__field" style="flex:1; min-width:0; display:flex; align-items:center;">
-                            <input class="input" type="text" id="EMAIL" name="EMAIL" autocomplete="off" placeholder="your@email.com" data-required="true" required style="background:#0a0b10; border:1px solid #222438; border-radius:2px; color:#d8dce8; font-family:'Titillium Web',sans-serif; font-size:18px; width:100%; height:2.4rem; box-sizing:border-box;" />
-                          </div>
-                          <button class="sib-form-block__button sib-form-block__button-with-loader" style="flex-shrink:0; font-size:0.9rem; font-weight:700; font-family:'Hanken Grotesk',sans-serif; color:#fff; background:linear-gradient(145deg,#ff4fd8,#c850ff); box-shadow:0 0 12px rgba(255,79,216,0.6); border-radius:2px; border-width:0; letter-spacing:0.07em; padding:0 1.4rem; height:2.4rem; box-sizing:border-box; cursor:pointer; white-space:nowrap;" form="sib-form" type="submit">
-                            <svg class="icon clickable__icon progress-indicator__icon sib-hide-loader-icon" viewBox="0 0 512 512"><path d="M460.116 373.846l-20.823-12.022c-5.541-3.199-7.54-10.159-4.663-15.874 30.137-59.886 28.343-131.652-5.386-189.946-33.641-58.394-94.896-95.833-161.827-99.676C261.028 55.961 256 50.751 256 44.352V20.309c0-6.904 5.808-12.337 12.703-11.982 83.556 4.306 160.163 50.864 202.11 123.677 42.063 72.696 44.079 162.316 6.031 236.832-3.14 6.148-10.75 8.461-16.728 5.01z"/></svg>
-                            SUBSCRIBE
-                          </button>
-                        </div>
-                        <label class="entry__error entry__error--primary" style="font-size:12px; font-family:'Titillium Web',sans-serif; color:#ff8080; background-color:#1a0808; border-radius:2px; border-color:#ff4949;"></label>
-                      </div>
-                    </div>
-                  </div>
-                  <input type="text" name="email_address_check" value="" class="input--hidden">
-                  <input type="hidden" name="locale" value="en">
-                </form>
-              </div>
-            </div>
+  <section class="section results-section" id="results">
+    <div class="logo-switch">
+      <button type="button" class="neon-switch off" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </div>
+    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" id="results-logo" />
+    <div class="section-header">
+      <h2>Proof This Works</h2>
+      <p>Real-world outcomes from practical automation projects.</p>
+    </div>
+    <div class="trust-grid">
+      <div class="card">
+        <p class="trust-quote">Recent project result: a local service business automated lead follow-up and appointment reminders in under 3 weeks, which improved response speed and reduced missed appointments.</p>
+        <p class="trust-author">Based on a real client workflow redesign delivered by Eastern Shore AI.</p>
+      </div>
+      <div class="card before-after" aria-label="Before and after automation results">
+        <div class="row"><span class="label">Lead response time</span><span class="value">3 hrs → 8 mins</span></div>
+        <div class="row"><span class="label">Admin workload</span><span class="value">~11 hrs/wk saved</span></div>
+        <div class="row"><span class="label">No-show rate</span><span class="value">19% → 9%</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="contact">
+    <h2>Ready to Work Smarter?</h2>
+    <p>Book a free 15-minute call. We'll show you what's possible and give you a custom quote.</p>
+    <a href="mailto:easternshoreai@outlook.com?subject=AI Automation Inquiry" class="btn btn-primary">Book Your Free Call</a>
+  </section>
+
+  <footer>
+    <div style="max-width: 1100px; margin: 0 auto;">
+      <!-- Newsletter Section -->
+      <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 450px; margin-left: auto; margin-right: auto;">
+        <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: var(--cyan); letter-spacing: 0.08em; text-transform: uppercase;">OUR NEWSLETTER</h3>
+        <p style="margin: 0 0 1rem; color: var(--muted); font-size: 0.9rem;">Subscribe and stay updated.</p>
+        <form id="newsletter-form" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <input type="email" placeholder="your@email.com" required style="flex: 1; min-width: 200px; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+      
+      <p style="margin: 0 0 0.5rem;">
+        © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp; 
+        <a href="tel:+14106928562" style="color: var(--cyan);">(410) 692-8562</a> &nbsp;·&nbsp; 
+        <a href="https://x.com/easternshoreAI" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">X / Twitter</a> &nbsp;·&nbsp; <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Instagram</a> &nbsp;·&nbsp; 
+        <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Discord</a>
+      </p>
+      <p style="margin: 0; font-size: 0.85rem;">
+        <a href="#" id="contact-link" style="color: var(--muted); margin-right: 1rem;">Contact Us</a>
+        <a href="#" id="about-link" style="color: var(--muted); margin-right: 1rem;">About Us</a>
+        <a href="#" id="privacy-link" style="color: var(--muted); margin-right: 1rem;">Privacy Policy</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Quote Modal -->
+  <div class="modal-overlay" id="quote-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem;" id="modal-title">Get a Quote</h2>
+        <button class="modal-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <form id="quote-form" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Name *</label>
+            <input type="text" name="name" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
           </div>
-        </div>
-        <div class="footer-info">
-          © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp; <a href="tel:+14106928562" class="footer-link">(410) 692-8562</a> &nbsp;·&nbsp; <a href="https://x.com/easternshoreAI" target="_blank" rel="noopener noreferrer" class="footer-link">X / Twitter</a> &nbsp;·&nbsp; <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">Instagram</a> &nbsp;·&nbsp; <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" class="footer-link">Discord</a><br>
-          <a href="#" class="footer-link" id="contact-link">Contact Us</a>
-          <a href="#" class="footer-link" id="about-link">About Us</a>
-          <a href="#" class="footer-link" id="terms-link">Terms of Use</a>
-          <a href="#" class="footer-link" id="privacy-link">Privacy Policy</a>
-        </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Email *</label>
+            <input type="email" name="email" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
+          <div class="repair-field" style="display: none;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Operating System (optional)</label>
+            <input type="text" name="operating-system" placeholder="e.g. Windows 11, macOS, Ubuntu…" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Phone Number (optional)</label>
+            <input type="tel" name="phone" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Message *</label>
+            <textarea name="message" rows="4" required style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Preferred Contact Method</label>
+            <select name="contact-method" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center;">Get Your Free Quote Now</button>
+        </form>
       </div>
-    </footer>
+    </div>
   </div>
-  </main>
 
-  <!-- ===== SECTION: Modal Overlays ===== -->
-  <div class="modal-overlay" id="about-modal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
-      <div class="modal-head">
-        <h2 id="about-modal-title">About Us</h2>
-        <button class="modal-close" id="about-modal-close" aria-label="Close">✕</button>
+  <script>
+    // Modal functionality
+    const modal = document.getElementById('quote-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const form = document.getElementById('quote-form');
+    const closeBtn = document.querySelector('.modal-close');
+    const repairFields = document.querySelectorAll('.repair-field');
+    
+    document.querySelectorAll('.quote-trigger').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const text = this.textContent;
+        const isRepair = text === 'AI Agent Repair';
+        
+        modalTitle.textContent = text === 'Website Design' ? 'Get a Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : 'Get a Quote');
+        
+        // Show/hide repair-specific fields
+        repairFields.forEach(field => {
+          field.style.display = isRepair ? 'block' : 'none';
+        });
+        
+        modal.style.display = 'flex';
+      });
+    });
+    
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.style.display = 'none';
+    });
+    
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const repairOs = formData.get('operating-system') || 'Not specified';
+      const subject = encodeURIComponent(modalTitle.textContent + ' - Eastern Shore AI');
+      const body = encodeURIComponent(
+        'Name: ' + formData.get('name') + '\n' +
+        'Email: ' + formData.get('email') + '\n' +
+        'Phone: ' + (formData.get('phone') || 'Not provided') + '\n' +
+        'Operating System: ' + repairOs + '\n' +
+        'Preferred Contact: ' + formData.get('contact-method') + '\n' +
+        '\nMessage:\n' + formData.get('message')
+      );
+      window.location.href = 'mailto:easternshoreai@outlook.com?subject=' + subject + '&body=' + body;
+      modal.style.display = 'none';
+      form.reset();
+    });
+
+    const logoSwitch = document.getElementById('logo-switch');
+    const resultsLogo = document.getElementById('results-logo');
+    let logoFull = false;
+    let audioCtx;
+
+    function neonBuzz(turnOn) {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      const dur = turnOn ? 0.8 : 0.5;
+      const master = audioCtx.createGain();
+      master.gain.setValueAtTime(0.12, now);
+      master.connect(audioCtx.destination);
+
+      const hum = audioCtx.createOscillator();
+      hum.type = 'sine';
+      hum.frequency.setValueAtTime(60, now);
+      const humGain = audioCtx.createGain();
+      hum.connect(humGain); humGain.connect(master); hum.start(now); hum.stop(now + dur);
+
+      const buzz = audioCtx.createOscillator();
+      buzz.type = 'sawtooth';
+      buzz.frequency.setValueAtTime(120, now);
+      const buzzGain = audioCtx.createGain();
+      buzz.connect(buzzGain); buzzGain.connect(master); buzz.start(now); buzz.stop(now + dur);
+
+      const buzz3 = audioCtx.createOscillator();
+      buzz3.type = 'sine';
+      buzz3.frequency.setValueAtTime(180, now);
+      const buzz3Gain = audioCtx.createGain();
+      buzz3.connect(buzz3Gain); buzz3Gain.connect(master); buzz3.start(now); buzz3.stop(now + dur);
+
+      const buzz4 = audioCtx.createOscillator();
+      buzz4.type = 'triangle';
+      buzz4.frequency.setValueAtTime(240, now);
+      const buzz4Gain = audioCtx.createGain();
+      buzz4.connect(buzz4Gain); buzz4Gain.connect(master); buzz4.start(now); buzz4.stop(now + dur);
+
+      const bufLen = audioCtx.sampleRate * dur;
+      const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const bandpass = audioCtx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.setValueAtTime(3000, now);
+      bandpass.Q.setValueAtTime(2, now);
+      const noiseGain = audioCtx.createGain();
+      noise.connect(bandpass); bandpass.connect(noiseGain); noiseGain.connect(master); noise.start(now);
+
+      if (turnOn) {
+        humGain.gain.setValueAtTime(0, now); humGain.gain.linearRampToValueAtTime(0.6, now + 0.08); humGain.gain.setValueAtTime(0.3, now + 0.12); humGain.gain.linearRampToValueAtTime(0.5, now + 0.3); humGain.gain.linearRampToValueAtTime(0, now + dur);
+        buzzGain.gain.setValueAtTime(0, now); buzzGain.gain.linearRampToValueAtTime(0.5, now + 0.1); buzzGain.gain.linearRampToValueAtTime(0.35, now + 0.4); buzzGain.gain.linearRampToValueAtTime(0, now + dur);
+        buzz3Gain.gain.setValueAtTime(0, now); buzz3Gain.gain.linearRampToValueAtTime(0.3, now + 0.1); buzz3Gain.gain.linearRampToValueAtTime(0.2, now + 0.4); buzz3Gain.gain.linearRampToValueAtTime(0, now + dur);
+        buzz4Gain.gain.setValueAtTime(0, now); buzz4Gain.gain.linearRampToValueAtTime(0.25, now + 0.12); buzz4Gain.gain.linearRampToValueAtTime(0.15, now + 0.4); buzz4Gain.gain.linearRampToValueAtTime(0, now + dur);
+        noiseGain.gain.setValueAtTime(0.15, now); noiseGain.gain.linearRampToValueAtTime(0.06, now + 0.2); noiseGain.gain.linearRampToValueAtTime(0, now + dur);
+      } else {
+        humGain.gain.setValueAtTime(0.5, now); humGain.gain.linearRampToValueAtTime(0.15, now + 0.1); humGain.gain.linearRampToValueAtTime(0, now + dur);
+        buzzGain.gain.setValueAtTime(0.4, now); buzzGain.gain.linearRampToValueAtTime(0.1, now + 0.08); buzzGain.gain.linearRampToValueAtTime(0, now + dur * 0.6);
+        buzz3Gain.gain.setValueAtTime(0.25, now); buzz3Gain.gain.linearRampToValueAtTime(0.05, now + 0.1); buzz3Gain.gain.linearRampToValueAtTime(0, now + dur * 0.5);
+        buzz4Gain.gain.setValueAtTime(0.2, now); buzz4Gain.gain.linearRampToValueAtTime(0, now + 0.12);
+        noiseGain.gain.setValueAtTime(0.1, now); noiseGain.gain.linearRampToValueAtTime(0, now + 0.15);
+      }
+    }
+
+    if (logoSwitch && resultsLogo) {
+      logoSwitch.addEventListener('click', () => {
+        const turningFull = !logoFull;
+        neonBuzz(turningFull);
+        resultsLogo.classList.add('flicker');
+        setTimeout(() => {
+          resultsLogo.classList.remove('flicker');
+          resultsLogo.classList.toggle('logo-full', turningFull);
+        }, 400);
+        logoSwitch.classList.toggle('off', !turningFull);
+        logoFull = turningFull;
+      });
+    }
+  </script>
+
+  <!-- About Modal -->
+  <div class="modal-overlay" id="about-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem;">About Us</h2>
+        <button class="modal-close about-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
       </div>
-      <div class="legal-copy">
+      <div style="padding: 1.5rem;">
         <p><strong>Eastern Shore AI, LLC</strong> builds practical AI-powered tools and small business web applications, with a focus on fast shipping, clean UX, and unparalleled customer service - we're available 24/7.</p>
-        <p>Founded in February 2026 by <a class="footer-link" href="https://x.com/99redder" target="_blank">Red</a>, a resident of Fruitland, MD and retired Navy veteran.</p>
+        <p>Founded in February 2026 by <a href="https://x.com/99redder" target="_blank" style="color: var(--cyan);">Red</a>, a resident of Fruitland, MD and retired Navy veteran.</p>
         <p>
-          <a class="footer-link" href="https://x.com/easternshoreai" target="_blank" rel="noopener noreferrer">Twitter / X</a>
+          <a href="https://x.com/easternshoreai" target="_blank" style="color: var(--cyan);">Twitter / X</a>
           &nbsp;·&nbsp;
-          <a class="footer-link" href="https://github.com/99redder" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/99redder" target="_blank" style="color: var(--cyan);">GitHub</a>
         </p>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="terms-modal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
-      <div class="modal-head">
-        <h2 id="terms-modal-title">Terms of Use</h2>
-        <button class="modal-close" id="terms-modal-close" aria-label="Close">✕</button>
+  <!-- Privacy Modal -->
+  <div class="modal-overlay" id="privacy-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem;">Privacy Policy</h2>
+        <button class="modal-close privacy-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
       </div>
-      <div class="legal-copy">
-        <p>By using this website, you agree to use it lawfully and responsibly. All content is provided for general informational purposes and may change at any time without notice.</p>
-        <p>Service timelines, outcomes, and availability depend on project scope and cooperation. Any custom engagement terms, pricing, and deliverables are confirmed in writing before work begins.</p>
-        <p>To the fullest extent allowed by law, Eastern Shore AI, LLC is not liable for indirect, incidental, or consequential damages arising from use of this site or related services.</p>
-        <p>Contact: <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="privacy-modal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
-      <div class="modal-head">
-        <h2 id="privacy-modal-title">Privacy Policy</h2>
-        <button class="modal-close" id="privacy-modal-close" aria-label="Close">✕</button>
-      </div>
-      <div class="legal-copy">
+      <div style="padding: 1.5rem;">
         <p>We collect only the information you voluntarily submit through forms (such as name, email, and message details) to respond to inquiries and provide requested services.</p>
         <p>Submitted information is used for communication and project-related follow-up. We do not sell your personal data. We may use trusted service providers to process form delivery and email notifications.</p>
         <p>If you want your submitted information corrected or deleted, contact us and we will handle it promptly, subject to legal or operational retention requirements.</p>
-        <p>Contact: <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a></p>
+        <p>Contact: <a href="mailto:contact@easternshore.ai" style="color: var(--cyan);">contact@easternshore.ai</a></p></p>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="domain-modal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="domain-modal-title">
-      <div class="modal-head">
-        <h2 id="domain-modal-title">Make an offer for the easternshore.ai domain name</h2>
-        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
-      </div>
-
-      <form id="offer-form">
-        <div class="form-grid">
-          <div>
-            <label for="name">Your Name</label>
-            <input id="name" name="name" required />
-          </div>
-          <div>
-            <label for="email">Your Email</label>
-            <input id="email" name="email" type="email" required />
-          </div>
-          <div class="full">
-            <label for="offer">Offer Amount (USD)</label>
-            <input id="offer" name="offer" placeholder="e.g. 2500" required />
-          </div>
-          <div class="repair-only">
-            <label for="repair-os">Operating System (optional)</label>
-            <input id="repair-os" placeholder="e.g. Windows 11, macOS, Ubuntu…" />
-          </div>
-          <div class="repair-only">
-            <label for="repair-phone">Phone Number (optional)</label>
-            <input id="repair-phone" type="tel" placeholder="(555) 123-4567" />
-          </div>
-          <div class="contact-only">
-            <label for="contact-phone">Phone Number (optional)</label>
-            <input id="contact-phone" type="tel" placeholder="(555) 123-4567" />
-          </div>
-          <div class="full">
-            <label for="message">Message</label>
-            <textarea id="message" name="message" placeholder="What did you have in mind? Enter anything you'd like us to know!"></textarea>
-          </div>
-          <div class="full repair-only">
-            <label for="repair-contact-method">Preferred Contact Method</label>
-            <select id="repair-contact-method">
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-            </select>
-          </div>
-          <div class="full contact-only">
-            <label for="contact-method">Preferred Contact Method</label>
-            <select id="contact-method">
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          
-          <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2rem; font-size: 1.1rem;">Send Offer</button>
-        </div>
-        
-        <p class="form-status" id="form-status" aria-live="polite"></p>
-      </form>
-    </div>
-  </div>
-
-
-  <div class="modal-overlay" id="success-modal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modal-head">
-        <h2>Thank You!</h2>
-        <button class="modal-close" id="success-modal-close" aria-label="Close">✕</button>
-      </div>
-      <div style="text-align:center; padding: 1rem 0;">
-        <p style="font-size: 1.1rem; margin-bottom: 1rem;">We'll get back to you within 12 hours.</p>
-        <button type="button" class="btn btn-primary" id="success-modal-ok">OK</button>
-      </div>
-    </div>
-  </div>
   <script>
-    // ===== FUNCTION INDEX =====
-    // Theme:      applyTheme(theme) — Apply dark/light theme to body
-    // Glitch:     glitchBurst() — Generate kanji-substituted logo text; runGlitch() — Trigger glitch cycle
-    // Carousel:   goToSlide(i, syncPanel) — Navigate hero slide; goToPanel(i) — Switch service tab panel
-    //             updateDots() — Sync hero dot indicators; resetAutoAdvance() — Restart auto-rotate timer
-    //             stopAutoAdvance() — Clear auto-rotate timer
-    // Portfolio:  goToPortfolio(i) — Navigate portfolio carousel
-    // Forms:      applyFormMode(mode) — Toggle contact form between 'offer'/'question' mode
-    //             openModal(mode) / closeModal() — Domain offer / contact modal
-    //             openSimpleModal(el) / closeSimpleModal(el) — About/Terms/Privacy modals
-    // Neon:       neonBuzz(turnOn) — Play fluorescent light sound via Web Audio API
-    // Storm:      (IIFE) — Pink electric storm + rain animation on page load
-
-    // ===== KEY DOM ELEMENTS =====
-    // #theme-toggle              — Dark/light mode button (header-right)
-    // #neon-switch               — Neon sign on/off button (header-right)
-    // #neon-logo                 — Logo image in about-panel (swaps logo.jpg / logo-off.png)
-    // .header-logo               — Animated site title text (glitch target)
-    // #header-nav                — Main navigation links container
-    // #mobile-menu-btn           — Hamburger menu toggle (mobile only)
-    // .hero-slide[data-slide]    — Hero carousel slides (0-3)
-    // .hero-dot[data-dot]        — Hero carousel dot indicators (0-3)
-    // .hero-arrow-left/right     — Hero carousel prev/next arrows
-    // .offer-panel[data-panel]   — Service tab content panels (0=About, 1=OpenClaw, 2=WebDesign, 3=Lessons)
-    // .tab-btn[data-tab]         — Service tab navigation buttons
-    // #contact-modal             — Domain offer / contact form modal
-    // #about-modal               — About Us modal
-    // #terms-modal               — Terms of Use modal
-    // #privacy-modal             — Privacy Policy modal
-    // #domain-modal              — Domain purchase modal
-    // #storm-wrap, #storm-rain   — Pink electric storm effect containers
-    // #year                      — Footer copyright year (auto-set)
-    // .portfolio-carousel-inner  — Portfolio image carousel
-
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // ===== Logo Kanji Glitch — synced to 10s CSS animation =====
-    (function() {
-      const logo = document.querySelector('.header-logo');
-      const original = 'Eastern Shore AI';
-      const kanji = ['東','岸','智','能','海','浜','電','脳','影','光','闇','刃','零','魂','鬼','波'];
-      function glitchBurst() {
-        let chars = original.split('');
-        let swaps = 2 + Math.floor(Math.random() * 3);
-        let indices = [];
-        while (indices.length < swaps) {
-          let i = Math.floor(Math.random() * chars.length);
-          if (chars[i] !== ' ' && !indices.includes(i)) indices.push(i);
-        }
-        indices.forEach(i => { chars[i] = kanji[Math.floor(Math.random() * kanji.length)]; });
-        return chars.join('');
-      }
-      function runGlitch() {
-        // Single glitch burst at ~60% of 10s = 6000ms, slower steps
-        setTimeout(() => {
-          logo.textContent = glitchBurst();
-          setTimeout(() => { logo.textContent = glitchBurst(); }, 300);
-          setTimeout(() => { logo.textContent = glitchBurst(); }, 600);
-          setTimeout(() => { logo.textContent = glitchBurst(); }, 900);
-          setTimeout(() => { logo.textContent = original; }, 1200);
-        }, 6000);
-      }
-      runGlitch();
-      setInterval(runGlitch, 10000);
-    })();
-
-    // Pink electric storm + rain on load
-    const stormEl = document.getElementById('storm-wrap');
-    const rainEl = document.getElementById('storm-rain');
-    // Generate rain drops
-    for (let i = 0; i < 60; i++) {
-      const drop = document.createElement('div');
-      drop.className = 'rain-drop';
-      drop.style.left = Math.random() * 100 + '%';
-      drop.style.height = (12 + Math.random() * 20) + 'px';
-      drop.style.animationDuration = (0.4 + Math.random() * 0.5) + 's';
-      drop.style.animationDelay = (Math.random() * 0.8) + 's';
-      drop.style.opacity = (0.3 + Math.random() * 0.5);
-      rainEl.appendChild(drop);
-    }
-    requestAnimationFrame(() => stormEl.classList.add('storm-active'));
-    // Remove lightning after it finishes, keep rain steady
-    setTimeout(() => {
-      stormEl.classList.remove('storm-active');
-      document.querySelectorAll('.storm-bolt').forEach(el => el.remove());
-      rainEl.classList.add('rain-steady');
-    }, 3500);
-
-    // ===== Theme Toggle =====
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    const savedTheme = localStorage.getItem('esa_theme') || 'dark';
-
-    /** @param {string} theme - 'dark' or 'light' */
-    function applyTheme(theme) {
-      document.body.setAttribute('data-theme', theme);
-      const nextLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-      themeToggleBtn.textContent = theme === 'dark' ? '☀' : '☾';
-      themeToggleBtn.setAttribute('title', nextLabel);
-      themeToggleBtn.setAttribute('aria-label', nextLabel);
-    }
-
-    applyTheme(savedTheme);
-
-    themeToggleBtn.addEventListener('click', () => {
-      const next = (document.body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('esa_theme', next);
-      applyTheme(next);
-    });
-
-    // Mobile hamburger menu
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const headerNav = document.getElementById('header-nav');
-    mobileMenuBtn.addEventListener('click', () => {
-      const isOpen = headerNav.classList.toggle('open');
-      mobileMenuBtn.setAttribute('aria-expanded', isOpen);
-      mobileMenuBtn.innerHTML = isOpen ? '&#10005;' : '&#9776;';
-    });
-    // Close menu when a nav link is clicked
-    headerNav.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        headerNav.classList.remove('open');
-        mobileMenuBtn.setAttribute('aria-expanded', 'false');
-        mobileMenuBtn.innerHTML = '&#9776;';
-      });
-    });
-
-    // ===== Hero Carousel + Synced Offer Panels =====
-    const heroSlides = document.querySelectorAll('.hero-slide');
-    const offerPanels = document.querySelectorAll('.offer-panel');
-    const leftArrow = document.querySelector('.hero-arrow-left');
-    const rightArrow = document.querySelector('.hero-arrow-right');
-    const heroDots = document.querySelectorAll('.hero-dot');
-    let currentSlide = 0;
-    let autoAdvanceTimer = null;
-    const AUTO_ADVANCE_MS = 6000;
-
-    function updateDots() {
-      heroDots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
-    }
-
-    function resetAutoAdvance() {
-      clearInterval(autoAdvanceTimer);
-      autoAdvanceTimer = setInterval(() => goToSlide(currentSlide + 1), AUTO_ADVANCE_MS);
-    }
-
-    let currentPanel = 0;
-
-    /** @param {number} index - Panel index (0=About, 1=OpenClaw, 2=WebDesign, 3=Lessons) */
-    function goToPanel(index) {
-      if (index === currentPanel) return;
-      const prev = currentPanel;
-      currentPanel = index;
-      // Toggle rain: show on panel 0, hide on others
-      if (rainEl) {
-        if (currentPanel === 0) {
-          rainEl.classList.remove('rain-stopping');
-          rainEl.classList.add('rain-steady');
-        } else {
-          rainEl.classList.remove('rain-steady');
-          rainEl.classList.add('rain-stopping');
-        }
-      }
-      offerPanels[prev].style.opacity = '0';
-      offerPanels[prev].style.transform = 'translateY(8px)';
-      setTimeout(() => {
-        offerPanels[prev].classList.remove('active');
-        offerPanels[prev].style.cssText = '';
-        const newPanel = offerPanels[currentPanel];
-        newPanel.style.display = 'block';
-        newPanel.style.opacity = '0';
-        newPanel.style.transform = 'translateY(8px)';
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            newPanel.classList.add('active');
-            newPanel.style.cssText = '';
-          });
-        });
-      }, 200);
-    }
-
-    /**
-     * Navigate hero carousel to a specific slide
-     * @param {number} index - Slide index (wraps around)
-     * @param {boolean} [syncPanel] - If true, also switch the corresponding offer panel
-     */
-    function goToSlide(index, syncPanel) {
-      if (index < 0) index = heroSlides.length - 1;
-      if (index >= heroSlides.length) index = 0;
-      if (index === currentSlide) {
-        if (syncPanel && index !== currentPanel) goToPanel(index);
-        return;
-      }
-      const prev = currentSlide;
-      currentSlide = index;
-      updateDots();
-      // Fade out old hero slide
-      heroSlides[prev].style.opacity = '0';
-      heroSlides[prev].style.transform = 'translateY(8px)';
-      setTimeout(() => {
-        heroSlides[prev].classList.remove('active');
-        heroSlides[prev].style.cssText = '';
-        const newSlide = heroSlides[currentSlide];
-        newSlide.style.display = 'flex';
-        newSlide.style.opacity = '0';
-        newSlide.style.transform = 'translateY(8px)';
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            newSlide.classList.add('active');
-            newSlide.style.cssText = '';
-          });
-        });
-      }, 200);
-      // Only update panel below if explicitly requested
-      if (syncPanel) goToPanel(index);
-    }
-
-    function stopAutoAdvance() { clearInterval(autoAdvanceTimer); autoAdvanceTimer = null; }
-
-    leftArrow.addEventListener('click', () => { goToSlide(currentSlide - 1); stopAutoAdvance(); });
-    rightArrow.addEventListener('click', () => { goToSlide(currentSlide + 1); stopAutoAdvance(); });
-    heroDots.forEach(dot => {
-      dot.addEventListener('click', () => { goToSlide(parseInt(dot.dataset.dot), true); resetAutoAdvance(); });
-    });
-
-    // Clicking a hero slide syncs the panel below
-    heroSlides.forEach(slide => {
-      slide.addEventListener('click', () => {
-        const idx = parseInt(slide.dataset.slide);
-        if (idx !== currentPanel) goToPanel(idx);
-      });
-    });
-
-    // Pause carousel when tab is hidden to prevent queued transitions on return
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        stopAutoAdvance();
-      } else {
-        resetAutoAdvance();
-      }
-    });
-
-    // Start auto-advance
-    resetAutoAdvance();
-
-    // Wire carousel CTA buttons to contact form
-    document.getElementById('website-design-cta').addEventListener('click', (e) => {
+    
+    // Newsletter form
+    document.getElementById('newsletter-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      openModal('contact');
-    });
-    document.getElementById('website-design-cta-mobile').addEventListener('click', (e) => {
-      e.preventDefault();
-      openModal('contact');
+      const email = this.querySelector('input[type="email"]').value;
+      window.location.href = 'mailto:easternshoreai@outlook.com?subject=Newsletter Subscription&body=Please add this email to the newsletter: ' + encodeURIComponent(email);
     });
 
-    document.getElementById('ai-agent-repair-cta').addEventListener('click', (e) => {
-      e.preventDefault();
-      openModal('repair');
-    });
-
-    // ===== Portfolio Carousel =====
-    const portfolioItems = document.querySelectorAll('.portfolio-item');
-    const portfolioDots = document.querySelectorAll('.portfolio-dot');
-    let currentPortfolio = 0;
-
-    /** @param {number} index - Portfolio item index (wraps around) */
-    function goToPortfolio(index) {
-      if (index < 0) index = portfolioItems.length - 1;
-      if (index >= portfolioItems.length) index = 0;
-      portfolioItems[currentPortfolio].classList.remove('active');
-      portfolioDots[currentPortfolio].classList.remove('active');
-      currentPortfolio = index;
-      portfolioItems[currentPortfolio].classList.add('active');
-      portfolioDots[currentPortfolio].classList.add('active');
-    }
-
-    document.getElementById('portfolio-prev').addEventListener('click', () => goToPortfolio(currentPortfolio - 1));
-    document.getElementById('portfolio-next').addEventListener('click', () => goToPortfolio(currentPortfolio + 1));
-    portfolioDots.forEach(dot => {
-      dot.addEventListener('click', () => goToPortfolio(parseInt(dot.dataset.dot)));
-    });
-
-    // Nav links → carousel slides
-    const setupLink = document.getElementById('openclaw-setup-link');
-    const websiteDesignLink = document.getElementById('website-design-link');
-    const aiLessonsLink = document.getElementById('ai-lessons-link');
-    const aiAgentRepairLink = document.getElementById('ai-agent-repair-link');
-
-    setupLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(1, true); resetAutoAdvance(); });
-    websiteDesignLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(2, true); resetAutoAdvance(); });
-    aiLessonsLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(3, true); resetAutoAdvance(); });
-    aiAgentRepairLink.addEventListener('click', (e) => { e.preventDefault(); goToSlide(4, true); resetAutoAdvance(); });
-
-    const modal = document.getElementById('domain-modal');
-    const openBtn = document.getElementById('buy-domain-link');
-    const contactLink = document.getElementById('contact-link');
-    const aboutLink = document.getElementById('about-link');
-    const termsLink = document.getElementById('terms-link');
-    const privacyLink = document.getElementById('privacy-link');
+    // About modal
     const aboutModal = document.getElementById('about-modal');
-    const aboutCloseBtn = document.getElementById('about-modal-close');
-    const termsModal = document.getElementById('terms-modal');
+    document.getElementById('about-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      aboutModal.style.display = 'flex';
+    });
+    document.querySelector('.about-close').addEventListener('click', () => aboutModal.style.display = 'none');
+    aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.style.display = 'none'; });
+
+    // Privacy modal
     const privacyModal = document.getElementById('privacy-modal');
-    const termsCloseBtn = document.getElementById('terms-modal-close');
-    const privacyCloseBtn = document.getElementById('privacy-modal-close');
-    const closeBtn = document.getElementById('modal-close');
-    const form = document.getElementById('offer-form');
-    const titleEl = document.getElementById('domain-modal-title');
-    const offerLabel = document.querySelector('label[for="offer"]');
-    const offerInput = document.getElementById('offer');
-    const sendBtn = form.querySelector('button[type="submit"]');
-    const hintEl = form.querySelector('.hint');
-    const statusEl = document.getElementById('form-status');
-    const messageEl = document.getElementById('message');
-    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
-
-    // ===== Contact / Domain Offer Form =====
-    let formMode = 'offer';
-
-    /** @param {string} mode - 'offer' for domain purchase or 'contact' for general inquiry */
-    function applyFormMode(mode) {
-      formMode = mode;
-      statusEl.textContent = '';
-      statusEl.className = 'form-status';
-      document.querySelectorAll('.repair-only').forEach(el => { el.style.display = mode === 'repair' ? 'block' : 'none'; });
-      if (mode === 'repair') document.getElementById('repair-contact-method').value = 'email';
-      document.querySelectorAll('.contact-only').forEach(el => { el.style.display = mode === 'contact' ? 'block' : 'none'; });
-      if (mode === 'contact') document.getElementById('contact-method').value = 'email';
-      if (mode === 'contact') {
-        titleEl.textContent = 'Website Design Quote';
-        offerLabel.textContent = 'Budget (optional)';
-        offerInput.placeholder = 'optional';
-        offerInput.required = false;
-        sendBtn.textContent = 'Get Your Free Quote Now';
-      } else if (mode === 'repair') {
-        titleEl.textContent = 'Get a Free AI Agent Repair Quote';
-        offerLabel.textContent = 'Agent / Service Type';
-        offerInput.placeholder = 'e.g. OpenClaw, ChatGPT, Zapier, LangChain…';
-        offerInput.required = false;
-        sendBtn.textContent = 'Get Your Free Quote Now';
-        messageEl.placeholder = "What is the issue you're experiencing? Tell us anything you'd like us to know!";
-      } else {
-        titleEl.textContent = 'Make an offer for the easternshore.ai domain name';
-        offerLabel.textContent = 'Offer Amount (USD)';
-        offerInput.placeholder = 'e.g. 2500';
-        offerInput.required = true;
-        sendBtn.textContent = 'Send Offer';
-        messageEl.placeholder = "What did you have in mind? Enter anything you'd like us to know!";
-      }
-    }
-
-    /** @param {string} [mode='offer'] - 'offer' or 'contact' */
-    function openModal(mode = 'offer') {
-      applyFormMode(mode);
-      modal.classList.add('active');
-      modal.setAttribute('aria-hidden', 'false');
-    }
-
-    function closeModal() {
-      modal.classList.remove('active');
-      modal.setAttribute('aria-hidden', 'true');
-    }
-
-    /** @param {HTMLElement} el - Modal overlay element to open */
-    function openSimpleModal(el) {
-      el.classList.add('active');
-      el.setAttribute('aria-hidden', 'false');
-    }
-
-    /** @param {HTMLElement} el - Modal overlay element to close */
-    function closeSimpleModal(el) {
-      el.classList.remove('active');
-      el.setAttribute('aria-hidden', 'true');
-    }
-
-    openBtn.addEventListener('click', (e) => {
+    document.getElementById('privacy-link').addEventListener('click', function(e) {
       e.preventDefault();
-      openModal('offer');
+      privacyModal.style.display = 'flex';
     });
+    document.querySelector('.privacy-close').addEventListener('click', () => privacyModal.style.display = 'none');
+    privacyModal.addEventListener('click', (e) => { if (e.target === privacyModal) privacyModal.style.display = 'none'; });
 
-    contactLink.addEventListener('click', (e) => {
+    // Contact modal - opens quote modal
+    document.getElementById('contact-link').addEventListener('click', function(e) {
       e.preventDefault();
-      openModal('contact');
-    });
-
-    aboutLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      openSimpleModal(aboutModal);
-    });
-
-    termsLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      openSimpleModal(termsModal);
-    });
-
-    privacyLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      openSimpleModal(privacyModal);
-    });
-
-    closeBtn.addEventListener('click', closeModal);
-    document.getElementById('success-modal-close').addEventListener('click', () => {
-      document.getElementById('success-modal').classList.remove('active');
-      document.getElementById('success-modal').setAttribute('aria-hidden', 'true');
-      closeModal();
-      form.reset();
-      applyFormMode('offer');
-    });
-    document.getElementById('success-modal-ok').addEventListener('click', () => {
-      document.getElementById('success-modal').classList.remove('active');
-      document.getElementById('success-modal').setAttribute('aria-hidden', 'true');
-      closeModal();
-      form.reset();
-      applyFormMode('offer');
-    });
-    aboutCloseBtn.addEventListener('click', () => closeSimpleModal(aboutModal));
-    termsCloseBtn.addEventListener('click', () => closeSimpleModal(termsModal));
-    privacyCloseBtn.addEventListener('click', () => closeSimpleModal(privacyModal));
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    aboutModal.addEventListener('click', (e) => {
-      if (e.target === aboutModal) closeSimpleModal(aboutModal);
-    });
-
-    termsModal.addEventListener('click', (e) => {
-      if (e.target === termsModal) closeSimpleModal(termsModal);
-    });
-
-    privacyModal.addEventListener('click', (e) => {
-      if (e.target === privacyModal) closeSimpleModal(privacyModal);
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
-      if (e.key === 'Escape' && aboutModal.classList.contains('active')) closeSimpleModal(aboutModal);
-      if (e.key === 'Escape' && termsModal.classList.contains('active')) closeSimpleModal(termsModal);
-      if (e.key === 'Escape' && privacyModal.classList.contains('active')) closeSimpleModal(privacyModal);
-    });
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const offer = document.getElementById('offer').value.trim();
-      const message = document.getElementById('message').value.trim();
-      const repairPhone = document.getElementById('repair-phone')?.value.trim() || '';
-      const repairOs = document.getElementById('repair-os')?.value.trim() || '';
-      const repairContact = document.getElementById('repair-contact-method')?.value || '';
-      const contactPhone = document.getElementById('contact-phone')?.value.trim() || '';
-      const contactMethod = document.getElementById('contact-method')?.value || '';
-      const finalMessage = formMode === 'repair'
-        ? [repairPhone ? `Phone: ${repairPhone}` : '', repairOs ? `OS: ${repairOs}` : '', `Preferred Contact: ${repairContact}`].filter(Boolean).join('\n') + (message ? '\n\n' + message : '')
-        : formMode === 'contact'
-        ? [contactPhone ? `Phone: ${contactPhone}` : '', `Preferred Contact: ${contactMethod}`].filter(Boolean).join('\n') + (message ? '\n\n' + message : '')
-        : message;
-
-      if (CONTACT_API_URL.includes('YOUR-WORKER-URL')) {
-        statusEl.textContent = 'Contact service not configured yet.';
-        statusEl.className = 'form-status err';
-        return;
-      }
-
-      sendBtn.disabled = true;
-      sendBtn.textContent = formMode === 'contact' ? 'Sending…' : 'Submitting…';
-      statusEl.textContent = '';
-      statusEl.className = 'form-status';
-
-      try {
-        const res = await fetch(CONTACT_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: formMode,
-            name,
-            email,
-            offer,
-            message: finalMessage,
-            website: ''
-          })
-        });
-
-        if (!res.ok) throw new Error('Request failed');
-
-        statusEl.textContent = ''; document.getElementById('success-modal').classList.add('active'); document.getElementById('success-modal').setAttribute('aria-hidden', 'false');
-        statusEl.className = 'form-status ok';
-        setTimeout(() => {
-          closeModal();
-          form.reset();
-          applyFormMode('offer');
-        }, 900);
-      } catch (err) {
-        statusEl.textContent = 'Could not send right now. Please try again.';
-        statusEl.className = 'form-status err';
-      } finally {
-        sendBtn.disabled = false;
-        sendBtn.textContent = formMode === 'offer' ? 'Send Offer' : formMode === 'repair' ? 'Get Your Free Quote Now' : 'Get Your Free Quote Now';
-      }
+      document.getElementById('quote-modal').style.display = 'flex';
     });
   </script>
-
-  <!-- ===== SECTION: Structured Data (JSON-LD) ===== -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "Eastern Shore AI",
-    "url": "https://www.easternshore.ai",
-    "logo": "https://www.easternshore.ai/carousel.png",
-    "image": "https://www.easternshore.ai/carousel.png",
-    "email": "easternshoreai@outlook.com",
-    "areaServed": {
-      "@type": "AdministrativeArea",
-      "name": "Eastern Shore Maryland"
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressRegion": "MD",
-      "addressCountry": "US"
-    },
-    "priceRange": "$",
-    "serviceType": ["OpenClaw Setup", "Website Design", "Tech Lessons", "AI Agent Repair"],
-    "description": "Eastern Shore AI offers OpenClaw Setup, website design, and tech tutoring on the Eastern Shore of Maryland and via Zoom."
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "OpenClaw Setup",
-    "provider": {
-      "@type": "Organization",
-      "name": "Eastern Shore AI",
-      "url": "https://www.easternshore.ai"
-    },
-    "areaServed": "Eastern Shore Maryland",
-    "description": "Secure OpenClaw setup, hardening, and ongoing technical support.",
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "USD",
-      "price": "100.00",
-      "availability": "https://schema.org/InStock"
-    }
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What is included in OpenClaw Setup?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "We handle installation, secure configuration, hardening, channel onboarding, and launch handoff so your setup is production-ready."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Do you provide OpenClaw Setup in Eastern Shore Maryland?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. We offer in-person setup and support throughout the Eastern Shore Maryland area, plus Zoom-based remote support."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Do you offer ongoing help after setup?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes. Ongoing technical assistance is included so you can keep moving without getting stuck on technical issues."
-        }
-      }
-    ]
-  }
-  </script>
-  <script>
-    // Neon sign lightswitch
-    (function() {
-      const btn = document.getElementById('neon-switch');
-      const logo = document.getElementById('neon-logo');
-      let isOn = true;
-      let audioCtx;
-
-      /** @param {boolean} turnOn - true to play turn-on sound, false for turn-off */
-      function neonBuzz(turnOn) {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const now = audioCtx.currentTime;
-        const dur = turnOn ? 0.8 : 0.5;
-        const master = audioCtx.createGain();
-        master.gain.setValueAtTime(0.12, now);
-        master.connect(audioCtx.destination);
-
-        // 60Hz mains hum (sine — clean, warm)
-        const hum = audioCtx.createOscillator();
-        hum.type = 'sine';
-        hum.frequency.setValueAtTime(60, now);
-        const humGain = audioCtx.createGain();
-        hum.connect(humGain);
-        humGain.connect(master);
-        hum.start(now);
-        hum.stop(now + dur);
-
-        // 120Hz harmonic (the classic fluorescent ballast buzz)
-        const buzz = audioCtx.createOscillator();
-        buzz.type = 'sawtooth';
-        buzz.frequency.setValueAtTime(120, now);
-        const buzzGain = audioCtx.createGain();
-        buzz.connect(buzzGain);
-        buzzGain.connect(master);
-        buzz.start(now);
-        buzz.stop(now + dur);
-
-        // 180Hz 3rd harmonic — adds grittiness
-        const buzz3 = audioCtx.createOscillator();
-        buzz3.type = 'sine';
-        buzz3.frequency.setValueAtTime(180, now);
-        const buzz3Gain = audioCtx.createGain();
-        buzz3.connect(buzz3Gain);
-        buzz3Gain.connect(master);
-        buzz3.start(now);
-        buzz3.stop(now + dur);
-
-        // 240Hz 4th harmonic — the angry buzz
-        const buzz4 = audioCtx.createOscillator();
-        buzz4.type = 'triangle';
-        buzz4.frequency.setValueAtTime(240, now);
-        const buzz4Gain = audioCtx.createGain();
-        buzz4.connect(buzz4Gain);
-        buzz4Gain.connect(master);
-        buzz4.start(now);
-        buzz4.stop(now + dur);
-
-        // High-freq sizzle via filtered noise
-        const bufLen = audioCtx.sampleRate * dur;
-        const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
-        const data = noiseBuf.getChannelData(0);
-        for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
-        const noise = audioCtx.createBufferSource();
-        noise.buffer = noiseBuf;
-        const bandpass = audioCtx.createBiquadFilter();
-        bandpass.type = 'bandpass';
-        bandpass.frequency.setValueAtTime(3000, now);
-        bandpass.Q.setValueAtTime(2, now);
-        const noiseGain = audioCtx.createGain();
-        noise.connect(bandpass);
-        bandpass.connect(noiseGain);
-        noiseGain.connect(master);
-        noise.start(now);
-
-        if (turnOn) {
-          humGain.gain.setValueAtTime(0, now);
-          humGain.gain.linearRampToValueAtTime(0.6, now + 0.08);
-          humGain.gain.setValueAtTime(0.3, now + 0.12);
-          humGain.gain.linearRampToValueAtTime(0.5, now + 0.3);
-          humGain.gain.linearRampToValueAtTime(0, now + dur);
-          buzzGain.gain.setValueAtTime(0, now);
-          buzzGain.gain.linearRampToValueAtTime(0.5, now + 0.1);
-          buzzGain.gain.linearRampToValueAtTime(0.35, now + 0.4);
-          buzzGain.gain.linearRampToValueAtTime(0, now + dur);
-          buzz3Gain.gain.setValueAtTime(0, now);
-          buzz3Gain.gain.linearRampToValueAtTime(0.3, now + 0.1);
-          buzz3Gain.gain.linearRampToValueAtTime(0.2, now + 0.4);
-          buzz3Gain.gain.linearRampToValueAtTime(0, now + dur);
-          buzz4Gain.gain.setValueAtTime(0, now);
-          buzz4Gain.gain.linearRampToValueAtTime(0.25, now + 0.12);
-          buzz4Gain.gain.linearRampToValueAtTime(0.15, now + 0.4);
-          buzz4Gain.gain.linearRampToValueAtTime(0, now + dur);
-          noiseGain.gain.setValueAtTime(0.15, now);
-          noiseGain.gain.linearRampToValueAtTime(0.06, now + 0.2);
-          noiseGain.gain.linearRampToValueAtTime(0, now + dur);
-        } else {
-          humGain.gain.setValueAtTime(0.5, now);
-          humGain.gain.linearRampToValueAtTime(0.15, now + 0.1);
-          humGain.gain.linearRampToValueAtTime(0, now + dur);
-          buzzGain.gain.setValueAtTime(0.4, now);
-          buzzGain.gain.linearRampToValueAtTime(0.1, now + 0.08);
-          buzzGain.gain.linearRampToValueAtTime(0, now + dur * 0.6);
-          buzz3Gain.gain.setValueAtTime(0.25, now);
-          buzz3Gain.gain.linearRampToValueAtTime(0.05, now + 0.1);
-          buzz3Gain.gain.linearRampToValueAtTime(0, now + dur * 0.5);
-          buzz4Gain.gain.setValueAtTime(0.2, now);
-          buzz4Gain.gain.linearRampToValueAtTime(0, now + 0.12);
-          noiseGain.gain.setValueAtTime(0.1, now);
-          noiseGain.gain.linearRampToValueAtTime(0, now + 0.15);
-        }
-      }
-
-      btn.addEventListener('click', () => {
-        neonBuzz(!isOn);
-
-        if (isOn) {
-          // Turn off — flicker then go dark
-          logo.classList.add('flicker');
-          setTimeout(() => {
-            logo.classList.remove('flicker');
-            logo.classList.add('off');
-            logo.src = 'logo-off.png';
-          }, 400);
-          btn.classList.add('off');
-        } else {
-          // Turn on — swap image, flicker, then full brightness
-          logo.src = 'logo.jpg';
-          logo.classList.remove('off');
-          logo.classList.add('flicker');
-          setTimeout(() => {
-            logo.classList.remove('flicker');
-          }, 400);
-          btn.classList.remove('off');
-        }
-        isOn = !isOn;
-      });
-    })();
-  </script>
-  <!-- Brevo newsletter script -->
-  <script>
-    window.REQUIRED_CODE_ERROR_MESSAGE = 'Please choose a country code';
-    window.LOCALE = 'en';
-    window.EMAIL_INVALID_MESSAGE = window.SMS_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
-    window.REQUIRED_ERROR_MESSAGE = "This field cannot be left blank. ";
-    window.GENERIC_INVALID_MESSAGE = "The information provided is invalid. Please review the field format and try again.";
-    window.translation = { common: { selectedList: '{quantity} list selected', selectedLists: '{quantity} lists selected', selectedOption: '{quantity} selected', selectedOptions: '{quantity} selected' } };
-    var AUTOHIDE = Boolean(0);
-  </script>
-  <script defer src="https://sibforms.com/forms/end-form/build/main.js"></script>
 </body>
 </html>
