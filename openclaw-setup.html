@@ -941,17 +941,23 @@
         <div class="admin-calendar-wrap">
           <div class="admin-calendar-head"><div class="admin-calendar-title">Expense Categories</div></div>
           <div id="expense-categories-list" style="display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem;"></div>
-          <div class="admin-row" style="margin-top:.5rem; gap:.4rem;">
-            <input id="new-expense-category" placeholder="New expense category" />
-            <button type="button" class="btn btn-primary" id="add-expense-category-btn">Add</button>
+          <div style="margin-top:1.25rem; padding-top:.75rem; border-top:1px solid var(--line);">
+            <label style="display:block; margin-bottom:.35rem;">Add Net Category</label>
+            <div class="admin-row" style="gap:.4rem;">
+              <input id="new-expense-category" placeholder="Enter your new expense category, here" />
+              <button type="button" class="btn btn-primary" id="add-expense-category-btn" style="min-width:120px;">Add</button>
+            </div>
           </div>
         </div>
         <div class="admin-calendar-wrap">
           <div class="admin-calendar-head"><div class="admin-calendar-title">Income Categories</div></div>
           <div id="income-categories-list" style="display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem;"></div>
-          <div class="admin-row" style="margin-top:.5rem; gap:.4rem;">
-            <input id="new-income-category" placeholder="New income category" />
-            <button type="button" class="btn btn-primary" id="add-income-category-btn">Add</button>
+          <div style="margin-top:1.25rem; padding-top:.75rem; border-top:1px solid var(--line);">
+            <label style="display:block; margin-bottom:.35rem;">Add Net Category</label>
+            <div class="admin-row" style="gap:.4rem;">
+              <input id="new-income-category" placeholder="Enter your new income category, here" />
+              <button type="button" class="btn btn-primary" id="add-income-category-btn" style="min-width:120px;">Add</button>
+            </div>
           </div>
         </div>
       </div>
