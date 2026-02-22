@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Automation for Small Business — Eastern Shore AI</title>
+  <meta name="description" content="Stop wasting time on repetitive tasks. We build custom AI automation systems that save small businesses hours every week — without breaking the bank." />
+  <meta property="og:title" content="AI Automation for Small Business — Eastern Shore AI" />
+  <meta property="og:description" content="Stop wasting time on repetitive tasks. We build custom AI automation systems that save small businesses hours every week." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.easternshore.ai/agents.html" />
+  <meta property="og:image" content="https://www.easternshore.ai/carousel.png" />
+  <link rel="canonical" href="https://www.easternshore.ai/agents.html" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --bg2: #10121a;
+      --card: #141620;
+      --text: #d8dce8;
+      --muted: #7a7e96;
+      --cyan: #00e5ff;
+      --violet: #c850ff;
+      --pink: #ff4fd8;
+      --line: #222438;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { color: var(--pink); }
+
+    /* Header */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 300;
+      min-height: 56px;
+      background: #0c0d14;
+      border-bottom: 1px solid var(--line);
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      height: 56px;
+    }
+    .header-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--pink);
+      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .header-logo span { color: var(--cyan); }
+    .header-nav { display: flex; gap: 1.5rem; }
+    .header-nav a {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .header-nav a:hover { color: var(--cyan); }
+
+    /* Hero */
+    .hero {
+      padding: 120px 1.5rem 80px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('/carousel.png') center/cover no-repeat;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      margin: 0 0 1.5rem;
+      line-height: 1.2;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(90deg, var(--cyan), var(--violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.9rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      color: #000;
+      border: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 229, 255, 0.3);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .btn-secondary:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      max-width: 900px;
+      margin: 3rem auto 0;
+      padding: 2rem;
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    /* Problem/Solution */
+    .section {
+      padding: 5rem 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section-header h2 {
+      font-size: 2rem;
+      margin: 0 0 1rem;
+    }
+    .section-header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: border-color 0.2s;
+    }
+    .card:hover {
+      border-color: var(--cyan);
+    }
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    .card h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.25rem;
+    }
+    .card p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    /* CTA */
+    .cta {
+      background: var(--bg2);
+      border-top: 1px solid var(--line);
+      text-align: center;
+      padding: 5rem 1.5rem;
+    }
+    .cta h2 {
+      font-size: 2rem;
+      margin: 0 0 1rem;
+    }
+    .cta p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin: 0 0 2rem;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--line);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    footer p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    footer a {
+      color: var(--cyan);
+    }
+
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .hero { padding: 100px 1rem 60px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
+      <nav class="header-nav">
+        <a href="/#services">Services</a>
+        <a href="/#portfolio">Portfolio</a>
+        <a href="/#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
+      <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
+      <div class="hero-buttons">
+        <a href="#contact" class="btn btn-primary">Get Your Free Audit</a>
+        <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-value">20+</div>
+          <div class="stat-label">Hours Saved Weekly</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">60%</div>
+          <div class="stat-label">Cost Reduction</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">2-4</div>
+          <div class="stat-label">Weeks to Deploy</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="problems">
+    <div class="section-header">
+      <h2>What's Killing Your Productivity</h2>
+      <p>Most small businesses are drowning in tasks that should be automated.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">📧</div>
+        <h3>Email Chaos</h3>
+        <p>Sorting, responding, and following up on emails takes hours every day. AI can categorize, draft responses, and prioritize automatically.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Spreadsheet Hell</h3>
+        <p>Data entry, reconciliation, and reporting manually. One mistake costs you hours to fix. We automate it all.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📅</div>
+        <h3>Scheduling Back & Forth</h3>
+        <p>Back-and-forth emails to book appointments waste everyone's time. Let AI handle it 24/7.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <h3>Expensive Software</h3>
+        <p>You're paying for enterprise tools you only use 10% of. We build exactly what you need for a fraction of the cost.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works">
+    <div class="section-header">
+      <h2>How It Works</h2>
+      <p>Simple. Fast. No technical knowledge required.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>1. We Audit Your Operations</h3>
+        <p>We spend 30 minutes walking through your workflows. We find the biggest time-wasters and identify quick wins.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <h3>2. We Build Your Solution</h3>
+        <p>Custom AI automation tailored to your specific business. No cookie-cutter solutions — everything is built for you.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>3. We Deploy & Train</h3>
+        <p>Systems go live in 2-4 weeks. We train your team and make sure everything runs smoothly.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤝</div>
+        <h3>4. We Stay With You</h3>
+        <p>Most agencies disappear after delivery. We're your ongoing AI partner — we tweak, improve, and scale with you.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="contact">
+    <h2>Ready to Work Smarter?</h2>
+    <p>Book a free 15-minute call. We'll show you what's possible and give you a custom quote.</p>
+    <a href="mailto:easternshoreai@outlook.com?subject=AI Automation Inquiry" class="btn btn-primary">Book Your Free Call</a>
+  </section>
+
+  <footer>
+    <p>Website created and maintained by <a href="https://www.easternshore.ai">Eastern Shore AI, LLC</a></p>
+  </footer>
+</body>
+</html>
