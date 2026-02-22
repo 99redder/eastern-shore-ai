@@ -325,8 +325,11 @@
       <h1>Tech Lessons & Tutoring</h1>
       <h2>Pick Your Lesson Day</h2>
       <div class="booking-grid" style="grid-template-columns:1fr;">
-        <div>
-          <div class="form-grid" style="margin-top:0;">
+        <aside class="book-pay-panel">
+          <h3 style="margin:.1rem 0 .2rem;">Reserve Your Lesson Slot</h3>
+          <p>Choose your date, lesson topic, and session count, then use Book Lessons + Pay Now to secure your spot.</p>
+          <p style="margin:.3rem 0 .5rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 for a 2-hour session (+ taxes where applicable)</p>
+          <div class="form-grid" style="margin-top:.4rem;">
             <div>
               <label for="setup-date">Preferred Lesson Date</label>
               <input id="setup-date" type="date" />
@@ -337,14 +340,6 @@
                 <option value="">Select time block…</option>
               </select>
             </div>
-          </div>
-          <p style="margin-top:1rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 for a 2-hour session (+ taxes where applicable)</p>
-        </div>
-
-        <aside class="book-pay-panel" style="margin-top:.85rem;">
-          <h3 style="margin:.1rem 0 .2rem;">Reserve Your Lesson Slot</h3>
-          <p>Choose your date, lesson topic, and session count, then use Book Lessons + Pay Now to secure your spot.</p>
-          <div class="form-grid" style="margin-top:.6rem;">
             <div>
               <label for="book-name">Your Name</label>
               <input id="book-name" required />
