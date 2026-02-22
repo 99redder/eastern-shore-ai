@@ -96,6 +96,7 @@ Both pages use inline `<style>` media queries for mobile optimization. The booki
 - **iOS zoom prevention**: All `input`, `textarea`, `select` elements set to `font-size:16px` at mobile breakpoints to prevent Safari auto-zoom on focus
 - **Safe area insets**: Footer uses `env(safe-area-inset-bottom)` for notched devices
 - **Single-column forms**: `.form-grid` switches from 2-column to 1-column at mobile breakpoints for touch-friendly input sizing
+- **iOS `input[type="date"]` overflow fix**: On iOS Safari, the native date-picker widget (a replaced element) renders at a fixed intrinsic width that ignores `width:100%` on the input itself, causing it to visually overflow its grid cell. Fix: `.form-grid > * { overflow:hidden; }` on the parent div creates a BFC that clips the replaced element's rendering to the cell boundary. The native date picker still activates on tap — `overflow:hidden` on the parent only clips visual rendering, not interaction.
 
 ## Testing
 

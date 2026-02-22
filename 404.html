@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Page Not Found | Eastern Shore AI</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <style>
+    /* ===== Theme & CSS Variables ===== */
+    :root {
+      --bg: #0a0b10;
+      --bg2: #10121a;
+      --card: #141620;
+      --text: #d8dce8;
+      --muted: #7a7e96;
+      --cyan: #00e5ff;
+      --violet: #c850ff;
+      --pink: #c850ff;
+      --line: #222438;
+    }
+
+    body[data-theme="light"] {
+      --bg: #f4f4f8;
+      --bg2: #eaeaf0;
+      --card: #ffffff;
+      --text: #111118;
+      --muted: #555566;
+      --cyan: #0099bb;
+      --violet: #8a2ec0;
+      --pink: #8a2ec0;
+      --line: #d0d0dd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-top: 56px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== Site Header ===== */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 300;
+      min-height: 56px;
+      background: #0c0d14;
+      border-bottom: 1px solid var(--line);
+    }
+    body[data-theme="light"] .site-header {
+      background: #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      height: 56px;
+      position: relative;
+    }
+
+    /* ===== Logo Glitch Animation ===== */
+    .header-logo-wrap {
+      display: flex;
+      align-items: center;
+    }
+    .header-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #ff4fd8;
+      text-shadow: 0 0 8px rgba(255, 79, 216, 0.35);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      white-space: nowrap;
+      display: inline-block;
+      animation: logo-glitch-glow 10s ease-in-out infinite;
+    }
+    .header-logo span {
+      color: #00e5ff;
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+    }
+    @keyframes logo-glitch-glow {
+      0%, 58%   { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
+      60%       { text-shadow: 0 0 14px rgba(255,79,216,0.5), 0 0 30px rgba(255,79,216,0.2); transform: translate(-2px, 1px) skewX(-2deg); }
+      63%       { text-shadow: 0 0 22px rgba(0,229,255,0.7), 0 0 45px rgba(0,229,255,0.25); transform: translate(2px, -1px) skewX(1.5deg); }
+      66%       { text-shadow: 0 0 28px rgba(255,79,216,0.85), 0 0 55px rgba(255,79,216,0.35); transform: translate(-1px, 0) skewX(-1deg); }
+      69%       { text-shadow: 0 0 18px rgba(0,229,255,0.6), 0 0 40px rgba(0,229,255,0.2); transform: translate(1px, 1px) skewX(0.5deg); }
+      72%       { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
+      73%, 100% { text-shadow: 0 0 8px rgba(255,79,216,0.35); transform: translate(0); }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+    .theme-toggle {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      border-radius: 999px;
+      width: 2rem;
+      height: 2rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* ===== Hero 404 ===== */
+    .hero-404 {
+      position: relative;
+      width: 100%;
+      min-height: 320px;
+      background: url('carousel.png') center / cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0;
+    }
+    .hero-404::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(10,11,16,0.68) 0%, rgba(10,11,16,0.94) 100%);
+    }
+    .error-code {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: clamp(5rem, 22vw, 10rem);
+      color: var(--cyan);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      animation: logo-glitch-glow 10s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      text-shadow: 0 0 40px rgba(0,229,255,0.25);
+    }
+    body[data-theme="light"] .error-code {
+      text-shadow: 0 0 20px rgba(0,153,187,0.3);
+    }
+    .hero-404-label {
+      position: relative;
+      z-index: 1;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,79,216,0.85);
+      margin: 0.4rem 0 0;
+      text-shadow: 0 0 8px rgba(255,79,216,0.35);
+    }
+
+    /* ===== Main Content Area ===== */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+    }
+
+    .card-404 {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      padding: 2rem 2.5rem;
+      max-width: 540px;
+      width: 100%;
+      text-align: center;
+      clip-path: polygon(
+        0 8px,
+        8px 0,
+        35% 0,
+        35.5% 4px,
+        37% 0,
+        calc(100% - 12px) 0,
+        100% 12px,
+        100% 65%,
+        calc(100% - 3px) 66%,
+        100% 67.5%,
+        100% calc(100% - 6px),
+        calc(100% - 6px) 100%,
+        62% 100%,
+        61.5% calc(100% - 3px),
+        60% 100%,
+        10px 100%,
+        0 calc(100% - 10px),
+        3px calc(100% - 14px),
+        0 calc(100% - 18px)
+      );
+    }
+
+    .card-404 h1 {
+      font-family: 'Titillium Web', system-ui, sans-serif;
+      font-size: 1.6rem;
+      margin: 0 0 0.6rem;
+      color: #ff4fd8;
+      text-shadow: 0 0 8px rgba(255,79,216,0.35);
+    }
+    body[data-theme="light"] .card-404 h1 {
+      color: var(--violet);
+      text-shadow: none;
+    }
+
+    .card-404 p {
+      margin: 0 0 1.6rem;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+      color: #fff;
+      -webkit-text-fill-color: #fff;
+      background: linear-gradient(145deg, #ff4fd8, #cc3fb0);
+      border: none;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.75rem 2rem;
+      cursor: pointer;
+      box-shadow: 0 0 16px rgba(255,79,216,0.35);
+      clip-path: polygon(
+        0 4px,
+        4px 0,
+        calc(100% - 7px) 0,
+        100% 7px,
+        100% calc(100% - 4px),
+        calc(100% - 4px) 100%,
+        7px 100%,
+        0 calc(100% - 7px)
+      );
+      transition: box-shadow 0.2s, filter 0.2s;
+    }
+    .btn-home:hover {
+      box-shadow: 0 0 24px rgba(255,79,216,0.55);
+      filter: brightness(1.08);
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      color: #7a7e96;
+      font-size: 0.85rem;
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+    .footer-link {
+      display: inline-block;
+      margin: 0.2rem 0.4rem 0;
+      padding: 0.3rem 0.2rem;
+      color: #ff4fd8;
+      text-shadow: 0 0 8px rgba(255,79,216,0.35);
+      text-decoration: underline;
+    }
+    .footer-link:hover { color: #ff7ae4; }
+    body[data-theme="light"] .footer-link { color: #cc3fb0; text-shadow: none; }
+    body[data-theme="light"] .footer-link:hover { color: #ff4fd8; }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 480px) {
+      .hero-404 { min-height: 240px; }
+      .card-404 { padding: 1.5rem 1.2rem; }
+      .card-404 h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="header-logo-wrap">
+        <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
+      </div>
+      <div class="header-right">
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="hero-404">
+    <p class="error-code">404</p>
+    <p class="hero-404-label">Signal Lost</p>
+  </div>
+
+  <main>
+    <div class="card-404">
+      <h1>Page Not Found</h1>
+      <p>This signal path doesn't exist in our network.<br>The URL may have moved or never existed.</p>
+      <a href="/" class="btn-home">← Back to Home</a>
+    </div>
+  </main>
+
+  <footer>
+    © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp;
+    <a href="tel:+14106928562" class="footer-link">(410) 692-8562</a> &nbsp;·&nbsp;
+    <a href="https://x.com/easternshoreAI" target="_blank" rel="noopener noreferrer" class="footer-link">X / Twitter</a> &nbsp;·&nbsp;
+    <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">Instagram</a> &nbsp;·&nbsp;
+    <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" class="footer-link">Discord</a>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Theme toggle
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('esa_theme') || 'dark';
+
+    function applyTheme(theme) {
+      document.body.setAttribute('data-theme', theme);
+      const nextLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      themeToggleBtn.textContent = theme === 'dark' ? '☀' : '☾';
+      themeToggleBtn.setAttribute('title', nextLabel);
+      themeToggleBtn.setAttribute('aria-label', nextLabel);
+    }
+
+    applyTheme(savedTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      const next = (document.body.getAttribute('data-theme') || 'dark') === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('esa_theme', next);
+      applyTheme(next);
+    });
+  </script>
+
+</body>
+</html>
