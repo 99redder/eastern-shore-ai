@@ -290,9 +290,9 @@
       filter: saturate(1.08);
       transition: filter 0.6s ease, opacity 0.6s ease;
     }
-    .results-logo.off {
-      filter: brightness(0.15) saturate(0);
-      opacity: 0.18;
+    .results-logo.logo-full {
+      filter: brightness(1.02) saturate(1.06);
+      opacity: 1;
     }
     .results-logo.flicker {
       animation: neon-flicker 0.4s steps(2, end);
@@ -476,7 +476,7 @@
 
   <section class="section results-section" id="results">
     <div class="logo-switch">
-      <button type="button" class="neon-switch" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
+      <button type="button" class="neon-switch off" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
       </button>
     </div>
@@ -625,7 +625,7 @@
 
     const logoSwitch = document.getElementById('logo-switch');
     const resultsLogo = document.getElementById('results-logo');
-    let logoOn = true;
+    let logoFull = false;
     let audioCtx;
 
     function neonBuzz(turnOn) {
@@ -690,23 +690,15 @@
 
     if (logoSwitch && resultsLogo) {
       logoSwitch.addEventListener('click', () => {
-        neonBuzz(!logoOn);
-        if (logoOn) {
-          resultsLogo.classList.add('flicker');
-          setTimeout(() => {
-            resultsLogo.classList.remove('flicker');
-            resultsLogo.classList.add('off');
-            resultsLogo.src = '/logo-off.png';
-          }, 400);
-          logoSwitch.classList.add('off');
-        } else {
-          resultsLogo.src = '/logo.jpg';
-          resultsLogo.classList.remove('off');
-          resultsLogo.classList.add('flicker');
-          setTimeout(() => resultsLogo.classList.remove('flicker'), 400);
-          logoSwitch.classList.remove('off');
-        }
-        logoOn = !logoOn;
+        const turningFull = !logoFull;
+        neonBuzz(turningFull);
+        resultsLogo.classList.add('flicker');
+        setTimeout(() => {
+          resultsLogo.classList.remove('flicker');
+          resultsLogo.classList.toggle('logo-full', turningFull);
+        }, 400);
+        logoSwitch.classList.toggle('off', !turningFull);
+        logoFull = turningFull;
       });
     }
   </script>
