@@ -1702,10 +1702,11 @@
       }
 
       function renderCategoryManagerLists() {
+        if (!expenseCategoriesListEl || !incomeCategoriesListEl) return;
         expenseCategoriesListEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="expense" data-cat-name="${escHtml(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="expense" data-cat-name="${escHtml(c)}">Delete</button></div>`).join('');
         incomeCategoriesListEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="income" data-cat-name="${escHtml(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="income" data-cat-name="${escHtml(c)}">Delete</button></div>`).join('');
 
-        taxCategoryModal.querySelectorAll('[data-cat-edit]').forEach((btn) => {
+        (taxCategoryModal || document).querySelectorAll('[data-cat-edit]').forEach((btn) => {
           btn.addEventListener('click', async () => {
             const type = btn.getAttribute('data-cat-edit');
             const oldName = btn.getAttribute('data-cat-name') || '';
@@ -1733,7 +1734,7 @@
           });
         });
 
-        taxCategoryModal.querySelectorAll('[data-cat-del]').forEach((btn) => {
+        (taxCategoryModal || document).querySelectorAll('[data-cat-del]').forEach((btn) => {
           btn.addEventListener('click', async () => {
             const type = btn.getAttribute('data-cat-del');
             const name = btn.getAttribute('data-cat-name') || '';
@@ -2228,9 +2229,17 @@
       taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
       taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
       taxManageCategoriesBtn?.addEventListener('click', () => {
-        renderCategoryManagerLists();
+        if (!taxCategoryModal) {
+          openErrorModal('Category manager is unavailable on this page load. Please refresh and try again.');
+          return;
+        }
         taxCategoryModal.classList.add('active');
         taxCategoryModal.setAttribute('aria-hidden', 'false');
+        try {
+          renderCategoryManagerLists();
+        } catch (e) {
+          openErrorModal(`Could not load category manager: ${e.message || e}`);
+        }
       });
       taxCategoryCloseBtn?.addEventListener('click', () => {
         taxCategoryModal.classList.remove('active');
