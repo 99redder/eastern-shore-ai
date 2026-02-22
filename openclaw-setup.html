@@ -192,26 +192,27 @@
     .top-book-btn:hover { background:linear-gradient(145deg,#ff7ae4,#ff4fd8); box-shadow:0 0 28px rgba(255,79,216,0.6); }
     .book-pay-panel .top-book-btn { position:static; right:auto; top:auto; z-index:auto; display:block; text-align:center; }
     .back-btn {
-      display:inline-flex; align-items:center; gap:0.35rem;
-      text-decoration:none;
-      font-family:'Titillium Web', system-ui, sans-serif;
-      font-weight:600; font-size:0.82rem; letter-spacing:0.03em;
-      color:var(--cyan);
-      border:1px solid var(--cyan);
-      border-radius:2px;
-      padding:0.35rem 0.75rem;
-      margin-bottom:0.8rem;
-      background:rgba(0,229,255,0.06);
-      transition:background 0.2s, box-shadow 0.2s, color 0.2s;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.6rem 0.95rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.78rem;
+      color: #fff;
+      text-decoration: none;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      border: 1px solid rgba(255, 79, 216, 0.45);
+      box-shadow: 0 0 12px rgba(255, 79, 216, 0.5);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
-    .back-btn:hover {
-      background:rgba(0,229,255,0.14);
-      box-shadow:0 0 14px rgba(0,229,255,0.3);
-      color:#fff;
-    }
-    .back-btn svg {
-      width:14px; height:14px; fill:currentColor; flex-shrink:0;
-    }
+    .back-btn:hover { filter: brightness(1.06); }
 
     /* Session flow interactive layout */
     /* ===== Session Flow Interactive Layout ===== */
@@ -332,7 +333,7 @@
     <!-- ===== SECTION: Booking Form ===== -->
     <section id="pick-setup" class="card user-section" style="margin-top:1rem; margin-bottom:1rem;">
       <nav aria-label="Site navigation">
-        <a href="/" class="back-btn"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.354 3.354a.5.5 0 0 0-.708-.708l-5 5a.5.5 0 0 0 0 .708l5 5a.5.5 0 0 0 .708-.708L5.707 8l4.647-4.646z"/></svg>Home</a>
+        <a href="/index.html" class="back-btn" aria-label="Back to homepage">← Back</a>
         <a href="#" id="openclaw-info-link" style="font-size:.82rem; color:var(--cyan); text-shadow:none; text-decoration:underline; margin-left:.6rem;">What is OpenClaw?</a>
       </nav>
       <h1>OpenClaw Setup in Eastern Shore Maryland</h1>
