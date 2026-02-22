@@ -271,6 +271,28 @@
       font-size: 0.75rem;
       color: #555870;
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .footer-meta,
+    .footer-social {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 0.45rem;
+      line-height: 1.45;
+    }
+
+    .footer-social {
+      font-size: 0.78rem;
+    }
+
+    .footer-sep {
+      color: #4a4d64;
     }
 
     .footer-note a {
@@ -349,11 +371,22 @@
       <li>No spam — ever. Unsubscribe with one click.</li>
     </ul>
 
-    <p class="footer-note">
-      © <script>document.write(new Date().getFullYear())</script> Eastern Shore AI, LLC &nbsp;·&nbsp;
-      <a href="tel:+14106928562">(410) 692-8562</a> &nbsp;·&nbsp;
-      <a href="https://www.easternshore.ai" target="_blank" rel="noopener noreferrer">www.easternshore.ai</a> &nbsp;·&nbsp; <a href="https://x.com/easternshoreAI" target="_blank" rel="noopener noreferrer">X / Twitter</a> &nbsp;·&nbsp; <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer">Instagram</a> &nbsp;·&nbsp; <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer">Discord</a>
-    </p>
+    <div class="footer-note">
+      <div class="footer-meta">
+        <span>© <script>document.write(new Date().getFullYear())</script> Eastern Shore AI, LLC</span>
+        <span class="footer-sep">•</span>
+        <a href="tel:+14106928562">(410) 692-8562</a>
+        <span class="footer-sep">•</span>
+        <a href="https://www.easternshore.ai" target="_blank" rel="noopener noreferrer">www.easternshore.ai</a>
+      </div>
+      <div class="footer-social">
+        <a href="https://x.com/easternshoreAI" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+        <span class="footer-sep">•</span>
+        <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <span class="footer-sep">•</span>
+        <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer">Discord</a>
+      </div>
+    </div>
     </div><!-- /.card-body -->
   </div><!-- /.card -->
 
