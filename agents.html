@@ -288,19 +288,34 @@
       pointer-events: none;
       z-index: 0;
       filter: saturate(1.08);
-      transition: opacity 0.2s ease;
+      transition: filter 0.6s ease, opacity 0.6s ease;
     }
-    .results-logo.logo-full {
-      opacity: 1;
+    .results-logo.off {
+      filter: brightness(0.15) saturate(0);
+      opacity: 0.18;
+    }
+    .results-logo.flicker {
+      animation: neon-flicker 0.4s steps(2, end);
+    }
+    @keyframes neon-flicker {
+      0%   { filter: brightness(1) saturate(1); opacity: 1; }
+      15%  { filter: brightness(0.3) saturate(0.3); opacity: 0.5; }
+      30%  { filter: brightness(0.9) saturate(0.8); opacity: 0.9; }
+      45%  { filter: brightness(0.2) saturate(0.1); opacity: 0.4; }
+      60%  { filter: brightness(1.1) saturate(1.1); opacity: 1; }
+      75%  { filter: brightness(0.4) saturate(0.2); opacity: 0.6; }
+      100% { filter: brightness(1) saturate(1); opacity: 1; }
     }
     .logo-switch {
       position: absolute;
       right: clamp(0.5rem, 3.2vw, 2.3rem);
       top: clamp(-235px, -16vw, -145px);
       z-index: 2;
+    }
+    .neon-switch {
       border: 1px solid var(--line);
-      background: rgba(10, 11, 16, 0.9);
-      color: var(--cyan);
+      background: transparent;
+      color: var(--text);
       border-radius: 999px;
       width: 2rem;
       height: 2rem;
@@ -308,10 +323,11 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 1rem;
       line-height: 1;
+      transition: color 0.3s, border-color 0.3s;
     }
-    .logo-switch:hover { border-color: var(--cyan); color: var(--pink); }
+    .neon-switch:hover { color: #ff4fd8; border-color: #ff4fd8; }
+    .neon-switch.off { color: #555; border-color: #333; }
     .results-section .section-header,
     .results-section .trust-grid {
       position: relative;
@@ -459,7 +475,11 @@
   </section>
 
   <section class="section results-section" id="results">
-    <button class="logo-switch" id="logo-switch" type="button" aria-label="Toggle full logo opacity" title="Toggle full logo opacity">💡</button>
+    <div class="logo-switch">
+      <button type="button" class="neon-switch" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </div>
     <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" id="results-logo" />
     <div class="section-header">
       <h2>Proof This Works</h2>
@@ -605,9 +625,88 @@
 
     const logoSwitch = document.getElementById('logo-switch');
     const resultsLogo = document.getElementById('results-logo');
+    let logoOn = true;
+    let audioCtx;
+
+    function neonBuzz(turnOn) {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      const dur = turnOn ? 0.8 : 0.5;
+      const master = audioCtx.createGain();
+      master.gain.setValueAtTime(0.12, now);
+      master.connect(audioCtx.destination);
+
+      const hum = audioCtx.createOscillator();
+      hum.type = 'sine';
+      hum.frequency.setValueAtTime(60, now);
+      const humGain = audioCtx.createGain();
+      hum.connect(humGain); humGain.connect(master); hum.start(now); hum.stop(now + dur);
+
+      const buzz = audioCtx.createOscillator();
+      buzz.type = 'sawtooth';
+      buzz.frequency.setValueAtTime(120, now);
+      const buzzGain = audioCtx.createGain();
+      buzz.connect(buzzGain); buzzGain.connect(master); buzz.start(now); buzz.stop(now + dur);
+
+      const buzz3 = audioCtx.createOscillator();
+      buzz3.type = 'sine';
+      buzz3.frequency.setValueAtTime(180, now);
+      const buzz3Gain = audioCtx.createGain();
+      buzz3.connect(buzz3Gain); buzz3Gain.connect(master); buzz3.start(now); buzz3.stop(now + dur);
+
+      const buzz4 = audioCtx.createOscillator();
+      buzz4.type = 'triangle';
+      buzz4.frequency.setValueAtTime(240, now);
+      const buzz4Gain = audioCtx.createGain();
+      buzz4.connect(buzz4Gain); buzz4Gain.connect(master); buzz4.start(now); buzz4.stop(now + dur);
+
+      const bufLen = audioCtx.sampleRate * dur;
+      const noiseBuf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const bandpass = audioCtx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.setValueAtTime(3000, now);
+      bandpass.Q.setValueAtTime(2, now);
+      const noiseGain = audioCtx.createGain();
+      noise.connect(bandpass); bandpass.connect(noiseGain); noiseGain.connect(master); noise.start(now);
+
+      if (turnOn) {
+        humGain.gain.setValueAtTime(0, now); humGain.gain.linearRampToValueAtTime(0.6, now + 0.08); humGain.gain.setValueAtTime(0.3, now + 0.12); humGain.gain.linearRampToValueAtTime(0.5, now + 0.3); humGain.gain.linearRampToValueAtTime(0, now + dur);
+        buzzGain.gain.setValueAtTime(0, now); buzzGain.gain.linearRampToValueAtTime(0.5, now + 0.1); buzzGain.gain.linearRampToValueAtTime(0.35, now + 0.4); buzzGain.gain.linearRampToValueAtTime(0, now + dur);
+        buzz3Gain.gain.setValueAtTime(0, now); buzz3Gain.gain.linearRampToValueAtTime(0.3, now + 0.1); buzz3Gain.gain.linearRampToValueAtTime(0.2, now + 0.4); buzz3Gain.gain.linearRampToValueAtTime(0, now + dur);
+        buzz4Gain.gain.setValueAtTime(0, now); buzz4Gain.gain.linearRampToValueAtTime(0.25, now + 0.12); buzz4Gain.gain.linearRampToValueAtTime(0.15, now + 0.4); buzz4Gain.gain.linearRampToValueAtTime(0, now + dur);
+        noiseGain.gain.setValueAtTime(0.15, now); noiseGain.gain.linearRampToValueAtTime(0.06, now + 0.2); noiseGain.gain.linearRampToValueAtTime(0, now + dur);
+      } else {
+        humGain.gain.setValueAtTime(0.5, now); humGain.gain.linearRampToValueAtTime(0.15, now + 0.1); humGain.gain.linearRampToValueAtTime(0, now + dur);
+        buzzGain.gain.setValueAtTime(0.4, now); buzzGain.gain.linearRampToValueAtTime(0.1, now + 0.08); buzzGain.gain.linearRampToValueAtTime(0, now + dur * 0.6);
+        buzz3Gain.gain.setValueAtTime(0.25, now); buzz3Gain.gain.linearRampToValueAtTime(0.05, now + 0.1); buzz3Gain.gain.linearRampToValueAtTime(0, now + dur * 0.5);
+        buzz4Gain.gain.setValueAtTime(0.2, now); buzz4Gain.gain.linearRampToValueAtTime(0, now + 0.12);
+        noiseGain.gain.setValueAtTime(0.1, now); noiseGain.gain.linearRampToValueAtTime(0, now + 0.15);
+      }
+    }
+
     if (logoSwitch && resultsLogo) {
       logoSwitch.addEventListener('click', () => {
-        resultsLogo.classList.toggle('logo-full');
+        neonBuzz(!logoOn);
+        if (logoOn) {
+          resultsLogo.classList.add('flicker');
+          setTimeout(() => {
+            resultsLogo.classList.remove('flicker');
+            resultsLogo.classList.add('off');
+            resultsLogo.src = '/logo-off.png';
+          }, 400);
+          logoSwitch.classList.add('off');
+        } else {
+          resultsLogo.src = '/logo.jpg';
+          resultsLogo.classList.remove('off');
+          resultsLogo.classList.add('flicker');
+          setTimeout(() => resultsLogo.classList.remove('flicker'), 400);
+          logoSwitch.classList.remove('off');
+        }
+        logoOn = !logoOn;
       });
     }
   </script>
