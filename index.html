@@ -794,21 +794,18 @@
       });
     });
 
-    const statusModal = document.getElementById('status-modal');
-    const statusModalTitle = document.getElementById('status-modal-title');
-    const statusModalMessage = document.getElementById('status-modal-message');
-    const statusModalClose = document.getElementById('status-modal-close');
-    const statusModalOk = document.getElementById('status-modal-ok');
-
     window.showStatusModal = function(title, message) {
+      const statusModal = document.getElementById('status-modal');
+      const statusModalTitle = document.getElementById('status-modal-title');
+      const statusModalMessage = document.getElementById('status-modal-message');
+      if (!statusModal || !statusModalTitle || !statusModalMessage) {
+        alert(message || title || 'Status');
+        return;
+      }
       statusModalTitle.textContent = title;
       statusModalMessage.textContent = message;
       statusModal.style.display = 'flex';
     };
-    const closeStatusModal = () => { statusModal.style.display = 'none'; };
-    statusModalClose.addEventListener('click', closeStatusModal);
-    statusModalOk.addEventListener('click', closeStatusModal);
-    statusModal.addEventListener('click', (e) => { if (e.target === statusModal) closeStatusModal(); });
 
     const logoSwitch = document.getElementById('logo-switch');
     const resultsLogo = document.getElementById('results-logo');
@@ -982,6 +979,16 @@
     });
     document.querySelector('.privacy-close').addEventListener('click', () => privacyModal.style.display = 'none');
     privacyModal.addEventListener('click', (e) => { if (e.target === privacyModal) privacyModal.style.display = 'none'; });
+
+
+    // Status modal
+    const statusModal = document.getElementById('status-modal');
+    const statusModalClose = document.getElementById('status-modal-close');
+    const statusModalOk = document.getElementById('status-modal-ok');
+    const closeStatusModal = () => { if (statusModal) statusModal.style.display = 'none'; };
+    statusModalClose?.addEventListener('click', closeStatusModal);
+    statusModalOk?.addEventListener('click', closeStatusModal);
+    statusModal?.addEventListener('click', (e) => { if (e.target === statusModal) closeStatusModal(); });
 
     // Contact modal - opens quote modal
     document.getElementById('contact-link').addEventListener('click', function(e) {
