@@ -637,11 +637,11 @@
                 </div>
 
                 <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
-                  <button type="button" class="btn tx-entry-mode-btn active" id="tax-mode-expense-btn">Add Expense</button>
-                  <button type="button" class="btn tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
+                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
                 </div>
 
-                <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem;">
+                <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem; display:none;">
                   <div class="admin-calendar-wrap">
                     <div class="admin-calendar-head"><div class="admin-calendar-title">Add Expense</div></div>
                     <div class="admin-row" style="flex-direction:column; align-items:stretch;">
@@ -1711,11 +1711,12 @@
       }
 
       function setTaxEntryMode(mode) {
-        const showExpense = mode !== 'income';
+        const showExpense = mode === 'expense';
+        const showIncome = mode === 'income';
         if (taxExpensePanel) taxExpensePanel.style.display = showExpense ? '' : 'none';
-        if (taxIncomePanel) taxIncomePanel.style.display = showExpense ? 'none' : '';
+        if (taxIncomePanel) taxIncomePanel.style.display = showIncome ? '' : 'none';
         if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
-        if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', !showExpense);
+        if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome);
       }
 
       function initTaxUiDefaults() {
@@ -1731,7 +1732,7 @@
 
         taxExpenseDateEl.value = now.date;
         taxIncomeDateEl.value = now.date;
-        setTaxEntryMode('expense');
+        setTaxEntryMode('none');
       }
 
       function renderTxList() {
