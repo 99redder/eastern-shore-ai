@@ -703,6 +703,17 @@
             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Phone Number (optional)</label>
             <input type="tel" name="phone" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
           </div>
+          <div id="callback-pref-wrap" style="display:none;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">When Would You Like Us to Call or Visit</label>
+            <select name="callback-preference" id="callback-preference" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+              <option value="ASAP">ASAP</option>
+              <option value="Select Time and Date">Select Time and Date</option>
+            </select>
+          </div>
+          <div id="callback-datetime-wrap" style="display:none;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Preferred Call/Visit Time & Date</label>
+            <input type="datetime-local" name="callback-datetime" id="callback-datetime" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          </div>
           <div>
             <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--muted);">Message *</label>
             <textarea name="message" rows="4" required placeholder="Include anything else you'd like to let us know" style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem; resize: vertical;"></textarea>
