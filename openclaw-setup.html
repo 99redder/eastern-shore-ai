@@ -958,6 +958,18 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="tax-category-edit-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tax-category-edit-title" style="width:min(540px,94vw);">
+      <h3 id="tax-category-edit-title">Edit Category</h3>
+      <label for="tax-category-edit-input">Category Name</label>
+      <input id="tax-category-edit-input" type="text" />
+      <div class="form-actions" style="margin-top:1rem; justify-content:flex-end; gap:.5rem;">
+        <button type="button" class="btn" id="tax-category-edit-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="tax-category-edit-save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== FUNCTION INDEX =====
     // Time Utils:      nowEtParts() — Current date/time in America/New_York
@@ -1110,6 +1122,10 @@
     const newIncomeCategoryEl = document.getElementById('new-income-category');
     const addExpenseCategoryBtn = document.getElementById('add-expense-category-btn');
     const addIncomeCategoryBtn = document.getElementById('add-income-category-btn');
+    const taxCategoryEditModal = document.getElementById('tax-category-edit-modal');
+    const taxCategoryEditInput = document.getElementById('tax-category-edit-input');
+    const taxCategoryEditSaveBtn = document.getElementById('tax-category-edit-save-btn');
+    const taxCategoryEditCancelBtn = document.getElementById('tax-category-edit-cancel-btn');
     const taxSummaryListEl = document.getElementById('tax-summary-list');
     const taxListEl = document.getElementById('tax-list');
     const txCategoryFilterEl = document.getElementById('tx-category-filter');
@@ -1705,16 +1721,41 @@
         taxIncomeCategoryEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
       }
 
+      function openCategoryEditModal(currentName) {
+        return new Promise((resolve) => {
+          taxCategoryEditInput.value = currentName || '';
+          taxCategoryEditModal.classList.add('active');
+          taxCategoryEditModal.setAttribute('aria-hidden', 'false');
+          taxCategoryEditInput.focus();
+          taxCategoryEditInput.select();
+
+          const cleanup = () => {
+            taxCategoryEditModal.classList.remove('active');
+            taxCategoryEditModal.setAttribute('aria-hidden', 'true');
+            taxCategoryEditSaveBtn.removeEventListener('click', onSave);
+            taxCategoryEditCancelBtn.removeEventListener('click', onCancel);
+            taxCategoryEditModal.removeEventListener('click', onOverlay);
+          };
+          const onSave = () => { const v = (taxCategoryEditInput.value || '').trim(); cleanup(); resolve(v || null); };
+          const onCancel = () => { cleanup(); resolve(null); };
+          const onOverlay = (e) => { if (e.target === taxCategoryEditModal) onCancel(); };
+
+          taxCategoryEditSaveBtn.addEventListener('click', onSave);
+          taxCategoryEditCancelBtn.addEventListener('click', onCancel);
+          taxCategoryEditModal.addEventListener('click', onOverlay);
+        });
+      }
+
       function renderCategoryManagerLists() {
         if (!expenseCategoriesListEl || !incomeCategoriesListEl) return;
-        expenseCategoriesListEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="expense" data-cat-name="${escHtml(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="expense" data-cat-name="${escHtml(c)}">Delete</button></div>`).join('');
-        incomeCategoriesListEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="income" data-cat-name="${escHtml(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="income" data-cat-name="${escHtml(c)}">Delete</button></div>`).join('');
+        expenseCategoriesListEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="expense" data-cat-name="${encodeURIComponent(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="expense" data-cat-name="${encodeURIComponent(c)}">Delete</button></div>`).join('');
+        incomeCategoriesListEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<div style="display:flex; gap:.35rem; align-items:center;"><span style="flex:1;">${escHtml(c)}</span><button type="button" class="btn" data-cat-edit="income" data-cat-name="${encodeURIComponent(c)}">Edit</button><button type="button" class="btn delete" data-cat-del="income" data-cat-name="${encodeURIComponent(c)}">Delete</button></div>`).join('');
 
         (taxCategoryModal || document).querySelectorAll('[data-cat-edit]').forEach((btn) => {
           btn.addEventListener('click', async () => {
             const type = btn.getAttribute('data-cat-edit');
-            const oldName = btn.getAttribute('data-cat-name') || '';
-            const newName = prompt(`Rename category "${oldName}" to:`)?.trim();
+            const oldName = decodeURIComponent(btn.getAttribute('data-cat-name') || '');
+            const newName = await openCategoryEditModal(oldName);
             if (!newName || newName === oldName) return;
             const list = type === 'income' ? TAX_INCOME_CATEGORIES : TAX_EXPENSE_CATEGORIES;
             if (list.some(c => c.toLowerCase() === newName.toLowerCase())) {
@@ -1741,7 +1782,7 @@
         (taxCategoryModal || document).querySelectorAll('[data-cat-del]').forEach((btn) => {
           btn.addEventListener('click', async () => {
             const type = btn.getAttribute('data-cat-del');
-            const name = btn.getAttribute('data-cat-name') || '';
+            const name = decodeURIComponent(btn.getAttribute('data-cat-name') || '');
             const rows = type === 'income' ? (loadedTaxData.income || []) : (loadedTaxData.expenses || []);
             if (rows.some(r => String(r.category || '') === name)) {
               openErrorModal(`Can't delete "${name}". Reclassify transactions in this category before deleting it.`);
