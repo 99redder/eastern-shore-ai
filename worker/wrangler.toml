@@ -4,7 +4,7 @@ compatibility_date = "2026-02-15"
 
 [vars]
 ALLOWED_ORIGINS = "https://easternshore.ai,https://www.easternshore.ai"
-TO_EMAIL = "easternshoreai@outlook.com"
+TO_EMAIL = "99joefromalamo@gmail.com"
 FROM_EMAIL = "noreply@easternshore.ai"
 
 [[d1_databases]]
