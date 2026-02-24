@@ -182,30 +182,6 @@
       opacity: 0.15;
       pointer-events: none;
     }
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: -55% 0 0 0;
-      pointer-events: none;
-      opacity: 0.48;
-      background-image:
-        linear-gradient(182deg, rgba(255, 79, 216, 0) 0%, rgba(255, 79, 216, 0.8) 55%, rgba(255, 79, 216, 0) 100%),
-        linear-gradient(182deg, rgba(255, 79, 216, 0) 0%, rgba(255, 79, 216, 0.7) 55%, rgba(255, 79, 216, 0) 100%),
-        linear-gradient(182deg, rgba(255, 79, 216, 0) 0%, rgba(255, 79, 216, 0.62) 55%, rgba(255, 79, 216, 0) 100%);
-      background-size: 2px 48px, 2px 40px, 1px 34px;
-      background-position:
-        4% -20%, 8% -60%, 12% -30%, 16% -75%, 20% -40%, 24% -15%, 28% -50%, 32% -80%,
-        36% -22%, 40% -65%, 44% -35%, 48% -8%, 52% -55%, 56% -25%, 60% -70%, 64% -18%,
-        68% -45%, 72% -85%, 76% -30%, 80% -12%, 84% -58%, 88% -28%, 92% -72%, 96% -20%;
-      background-repeat: repeat-y;
-      animation: neon-rain-pour 2.2s linear infinite;
-      mix-blend-mode: screen;
-      filter: drop-shadow(0 0 4px rgba(255, 79, 216, 0.45));
-    }
-    @keyframes neon-rain-pour {
-      from { transform: translateY(-8%); }
-      to { transform: translateY(75%); }
-    }
     .hero-content {
       position: relative;
       max-width: 800px;
