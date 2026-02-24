@@ -571,14 +571,25 @@
       border-color: var(--cyan);
       box-shadow: 0 0 14px rgba(0, 229, 255, 0.2);
     }
+    .portfolio-image-link {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: var(--bg);
+    }
     .portfolio-preview img {
       width: 100%;
       height: 500px;
       display: block;
-      border: 1px solid var(--line);
       object-fit: contain;
       object-position: center;
       background: var(--bg);
+      transition: transform 0.28s ease;
+      transform-origin: center center;
+    }
+    .portfolio-image-link:hover img {
+      transform: scale(1.12);
     }
     .portfolio-details ul {
       margin: 0;
@@ -809,7 +820,7 @@
 
       <div class="portfolio-preview">
         <a id="portfolio-link" class="portfolio-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a>
-        <a id="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
+        <a id="portfolio-image-link" class="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
           <img id="portfolio-image" src="/portfolio-stockstickies.png" alt="Stock Stickies screenshot" loading="lazy" decoding="async" />
         </a>
         <a href="#" class="btn btn-primary quote-trigger portfolio-cta">Get Your Free Quote Now</a>
