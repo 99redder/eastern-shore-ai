@@ -182,10 +182,58 @@
       opacity: 0.15;
       pointer-events: none;
     }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: -120% 0 0 0;
+      pointer-events: none;
+      opacity: 0.55;
+      background-image:
+        repeating-linear-gradient(
+          182deg,
+          rgba(255, 79, 216, 0) 0,
+          rgba(255, 79, 216, 0) 18px,
+          rgba(255, 79, 216, 0.38) 19px,
+          rgba(255, 79, 216, 0) 23px
+        ),
+        repeating-linear-gradient(
+          178deg,
+          rgba(255, 79, 216, 0) 0,
+          rgba(255, 79, 216, 0) 28px,
+          rgba(255, 79, 216, 0.22) 29px,
+          rgba(255, 79, 216, 0) 36px
+        );
+      background-size: 140px 180px, 200px 260px;
+      animation: neon-rain-fall 10s linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes neon-rain-fall {
+      from { transform: translateY(-20%); }
+      to { transform: translateY(40%); }
+    }
     .hero-content {
       position: relative;
-      max-width: 800px;
+      max-width: 1100px;
       margin: 0 auto;
+    }
+    .hero-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 2rem;
+      align-items: center;
+      text-align: left;
+    }
+    .hero-copy { position: relative; z-index: 1; }
+    .hero-art {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border: 1px solid rgba(255, 79, 216, 0.45);
+      clip-path: var(--cut-card);
+      background: radial-gradient(circle at 30% 20%, rgba(255,79,216,0.18), rgba(10,11,16,0.6));
+      box-shadow: 0 0 30px rgba(255, 79, 216, 0.2);
+      position: relative;
+      z-index: 1;
+      cursor: crosshair;
     }
     .hero h1 {
       font-size: clamp(2rem, 5vw, 3.5rem);
@@ -203,12 +251,12 @@
       font-size: 1.2rem;
       color: var(--muted);
       max-width: 600px;
-      margin: 0 auto 2rem;
+      margin: 0 0 2rem;
     }
     .hero-buttons {
       display: flex;
       gap: 1rem;
-      justify-content: center;
+      justify-content: flex-start;
       flex-wrap: wrap;
     }
     .btn {
@@ -250,7 +298,7 @@
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
       max-width: 900px;
-      margin: 3rem auto 0;
+      margin: 2.2rem auto 0;
       padding: 2rem;
       background: var(--card);
       border-radius: 0;
@@ -513,6 +561,11 @@
 
       /* Rest of mobile adjustments */
       .hero { padding: 100px 1rem 60px; }
+      .hero-main { grid-template-columns: 1fr; text-align: center; }
+      .hero-copy { text-align: center; }
+      .hero p { margin: 0 auto 2rem; }
+      .hero-buttons { justify-content: center; }
+      .hero-art { max-width: 320px; margin: 0 auto; }
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
       .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
@@ -541,11 +594,16 @@
 
   <section class="hero">
     <div class="hero-content">
-      <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
-      <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
-      <div class="hero-buttons">
-        <a href="#" class="btn btn-primary quote-trigger">Get Your Free Assessment</a>
-        <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+      <div class="hero-main">
+        <div class="hero-copy">
+          <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
+          <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
+          <div class="hero-buttons">
+            <a href="#" class="btn btn-primary quote-trigger">Get Your Free Assessment</a>
+            <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+          </div>
+        </div>
+        <canvas id="ai-being-canvas" class="hero-art" aria-label="Interactive AI visual"></canvas>
       </div>
       <div class="stats">
         <div class="stat">
@@ -869,6 +927,130 @@
       statusModalMessage.textContent = message;
       statusModal.style.display = 'flex';
     };
+
+    (function initHeroBeing() {
+      const canvas = document.getElementById('ai-being-canvas');
+      if (!canvas) return;
+      const gl = canvas.getContext('webgl', { antialias: true, alpha: true });
+      if (!gl) return;
+
+      const vsrc = `
+        attribute vec2 a_pos;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = a_pos * 0.5 + 0.5;
+          gl_Position = vec4(a_pos, 0.0, 1.0);
+        }
+      `;
+      const fsrc = `
+        precision mediump float;
+        varying vec2 v_uv;
+        uniform vec2 u_res;
+        uniform vec2 u_mouse;
+        uniform float u_time;
+
+        float ring(vec2 p, float r, float w) {
+          float d = abs(length(p) - r);
+          return smoothstep(w, 0.0, d);
+        }
+
+        void main() {
+          vec2 uv = (v_uv - 0.5) * vec2(u_res.x / u_res.y, 1.0);
+          vec2 mouse = (u_mouse - 0.5) * vec2(u_res.x / u_res.y, 1.0);
+
+          float pulse = 0.11 * sin(u_time * 1.7);
+          vec2 drift = vec2(0.06 * sin(u_time * 0.6), 0.05 * cos(u_time * 0.8));
+          vec2 headP = uv - drift;
+
+          float head = smoothstep(0.38 + pulse, 0.33 + pulse, length(headP));
+          float shell = ring(headP, 0.38 + pulse, 0.012);
+          float eyeL = smoothstep(0.055, 0.0, length(headP - vec2(-0.11, 0.06)));
+          float eyeR = smoothstep(0.055, 0.0, length(headP - vec2(0.11, 0.06)));
+          float core = smoothstep(0.07, 0.0, length(uv - mouse * 0.45));
+
+          float aura = ring(uv, 0.49 + 0.02 * sin(u_time * 0.9), 0.05);
+          vec3 bg = vec3(0.03, 0.04, 0.08) + 0.12 * aura * vec3(0.2, 0.8, 1.0);
+
+          vec3 headCol = mix(vec3(0.07, 0.96, 1.0), vec3(1.0, 0.2, 0.8), 0.35 + 0.35 * sin(u_time));
+          vec3 color = bg;
+          color += head * headCol * 0.55;
+          color += shell * vec3(1.0, 0.32, 0.88) * 1.5;
+          color += (eyeL + eyeR) * vec3(0.05, 0.95, 1.0) * 1.2;
+          color += core * vec3(1.0, 0.25, 0.8) * 1.5;
+
+          float vignette = smoothstep(1.05, 0.2, length(uv));
+          color *= vignette;
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `;
+
+      function compile(type, src) {
+        const sh = gl.createShader(type);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh) || 'Shader compile error');
+        return sh;
+      }
+
+      const prog = gl.createProgram();
+      gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsrc));
+      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsrc));
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+      gl.useProgram(prog);
+
+      const buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1, -1, 1, -1, -1, 1,
+        -1, 1, 1, -1, 1, 1
+      ]), gl.STATIC_DRAW);
+
+      const aPos = gl.getAttribLocation(prog, 'a_pos');
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+      const uRes = gl.getUniformLocation(prog, 'u_res');
+      const uTime = gl.getUniformLocation(prog, 'u_time');
+      const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+      let mouseX = 0.5;
+      let mouseY = 0.5;
+
+      function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = Math.floor(canvas.clientWidth * dpr);
+        const h = Math.floor(canvas.clientHeight * dpr);
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w;
+          canvas.height = h;
+          gl.viewport(0, 0, w, h);
+        }
+      }
+
+      canvas.addEventListener('mousemove', (e) => {
+        const r = canvas.getBoundingClientRect();
+        mouseX = (e.clientX - r.left) / r.width;
+        mouseY = 1 - (e.clientY - r.top) / r.height;
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        mouseX = 0.5;
+        mouseY = 0.5;
+      });
+
+      function draw(t) {
+        resize();
+        gl.uniform2f(uRes, canvas.width, canvas.height);
+        gl.uniform1f(uTime, t * 0.001);
+        gl.uniform2f(uMouse, mouseX, mouseY);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        requestAnimationFrame(draw);
+      }
+
+      requestAnimationFrame(draw);
+    })();
 
     const logoSwitch = document.getElementById('logo-switch');
     const resultsLogo = document.getElementById('results-logo');
