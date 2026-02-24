@@ -49,6 +49,13 @@
       --muted: #555566; --cyan: #0099bb; --violet: #8a2ec0; --pink: #d4008a; --line: #d0d0dd;
       --header-bg: #f0f0f4;
     }
+    /* ===== Rain Canvas ===== */
+    #rain-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1; pointer-events: none; opacity: 0.13;
+    }
+    body[data-theme="light"] #rain-canvas { display: none; }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -138,6 +145,37 @@
       text-decoration: none;
     }
     .header-logo span { color: var(--cyan); }
+    /* ===== Logo Glitch ===== */
+    .header-logo { position: relative; }
+    .header-logo::before,
+    .header-logo::after {
+      content: attr(data-text);
+      position: absolute; top: 0; left: 0;
+      opacity: 0; pointer-events: none;
+      font-family: inherit; font-size: inherit; font-weight: inherit;
+      letter-spacing: inherit; text-transform: inherit;
+      white-space: nowrap;
+    }
+    @keyframes glitch-top {
+      0%   { opacity: 0; }
+      10%  { opacity: 1; transform: translateX(-3px); color: var(--cyan); clip-path: polygon(0 0,100% 0,100% 40%,0 40%); }
+      30%  { transform: translateX(3px); }
+      50%  { transform: translateX(-2px); }
+      70%  { transform: translateX(1px); }
+      90%  { opacity: 1; }
+      100% { opacity: 0; transform: translateX(0); }
+    }
+    @keyframes glitch-bot {
+      0%   { opacity: 0; }
+      10%  { opacity: 1; transform: translateX(3px); color: var(--pink); clip-path: polygon(0 60%,100% 60%,100% 100%,0 100%); }
+      30%  { transform: translateX(-3px); }
+      50%  { transform: translateX(2px); }
+      70%  { transform: translateX(-1px); }
+      90%  { opacity: 1; }
+      100% { opacity: 0; transform: translateX(0); }
+    }
+    .header-logo.glitching::before { animation: glitch-top 0.55s steps(2) forwards; }
+    .header-logo.glitching::after  { animation: glitch-bot 0.55s steps(2) forwards; }
     .header-nav { display: flex; gap: 1.5rem; margin-left: auto; }
     .header-nav a {
       color: var(--muted);
@@ -183,11 +221,20 @@
       opacity: 0.15;
       pointer-events: none;
     }
+    /* ===== Hero two-column layout ===== */
+    .hero-inner {
+      display: flex; align-items: center; gap: 3rem;
+      max-width: 1300px; margin: 0 auto;
+    }
     .hero-content {
       position: relative;
-      max-width: 800px;
-      margin: 0 auto;
+      flex: 1;
     }
+    .hero-neural-wrap {
+      flex: 0 0 420px; height: 420px; position: relative;
+    }
+    #neural-canvas { width: 100%; height: 100%; cursor: grab; display: block; }
+    #neural-canvas:active { cursor: grabbing; }
     .hero h1 {
       font-size: clamp(2rem, 5vw, 3.5rem);
       font-weight: 700;
@@ -204,12 +251,12 @@
       font-size: 1.2rem;
       color: var(--muted);
       max-width: 600px;
-      margin: 0 auto 2rem;
+      margin: 0 0 2rem;
     }
     .hero-buttons {
       display: flex;
       gap: 1rem;
-      justify-content: center;
+      justify-content: flex-start;
       flex-wrap: wrap;
     }
     .btn {
@@ -514,6 +561,11 @@
 
       /* Rest of mobile adjustments */
       .hero { padding: 100px 1rem 60px; }
+      .hero-inner { flex-direction: column; gap: 0; }
+      .hero-content { text-align: center; }
+      .hero-neural-wrap { display: none; }
+      .hero p { margin: 0 auto 2rem; }
+      .hero-buttons { justify-content: center; }
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
       .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
@@ -522,10 +574,11 @@
   </style>
 </head>
 <body>
+  <canvas id="rain-canvas"></canvas>
   <header class="site-header">
     <div class="site-header-inner">
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
-      <a href="/" class="header-logo">Eastern Shore <span>AI</span></a>
+      <a href="/" class="header-logo" data-text="Eastern Shore AI">Eastern Shore <span>AI</span></a>
       <nav class="header-nav" id="header-nav">
         <a href="openclaw-setup.html" style="color:#C73E2D;">$100 OpenClaw Setup</a>
         <a href="#" class="quote-trigger">Website Design</a>
@@ -541,26 +594,31 @@
   </header>
 
   <section class="hero">
-    <div class="hero-content">
-      <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
-      <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
-      <div class="hero-buttons">
-        <a href="#" class="btn btn-primary quote-trigger">Get Your Free Assessment</a>
-        <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
+        <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
+        <div class="hero-buttons">
+          <a href="#" class="btn btn-primary quote-trigger">Get Your Free Assessment</a>
+          <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value">20+</div>
+            <div class="stat-label">Hours Saved Weekly</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">60%</div>
+            <div class="stat-label">Cost Reduction</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">3-4</div>
+            <div class="stat-label">Days to Deploy</div>
+          </div>
+        </div>
       </div>
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value">20+</div>
-          <div class="stat-label">Hours Saved Weekly</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">60%</div>
-          <div class="stat-label">Cost Reduction</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">3-4</div>
-          <div class="stat-label">Days to Deploy</div>
-        </div>
+      <div class="hero-neural-wrap">
+        <canvas id="neural-canvas"></canvas>
       </div>
     </div>
   </section>
@@ -733,6 +791,55 @@
   </div>
 
   <script>
+    // ===== Neon Rain =====
+    (function() {
+      const canvas = document.getElementById('rain-canvas');
+      const ctx = canvas.getContext('2d');
+      const CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン01*#@';
+      let cols = [], W = 0, H = 0;
+
+      function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+        const count = Math.floor(W / 22);
+        cols = Array.from({length: count}, () => ({
+          y: Math.random() * H,
+          speed: 1.5 + Math.random() * 2,
+          len: 8 + Math.floor(Math.random() * 14)
+        }));
+      }
+
+      function draw() {
+        ctx.fillStyle = 'rgba(0,0,10,0.05)';
+        ctx.fillRect(0, 0, W, H);
+        const fontSize = 14;
+        ctx.font = fontSize + 'px monospace';
+        cols.forEach((col, i) => {
+          const x = i * 22 + 6;
+          // Draw tail chars fading up
+          for (let k = 1; k < col.len; k++) {
+            const alpha = (col.len - k) / col.len * 0.6;
+            ctx.fillStyle = `rgba(255,79,216,${alpha})`;
+            const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
+            ctx.fillText(ch, x, col.y - k * fontSize);
+          }
+          // Head char — bright white-pink
+          ctx.fillStyle = '#fff';
+          ctx.fillText(CHARS[Math.floor(Math.random() * CHARS.length)], x, col.y);
+          col.y += col.speed;
+          if (col.y - col.len * fontSize > H) {
+            col.y = -fontSize * 2;
+            col.speed = 1.5 + Math.random() * 2;
+          }
+        });
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      draw();
+    })();
+
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
 
     // Modal functionality
@@ -857,6 +964,131 @@
         mobileMenuBtn.innerHTML = '&#9776;';
       });
     });
+
+    // ===== Logo Glitch =====
+    (function() {
+      const KANJI = '脳電機知能時刻数網影光速算力波形';
+      const logo = document.querySelector('.header-logo');
+      const original = 'Eastern Shore AI';
+      function triggerGlitch() {
+        let ticks = 0;
+        const scramble = setInterval(() => {
+          if (ticks++ > 6) { logo.setAttribute('data-text', original); clearInterval(scramble); return; }
+          logo.setAttribute('data-text',
+            Array.from(original).map(c =>
+              c === ' ' ? ' ' : (Math.random() > 0.45 ? KANJI[Math.floor(Math.random() * KANJI.length)] : c)
+            ).join('')
+          );
+        }, 55);
+        logo.classList.add('glitching');
+        setTimeout(() => logo.classList.remove('glitching'), 580);
+      }
+      setInterval(triggerGlitch, 10000);
+    })();
+
+    // ===== Neural Network =====
+    (function() {
+      const canvas = document.getElementById('neural-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const NODE_COUNT = 28, CONNECT_DIST = 0.62;
+      const PINK = '#ff4fd8', CYAN = '#00e5ff';
+
+      const nodes = Array.from({length: NODE_COUNT}, (_, i) => ({
+        x: (Math.random() - 0.5) * 2,
+        y: (Math.random() - 0.5) * 2,
+        z: (Math.random() - 0.5) * 2,
+        color: i % 3 === 0 ? CYAN : PINK,
+        pulse: Math.random() * Math.PI * 2
+      }));
+
+      let rotY = 0, rotX = 0.2, drag = false, lastX = 0, lastY = 0;
+
+      canvas.addEventListener('mousedown', e => { drag = true; lastX = e.clientX; lastY = e.clientY; });
+      window.addEventListener('mouseup', () => { drag = false; });
+      window.addEventListener('mousemove', e => {
+        if (!drag) return;
+        rotY += (e.clientX - lastX) * 0.01;
+        rotX = Math.max(-1.2, Math.min(1.2, rotX + (e.clientY - lastY) * 0.01));
+        lastX = e.clientX; lastY = e.clientY;
+      });
+      canvas.addEventListener('touchstart', e => { const t = e.touches[0]; drag = true; lastX = t.clientX; lastY = t.clientY; }, {passive: true});
+      window.addEventListener('touchend', () => { drag = false; });
+      window.addEventListener('touchmove', e => {
+        if (!drag) return;
+        const t = e.touches[0];
+        rotY += (t.clientX - lastX) * 0.012;
+        rotX = Math.max(-1.2, Math.min(1.2, rotX + (t.clientY - lastY) * 0.012));
+        lastX = t.clientX; lastY = t.clientY;
+      }, {passive: true});
+
+      function rotate(n) {
+        const cy = Math.cos(rotY), sy = Math.sin(rotY), cx = Math.cos(rotX), sx = Math.sin(rotX);
+        const x1 = n.x * cy + n.z * sy, z1 = -n.x * sy + n.z * cy;
+        return { x: x1, y: n.y * cx - z1 * sx, z: n.y * sx + z1 * cx };
+      }
+
+      function project(r, W, H) {
+        const fov = 3.5, s = fov / (fov + r.z + 1.5);
+        return { sx: W / 2 + r.x * s * W * 0.38, sy: H / 2 + r.y * s * H * 0.38, scale: s };
+      }
+
+      let frame = 0;
+      function draw() {
+        const W = canvas.width / devicePixelRatio, H = canvas.height / devicePixelRatio;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save(); ctx.scale(devicePixelRatio, devicePixelRatio);
+        if (!drag) rotY += 0.004;
+        frame++;
+
+        const proj = nodes.map((n, i) => {
+          const r = rotate(n), p = project(r, W, H);
+          return { ...p, color: n.color, pulse: n.pulse, idx: i, rz: r.z };
+        });
+
+        // Connections
+        for (let i = 0; i < NODE_COUNT; i++) {
+          for (let j = i + 1; j < NODE_COUNT; j++) {
+            const a = proj[i], b = proj[j];
+            const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y, dz = nodes[i].z - nodes[j].z;
+            if (dx*dx + dy*dy + dz*dz > CONNECT_DIST * CONNECT_DIST) continue;
+            const alpha = Math.round((a.scale + b.scale) / 2 * 140);
+            const hex = alpha.toString(16).padStart(2, '0');
+            const grad = ctx.createLinearGradient(a.sx, a.sy, b.sx, b.sy);
+            grad.addColorStop(0, a.color + hex);
+            grad.addColorStop(1, b.color + hex);
+            ctx.beginPath();
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = (a.scale + b.scale) / 2 * 1.5;
+            ctx.shadowBlur = 8; ctx.shadowColor = a.color;
+            ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy);
+            ctx.stroke(); ctx.shadowBlur = 0;
+          }
+        }
+
+        // Nodes (back to front)
+        [...proj].sort((a, b) => a.rz - b.rz).forEach(p => {
+          const size = p.scale * 7 + Math.sin(frame * 0.04 + nodes[p.idx].pulse) * 1.2;
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 20; ctx.shadowColor = p.color;
+          ctx.fill(); ctx.shadowBlur = 0;
+        });
+
+        ctx.restore();
+        requestAnimationFrame(draw);
+      }
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * devicePixelRatio;
+        canvas.height = rect.height * devicePixelRatio;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+      draw();
+    })();
 
     window.showStatusModal = function(title, message) {
       const statusModal = document.getElementById('status-modal');
