@@ -185,27 +185,26 @@
     .hero::after {
       content: '';
       position: absolute;
-      inset: -40% 0 0 0;
+      inset: -55% 0 0 0;
       pointer-events: none;
-      opacity: 0.34;
+      opacity: 0.48;
       background-image:
-        radial-gradient(1px 12px at 8% 14%, rgba(255, 79, 216, 0.72), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 10px at 15% 3%, rgba(255, 79, 216, 0.62), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 13px at 24% 11%, rgba(255, 79, 216, 0.7), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 9px at 33% 19%, rgba(255, 79, 216, 0.58), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 12px at 43% 7%, rgba(255, 79, 216, 0.68), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 10px at 52% 16%, rgba(255, 79, 216, 0.62), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 11px at 61% 6%, rgba(255, 79, 216, 0.66), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 9px at 71% 15%, rgba(255, 79, 216, 0.55), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 12px at 81% 10%, rgba(255, 79, 216, 0.68), rgba(255, 79, 216, 0)),
-        radial-gradient(1px 10px at 90% 4%, rgba(255, 79, 216, 0.6), rgba(255, 79, 216, 0));
-      background-size: 100% 180px;
-      animation: subtle-rain-fall 10s linear infinite;
+        linear-gradient(182deg, rgba(255, 79, 216, 0) 0%, rgba(255, 79, 216, 0.8) 55%, rgba(255, 79, 216, 0) 100%),
+        linear-gradient(182deg, rgba(255, 79, 216, 0) 0%, rgba(255, 79, 216, 0.7) 55%, rgba(255, 79, 216, 0) 100%),
+        linear-gradient(182deg, rgba(255, 79, 216, 0) 0%, rgba(255, 79, 216, 0.62) 55%, rgba(255, 79, 216, 0) 100%);
+      background-size: 2px 48px, 2px 40px, 1px 34px;
+      background-position:
+        4% -20%, 8% -60%, 12% -30%, 16% -75%, 20% -40%, 24% -15%, 28% -50%, 32% -80%,
+        36% -22%, 40% -65%, 44% -35%, 48% -8%, 52% -55%, 56% -25%, 60% -70%, 64% -18%,
+        68% -45%, 72% -85%, 76% -30%, 80% -12%, 84% -58%, 88% -28%, 92% -72%, 96% -20%;
+      background-repeat: repeat-y;
+      animation: neon-rain-pour 2.2s linear infinite;
       mix-blend-mode: screen;
+      filter: drop-shadow(0 0 4px rgba(255, 79, 216, 0.45));
     }
-    @keyframes subtle-rain-fall {
-      from { transform: translateY(-12%); }
-      to { transform: translateY(20%); }
+    @keyframes neon-rain-pour {
+      from { transform: translateY(-8%); }
+      to { transform: translateY(75%); }
     }
     .hero-content {
       position: relative;
