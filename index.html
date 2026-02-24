@@ -504,6 +504,69 @@
       text-align: center;
       padding: 5rem 1.5rem;
     }
+
+    /* Portfolio */
+    .portfolio-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 1.5rem;
+    }
+    .portfolio-section h2 {
+      font-size: 2rem;
+      margin: 0 0 0.75rem;
+      text-align: center;
+    }
+    .portfolio-section .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin: 0 0 2rem;
+    }
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) 320px;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .portfolio-list,
+    .portfolio-preview,
+    .portfolio-details {
+      background: var(--card);
+      border: 1px solid var(--line);
+      clip-path: var(--cut-card);
+      padding: 1rem;
+    }
+    .portfolio-list button {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      padding: 0.75rem 0.85rem;
+      margin-bottom: 0.5rem;
+      clip-path: var(--cut-btn);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .portfolio-list button.active {
+      border-color: var(--pink);
+      color: var(--pink);
+      box-shadow: 0 0 10px rgba(255, 79, 216, 0.2);
+    }
+    .portfolio-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid var(--line);
+    }
+    .portfolio-details ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+    .portfolio-details li {
+      margin-bottom: 0.65rem;
+      font-weight: 700;
+      color: var(--text);
+    }
     .cta h2 {
       font-size: 2rem;
       margin: 0 0 1rem;
@@ -564,6 +627,7 @@
       .hero-neural-wrap { display: none; }
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: 1fr; }
       .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
       .logo-switch { right: 0.1rem; top: -168px; }
     }
@@ -705,6 +769,32 @@
     <h2>Ready to Work Smarter?</h2>
     <p>Book a free 15-minute call. We'll show you what's possible and give you a custom quote.</p>
     <a href="#" class="btn btn-primary quote-trigger">Book Your Free Call or Site Visit</a>
+  </section>
+
+  <section class="portfolio-section" id="website-portfolio">
+    <h2>Our Website Portfolio</h2>
+    <p class="subtitle">A few recent builds and what makes each one stand out.</p>
+    <div class="portfolio-grid">
+      <div class="portfolio-list" aria-label="Portfolio projects">
+        <button type="button" class="portfolio-item active" data-project="stock">Stock Stickies</button>
+        <button type="button" class="portfolio-item" data-project="florence">Florence Mae Gifts</button>
+        <button type="button" class="portfolio-item" data-project="cbf">CBF Church</button>
+        <button type="button" class="portfolio-item" data-project="bible">Bible Planner App</button>
+      </div>
+
+      <div class="portfolio-preview">
+        <img id="portfolio-image" src="/portfolio-stockstickies.png" alt="Stock Stickies screenshot" loading="lazy" decoding="async" />
+      </div>
+
+      <div class="portfolio-details">
+        <ul id="portfolio-points">
+          <li><strong>Live market visuals</strong> with a focused trader-friendly layout.</li>
+          <li><strong>Fast glance UX</strong> for quick decision-making under pressure.</li>
+          <li><strong>Lean interface design</strong> that keeps distractions low.</li>
+          <li><strong>Built for speed</strong> across desktop and mobile screens.</li>
+        </ul>
+      </div>
+    </div>
   </section>
 
   <footer>
@@ -1282,6 +1372,73 @@
       e.preventDefault();
       document.getElementById('quote-modal').style.display = 'flex';
     });
+
+    // Portfolio switcher
+    (function() {
+      const items = document.querySelectorAll('.portfolio-item');
+      const img = document.getElementById('portfolio-image');
+      const points = document.getElementById('portfolio-points');
+      if (!items.length || !img || !points) return;
+
+      const portfolioData = {
+        stock: {
+          image: '/portfolio-stockstickies.png',
+          alt: 'Stock Stickies screenshot',
+          bullets: [
+            '<strong>Live market visuals</strong> with a focused trader-friendly layout.',
+            '<strong>Fast glance UX</strong> for quick decision-making under pressure.',
+            '<strong>Lean interface design</strong> that keeps distractions low.',
+            '<strong>Built for speed</strong> across desktop and mobile screens.'
+          ]
+        },
+        florence: {
+          image: '/portfolio-florencemaegifts.png',
+          alt: 'Florence Mae Gifts screenshot',
+          bullets: [
+            '<strong>Gift-forward storefront experience</strong> designed for emotional shopping.',
+            '<strong>Clean product storytelling</strong> that highlights craftsmanship and value.',
+            '<strong>Conversion-focused flow</strong> from browse to checkout.',
+            '<strong>Brand-consistent visuals</strong> that feel warm, premium, and memorable.'
+          ]
+        },
+        cbf: {
+          image: '/portfolio-cbfchurch.png',
+          alt: 'CBF Church screenshot',
+          bullets: [
+            '<strong>Community-centered navigation</strong> that surfaces ministries and events quickly.',
+            '<strong>Clear communication structure</strong> for announcements, service times, and updates.',
+            '<strong>Accessible layout choices</strong> for all age groups and devices.',
+            '<strong>Trust-first presentation</strong> to support outreach and member engagement.'
+          ]
+        },
+        bible: {
+          image: '/portfolio-bibleplannerapp.png',
+          alt: 'Bible Planner App screenshot',
+          bullets: [
+            '<strong>Purpose-built planning workflow</strong> for consistent spiritual routines.',
+            '<strong>Simple, habit-friendly interface</strong> that reduces friction and drop-off.',
+            '<strong>Feature set aligned to real usage</strong> instead of bloated app patterns.',
+            '<strong>Responsive app experience</strong> for smooth use on phone and desktop.'
+          ]
+        }
+      };
+
+      function render(project) {
+        const data = portfolioData[project];
+        if (!data) return;
+        img.src = data.image;
+        img.alt = data.alt;
+        points.innerHTML = data.bullets.map(b => `<li>${b}</li>`).join('');
+      }
+
+      items.forEach(btn => {
+        btn.addEventListener('click', () => {
+          items.forEach(i => i.classList.remove('active'));
+          btn.classList.add('active');
+          render(btn.dataset.project);
+        });
+      });
+    })();
   </script>
 </body>
 </html>
