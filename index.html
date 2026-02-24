@@ -1104,7 +1104,6 @@
 
       let rotY = 0, rotX = 0.2, drag = false, lastX = 0, lastY = 0;
       let hovered = false, hoverIntensity = 0;
-      let sparks = [], pulses = [];
 
       canvas.addEventListener('mousedown', e => { drag = true; lastX = e.clientX; lastY = e.clientY; });
       window.addEventListener('mouseup', () => { drag = false; });
@@ -1144,7 +1143,6 @@
         if (!drag) rotY += 0.004;
         frame++;
 
-        // Smooth hover ramp
         hoverIntensity += ((hovered ? 1 : 0) - hoverIntensity) * 0.07;
         const hi = hoverIntensity;
 
@@ -1153,62 +1151,21 @@
           return { ...p, color: n.color, pulse: n.pulse, idx: i, rz: r.z };
         });
 
-        // Spawn sparks from random nodes
-        if (hi > 0.25 && Math.random() < 0.14 * hi) {
-          const p = proj[Math.floor(Math.random() * NODE_COUNT)];
-          const count = 2 + Math.floor(Math.random() * 3);
-          for (let k = 0; k < count; k++) {
-            const angle = Math.random() * Math.PI * 2;
-            const spd = 1.8 + Math.random() * 4;
-            sparks.push({ x: p.sx, y: p.sy, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd - 0.8,
-              life: 1, decay: 0.03 + Math.random() * 0.055,
-              color: Math.random() > 0.5 ? PINK : CYAN, size: 1.2 + Math.random() * 2.2 });
-          }
-        }
-
-        // Spawn electrical pulses along connections
-        if (hi > 0.15 && frame % 10 === 0) {
-          const cands = [];
-          for (let i = 0; i < NODE_COUNT; i++)
-            for (let j = i+1; j < NODE_COUNT; j++) {
-              const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y, dz=nodes[i].z-nodes[j].z;
-              if (dx*dx+dy*dy+dz*dz <= CONNECT_DIST*CONNECT_DIST) cands.push([i,j]);
-            }
-          if (cands.length) {
-            const [i,j] = cands[Math.floor(Math.random() * cands.length)];
-            pulses.push({ fromIdx:i, toIdx:j, t:0, speed:0.045+Math.random()*0.055, color: Math.random()>0.5?PINK:CYAN });
-          }
-        }
-
         // Connections
         for (let i = 0; i < NODE_COUNT; i++) {
           for (let j = i + 1; j < NODE_COUNT; j++) {
             const a = proj[i], b = proj[j];
             const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y, dz=nodes[i].z-nodes[j].z;
             if (dx*dx+dy*dy+dz*dz > CONNECT_DIST*CONNECT_DIST) continue;
-            if (hi > 0.15 && Math.random() < hi * 0.07) continue; // flicker
             const alpha = Math.round((a.scale + b.scale) / 2 * 140);
             const hex = alpha.toString(16).padStart(2, '0');
+            const grad = ctx.createLinearGradient(a.sx, a.sy, b.sx, b.sy);
+            grad.addColorStop(0, a.color + hex); grad.addColorStop(1, b.color + hex);
             ctx.beginPath();
-            ctx.lineWidth = (a.scale + b.scale) / 2 * (1.5 + hi * 1.8);
-            ctx.shadowBlur = 8 + hi * 20; ctx.shadowColor = a.color;
-            // Jagged electrical arc when hovered
-            if (hi > 0.25 && Math.random() < hi * 0.38) {
-              ctx.strokeStyle = Math.random() > 0.5 ? PINK + 'cc' : CYAN + 'cc';
-              ctx.moveTo(a.sx, a.sy);
-              const segs = 3 + Math.floor(Math.random() * 3);
-              for (let s = 1; s < segs; s++) {
-                const t = s / segs;
-                ctx.lineTo(a.sx + (b.sx-a.sx)*t + (Math.random()-0.5)*16*hi,
-                           a.sy + (b.sy-a.sy)*t + (Math.random()-0.5)*16*hi);
-              }
-              ctx.lineTo(b.sx, b.sy);
-            } else {
-              const grad = ctx.createLinearGradient(a.sx, a.sy, b.sx, b.sy);
-              grad.addColorStop(0, a.color + hex); grad.addColorStop(1, b.color + hex);
-              ctx.strokeStyle = grad;
-              ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy);
-            }
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = (a.scale + b.scale) / 2 * 1.5;
+            ctx.shadowBlur = 6 + hi * 14; ctx.shadowColor = a.color;
+            ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy);
             ctx.stroke(); ctx.shadowBlur = 0;
           }
         }
@@ -1216,42 +1173,10 @@
         // Nodes (back to front)
         [...proj].sort((a, b) => a.rz - b.rz).forEach(p => {
           const size = p.scale * 7 + Math.sin(frame * 0.04 + nodes[p.idx].pulse) * 1.2;
-          const r = size * (1 + hi * 0.45);
-          ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+          ctx.beginPath(); ctx.arc(p.sx, p.sy, size, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
-          ctx.shadowBlur = 20 + hi * 35; ctx.shadowColor = p.color;
-          ctx.fill();
-          // Outer glow ring on hover
-          if (hi > 0.2) {
-            ctx.beginPath(); ctx.arc(p.sx, p.sy, r * (2 + hi * 0.8), 0, Math.PI * 2);
-            ctx.strokeStyle = p.color + Math.round(hi * 55).toString(16).padStart(2,'0');
-            ctx.lineWidth = 0.8; ctx.stroke();
-          }
-          ctx.shadowBlur = 0;
-        });
-
-        // Electrical pulses
-        pulses = pulses.filter(p => p.t <= 1);
-        pulses.forEach(p => {
-          const a = proj[p.fromIdx], b = proj[p.toIdx];
-          if (!a || !b) return;
-          const px = a.sx + (b.sx-a.sx)*p.t, py = a.sy + (b.sy-a.sy)*p.t;
-          ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2);
-          ctx.fillStyle = p.color; ctx.shadowBlur = 28; ctx.shadowColor = p.color;
-          ctx.fill();
-          ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2);
-          ctx.fillStyle = p.color + '28'; ctx.fill();
-          ctx.shadowBlur = 0; p.t += p.speed;
-        });
-
-        // Sparks
-        sparks = sparks.filter(s => s.life > 0);
-        sparks.forEach(s => {
-          ctx.beginPath(); ctx.arc(s.x, s.y, Math.max(0.3, s.size * s.life), 0, Math.PI * 2);
-          ctx.fillStyle = s.color + Math.round(s.life * 210).toString(16).padStart(2,'0');
-          ctx.shadowBlur = 14 * s.life; ctx.shadowColor = s.color;
+          ctx.shadowBlur = 18 + hi * 20; ctx.shadowColor = p.color;
           ctx.fill(); ctx.shadowBlur = 0;
-          s.x += s.vx; s.y += s.vy; s.vy += 0.12; s.vx *= 0.93; s.vy *= 0.97; s.life -= s.decay;
         });
 
         ctx.restore();
