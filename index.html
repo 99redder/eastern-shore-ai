@@ -507,9 +507,9 @@
 
     /* Portfolio */
     .portfolio-section {
-      max-width: 1100px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 4rem 1.5rem;
+      padding: 5rem 1.5rem;
     }
     .portfolio-section h2 {
       font-size: 2rem;
@@ -523,8 +523,8 @@
     }
     .portfolio-grid {
       display: grid;
-      grid-template-columns: 240px minmax(0, 1fr) 320px;
-      gap: 1rem;
+      grid-template-columns: 260px minmax(0, 1fr) 360px;
+      gap: 1.2rem;
       align-items: stretch;
     }
     .portfolio-list,
@@ -533,7 +533,8 @@
       background: var(--card);
       border: 1px solid var(--line);
       clip-path: var(--cut-card);
-      padding: 1rem;
+      padding: 1.2rem;
+      min-height: 420px;
     }
     .portfolio-list button {
       width: 100%;
@@ -554,9 +555,11 @@
     }
     .portfolio-preview img {
       width: 100%;
-      height: auto;
+      height: 500px;
       display: block;
       border: 1px solid var(--line);
+      object-fit: cover;
+      object-position: top center;
     }
     .portfolio-details ul {
       margin: 0;
@@ -628,6 +631,7 @@
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
       .portfolio-grid { grid-template-columns: 1fr; }
+      .portfolio-preview img { height: 340px; }
       .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
       .logo-switch { right: 0.1rem; top: -168px; }
     }
@@ -641,7 +645,7 @@
       <a href="/" class="header-logo" data-text="Eastern Shore AI">Eastern Shore <span>AI</span></a>
       <nav class="header-nav" id="header-nav">
         <a href="openclaw-setup.html" style="color:#C73E2D;">$100 OpenClaw Setup</a>
-        <a href="#" class="quote-trigger">Website Design</a>
+        <a href="#website-portfolio">Website Design</a>
         <a href="#" class="quote-trigger">AI Agent Repair</a>
         <a href="book-lessons.html">Tech Tutoring</a>
         <a href="newsletter.html">Newsletter</a>
@@ -793,6 +797,7 @@
           <li><strong>Lean interface design</strong> that keeps distractions low.</li>
           <li><strong>Built for speed</strong> across desktop and mobile screens.</li>
         </ul>
+        <a href="#" class="btn btn-primary quote-trigger" style="margin-top:1rem; width:100%; text-align:center;">Get Your Free Web Design Quote Now</a>
       </div>
     </div>
   </section>
@@ -940,7 +945,8 @@
         const text = this.textContent;
         const isRepair = text === 'AI Agent Repair';
         
-        modalTitle.textContent = text === 'Website Design' ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment') ? 'Book Your Free Call or Site Visit' : 'Get a Quote'));
+        const isWebDesignQuote = text === 'Website Design' || text === 'Get Your Free Web Design Quote Now';
+        modalTitle.textContent = isWebDesignQuote ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment') ? 'Book Your Free Call or Site Visit' : 'Get a Quote'));
         
         // Show/hide repair-specific fields
         repairFields.forEach(field => {
