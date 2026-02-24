@@ -553,13 +553,19 @@
       color: var(--pink);
       box-shadow: 0 0 10px rgba(255, 79, 216, 0.2);
     }
+    .portfolio-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .portfolio-preview img {
       width: 100%;
       height: 500px;
       display: block;
       border: 1px solid var(--line);
-      object-fit: cover;
-      object-position: top center;
+      object-fit: contain;
+      object-position: center;
+      background: var(--bg);
     }
     .portfolio-details ul {
       margin: 0;
