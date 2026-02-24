@@ -418,3 +418,84 @@ Both booking pages now share the same modal architecture:
 ### Add Expense bug fix (prior session, documented here)
 - Root cause: `body.admin-mode .success-modal-overlay { display:none !important; }` was hiding `#confirm-modal` even after `.active` was added, so the Promise-based confirm dialog never resolved
 - Fix: added `:not(#confirm-modal):not(#error-modal)` to that CSS selector so only the booking success overlay is hidden in admin mode
+
+## Session Update — 2026-02-22 (Visual effects on index.html)
+
+### Effects added to `index.html`
+- **Logo glitch** — every 10s, kanji scramble + CSS `::before`/`::after` RGB-split animation on `.header-logo`
+  - `data-text="Eastern Shore AI"` attribute on `.header-logo` anchor
+  - `@keyframes glitch-top` / `glitch-bot` with `clip-path` + `translateX`
+  - Kanji pool: `'脳電機知能時刻数網影光速算力波形'`
+  - `setInterval(triggerGlitch, 10000)` in an IIFE after theme toggle JS
+- **Neural network canvas** — 28-node 3D rotating graph, positioned `absolute right: 24px` relative to `.hero`, `430×430px`
+  - Canvas 2D, no external deps; perspective projection; drag + auto-rotate
+  - On hover: `hoverIntensity` ramp increases `shadowBlur` on nodes (+20) and connections (+14)
+  - Hidden on mobile (`max-width: 820px`)
+
+### Neon pink rain effect (currently removed, restore if needed)
+Rain was removed 2026-02-22. All code is preserved below for easy re-addition.
+
+**HTML** — first child of `<body>`:
+```html
+<canvas id="rain-canvas"></canvas>
+```
+
+**CSS** — add after the `:root` light-theme block:
+```css
+/* ===== Rain Canvas ===== */
+#rain-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1; pointer-events: none; opacity: 0.18;
+}
+body[data-theme="light"] #rain-canvas { display: none; }
+```
+
+**JS** — first IIFE inside `<script>` block (before `const CONTACT_API_URL`):
+```js
+// ===== Neon Rain =====
+(function() {
+  const canvas = document.getElementById('rain-canvas');
+  const ctx = canvas.getContext('2d');
+  let drops = [], W = 0, H = 0;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    const count = Math.floor(W / 18);
+    drops = Array.from({length: count}, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      len: 28 + Math.random() * 65,
+      speed: 14 + Math.random() * 22,
+      alpha: 0.35 + Math.random() * 0.55,
+      width: 0.8 + Math.random() * 0.8
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drops.forEach(d => {
+      const grad = ctx.createLinearGradient(d.x, d.y - d.len, d.x, d.y);
+      grad.addColorStop(0, 'rgba(255,79,216,0)');
+      grad.addColorStop(0.65, `rgba(255,79,216,${d.alpha * 0.45})`);
+      grad.addColorStop(1, `rgba(255,200,240,${d.alpha})`);
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y - d.len);
+      ctx.lineTo(d.x, d.y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = d.width;
+      ctx.stroke();
+      d.y += d.speed;
+      if (d.y - d.len > H) { d.y = -d.len; d.x = Math.random() * W; }
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+```
+
+**Notes:** Rain is hidden in light mode (`body[data-theme="light"] #rain-canvas { display: none; }`). Speed `14 + Math.random() * 22` gives fast realistic rain. Opacity `0.18` keeps it subtle. All other content already has `z-index` above 1.
