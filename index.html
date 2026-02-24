@@ -808,7 +808,9 @@
 
       <div class="portfolio-preview">
         <a id="portfolio-link" class="portfolio-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a>
-        <img id="portfolio-image" src="/portfolio-stockstickies.png" alt="Stock Stickies screenshot" loading="lazy" decoding="async" />
+        <a id="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
+          <img id="portfolio-image" src="/portfolio-stockstickies.png" alt="Stock Stickies screenshot" loading="lazy" decoding="async" />
+        </a>
       </div>
 
       <div class="portfolio-details">
@@ -1256,9 +1258,10 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
     (function() {
       const items = document.querySelectorAll('.portfolio-item');
       const img = document.getElementById('portfolio-image');
+      const imgLink = document.getElementById('portfolio-image-link');
       const points = document.getElementById('portfolio-points');
       const link = document.getElementById('portfolio-link');
-      if (!items.length || !img || !points || !link) return;
+      if (!items.length || !img || !imgLink || !points || !link) return;
 
       const portfolioData = {
         stock: {
@@ -1316,6 +1319,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
         if (!data) return;
         img.src = data.image;
         img.alt = data.alt;
+        imgLink.href = data.url;
         link.href = data.url;
         link.textContent = data.label;
         points.innerHTML = data.bullets.map(b => `<li>${b}</li>`).join('');
