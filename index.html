@@ -576,6 +576,12 @@
       font-weight: 700;
       color: var(--text);
     }
+    .portfolio-cta {
+      margin: 1.3rem auto 0;
+      width: 40%;
+      min-width: 260px;
+      text-align: center;
+    }
     .cta h2 {
       font-size: 2rem;
       margin: 0 0 1rem;
@@ -638,6 +644,7 @@
       .trust-grid { grid-template-columns: 1fr; }
       .portfolio-grid { grid-template-columns: 1fr; }
       .portfolio-preview img { height: 340px; }
+      .portfolio-cta { width: 100%; min-width: 0; }
       .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
       .logo-switch { right: 0.1rem; top: -168px; }
     }
@@ -803,9 +810,9 @@
           <li><strong>Lean interface design</strong> that keeps distractions low.</li>
           <li><strong>Built for speed</strong> across desktop and mobile screens.</li>
         </ul>
-        <a href="#" class="btn btn-primary quote-trigger" style="margin-top:1rem; width:100%; text-align:center;">Get Your Free Web Design Quote Now</a>
       </div>
     </div>
+    <a href="#" class="btn btn-primary quote-trigger portfolio-cta">Get Your Free Quote Now</a>
   </section>
 
   <footer>
@@ -951,7 +958,7 @@
         const text = this.textContent;
         const isRepair = text === 'AI Agent Repair';
         
-        const isWebDesignQuote = text === 'Website Design' || text === 'Get Your Free Web Design Quote Now';
+        const isWebDesignQuote = text === 'Website Design' || text === 'Get Your Free Web Design Quote Now' || text === 'Get Your Free Quote Now';
         modalTitle.textContent = isWebDesignQuote ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment') ? 'Book Your Free Call or Site Visit' : 'Get a Quote'));
         
         // Show/hide repair-specific fields
