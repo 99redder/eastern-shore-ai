@@ -184,29 +184,9 @@
     }
     .hero-content {
       position: relative;
-      max-width: 1100px;
+      max-width: 800px;
       margin: 0 auto;
     }
-    .hero-main {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 2rem;
-      align-items: center;
-      text-align: left;
-    }
-    .hero-copy { position: relative; z-index: 1; }
-    .hero-art {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border: none;
-      clip-path: none;
-      background: transparent;
-      box-shadow: none;
-      position: relative;
-      z-index: 1;
-      cursor: grab;
-    }
-    .hero-art:active { cursor: grabbing; }
     .hero h1 {
       font-size: clamp(2rem, 5vw, 3.5rem);
       font-weight: 700;
@@ -223,12 +203,12 @@
       font-size: 1.2rem;
       color: var(--muted);
       max-width: 600px;
-      margin: 0 0 2rem;
+      margin: 0 auto 2rem;
     }
     .hero-buttons {
       display: flex;
       gap: 1rem;
-      justify-content: flex-start;
+      justify-content: center;
       flex-wrap: wrap;
     }
     .btn {
@@ -533,11 +513,6 @@
 
       /* Rest of mobile adjustments */
       .hero { padding: 100px 1rem 60px; }
-      .hero-main { grid-template-columns: 1fr; text-align: center; }
-      .hero-copy { text-align: center; }
-      .hero p { margin: 0 auto 2rem; }
-      .hero-buttons { justify-content: center; }
-      .hero-art { max-width: 320px; margin: 0 auto; }
       .stats { grid-template-columns: 1fr 1fr; }
       .trust-grid { grid-template-columns: 1fr; }
       .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
@@ -566,16 +541,11 @@
 
   <section class="hero">
     <div class="hero-content">
-      <div class="hero-main">
-        <div class="hero-copy">
-          <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
-          <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
-          <div class="hero-buttons">
-            <a href="#" class="btn btn-primary quote-trigger">Get Your Free Assessment</a>
-            <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
-          </div>
-        </div>
-        <canvas id="ai-brain-canvas" class="hero-art" aria-label="Interactive pink pixel brain"></canvas>
+      <h1>Your Staff Works 40+ Hours a Week.<br><span class="highlight">AI Can Do It In Minutes.</span></h1>
+      <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
+      <div class="hero-buttons">
+        <a href="#" class="btn btn-primary quote-trigger">Get Your Free Assessment</a>
+        <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
       </div>
       <div class="stats">
         <div class="stat">
@@ -899,163 +869,6 @@
       statusModalMessage.textContent = message;
       statusModal.style.display = 'flex';
     };
-
-    (function initPinkBrain() {
-      const canvas = document.getElementById('ai-brain-canvas');
-      if (!canvas) return;
-      const gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: false });
-      if (!gl) return;
-
-      const vsrc = `
-        attribute vec2 a_pos;
-        varying vec2 v_uv;
-        void main() {
-          v_uv = a_pos * 0.5 + 0.5;
-          gl_Position = vec4(a_pos, 0.0, 1.0);
-        }
-      `;
-
-      const fsrc = `
-        precision mediump float;
-        varying vec2 v_uv;
-        uniform vec2 u_res;
-        uniform float u_time;
-        uniform float u_hover;
-        uniform float u_rot;
-
-        float circle(vec2 p, vec2 c, float r) {
-          return 1.0 - smoothstep(r, r + 0.006, length(p - c));
-        }
-
-        float brainShape(vec2 p) {
-          float b = 0.0;
-          b += circle(p, vec2(-0.23, 0.08), 0.20);
-          b += circle(p, vec2(-0.07, 0.20), 0.19);
-          b += circle(p, vec2(0.10, 0.21), 0.18);
-          b += circle(p, vec2(0.24, 0.09), 0.19);
-          b += circle(p, vec2(-0.20,-0.12), 0.17);
-          b += circle(p, vec2(-0.02,-0.11), 0.20);
-          b += circle(p, vec2(0.18,-0.10), 0.18);
-          b -= circle(p, vec2(0.00, 0.03), 0.055);
-          b -= circle(p, vec2(0.00,-0.09), 0.045);
-          return clamp(b, 0.0, 1.0);
-        }
-
-        float gyri(vec2 p) {
-          float lines = 0.0;
-          lines += smoothstep(0.90, 1.0, sin((p.x * 16.0) + (p.y * 7.0) + 0.7));
-          lines += smoothstep(0.92, 1.0, sin((p.x * 18.0) - (p.y * 6.0) + 1.8));
-          lines += smoothstep(0.92, 1.0, sin((p.y * 20.0) + 0.9));
-          return lines * 0.33;
-        }
-
-        void main() {
-          vec2 uv = v_uv - 0.5;
-          uv.x *= u_res.x / u_res.y;
-
-          float autoRot = u_time * 0.28;
-          float ang = autoRot + u_rot;
-          float c = cos(ang), s = sin(ang);
-          vec2 rp = vec2(c * uv.x - s * uv.y, s * uv.x + c * uv.y);
-
-          float pix = 120.0;
-          vec2 q = floor((rp + 0.5) * pix) / pix - 0.5;
-
-          float shape = brainShape(q * 1.15);
-          float folds = gyri(q * 1.25) * shape;
-
-          float glow = smoothstep(0.62, 0.15, length(rp)) * (0.18 + 0.95 * u_hover);
-          vec3 pink = vec3(1.0, 0.25, 0.78);
-          vec3 hot = vec3(1.0, 0.45, 0.9);
-
-          vec3 color = vec3(0.0);
-          color += pink * glow * 0.55;
-          color += shape * pink * (0.62 + 0.18 * sin(u_time * 2.4));
-          color += folds * hot * (0.6 + 1.0 * u_hover);
-
-          float alpha = clamp(shape * 0.95 + glow * 0.5, 0.0, 1.0);
-          gl_FragColor = vec4(color, alpha);
-        }
-      `;
-
-      function shader(type, src) {
-        const sh = gl.createShader(type);
-        gl.shaderSource(sh, src);
-        gl.compileShader(sh);
-        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh) || 'Shader compile failed');
-        return sh;
-      }
-
-      const prog = gl.createProgram();
-      gl.attachShader(prog, shader(gl.VERTEX_SHADER, vsrc));
-      gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, fsrc));
-      gl.linkProgram(prog);
-      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
-      gl.useProgram(prog);
-
-      const quad = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-        -1, -1, 1, -1, -1, 1,
-        -1, 1, 1, -1, 1, 1
-      ]), gl.STATIC_DRAW);
-
-      const aPos = gl.getAttribLocation(prog, 'a_pos');
-      gl.enableVertexAttribArray(aPos);
-      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-      const uRes = gl.getUniformLocation(prog, 'u_res');
-      const uTime = gl.getUniformLocation(prog, 'u_time');
-      const uHover = gl.getUniformLocation(prog, 'u_hover');
-      const uRot = gl.getUniformLocation(prog, 'u_rot');
-
-      let hover = 0;
-      let drag = false;
-      let rot = 0;
-      let startX = 0;
-      let startRot = 0;
-
-      canvas.addEventListener('mouseenter', () => { hover = 1; });
-      canvas.addEventListener('mouseleave', () => { hover = 0; drag = false; });
-      canvas.addEventListener('mousedown', (e) => {
-        drag = true;
-        startX = e.clientX;
-        startRot = rot;
-      });
-      window.addEventListener('mouseup', () => { drag = false; });
-      window.addEventListener('mousemove', (e) => {
-        if (!drag) return;
-        rot = startRot + (e.clientX - startX) * 0.01;
-      });
-
-      function resize() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const w = Math.floor(canvas.clientWidth * dpr);
-        const h = Math.floor(canvas.clientHeight * dpr);
-        if (canvas.width !== w || canvas.height !== h) {
-          canvas.width = w;
-          canvas.height = h;
-          gl.viewport(0, 0, w, h);
-        }
-      }
-
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-      function draw(t) {
-        resize();
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.uniform2f(uRes, canvas.width, canvas.height);
-        gl.uniform1f(uTime, t * 0.001);
-        gl.uniform1f(uHover, hover);
-        gl.uniform1f(uRot, rot);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-        requestAnimationFrame(draw);
-      }
-
-      requestAnimationFrame(draw);
-    })();
 
     const logoSwitch = document.getElementById('logo-switch');
     const resultsLogo = document.getElementById('results-logo');
