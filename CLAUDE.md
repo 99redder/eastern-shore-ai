@@ -499,3 +499,266 @@ body[data-theme="light"] #rain-canvas { display: none; }
 ```
 
 **Notes:** Rain is hidden in light mode (`body[data-theme="light"] #rain-canvas { display: none; }`). Speed `14 + Math.random() * 22` gives fast realistic rain. Opacity `0.18` keeps it subtle. All other content already has `z-index` above 1.
+
+## Circuit Board Canvas (removed 2026-02-24, restore if needed)
+
+A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to the right of the hero text. Drag to rotate (CSS 3D perspective transform). Glows on hover.
+
+### How to restore
+
+**1. CSS** — add inside `<style>` after the `.hero-content` block:
+```css
+.hero-neural-wrap {
+  position: absolute; right: max(16px, calc(50% - 620px)); top: 50%; transform: translateY(-50%);
+  width: 240px; height: 240px; z-index: 1; opacity: 0.92; pointer-events: auto;
+}
+#neural-canvas { width: 100%; height: 100%; cursor: grab; display: block; }
+#neural-canvas:active { cursor: grabbing; }
+```
+
+**2. Mobile hide** — add inside the `@media (max-width: 820px)` block:
+```css
+.hero-neural-wrap { display: none; }
+```
+
+**3. HTML** — add after the closing `</div>` of `.hero-inner`, still inside `.hero`:
+```html
+<div class="hero-neural-wrap">
+  <canvas id="neural-canvas"></canvas>
+</div>
+```
+
+**4. JS** — add as an IIFE inside `<script>`, before `window.showStatusModal`:
+```js
+// ===== Circuit Board =====
+(function() {
+  const canvas = document.getElementById('neural-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const PINK = '#ff4fd8', CYAN = '#00e5ff';
+
+  // Canonical design space: 430x430
+  const CW = 430, CH = 430;
+  const chipX = 155, chipY = 155, chipW = 120, chipH = 120;
+
+  // 5 pin positions per side (as offsets along chip edge)
+  const PO = [0.2, 0.35, 0.5, 0.65, 0.8];
+  const tPins = PO.map(t => chipX + t * chipW);
+  const lPins = PO.map(t => chipY + t * chipH);
+
+  // Trace definitions: arrays of [x,y] waypoints (90° turns only)
+  const traceData = [
+    { pts: [[tPins[0],chipY],[tPins[0],108],[78,108],[78,52]],   color: CYAN },
+    { pts: [[tPins[1],chipY],[tPins[1],88],[133,88],[133,43]],   color: PINK },
+    { pts: [[tPins[2],chipY],[tPins[2],52]],                     color: CYAN },
+    { pts: [[tPins[3],chipY],[tPins[3],73],[297,73],[297,43]],   color: PINK },
+    { pts: [[tPins[4],chipY],[tPins[4],98],[352,98],[352,52]],   color: CYAN },
+    { pts: [[tPins[0],chipY+chipH],[tPins[0],322],[78,322],[78,377]],   color: PINK },
+    { pts: [[tPins[1],chipY+chipH],[tPins[1],342],[133,342],[133,387]], color: CYAN },
+    { pts: [[tPins[2],chipY+chipH],[tPins[2],377]],                     color: PINK },
+    { pts: [[tPins[3],chipY+chipH],[tPins[3],327],[297,327],[297,387]], color: CYAN },
+    { pts: [[tPins[4],chipY+chipH],[tPins[4],312],[352,312],[352,377]], color: PINK },
+    { pts: [[chipX,lPins[0]],[108,lPins[0]],[108,78],[52,78]],   color: PINK },
+    { pts: [[chipX,lPins[1]],[88,lPins[1]],[88,133],[43,133]],   color: CYAN },
+    { pts: [[chipX,lPins[2]],[52,lPins[2]]],                     color: PINK },
+    { pts: [[chipX,lPins[3]],[98,lPins[3]],[98,307],[52,307]],   color: CYAN },
+    { pts: [[chipX,lPins[4]],[113,lPins[4]],[113,357],[52,357]], color: PINK },
+    { pts: [[chipX+chipW,lPins[0]],[322,lPins[0]],[322,78],[377,78]],   color: CYAN },
+    { pts: [[chipX+chipW,lPins[1]],[342,lPins[1]],[342,133],[387,133]], color: PINK },
+    { pts: [[chipX+chipW,lPins[2]],[377,lPins[2]]],                     color: CYAN },
+    { pts: [[chipX+chipW,lPins[3]],[327,lPins[3]],[327,307],[377,307]], color: PINK },
+    { pts: [[chipX+chipW,lPins[4]],[313,lPins[4]],[313,357],[377,357]], color: CYAN },
+  ];
+
+  function buildMeta(pts) {
+    let total = 0;
+    const segs = pts.slice(1).map((p, i) => {
+      const from = pts[i], d = Math.abs(p[0]-from[0]) + Math.abs(p[1]-from[1]);
+      const seg = { from, to: p, d, start: total };
+      total += d; return seg;
+    });
+    return { segs, total };
+  }
+  function posAt(meta, t) {
+    const target = Math.min(t, 1) * meta.total;
+    for (const s of meta.segs) {
+      if (target <= s.start + s.d) {
+        const r = s.d > 0 ? (target - s.start) / s.d : 0;
+        return [s.from[0] + (s.to[0]-s.from[0])*r, s.from[1] + (s.to[1]-s.from[1])*r];
+      }
+    }
+    return meta.segs[meta.segs.length-1].to;
+  }
+
+  const metas = traceData.map(t => buildMeta(t.pts));
+  const pulses = traceData.map((_, i) => ({
+    t: i / traceData.length,
+    speed: 0.0038 + (i % 3) * 0.0012
+  }));
+
+  // 3D rotation state (degrees)
+  let rotX = 22, rotY = -14;
+  let velX = 0, velY = 0;
+  let drag = false, lastMX = 0, lastMY = 0;
+  let hovered = false, hoverIntensity = 0, frame = 0;
+
+  canvas.addEventListener('mousedown', e => {
+    drag = true; velX = 0; velY = 0;
+    lastMX = e.clientX; lastMY = e.clientY;
+    canvas.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', () => { drag = false; canvas.style.cursor = 'grab'; });
+  window.addEventListener('mousemove', e => {
+    if (!drag) return;
+    const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
+    velY = dx * 0.45; velX = dy * 0.45;
+    rotY += velY; rotX = Math.max(-60, Math.min(60, rotX + velX));
+    lastMX = e.clientX; lastMY = e.clientY;
+  });
+  canvas.addEventListener('touchstart', e => {
+    const t = e.touches[0]; drag = true; velX = 0; velY = 0;
+    lastMX = t.clientX; lastMY = t.clientY;
+  }, {passive: true});
+  window.addEventListener('touchend', () => { drag = false; });
+  window.addEventListener('touchmove', e => {
+    if (!drag) return;
+    const t = e.touches[0];
+    const dx = t.clientX - lastMX, dy = t.clientY - lastMY;
+    velY = dx * 0.45; velX = dy * 0.45;
+    rotY += velY; rotX = Math.max(-60, Math.min(60, rotX + velX));
+    lastMX = t.clientX; lastMY = t.clientY;
+  }, {passive: true});
+
+  canvas.addEventListener('mouseenter', () => { hovered = true; });
+  canvas.addEventListener('mouseleave', () => { hovered = false; });
+
+  function draw() {
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.width / dpr, H = canvas.height / dpr;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    const sc = Math.min(W / CW, H / CH);
+    ctx.translate((W - CW*sc)/2, (H - CH*sc)/2);
+    ctx.scale(sc, sc);
+
+    frame++;
+    hoverIntensity += ((hovered ? 1 : 0) - hoverIntensity) * 0.07;
+    const hi = hoverIntensity;
+    const breathe = 0.72 + 0.28 * Math.sin(frame * 0.022);
+
+    if (!drag) {
+      velY *= 0.92;
+      velX = velX * 0.92 + (20 - rotX) * 0.006;
+      rotY += velY;
+      rotX = Math.max(-60, Math.min(60, rotX + velX));
+    }
+
+    canvas.style.transform = `perspective(700px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+
+    // Traces
+    traceData.forEach((trace, i) => {
+      const pts = trace.pts;
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
+      ctx.strokeStyle = trace.color; ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.5 + hi * 0.35;
+      ctx.shadowBlur = (4 + hi * 16) * breathe; ctx.shadowColor = trace.color;
+      ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      const last = pts[pts.length-1];
+      ctx.beginPath(); ctx.arc(last[0], last[1], 4, 0, Math.PI*2);
+      ctx.fillStyle = trace.color;
+      ctx.shadowBlur = (8 + hi * 22) * breathe; ctx.shadowColor = trace.color;
+      ctx.fill(); ctx.shadowBlur = 0;
+      for (let j = 1; j < pts.length-1; j++) {
+        ctx.beginPath(); ctx.arc(pts[j][0], pts[j][1], 2.5, 0, Math.PI*2);
+        ctx.fillStyle = trace.color + 'aa'; ctx.fill();
+      }
+    });
+
+    // Chip body
+    ctx.fillStyle = '#04060e';
+    ctx.shadowBlur = (14 + hi * 32) * breathe; ctx.shadowColor = CYAN;
+    ctx.fillRect(chipX, chipY, chipW, chipH); ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#2a7090'; ctx.lineWidth = 2;
+    ctx.shadowBlur = (8 + hi * 18) * breathe; ctx.shadowColor = CYAN;
+    ctx.strokeRect(chipX, chipY, chipW, chipH); ctx.shadowBlur = 0;
+
+    // Inner etching
+    ctx.strokeStyle = CYAN + '2a'; ctx.lineWidth = 0.8;
+    [
+      [[chipX+18,chipY+18],[chipX+52,chipY+18],[chipX+52,chipY+38],[chipX+102,chipY+38]],
+      [[chipX+18,chipY+52],[chipX+40,chipY+52],[chipX+40,chipY+70],[chipX+18,chipY+70]],
+      [[chipX+18,chipY+102],[chipX+52,chipY+102],[chipX+52,chipY+82]],
+      [[chipX+72,chipY+18],[chipX+72,chipY+62],[chipX+102,chipY+62]],
+      [[chipX+82,chipY+82],[chipX+102,chipY+82]],
+      [[chipX+52,chipY+52],[chipX+68,chipY+52]],
+    ].forEach(pts => {
+      ctx.beginPath();
+      pts.forEach(([x,y], j) => j===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+      ctx.stroke();
+    });
+    [[chipX+52,chipY+38],[chipX+72,chipY+62],[chipX+40,chipY+70],[chipX+82,chipY+82]].forEach(([x,y]) => {
+      ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = CYAN + '55'; ctx.fill();
+    });
+
+    ctx.fillStyle = CYAN + (Math.round((0.5 + hi*0.35) * 255).toString(16).padStart(2,'0'));
+    ctx.font = `bold 8px 'Orbitron', monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillText('AI-1', chipX + chipW/2, chipY + chipH/2 + 3);
+
+    // Pin connectors
+    const PL = 8, PW = 3.5;
+    ctx.fillStyle = '#7aaabb';
+    tPins.forEach(px => {
+      ctx.fillRect(px-PW/2, chipY-PL, PW, PL);
+      ctx.fillRect(px-PW/2, chipY+chipH, PW, PL);
+    });
+    lPins.forEach(py => {
+      ctx.fillRect(chipX-PL, py-PW/2, PL, PW);
+      ctx.fillRect(chipX+chipW, py-PW/2, PL, PW);
+    });
+
+    // Traveling pulses
+    pulses.forEach((pulse, i) => {
+      pulse.t += pulse.speed * (1 + hi * 0.5);
+      if (pulse.t > 1.1) pulse.t = 0;
+      if (pulse.t > 1) return;
+      const pos = posAt(metas[i], pulse.t);
+      const col = traceData[i].color;
+      ctx.beginPath(); ctx.arc(pos[0], pos[1], 3.5, 0, Math.PI*2);
+      ctx.fillStyle = col;
+      ctx.shadowBlur = 24 + hi * 14; ctx.shadowColor = col;
+      ctx.fill(); ctx.shadowBlur = 0;
+      if (pulse.t > 0.04) {
+        const tp = posAt(metas[i], Math.max(0, pulse.t - 0.05));
+        ctx.beginPath(); ctx.arc(tp[0], tp[1], 2, 0, Math.PI*2);
+        ctx.fillStyle = col + '66'; ctx.fill();
+      }
+    });
+
+    ctx.restore();
+    requestAnimationFrame(draw);
+  }
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+  }
+  window.addEventListener('resize', resize);
+  resize(); draw();
+})();
+```
+
+### Design notes
+- Canonical drawing space is 430×430; uniform-scaled to fit the canvas element
+- 20 traces total (5 per chip edge): L-shaped PCB routes in alternating pink/cyan
+- Pin stubs: 5 per side, 8×3.5px metallic rectangles along chip edges
+- `hoverIntensity` ramp: `shadowBlur` increases on traces/chip/pads on hover
+- CSS `perspective(700px) rotateX rotateY` applied to the canvas element each frame for 3D tilt
+- Drag inertia: `velX`/`velY` decay at 0.92 per frame; `rotX` gently returns to 20° default tilt
+- Hidden on mobile via `@media (max-width: 820px) { .hero-neural-wrap { display: none; } }`
