@@ -198,14 +198,15 @@
     .hero-art {
       width: 100%;
       aspect-ratio: 1 / 1;
-      border: 1px solid rgba(255, 79, 216, 0.45);
-      clip-path: var(--cut-card);
-      background: radial-gradient(circle at 30% 20%, rgba(255,79,216,0.08), rgba(10,11,16,0.72));
-      box-shadow: 0 0 24px rgba(255, 79, 216, 0.12);
+      border: none;
+      clip-path: none;
+      background: transparent;
+      box-shadow: none;
       position: relative;
       z-index: 1;
-      cursor: pointer;
+      cursor: grab;
     }
+    .hero-art:active { cursor: grabbing; }
     .hero h1 {
       font-size: clamp(2rem, 5vw, 3.5rem);
       font-weight: 700;
@@ -902,7 +903,7 @@
     (function initPinkBrain() {
       const canvas = document.getElementById('ai-brain-canvas');
       if (!canvas) return;
-      const gl = canvas.getContext('webgl', { antialias: true, alpha: true });
+      const gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: false });
       if (!gl) return;
 
       const vsrc = `
@@ -920,57 +921,60 @@
         uniform vec2 u_res;
         uniform float u_time;
         uniform float u_hover;
+        uniform float u_rot;
 
-        float pxRect(vec2 uv, vec2 c, vec2 s) {
-          vec2 d = abs(uv - c) - s;
-          float inRect = step(max(d.x, d.y), 0.0);
-          return inRect;
+        float circle(vec2 p, vec2 c, float r) {
+          return 1.0 - smoothstep(r, r + 0.006, length(p - c));
         }
 
-        float pixelBrain(vec2 uv) {
+        float brainShape(vec2 p) {
           float b = 0.0;
-          b += pxRect(uv, vec2(0.30,0.52), vec2(0.06,0.12));
-          b += pxRect(uv, vec2(0.39,0.44), vec2(0.07,0.08));
-          b += pxRect(uv, vec2(0.48,0.40), vec2(0.08,0.07));
-          b += pxRect(uv, vec2(0.58,0.43), vec2(0.07,0.08));
-          b += pxRect(uv, vec2(0.67,0.50), vec2(0.06,0.11));
-          b += pxRect(uv, vec2(0.56,0.60), vec2(0.10,0.06));
-          b += pxRect(uv, vec2(0.44,0.60), vec2(0.10,0.06));
-
-          b -= pxRect(uv, vec2(0.49,0.52), vec2(0.03,0.14));
-          b -= pxRect(uv, vec2(0.42,0.50), vec2(0.02,0.06));
-          b -= pxRect(uv, vec2(0.56,0.50), vec2(0.02,0.06));
-
+          b += circle(p, vec2(-0.23, 0.08), 0.20);
+          b += circle(p, vec2(-0.07, 0.20), 0.19);
+          b += circle(p, vec2(0.10, 0.21), 0.18);
+          b += circle(p, vec2(0.24, 0.09), 0.19);
+          b += circle(p, vec2(-0.20,-0.12), 0.17);
+          b += circle(p, vec2(-0.02,-0.11), 0.20);
+          b += circle(p, vec2(0.18,-0.10), 0.18);
+          b -= circle(p, vec2(0.00, 0.03), 0.055);
+          b -= circle(p, vec2(0.00,-0.09), 0.045);
           return clamp(b, 0.0, 1.0);
         }
 
+        float gyri(vec2 p) {
+          float lines = 0.0;
+          lines += smoothstep(0.90, 1.0, sin((p.x * 16.0) + (p.y * 7.0) + 0.7));
+          lines += smoothstep(0.92, 1.0, sin((p.x * 18.0) - (p.y * 6.0) + 1.8));
+          lines += smoothstep(0.92, 1.0, sin((p.y * 20.0) + 0.9));
+          return lines * 0.33;
+        }
+
         void main() {
-          vec2 uv = v_uv;
-          vec2 p = uv - 0.5;
-          p.x *= u_res.x / u_res.y;
+          vec2 uv = v_uv - 0.5;
+          uv.x *= u_res.x / u_res.y;
 
-          float angle = u_time * 0.45;
-          float c = cos(angle), s = sin(angle);
-          vec2 rp = vec2(c * p.x - s * p.y, s * p.x + c * p.y);
-          vec2 ruv = vec2(rp.x / (u_res.x / u_res.y), rp.y) + 0.5;
+          float autoRot = u_time * 0.28;
+          float ang = autoRot + u_rot;
+          float c = cos(ang), s = sin(ang);
+          vec2 rp = vec2(c * uv.x - s * uv.y, s * uv.x + c * uv.y);
 
-          float pix = 64.0;
-          vec2 gridUv = floor(ruv * pix) / pix;
-          float brain = pixelBrain(gridUv);
+          float pix = 120.0;
+          vec2 q = floor((rp + 0.5) * pix) / pix - 0.5;
 
-          vec3 bg = vec3(0.03, 0.04, 0.08);
-          float pulse = 0.72 + 0.28 * sin(u_time * 3.2);
-          vec3 brainCol = vec3(1.0, 0.24, 0.78) * pulse;
+          float shape = brainShape(q * 1.15);
+          float folds = gyri(q * 1.25) * shape;
 
-          float glowDist = length(ruv - vec2(0.5));
-          float glow = smoothstep(0.58, 0.1, glowDist) * (0.22 + 0.95 * u_hover);
+          float glow = smoothstep(0.62, 0.15, length(rp)) * (0.18 + 0.95 * u_hover);
+          vec3 pink = vec3(1.0, 0.25, 0.78);
+          vec3 hot = vec3(1.0, 0.45, 0.9);
 
-          vec3 color = bg;
-          color += vec3(1.0, 0.2, 0.75) * glow * 0.55;
-          color = mix(color, brainCol, brain);
-          color += brain * vec3(1.0, 0.45, 0.9) * (0.25 + 1.15 * u_hover);
+          vec3 color = vec3(0.0);
+          color += pink * glow * 0.55;
+          color += shape * pink * (0.62 + 0.18 * sin(u_time * 2.4));
+          color += folds * hot * (0.6 + 1.0 * u_hover);
 
-          gl_FragColor = vec4(color, 1.0);
+          float alpha = clamp(shape * 0.95 + glow * 0.5, 0.0, 1.0);
+          gl_FragColor = vec4(color, alpha);
         }
       `;
 
@@ -1003,10 +1007,26 @@
       const uRes = gl.getUniformLocation(prog, 'u_res');
       const uTime = gl.getUniformLocation(prog, 'u_time');
       const uHover = gl.getUniformLocation(prog, 'u_hover');
+      const uRot = gl.getUniformLocation(prog, 'u_rot');
 
       let hover = 0;
+      let drag = false;
+      let rot = 0;
+      let startX = 0;
+      let startRot = 0;
+
       canvas.addEventListener('mouseenter', () => { hover = 1; });
-      canvas.addEventListener('mouseleave', () => { hover = 0; });
+      canvas.addEventListener('mouseleave', () => { hover = 0; drag = false; });
+      canvas.addEventListener('mousedown', (e) => {
+        drag = true;
+        startX = e.clientX;
+        startRot = rot;
+      });
+      window.addEventListener('mouseup', () => { drag = false; });
+      window.addEventListener('mousemove', (e) => {
+        if (!drag) return;
+        rot = startRot + (e.clientX - startX) * 0.01;
+      });
 
       function resize() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1019,11 +1039,17 @@
         }
       }
 
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
       function draw(t) {
         resize();
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
         gl.uniform2f(uRes, canvas.width, canvas.height);
         gl.uniform1f(uTime, t * 0.001);
         gl.uniform1f(uHover, hover);
+        gl.uniform1f(uRot, rot);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         requestAnimationFrame(draw);
       }
