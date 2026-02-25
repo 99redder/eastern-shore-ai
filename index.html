@@ -327,15 +327,6 @@
       right: calc(max(16px, calc(50% - 610px)) + 340px + 10px);
       top: -165px;
     }
-    #neural-canvas {
-      position: absolute;
-      width: 260px; height: 260px;
-      right: clamp(2.4rem, 5.2vw, 4.4rem);
-      top: clamp(-310px, -21vw, -210px);
-      border-radius: 50%;
-      cursor: grab; display: block;
-    }
-    #neural-canvas:active { cursor: grabbing; }
     .section-header {
       text-align: center;
       margin-bottom: 3rem;
@@ -653,7 +644,6 @@
 
     @media (max-width: 768px) {
       .section-chip-wrap { display: none; }
-      #neural-canvas { display: none; }
       /* Show hamburger, center logo */
       .mobile-menu-btn { display: flex; }
       .site-header-inner { gap: 0; }
@@ -808,7 +798,6 @@
   </section>
 
   <section class="section results-section" id="results">
-    <canvas id="neural-canvas"></canvas>
     <div class="section-header">
       <h2>Proof This Works</h2>
       <p>Real-world outcomes from practical automation projects.</p>
@@ -1089,194 +1078,6 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       setInterval(triggerGlitch, 10000);
     })();
 
-    // ===== Globe =====
-    (function() {
-      const canvas = document.getElementById('neural-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const CYAN = '#00e5ff', PINK = '#ff4fd8';
-      const CW = 430, CH = 430, CX = 215, CY = 215, R = 172;
-
-      let rotY = 0, rotX = 18;
-      let velY = 0.28, velX = 0;
-      let drag = false, lastMX = 0, lastMY = 0;
-      let hovered = false, hoverIntensity = 0, frame = 0;
-
-      const pulses = [0, 90, 180, 270].map((lon, i) => ({
-        lon, lat: -70 + i * 35, spd: 0.65 + i * 0.22, dir: i % 2 ? -1 : 1
-      }));
-
-      function project(lat, lon) {
-        const phi = lat * Math.PI / 180;
-        const theta = (lon + rotY) * Math.PI / 180;
-        const rx = rotX * Math.PI / 180;
-        const x = Math.cos(phi) * Math.sin(theta);
-        const y = -Math.sin(phi);
-        const z = Math.cos(phi) * Math.cos(theta);
-        const y2 = y * Math.cos(rx) - z * Math.sin(rx);
-        const z2 = y * Math.sin(rx) + z * Math.cos(rx);
-        return { x2d: x * R + CX, y2d: y2 * R + CY, z: z2 };
-      }
-
-      function sample(latFn, lonFn, n) {
-        return Array.from({length: n + 1}, (_, i) => project(latFn(i / n), lonFn(i / n)));
-      }
-
-      function strokeLine(pts, frontOnly, color, lw, alpha, blur) {
-        ctx.beginPath();
-        let pen = false;
-        for (const p of pts) {
-          const show = frontOnly ? p.z >= 0 : p.z < 0;
-          if (show) {
-            if (!pen) { ctx.moveTo(p.x2d, p.y2d); pen = true; }
-            else ctx.lineTo(p.x2d, p.y2d);
-          } else pen = false;
-        }
-        ctx.strokeStyle = color; ctx.lineWidth = lw;
-        ctx.globalAlpha = alpha;
-        ctx.shadowBlur = blur; ctx.shadowColor = color;
-        ctx.stroke();
-        ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-      }
-
-      canvas.addEventListener('mousedown', e => {
-        drag = true; velY = 0; velX = 0;
-        lastMX = e.clientX; lastMY = e.clientY;
-        canvas.style.cursor = 'grabbing';
-      });
-      window.addEventListener('mouseup', () => { drag = false; canvas.style.cursor = 'grab'; });
-      window.addEventListener('mousemove', e => {
-        if (!drag) return;
-        const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
-        velY = dx * 0.55; velX = dy * 0.35;
-        rotY += velY; rotX = Math.max(-80, Math.min(80, rotX + velX));
-        lastMX = e.clientX; lastMY = e.clientY;
-      });
-      canvas.addEventListener('touchstart', e => {
-        const t = e.touches[0]; drag = true; velY = 0; velX = 0;
-        lastMX = t.clientX; lastMY = t.clientY;
-      }, {passive: true});
-      window.addEventListener('touchend', () => { drag = false; });
-      window.addEventListener('touchmove', e => {
-        if (!drag) return;
-        const t = e.touches[0];
-        const dx = t.clientX - lastMX, dy = t.clientY - lastMY;
-        velY = dx * 0.55; velX = dy * 0.35;
-        rotY += velY; rotX = Math.max(-80, Math.min(80, rotX + velX));
-        lastMX = t.clientX; lastMY = t.clientY;
-      }, {passive: true});
-      canvas.addEventListener('mouseenter', () => { hovered = true; });
-      canvas.addEventListener('mouseleave', () => { hovered = false; });
-
-      const LATS = [-60, -30, 0, 30, 60];
-      const LONS = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
-
-      function draw() {
-        const dpr = window.devicePixelRatio || 1;
-        const W = canvas.width / dpr, H = canvas.height / dpr;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.scale(dpr, dpr);
-        const sc = Math.min(W / CW, H / CH);
-        ctx.translate((W - CW * sc) / 2, (H - CH * sc) / 2);
-        ctx.scale(sc, sc);
-
-        frame++;
-        hoverIntensity += ((hovered ? 1 : 0) - hoverIntensity) * 0.07;
-        const hi = hoverIntensity;
-        const breathe = 0.82 + 0.18 * Math.sin(frame * 0.022);
-
-        if (!drag) {
-          velY = velY * 0.97 + 0.28 * 0.03;
-          velX = velX * 0.92 + (18 - rotX) * 0.008;
-          rotY += velY;
-          rotX = Math.max(-80, Math.min(80, rotX + velX));
-        }
-
-        ctx.beginPath();
-        ctx.arc(CX, CY, R + 1, 0, Math.PI * 2);
-        ctx.clip();
-
-        const grad = ctx.createRadialGradient(CX - R * 0.28, CY - R * 0.22, 0, CX, CY, R);
-        grad.addColorStop(0, '#0e1e2e');
-        grad.addColorStop(1, '#040810');
-        ctx.beginPath(); ctx.arc(CX, CY, R, 0, Math.PI * 2);
-        ctx.fillStyle = grad; ctx.fill();
-
-        LATS.forEach(lat => {
-          const pts = sample(t => lat, t => t * 360, 120);
-          strokeLine(pts, false, lat === 0 ? PINK : CYAN, 0.8, 0.06 * breathe, 0);
-        });
-        LONS.forEach(lon => {
-          const pts = sample(t => (t - 0.5) * 160, t => lon, 80);
-          strokeLine(pts, false, CYAN, 0.8, 0.06 * breathe, 0);
-        });
-
-        LATS.forEach(lat => {
-          const pts = sample(t => lat, t => t * 360, 120);
-          const eq = lat === 0;
-          strokeLine(pts, true, eq ? PINK : CYAN, eq ? 2 : 1.2,
-            ((eq ? 0.72 : 0.4) + hi * 0.28) * breathe,
-            ((eq ? 10 : 4) + hi * 14) * breathe);
-        });
-        LONS.forEach(lon => {
-          const pts = sample(t => (t - 0.5) * 160, t => lon, 80);
-          const pr = lon === 0 || lon === 180;
-          strokeLine(pts, true, pr ? PINK : CYAN, pr ? 1.5 : 1,
-            ((pr ? 0.6 : 0.3) + hi * 0.3) * breathe,
-            ((pr ? 8 : 3) + hi * 10) * breathe);
-        });
-
-        LATS.forEach(lat => {
-          LONS.forEach(lon => {
-            const p = project(lat, lon);
-            if (p.z > 0.12) {
-              const special = lat === 0 || lon === 0 || lon === 180;
-              const color = special ? PINK : CYAN;
-              ctx.beginPath(); ctx.arc(p.x2d, p.y2d, 1.8 + hi * 0.8, 0, Math.PI * 2);
-              ctx.fillStyle = color;
-              ctx.globalAlpha = (0.4 + hi * 0.4) * p.z * breathe;
-              ctx.shadowBlur = (7 + hi * 12) * breathe;
-              ctx.shadowColor = color;
-              ctx.fill();
-              ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-            }
-          });
-        });
-
-        ctx.beginPath(); ctx.arc(CX, CY, R - 1, 0, Math.PI * 2);
-        ctx.strokeStyle = CYAN; ctx.lineWidth = 2;
-        ctx.globalAlpha = (0.45 + hi * 0.4) * breathe;
-        ctx.shadowBlur = (20 + hi * 32) * breathe;
-        ctx.shadowColor = CYAN;
-        ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-
-        pulses.forEach(pulse => {
-          pulse.lat += pulse.spd * pulse.dir;
-          if (pulse.lat > 78) { pulse.lat = 78; pulse.dir = -1; }
-          if (pulse.lat < -78) { pulse.lat = -78; pulse.dir = 1; }
-          const p = project(pulse.lat, pulse.lon);
-          if (p.z > 0) {
-            ctx.beginPath(); ctx.arc(p.x2d, p.y2d, 4, 0, Math.PI * 2);
-            ctx.fillStyle = CYAN;
-            ctx.shadowBlur = 22 + hi * 16; ctx.shadowColor = CYAN;
-            ctx.fill(); ctx.shadowBlur = 0;
-          }
-        });
-
-        ctx.restore();
-        requestAnimationFrame(draw);
-      }
-
-      function resize() {
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-      }
-      window.addEventListener('resize', resize);
-      resize(); draw();
-    })();
 
 
     window.showStatusModal = function(title, message) {
