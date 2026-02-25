@@ -318,11 +318,20 @@
       height: 0;
       overflow: visible;
     }
+    .section-chip-wrap .results-logo {
+      right: max(16px, calc(50% - 610px));
+      top: -75px;
+      width: 170px;
+    }
+    .section-chip-wrap .logo-switch {
+      right: max(4px, calc(50% - 618px));
+      top: -120px;
+    }
     #neural-canvas {
       position: absolute;
       width: 260px; height: 260px;
-      right: max(16px, calc(50% - 610px));
-      top: -130px;
+      right: clamp(2.4rem, 5.2vw, 4.4rem);
+      top: clamp(-310px, -21vw, -210px);
       border-radius: 50%;
       cursor: grab; display: block;
     }
@@ -644,6 +653,7 @@
 
     @media (max-width: 768px) {
       .section-chip-wrap { display: none; }
+      #neural-canvas { display: none; }
       /* Show hamburger, center logo */
       .mobile-menu-btn { display: flex; }
       .site-header-inner { gap: 0; }
@@ -760,7 +770,12 @@
   </section>
 
   <div class="section-chip-wrap">
-    <canvas id="neural-canvas"></canvas>
+    <div class="logo-switch">
+      <button type="button" class="neon-switch off" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </div>
+    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" id="results-logo" loading="lazy" decoding="async" />
   </div>
 
   <section class="section" id="how-it-works">
@@ -793,12 +808,7 @@
   </section>
 
   <section class="section results-section" id="results">
-    <div class="logo-switch">
-      <button type="button" class="neon-switch off" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
-      </button>
-    </div>
-    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" id="results-logo" loading="lazy" decoding="async" />
+    <canvas id="neural-canvas"></canvas>
     <div class="section-header">
       <h2>Proof This Works</h2>
       <p>Real-world outcomes from practical automation projects.</p>
@@ -1079,76 +1089,58 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       setInterval(triggerGlitch, 10000);
     })();
 
-    // ===== Circuit Board =====
+    // ===== Globe =====
     (function() {
       const canvas = document.getElementById('neural-canvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const PINK = '#ff4fd8', CYAN = '#00e5ff';
+      const CYAN = '#00e5ff', PINK = '#ff4fd8';
+      const CW = 430, CH = 430, CX = 215, CY = 215, R = 172;
 
-      const CW = 430, CH = 430;
-      const chipX = 155, chipY = 155, chipW = 120, chipH = 120;
-
-      const PO = [0.2, 0.35, 0.5, 0.65, 0.8];
-      const tPins = PO.map(t => chipX + t * chipW);
-      const lPins = PO.map(t => chipY + t * chipH);
-
-      const traceData = [
-        { pts: [[tPins[0],chipY],[tPins[0],108],[78,108],[78,52]],   color: CYAN },
-        { pts: [[tPins[1],chipY],[tPins[1],88],[133,88],[133,43]],   color: PINK },
-        { pts: [[tPins[2],chipY],[tPins[2],52]],                     color: CYAN },
-        { pts: [[tPins[3],chipY],[tPins[3],73],[297,73],[297,43]],   color: PINK },
-        { pts: [[tPins[4],chipY],[tPins[4],98],[352,98],[352,52]],   color: CYAN },
-        { pts: [[tPins[0],chipY+chipH],[tPins[0],322],[78,322],[78,377]],   color: PINK },
-        { pts: [[tPins[1],chipY+chipH],[tPins[1],342],[133,342],[133,387]], color: CYAN },
-        { pts: [[tPins[2],chipY+chipH],[tPins[2],377]],                     color: PINK },
-        { pts: [[tPins[3],chipY+chipH],[tPins[3],327],[297,327],[297,387]], color: CYAN },
-        { pts: [[tPins[4],chipY+chipH],[tPins[4],312],[352,312],[352,377]], color: PINK },
-        { pts: [[chipX,lPins[0]],[108,lPins[0]],[108,78],[52,78]],   color: PINK },
-        { pts: [[chipX,lPins[1]],[88,lPins[1]],[88,133],[43,133]],   color: CYAN },
-        { pts: [[chipX,lPins[2]],[52,lPins[2]]],                     color: PINK },
-        { pts: [[chipX,lPins[3]],[98,lPins[3]],[98,307],[52,307]],   color: CYAN },
-        { pts: [[chipX,lPins[4]],[113,lPins[4]],[113,357],[52,357]], color: PINK },
-        { pts: [[chipX+chipW,lPins[0]],[322,lPins[0]],[322,78],[377,78]],   color: CYAN },
-        { pts: [[chipX+chipW,lPins[1]],[342,lPins[1]],[342,133],[387,133]], color: PINK },
-        { pts: [[chipX+chipW,lPins[2]],[377,lPins[2]]],                     color: CYAN },
-        { pts: [[chipX+chipW,lPins[3]],[327,lPins[3]],[327,307],[377,307]], color: PINK },
-        { pts: [[chipX+chipW,lPins[4]],[313,lPins[4]],[313,357],[377,357]], color: CYAN },
-      ];
-
-      function buildMeta(pts) {
-        let total = 0;
-        const segs = pts.slice(1).map((p, i) => {
-          const from = pts[i], d = Math.abs(p[0]-from[0]) + Math.abs(p[1]-from[1]);
-          const seg = { from, to: p, d, start: total };
-          total += d; return seg;
-        });
-        return { segs, total };
-      }
-      function posAt(meta, t) {
-        const target = Math.min(t, 1) * meta.total;
-        for (const s of meta.segs) {
-          if (target <= s.start + s.d) {
-            const r = s.d > 0 ? (target - s.start) / s.d : 0;
-            return [s.from[0] + (s.to[0]-s.from[0])*r, s.from[1] + (s.to[1]-s.from[1])*r];
-          }
-        }
-        return meta.segs[meta.segs.length-1].to;
-      }
-
-      const metas = traceData.map(t => buildMeta(t.pts));
-      const pulses = traceData.map((_, i) => ({
-        t: i / traceData.length,
-        speed: 0.0038 + (i % 3) * 0.0012
-      }));
-
-      let rotX = 22, rotY = -14;
-      let velX = 0, velY = 0;
+      let rotY = 0, rotX = 18;
+      let velY = 0.28, velX = 0;
       let drag = false, lastMX = 0, lastMY = 0;
       let hovered = false, hoverIntensity = 0, frame = 0;
 
+      const pulses = [0, 90, 180, 270].map((lon, i) => ({
+        lon, lat: -70 + i * 35, spd: 0.65 + i * 0.22, dir: i % 2 ? -1 : 1
+      }));
+
+      function project(lat, lon) {
+        const phi = lat * Math.PI / 180;
+        const theta = (lon + rotY) * Math.PI / 180;
+        const rx = rotX * Math.PI / 180;
+        const x = Math.cos(phi) * Math.sin(theta);
+        const y = -Math.sin(phi);
+        const z = Math.cos(phi) * Math.cos(theta);
+        const y2 = y * Math.cos(rx) - z * Math.sin(rx);
+        const z2 = y * Math.sin(rx) + z * Math.cos(rx);
+        return { x2d: x * R + CX, y2d: y2 * R + CY, z: z2 };
+      }
+
+      function sample(latFn, lonFn, n) {
+        return Array.from({length: n + 1}, (_, i) => project(latFn(i / n), lonFn(i / n)));
+      }
+
+      function strokeLine(pts, frontOnly, color, lw, alpha, blur) {
+        ctx.beginPath();
+        let pen = false;
+        for (const p of pts) {
+          const show = frontOnly ? p.z >= 0 : p.z < 0;
+          if (show) {
+            if (!pen) { ctx.moveTo(p.x2d, p.y2d); pen = true; }
+            else ctx.lineTo(p.x2d, p.y2d);
+          } else pen = false;
+        }
+        ctx.strokeStyle = color; ctx.lineWidth = lw;
+        ctx.globalAlpha = alpha;
+        ctx.shadowBlur = blur; ctx.shadowColor = color;
+        ctx.stroke();
+        ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      }
+
       canvas.addEventListener('mousedown', e => {
-        drag = true; velX = 0; velY = 0;
+        drag = true; velY = 0; velX = 0;
         lastMX = e.clientX; lastMY = e.clientY;
         canvas.style.cursor = 'grabbing';
       });
@@ -1156,12 +1148,12 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       window.addEventListener('mousemove', e => {
         if (!drag) return;
         const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
-        velY = dx * 0.45; velX = dy * 0.45;
-        rotY += velY; rotX = Math.max(-60, Math.min(60, rotX + velX));
+        velY = dx * 0.55; velX = dy * 0.35;
+        rotY += velY; rotX = Math.max(-80, Math.min(80, rotX + velX));
         lastMX = e.clientX; lastMY = e.clientY;
       });
       canvas.addEventListener('touchstart', e => {
-        const t = e.touches[0]; drag = true; velX = 0; velY = 0;
+        const t = e.touches[0]; drag = true; velY = 0; velX = 0;
         lastMX = t.clientX; lastMY = t.clientY;
       }, {passive: true});
       window.addEventListener('touchend', () => { drag = false; });
@@ -1169,13 +1161,15 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
         if (!drag) return;
         const t = e.touches[0];
         const dx = t.clientX - lastMX, dy = t.clientY - lastMY;
-        velY = dx * 0.45; velX = dy * 0.45;
-        rotY += velY; rotX = Math.max(-60, Math.min(60, rotX + velX));
+        velY = dx * 0.55; velX = dy * 0.35;
+        rotY += velY; rotX = Math.max(-80, Math.min(80, rotX + velX));
         lastMX = t.clientX; lastMY = t.clientY;
       }, {passive: true});
-
       canvas.addEventListener('mouseenter', () => { hovered = true; });
       canvas.addEventListener('mouseleave', () => { hovered = false; });
+
+      const LATS = [-60, -30, 0, 30, 60];
+      const LONS = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
 
       function draw() {
         const dpr = window.devicePixelRatio || 1;
@@ -1184,98 +1178,89 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
         ctx.save();
         ctx.scale(dpr, dpr);
         const sc = Math.min(W / CW, H / CH);
-        ctx.translate((W - CW*sc)/2, (H - CH*sc)/2);
+        ctx.translate((W - CW * sc) / 2, (H - CH * sc) / 2);
         ctx.scale(sc, sc);
 
         frame++;
         hoverIntensity += ((hovered ? 1 : 0) - hoverIntensity) * 0.07;
         const hi = hoverIntensity;
-        const breathe = 0.72 + 0.28 * Math.sin(frame * 0.022);
+        const breathe = 0.82 + 0.18 * Math.sin(frame * 0.022);
 
         if (!drag) {
-          velY *= 0.92;
-          velX = velX * 0.92 + (20 - rotX) * 0.006;
+          velY = velY * 0.97 + 0.28 * 0.03;
+          velX = velX * 0.92 + (18 - rotX) * 0.008;
           rotY += velY;
-          rotX = Math.max(-60, Math.min(60, rotX + velX));
+          rotX = Math.max(-80, Math.min(80, rotX + velX));
         }
 
-        canvas.style.transform = `perspective(700px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+        ctx.beginPath();
+        ctx.arc(CX, CY, R + 1, 0, Math.PI * 2);
+        ctx.clip();
 
-        traceData.forEach((trace, i) => {
-          const pts = trace.pts;
-          ctx.beginPath();
-          ctx.moveTo(pts[0][0], pts[0][1]);
-          for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
-          ctx.strokeStyle = trace.color; ctx.lineWidth = 1.5;
-          ctx.globalAlpha = 0.5 + hi * 0.35;
-          ctx.shadowBlur = (4 + hi * 16) * breathe; ctx.shadowColor = trace.color;
-          ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
-          const last = pts[pts.length-1];
-          ctx.beginPath(); ctx.arc(last[0], last[1], 4, 0, Math.PI*2);
-          ctx.fillStyle = trace.color;
-          ctx.shadowBlur = (8 + hi * 22) * breathe; ctx.shadowColor = trace.color;
-          ctx.fill(); ctx.shadowBlur = 0;
-          for (let j = 1; j < pts.length-1; j++) {
-            ctx.beginPath(); ctx.arc(pts[j][0], pts[j][1], 2.5, 0, Math.PI*2);
-            ctx.fillStyle = trace.color + 'aa'; ctx.fill();
-          }
+        const grad = ctx.createRadialGradient(CX - R * 0.28, CY - R * 0.22, 0, CX, CY, R);
+        grad.addColorStop(0, '#0e1e2e');
+        grad.addColorStop(1, '#040810');
+        ctx.beginPath(); ctx.arc(CX, CY, R, 0, Math.PI * 2);
+        ctx.fillStyle = grad; ctx.fill();
+
+        LATS.forEach(lat => {
+          const pts = sample(t => lat, t => t * 360, 120);
+          strokeLine(pts, false, lat === 0 ? PINK : CYAN, 0.8, 0.06 * breathe, 0);
+        });
+        LONS.forEach(lon => {
+          const pts = sample(t => (t - 0.5) * 160, t => lon, 80);
+          strokeLine(pts, false, CYAN, 0.8, 0.06 * breathe, 0);
         });
 
-        ctx.fillStyle = '#04060e';
-        ctx.shadowBlur = (14 + hi * 32) * breathe; ctx.shadowColor = CYAN;
-        ctx.fillRect(chipX, chipY, chipW, chipH); ctx.shadowBlur = 0;
-        ctx.strokeStyle = '#2a7090'; ctx.lineWidth = 2;
-        ctx.shadowBlur = (8 + hi * 18) * breathe; ctx.shadowColor = CYAN;
-        ctx.strokeRect(chipX, chipY, chipW, chipH); ctx.shadowBlur = 0;
-
-        ctx.strokeStyle = CYAN + '2a'; ctx.lineWidth = 0.8;
-        [
-          [[chipX+18,chipY+18],[chipX+52,chipY+18],[chipX+52,chipY+38],[chipX+102,chipY+38]],
-          [[chipX+18,chipY+52],[chipX+40,chipY+52],[chipX+40,chipY+70],[chipX+18,chipY+70]],
-          [[chipX+18,chipY+102],[chipX+52,chipY+102],[chipX+52,chipY+82]],
-          [[chipX+72,chipY+18],[chipX+72,chipY+62],[chipX+102,chipY+62]],
-          [[chipX+82,chipY+82],[chipX+102,chipY+82]],
-          [[chipX+52,chipY+52],[chipX+68,chipY+52]],
-        ].forEach(pts => {
-          ctx.beginPath();
-          pts.forEach(([x,y], j) => j===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
-          ctx.stroke();
+        LATS.forEach(lat => {
+          const pts = sample(t => lat, t => t * 360, 120);
+          const eq = lat === 0;
+          strokeLine(pts, true, eq ? PINK : CYAN, eq ? 2 : 1.2,
+            ((eq ? 0.72 : 0.4) + hi * 0.28) * breathe,
+            ((eq ? 10 : 4) + hi * 14) * breathe);
         });
-        [[chipX+52,chipY+38],[chipX+72,chipY+62],[chipX+40,chipY+70],[chipX+82,chipY+82]].forEach(([x,y]) => {
-          ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2);
-          ctx.fillStyle = CYAN + '55'; ctx.fill();
+        LONS.forEach(lon => {
+          const pts = sample(t => (t - 0.5) * 160, t => lon, 80);
+          const pr = lon === 0 || lon === 180;
+          strokeLine(pts, true, pr ? PINK : CYAN, pr ? 1.5 : 1,
+            ((pr ? 0.6 : 0.3) + hi * 0.3) * breathe,
+            ((pr ? 8 : 3) + hi * 10) * breathe);
         });
 
-        ctx.fillStyle = CYAN + (Math.round((0.5 + hi*0.35) * 255).toString(16).padStart(2,'0'));
-        ctx.font = `bold 8px 'Orbitron', monospace`;
-        ctx.textAlign = 'center';
-        ctx.fillText('AI-1', chipX + chipW/2, chipY + chipH/2 + 3);
-
-        const PL = 8, PW = 3.5;
-        ctx.fillStyle = '#7aaabb';
-        tPins.forEach(px => {
-          ctx.fillRect(px-PW/2, chipY-PL, PW, PL);
-          ctx.fillRect(px-PW/2, chipY+chipH, PW, PL);
+        LATS.forEach(lat => {
+          LONS.forEach(lon => {
+            const p = project(lat, lon);
+            if (p.z > 0.12) {
+              const special = lat === 0 || lon === 0 || lon === 180;
+              const color = special ? PINK : CYAN;
+              ctx.beginPath(); ctx.arc(p.x2d, p.y2d, 1.8 + hi * 0.8, 0, Math.PI * 2);
+              ctx.fillStyle = color;
+              ctx.globalAlpha = (0.4 + hi * 0.4) * p.z * breathe;
+              ctx.shadowBlur = (7 + hi * 12) * breathe;
+              ctx.shadowColor = color;
+              ctx.fill();
+              ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+            }
+          });
         });
-        lPins.forEach(py => {
-          ctx.fillRect(chipX-PL, py-PW/2, PL, PW);
-          ctx.fillRect(chipX+chipW, py-PW/2, PL, PW);
-        });
 
-        pulses.forEach((pulse, i) => {
-          pulse.t += pulse.speed * (1 + hi * 0.5);
-          if (pulse.t > 1.1) pulse.t = 0;
-          if (pulse.t > 1) return;
-          const pos = posAt(metas[i], pulse.t);
-          const col = traceData[i].color;
-          ctx.beginPath(); ctx.arc(pos[0], pos[1], 3.5, 0, Math.PI*2);
-          ctx.fillStyle = col;
-          ctx.shadowBlur = 24 + hi * 14; ctx.shadowColor = col;
-          ctx.fill(); ctx.shadowBlur = 0;
-          if (pulse.t > 0.04) {
-            const tp = posAt(metas[i], Math.max(0, pulse.t - 0.05));
-            ctx.beginPath(); ctx.arc(tp[0], tp[1], 2, 0, Math.PI*2);
-            ctx.fillStyle = col + '66'; ctx.fill();
+        ctx.beginPath(); ctx.arc(CX, CY, R - 1, 0, Math.PI * 2);
+        ctx.strokeStyle = CYAN; ctx.lineWidth = 2;
+        ctx.globalAlpha = (0.45 + hi * 0.4) * breathe;
+        ctx.shadowBlur = (20 + hi * 32) * breathe;
+        ctx.shadowColor = CYAN;
+        ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+
+        pulses.forEach(pulse => {
+          pulse.lat += pulse.spd * pulse.dir;
+          if (pulse.lat > 78) { pulse.lat = 78; pulse.dir = -1; }
+          if (pulse.lat < -78) { pulse.lat = -78; pulse.dir = 1; }
+          const p = project(pulse.lat, pulse.lon);
+          if (p.z > 0) {
+            ctx.beginPath(); ctx.arc(p.x2d, p.y2d, 4, 0, Math.PI * 2);
+            ctx.fillStyle = CYAN;
+            ctx.shadowBlur = 22 + hi * 16; ctx.shadowColor = CYAN;
+            ctx.fill(); ctx.shadowBlur = 0;
           }
         });
 
@@ -1292,6 +1277,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       window.addEventListener('resize', resize);
       resize(); draw();
     })();
+
 
     window.showStatusModal = function(title, message) {
       const statusModal = document.getElementById('status-modal');
