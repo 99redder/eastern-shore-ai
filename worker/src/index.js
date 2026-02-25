@@ -1,6 +1,7 @@
 // ===== ROUTE HANDLER INDEX =====
 // POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
 // POST /api/checkout-session    → handleCheckoutSession() — Create Stripe checkout with conflict + past-time checks
+// POST /api/zombie-bag-checkout → handleZombieBagCheckout() — Create Stripe checkout for Zombie Bag product sales
 // POST /api/stripe-webhook      → handleStripeWebhook()   — Stripe payment confirmation, records booking in D1, auto-inserts tax income
 // GET  /api/availability        → handleAvailability()    — Public unavailable slots + blocked dates
 // GET  /api/bookings            → handleBookings()        — Admin: read bookings + blocked slots + blocked days
@@ -55,7 +56,7 @@ export default {
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
-      const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
+      const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
@@ -71,6 +72,10 @@ export default {
 
     if (url.pathname === '/api/checkout-session') {
       return handleCheckoutSession(request, env, corsHeaders, originAllowed, allowedOrigins);
+    }
+
+    if (url.pathname === '/api/zombie-bag-checkout') {
+      return handleZombieBagCheckout(request, env, corsHeaders, originAllowed, allowedOrigins);
     }
 
     if (url.pathname === '/api/stripe-webhook') {
@@ -451,6 +456,79 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
         serviceConfig.key
       ).run();
     }
+  }
+
+  return json({ ok: true, checkoutUrl: stripeData.url, id: stripeData.id }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/zombie-bag-checkout — Create Stripe checkout for Zombie Bag ecommerce purchase
+ * @param {Request} request - optional JSON body
+ * @param {Object} env - Worker env (STRIPE_SECRET_KEY)
+ * @returns {Response} {ok: true, checkoutUrl, id} or error
+ */
+async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed, allowedOrigins) {
+  if (!env.STRIPE_SECRET_KEY) {
+    return json({ ok: false, error: 'Stripe not configured' }, 500, corsHeaders);
+  }
+
+  let data = {};
+  try {
+    data = await request.json();
+  } catch {
+    data = {};
+  }
+
+  const bagColor = (data.bagColor || 'not_selected').toString().trim().toLowerCase();
+
+  const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
+  const successUrl = `${siteOrigin}/zombies.html?paid=1`;
+  const cancelUrl = `${siteOrigin}/zombies.html?canceled=1`;
+
+  const body = new URLSearchParams({
+    mode: 'payment',
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    billing_address_collection: 'required',
+    'shipping_address_collection[allowed_countries][0]': 'US',
+    'line_items[0][price_data][currency]': 'usd',
+    'line_items[0][price_data][unit_amount]': '14999',
+    'line_items[0][price_data][product_data][name]': 'Zombie Bag',
+    'line_items[0][price_data][product_data][description]': 'Android tablet + solar charger + go bag with pre-installed emergency apps',
+    'line_items[0][quantity]': '1',
+    'shipping_options[0][shipping_rate_data][type]': 'fixed_amount',
+    'shipping_options[0][shipping_rate_data][fixed_amount][amount]': '0',
+    'shipping_options[0][shipping_rate_data][fixed_amount][currency]': 'usd',
+    'shipping_options[0][shipping_rate_data][display_name]': 'Free Delivery (Eastern Shore, MD area)',
+    'shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]': 'business_day',
+    'shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]': '1',
+    'shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]': 'business_day',
+    'shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]': '3',
+    'shipping_options[1][shipping_rate_data][type]': 'fixed_amount',
+    'shipping_options[1][shipping_rate_data][fixed_amount][amount]': '1999',
+    'shipping_options[1][shipping_rate_data][fixed_amount][currency]': 'usd',
+    'shipping_options[1][shipping_rate_data][display_name]': 'Continental U.S. Shipping',
+    'shipping_options[1][shipping_rate_data][delivery_estimate][minimum][unit]': 'business_day',
+    'shipping_options[1][shipping_rate_data][delivery_estimate][minimum][value]': '3',
+    'shipping_options[1][shipping_rate_data][delivery_estimate][maximum][unit]': 'business_day',
+    'shipping_options[1][shipping_rate_data][delivery_estimate][maximum][value]': '7',
+    'metadata[product]': 'zombie_bag',
+    'metadata[unit_price_cents]': '14999',
+    'metadata[bag_color]': bagColor
+  });
+
+  const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: body.toString()
+  });
+
+  const stripeData = await stripeRes.json().catch(() => ({}));
+  if (!stripeRes.ok) {
+    return json({ ok: false, error: 'Stripe session failed', detail: stripeData }, 502, corsHeaders);
   }
 
   return json({ ok: true, checkoutUrl: stripeData.url, id: stripeData.id }, 200, corsHeaders);

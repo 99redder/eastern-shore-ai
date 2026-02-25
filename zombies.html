@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zombie Bag | Eastern Shore AI</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --card: #121420;
+      --line: #272b3f;
+      --text: #e8ebf5;
+      --muted: #9aa1ba;
+      --cyan: #00e5ff;
+      --violet: #c850ff;
+      --ok: #49e6a1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top right, #151936 0%, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
+    .sub { color: var(--muted); margin-bottom: 1.5rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+      padding: 1rem;
+    }
+    .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.2rem; }
+    ul { padding-left: 1.15rem; margin-top: .6rem; }
+    li { margin: .45rem 0; }
+    .img-grid {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: .7rem;
+    }
+    .shot {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #090b12;
+    }
+    .shot img { width: 100%; display: block; aspect-ratio: 16 / 10; object-fit: cover; }
+    .shot figcaption { font-size: .78rem; color: var(--muted); padding: .45rem .55rem; }
+    .price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ok);
+      margin: .2rem 0 .4rem;
+    }
+    .small { color: var(--muted); font-size: .9rem; }
+    .pill {
+      display: inline-block;
+      padding: .3rem .55rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .78rem;
+      margin-bottom: .75rem;
+    }
+    label { display: block; font-size: .92rem; color: var(--muted); margin-bottom: .35rem; }
+    select {
+      width: 100%;
+      background: #0c0f1b;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: .75rem;
+      margin-bottom: .9rem;
+    }
+    .btn {
+      width: 100%;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: .01em;
+      padding: .88rem 1rem;
+      color: #071219;
+      background: linear-gradient(90deg, var(--cyan), #6ef4ff);
+      border-radius: 8px;
+    }
+    .btn:hover { filter: brightness(1.06); }
+    .status { margin-top: .7rem; min-height: 1.2rem; color: var(--muted); font-size: .88rem; }
+    .note { margin-top: .8rem; font-size: .84rem; color: var(--muted); }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Zombie Bag</h1>
+    <div class="sub">Pre-launch product page. Checkout is active for testing and early purchase flow.</div>
+
+    <section class="grid">
+      <article class="card">
+        <h2>What You Get</h2>
+        <ul>
+          <li>(1) Android Tablet</li>
+          <li>(1) Solar Powered Battery Charger</li>
+          <li>(1) Go Bag (available in camo, black, or olive green)</li>
+          <li>Ships to all continental US states, shipping added at checkout.</li>
+          <li><strong>Free Delivery in the Eastern Shore MD area.</strong></li>
+          <li>Pre-installed: Petals, two LLMs (one large, one small), OpenMaps application with all of the United States maps preloaded, Red Cross First Aid App.</li>
+          <li>Note: additional programs were deleted from this tablet to add storage space.</li>
+          <li>A get started application on the main screen is installed that walks users through setup, troubleshooting, updating, and more.</li>
+          <li>Free technical support is included for 30 days.</li>
+        </ul>
+
+        <div class="img-grid">
+          <figure class="shot">
+            <img src="https://picsum.photos/seed/zombiebag1/900/600" alt="Placeholder screenshot 1" />
+            <figcaption>Placeholder screenshot — hardware layout</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="https://picsum.photos/seed/zombiebag2/900/600" alt="Placeholder screenshot 2" />
+            <figcaption>Placeholder screenshot — software setup flow</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="https://picsum.photos/seed/zombiebag3/900/600" alt="Placeholder screenshot 3" />
+            <figcaption>Placeholder screenshot — bag & charger</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="https://picsum.photos/seed/zombiebag4/900/600" alt="Placeholder screenshot 4" />
+            <figcaption>Placeholder screenshot — in-field view</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <aside class="card">
+        <span class="pill">Pre-launch checkout</span>
+        <h2>Checkout</h2>
+        <div class="price">$149.99 <span class="small">+ shipping</span></div>
+        <p class="small">Price is TBD long-term. Using $149.99 for now.</p>
+        <p class="small">Eastern Shore MD area customers can select free local delivery at checkout.</p>
+
+        <label for="bag-color">Go Bag Color</label>
+        <select id="bag-color">
+          <option value="camo">Camo</option>
+          <option value="black">Black</option>
+          <option value="olive green">Olive Green</option>
+        </select>
+
+        <button id="buy-btn" class="btn" type="button">Buy Zombie Bag</button>
+        <div class="status" id="status"></div>
+        <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout.</div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+    const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
+
+    const btn = document.getElementById('buy-btn');
+    const status = document.getElementById('status');
+    const colorEl = document.getElementById('bag-color');
+
+    btn.addEventListener('click', async () => {
+      status.textContent = 'Redirecting to secure checkout...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(ZOMBIE_CHECKOUT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bagColor: colorEl.value })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok || !data.checkoutUrl) {
+          throw new Error(data.error || 'Could not create checkout session.');
+        }
+
+        window.location.href = data.checkoutUrl;
+      } catch (err) {
+        status.textContent = err.message || 'Could not start checkout. Please try again.';
+        btn.disabled = false;
+      }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === '1') {
+      status.textContent = 'Payment complete — thank you for your order!';
+    } else if (params.get('canceled') === '1') {
+      status.textContent = 'Checkout canceled. You can try again any time.';
+    }
+  </script>
+</body>
+</html>
