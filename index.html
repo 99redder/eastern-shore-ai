@@ -944,15 +944,27 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
     const callbackPreferenceEl = document.getElementById('callback-preference');
     const callbackDatetimeEl = document.getElementById('callback-datetime');
     
+    let currentRequestType = 'General Quote';
+
+    function resolveRequestType(triggerText = '') {
+      const text = triggerText.trim();
+      if (text === 'AI Agent Repair') return 'AI Agent Repair Quote';
+      if (text === 'Get Your Free Assessment' || text === 'Book Your Free Call or Site Visit') return 'AI Automation Quote';
+      if (text === 'Website Design' || text === 'Get Your Free Website Design Quote Now' || text === 'Get Your Free Quote Now') return 'Website Quote';
+      return 'General Quote';
+    }
+
     document.querySelectorAll('.quote-trigger').forEach(link => {
       link.addEventListener('click', function(e) {
         e.preventDefault();
         const text = this.textContent;
         const isRepair = text === 'AI Agent Repair';
-        
-        const isWebDesignQuote = text === 'Website Design' || text === 'Get Your Free Web Design Quote Now' || text === 'Get Your Free Quote Now';
+
+        currentRequestType = resolveRequestType(text);
+
+        const isWebDesignQuote = currentRequestType === 'Website Quote';
         modalTitle.textContent = isWebDesignQuote ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment') ? 'Book Your Free Call or Site Visit' : 'Get a Quote'));
-        
+
         // Show/hide repair-specific fields
         repairFields.forEach(field => {
           field.style.display = isRepair ? 'block' : 'none';
@@ -987,7 +999,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       e.preventDefault();
       const formData = new FormData(form);
       const repairOs = formData.get('operating-system') || 'Not specified';
-      const contextTitle = modalTitle.textContent || 'Get a Quote';
+      const contextTitle = currentRequestType || modalTitle.textContent || 'General Quote';
       const callbackPref = formData.get('callback-preference') || 'Not specified';
       const callbackDate = formData.get('callback-datetime') || 'Not specified';
       const message =
