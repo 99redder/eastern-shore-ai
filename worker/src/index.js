@@ -480,6 +480,8 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   }
 
   const bagColor = (data.bagColor || 'not_selected').toString().trim().toLowerCase();
+  const checkoutType = (data.checkoutType || 'zombie_bag').toString().trim().toLowerCase();
+  const isByogSetup = checkoutType === 'byog_setup';
 
   const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
   const successUrl = `${siteOrigin}/zombies.html?paid=1`;
@@ -490,32 +492,36 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     success_url: successUrl,
     cancel_url: cancelUrl,
     billing_address_collection: 'required',
-    'shipping_address_collection[allowed_countries][0]': 'US',
     'line_items[0][price_data][currency]': 'usd',
-    'line_items[0][price_data][unit_amount]': '14999',
-    'line_items[0][price_data][product_data][name]': 'Zombie Bag',
-    'line_items[0][price_data][product_data][description]': 'Android tablet + solar charger + go bag with pre-installed emergency apps',
+    'line_items[0][price_data][unit_amount]': isByogSetup ? '4999' : '14999',
+    'line_items[0][price_data][product_data][name]': isByogSetup ? 'Zombie Bag BYOG Setup-Only Service' : 'Zombie Bag',
+    'line_items[0][price_data][product_data][description]': isByogSetup ? 'Bring your own gear setup-only service' : 'Android tablet + solar charger + go bag with pre-installed emergency apps',
     'line_items[0][quantity]': '1',
-    'shipping_options[0][shipping_rate_data][type]': 'fixed_amount',
-    'shipping_options[0][shipping_rate_data][fixed_amount][amount]': '0',
-    'shipping_options[0][shipping_rate_data][fixed_amount][currency]': 'usd',
-    'shipping_options[0][shipping_rate_data][display_name]': 'Free Delivery (Eastern Shore, MD area)',
-    'shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]': 'business_day',
-    'shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]': '1',
-    'shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]': 'business_day',
-    'shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]': '3',
-    'shipping_options[1][shipping_rate_data][type]': 'fixed_amount',
-    'shipping_options[1][shipping_rate_data][fixed_amount][amount]': '1999',
-    'shipping_options[1][shipping_rate_data][fixed_amount][currency]': 'usd',
-    'shipping_options[1][shipping_rate_data][display_name]': 'Continental U.S. Shipping',
-    'shipping_options[1][shipping_rate_data][delivery_estimate][minimum][unit]': 'business_day',
-    'shipping_options[1][shipping_rate_data][delivery_estimate][minimum][value]': '3',
-    'shipping_options[1][shipping_rate_data][delivery_estimate][maximum][unit]': 'business_day',
-    'shipping_options[1][shipping_rate_data][delivery_estimate][maximum][value]': '7',
-    'metadata[product]': 'zombie_bag',
-    'metadata[unit_price_cents]': '14999',
-    'metadata[bag_color]': bagColor
+    'metadata[product]': isByogSetup ? 'zombie_bag_byog_setup' : 'zombie_bag',
+    'metadata[unit_price_cents]': isByogSetup ? '4999' : '14999',
+    'metadata[bag_color]': bagColor,
+    'metadata[checkout_type]': isByogSetup ? 'byog_setup' : 'zombie_bag'
   });
+
+  if (!isByogSetup) {
+    body.set('shipping_address_collection[allowed_countries][0]', 'US');
+    body.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
+    body.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', '0');
+    body.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'usd');
+    body.set('shipping_options[0][shipping_rate_data][display_name]', 'Free Delivery (Eastern Shore, MD area)');
+    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
+    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', '1');
+    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
+    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '3');
+    body.set('shipping_options[1][shipping_rate_data][type]', 'fixed_amount');
+    body.set('shipping_options[1][shipping_rate_data][fixed_amount][amount]', '1999');
+    body.set('shipping_options[1][shipping_rate_data][fixed_amount][currency]', 'usd');
+    body.set('shipping_options[1][shipping_rate_data][display_name]', 'Continental U.S. Shipping');
+    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
+    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][minimum][value]', '3');
+    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
+    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][maximum][value]', '7');
+  }
 
   const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',

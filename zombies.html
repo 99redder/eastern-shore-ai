@@ -210,8 +210,16 @@
         </select>
 
         <button id="buy-btn" class="btn" type="button">Buy Zombie Bag</button>
+
+        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line);">
+          <h3 style="margin:0 0 .35rem; color:var(--cyan); font-size:1rem;">BYOG Setup-Only</h3>
+          <p class="small" style="margin:.25rem 0 .6rem;">Bring your own gear (BYOG) and we handle setup only.</p>
+          <div class="price" style="font-size:1.2rem; margin-bottom:.55rem;">$49.99 <span class="small">setup service</span></div>
+          <button id="byog-btn" class="btn" type="button">BYOG Setup Only — $49.99</button>
+        </div>
+
         <div class="status" id="status"></div>
-        <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout.</div>
+        <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout for bag purchases.</div>
 
         <a class="setup-link" href="/zombie-setup.html">View Zombie Bag Setup Guide →</a>
       </aside>
@@ -222,19 +230,21 @@
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
 
-    const btn = document.getElementById('buy-btn');
+    const buyBtn = document.getElementById('buy-btn');
+    const byogBtn = document.getElementById('byog-btn');
     const status = document.getElementById('status');
     const colorEl = document.getElementById('bag-color');
 
-    btn.addEventListener('click', async () => {
+    async function startCheckout(payload) {
       status.textContent = 'Redirecting to secure checkout...';
-      btn.disabled = true;
+      buyBtn.disabled = true;
+      byogBtn.disabled = true;
 
       try {
         const res = await fetch(ZOMBIE_CHECKOUT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bagColor: colorEl.value })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json().catch(() => ({}));
@@ -245,8 +255,17 @@
         window.location.href = data.checkoutUrl;
       } catch (err) {
         status.textContent = err.message || 'Could not start checkout. Please try again.';
-        btn.disabled = false;
+        buyBtn.disabled = false;
+        byogBtn.disabled = false;
       }
+    }
+
+    buyBtn.addEventListener('click', () => {
+      startCheckout({ bagColor: colorEl.value, checkoutType: 'zombie_bag' });
+    });
+
+    byogBtn.addEventListener('click', () => {
+      startCheckout({ checkoutType: 'byog_setup' });
     });
 
     const params = new URLSearchParams(window.location.search);
