@@ -482,6 +482,11 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   const bagColor = (data.bagColor || 'not_selected').toString().trim().toLowerCase();
   const checkoutType = (data.checkoutType || 'zombie_bag').toString().trim().toLowerCase();
   const isByogSetup = checkoutType === 'byog_setup';
+  const termsAccepted = data.termsAccepted === true;
+
+  if (!termsAccepted) {
+    return json({ ok: false, error: 'You must read and accept the Terms of Sale before checkout.' }, 400, corsHeaders);
+  }
 
   const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
   const successUrl = `${siteOrigin}/zombies.html?paid=1`;

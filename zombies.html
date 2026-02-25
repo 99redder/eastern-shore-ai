@@ -162,6 +162,47 @@
       text-transform: uppercase;
     }
     .disclaimer p { margin: 0 0 .5rem; }
+    .terms-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 7000;
+      padding: 1rem;
+    }
+    .terms-modal {
+      width: min(760px, 98vw);
+      max-height: 92vh;
+      overflow: hidden;
+      background: linear-gradient(160deg, #141620, #10121a);
+      border: 1px solid var(--line);
+      padding: 1rem;
+    }
+    .terms-modal h3 { margin: 0 0 .55rem; color: #ffd7f8; }
+    .terms-scroll {
+      max-height: 52vh;
+      overflow: auto;
+      border: 1px solid var(--line);
+      background: #0f1321;
+      padding: .7rem;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.45;
+      margin-bottom: .7rem;
+    }
+    .terms-scroll p { margin: 0 0 .55rem; }
+    .terms-actions { display: flex; gap: .6rem; justify-content: flex-end; }
+    .btn-outline {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      padding: .68rem .9rem;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: 700;
+    }
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
     }
@@ -268,6 +309,29 @@
     </section>
   </main>
 
+  <div class="terms-overlay" id="terms-overlay" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+      <h3 id="terms-title">Terms of Sale Acknowledgement Required</h3>
+      <div class="terms-scroll">
+        <p><strong>No Manufacturer Warranty:</strong> All items in this kit are sold "AS IS" and "WITH ALL FAULTS." Original manufacturer warranties may be void or non-transferable.</p>
+        <p><strong>Eastern Shore AI Limited Warranty:</strong> Eastern Shore AI provides a limited 30-day warranty on products included in this kit.</p>
+        <p><strong>Software Modification &amp; Support Notice:</strong> The Android tablet is modified with offline software; OEM support, updates, or warranty service may no longer apply.</p>
+        <p><strong>"AS-IS" Software:</strong> Pre-installed apps are provided without express or implied warranties, including merchantability and fitness for a particular purpose.</p>
+        <p><strong>User Responsibility:</strong> End user is responsible for software security, updates, and proper use after purchase.</p>
+        <p><strong>Limitation of Liability:</strong> Eastern Shore AI is not liable for incidental or consequential damages arising from use or inability to use this kit, to the maximum extent permitted by law.</p>
+        <p><strong>Trademark &amp; Affiliation Disclaimer:</strong> Eastern Shore AI is an independent seller; product names and marks belong to respective owners and do not imply endorsement or affiliation.</p>
+      </div>
+      <label style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.8rem; color:#d8dce8;">
+        <input type="checkbox" id="terms-check" style="margin-top:.2rem;" />
+        <span>I have read and understand the Terms of Sale, disclaimers, and warranty limitations.</span>
+      </label>
+      <div class="terms-actions">
+        <button type="button" class="btn-outline" id="terms-cancel">Cancel</button>
+        <button type="button" class="btn" id="terms-accept" style="width:auto; min-width:220px;" disabled>Continue to Checkout</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
@@ -276,6 +340,12 @@
     const byogBtn = document.getElementById('byog-btn');
     const status = document.getElementById('status');
     const colorEl = document.getElementById('bag-color');
+
+    const termsOverlay = document.getElementById('terms-overlay');
+    const termsCheck = document.getElementById('terms-check');
+    const termsCancel = document.getElementById('terms-cancel');
+    const termsAccept = document.getElementById('terms-accept');
+    let pendingPayload = null;
 
     async function startCheckout(payload) {
       status.textContent = 'Redirecting to secure checkout...';
@@ -286,7 +356,7 @@
         const res = await fetch(ZOMBIE_CHECKOUT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ ...payload, termsAccepted: true })
         });
 
         const data = await res.json().catch(() => ({}));
@@ -302,12 +372,40 @@
       }
     }
 
+    function openTerms(payload) {
+      pendingPayload = payload;
+      termsCheck.checked = false;
+      termsAccept.disabled = true;
+      termsOverlay.style.display = 'flex';
+      termsOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTerms() {
+      termsOverlay.style.display = 'none';
+      termsOverlay.setAttribute('aria-hidden', 'true');
+      pendingPayload = null;
+    }
+
+    termsCheck.addEventListener('change', () => {
+      termsAccept.disabled = !termsCheck.checked;
+    });
+
+    termsCancel.addEventListener('click', closeTerms);
+    termsOverlay.addEventListener('click', (e) => { if (e.target === termsOverlay) closeTerms(); });
+
+    termsAccept.addEventListener('click', () => {
+      if (!pendingPayload || !termsCheck.checked) return;
+      const payload = pendingPayload;
+      closeTerms();
+      startCheckout(payload);
+    });
+
     buyBtn.addEventListener('click', () => {
-      startCheckout({ bagColor: colorEl.value, checkoutType: 'zombie_bag' });
+      openTerms({ bagColor: colorEl.value, checkoutType: 'zombie_bag' });
     });
 
     byogBtn.addEventListener('click', () => {
-      startCheckout({ checkoutType: 'byog_setup' });
+      openTerms({ checkoutType: 'byog_setup' });
     });
 
     const params = new URLSearchParams(window.location.search);
