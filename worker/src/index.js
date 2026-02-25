@@ -185,19 +185,25 @@ async function handleContact(request, env, corsHeaders) {
     message || '(none)'
   ].join('\n');
 
+  const emailPayload = {
+    from: env.FROM_EMAIL,
+    to: [env.TO_EMAIL],
+    subject,
+    text,
+    reply_to: email
+  };
+
+  if (env.CC_EMAIL) {
+    emailPayload.cc = [env.CC_EMAIL];
+  }
+
   const resendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${env.RESEND_API_KEY}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      from: env.FROM_EMAIL,
-      to: [env.TO_EMAIL],
-      subject,
-      text,
-      reply_to: email
-    })
+    body: JSON.stringify(emailPayload)
   });
 
   if (!resendRes.ok) {
