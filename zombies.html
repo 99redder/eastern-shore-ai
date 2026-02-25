@@ -25,6 +25,23 @@
       min-height: 100vh;
     }
     .wrap { max-width: 1160px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      border: 1px solid #ff4fd8;
+      box-shadow: 0 0 16px rgba(255,79,216,0.38);
+      padding: 0.55rem 0.9rem;
+      border-radius: 2px;
+      margin-bottom: 1rem;
+    }
+    .back-btn:hover { filter: brightness(1.06); }
     h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
     .sub { color: var(--muted); margin-bottom: 1.5rem; }
     .grid {
@@ -103,6 +120,7 @@
 </head>
 <body>
   <main class="wrap">
+    <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
     <h1>Zombie Bag</h1>
     <div class="sub">Pre-launch product page. Checkout is active for testing and early purchase flow.</div>
 
