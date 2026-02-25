@@ -314,12 +314,16 @@
       margin: 0 auto;
     }
     .section-chip-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 0.5rem 0 2.5rem;
+      position: relative;
+      height: 0;
+      overflow: visible;
     }
     #neural-canvas {
-      width: 300px; height: 300px;
+      position: absolute;
+      width: 260px; height: 260px;
+      right: max(16px, calc(50% - 610px));
+      top: -130px;
+      border-radius: 50%;
       cursor: grab; display: block;
     }
     #neural-canvas:active { cursor: grabbing; }
