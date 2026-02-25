@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zombie Bag Setup Guide | Eastern Shore AI</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --card: #121420;
+      --line: #272b3f;
+      --text: #e8ebf5;
+      --muted: #9aa1ba;
+      --cyan: #00e5ff;
+      --violet: #c850ff;
+      --pink: #ff4fd8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top right, #151936 0%, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .back-btn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 6000;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.6rem 0.95rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.78rem;
+      color: #fff;
+      text-decoration: none;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      border: 1px solid rgba(255, 79, 216, 0.45);
+      box-shadow: 0 0 12px rgba(255, 79, 216, 0.5);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+    }
+    .back-btn:hover { filter: brightness(1.06); }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
+    h1 { margin: 0 0 .45rem; font-size: clamp(1.6rem, 3vw, 2.4rem); }
+    .sub { color: var(--muted); margin-bottom: 1.2rem; }
+
+    .topics {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: .55rem;
+      margin-bottom: 1rem;
+    }
+    .topic-btn {
+      border: 1px solid var(--line);
+      background: #0f1321;
+      color: var(--text);
+      padding: .55rem .5rem;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .topic-btn.active {
+      border-color: rgba(255,79,216,.65);
+      box-shadow: 0 0 0 1px rgba(255,79,216,.25) inset;
+      background: linear-gradient(145deg, rgba(255,79,216,.18), rgba(200,80,255,.14));
+    }
+
+    .guide-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+      padding: 1.2rem;
+    }
+    .guide-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: .8rem;
+      margin-bottom: .9rem;
+    }
+    .guide-title {
+      margin: 0;
+      color: var(--cyan);
+      font-size: 1.2rem;
+    }
+    .nav-arrows { display: flex; gap: .5rem; }
+    .arrow-btn {
+      border: 1px solid var(--line);
+      background: #0f1321;
+      color: var(--text);
+      padding: .45rem .7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .arrow-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .guide-content { line-height: 1.58; color: #d4d9eb; }
+    .guide-content p { margin: 0 0 .8rem; }
+
+    @media (max-width: 900px) {
+      .topics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .topics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .guide-head { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <a href="/zombies.html" id="global-back-btn" class="back-btn" aria-label="Back to zombies page">← Back</a>
+
+  <main class="wrap">
+    <h1>Zombie Bag Setup Guide</h1>
+    <div class="sub">Quick-start guide for setup, operation, maintenance, and troubleshooting.</div>
+
+    <section class="topics" id="topics"></section>
+
+    <article class="guide-card">
+      <div class="guide-head">
+        <h2 class="guide-title" id="guide-title">Getting Started</h2>
+        <div class="nav-arrows">
+          <button class="arrow-btn" id="prev-btn" aria-label="Previous section">← Previous</button>
+          <button class="arrow-btn" id="next-btn" aria-label="Next section">Next →</button>
+        </div>
+      </div>
+      <div class="guide-content" id="guide-content"></div>
+    </article>
+  </main>
+
+  <script>
+    const sections = [
+      {
+        title: 'Getting Started',
+        html: `<p>Welcome to the Zombie Bag setup guide. This section gives a quick walkthrough of what to open first and where to start on first boot.</p>
+               <p>Unpack all hardware, verify included items, then power the tablet and charger. Confirm the home screen apps are visible and open the setup wizard app.</p>
+               <p>Follow the wizard prompts in order. This filler copy will be replaced with final production steps and screenshots.</p>`
+      },
+      {
+        title: 'Power & Charging',
+        html: `<p>This section explains recommended battery routines for both the tablet and solar charger.</p>
+               <p>Keep the charger in a dry, ventilated location while charging. For extended storage, recharge on a maintenance schedule.</p>
+               <p>Final version will include weather caveats, expected charge durations, and battery health tips.</p>`
+      },
+      {
+        title: 'Map Setup (OpenMaps)',
+        html: `<p>OpenMaps ships with all U.S. maps preloaded. Verify map packs are present and run a search test while online and offline.</p>
+               <p>Create a few saved locations and test route calculations. This confirms map files and local indexing are healthy.</p>
+               <p>Production content will include map refresh process and storage management best practices.</p>`
+      },
+      {
+        title: 'AI Apps Overview',
+        html: `<p>This section introduces Petals and the two installed LLM options (large and small model setup).</p>
+               <p>Use the smaller model for quick tasks and battery efficiency; use the larger model when you need deeper output quality.</p>
+               <p>Future documentation will provide model-switching guidance and offline/online usage notes.</p>`
+      },
+      {
+        title: 'Troubleshooting',
+        html: `<p>Start with quick checks: battery level, Wi-Fi status, storage space, and app permissions.</p>
+               <p>Reboot the device before advanced steps. If an app fails to open, clear cache and retry.</p>
+               <p>Final version will include error-specific decision trees and recovery workflows.</p>`
+      },
+      {
+        title: 'Updates & Support',
+        html: `<p>Use this section to check app updates and system updates in a controlled order.</p>
+               <p>Run updates when connected to stable power and internet. Restart after major update batches.</p>
+               <p>Remember: free technical support is included for 30 days. Final support contact flow will be added here.</p>`
+      }
+    ];
+
+    const topicsEl = document.getElementById('topics');
+    const titleEl = document.getElementById('guide-title');
+    const contentEl = document.getElementById('guide-content');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    let i = 0;
+
+    function renderTopics() {
+      topicsEl.innerHTML = '';
+      sections.forEach((s, idx) => {
+        const b = document.createElement('button');
+        b.className = 'topic-btn' + (idx === i ? ' active' : '');
+        b.type = 'button';
+        b.textContent = s.title;
+        b.addEventListener('click', () => {
+          i = idx;
+          render();
+        });
+        topicsEl.appendChild(b);
+      });
+    }
+
+    function render() {
+      titleEl.textContent = sections[i].title;
+      contentEl.innerHTML = sections[i].html;
+      renderTopics();
+      prevBtn.disabled = i === 0;
+      nextBtn.disabled = i === sections.length - 1;
+      prevBtn.style.opacity = i === 0 ? '.45' : '1';
+      nextBtn.style.opacity = i === sections.length - 1 ? '.45' : '1';
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (i > 0) { i -= 1; render(); }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (i < sections.length - 1) { i += 1; render(); }
+    });
+
+    render();
+  </script>
+</body>
+</html>

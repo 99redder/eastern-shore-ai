@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zombie Bag | Eastern Shore AI</title>
   <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/fonts.css" />
   <style>
     :root {
       --bg: #0a0b10;
@@ -15,6 +17,7 @@
       --cyan: #00e5ff;
       --violet: #c850ff;
       --ok: #49e6a1;
+      --pink: #ff4fd8;
     }
     * { box-sizing: border-box; }
     body {
@@ -24,26 +27,46 @@
       color: var(--text);
       min-height: 100vh;
     }
-    .wrap { max-width: 1160px; margin: 0 auto; padding: 2rem 1rem 3rem; }
     .back-btn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 6000;
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      text-decoration: none;
-      color: #fff;
+      padding: 0.6rem 0.95rem;
+      font-family: 'Hanken Grotesk', sans-serif;
       font-weight: 700;
-      letter-spacing: 0.06em;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.78rem;
+      color: #fff;
+      text-decoration: none;
       background: linear-gradient(145deg, #ff4fd8, #c850ff);
-      border: 1px solid #ff4fd8;
-      box-shadow: 0 0 16px rgba(255,79,216,0.38);
-      padding: 0.55rem 0.9rem;
-      border-radius: 2px;
-      margin-bottom: 1rem;
+      border: 1px solid rgba(255, 79, 216, 0.45);
+      box-shadow: 0 0 12px rgba(255, 79, 216, 0.5);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
     .back-btn:hover { filter: brightness(1.06); }
+
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
     h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
-    .sub { color: var(--muted); margin-bottom: 1.5rem; }
+    .sub { color: var(--muted); margin-bottom: 1.2rem; }
+    .sale-chip {
+      display: inline-block;
+      margin-bottom: .8rem;
+      padding: .38rem .68rem;
+      border: 1px solid rgba(255, 79, 216, 0.45);
+      box-shadow: 0 0 14px rgba(255,79,216,0.35);
+      color: #ffd7f8;
+      background: linear-gradient(145deg, rgba(255,79,216,0.2), rgba(200,80,255,0.12));
+      font-family: 'Hanken Grotesk', sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      font-weight: 700;
+    }
     .grid {
       display: grid;
       grid-template-columns: 1.15fr .85fr;
@@ -113,16 +136,28 @@
     .btn:hover { filter: brightness(1.06); }
     .status { margin-top: .7rem; min-height: 1.2rem; color: var(--muted); font-size: .88rem; }
     .note { margin-top: .8rem; font-size: .84rem; color: var(--muted); }
+    .setup-link {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      display: block;
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .setup-link:hover { color: #8df3ff; }
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
+
   <main class="wrap">
-    <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
+    <span class="sale-chip">Father's Day Special</span>
     <h1>Zombie Bag</h1>
-    <div class="sub">Pre-launch product page. Checkout is active for testing and early purchase flow.</div>
+    <div class="sub">Father's Day Special pre-launch pricing is live for early orders.</div>
 
     <section class="grid">
       <article class="card">
@@ -164,6 +199,7 @@
         <h2>Checkout</h2>
         <div class="price">$149.99 <span class="small">+ shipping</span></div>
         <p class="small">Price is TBD long-term. Using $149.99 for now.</p>
+        <p class="small"><strong>Father's Day Special:</strong> reserve now before full release pricing updates.</p>
         <p class="small">Eastern Shore MD area customers can select free local delivery at checkout.</p>
 
         <label for="bag-color">Go Bag Color</label>
@@ -176,6 +212,8 @@
         <button id="buy-btn" class="btn" type="button">Buy Zombie Bag</button>
         <div class="status" id="status"></div>
         <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout.</div>
+
+        <a class="setup-link" href="/zombie-setup.html">View Zombie Bag Setup Guide →</a>
       </aside>
     </section>
   </main>
