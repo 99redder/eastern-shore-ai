@@ -1288,9 +1288,16 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
     statusModalOk?.addEventListener('click', closeStatusModal);
     statusModal?.addEventListener('click', (e) => { if (e.target === statusModal) closeStatusModal(); });
 
-    // Contact modal - opens quote modal
+    // Footer Contact Us - opens general inquiry modal
     document.getElementById('contact-link').addEventListener('click', function(e) {
       e.preventDefault();
+      currentRequestType = 'General Inquiry';
+      modalTitle.textContent = 'General Inquiry';
+      repairFields.forEach(field => { field.style.display = 'none'; });
+      if (callbackPrefWrap) callbackPrefWrap.style.display = 'none';
+      if (callbackDatetimeWrap) callbackDatetimeWrap.style.display = 'none';
+      if (callbackPreferenceEl) callbackPreferenceEl.value = 'ASAP';
+      if (callbackDatetimeEl) callbackDatetimeEl.value = '';
       document.getElementById('quote-modal').style.display = 'flex';
     });
 
