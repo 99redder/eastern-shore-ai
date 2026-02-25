@@ -52,7 +52,7 @@ export default {
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
       const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
-      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day'].includes(url.pathname) && request.method === 'POST';
+      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session'].includes(url.pathname) && request.method === 'POST';
@@ -91,6 +91,10 @@ export default {
 
     if (url.pathname === '/api/admin/block-day') {
       return handleAdminBlockDay(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/admin/bookings/cleanup-pending') {
+      return handleAdminCleanupPendingBookings(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/tax/transactions') {
@@ -833,6 +837,38 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
   ).bind(setupDate, reason || null, active).run();
 
   return json({ ok: true, setupDate, active: !!active }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/admin/bookings/cleanup-pending — Delete pending bookings older than N days
+ * @param {Request} request - JSON body: {days?: number}
+ * @returns {Response} {ok: true, days, deleted}
+ */
+async function handleAdminCleanupPendingBookings(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data = {};
+  try {
+    data = await request.json();
+  } catch {
+    // allow empty body
+  }
+
+  const rawDays = Number(data.days);
+  const days = Number.isFinite(rawDays) ? Math.max(1, Math.min(60, Math.floor(rawDays))) : 5;
+
+  const result = await env.DB.prepare(
+    `DELETE FROM bookings
+     WHERE status = 'pending'
+       AND datetime(created_at) < datetime('now', '-' || ?1 || ' days')`
+  ).bind(days).run();
+
+  return json({ ok: true, days, deleted: Number(result.meta?.changes || 0) }, 200, corsHeaders);
 }
 
 /**

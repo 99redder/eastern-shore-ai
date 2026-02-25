@@ -197,6 +197,7 @@
               <button type="button" class="btn btn-primary" id="admin-block-day-btn">Block Entire Day</button>
               <button type="button" class="btn" id="admin-unblock-day-btn">Unblock Day</button>
               <button type="button" class="btn" id="admin-refresh-btn">Refresh</button>
+              <button type="button" class="btn delete" id="admin-cleanup-pending-btn">Clear Pending &gt; 5 Days</button>
             </div>
           </div>
           <div>
@@ -433,6 +434,7 @@
     const BOOKINGS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/bookings');
     const BLOCK_SLOT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-slot');
     const BLOCK_DAY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/block-day');
+    const CLEANUP_PENDING_BOOKINGS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/bookings/cleanup-pending');
     const TAX_TX_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/transactions');
     const TAX_EXPENSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense');
     const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
@@ -522,6 +524,7 @@
     const adminBlockDayBtn = document.getElementById('admin-block-day-btn');
     const adminUnblockDayBtn = document.getElementById('admin-unblock-day-btn');
     const adminRefreshBtn = document.getElementById('admin-refresh-btn');
+    const adminCleanupPendingBtn = document.getElementById('admin-cleanup-pending-btn');
 
     const successModal = document.getElementById('success-modal');
     const successTitle = document.getElementById('success-title');
@@ -851,6 +854,33 @@
         openSuccessModal(`Day ${active ? 'blocked' : 'unblocked'} successfully.`, active ? 'Day Blocked ✅' : 'Day Unblocked ✅');
       } catch (e) {
         openErrorModal(`Could not update day: ${e.message || e}`);
+      }
+    }
+
+    async function cleanupOldPendingBookings() {
+      const key = adminKeyEl.value.trim();
+      if (!key) {
+        openErrorModal('Admin password is required.');
+        return;
+      }
+      const proceed = await openConfirmModal(
+        'Delete all pending bookings older than 5 days? This cannot be undone.',
+        'Clear Old Pending Bookings?',
+        'Delete'
+      );
+      if (!proceed) return;
+      try {
+        const res = await fetch(`${CLEANUP_PENDING_BOOKINGS_API_URL}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          body: JSON.stringify({ days: 5 })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Cleanup failed');
+        await loadAdminData();
+        openSuccessModal(`Removed ${Number(data.deleted || 0)} pending booking(s) older than ${Number(data.days || 5)} days.`, 'Pending Cleanup Complete ✅');
+      } catch (e) {
+        openErrorModal(`Could not clear pending bookings: ${e.message || e}`);
       }
     }
 
@@ -1446,6 +1476,7 @@
     adminBlockDayBtn.addEventListener('click', () => setBlockedDay(true));
     adminUnblockDayBtn.addEventListener('click', () => setBlockedDay(false));
     adminRefreshBtn.addEventListener('click', loadAdminData);
+    adminCleanupPendingBtn?.addEventListener('click', cleanupOldPendingBookings);
     adminCalPrevBtn?.addEventListener('click', () => {
       const c = adminCalendarCursor || new Date();
       adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() - 1, 1);
