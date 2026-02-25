@@ -146,6 +146,22 @@
       font-weight: 700;
     }
     .setup-link:hover { color: #8df3ff; }
+    .disclaimer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.45;
+    }
+    .disclaimer h3 {
+      margin: 0 0 .5rem;
+      color: #ffd7f8;
+      font-size: .95rem;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .disclaimer p { margin: 0 0 .5rem; }
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
     }
@@ -222,6 +238,16 @@
         <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout for bag purchases.</div>
 
         <a class="setup-link" href="/zombie-setup.html">View Zombie Bag Setup Guide →</a>
+
+        <section class="disclaimer" aria-label="Warranty and Liability Disclaimer">
+          <h3>Warranty &amp; Liability Disclaimer</h3>
+          <p><strong>No Manufacturer Warranty:</strong> Items in this kit (including the Android tablet and solar-powered charger) are provided "AS IS" and "WITH ALL FAULTS." Eastern Shore AI is not an authorized reseller of these brands, so original manufacturer warranties may be void or non-transferable.</p>
+          <p><strong>Eastern Shore AI Warranty:</strong> Eastern Shore AI provides a 30-day warranty on all products included in this kit.</p>
+          <p><strong>Software Modifications:</strong> The tablet includes offline software modifications, which typically void manufacturer warranty coverage.</p>
+          <p><strong>Disclaimer of Implied Warranties:</strong> Eastern Shore AI disclaims all express and implied warranties, including merchantability and fitness for a particular purpose, to the maximum extent permitted by law.</p>
+          <p><strong>Limitation of Liability:</strong> Eastern Shore AI is not liable for incidental or consequential damages arising from use or inability to use the products, to the maximum extent permitted by law.</p>
+          <p><strong>Trademark Notice:</strong> All product names, logos, and brands are property of their respective owners. Use in this kit does not imply affiliation with or endorsement by them.</p>
+        </section>
       </aside>
     </section>
   </main>
