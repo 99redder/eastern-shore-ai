@@ -61,7 +61,7 @@ export default {
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -170,6 +170,10 @@ export default {
 
     if (url.pathname === '/api/accounts/rebuild-auto-journal' && request.method === 'POST') {
       return handleAccountsRebuildAutoJournal(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/year-close' && request.method === 'POST') {
+      return handleAccountsYearClose(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -1715,6 +1719,97 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
   }, 200, corsHeaders);
 }
 
+async function handleAccountsYearClose(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const year = (data.year || '').toString().trim();
+  const apply = data.apply === true;
+  if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Invalid year' }, 400, corsHeaders);
+
+  const from = `${year}-01-01`;
+  const to = `${year}-12-31`;
+  const rows = await env.DB.prepare(`SELECT a.id, a.code, a.name, a.account_type, a.normal_side,
+      COALESCE(SUM(jl.debit_cents),0) AS debit_total,
+      COALESCE(SUM(jl.credit_cents),0) AS credit_total
+    FROM accounts a
+    LEFT JOIN journal_lines jl ON jl.account_id = a.id
+    LEFT JOIN journal_entries je ON je.id = jl.entry_id AND je.entry_date >= ?1 AND je.entry_date <= ?2
+    GROUP BY a.id, a.code, a.name, a.account_type, a.normal_side
+    ORDER BY a.code ASC`).bind(from, to).all();
+
+  const accounts = (rows.results || []).map((r) => {
+    const debits = Number(r.debit_total || 0);
+    const credits = Number(r.credit_total || 0);
+    const bal = r.normal_side === 'debit' ? (debits - credits) : (credits - debits);
+    return { ...r, balance_cents: bal };
+  });
+
+  const income = accounts.filter(a => a.account_type === 'income' && Number(a.balance_cents) !== 0);
+  const expenses = accounts.filter(a => a.account_type === 'expense' && Number(a.balance_cents) !== 0);
+  const incomeTotal = income.reduce((s, a) => s + Number(a.balance_cents || 0), 0);
+  const expenseTotal = expenses.reduce((s, a) => s + Number(a.balance_cents || 0), 0);
+  const net = incomeTotal - expenseTotal;
+
+  const incomeSummaryId = await ensureAccountByCode(env.DB, '3900', 'Income Summary', 'equity', 'credit');
+  const ownerEquityId = await ensureAccountByCode(env.DB, '3000', 'Owner Equity', 'equity', 'credit');
+
+  const preview = {
+    year,
+    steps: [
+      { step: 1, title: 'Close revenue accounts to Income Summary', amount_cents: incomeTotal },
+      { step: 2, title: 'Close expense accounts to Income Summary', amount_cents: expenseTotal },
+      { step: 3, title: 'Close net income/loss to Owner Equity', amount_cents: net }
+    ]
+  };
+
+  if (!apply) return json({ ok: true, preview }, 200, corsHeaders);
+
+  const existing = await env.DB.prepare(`SELECT id FROM journal_entries WHERE source_type = 'year_close' AND source_id = ?1`).bind(Number(year)).all();
+  for (const r of (existing.results || [])) {
+    await env.DB.prepare(`DELETE FROM journal_lines WHERE entry_id = ?1`).bind(r.id).run();
+    await env.DB.prepare(`DELETE FROM journal_entries WHERE id = ?1`).bind(r.id).run();
+  }
+
+  const closeDate = `${year}-12-31`;
+
+  if (incomeTotal !== 0) {
+    const e1 = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'year_close', ?3)`).bind(closeDate, `Year-end close ${year} - revenues`, Number(year)).run();
+    const entryId = Number(e1.meta?.last_row_id || 0);
+    for (const a of income) {
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, a.id, Number(a.balance_cents)).run();
+    }
+    await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, incomeSummaryId, incomeTotal).run();
+  }
+
+  if (expenseTotal !== 0) {
+    const e2 = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'year_close', ?3)`).bind(closeDate, `Year-end close ${year} - expenses`, Number(year)).run();
+    const entryId = Number(e2.meta?.last_row_id || 0);
+    await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, incomeSummaryId, expenseTotal).run();
+    for (const a of expenses) {
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, a.id, Number(a.balance_cents)).run();
+    }
+  }
+
+  if (net !== 0) {
+    const e3 = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'year_close', ?3)`).bind(closeDate, `Year-end close ${year} - net to equity`, Number(year)).run();
+    const entryId = Number(e3.meta?.last_row_id || 0);
+    if (net > 0) {
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, incomeSummaryId, net, ownerEquityId).run();
+    } else {
+      const loss = Math.abs(net);
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, ownerEquityId, loss, incomeSummaryId).run();
+    }
+  }
+
+  return json({ ok: true, preview, applied: true }, 200, corsHeaders);
+}
+
 async function accountingTablesReady(db) {
   const tables = ['accounts', 'journal_entries', 'journal_lines'];
   for (const t of tables) {
@@ -1755,6 +1850,13 @@ async function ensureAccountingSetup(db) {
     await db.prepare(`INSERT INTO accounts (code, name, account_type, normal_side, is_system, active) VALUES (?1, ?2, ?3, ?4, 1, 1)`).bind(...s).run();
   }
   return true;
+}
+
+async function ensureAccountByCode(db, code, name, accountType, normalSide) {
+  const existing = await db.prepare(`SELECT id FROM accounts WHERE code = ?1 LIMIT 1`).bind(code).first();
+  if (existing?.id) return Number(existing.id);
+  const ins = await db.prepare(`INSERT INTO accounts (code, name, account_type, normal_side, is_system, active) VALUES (?1, ?2, ?3, ?4, 1, 1)`).bind(code, name, accountType, normalSide).run();
+  return Number(ins.meta?.last_row_id || 0) || null;
 }
 
 async function getAccountIdByCode(db, code) {

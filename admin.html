@@ -375,6 +375,7 @@
               <label>To</label>
               <input id="accounts-to" type="date" style="max-width:170px;" />
               <button type="button" class="btn" id="accounts-refresh-btn">Refresh</button>
+              <button type="button" class="btn btn-primary" id="accounts-year-close-btn">Year-End Close Wizard</button>
             </div>
             <div id="accounts-balance-status" class="admin-calendar-title" style="margin-bottom:.4rem;">Trial Balance: —</div>
             <div class="admin-list" id="accounts-list">No data yet.</div>
@@ -468,6 +469,26 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="year-close-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="year-close-title" style="width:min(780px,94vw); max-height:86vh; overflow-y:auto;">
+      <h3 id="year-close-title">Year-End Close Wizard</h3>
+      <p style="margin-top:.2rem; color:var(--muted);">This creates formal closing entries in 3 steps for the selected year.</p>
+      <div id="year-close-steps" class="admin-list">Loading preview…</div>
+      <div style="margin-top:.7rem; color:var(--text); font-size:.92rem; line-height:1.5;">
+        <strong>What each step does:</strong>
+        <ol style="margin:.4rem 0 0 1.2rem; padding:0; display:grid; gap:.25rem;">
+          <li>Close all revenue accounts into Income Summary.</li>
+          <li>Close all expense accounts into Income Summary.</li>
+          <li>Move net income/loss from Income Summary into Owner Equity.</li>
+        </ol>
+      </div>
+      <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="year-close-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="year-close-apply-btn">Apply Year-End Close</button>
+      </div>
+    </div>
+  </div>
+
   <div class="success-modal-overlay" id="user-guide-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="user-guide-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="user-guide-title">Admin User Guide</h3>
@@ -531,6 +552,7 @@
     const ACCOUNTS_SUMMARY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/summary');
     const ACCOUNTS_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/journal');
     const ACCOUNTS_STATEMENTS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/statements');
+    const ACCOUNTS_YEAR_CLOSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/year-close');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -571,6 +593,11 @@
     const addExpenseCategoryBtn = document.getElementById('add-expense-category-btn');
     const addIncomeCategoryBtn = document.getElementById('add-income-category-btn');
     const taxCategoryEditModal = document.getElementById('tax-category-edit-modal');
+    const yearCloseModal = document.getElementById('year-close-modal');
+    const yearCloseStepsEl = document.getElementById('year-close-steps');
+    const yearCloseCancelBtn = document.getElementById('year-close-cancel-btn');
+    const yearCloseApplyBtn = document.getElementById('year-close-apply-btn');
+
     const userGuideModal = document.getElementById('user-guide-modal');
     const userGuideCloseBtn = document.getElementById('user-guide-close-btn');
     const userGuideTabBtns = document.querySelectorAll('[data-guide-tab]');
@@ -591,6 +618,7 @@
     const accountsFromEl = document.getElementById('accounts-from');
     const accountsToEl = document.getElementById('accounts-to');
     const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
+    const accountsYearCloseBtn = document.getElementById('accounts-year-close-btn');
     const accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
     const accountsListEl = document.getElementById('accounts-list');
     const accountsStatementsListEl = document.getElementById('accounts-statements-list');
@@ -719,6 +747,52 @@
       });
     }
 
+    async function openYearCloseWizard() {
+      const year = accountsYearEl?.value;
+      if (!/^\d{4}$/.test(year || '')) { openErrorModal('Select a valid year before running year-end close.'); return; }
+      yearCloseModal?.classList.add('active');
+      yearCloseModal?.setAttribute('aria-hidden', 'false');
+      yearCloseStepsEl.textContent = 'Loading preview…';
+      try {
+        const res = await fetch(ACCOUNTS_YEAR_CLOSE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ year, apply: false })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Preview failed');
+        const steps = data.preview?.steps || [];
+        yearCloseStepsEl.innerHTML = steps.map((s) => `<div style="padding:.35rem 0; border-bottom:1px dashed var(--line);"><strong>Step ${s.step}:</strong> ${escHtml(s.title)} <span style="float:right;">$${(Number(s.amount_cents||0)/100).toFixed(2)}</span></div>`).join('') || 'No close steps found.';
+      } catch (e) {
+        yearCloseStepsEl.textContent = `Could not load year-close preview: ${e.message || e}`;
+      }
+    }
+
+    function closeYearCloseWizard() {
+      yearCloseModal?.classList.remove('active');
+      yearCloseModal?.setAttribute('aria-hidden', 'true');
+    }
+
+    async function applyYearCloseWizard() {
+      const year = accountsYearEl?.value;
+      const ok = await openConfirmModal(`Apply formal year-end closing entries for ${year}? Existing close entries for that year will be replaced.`, 'Apply Year-End Close?', 'Apply');
+      if (!ok) return;
+      try {
+        const res = await fetch(ACCOUNTS_YEAR_CLOSE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ year, apply: true })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Year close failed');
+        closeYearCloseWizard();
+        await loadAccountsData();
+        openSuccessModal(`Year-end close applied for ${year}.`, 'Year Closed ✅');
+      } catch (e) {
+        openErrorModal(`Year-end close failed: ${e.message || e}`);
+      }
+    }
+
     function openUserGuideModal(tab = 'expenses') {
       if (!userGuideModal) return;
       setUserGuideTab(tab);
@@ -764,11 +838,15 @@
     errorModal.addEventListener('click', (e) => { if (e.target === errorModal) closeErrorModal(); });
     userGuideCloseBtn?.addEventListener('click', closeUserGuideModal);
     userGuideModal?.addEventListener('click', (e) => { if (e.target === userGuideModal) closeUserGuideModal(); });
+    yearCloseCancelBtn?.addEventListener('click', closeYearCloseWizard);
+    yearCloseApplyBtn?.addEventListener('click', applyYearCloseWizard);
+    yearCloseModal?.addEventListener('click', (e) => { if (e.target === yearCloseModal) closeYearCloseWizard(); });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && successModal.classList.contains('active')) closeSuccessModal();
       if (e.key === 'Escape' && errorModal.classList.contains('active')) closeErrorModal();
       if (e.key === 'Escape' && userGuideModal?.classList.contains('active')) closeUserGuideModal();
+      if (e.key === 'Escape' && yearCloseModal?.classList.contains('active')) closeYearCloseWizard();
     });
 
     // ===== Admin Controls =====
@@ -1885,6 +1963,7 @@
     taxExportBtn.addEventListener('click', downloadTaxCsv);
 
     accountsRefreshBtn?.addEventListener('click', loadAccountsData);
+    accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
     accountsYearEl?.addEventListener('change', loadAccountsData);
     accountsFromEl?.addEventListener('change', loadAccountsData);
     accountsToEl?.addEventListener('change', loadAccountsData);
