@@ -17,6 +17,10 @@
 // GET  /api/tax/export.csv      → handleTaxExportCsv()    — Admin: CSV export for selected year/type
 // POST /api/tax/receipt/upload  → handleTaxReceiptUpload() — Admin: upload receipt to R2, attach to record
 // GET  /api/tax/receipt         → handleTaxReceiptGet()   — Admin: retrieve receipt from R2
+// GET  /api/accounts/list       → handleAccountsList()    — Admin: chart of accounts
+// GET  /api/accounts/summary    → handleAccountsSummary() — Admin: account balances + trial balance status
+// GET  /api/accounts/journal    → handleAccountsJournal() — Admin: journal entries list
+// POST /api/accounts/journal    → handleAccountsJournalCreate() — Admin: manual journal entry
 //
 // ===== UTILITY FUNCTIONS =====
 // requireAdmin(request, env)           — Validate X-Admin-Password header
@@ -56,8 +60,10 @@ export default {
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal'].includes(url.pathname) && request.method === 'GET';
+      const isAccountsWrite = ['/api/accounts/journal'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isPostRoute) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -140,6 +146,22 @@ export default {
 
     if (url.pathname === '/api/tax/receipt') {
       return handleTaxReceiptGet(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/list') {
+      return handleAccountsList(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/summary') {
+      return handleAccountsSummary(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/journal' && request.method === 'GET') {
+      return handleAccountsJournal(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/journal' && request.method === 'POST') {
+      return handleAccountsJournalCreate(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -686,8 +708,12 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           `SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`
         ).bind(sessionId).first();
 
-        if (!existingIncome?.id) {
-          await env.DB.prepare(
+        const incomeNotes = customerName
+          ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}`
+          : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`;
+        let incomeId = Number(existingIncome?.id || 0) || null;
+        if (!incomeId) {
+          const ins = await env.DB.prepare(
             `INSERT INTO tax_income (
               income_date, source, category, amount_cents, stripe_session_id, notes
             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
@@ -697,8 +723,19 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             incomeCategory,
             amount,
             sessionId,
-            customerName ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}` : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`
+            incomeNotes
           ).run();
+          incomeId = Number(ins.meta?.last_row_id || 0) || null;
+        }
+        if (incomeId) {
+          await upsertTaxIncomeJournal(env.DB, {
+            id: incomeId,
+            income_date: incomeDate,
+            source: incomeSource,
+            category: incomeCategory,
+            amount_cents: amount,
+            notes: incomeNotes
+          });
         }
 
         // Clean up stale pending rows for same slot(s) after successful payment
@@ -722,7 +759,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           ).bind(feeNote).first();
 
           if (!existingFee?.id) {
-            await env.DB.prepare(
+            const insFee = await env.DB.prepare(
               `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes)
                VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
             ).bind(
@@ -733,6 +770,18 @@ async function handleStripeWebhook(request, env, corsHeaders) {
               'stripe',
               feeNote
             ).run();
+            const feeId = Number(insFee.meta?.last_row_id || 0) || null;
+            if (feeId) {
+              await upsertTaxExpenseJournal(env.DB, {
+                id: feeId,
+                expense_date: incomeDate,
+                vendor: 'Stripe',
+                category: 'Payment Processing Fees',
+                amount_cents: feeCents,
+                paid_via: 'stripe',
+                notes: feeNote
+              });
+            }
           }
         }
       } catch (e) {
@@ -1040,7 +1089,20 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
      VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
   ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notes || null).run();
 
-  return json({ ok: true, id: r.meta?.last_row_id || null }, 200, corsHeaders);
+  const id = Number(r.meta?.last_row_id || 0) || null;
+  if (id) {
+    await upsertTaxExpenseJournal(env.DB, {
+      id,
+      expense_date: expenseDate,
+      vendor,
+      category,
+      amount_cents: cents,
+      paid_via: paidVia || null,
+      notes: notes || null
+    });
+  }
+
+  return json({ ok: true, id }, 200, corsHeaders);
 }
 
 /**
@@ -1072,7 +1134,19 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
      VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
   ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null).run();
 
-  return json({ ok: true, id: r.meta?.last_row_id || null }, 200, corsHeaders);
+  const id = Number(r.meta?.last_row_id || 0) || null;
+  if (id) {
+    await upsertTaxIncomeJournal(env.DB, {
+      id,
+      income_date: incomeDate,
+      source,
+      category,
+      amount_cents: cents,
+      notes: notes || null
+    });
+  }
+
+  return json({ ok: true, id }, 200, corsHeaders);
 }
 
 
@@ -1113,6 +1187,16 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
          notes = ?6
      WHERE id = ?7`
   ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notes || null, id).run();
+
+  await upsertTaxExpenseJournal(env.DB, {
+    id,
+    expense_date: expenseDate,
+    vendor,
+    category,
+    amount_cents: cents,
+    paid_via: paidVia || null,
+    notes: notes || null
+  });
 
   return json({ ok: true, id }, 200, corsHeaders);
 }
@@ -1155,6 +1239,15 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
      WHERE id = ?7`
   ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null, id).run();
 
+  await upsertTaxIncomeJournal(env.DB, {
+    id,
+    income_date: incomeDate,
+    source,
+    category,
+    amount_cents: cents,
+    notes: notes || null
+  });
+
   return json({ ok: true, id }, 200, corsHeaders);
 }
 
@@ -1180,6 +1273,7 @@ async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
   }
 
   await env.DB.prepare('DELETE FROM tax_expenses WHERE id = ?1').bind(id).run();
+  await deleteAutoJournalBySource(env.DB, 'tax_expense', id);
   return json({ ok: true, id }, 200, corsHeaders);
 }
 
@@ -1204,6 +1298,7 @@ async function handleTaxIncomeDelete(request, env, corsHeaders, url) {
   }
 
   await env.DB.prepare('DELETE FROM tax_income WHERE id = ?1').bind(id).run();
+  await deleteAutoJournalBySource(env.DB, 'tax_income', id);
   return json({ ok: true, id }, 200, corsHeaders);
 }
 
@@ -1358,6 +1453,228 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
       'Content-Disposition': `attachment; filename="${filename}"`
     }
   });
+}
+
+async function handleAccountsList(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  await ensureAccountingSetup(env.DB);
+  const rows = await env.DB.prepare(
+    `SELECT id, code, name, account_type, normal_side, is_system, active
+     FROM accounts
+     WHERE active = 1
+     ORDER BY code ASC, id ASC`
+  ).all();
+
+  return json({ ok: true, accounts: rows.results || [] }, 200, corsHeaders);
+}
+
+async function handleAccountsSummary(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  await ensureAccountingSetup(env.DB);
+
+  const year = (url.searchParams.get('year') || '').trim();
+  const from = (url.searchParams.get('from') || '').trim();
+  const to = (url.searchParams.get('to') || '').trim();
+
+  let where = '';
+  const binds = [];
+  if (/^\d{4}$/.test(year)) {
+    where = `WHERE substr(je.entry_date,1,4) = ?1`;
+    binds.push(year);
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to)) {
+    where = `WHERE je.entry_date >= ?1 AND je.entry_date <= ?2`;
+    binds.push(from, to);
+  }
+
+  const sql = `SELECT a.id, a.code, a.name, a.account_type, a.normal_side,
+      COALESCE(SUM(jl.debit_cents),0) AS debit_total,
+      COALESCE(SUM(jl.credit_cents),0) AS credit_total
+    FROM accounts a
+    LEFT JOIN journal_lines jl ON jl.account_id = a.id
+    LEFT JOIN journal_entries je ON je.id = jl.entry_id
+    ${where}
+    GROUP BY a.id, a.code, a.name, a.account_type, a.normal_side
+    ORDER BY a.code ASC, a.id ASC`;
+
+  const q = env.DB.prepare(sql);
+  const rows = binds.length ? await q.bind(...binds).all() : await q.all();
+  const accounts = (rows.results || []).map((r) => {
+    const debits = Number(r.debit_total || 0);
+    const credits = Number(r.credit_total || 0);
+    const balance = r.normal_side === 'debit' ? (debits - credits) : (credits - debits);
+    return { ...r, debit_total: debits, credit_total: credits, balance_cents: balance };
+  });
+
+  const totals = accounts.reduce((acc, r) => {
+    acc.debits += Number(r.debit_total || 0);
+    acc.credits += Number(r.credit_total || 0);
+    return acc;
+  }, { debits: 0, credits: 0 });
+
+  return json({
+    ok: true,
+    accounts,
+    totals,
+    balanced: totals.debits === totals.credits,
+    period: { year: /^\d{4}$/.test(year) ? year : null, from: from || null, to: to || null }
+  }, 200, corsHeaders);
+}
+
+async function handleAccountsJournal(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  await ensureAccountingSetup(env.DB);
+
+  const limit = Math.max(1, Math.min(500, Number(url.searchParams.get('limit') || 200)));
+  const year = (url.searchParams.get('year') || '').trim();
+  const from = (url.searchParams.get('from') || '').trim();
+  const to = (url.searchParams.get('to') || '').trim();
+
+  let where = '';
+  const binds = [];
+  if (/^\d{4}$/.test(year)) { where = 'WHERE entry_date >= ?1 AND entry_date <= ?2'; binds.push(`${year}-01-01`, `${year}-12-31`); }
+  else if (/^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to)) { where = 'WHERE entry_date >= ?1 AND entry_date <= ?2'; binds.push(from, to); }
+
+  const entriesQ = env.DB.prepare(`SELECT id, entry_date, memo, source_type, source_id, created_at FROM journal_entries ${where} ORDER BY entry_date DESC, id DESC LIMIT ?${binds.length + 1}`);
+  const entries = await entriesQ.bind(...binds, limit).all();
+  const entryIds = (entries.results || []).map(e => Number(e.id)).filter(Boolean);
+  if (!entryIds.length) return json({ ok: true, entries: [] }, 200, corsHeaders);
+
+  const placeholders = entryIds.map(() => '?').join(',');
+  const lines = await env.DB.prepare(
+    `SELECT jl.id, jl.entry_id, jl.account_id, jl.debit_cents, jl.credit_cents, a.code, a.name
+     FROM journal_lines jl JOIN accounts a ON a.id = jl.account_id
+     WHERE jl.entry_id IN (${placeholders})
+     ORDER BY jl.entry_id ASC, jl.id ASC`
+  ).bind(...entryIds).all();
+
+  const linesByEntry = new Map();
+  for (const l of (lines.results || [])) {
+    const key = Number(l.entry_id);
+    if (!linesByEntry.has(key)) linesByEntry.set(key, []);
+    linesByEntry.get(key).push(l);
+  }
+
+  const out = (entries.results || []).map((e) => ({ ...e, lines: linesByEntry.get(Number(e.id)) || [] }));
+  return json({ ok: true, entries: out }, 200, corsHeaders);
+}
+
+async function handleAccountsJournalCreate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  await ensureAccountingSetup(env.DB);
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const entryDate = (data.date || '').toString().trim();
+  const memo = (data.memo || '').toString().trim();
+  const debitAccountId = Number(data.debitAccountId || 0);
+  const creditAccountId = Number(data.creditAccountId || 0);
+  const cents = toCents(data.amount);
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(entryDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
+  if (!debitAccountId || !creditAccountId || debitAccountId === creditAccountId) return json({ ok: false, error: 'Invalid debit/credit accounts' }, 400, corsHeaders);
+  if (!Number.isFinite(cents) || cents <= 0) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
+
+  const ins = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type) VALUES (?1, ?2, 'manual')`).bind(entryDate, memo || null).run();
+  const entryId = Number(ins.meta?.last_row_id || 0);
+
+  await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, debitAccountId, cents, creditAccountId).run();
+
+  return json({ ok: true, id: entryId }, 200, corsHeaders);
+}
+
+async function ensureAccountingSetup(db) {
+  const has = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='accounts'`).first();
+  if (!has) return;
+  const existing = await db.prepare(`SELECT COUNT(*) AS c FROM accounts`).first();
+  if (Number(existing?.c || 0) > 0) return;
+
+  const seed = [
+    ['1000','Cash on Hand','asset','debit'],
+    ['1010','Owner Personal Card Clearing','liability','credit'],
+    ['1100','Accounts Receivable','asset','debit'],
+    ['2000','Accounts Payable','liability','credit'],
+    ['2100','Credit Card Payable','liability','credit'],
+    ['2200','Sales Tax Payable','liability','credit'],
+    ['3000','Owner Equity','equity','credit'],
+    ['3100','Owner Contributions','equity','credit'],
+    ['3200','Owner Draw','equity','debit'],
+    ['4000','Service Revenue','income','credit'],
+    ['4900','Other Income','income','credit'],
+    ['5000','Software Expense','expense','debit'],
+    ['5100','Marketing Expense','expense','debit'],
+    ['5200','Office Expense','expense','debit'],
+    ['5300','Payment Processing Fees','expense','debit'],
+    ['5400','Contractor Expense','expense','debit'],
+    ['5500','Travel Expense','expense','debit'],
+    ['5600','Utilities Expense','expense','debit']
+  ];
+
+  for (const s of seed) {
+    await db.prepare(`INSERT INTO accounts (code, name, account_type, normal_side, is_system, active) VALUES (?1, ?2, ?3, ?4, 1, 1)`).bind(...s).run();
+  }
+}
+
+async function getAccountIdByCode(db, code) {
+  const row = await db.prepare(`SELECT id FROM accounts WHERE code = ?1 LIMIT 1`).bind(code).first();
+  return Number(row?.id || 0) || null;
+}
+
+async function deleteAutoJournalBySource(db, sourceType, sourceId) {
+  const rows = await db.prepare(`SELECT id FROM journal_entries WHERE source_type = ?1 AND source_id = ?2`).bind(sourceType, sourceId).all();
+  for (const r of (rows.results || [])) {
+    await db.prepare(`DELETE FROM journal_lines WHERE entry_id = ?1`).bind(r.id).run();
+    await db.prepare(`DELETE FROM journal_entries WHERE id = ?1`).bind(r.id).run();
+  }
+}
+
+async function upsertTaxExpenseJournal(db, row) {
+  await ensureAccountingSetup(db);
+  await deleteAutoJournalBySource(db, 'tax_expense', row.id);
+
+  const amount = Number(row.amount_cents || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return;
+
+  const expenseAccountCode = row.category === 'Payment Processing Fees' ? '5300' : '5200';
+  const paidVia = (row.paid_via || '').toLowerCase();
+  const offsetCode = paidVia.includes('personal') || paidVia.includes('owner') ? '1010' : (paidVia.includes('card') ? '2100' : '1000');
+
+  const debitAccountId = await getAccountIdByCode(db, expenseAccountCode);
+  const creditAccountId = await getAccountIdByCode(db, offsetCode);
+  if (!debitAccountId || !creditAccountId) return;
+
+  const memo = `${row.category || 'Expense'}${row.vendor ? ` - ${row.vendor}` : ''}`;
+  const ins = await db.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'tax_expense', ?3)`).bind(row.expense_date, memo, row.id).run();
+  const entryId = Number(ins.meta?.last_row_id || 0);
+  await db.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, debitAccountId, amount, creditAccountId).run();
+}
+
+async function upsertTaxIncomeJournal(db, row) {
+  await ensureAccountingSetup(db);
+  await deleteAutoJournalBySource(db, 'tax_income', row.id);
+
+  const amount = Number(row.amount_cents || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return;
+
+  const debitAccountId = await getAccountIdByCode(db, '1000');
+  const creditAccountId = await getAccountIdByCode(db, '4000');
+  if (!debitAccountId || !creditAccountId) return;
+
+  const memo = `${row.category || 'Income'}${row.source ? ` - ${row.source}` : ''}`;
+  const ins = await db.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'tax_income', ?3)`).bind(row.income_date, memo, row.id).run();
+  const entryId = Number(ins.meta?.last_row_id || 0);
+  await db.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, debitAccountId, amount, creditAccountId).run();
 }
 
 /**

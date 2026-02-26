@@ -343,6 +343,31 @@
 
         </div>
       </div>
+
+      <div class="admin-collapsible-card" id="accounts-card" style="margin-top:1rem;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Accounts</h3>
+          <button type="button" class="btn" id="accounts-collapse-btn" aria-expanded="false">Expand</button>
+        </div>
+        <div id="accounts-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+              <button type="button" class="btn active" id="accounts-tab-balances">Balances</button>
+              <button type="button" class="btn" id="accounts-tab-journal">Journal</button>
+              <label>Year</label>
+              <select id="accounts-year" style="max-width:140px;"></select>
+              <label>From</label>
+              <input id="accounts-from" type="date" style="max-width:170px;" />
+              <label>To</label>
+              <input id="accounts-to" type="date" style="max-width:170px;" />
+              <button type="button" class="btn" id="accounts-refresh-btn">Refresh</button>
+            </div>
+            <div id="accounts-balance-status" class="admin-calendar-title" style="margin-bottom:.4rem;">Trial Balance: —</div>
+            <div class="admin-list" id="accounts-list">No data yet.</div>
+            <div class="admin-list" id="accounts-journal-list" style="display:none; margin-top:.6rem;">No journal entries yet.</div>
+          </section>
+        </div>
+      </div>
     </section>
 
   </div>
@@ -445,6 +470,9 @@
     const TAX_EXPORT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/export.csv');
     const TAX_RECEIPT_UPLOAD_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt/upload');
     const TAX_RECEIPT_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt');
+    const ACCOUNTS_LIST_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/list');
+    const ACCOUNTS_SUMMARY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/summary');
+    const ACCOUNTS_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/journal');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -456,6 +484,8 @@
     const bookingControlsBody = document.getElementById('booking-controls-body');
     const taxCollapseBtn = document.getElementById('tax-collapse-btn');
     const taxLedgerBody = document.getElementById('tax-ledger-body');
+    const accountsCollapseBtn = document.getElementById('accounts-collapse-btn');
+    const accountsBody = document.getElementById('accounts-body');
 
     const taxYearEl = document.getElementById('tax-year');
     const taxSummaryYearEl = document.getElementById('tax-summary-year');
@@ -488,6 +518,15 @@
     const taxListEl = document.getElementById('tax-list');
     const txCategoryFilterEl = document.getElementById('tx-category-filter');
     const txFilterBtns = document.querySelectorAll('.tx-filter-btn');
+    const accountsTabBalancesBtn = document.getElementById('accounts-tab-balances');
+    const accountsTabJournalBtn = document.getElementById('accounts-tab-journal');
+    const accountsYearEl = document.getElementById('accounts-year');
+    const accountsFromEl = document.getElementById('accounts-from');
+    const accountsToEl = document.getElementById('accounts-to');
+    const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
+    const accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
+    const accountsListEl = document.getElementById('accounts-list');
+    const accountsJournalListEl = document.getElementById('accounts-journal-list');
 
     const taxExpenseDateEl = document.getElementById('tax-expense-date');
     const taxExpenseVendorEl = document.getElementById('tax-expense-vendor');
@@ -547,6 +586,7 @@
     let activeTxFilter = 'all';
     let editingExpenseId = null;
     let editingIncomeId = null;
+    let activeAccountsTab = 'balances';
 
     // ===== Time Slots =====
     const TIME_SLOTS = [
@@ -1163,6 +1203,7 @@
             const deleted = await deleteTaxRecord(type, record);
             if (!deleted) return;
             await loadTaxTransactions();
+            await loadAccountsData();
             openSuccessModal('Transaction deleted successfully.', 'Record Deleted ✅');
           } catch (e) {
             openErrorModal(`Could not delete transaction: ${e.message || e}`);
@@ -1334,6 +1375,7 @@
         }
         clearTaxExpenseForm();
         await loadTaxTransactions();
+        await loadAccountsData();
         openSuccessModal(isEdit ? 'Expense record updated successfully.' : 'Expense record added successfully.', isEdit ? 'Expense Updated ✅' : 'Expense Added ✅');
       } catch (e) {
         openErrorModal(`Could not save expense: ${e.message || e}`);
@@ -1377,6 +1419,7 @@
         }
         clearTaxIncomeForm();
         await loadTaxTransactions();
+        await loadAccountsData();
         openSuccessModal(isEdit ? 'Income record updated successfully.' : 'Income record added successfully.', isEdit ? 'Income Updated ✅' : 'Income Added ✅');
       } catch (e) {
         openErrorModal(`Could not save income: ${e.message || e}`);
@@ -1423,6 +1466,78 @@
       }
     }
 
+    function initAccountsUiDefaults() {
+      const now = nowEtParts();
+      const thisYear = Number(now.date.split('-')[0] || new Date().getFullYear());
+      const years = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3];
+      if (accountsYearEl) {
+        accountsYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        accountsYearEl.value = String(thisYear);
+      }
+      if (accountsFromEl) accountsFromEl.value = `${thisYear}-01-01`;
+      if (accountsToEl) accountsToEl.value = `${thisYear}-12-31`;
+    }
+
+    async function loadAccountsData() {
+      if (!adminUnlocked) return;
+      const year = accountsYearEl?.value || '';
+      const from = accountsFromEl?.value || '';
+      const to = accountsToEl?.value || '';
+      const periodQuery = /^\d{4}$/.test(year)
+        ? `year=${encodeURIComponent(year)}`
+        : `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+
+      try {
+        const [summaryRes, journalRes] = await Promise.all([
+          fetch(`${ACCOUNTS_SUMMARY_API_URL}?${periodQuery}`, { headers: { 'X-Admin-Password': adminPassword } }),
+          fetch(`${ACCOUNTS_JOURNAL_API_URL}?${periodQuery}&limit=200`, { headers: { 'X-Admin-Password': adminPassword } })
+        ]);
+        const summary = await summaryRes.json();
+        const journal = await journalRes.json();
+        if (!summaryRes.ok) throw new Error(summary.error || 'Failed to load account summary');
+        if (!journalRes.ok) throw new Error(journal.error || 'Failed to load journal');
+
+        const groups = { asset: [], liability: [], equity: [], income: [], expense: [] };
+        for (const a of (summary.accounts || [])) groups[a.account_type]?.push(a);
+
+        const renderGroup = (title, list) => {
+          if (!list.length) return `<div><strong>${title}</strong><div style="color:var(--muted);">No accounts</div></div>`;
+          return `<div><strong>${title}</strong>${list.map(a => `<div style="display:flex; justify-content:space-between; gap:.5rem;"><span>${a.code} — ${escHtml(a.name || '')}</span><strong>$${(Number(a.balance_cents || 0)/100).toFixed(2)}</strong></div>`).join('')}</div>`;
+        };
+
+        accountsListEl.innerHTML = [
+          renderGroup('Assets', groups.asset),
+          renderGroup('Liabilities', groups.liability),
+          renderGroup('Equity', groups.equity),
+          renderGroup('Income', groups.income),
+          renderGroup('Expenses', groups.expense)
+        ].join('<hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />');
+
+        const t = summary.totals || { debits: 0, credits: 0 };
+        accountsBalanceStatusEl.textContent = summary.balanced
+          ? `Trial Balance: Balanced ✅ (Debits $${(t.debits/100).toFixed(2)} = Credits $${(t.credits/100).toFixed(2)})`
+          : `Trial Balance: Out of Balance ❌ (Debits $${(t.debits/100).toFixed(2)} vs Credits $${(t.credits/100).toFixed(2)})`;
+
+        const entries = journal.entries || [];
+        accountsJournalListEl.innerHTML = entries.length
+          ? entries.map((e) => {
+              const lines = (e.lines || []).map(l => `<div style="display:flex; justify-content:space-between;"><span>${l.code} — ${escHtml(l.name || '')}</span><span>Dr $${(Number(l.debit_cents||0)/100).toFixed(2)} | Cr $${(Number(l.credit_cents||0)/100).toFixed(2)}</span></div>`).join('');
+              return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);"><div><strong>${e.entry_date}</strong> — ${escHtml(e.memo || '(no memo)')}</div>${lines}</div>`;
+            }).join('')
+          : 'No journal entries for selected period.';
+      } catch (e) {
+        accountsListEl.textContent = `Error loading accounts: ${e.message || e}`;
+      }
+    }
+
+    function setAccountsTab(tab) {
+      activeAccountsTab = tab;
+      accountsTabBalancesBtn?.classList.toggle('active', tab === 'balances');
+      accountsTabJournalBtn?.classList.toggle('active', tab === 'journal');
+      if (accountsListEl) accountsListEl.style.display = tab === 'balances' ? '' : 'none';
+      if (accountsJournalListEl) accountsJournalListEl.style.display = tab === 'journal' ? '' : 'none';
+    }
+
     function wireCollapse(btn, body) {
       if (!btn || !body) return;
       btn.addEventListener('click', () => {
@@ -1441,6 +1556,7 @@
 
     wireCollapse(bookingCollapseBtn, bookingControlsBody);
     wireCollapse(taxCollapseBtn, taxLedgerBody);
+    wireCollapse(accountsCollapseBtn, accountsBody);
 
     // ===== Admin Unlock =====
     adminUnlockBtn.addEventListener('click', async () => {
@@ -1458,8 +1574,11 @@
         adminCalendarCursor = new Date(n.getFullYear(), n.getMonth(), 1);
         loadCategoryPrefs();
         initTaxUiDefaults();
+        initAccountsUiDefaults();
+        setAccountsTab('balances');
         await loadAdminData();
         await loadTaxTransactions();
+        await loadAccountsData();
       } catch (e) {
         openErrorModal(`Admin unlock failed: ${e.message || e}`);
       }
@@ -1595,6 +1714,13 @@
     });
 
     taxExportBtn.addEventListener('click', downloadTaxCsv);
+
+    accountsRefreshBtn?.addEventListener('click', loadAccountsData);
+    accountsYearEl?.addEventListener('change', loadAccountsData);
+    accountsFromEl?.addEventListener('change', loadAccountsData);
+    accountsToEl?.addEventListener('change', loadAccountsData);
+    accountsTabBalancesBtn?.addEventListener('click', () => setAccountsTab('balances'));
+    accountsTabJournalBtn?.addEventListener('click', () => setAccountsTab('journal'));
 
     const taxZipBtn = document.getElementById('tax-zip-btn');
     if (taxZipBtn) {
