@@ -60,7 +60,7 @@ export default {
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
-      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal'].includes(url.pathname) && request.method === 'GET';
+      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements'].includes(url.pathname) && request.method === 'GET';
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
@@ -158,6 +158,10 @@ export default {
 
     if (url.pathname === '/api/accounts/journal' && request.method === 'GET') {
       return handleAccountsJournal(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/statements' && request.method === 'GET') {
+      return handleAccountsStatements(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/accounts/journal' && request.method === 'POST') {
@@ -1572,6 +1576,80 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
 
   const out = (entries.results || []).map((e) => ({ ...e, lines: linesByEntry.get(Number(e.id)) || [] }));
   return json({ ok: true, entries: out }, 200, corsHeaders);
+}
+
+async function handleAccountsStatements(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
+
+  const year = (url.searchParams.get('year') || '').trim();
+  const from = (url.searchParams.get('from') || '').trim();
+  const to = (url.searchParams.get('to') || '').trim();
+
+  let where = '';
+  const binds = [];
+  if (/^\d{4}$/.test(year)) {
+    where = `WHERE je.entry_date >= ?1 AND je.entry_date <= ?2`;
+    binds.push(`${year}-01-01`, `${year}-12-31`);
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to)) {
+    where = `WHERE je.entry_date >= ?1 AND je.entry_date <= ?2`;
+    binds.push(from, to);
+  }
+
+  const q = env.DB.prepare(`SELECT a.id, a.code, a.name, a.account_type, a.normal_side,
+      COALESCE(SUM(jl.debit_cents),0) AS debit_total,
+      COALESCE(SUM(jl.credit_cents),0) AS credit_total
+    FROM accounts a
+    LEFT JOIN journal_lines jl ON jl.account_id = a.id
+    LEFT JOIN journal_entries je ON je.id = jl.entry_id
+    ${where}
+    GROUP BY a.id, a.code, a.name, a.account_type, a.normal_side
+    ORDER BY a.code ASC, a.id ASC`);
+  const rows = binds.length ? await q.bind(...binds).all() : await q.all();
+  const accounts = (rows.results || []).map((r) => {
+    const debits = Number(r.debit_total || 0);
+    const credits = Number(r.credit_total || 0);
+    const bal = r.normal_side === 'debit' ? (debits - credits) : (credits - debits);
+    return { ...r, debit_total: debits, credit_total: credits, balance_cents: bal };
+  });
+
+  const balanceSheet = {
+    assets: accounts.filter(a => a.account_type === 'asset'),
+    liabilities: accounts.filter(a => a.account_type === 'liability'),
+    equity: accounts.filter(a => a.account_type === 'equity')
+  };
+
+  const incomeStatement = {
+    income: accounts.filter(a => a.account_type === 'income'),
+    expenses: accounts.filter(a => a.account_type === 'expense')
+  };
+
+  const totals = {
+    assets: balanceSheet.assets.reduce((s, a) => s + Number(a.balance_cents || 0), 0),
+    liabilities: balanceSheet.liabilities.reduce((s, a) => s + Number(a.balance_cents || 0), 0),
+    equity: balanceSheet.equity.reduce((s, a) => s + Number(a.balance_cents || 0), 0),
+    income: incomeStatement.income.reduce((s, a) => s + Number(a.balance_cents || 0), 0),
+    expenses: incomeStatement.expenses.reduce((s, a) => s + Number(a.balance_cents || 0), 0)
+  };
+
+  const cashAccount = accounts.find(a => a.code === '1000');
+  const cashFlow = {
+    netCashChange: Number(cashAccount?.balance_cents || 0),
+    note: 'Simple direct cash movement from Cash on Hand account for selected period.'
+  };
+
+  return json({
+    ok: true,
+    balanceSheet,
+    incomeStatement,
+    cashFlow,
+    totals,
+    equationBalanced: totals.assets === (totals.liabilities + totals.equity)
+  }, 200, corsHeaders);
 }
 
 async function handleAccountsJournalCreate(request, env, corsHeaders, url) {

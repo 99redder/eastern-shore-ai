@@ -353,7 +353,10 @@
         <div id="accounts-body" class="admin-collapsible-body-collapsed">
           <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
             <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
-              <button type="button" class="btn active" id="accounts-tab-balances">Balances</button>
+              <button type="button" class="btn active" id="accounts-tab-balances">Trial Balance</button>
+              <button type="button" class="btn" id="accounts-tab-balance-sheet">Balance Sheet</button>
+              <button type="button" class="btn" id="accounts-tab-pnl">P&L</button>
+              <button type="button" class="btn" id="accounts-tab-cashflow">Cash Flow</button>
               <button type="button" class="btn" id="accounts-tab-journal">Journal</button>
               <label>Year</label>
               <select id="accounts-year" style="max-width:140px;"></select>
@@ -365,6 +368,7 @@
             </div>
             <div id="accounts-balance-status" class="admin-calendar-title" style="margin-bottom:.4rem;">Trial Balance: —</div>
             <div class="admin-list" id="accounts-list">No data yet.</div>
+            <div class="admin-list" id="accounts-statements-list" style="display:none; margin-top:.6rem;">No statement data yet.</div>
             <div class="admin-list" id="accounts-journal-list" style="display:none; margin-top:.6rem;">No journal entries yet.</div>
           </section>
         </div>
@@ -509,6 +513,7 @@
     const ACCOUNTS_LIST_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/list');
     const ACCOUNTS_SUMMARY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/summary');
     const ACCOUNTS_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/journal');
+    const ACCOUNTS_STATEMENTS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/statements');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -558,6 +563,9 @@
     const txCategoryFilterEl = document.getElementById('tx-category-filter');
     const txFilterBtns = document.querySelectorAll('.tx-filter-btn');
     const accountsTabBalancesBtn = document.getElementById('accounts-tab-balances');
+    const accountsTabBalanceSheetBtn = document.getElementById('accounts-tab-balance-sheet');
+    const accountsTabPnlBtn = document.getElementById('accounts-tab-pnl');
+    const accountsTabCashflowBtn = document.getElementById('accounts-tab-cashflow');
     const accountsTabJournalBtn = document.getElementById('accounts-tab-journal');
     const accountsYearEl = document.getElementById('accounts-year');
     const accountsFromEl = document.getElementById('accounts-from');
@@ -565,6 +573,7 @@
     const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
     const accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
     const accountsListEl = document.getElementById('accounts-list');
+    const accountsStatementsListEl = document.getElementById('accounts-statements-list');
     const accountsJournalListEl = document.getElementById('accounts-journal-list');
 
     const taxExpenseDateEl = document.getElementById('tax-expense-date');
@@ -1542,13 +1551,16 @@
         : `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
 
       try {
-        const [summaryRes, journalRes] = await Promise.all([
+        const [summaryRes, statementsRes, journalRes] = await Promise.all([
           fetch(`${ACCOUNTS_SUMMARY_API_URL}?${periodQuery}`, { headers: { 'X-Admin-Password': adminPassword } }),
+          fetch(`${ACCOUNTS_STATEMENTS_API_URL}?${periodQuery}`, { headers: { 'X-Admin-Password': adminPassword } }),
           fetch(`${ACCOUNTS_JOURNAL_API_URL}?${periodQuery}&limit=200`, { headers: { 'X-Admin-Password': adminPassword } })
         ]);
         const summary = await summaryRes.json();
+        const statements = await statementsRes.json();
         const journal = await journalRes.json();
         if (!summaryRes.ok) throw new Error(summary.error || 'Failed to load account summary');
+        if (!statementsRes.ok) throw new Error(statements.error || 'Failed to load statements');
         if (!journalRes.ok) throw new Error(journal.error || 'Failed to load journal');
 
         const groups = { asset: [], liability: [], equity: [], income: [], expense: [] };
@@ -1568,9 +1580,43 @@
         ].join('<hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />');
 
         const t = summary.totals || { debits: 0, credits: 0 };
-        accountsBalanceStatusEl.textContent = summary.balanced
-          ? `Trial Balance: Balanced ✅ (Debits $${(t.debits/100).toFixed(2)} = Credits $${(t.credits/100).toFixed(2)})`
-          : `Trial Balance: Out of Balance ❌ (Debits $${(t.debits/100).toFixed(2)} vs Credits $${(t.credits/100).toFixed(2)})`;
+        if (activeAccountsTab === 'balances') {
+          accountsBalanceStatusEl.textContent = summary.balanced
+            ? `Trial Balance: Balanced ✅ (Debits $${(t.debits/100).toFixed(2)} = Credits $${(t.credits/100).toFixed(2)})`
+            : `Trial Balance: Out of Balance ❌ (Debits $${(t.debits/100).toFixed(2)} vs Credits $${(t.credits/100).toFixed(2)})`;
+        }
+
+        const money = (c) => `$${(Number(c || 0)/100).toFixed(2)}`;
+        const lineList = (rows = []) => rows.length
+          ? rows.map(r => `<div style="display:flex; justify-content:space-between; gap:.5rem;"><span>${r.code} — ${escHtml(r.name || '')}</span><strong>${money(r.balance_cents)}</strong></div>`).join('')
+          : '<div style="color:var(--muted);">No rows</div>';
+
+        if (activeAccountsTab === 'balance_sheet') {
+          accountsStatementsListEl.innerHTML = `
+            <div><strong>Assets</strong>${lineList(statements.balanceSheet?.assets || [])}</div>
+            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
+            <div><strong>Liabilities</strong>${lineList(statements.balanceSheet?.liabilities || [])}</div>
+            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
+            <div><strong>Equity</strong>${lineList(statements.balanceSheet?.equity || [])}</div>
+            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
+            <div style="display:flex; justify-content:space-between;"><span>Total Assets</span><strong>${money(statements.totals?.assets)}</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Total Liabilities + Equity</span><strong>${money((Number(statements.totals?.liabilities||0)+Number(statements.totals?.equity||0)))}</strong></div>
+          `;
+        } else if (activeAccountsTab === 'pnl') {
+          accountsStatementsListEl.innerHTML = `
+            <div><strong>Income</strong>${lineList(statements.incomeStatement?.income || [])}</div>
+            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
+            <div><strong>Expenses</strong>${lineList(statements.incomeStatement?.expenses || [])}</div>
+            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
+            <div style="display:flex; justify-content:space-between;"><span>Net Income</span><strong>${money((Number(statements.totals?.income||0)-Number(statements.totals?.expenses||0)))}</strong></div>
+          `;
+        } else if (activeAccountsTab === 'cashflow') {
+          accountsStatementsListEl.innerHTML = `
+            <div><strong>Cash Flow (Direct — Simplified)</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Net Cash Change</span><strong>${money(statements.cashFlow?.netCashChange)}</strong></div>
+            <div style="color:var(--muted); margin-top:.4rem;">${escHtml(statements.cashFlow?.note || '')}</div>
+          `;
+        }
 
         const entries = journal.entries || [];
         accountsJournalListEl.innerHTML = entries.length
@@ -1587,9 +1633,19 @@
     function setAccountsTab(tab) {
       activeAccountsTab = tab;
       accountsTabBalancesBtn?.classList.toggle('active', tab === 'balances');
+      accountsTabBalanceSheetBtn?.classList.toggle('active', tab === 'balance_sheet');
+      accountsTabPnlBtn?.classList.toggle('active', tab === 'pnl');
+      accountsTabCashflowBtn?.classList.toggle('active', tab === 'cashflow');
       accountsTabJournalBtn?.classList.toggle('active', tab === 'journal');
       if (accountsListEl) accountsListEl.style.display = tab === 'balances' ? '' : 'none';
+      if (accountsStatementsListEl) accountsStatementsListEl.style.display = ['balance_sheet','pnl','cashflow'].includes(tab) ? '' : 'none';
       if (accountsJournalListEl) accountsJournalListEl.style.display = tab === 'journal' ? '' : 'none';
+      if (tab === 'balances') accountsBalanceStatusEl.textContent = accountsBalanceStatusEl.textContent.replace('Statement View — ', '');
+      else if (tab === 'balance_sheet') accountsBalanceStatusEl.textContent = 'Statement View — Balance Sheet';
+      else if (tab === 'pnl') accountsBalanceStatusEl.textContent = 'Statement View — Profit & Loss';
+      else if (tab === 'cashflow') accountsBalanceStatusEl.textContent = 'Statement View — Cash Flow';
+      else if (tab === 'journal') accountsBalanceStatusEl.textContent = 'Statement View — Journal';
+      if (adminUnlocked) loadAccountsData();
     }
 
     function wireCollapse(btn, body) {
@@ -1775,6 +1831,9 @@
     accountsFromEl?.addEventListener('change', loadAccountsData);
     accountsToEl?.addEventListener('change', loadAccountsData);
     accountsTabBalancesBtn?.addEventListener('click', () => setAccountsTab('balances'));
+    accountsTabBalanceSheetBtn?.addEventListener('click', () => setAccountsTab('balance_sheet'));
+    accountsTabPnlBtn?.addEventListener('click', () => setAccountsTab('pnl'));
+    accountsTabCashflowBtn?.addEventListener('click', () => setAccountsTab('cashflow'));
     accountsTabJournalBtn?.addEventListener('click', () => setAccountsTab('journal'));
 
     const taxZipBtn = document.getElementById('tax-zip-btn');
