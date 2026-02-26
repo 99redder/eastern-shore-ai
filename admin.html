@@ -153,9 +153,12 @@
     <!-- ===== SECTION: Admin Panel ===== -->
     <section class="card admin-panel" id="admin-panel" style="padding:0; overflow:hidden;">
       <img src="/carousel.png" alt="" aria-hidden="true" style="width:100%; aspect-ratio:32/5; object-fit:cover; object-position:center top; display:block;" />
-      <div style="padding:1.5rem 2rem 0;">
-        <h2 style="margin:0 0 0.25rem;">Eastern Shore AI</h2>
-        <p style="margin:0 0 1rem; color:var(--muted); font-size:0.9rem; letter-spacing:.06em; text-transform:uppercase;">Administrative Access</p>
+      <div style="padding:1.5rem 2rem 0; display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0 0 0.25rem;">Eastern Shore AI</h2>
+          <p style="margin:0 0 1rem; color:var(--muted); font-size:0.9rem; letter-spacing:.06em; text-transform:uppercase;">Administrative Access</p>
+        </div>
+        <button type="button" class="btn" id="admin-user-guide-top-btn" style="margin-top:.1rem;">User Guide</button>
       </div>
       <div class="admin-lock" id="admin-lock" style="padding:1rem 1rem 2.5rem; margin:0 1rem;">
         <div style="display:flex; flex-direction:column; gap:1rem; width:320px; margin:0 auto;">
@@ -459,34 +462,41 @@
   </div>
 
   <div class="success-modal-overlay" id="user-guide-modal" aria-hidden="true">
-    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="user-guide-title" style="width:min(760px,94vw); max-height:86vh; overflow-y:auto;">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="user-guide-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="user-guide-title">Admin User Guide</h3>
-      <div style="color:var(--text); line-height:1.55; font-size:0.95rem;">
-        <p style="margin-top:0;"><strong>Goal:</strong> Tax Ledger is your input area. Accounts/Journal is your accounting truth layer.</p>
+      <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin:.2rem 0 .8rem;" id="user-guide-tabs">
+        <button type="button" class="btn active" data-guide-tab="expenses">Expenses + Journal</button>
+        <button type="button" class="btn" data-guide-tab="bookings">Booking Controls</button>
+        <button type="button" class="btn" data-guide-tab="statements">Statements + Accounts</button>
+      </div>
 
-        <h4 style="margin:.8rem 0 .35rem; color:var(--cyan);">1) Entering expenses and income (Tax Ledger)</h4>
-        <ul style="margin:.2rem 0 .65rem 1.1rem; padding:0; display:grid; gap:.3rem;">
-          <li>Use <strong>Add Expense</strong> for every business cost.</li>
-          <li>Use <strong>Add Income</strong> for every payment received.</li>
-          <li>Always fill <strong>date, category, amount</strong>. Add vendor/source and notes when possible.</li>
-          <li>Attach receipts whenever available.</li>
-        </ul>
-
-        <h4 style="margin:.8rem 0 .35rem; color:var(--cyan);">2) Journal entry behavior (automatic)</h4>
-        <ul style="margin:.2rem 0 .65rem 1.1rem; padding:0; display:grid; gap:.3rem;">
-          <li>Every Tax Ledger record creates a matching <strong>double-entry journal entry</strong>.</li>
-          <li>Income default: <strong>Dr Cash</strong>, <strong>Cr Service Revenue</strong>.</li>
-          <li>Current startup expense treatment: <strong>Dr Expense</strong>, <strong>Cr Owner Contributions</strong>.</li>
-          <li>If you edit/delete a Tax Ledger row, related auto-journal entries update too.</li>
-        </ul>
-
-        <h4 style="margin:.8rem 0 .35rem; color:var(--cyan);">3) Weekly checks (Accounts tab)</h4>
-        <ul style="margin:.2rem 0 .2rem 1.1rem; padding:0; display:grid; gap:.3rem;">
-          <li>Confirm Trial Balance shows <strong>Balanced ✅</strong>.</li>
-          <li>If not, inspect latest lines in the Journal tab.</li>
-          <li>Use <strong>Year</strong> or <strong>custom date range</strong> filters for monthly/tax review.</li>
+      <div id="user-guide-panel-expenses" data-guide-panel="expenses" style="display:block; color:var(--text);">
+        <img src="/images/admin-guide-expenses.svg" alt="Guide diagram for adding expense and income entries" style="width:100%; border:1px solid var(--line); border-radius:6px; background:#0a0b10;" />
+        <ul style="margin:.7rem 0 0 1.1rem; padding:0; display:grid; gap:.28rem;">
+          <li>Enter date, category, amount first — those are mandatory.</li>
+          <li>Use notes/vendor/source for context you’ll need later.</li>
+          <li>Upload receipts whenever possible.</li>
         </ul>
       </div>
+
+      <div id="user-guide-panel-bookings" data-guide-panel="bookings" style="display:none; color:var(--text);">
+        <img src="/images/admin-guide-bookings.svg" alt="Guide diagram for admin booking controls" style="width:100%; border:1px solid var(--line); border-radius:6px; background:#0a0b10;" />
+        <ul style="margin:.7rem 0 0 1.1rem; padding:0; display:grid; gap:.28rem;">
+          <li>Use block-slot for specific time windows; block-day for all-day closures.</li>
+          <li>Refresh after changes to confirm the calendar state.</li>
+          <li>Clean stale pending bookings periodically.</li>
+        </ul>
+      </div>
+
+      <div id="user-guide-panel-statements" data-guide-panel="statements" style="display:none; color:var(--text);">
+        <img src="/images/admin-guide-statements.svg" alt="Guide diagram for trial balance, statements, and journal tabs" style="width:100%; border:1px solid var(--line); border-radius:6px; background:#0a0b10;" />
+        <ul style="margin:.7rem 0 0 1.1rem; padding:0; display:grid; gap:.28rem;">
+          <li>Trial Balance should remain balanced.</li>
+          <li>Use Balance Sheet + P&L for management and tax prep snapshots.</li>
+          <li>Use Journal for line-level verification when numbers look off.</li>
+        </ul>
+      </div>
+
       <div class="form-actions" style="margin-top:1rem;">
         <button type="button" class="btn btn-primary" id="user-guide-close-btn">Got it</button>
       </div>
@@ -537,6 +547,7 @@
     const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
     const taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
     const adminUserGuideBtn = document.getElementById('admin-user-guide-btn');
+    const adminUserGuideTopBtn = document.getElementById('admin-user-guide-top-btn');
     const taxExpensePanel = document.getElementById('tax-expense-panel');
     const taxIncomePanel = document.getElementById('tax-income-panel');
     const taxExpenseFields = document.getElementById('tax-expense-fields');
@@ -555,6 +566,8 @@
     const taxCategoryEditModal = document.getElementById('tax-category-edit-modal');
     const userGuideModal = document.getElementById('user-guide-modal');
     const userGuideCloseBtn = document.getElementById('user-guide-close-btn');
+    const userGuideTabBtns = document.querySelectorAll('[data-guide-tab]');
+    const userGuidePanels = document.querySelectorAll('[data-guide-panel]');
     const taxCategoryEditInput = document.getElementById('tax-category-edit-input');
     const taxCategoryEditSaveBtn = document.getElementById('tax-category-edit-save-btn');
     const taxCategoryEditCancelBtn = document.getElementById('tax-category-edit-cancel-btn');
@@ -692,8 +705,16 @@
       errorModal.setAttribute('aria-hidden', 'true');
     }
 
-    function openUserGuideModal() {
+    function setUserGuideTab(tab) {
+      userGuideTabBtns.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-guide-tab') === tab));
+      userGuidePanels.forEach((panel) => {
+        panel.style.display = panel.getAttribute('data-guide-panel') === tab ? 'block' : 'none';
+      });
+    }
+
+    function openUserGuideModal(tab = 'expenses') {
       if (!userGuideModal) return;
+      setUserGuideTab(tab);
       userGuideModal.classList.add('active');
       userGuideModal.setAttribute('aria-hidden', 'false');
     }
@@ -1724,7 +1745,11 @@
     taxTypeEl.addEventListener('change', loadTaxTransactions);
     taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
     taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
-    adminUserGuideBtn?.addEventListener('click', openUserGuideModal);
+    adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
+    adminUserGuideTopBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
+    userGuideTabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => setUserGuideTab(btn.getAttribute('data-guide-tab')));
+    });
 
     window.openTaxCategoryManager = () => {
       if (!taxCategoryModal) {
