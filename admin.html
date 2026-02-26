@@ -246,6 +246,7 @@
                   <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
                   <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
                   <button type="button" class="btn btn-primary" id="tax-manage-categories-btn" onclick="window.openTaxCategoryManager && window.openTaxCategoryManager()">Manage Categories</button>
+                  <button type="button" class="btn" id="admin-user-guide-btn">User Guide</button>
                 </div>
 
                 <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-top:.5rem;">
@@ -453,6 +454,41 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="user-guide-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="user-guide-title" style="width:min(760px,94vw); max-height:86vh; overflow-y:auto;">
+      <h3 id="user-guide-title">Admin User Guide</h3>
+      <div style="color:var(--text); line-height:1.55; font-size:0.95rem;">
+        <p style="margin-top:0;"><strong>Goal:</strong> Tax Ledger is your input area. Accounts/Journal is your accounting truth layer.</p>
+
+        <h4 style="margin:.8rem 0 .35rem; color:var(--cyan);">1) Entering expenses and income (Tax Ledger)</h4>
+        <ul style="margin:.2rem 0 .65rem 1.1rem; padding:0; display:grid; gap:.3rem;">
+          <li>Use <strong>Add Expense</strong> for every business cost.</li>
+          <li>Use <strong>Add Income</strong> for every payment received.</li>
+          <li>Always fill <strong>date, category, amount</strong>. Add vendor/source and notes when possible.</li>
+          <li>Attach receipts whenever available.</li>
+        </ul>
+
+        <h4 style="margin:.8rem 0 .35rem; color:var(--cyan);">2) Journal entry behavior (automatic)</h4>
+        <ul style="margin:.2rem 0 .65rem 1.1rem; padding:0; display:grid; gap:.3rem;">
+          <li>Every Tax Ledger record creates a matching <strong>double-entry journal entry</strong>.</li>
+          <li>Income default: <strong>Dr Cash</strong>, <strong>Cr Service Revenue</strong>.</li>
+          <li>Current startup expense treatment: <strong>Dr Expense</strong>, <strong>Cr Owner Contributions</strong>.</li>
+          <li>If you edit/delete a Tax Ledger row, related auto-journal entries update too.</li>
+        </ul>
+
+        <h4 style="margin:.8rem 0 .35rem; color:var(--cyan);">3) Weekly checks (Accounts tab)</h4>
+        <ul style="margin:.2rem 0 .2rem 1.1rem; padding:0; display:grid; gap:.3rem;">
+          <li>Confirm Trial Balance shows <strong>Balanced ✅</strong>.</li>
+          <li>If not, inspect latest lines in the Journal tab.</li>
+          <li>Use <strong>Year</strong> or <strong>custom date range</strong> filters for monthly/tax review.</li>
+        </ul>
+      </div>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn btn-primary" id="user-guide-close-btn">Got it</button>
+      </div>
+    </div>
+  </div>
+
   <script>
 // ===== API URL Constants =====
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
@@ -495,6 +531,7 @@
     const taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
     const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
     const taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
+    const adminUserGuideBtn = document.getElementById('admin-user-guide-btn');
     const taxExpensePanel = document.getElementById('tax-expense-panel');
     const taxIncomePanel = document.getElementById('tax-income-panel');
     const taxExpenseFields = document.getElementById('tax-expense-fields');
@@ -511,6 +548,8 @@
     const addExpenseCategoryBtn = document.getElementById('add-expense-category-btn');
     const addIncomeCategoryBtn = document.getElementById('add-income-category-btn');
     const taxCategoryEditModal = document.getElementById('tax-category-edit-modal');
+    const userGuideModal = document.getElementById('user-guide-modal');
+    const userGuideCloseBtn = document.getElementById('user-guide-close-btn');
     const taxCategoryEditInput = document.getElementById('tax-category-edit-input');
     const taxCategoryEditSaveBtn = document.getElementById('tax-category-edit-save-btn');
     const taxCategoryEditCancelBtn = document.getElementById('tax-category-edit-cancel-btn');
@@ -644,6 +683,18 @@
       errorModal.setAttribute('aria-hidden', 'true');
     }
 
+    function openUserGuideModal() {
+      if (!userGuideModal) return;
+      userGuideModal.classList.add('active');
+      userGuideModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeUserGuideModal() {
+      if (!userGuideModal) return;
+      userGuideModal.classList.remove('active');
+      userGuideModal.setAttribute('aria-hidden', 'true');
+    }
+
     function openConfirmModal(text, title = 'Please Confirm', confirmLabel = 'Confirm') {
       return new Promise((resolve) => {
         const confirmTitleEl = document.getElementById('confirm-title');
@@ -674,10 +725,13 @@
     successModal.addEventListener('click', (e) => { if (e.target === successModal) closeSuccessModal(); });
     errorCloseBtn.addEventListener('click', closeErrorModal);
     errorModal.addEventListener('click', (e) => { if (e.target === errorModal) closeErrorModal(); });
+    userGuideCloseBtn?.addEventListener('click', closeUserGuideModal);
+    userGuideModal?.addEventListener('click', (e) => { if (e.target === userGuideModal) closeUserGuideModal(); });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && successModal.classList.contains('active')) closeSuccessModal();
       if (e.key === 'Escape' && errorModal.classList.contains('active')) closeErrorModal();
+      if (e.key === 'Escape' && userGuideModal?.classList.contains('active')) closeUserGuideModal();
     });
 
     // ===== Admin Controls =====
@@ -1614,6 +1668,7 @@
     taxTypeEl.addEventListener('change', loadTaxTransactions);
     taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
     taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
+    adminUserGuideBtn?.addEventListener('click', openUserGuideModal);
 
     window.openTaxCategoryManager = () => {
       if (!taxCategoryModal) {
