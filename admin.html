@@ -1101,7 +1101,7 @@
     ];
 
     const DEFAULT_TAX_INCOME_CATEGORIES = [
-      'OpenClaw Setup', 'Consulting', 'Website Design', 'AI Lessons', 'Domain Sale', 'Other'
+      'OpenClaw Setup', 'Consulting', 'Website Design', 'AI Lessons', 'Domain Sale', 'Owner Funded (Non-Revenue)', 'Other'
     ];
 
     let TAX_EXPENSE_CATEGORIES = [...DEFAULT_TAX_EXPENSE_CATEGORIES];
@@ -1128,6 +1128,13 @@
         if (Array.isArray(exp) && exp.length) TAX_EXPENSE_CATEGORIES = [...new Set(exp.map(v => String(v).trim()).filter(Boolean))];
         if (Array.isArray(inc) && inc.length) TAX_INCOME_CATEGORIES = [...new Set(inc.map(v => String(v).trim()).filter(Boolean))];
       } catch {}
+      // Ensure newly shipped default categories still appear for existing users with saved prefs.
+      for (const c of DEFAULT_TAX_EXPENSE_CATEGORIES) {
+        if (!TAX_EXPENSE_CATEGORIES.some(v => v.toLowerCase() === c.toLowerCase())) TAX_EXPENSE_CATEGORIES.push(c);
+      }
+      for (const c of DEFAULT_TAX_INCOME_CATEGORIES) {
+        if (!TAX_INCOME_CATEGORIES.some(v => v.toLowerCase() === c.toLowerCase())) TAX_INCOME_CATEGORIES.push(c);
+      }
     }
 
     function renderCategoryOptions() {

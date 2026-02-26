@@ -1911,7 +1911,11 @@ async function upsertTaxIncomeJournal(db, row) {
   if (!Number.isFinite(amount) || amount <= 0) return;
 
   const debitAccountId = await getAccountIdByCode(db, '1000');
-  const creditAccountId = await getAccountIdByCode(db, '4000');
+  const categoryRaw = (row.category || '').toString().trim().toLowerCase();
+  const sourceRaw = (row.source || '').toString().trim().toLowerCase();
+  const isOwnerFunded = categoryRaw.includes('owner funded') || categoryRaw.includes('non-revenue') || sourceRaw.includes('owner funded') || sourceRaw.includes('test');
+  const creditAccountCode = isOwnerFunded ? '3100' : '4000';
+  const creditAccountId = await getAccountIdByCode(db, creditAccountCode);
   if (!debitAccountId || !creditAccountId) return;
 
   const memo = `${row.category || 'Income'}${row.source ? ` - ${row.source}` : ''}`;
