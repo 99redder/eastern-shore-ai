@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/fonts.css" />
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <style>
     /* ===== Theme & CSS Variables ===== */
     :root { --bg:#0a0b10; --bg2:#10121a; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; --violet:#c850ff; }
@@ -422,6 +423,7 @@
             </p>
             <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
               <button type="button" class="btn btn-primary" id="accounts-year-close-btn">Open Year-End Close Wizard</button>
+              <button type="button" class="btn" id="audit-package-btn">Audit Package</button>
             </div>
           </section>
         </div>
@@ -527,6 +529,30 @@
       <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
         <button type="button" class="btn" id="year-close-cancel-btn">Cancel</button>
         <button type="button" class="btn btn-primary" id="year-close-apply-btn">Apply Year-End Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="audit-package-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="audit-package-title" style="width:min(760px,94vw); max-height:86vh; overflow-y:auto;">
+      <h3 id="audit-package-title">Audit Package</h3>
+      <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem;">
+        <label for="audit-year">Year</label>
+        <select id="audit-year" style="max-width:160px;"></select>
+        <button type="button" class="btn" id="audit-select-all-btn">Select All</button>
+      </div>
+      <div id="audit-doc-list" style="display:grid; gap:.35rem;">
+        <label><input type="checkbox" value="balance_sheet_pdf" checked /> Balance Sheet (PDF)</label>
+        <label><input type="checkbox" value="pnl_pdf" checked /> Profit & Loss (PDF)</label>
+        <label><input type="checkbox" value="cashflow_pdf" checked /> Cash Flow (PDF)</label>
+        <label><input type="checkbox" value="trial_balance_pdf" checked /> Trial Balance (PDF)</label>
+        <label><input type="checkbox" value="tax_csv" checked /> Tax Transactions CSV</label>
+        <label><input type="checkbox" value="journal_csv" checked /> Journal Entries CSV</label>
+        <label><input type="checkbox" value="receipts" checked /> Receipts</label>
+      </div>
+      <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="audit-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="audit-generate-btn">Generate ZIP</button>
       </div>
     </div>
   </div>
@@ -645,6 +671,12 @@
     const yearCloseCancelBtn = document.getElementById('year-close-cancel-btn');
     const yearCloseApplyBtn = document.getElementById('year-close-apply-btn');
 
+    const auditPackageModal = document.getElementById('audit-package-modal');
+    const auditYearEl = document.getElementById('audit-year');
+    const auditSelectAllBtn = document.getElementById('audit-select-all-btn');
+    const auditCancelBtn = document.getElementById('audit-cancel-btn');
+    const auditGenerateBtn = document.getElementById('audit-generate-btn');
+
     const userGuideModal = document.getElementById('user-guide-modal');
     const userGuideCloseBtn = document.getElementById('user-guide-close-btn');
     const userGuideTabBtns = document.querySelectorAll('[data-guide-tab]');
@@ -666,6 +698,7 @@
     const accountsToEl = document.getElementById('accounts-to');
     const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
     const accountsYearCloseBtn = document.getElementById('accounts-year-close-btn');
+    const auditPackageBtn = document.getElementById('audit-package-btn');
     const accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
     const accountsListEl = document.getElementById('accounts-list');
     const accountsStatementsListEl = document.getElementById('accounts-statements-list');
@@ -822,6 +855,149 @@
       yearCloseModal?.setAttribute('aria-hidden', 'true');
     }
 
+    function openAuditPackageModal() {
+      if (auditYearEl && accountsYearEl?.value) auditYearEl.value = accountsYearEl.value;
+      auditPackageModal?.classList.add('active');
+      auditPackageModal?.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAuditPackageModal() {
+      auditPackageModal?.classList.remove('active');
+      auditPackageModal?.setAttribute('aria-hidden', 'true');
+    }
+
+    function buildPdfBlob(title, lines) {
+      const jspdfNs = window.jspdf;
+      if (!jspdfNs?.jsPDF) throw new Error('jsPDF failed to load');
+      const doc = new jspdfNs.jsPDF({ orientation: 'p', unit: 'pt', format: 'letter' });
+      let y = 50;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(title, 40, y);
+      y += 24;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      for (const line of lines) {
+        if (y > 740) { doc.addPage(); y = 50; }
+        doc.text(String(line).slice(0, 120), 40, y);
+        y += 14;
+      }
+      return doc.output('blob');
+    }
+
+    async function generateAuditPackage() {
+      const year = auditYearEl?.value;
+      if (!/^\d{4}$/.test(year || '')) { openErrorModal('Select a valid year.'); return; }
+      const selected = Array.from(document.querySelectorAll('#audit-doc-list input[type="checkbox"]:checked')).map(i => i.value);
+      if (!selected.length) { openErrorModal('Select at least one document.'); return; }
+      if (typeof JSZip === 'undefined') { openErrorModal('JSZip not loaded — refresh and try again.'); return; }
+
+      auditGenerateBtn.disabled = true;
+      auditGenerateBtn.textContent = 'Building…';
+      try {
+        const zip = new JSZip();
+        const root = zip.folder(`audit-package-${year}`);
+
+        const [txRes, summaryRes, statementsRes, journalRes] = await Promise.all([
+          fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, { headers: { 'X-Admin-Password': adminPassword } }),
+          fetch(`${ACCOUNTS_SUMMARY_API_URL}?year=${encodeURIComponent(year)}`, { headers: { 'X-Admin-Password': adminPassword } }),
+          fetch(`${ACCOUNTS_STATEMENTS_API_URL}?year=${encodeURIComponent(year)}`, { headers: { 'X-Admin-Password': adminPassword } }),
+          fetch(`${ACCOUNTS_JOURNAL_API_URL}?year=${encodeURIComponent(year)}&limit=5000`, { headers: { 'X-Admin-Password': adminPassword } })
+        ]);
+        const txData = await txRes.json();
+        const summaryData = await summaryRes.json();
+        const stData = await statementsRes.json();
+        const journalData = await journalRes.json();
+
+        const money = (c) => `$${(Number(c || 0)/100).toFixed(2)}`;
+
+        if (selected.includes('tax_csv')) {
+          const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, { headers: { 'X-Admin-Password': adminPassword } });
+          if (csvRes.ok) root.file(`tax-transactions-${year}.csv`, await csvRes.blob());
+        }
+
+        if (selected.includes('journal_csv')) {
+          const lines = ['date,memo,account,debit,credit'];
+          for (const e of (journalData.entries || [])) {
+            for (const l of (e.lines || [])) {
+              lines.push(`${e.entry_date || ''},"${(e.memo || '').replace(/"/g,'""')}","${l.code} ${l.name}",${(Number(l.debit_cents||0)/100).toFixed(2)},${(Number(l.credit_cents||0)/100).toFixed(2)}`);
+            }
+          }
+          root.file(`journal-${year}.csv`, lines.join('\n'));
+        }
+
+        if (selected.includes('trial_balance_pdf')) {
+          const lines = (summaryData.accounts || []).map(a => `${a.code} ${a.name} | Balance ${money(a.balance_cents)}`);
+          root.file(`trial-balance-${year}.pdf`, await buildPdfBlob(`Trial Balance ${year}`, lines));
+        }
+
+        if (selected.includes('balance_sheet_pdf')) {
+          const lines = [
+            'Assets:',
+            ...(stData.balanceSheet?.assets || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`),
+            '',
+            'Liabilities:',
+            ...(stData.balanceSheet?.liabilities || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`),
+            '',
+            'Equity:',
+            ...(stData.balanceSheet?.equity || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`)
+          ];
+          root.file(`balance-sheet-${year}.pdf`, await buildPdfBlob(`Balance Sheet ${year}`, lines));
+        }
+
+        if (selected.includes('pnl_pdf')) {
+          const lines = [
+            'Income:',
+            ...(stData.incomeStatement?.income || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`),
+            '',
+            'Expenses:',
+            ...(stData.incomeStatement?.expenses || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`),
+            '',
+            `Net Income: ${money((Number(stData.totals?.income||0)-Number(stData.totals?.expenses||0)))}`
+          ];
+          root.file(`profit-loss-${year}.pdf`, await buildPdfBlob(`Profit & Loss ${year}`, lines));
+        }
+
+        if (selected.includes('cashflow_pdf')) {
+          const lines = [
+            `Net Cash Change: ${money(stData.cashFlow?.netCashChange)}`,
+            stData.cashFlow?.note || ''
+          ];
+          root.file(`cash-flow-${year}.pdf`, await buildPdfBlob(`Cash Flow ${year}`, lines));
+        }
+
+        if (selected.includes('receipts')) {
+          const recFolder = root.folder('receipts');
+          const allRecords = [
+            ...(txData.expenses || []).map(r => ({ ...r, type: 'expense' })),
+            ...(txData.income || []).map(r => ({ ...r, type: 'income' }))
+          ];
+          for (const r of allRecords) {
+            if (!r.receipt_key) continue;
+            const ext = (r.receipt_key.split('.').pop() || 'bin').slice(0, 5);
+            const fn = `${r.type}-${r.id}-${r.date}.${ext}`;
+            const rr = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}`);
+            if (rr.ok) recFolder.file(fn, await rr.blob());
+          }
+        }
+
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `audit-package-${year}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1200);
+        closeAuditPackageModal();
+      } catch (e) {
+        openErrorModal(`Could not build audit package: ${e.message || e}`);
+      } finally {
+        auditGenerateBtn.disabled = false;
+        auditGenerateBtn.textContent = 'Generate ZIP';
+      }
+    }
+
     async function applyYearCloseWizard() {
       const year = accountsYearEl?.value;
       const ok = await openConfirmModal(`Apply formal year-end closing entries for ${year}? Existing close entries for that year will be replaced.`, 'Apply Year-End Close?', 'Apply');
@@ -890,12 +1066,22 @@
     yearCloseCancelBtn?.addEventListener('click', closeYearCloseWizard);
     yearCloseApplyBtn?.addEventListener('click', applyYearCloseWizard);
     yearCloseModal?.addEventListener('click', (e) => { if (e.target === yearCloseModal) closeYearCloseWizard(); });
+    auditCancelBtn?.addEventListener('click', closeAuditPackageModal);
+    auditGenerateBtn?.addEventListener('click', generateAuditPackage);
+    auditSelectAllBtn?.addEventListener('click', () => {
+      const boxes = Array.from(document.querySelectorAll('#audit-doc-list input[type="checkbox"]'));
+      const allChecked = boxes.every(b => b.checked);
+      boxes.forEach(b => { b.checked = !allChecked; });
+      auditSelectAllBtn.textContent = allChecked ? 'Select All' : 'Clear All';
+    });
+    auditPackageModal?.addEventListener('click', (e) => { if (e.target === auditPackageModal) closeAuditPackageModal(); });
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && successModal.classList.contains('active')) closeSuccessModal();
       if (e.key === 'Escape' && errorModal.classList.contains('active')) closeErrorModal();
       if (e.key === 'Escape' && userGuideModal?.classList.contains('active')) closeUserGuideModal();
       if (e.key === 'Escape' && yearCloseModal?.classList.contains('active')) closeYearCloseWizard();
+      if (e.key === 'Escape' && auditPackageModal?.classList.contains('active')) closeAuditPackageModal();
     });
 
     // ===== Admin Controls =====
@@ -1702,6 +1888,10 @@
         accountsYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
         accountsYearEl.value = String(thisYear);
       }
+      if (auditYearEl) {
+        auditYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        auditYearEl.value = String(thisYear);
+      }
       if (accountsFromEl) accountsFromEl.value = `${thisYear}-01-01`;
       if (accountsToEl) accountsToEl.value = `${thisYear}-12-31`;
     }
@@ -2026,6 +2216,7 @@
 
     accountsRefreshBtn?.addEventListener('click', loadAccountsData);
     accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
+    auditPackageBtn?.addEventListener('click', openAuditPackageModal);
     accountsYearEl?.addEventListener('change', loadAccountsData);
     accountsFromEl?.addEventListener('change', loadAccountsData);
     accountsToEl?.addEventListener('change', loadAccountsData);
