@@ -949,15 +949,31 @@
         }
 
         if (selected.includes('balance_sheet_pdf')) {
+          const totalAssets = Number(stData.totals?.assets || 0);
+          const totalLiabilities = Number(stData.totals?.liabilities || 0);
+          const totalEquity = Number(stData.totals?.equity || 0);
+          const currentEarnings = Number(stData.totals?.income || 0) - Number(stData.totals?.expenses || 0);
+          const adjustedEquity = totalEquity + currentEarnings;
+          const totalLE = totalLiabilities + adjustedEquity;
+          const balancedText = totalAssets === totalLE ? 'Balanced YES' : 'Balanced NO';
+
           const lines = [
             'Assets:',
             ...(stData.balanceSheet?.assets || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`),
+            `Total Assets: ${money(totalAssets)}`,
             '',
             'Liabilities:',
             ...(stData.balanceSheet?.liabilities || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`),
+            `Total Liabilities: ${money(totalLiabilities)}`,
             '',
             'Equity:',
-            ...(stData.balanceSheet?.equity || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`)
+            ...(stData.balanceSheet?.equity || []).map(a => `${a.code} ${a.name} ${money(a.balance_cents)}`),
+            `Current Period Earnings: ${money(currentEarnings)}`,
+            `Adjusted Equity: ${money(adjustedEquity)}`,
+            '',
+            `Accounting Equation Check: ${balancedText}`,
+            `Assets: ${money(totalAssets)}`,
+            `Liabilities + Adjusted Equity: ${money(totalLE)}`
           ];
           root.file(`balance-sheet-${year}.pdf`, await buildPdfBlob(`Balance Sheet ${year}`, lines));
         }
