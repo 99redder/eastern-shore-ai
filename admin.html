@@ -113,7 +113,17 @@
     .tax-entry-wrap { margin-top:1rem; }
 
     .admin-section-tabs { display:flex; gap:.45rem; flex-wrap:wrap; margin-bottom:.7rem; }
-    .admin-section-tabs .btn.active { border-color:var(--cyan); box-shadow:0 0 10px rgba(0,229,255,.25); }
+    .admin-section-tabs .btn {
+      border-color:#1c4f8f;
+      background:linear-gradient(145deg,#0f2f57,#1f4f90);
+      color:#d9ecff;
+      box-shadow:0 0 10px rgba(31,79,144,.35);
+    }
+    .admin-section-tabs .btn:hover {
+      background:linear-gradient(145deg,#164277,#2a66b0);
+      border-color:#3d7bc6;
+    }
+    .admin-section-tabs .btn.active { border-color:#7bb6ff; box-shadow:0 0 12px rgba(123,182,255,.45); }
 
     .bs-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
     .bs-card { border:1px solid var(--line); border-radius:4px; background:#141620; padding:.55rem; }
