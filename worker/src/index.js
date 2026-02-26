@@ -1464,7 +1464,8 @@ async function handleAccountsList(request, env, corsHeaders, url) {
   const auth = requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
-  await ensureAccountingSetup(env.DB);
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
   const rows = await env.DB.prepare(
     `SELECT id, code, name, account_type, normal_side, is_system, active
      FROM accounts
@@ -1480,7 +1481,8 @@ async function handleAccountsSummary(request, env, corsHeaders, url) {
   const auth = requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
-  await ensureAccountingSetup(env.DB);
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
 
   const year = (url.searchParams.get('year') || '').trim();
   const from = (url.searchParams.get('from') || '').trim();
@@ -1535,7 +1537,8 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
   const auth = requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
-  await ensureAccountingSetup(env.DB);
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
 
   const limit = Math.max(1, Math.min(500, Number(url.searchParams.get('limit') || 200)));
   const year = (url.searchParams.get('year') || '').trim();
@@ -1575,7 +1578,8 @@ async function handleAccountsJournalCreate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  await ensureAccountingSetup(env.DB);
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
 
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -1602,7 +1606,8 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  await ensureAccountingSetup(env.DB);
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
 
   const autoRows = await env.DB.prepare(
     `SELECT id FROM journal_entries WHERE source_type IN ('tax_expense','tax_income')`
@@ -1632,11 +1637,20 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
   }, 200, corsHeaders);
 }
 
+async function accountingTablesReady(db) {
+  const tables = ['accounts', 'journal_entries', 'journal_lines'];
+  for (const t of tables) {
+    const has = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name = ?1`).bind(t).first();
+    if (!has) return false;
+  }
+  return true;
+}
+
 async function ensureAccountingSetup(db) {
-  const has = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='accounts'`).first();
-  if (!has) return;
+  const ready = await accountingTablesReady(db);
+  if (!ready) return false;
   const existing = await db.prepare(`SELECT COUNT(*) AS c FROM accounts`).first();
-  if (Number(existing?.c || 0) > 0) return;
+  if (Number(existing?.c || 0) > 0) return true;
 
   const seed = [
     ['1000','Cash on Hand','asset','debit'],
@@ -1662,6 +1676,7 @@ async function ensureAccountingSetup(db) {
   for (const s of seed) {
     await db.prepare(`INSERT INTO accounts (code, name, account_type, normal_side, is_system, active) VALUES (?1, ?2, ?3, ?4, 1, 1)`).bind(...s).run();
   }
+  return true;
 }
 
 async function getAccountIdByCode(db, code) {
@@ -1670,6 +1685,8 @@ async function getAccountIdByCode(db, code) {
 }
 
 async function deleteAutoJournalBySource(db, sourceType, sourceId) {
+  const ready = await accountingTablesReady(db);
+  if (!ready) return;
   const rows = await db.prepare(`SELECT id FROM journal_entries WHERE source_type = ?1 AND source_id = ?2`).bind(sourceType, sourceId).all();
   for (const r of (rows.results || [])) {
     await db.prepare(`DELETE FROM journal_lines WHERE entry_id = ?1`).bind(r.id).run();
@@ -1678,7 +1695,8 @@ async function deleteAutoJournalBySource(db, sourceType, sourceId) {
 }
 
 async function upsertTaxExpenseJournal(db, row) {
-  await ensureAccountingSetup(db);
+  const accountingReady = await ensureAccountingSetup(db);
+  if (!accountingReady) return;
   await deleteAutoJournalBySource(db, 'tax_expense', row.id);
 
   const amount = Number(row.amount_cents || 0);
@@ -1705,7 +1723,8 @@ async function upsertTaxExpenseJournal(db, row) {
 }
 
 async function upsertTaxIncomeJournal(db, row) {
-  await ensureAccountingSetup(db);
+  const accountingReady = await ensureAccountingSetup(db);
+  if (!accountingReady) return;
   await deleteAutoJournalBySource(db, 'tax_income', row.id);
 
   const amount = Number(row.amount_cents || 0);
