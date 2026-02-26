@@ -1626,8 +1626,10 @@
           const totalAssets = Number(statements.totals?.assets || 0);
           const totalLiabilities = Number(statements.totals?.liabilities || 0);
           const totalEquity = Number(statements.totals?.equity || 0);
-          const totalLE = totalLiabilities + totalEquity;
-          const balancedText = statements.equationBalanced ? 'Balanced ✅' : 'Out of Balance ❌';
+          const currentEarnings = Number(statements.totals?.income || 0) - Number(statements.totals?.expenses || 0);
+          const adjustedEquity = totalEquity + currentEarnings;
+          const totalLE = totalLiabilities + adjustedEquity;
+          const balancedText = totalAssets === totalLE ? 'Balanced ✅' : 'Out of Balance ❌';
 
           accountsStatementsListEl.innerHTML = `
             <div class="bs-grid">
@@ -1644,7 +1646,8 @@
               <div class="bs-card">
                 <h4>Equity</h4>
                 ${lineList(equity)}
-                <div class="bs-total"><span>Total Equity</span><span>${money(totalEquity)}</span></div>
+                <div class="bs-line"><span>Current Period Earnings</span><strong>${money(currentEarnings)}</strong></div>
+                <div class="bs-total"><span>Total Equity (Adjusted)</span><span>${money(adjustedEquity)}</span></div>
               </div>
             </div>
             <div class="bs-card" style="margin-top:.6rem;">
