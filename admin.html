@@ -424,6 +424,14 @@
             <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
               <label for="recon-year">Year</label>
               <select id="recon-year" style="max-width:140px;"></select>
+              <label for="recon-month">Month</label>
+              <select id="recon-month" style="max-width:160px;">
+                <option value="all">All Year</option>
+                <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+                <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+                <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+                <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+              </select>
               <label for="recon-csv">Statement CSV</label>
               <input id="recon-csv" type="file" accept=".csv,text/csv" />
               <button type="button" class="btn" id="recon-run-btn">Run Reconciliation</button>
@@ -777,6 +785,7 @@
     const accountsToEl = document.getElementById('accounts-to');
     const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
     const reconYearEl = document.getElementById('recon-year');
+    const reconMonthEl = document.getElementById('recon-month');
     const reconCsvEl = document.getElementById('recon-csv');
     const reconRunBtn = document.getElementById('recon-run-btn');
     const reconSummaryEl = document.getElementById('recon-summary');
@@ -2101,9 +2110,20 @@
     async function runReconciliation() {
       if (!reconCsvEl?.files?.[0]) { openErrorModal('Select a CSV file first.'); return; }
       const year = reconYearEl?.value || taxYearEl?.value;
+      const month = reconMonthEl?.value || 'all';
       const fileText = await reconCsvEl.files[0].text();
-      const statementRows = parseCsvRows(fileText);
+      let statementRows = parseCsvRows(fileText);
       if (!statementRows.length) { openErrorModal('Could not parse statement rows from CSV.'); return; }
+
+      if (month !== 'all') {
+        statementRows = statementRows.filter((r) => {
+          const d = String(r.date || '').slice(0, 10);
+          return /^\d{4}-\d{2}-\d{2}$/.test(d) && d.startsWith(`${year}-${month}`);
+        });
+      } else {
+        statementRows = statementRows.filter((r) => String(r.date || '').startsWith(`${year}-`));
+      }
+      if (!statementRows.length) { openErrorModal('No statement rows found for the selected period.'); return; }
 
       const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
         headers: { 'X-Admin-Password': adminPassword }
@@ -2111,10 +2131,13 @@
       const data = await res.json();
       if (!res.ok) { openErrorModal(data.error || 'Failed to load ledger data.'); return; }
 
-      const ledger = [
+      let ledger = [
         ...(data.expenses || []).map(r => ({ type: 'expense', date: r.date, amountCents: Number(r.amount_cents || 0), label: `${r.category || ''} ${r.vendor || ''}`.trim() })),
         ...(data.income || []).map(r => ({ type: 'income', date: r.date, amountCents: Number(r.amount_cents || 0), label: `${r.category || ''} ${r.source || ''}`.trim() }))
       ];
+      if (month !== 'all') {
+        ledger = ledger.filter((l) => String(l.date || '').startsWith(`${year}-${month}`));
+      }
 
       const used = new Set();
       let matched = 0;
@@ -2131,7 +2154,8 @@
         }
       }
 
-      reconSummaryEl.textContent = `Statement rows: ${statementRows.length} | Matched: ${matched} | Unmatched: ${unmatched.length}`;
+      const periodLabel = month === 'all' ? `${year} (all months)` : `${year}-${month}`;
+      reconSummaryEl.textContent = `Period: ${periodLabel} | Statement rows: ${statementRows.length} | Ledger rows: ${ledger.length} | Matched: ${matched} | Unmatched: ${unmatched.length}`;
       reconMatchesEl.innerHTML = `
         <div><strong>Matched</strong></div>
         ${(matchedLines.slice(0, 120)).map(m => `<div style="padding:.2rem 0; border-bottom:1px dashed var(--line);">${escHtml(m.statement.date)} | ${escHtml(m.statement.description)} | $${(m.statement.amountCents/100).toFixed(2)} ↔ ${escHtml(m.ledger.type)} ${escHtml(m.ledger.label)}</div>`).join('') || '<div style="color:var(--muted);">No matches.</div>'}
