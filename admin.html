@@ -196,6 +196,7 @@
           <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
           <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
           <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
+          <button type="button" class="btn" data-admin-tab="audit-package">Audit Package</button>
         </div>
 
         <div class="admin-collapsible-card" id="booking-controls-card">
@@ -421,7 +422,23 @@
             </p>
             <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
               <button type="button" class="btn btn-primary" id="accounts-year-close-btn">Open Year-End Close Wizard</button>
-              <button type="button" class="btn" id="audit-package-btn">Audit Package</button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="admin-collapsible-card" id="audit-package-card" style="margin-top:1rem;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Audit Package</h3>
+          <button type="button" class="btn" id="audit-package-collapse-btn" aria-expanded="false">Expand</button>
+        </div>
+        <div id="audit-package-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <p style="margin:.2rem 0 .65rem; color:var(--text); line-height:1.45;">
+              Build a downloadable ZIP for a selected year with statements, journal/tax CSVs, optional receipts, and a manifest.
+            </p>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary" id="audit-package-btn">Open Audit Package Builder</button>
             </div>
           </section>
         </div>
@@ -637,6 +654,8 @@
     const accountsBody = document.getElementById('accounts-body');
     const yearCloseCollapseBtn = document.getElementById('year-close-collapse-btn');
     const yearCloseBody = document.getElementById('year-close-body');
+    const auditPackageCollapseBtn = document.getElementById('audit-package-collapse-btn');
+    const auditPackageBody = document.getElementById('audit-package-body');
 
     const taxYearEl = document.getElementById('tax-year');
     const taxSummaryYearEl = document.getElementById('tax-summary-year');
@@ -2043,13 +2062,14 @@
       show('tax-ledger-card', tab === 'tax');
       show('accounts-card', tab === 'accounts');
       show('year-close-card', tab === 'year-close');
+      show('audit-package-card', tab === 'audit-package');
     }
 
     function disableLegacyCollapse() {
-      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, yearCloseCollapseBtn].forEach((btn) => {
+      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
         if (btn) btn.style.display = 'none';
       });
-      [bookingControlsBody, taxLedgerBody, accountsBody, yearCloseBody].forEach((body) => {
+      [bookingControlsBody, taxLedgerBody, accountsBody, yearCloseBody, auditPackageBody].forEach((body) => {
         body?.classList.remove('admin-collapsible-body-collapsed');
       });
     }
