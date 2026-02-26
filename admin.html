@@ -1892,7 +1892,7 @@
             <h4>Expenses (${summaryYear})</h4>
             <div class="tax-summary-line"><span>Total</span><strong>$${(expenseTotal/100).toFixed(2)}</strong></div>
             ${expenseRows}
-            <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong>$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
+            <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Net</span><strong class="money-blur-target">$${((incomeTotal - expenseTotal)/100).toFixed(2)}</strong></div>
           </div>
         `;
         allTxItems = items;
@@ -2283,7 +2283,7 @@
               <div class="bs-card">
                 <h4>Equity</h4>
                 ${lineList(equity)}
-                <div class="bs-line"><span>Current Period Earnings</span><strong>${money(currentEarnings)}</strong></div>
+                <div class="bs-line"><span>Current Period Earnings</span><strong class="money-blur-target">${money(currentEarnings)}</strong></div>
                 <div class="bs-total"><span>Total Equity (Adjusted)</span><span>${money(adjustedEquity)}</span></div>
               </div>
             </div>
@@ -2299,7 +2299,7 @@
             <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
             <div><strong>Expenses</strong>${lineList(statements.incomeStatement?.expenses || [])}</div>
             <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
-            <div style="display:flex; justify-content:space-between;"><span>Net Income</span><strong>${money((Number(statements.totals?.income||0)-Number(statements.totals?.expenses||0)))}</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Net Income</span><strong class="money-blur-target">${money((Number(statements.totals?.income||0)-Number(statements.totals?.expenses||0)))}</strong></div>
           `;
         } else if (activeAccountsTab === 'cashflow') {
           accountsStatementsListEl.innerHTML = `
