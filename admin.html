@@ -112,6 +112,12 @@
     .tax-summary-line strong { color:var(--text); font-weight:700; }
     .tax-entry-wrap { margin-top:1rem; }
 
+    .bs-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
+    .bs-card { border:1px solid var(--line); border-radius:4px; background:#141620; padding:.55rem; }
+    .bs-card h4 { margin:.1rem 0 .45rem; color:var(--cyan); font-size:1rem; }
+    .bs-line { display:flex; justify-content:space-between; gap:.5rem; padding:.12rem 0; }
+    .bs-total { margin-top:.35rem; padding-top:.35rem; border-top:1px solid var(--line); display:flex; justify-content:space-between; font-weight:700; }
+
     /* ===== Admin Calendar ===== */
     .admin-calendar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.8rem; gap:.45rem; }
     .admin-calendar-title { font-size:1.05rem; color:var(--cyan); }
@@ -133,6 +139,7 @@
       .admin-grid { grid-template-columns:1fr; }
       .form-grid { grid-template-columns:1fr; }
       .tax-summary-grid { grid-template-columns:1fr; }
+      .bs-grid { grid-template-columns:1fr; }
       .container { padding:0.8rem; }
       .admin-cal-day { min-height:38px; }
       .admin-calendar-grid { gap:0.15rem; }
@@ -1613,15 +1620,38 @@
           : '<div style="color:var(--muted);">No rows</div>';
 
         if (activeAccountsTab === 'balance_sheet') {
+          const assets = statements.balanceSheet?.assets || [];
+          const liabilities = statements.balanceSheet?.liabilities || [];
+          const equity = statements.balanceSheet?.equity || [];
+          const totalAssets = Number(statements.totals?.assets || 0);
+          const totalLiabilities = Number(statements.totals?.liabilities || 0);
+          const totalEquity = Number(statements.totals?.equity || 0);
+          const totalLE = totalLiabilities + totalEquity;
+          const balancedText = statements.equationBalanced ? 'Balanced ✅' : 'Out of Balance ❌';
+
           accountsStatementsListEl.innerHTML = `
-            <div><strong>Assets</strong>${lineList(statements.balanceSheet?.assets || [])}</div>
-            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
-            <div><strong>Liabilities</strong>${lineList(statements.balanceSheet?.liabilities || [])}</div>
-            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
-            <div><strong>Equity</strong>${lineList(statements.balanceSheet?.equity || [])}</div>
-            <hr style="border:0; border-top:1px solid var(--line); margin:.6rem 0;" />
-            <div style="display:flex; justify-content:space-between;"><span>Total Assets</span><strong>${money(statements.totals?.assets)}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span>Total Liabilities + Equity</span><strong>${money((Number(statements.totals?.liabilities||0)+Number(statements.totals?.equity||0)))}</strong></div>
+            <div class="bs-grid">
+              <div class="bs-card">
+                <h4>Assets</h4>
+                ${lineList(assets)}
+                <div class="bs-total"><span>Total Assets</span><span>${money(totalAssets)}</span></div>
+              </div>
+              <div class="bs-card">
+                <h4>Liabilities</h4>
+                ${lineList(liabilities)}
+                <div class="bs-total"><span>Total Liabilities</span><span>${money(totalLiabilities)}</span></div>
+              </div>
+              <div class="bs-card">
+                <h4>Equity</h4>
+                ${lineList(equity)}
+                <div class="bs-total"><span>Total Equity</span><span>${money(totalEquity)}</span></div>
+              </div>
+            </div>
+            <div class="bs-card" style="margin-top:.6rem;">
+              <div class="bs-line"><span>Accounting Equation</span><strong>${balancedText}</strong></div>
+              <div class="bs-line"><span>Assets</span><strong>${money(totalAssets)}</strong></div>
+              <div class="bs-line"><span>Liabilities + Equity</span><strong>${money(totalLE)}</strong></div>
+            </div>
           `;
         } else if (activeAccountsTab === 'pnl') {
           accountsStatementsListEl.innerHTML = `
