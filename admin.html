@@ -112,6 +112,9 @@
     .tax-summary-line strong { color:var(--text); font-weight:700; }
     .tax-entry-wrap { margin-top:1rem; }
 
+    .admin-section-tabs { display:flex; gap:.45rem; flex-wrap:wrap; margin-bottom:.7rem; }
+    .admin-section-tabs .btn.active { border-color:var(--cyan); box-shadow:0 0 10px rgba(0,229,255,.25); }
+
     .bs-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.6rem; }
     .bs-card { border:1px solid var(--line); border-radius:4px; background:#141620; padding:.55rem; }
     .bs-card h4 { margin:.1rem 0 .45rem; color:var(--cyan); font-size:1rem; }
@@ -140,6 +143,7 @@
       .form-grid { grid-template-columns:1fr; }
       .tax-summary-grid { grid-template-columns:1fr; }
       .bs-grid { grid-template-columns:1fr; }
+      .admin-section-tabs { gap:.3rem; }
       .container { padding:0.8rem; }
       .admin-cal-day { min-height:38px; }
       .admin-calendar-grid { gap:0.15rem; }
@@ -176,6 +180,13 @@
       </div>
 
       <div class="admin-controls" id="admin-controls" style="padding:0 1rem 1rem;">
+        <div class="admin-section-tabs" id="admin-section-tabs">
+          <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
+          <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
+          <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
+          <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
+        </div>
+
         <div class="admin-collapsible-card" id="booking-controls-card">
           <div class="admin-collapsible-head">
             <h3 style="margin:0;">Admin Booking Controls</h3>
@@ -581,6 +592,9 @@
     const adminKeyEl = document.getElementById('admin-key');
     const adminUnlockBtn = document.getElementById('admin-unlock-btn');
 
+    const adminSectionTabsEl = document.getElementById('admin-section-tabs');
+    const adminSectionTabBtns = document.querySelectorAll('[data-admin-tab]');
+
     const bookingCollapseBtn = document.getElementById('booking-collapse-btn');
     const bookingControlsBody = document.getElementById('booking-controls-body');
     const taxCollapseBtn = document.getElementById('tax-collapse-btn');
@@ -707,6 +721,7 @@
     let editingExpenseId = null;
     let editingIncomeId = null;
     let activeAccountsTab = 'balances';
+    let activeAdminSectionTab = 'booking';
 
     // ===== Time Slots =====
     const TIME_SLOTS = [
@@ -1814,26 +1829,26 @@
       if (adminUnlocked) loadAccountsData();
     }
 
-    function wireCollapse(btn, body) {
-      if (!btn || !body) return;
-      btn.addEventListener('click', () => {
-        const isOpen = btn.getAttribute('aria-expanded') !== 'false';
-        if (isOpen) {
-          body.classList.add('admin-collapsible-body-collapsed');
-          btn.setAttribute('aria-expanded', 'false');
-          btn.textContent = 'Expand';
-        } else {
-          body.classList.remove('admin-collapsible-body-collapsed');
-          btn.setAttribute('aria-expanded', 'true');
-          btn.textContent = 'Minimize';
-        }
+    function setAdminSectionTab(tab) {
+      activeAdminSectionTab = tab;
+      adminSectionTabBtns.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-admin-tab') === tab));
+      const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
+      show('booking-controls-card', tab === 'booking');
+      show('tax-ledger-card', tab === 'tax');
+      show('accounts-card', tab === 'accounts');
+      show('year-close-card', tab === 'year-close');
+    }
+
+    function disableLegacyCollapse() {
+      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, yearCloseCollapseBtn].forEach((btn) => {
+        if (btn) btn.style.display = 'none';
+      });
+      [bookingControlsBody, taxLedgerBody, accountsBody, yearCloseBody].forEach((body) => {
+        body?.classList.remove('admin-collapsible-body-collapsed');
       });
     }
 
-    wireCollapse(bookingCollapseBtn, bookingControlsBody);
-    wireCollapse(taxCollapseBtn, taxLedgerBody);
-    wireCollapse(accountsCollapseBtn, accountsBody);
-    wireCollapse(yearCloseCollapseBtn, yearCloseBody);
+    adminSectionTabBtns.forEach((btn) => btn.addEventListener('click', () => setAdminSectionTab(btn.getAttribute('data-admin-tab'))));
 
     // ===== Admin Unlock =====
     adminUnlockBtn.addEventListener('click', async () => {
@@ -1853,6 +1868,8 @@
         initTaxUiDefaults();
         initAccountsUiDefaults();
         setAccountsTab('balances');
+        disableLegacyCollapse();
+        setAdminSectionTab('booking');
         await loadAdminData();
         await loadTaxTransactions();
         await loadAccountsData();
