@@ -61,7 +61,7 @@ export default {
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -162,6 +162,10 @@ export default {
 
     if (url.pathname === '/api/accounts/journal' && request.method === 'POST') {
       return handleAccountsJournalCreate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/rebuild-auto-journal' && request.method === 'POST') {
+      return handleAccountsRebuildAutoJournal(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -1594,6 +1598,40 @@ async function handleAccountsJournalCreate(request, env, corsHeaders, url) {
   return json({ ok: true, id: entryId }, 200, corsHeaders);
 }
 
+async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  await ensureAccountingSetup(env.DB);
+
+  const autoRows = await env.DB.prepare(
+    `SELECT id FROM journal_entries WHERE source_type IN ('tax_expense','tax_income')`
+  ).all();
+
+  for (const r of (autoRows.results || [])) {
+    await env.DB.prepare(`DELETE FROM journal_lines WHERE entry_id = ?1`).bind(r.id).run();
+  }
+  await env.DB.prepare(`DELETE FROM journal_entries WHERE source_type IN ('tax_expense','tax_income')`).run();
+
+  const expenses = await env.DB.prepare(
+    `SELECT id, expense_date, vendor, category, amount_cents, paid_via, notes FROM tax_expenses ORDER BY id ASC`
+  ).all();
+  const income = await env.DB.prepare(
+    `SELECT id, income_date, source, category, amount_cents, notes FROM tax_income ORDER BY id ASC`
+  ).all();
+
+  for (const e of (expenses.results || [])) await upsertTaxExpenseJournal(env.DB, e);
+  for (const i of (income.results || [])) await upsertTaxIncomeJournal(env.DB, i);
+
+  return json({
+    ok: true,
+    rebuilt: {
+      expenseEntries: (expenses.results || []).length,
+      incomeEntries: (income.results || []).length
+    }
+  }, 200, corsHeaders);
+}
+
 async function ensureAccountingSetup(db) {
   const has = await db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='accounts'`).first();
   if (!has) return;
@@ -1648,7 +1686,13 @@ async function upsertTaxExpenseJournal(db, row) {
 
   const expenseAccountCode = row.category === 'Payment Processing Fees' ? '5300' : '5200';
   const paidVia = (row.paid_via || '').toLowerCase();
-  const offsetCode = paidVia.includes('personal') || paidVia.includes('owner') ? '1010' : (paidVia.includes('card') ? '2100' : '1000');
+
+  let offsetCode = '3100'; // default: treat as owner capital contribution
+  if (paidVia.includes('stripe') || paidVia.includes('cash') || paidVia.includes('checking') || paidVia.includes('bank')) {
+    offsetCode = '1000';
+  } else if (paidVia.includes('business card') || paidVia.includes('corp card')) {
+    offsetCode = '2100';
+  }
 
   const debitAccountId = await getAccountIdByCode(db, expenseAccountCode);
   const creditAccountId = await getAccountIdByCode(db, offsetCode);
