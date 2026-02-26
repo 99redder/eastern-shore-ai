@@ -290,8 +290,6 @@
                     <option value="expense">Expenses</option>
                   </select>
                   <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
-                  <button type="button" class="btn btn-primary" id="tax-export-btn">Download CSV</button>
-                  <button type="button" class="btn" id="tax-zip-btn">⬇ Year Package (.zip)</button>
                 </div>
 
                 <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem; display:none;">
@@ -980,6 +978,14 @@
             if (rr.ok) recFolder.file(fn, await rr.blob());
           }
         }
+
+        const manifestLines = [
+          `Audit Package Year: ${year}`,
+          `Generated At: ${new Date().toISOString()}`,
+          `Selected Documents: ${selected.join(', ')}`,
+          `Includes Receipts: ${selected.includes('receipts') ? 'yes' : 'no'}`
+        ];
+        root.file('manifest.txt', manifestLines.join('\n'));
 
         const blob = await zip.generateAsync({ type: 'blob' });
         const a = document.createElement('a');
@@ -2212,7 +2218,7 @@
       document.getElementById('tax-income-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
     });
 
-    taxExportBtn.addEventListener('click', downloadTaxCsv);
+    taxExportBtn?.addEventListener('click', downloadTaxCsv);
 
     accountsRefreshBtn?.addEventListener('click', loadAccountsData);
     accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
