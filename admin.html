@@ -321,9 +321,10 @@
                       <input id="tax-income-stripe" placeholder="cs_test_..." />
                       <label>Notes</label>
                       <input id="tax-income-notes" placeholder="optional" />
-                      <label style="display:flex; align-items:center; gap:.45rem; margin-top:.25rem; font-weight:600;">
-                        <input id="tax-income-owner-funded" type="checkbox" />
-                        Treat as owner-funded (non-revenue)
+                      <label style="display:inline-flex; align-items:center; gap:.3rem; margin-top:.25rem; font-weight:600; line-height:1.2;">
+                        <input id="tax-income-owner-funded" type="checkbox" style="margin:0; width:16px; height:16px;" />
+                        <span>Treat as owner-funded (non-revenue)</span>
+                        <span title="Use this for owner money, test payments, or non-customer deposits. It will post to Owner Contributions instead of Revenue." style="display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border:1px solid var(--line); border-radius:999px; color:var(--cyan); font-size:12px; cursor:help;">?</span>
                       </label>
                       <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
                       <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
@@ -379,12 +380,29 @@
               <label>To</label>
               <input id="accounts-to" type="date" style="max-width:170px;" />
               <button type="button" class="btn" id="accounts-refresh-btn">Refresh</button>
-              <button type="button" class="btn btn-primary" id="accounts-year-close-btn">Year-End Close Wizard</button>
             </div>
             <div id="accounts-balance-status" class="admin-calendar-title" style="margin-bottom:.4rem;">Trial Balance: —</div>
             <div class="admin-list" id="accounts-list">No data yet.</div>
             <div class="admin-list" id="accounts-statements-list" style="display:none; margin-top:.6rem;">No statement data yet.</div>
             <div class="admin-list" id="accounts-journal-list" style="display:none; margin-top:.6rem;">No journal entries yet.</div>
+          </section>
+        </div>
+      </div>
+
+      <div class="admin-collapsible-card" id="year-close-card" style="margin-top:1rem;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Year-End Close Wizard</h3>
+          <button type="button" class="btn" id="year-close-collapse-btn" aria-expanded="false">Expand</button>
+        </div>
+        <div id="year-close-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <p style="margin:.2rem 0 .65rem; color:var(--text); line-height:1.45;">
+              Use this once per year (after final reconciliation) to create formal closing entries.
+              It closes revenue and expense accounts, then rolls net income/loss into Owner Equity.
+            </p>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary" id="accounts-year-close-btn">Open Year-End Close Wizard</button>
+            </div>
           </section>
         </div>
       </div>
@@ -570,6 +588,8 @@
     const taxLedgerBody = document.getElementById('tax-ledger-body');
     const accountsCollapseBtn = document.getElementById('accounts-collapse-btn');
     const accountsBody = document.getElementById('accounts-body');
+    const yearCloseCollapseBtn = document.getElementById('year-close-collapse-btn');
+    const yearCloseBody = document.getElementById('year-close-body');
 
     const taxYearEl = document.getElementById('tax-year');
     const taxSummaryYearEl = document.getElementById('tax-summary-year');
@@ -1814,6 +1834,7 @@
     wireCollapse(bookingCollapseBtn, bookingControlsBody);
     wireCollapse(taxCollapseBtn, taxLedgerBody);
     wireCollapse(accountsCollapseBtn, accountsBody);
+    wireCollapse(yearCloseCollapseBtn, yearCloseBody);
 
     // ===== Admin Unlock =====
     adminUnlockBtn.addEventListener('click', async () => {
