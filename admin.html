@@ -279,6 +279,7 @@
                 <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
                   <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
                   <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-owner-transfer-btn">Add Owner Transfer</button>
                   <button type="button" class="btn btn-primary" id="tax-manage-categories-btn" onclick="window.openTaxCategoryManager && window.openTaxCategoryManager()">Manage Categories</button>
                 </div>
 
@@ -321,6 +322,30 @@
                         <button type="button" class="btn btn-primary" id="tax-update-expense-btn" style="display:none;">Save Expense Update</button>
                         <button type="button" class="btn" id="tax-cancel-expense-edit-btn" style="display:none;">Cancel Edit</button>
                         <button type="button" class="btn" id="tax-clear-expense-btn">Clear</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tax-entry-wrap" id="tax-owner-transfer-panel" style="margin-top:.5rem; display:none;">
+                  <div class="admin-calendar-wrap">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Owner Transfer</div><button type="button" class="btn" id="tax-minimize-owner-transfer-btn">Minimize</button></div>
+                    <div class="admin-row" id="tax-owner-transfer-fields" style="flex-direction:column; align-items:stretch;">
+                      <label>Date</label>
+                      <input id="tax-owner-transfer-date" type="date" />
+                      <label>Transfer Type</label>
+                      <select id="tax-owner-transfer-type">
+                        <option value="personal_to_business">Personal → Business (Owner Contribution)</option>
+                        <option value="business_to_personal">Business → Personal (Owner Draw)</option>
+                        <option value="personal_paid_business_card">Personal Paid Business Card</option>
+                      </select>
+                      <label>Amount (USD)</label>
+                      <input id="tax-owner-transfer-amount" type="number" step="0.01" placeholder="0.00" />
+                      <label>Notes</label>
+                      <input id="tax-owner-transfer-notes" placeholder="optional" />
+                      <div class="form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary" id="tax-add-owner-transfer-btn">Add Transfer</button>
+                        <button type="button" class="btn" id="tax-clear-owner-transfer-btn">Clear</button>
                       </div>
                     </div>
                   </div>
@@ -648,6 +673,7 @@
     const TAX_TX_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/transactions');
     const TAX_EXPENSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense');
     const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
+    const TAX_OWNER_TRANSFER_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/owner-transfer');
     const TAX_EXPENSE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/update');
     const TAX_INCOME_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income/update');
     const TAX_EXPENSE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/delete');
@@ -690,14 +716,18 @@
     const taxExportBtn = document.getElementById('tax-export-btn');
     const taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
     const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
+    const taxModeOwnerTransferBtn = document.getElementById('tax-mode-owner-transfer-btn');
     const taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
     const adminUserGuideBtn = document.getElementById('admin-user-guide-btn');
     const adminUserGuideTopBtn = document.getElementById('admin-user-guide-top-btn');
     const taxExpensePanel = document.getElementById('tax-expense-panel');
+    const taxOwnerTransferPanel = document.getElementById('tax-owner-transfer-panel');
     const taxIncomePanel = document.getElementById('tax-income-panel');
     const taxExpenseFields = document.getElementById('tax-expense-fields');
+    const taxOwnerTransferFields = document.getElementById('tax-owner-transfer-fields');
     const taxIncomeFields = document.getElementById('tax-income-fields');
     const taxMinimizeExpenseBtn = document.getElementById('tax-minimize-expense-btn');
+    const taxMinimizeOwnerTransferBtn = document.getElementById('tax-minimize-owner-transfer-btn');
     const taxMinimizeIncomeBtn = document.getElementById('tax-minimize-income-btn');
     const taxCategoryModal = document.getElementById('tax-category-modal');
     const taxCategoryCloseBtn = document.getElementById('tax-category-close-btn');
@@ -763,6 +793,13 @@
     const taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
     const taxCancelExpenseEditBtn = document.getElementById('tax-cancel-expense-edit-btn');
     const taxClearExpenseBtn = document.getElementById('tax-clear-expense-btn');
+
+    const taxOwnerTransferDateEl = document.getElementById('tax-owner-transfer-date');
+    const taxOwnerTransferTypeEl = document.getElementById('tax-owner-transfer-type');
+    const taxOwnerTransferAmountEl = document.getElementById('tax-owner-transfer-amount');
+    const taxOwnerTransferNotesEl = document.getElementById('tax-owner-transfer-notes');
+    const taxAddOwnerTransferBtn = document.getElementById('tax-add-owner-transfer-btn');
+    const taxClearOwnerTransferBtn = document.getElementById('tax-clear-owner-transfer-btn');
 
     const taxIncomeDateEl = document.getElementById('tax-income-date');
     const taxIncomeSourceEl = document.getElementById('tax-income-source');
@@ -1605,14 +1642,19 @@
 
     function setTaxEntryMode(mode) {
       const showExpense = mode === 'expense';
+      const showOwnerTransfer = mode === 'owner_transfer';
       const showIncome = mode === 'income';
       if (taxExpensePanel) taxExpensePanel.style.display = showExpense ? '' : 'none';
+      if (taxOwnerTransferPanel) taxOwnerTransferPanel.style.display = showOwnerTransfer ? '' : 'none';
       if (taxIncomePanel) taxIncomePanel.style.display = showIncome ? '' : 'none';
       if (taxExpenseFields) taxExpenseFields.style.display = showExpense ? '' : 'none';
+      if (taxOwnerTransferFields) taxOwnerTransferFields.style.display = showOwnerTransfer ? '' : 'none';
       if (taxIncomeFields) taxIncomeFields.style.display = showIncome ? '' : 'none';
       if (taxMinimizeExpenseBtn) taxMinimizeExpenseBtn.textContent = 'Minimize';
+      if (taxMinimizeOwnerTransferBtn) taxMinimizeOwnerTransferBtn.textContent = 'Minimize';
       if (taxMinimizeIncomeBtn) taxMinimizeIncomeBtn.textContent = 'Minimize';
       if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
+      if (taxModeOwnerTransferBtn) taxModeOwnerTransferBtn.classList.toggle('active', showOwnerTransfer);
       if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome);
     }
 
@@ -1629,6 +1671,7 @@
       renderCategoryOptions();
 
       taxExpenseDateEl.value = now.date;
+      if (taxOwnerTransferDateEl) taxOwnerTransferDateEl.value = now.date;
       taxIncomeDateEl.value = now.date;
       setTaxEntryMode('none');
     }
@@ -1865,6 +1908,43 @@
         openSuccessModal(isEdit ? 'Expense record updated successfully.' : 'Expense record added successfully.', isEdit ? 'Expense Updated ✅' : 'Expense Added ✅');
       } catch (e) {
         openErrorModal(`Could not save expense: ${e.message || e}`);
+      }
+    }
+
+    function clearTaxOwnerTransferForm() {
+      const now = nowEtParts();
+      if (taxOwnerTransferDateEl) taxOwnerTransferDateEl.value = now.date;
+      if (taxOwnerTransferTypeEl) taxOwnerTransferTypeEl.value = 'personal_to_business';
+      if (taxOwnerTransferAmountEl) taxOwnerTransferAmountEl.value = '';
+      if (taxOwnerTransferNotesEl) taxOwnerTransferNotesEl.value = '';
+    }
+
+    async function addTaxOwnerTransfer() {
+      const payload = {
+        date: taxOwnerTransferDateEl?.value,
+        transferType: taxOwnerTransferTypeEl?.value,
+        amount: taxOwnerTransferAmountEl?.value,
+        notes: taxOwnerTransferNotesEl?.value?.trim() || ''
+      };
+      if (!payload.date || !payload.transferType || !payload.amount) {
+        openErrorModal('Transfer date, type, and amount are required.');
+        return;
+      }
+      const ok = await openConfirmModal('Add this owner transfer journal entry?', 'Add Owner Transfer?', 'Add');
+      if (!ok) return;
+      try {
+        const res = await fetch(TAX_OWNER_TRANSFER_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        clearTaxOwnerTransferForm();
+        await loadAccountsData();
+        openSuccessModal('Owner transfer posted to journal successfully.', 'Owner Transfer Added ✅');
+      } catch (e) {
+        openErrorModal(`Could not add owner transfer: ${e.message || e}`);
       }
     }
 
@@ -2251,6 +2331,7 @@
     taxSummaryYearEl?.addEventListener('change', loadTaxTransactions);
     taxTypeEl.addEventListener('change', loadTaxTransactions);
     taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
+    taxModeOwnerTransferBtn?.addEventListener('click', () => setTaxEntryMode('owner_transfer'));
     taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
     adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
     adminUserGuideTopBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
@@ -2322,6 +2403,12 @@
       taxMinimizeExpenseBtn.textContent = isHidden ? 'Minimize' : 'Expand';
     });
 
+    taxMinimizeOwnerTransferBtn?.addEventListener('click', () => {
+      const isHidden = taxOwnerTransferFields?.style.display === 'none';
+      if (taxOwnerTransferFields) taxOwnerTransferFields.style.display = isHidden ? '' : 'none';
+      taxMinimizeOwnerTransferBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+    });
+
     taxMinimizeIncomeBtn?.addEventListener('click', () => {
       const isHidden = taxIncomeFields?.style.display === 'none';
       if (taxIncomeFields) taxIncomeFields.style.display = isHidden ? '' : 'none';
@@ -2344,6 +2431,8 @@
     taxUpdateExpenseBtn.addEventListener('click', addTaxExpense);
     taxCancelExpenseEditBtn.addEventListener('click', clearTaxExpenseForm);
     taxClearExpenseBtn.addEventListener('click', clearTaxExpenseForm);
+    taxAddOwnerTransferBtn?.addEventListener('click', addTaxOwnerTransfer);
+    taxClearOwnerTransferBtn?.addEventListener('click', clearTaxOwnerTransferForm);
     taxAddIncomeBtn.addEventListener('click', addTaxIncome);
     taxUpdateIncomeBtn.addEventListener('click', addTaxIncome);
     taxCancelIncomeEditBtn.addEventListener('click', clearTaxIncomeForm);

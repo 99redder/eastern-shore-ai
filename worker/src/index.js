@@ -59,7 +59,7 @@ export default {
       const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
-      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
+      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements'].includes(url.pathname) && request.method === 'GET';
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
@@ -126,6 +126,10 @@ export default {
 
     if (url.pathname === '/api/tax/income') {
       return handleTaxIncome(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/owner-transfer') {
+      return handleTaxOwnerTransfer(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/tax/income/update') {
@@ -1213,6 +1217,46 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
   });
 
   return json({ ok: true, id }, 200, corsHeaders);
+}
+
+async function handleTaxOwnerTransfer(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const entryDate = (data.date || '').toString().trim();
+  const transferType = (data.transferType || '').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  const cents = toCents(data.amount);
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(entryDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
+  if (!['personal_to_business','business_to_personal','personal_paid_business_card'].includes(transferType)) return json({ ok: false, error: 'Invalid transfer type' }, 400, corsHeaders);
+  if (!Number.isFinite(cents) || cents <= 0) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
+
+  const cashId = await getAccountIdByCode(env.DB, '1000');
+  const ownerContribId = await getAccountIdByCode(env.DB, '3100');
+  const ownerDrawId = await getAccountIdByCode(env.DB, '3200');
+  const ccPayableId = await getAccountIdByCode(env.DB, '2100');
+  if (!cashId || !ownerContribId || !ownerDrawId || !ccPayableId) return json({ ok: false, error: 'Required accounts not found' }, 500, corsHeaders);
+
+  const ins = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type) VALUES (?1, ?2, 'owner_transfer')`).bind(entryDate, notes || `Owner transfer: ${transferType}`).run();
+  const entryId = Number(ins.meta?.last_row_id || 0);
+
+  if (transferType === 'personal_to_business') {
+    await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, cashId, cents, ownerContribId).run();
+  } else if (transferType === 'business_to_personal') {
+    await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, ownerDrawId, cents, cashId).run();
+  } else {
+    await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, ccPayableId, cents, ownerContribId).run();
+  }
+
+  return json({ ok: true, id: entryId }, 200, corsHeaders);
 }
 
 /**
