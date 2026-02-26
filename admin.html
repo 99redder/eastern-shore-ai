@@ -195,6 +195,7 @@
           <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
           <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
           <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
+          <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
           <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
           <button type="button" class="btn" data-admin-tab="audit-package">Audit Package</button>
         </div>
@@ -405,6 +406,29 @@
             <div class="admin-list" id="accounts-list">No data yet.</div>
             <div class="admin-list" id="accounts-statements-list" style="display:none; margin-top:.6rem;">No statement data yet.</div>
             <div class="admin-list" id="accounts-journal-list" style="display:none; margin-top:.6rem;">No journal entries yet.</div>
+          </section>
+        </div>
+      </div>
+
+      <div class="admin-collapsible-card" id="reconciliation-card" style="margin-top:1rem;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Reconciliation</h3>
+          <button type="button" class="btn" id="reconciliation-collapse-btn" aria-expanded="false">Expand</button>
+        </div>
+        <div id="reconciliation-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <p style="margin:.2rem 0 .65rem; color:var(--text); line-height:1.45;">
+              Import a bank/card CSV and match lines against ledger transactions. Great for monthly bookkeeping once your business account is live.
+            </p>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap;">
+              <label for="recon-year">Year</label>
+              <select id="recon-year" style="max-width:140px;"></select>
+              <label for="recon-csv">Statement CSV</label>
+              <input id="recon-csv" type="file" accept=".csv,text/csv" />
+              <button type="button" class="btn" id="recon-run-btn">Run Reconciliation</button>
+            </div>
+            <div id="recon-summary" class="admin-list" style="margin-top:.6rem;">No reconciliation run yet.</div>
+            <div id="recon-matches" class="admin-list" style="margin-top:.6rem;">Matched and unmatched lines will appear here.</div>
           </section>
         </div>
       </div>
@@ -652,6 +676,8 @@
     const taxLedgerBody = document.getElementById('tax-ledger-body');
     const accountsCollapseBtn = document.getElementById('accounts-collapse-btn');
     const accountsBody = document.getElementById('accounts-body');
+    const reconciliationCollapseBtn = document.getElementById('reconciliation-collapse-btn');
+    const reconciliationBody = document.getElementById('reconciliation-body');
     const yearCloseCollapseBtn = document.getElementById('year-close-collapse-btn');
     const yearCloseBody = document.getElementById('year-close-body');
     const auditPackageCollapseBtn = document.getElementById('audit-package-collapse-btn');
@@ -714,6 +740,12 @@
     const accountsFromEl = document.getElementById('accounts-from');
     const accountsToEl = document.getElementById('accounts-to');
     const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
+    const reconYearEl = document.getElementById('recon-year');
+    const reconCsvEl = document.getElementById('recon-csv');
+    const reconRunBtn = document.getElementById('recon-run-btn');
+    const reconSummaryEl = document.getElementById('recon-summary');
+    const reconMatchesEl = document.getElementById('recon-matches');
+
     const accountsYearCloseBtn = document.getElementById('accounts-year-close-btn');
     const auditPackageBtn = document.getElementById('audit-package-btn');
     const accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
@@ -1933,8 +1965,77 @@
         auditYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
         auditYearEl.value = String(thisYear);
       }
+      if (reconYearEl) {
+        reconYearEl.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+        reconYearEl.value = String(thisYear);
+      }
       if (accountsFromEl) accountsFromEl.value = `${thisYear}-01-01`;
       if (accountsToEl) accountsToEl.value = `${thisYear}-12-31`;
+    }
+
+    function parseCsvRows(text) {
+      const lines = (text || '').split(/\r?\n/).filter(Boolean);
+      if (!lines.length) return [];
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+      const idxDate = headers.findIndex(h => h.includes('date'));
+      const idxDesc = headers.findIndex(h => h.includes('desc') || h.includes('memo') || h.includes('name'));
+      const idxAmt = headers.findIndex(h => h.includes('amount'));
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+        const rawAmount = cols[idxAmt >= 0 ? idxAmt : 0] || '';
+        const amount = Number(String(rawAmount).replace(/[$,]/g, ''));
+        if (!Number.isFinite(amount)) continue;
+        rows.push({
+          date: cols[idxDate >= 0 ? idxDate : 0] || '',
+          description: cols[idxDesc >= 0 ? idxDesc : 1] || '',
+          amountCents: Math.round(Math.abs(amount) * 100),
+          sign: amount >= 0 ? 1 : -1
+        });
+      }
+      return rows;
+    }
+
+    async function runReconciliation() {
+      if (!reconCsvEl?.files?.[0]) { openErrorModal('Select a CSV file first.'); return; }
+      const year = reconYearEl?.value || taxYearEl?.value;
+      const fileText = await reconCsvEl.files[0].text();
+      const statementRows = parseCsvRows(fileText);
+      if (!statementRows.length) { openErrorModal('Could not parse statement rows from CSV.'); return; }
+
+      const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
+        headers: { 'X-Admin-Password': adminPassword }
+      });
+      const data = await res.json();
+      if (!res.ok) { openErrorModal(data.error || 'Failed to load ledger data.'); return; }
+
+      const ledger = [
+        ...(data.expenses || []).map(r => ({ type: 'expense', date: r.date, amountCents: Number(r.amount_cents || 0), label: `${r.category || ''} ${r.vendor || ''}`.trim() })),
+        ...(data.income || []).map(r => ({ type: 'income', date: r.date, amountCents: Number(r.amount_cents || 0), label: `${r.category || ''} ${r.source || ''}`.trim() }))
+      ];
+
+      const used = new Set();
+      let matched = 0;
+      const unmatched = [];
+      const matchedLines = [];
+      for (const s of statementRows) {
+        const idx = ledger.findIndex((l, i) => !used.has(i) && l.amountCents === s.amountCents);
+        if (idx >= 0) {
+          used.add(idx);
+          matched++;
+          matchedLines.push({ statement: s, ledger: ledger[idx] });
+        } else {
+          unmatched.push(s);
+        }
+      }
+
+      reconSummaryEl.textContent = `Statement rows: ${statementRows.length} | Matched: ${matched} | Unmatched: ${unmatched.length}`;
+      reconMatchesEl.innerHTML = `
+        <div><strong>Matched</strong></div>
+        ${(matchedLines.slice(0, 120)).map(m => `<div style="padding:.2rem 0; border-bottom:1px dashed var(--line);">${escHtml(m.statement.date)} | ${escHtml(m.statement.description)} | $${(m.statement.amountCents/100).toFixed(2)} ↔ ${escHtml(m.ledger.type)} ${escHtml(m.ledger.label)}</div>`).join('') || '<div style="color:var(--muted);">No matches.</div>'}
+        <div style="margin-top:.5rem;"><strong>Unmatched</strong></div>
+        ${(unmatched.slice(0, 120)).map(u => `<div style="padding:.2rem 0; border-bottom:1px dashed var(--line);">${escHtml(u.date)} | ${escHtml(u.description)} | $${(u.amountCents/100).toFixed(2)}</div>`).join('') || '<div style="color:var(--muted);">No unmatched rows.</div>'}
+      `;
     }
 
     async function loadAccountsData() {
@@ -2077,15 +2178,16 @@
       show('booking-controls-card', tab === 'booking');
       show('tax-ledger-card', tab === 'tax');
       show('accounts-card', tab === 'accounts');
+      show('reconciliation-card', tab === 'reconciliation');
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
     }
 
     function disableLegacyCollapse() {
-      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
+      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, reconciliationCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
         if (btn) btn.style.display = 'none';
       });
-      [bookingControlsBody, taxLedgerBody, accountsBody, yearCloseBody, auditPackageBody].forEach((body) => {
+      [bookingControlsBody, taxLedgerBody, accountsBody, reconciliationBody, yearCloseBody, auditPackageBody].forEach((body) => {
         body?.classList.remove('admin-collapsible-body-collapsed');
       });
     }
@@ -2259,6 +2361,7 @@
     accountsRefreshBtn?.addEventListener('click', loadAccountsData);
     accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
     auditPackageBtn?.addEventListener('click', openAuditPackageModal);
+    reconRunBtn?.addEventListener('click', runReconciliation);
     accountsYearEl?.addEventListener('change', loadAccountsData);
     accountsFromEl?.addEventListener('change', loadAccountsData);
     accountsToEl?.addEventListener('change', loadAccountsData);
