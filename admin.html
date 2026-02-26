@@ -321,6 +321,10 @@
                       <input id="tax-income-stripe" placeholder="cs_test_..." />
                       <label>Notes</label>
                       <input id="tax-income-notes" placeholder="optional" />
+                      <label style="display:flex; align-items:center; gap:.45rem; margin-top:.25rem; font-weight:600;">
+                        <input id="tax-income-owner-funded" type="checkbox" />
+                        Treat as owner-funded (non-revenue)
+                      </label>
                       <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
                       <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
                         <label for="tax-income-receipt" class="btn" style="cursor:pointer; white-space:nowrap; margin:0;">Browse…</label>
@@ -641,6 +645,7 @@
     const taxIncomeAmountEl = document.getElementById('tax-income-amount');
     const taxIncomeStripeEl = document.getElementById('tax-income-stripe');
     const taxIncomeNotesEl = document.getElementById('tax-income-notes');
+    const taxIncomeOwnerFundedEl = document.getElementById('tax-income-owner-funded');
     const taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
     const taxUpdateIncomeBtn = document.getElementById('tax-update-income-btn');
     const taxCancelIncomeEditBtn = document.getElementById('tax-cancel-income-edit-btn');
@@ -1253,6 +1258,7 @@
         taxIncomeAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
         taxIncomeStripeEl.value = r.stripe_session_id || '';
         taxIncomeNotesEl.value = r.notes || '';
+        if (taxIncomeOwnerFundedEl) taxIncomeOwnerFundedEl.checked = Number(r.is_owner_funded || 0) === 1;
         taxAddIncomeBtn.style.display = 'none';
         taxUpdateIncomeBtn.style.display = '';
         taxCancelIncomeEditBtn.style.display = '';
@@ -1506,6 +1512,7 @@
       taxIncomeAmountEl.value = '';
       taxIncomeStripeEl.value = '';
       taxIncomeNotesEl.value = '';
+      if (taxIncomeOwnerFundedEl) taxIncomeOwnerFundedEl.checked = false;
       const incReceiptEl = document.getElementById('tax-income-receipt');
       if (incReceiptEl) incReceiptEl.value = '';
       const incReceiptNameEl = document.getElementById('tax-income-receipt-name');
@@ -1565,7 +1572,8 @@
         category: taxIncomeCategoryEl.value,
         amount: taxIncomeAmountEl.value,
         stripeSessionId: taxIncomeStripeEl.value.trim(),
-        notes: taxIncomeNotesEl.value.trim()
+        notes: taxIncomeNotesEl.value.trim(),
+        isOwnerFunded: !!taxIncomeOwnerFundedEl?.checked
       };
       if (!payload.date || !payload.category || !payload.amount) {
         openErrorModal('Income date, category, and amount are required.');

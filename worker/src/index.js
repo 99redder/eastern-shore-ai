@@ -1054,7 +1054,7 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
 
   const incomeP = (type === 'all' || type === 'income')
     ? env.DB.prepare(
-        `SELECT id, income_date AS date, source, category, amount_cents, stripe_session_id, notes, receipt_key, created_at
+        `SELECT id, income_date AS date, source, category, amount_cents, stripe_session_id, notes, receipt_key, is_owner_funded, created_at
          FROM tax_income
          WHERE substr(income_date,1,4) = ?1
          ORDER BY income_date DESC, id DESC
@@ -1135,6 +1135,7 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
   const category = (data.category || '').toString().trim();
   const stripeSessionId = (data.stripeSessionId || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
+  const isOwnerFunded = data.isOwnerFunded === true ? 1 : 0;
   const cents = toCents(data.amount);
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(incomeDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
@@ -1142,9 +1143,9 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
   if (cents === null) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
 
   const r = await env.DB.prepare(
-    `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
-  ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null).run();
+    `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes, is_owner_funded)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+  ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null, isOwnerFunded).run();
 
   const id = Number(r.meta?.last_row_id || 0) || null;
   if (id) {
@@ -1154,7 +1155,8 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
       source,
       category,
       amount_cents: cents,
-      notes: notes || null
+      notes: notes || null,
+      is_owner_funded: isOwnerFunded
     });
   }
 
@@ -1230,6 +1232,7 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
   const category = (data.category || '').toString().trim();
   const stripeSessionId = (data.stripeSessionId || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
+  const isOwnerFunded = data.isOwnerFunded === true ? 1 : 0;
   const cents = toCents(data.amount);
 
   if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
@@ -1247,9 +1250,10 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
          category = ?3,
          amount_cents = ?4,
          stripe_session_id = ?5,
-         notes = ?6
-     WHERE id = ?7`
-  ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null, id).run();
+         notes = ?6,
+         is_owner_funded = ?7
+     WHERE id = ?8`
+  ).bind(incomeDate, source || null, category, cents, stripeSessionId || null, notes || null, isOwnerFunded, id).run();
 
   await upsertTaxIncomeJournal(env.DB, {
     id,
@@ -1257,7 +1261,8 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
     source,
     category,
     amount_cents: cents,
-    notes: notes || null
+    notes: notes || null,
+    is_owner_funded: isOwnerFunded
   });
 
   return json({ ok: true, id }, 200, corsHeaders);
@@ -1416,7 +1421,7 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
 
   const income = (type === 'all' || type === 'income')
     ? await env.DB.prepare(
-        `SELECT income_date AS date, source, category, amount_cents, stripe_session_id, notes, created_at
+        `SELECT income_date AS date, source, category, amount_cents, stripe_session_id, notes, is_owner_funded, created_at
          FROM tax_income
          WHERE substr(income_date,1,4) = ?1
          ORDER BY income_date ASC, id ASC`
@@ -1704,7 +1709,7 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
     `SELECT id, expense_date, vendor, category, amount_cents, paid_via, notes FROM tax_expenses ORDER BY id ASC`
   ).all();
   const income = await env.DB.prepare(
-    `SELECT id, income_date, source, category, amount_cents, notes FROM tax_income ORDER BY id ASC`
+    `SELECT id, income_date, source, category, amount_cents, notes, is_owner_funded FROM tax_income ORDER BY id ASC`
   ).all();
 
   for (const e of (expenses.results || [])) await upsertTaxExpenseJournal(env.DB, e);
@@ -1913,7 +1918,7 @@ async function upsertTaxIncomeJournal(db, row) {
   const debitAccountId = await getAccountIdByCode(db, '1000');
   const categoryRaw = (row.category || '').toString().trim().toLowerCase();
   const sourceRaw = (row.source || '').toString().trim().toLowerCase();
-  const isOwnerFunded = categoryRaw.includes('owner funded') || categoryRaw.includes('non-revenue') || sourceRaw.includes('owner funded') || sourceRaw.includes('test');
+  const isOwnerFunded = Number(row.is_owner_funded || 0) === 1 || categoryRaw.includes('owner funded') || categoryRaw.includes('non-revenue') || sourceRaw.includes('owner funded') || sourceRaw.includes('test');
   const creditAccountCode = isOwnerFunded ? '3100' : '4000';
   const creditAccountId = await getAccountIdByCode(db, creditAccountCode);
   if (!debitAccountId || !creditAccountId) return;
