@@ -261,6 +261,22 @@ If Stripe payment succeeds but slot not marked paid:
 4. Confirm Worker deployment includes latest webhook code
 5. Query `/api/bookings?key=...` to inspect status (`pending` vs `paid`)
 
+### Invoice/Quote Stripe webhook gotchas (critical)
+
+- **Do not use explicit SQL transaction statements (`BEGIN`, `COMMIT`, `ROLLBACK`) in this worker path with D1** for invoice webhook payment posting. It can fail with:
+  - `D1_ERROR: To execute a transaction, please use the state.storage.transaction()...`
+- **Double-check SQL bind counts** any time invoice payment sync logic is changed.
+  - A common failure seen here was: `Wrong number of parameter bindings for SQL query`.
+  - This happened in invoice update/sync statements where placeholders and `.bind(...)` values got out of sync.
+- For invoice Stripe flows, webhook should update **both**:
+  1. Stripe tracking fields (`stripe_payment_status`, session info), and
+  2. invoice monetary fields (`amount_paid_cents`, `balance_due_cents`, `status`).
+- If a webhook partially succeeds (books posted but invoice row not updated), replaying the same event should be safe and should reconcile invoice paid/balance from posted income (idempotent behavior).
+- Always verify post-fix with:
+  1. Stripe webhook event replay = 200
+  2. `tax_income` row exists for `invoice-payment:<invoiceId>:<eventId>`
+  3. invoice row reflects paid/balance/status correctly.
+
 If checkout creation fails:
 1. Verify `STRIPE_SECRET_KEY` exists in worker secrets
 2. Check worker logs for `Stripe session failed`
