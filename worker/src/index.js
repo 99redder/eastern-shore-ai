@@ -2162,7 +2162,7 @@ async function syncInvoicePaidFromIncome(db, invoiceId) {
          paid_date = CASE WHEN ?2 = 0 THEN COALESCE(paid_date, date('now')) ELSE paid_date END,
          updated_at = datetime('now')
      WHERE id = ?4`
-  ).bind(paid, balance, status, balance, id).run();
+  ).bind(paid, balance, status, id).run();
   return { paid, balance, status };
 }
 
