@@ -60,8 +60,8 @@ export default {
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
-      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/send'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail'].includes(url.pathname) && request.method === 'GET';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/send'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -172,12 +172,20 @@ export default {
       return handleInvoicesList(request, env, corsHeaders, url);
     }
 
+    if (url.pathname === '/api/accounts/invoices/detail' && request.method === 'GET') {
+      return handleInvoiceDetail(request, env, corsHeaders, url);
+    }
+
     if (url.pathname === '/api/accounts/journal' && request.method === 'POST') {
       return handleAccountsJournalCreate(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/accounts/invoices' && request.method === 'POST') {
       return handleInvoiceCreate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/invoices/update' && request.method === 'POST') {
+      return handleInvoiceUpdate(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/accounts/invoices/status' && request.method === 'POST') {
@@ -1939,6 +1947,78 @@ async function handleInvoicesList(request, env, corsHeaders, url) {
     ? await env.DB.prepare(`SELECT * FROM invoices WHERE status = ?1 ORDER BY due_date ASC, id DESC LIMIT 300`).bind(status).all()
     : await env.DB.prepare(`SELECT * FROM invoices ORDER BY due_date ASC, id DESC LIMIT 300`).all();
   return json({ ok: true, invoices: rows.results || [] }, 200, corsHeaders);
+}
+
+async function handleInvoiceDetail(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const id = Number(url.searchParams.get('id') || 0);
+  if (!id) return json({ ok: false, error: 'Invalid invoice id' }, 400, corsHeaders);
+
+  const invoice = await env.DB.prepare(`SELECT * FROM invoices WHERE id = ?1`).bind(id).first();
+  if (!invoice) return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
+
+  const itemsRes = await env.DB.prepare(`SELECT id, item_description, quantity, unit_amount_cents, line_total_cents FROM invoice_line_items WHERE invoice_id = ?1 ORDER BY id ASC`).bind(id).all();
+  return json({ ok: true, invoice: { ...invoice, line_items: itemsRes.results || [] } }, 200, corsHeaders);
+}
+
+async function handleInvoiceUpdate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || data.invoiceId || 0);
+  const customerName = (data.customerName || '').toString().trim();
+  const customerEmail = (data.customerEmail || '').toString().trim();
+  const dueDate = (data.dueDate || '').toString().trim();
+  const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
+  const rawItems = Array.isArray(data.items) ? data.items : [];
+  const items = rawItems
+    .map((item) => {
+      const qtyRaw = Number(item.quantity ?? item.qty ?? 1);
+      const qty = Number.isFinite(qtyRaw) && qtyRaw > 0 ? qtyRaw : 1;
+      let unitAmountCents = Number(item.unitAmountCents ?? item.amountCents ?? 0);
+      if (!Number.isFinite(unitAmountCents) || unitAmountCents <= 0) {
+        unitAmountCents = Math.round(Number(item.unitAmount ?? item.amount ?? 0) * 100);
+      }
+      const description = (item.description || item.itemDescription || '').toString().trim();
+      return { description, quantity: qty, unitAmountCents: Math.max(0, Math.round(unitAmountCents)) };
+    })
+    .filter((item) => item.unitAmountCents > 0 || item.description);
+
+  if (!id || !customerName || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !items.length) {
+    return json({ ok: false, error: 'Missing required invoice fields' }, 400, corsHeaders);
+  }
+
+  const existing = await env.DB.prepare(`SELECT id, tax_cents, amount_paid_cents, issue_date, invoice_number, status, customer_company FROM invoices WHERE id = ?1`).bind(id).first();
+  if (!existing) return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
+
+  let subtotal = 0;
+  for (const item of items) subtotal += Math.round(Number(item.quantity || 1) * Number(item.unitAmountCents || 0));
+  const taxCents = Math.max(0, Number(data.taxCents ?? existing.tax_cents ?? 0));
+  const total = subtotal + taxCents;
+  const amountPaid = Math.max(0, Number(existing.amount_paid_cents || 0));
+  const balance = Math.max(0, total - amountPaid);
+  const nextStatus = balance <= 0 ? 'paid' : (amountPaid > 0 ? 'partial' : (existing.status || 'draft'));
+
+  await env.DB.prepare(`UPDATE invoices SET customer_name = ?1, customer_email = ?2, due_date = ?3, notes = ?4, subtotal_cents = ?5, tax_cents = ?6, total_cents = ?7, balance_due_cents = ?8, status = ?9, updated_at = datetime('now') WHERE id = ?10`)
+    .bind(customerName, customerEmail || null, dueDate, descriptionOfWork || null, subtotal, taxCents, total, balance, nextStatus, id).run();
+
+  await env.DB.prepare(`DELETE FROM invoice_line_items WHERE invoice_id = ?1`).bind(id).run();
+  for (const item of items) {
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unitAmountCents || 0);
+    const lineTotal = Math.round(qty * unit);
+    await env.DB.prepare(`INSERT INTO invoice_line_items (invoice_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?1, ?2, ?3, ?4, ?5)`)
+      .bind(id, (item.description || 'Service').toString(), qty, unit, lineTotal).run();
+  }
+
+  return json({ ok: true, invoiceId: id, status: nextStatus, balanceDueCents: balance, amountPaidCents: amountPaid }, 200, corsHeaders);
 }
 
 async function handleInvoiceStatus(request, env, corsHeaders, url) {

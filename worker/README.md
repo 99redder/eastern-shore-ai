@@ -32,11 +32,15 @@ Default endpoints used by the site:
 - Admin bookings read: `https://eastern-shore-ai-contact.99redder.workers.dev/api/bookings?key=YOUR_ADMIN_API_KEY&limit=20`
 - Admin block/unblock slot: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/admin/block-slot?key=YOUR_ADMIN_API_KEY`
 - Admin invoices list/create: `GET/POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices`
+- Admin invoice detail (with line items): `GET https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/detail?id=123`
+- Admin invoice update: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/update`
 - Admin invoice send email: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/send`
 
 ## Notes
 
 - Invoice create payload expects `customerName`, `customerEmail`, `issueDate`, `dueDate`, `descriptionOfWork` (or `notes`), and `items[]` where each item has `description`, optional `quantity`, and `unitAmountCents` (or `unitAmount` in dollars).
+- Invoice detail endpoint returns the invoice row plus `line_items[]` for modal prefill/editing.
+- Invoice update payload expects `{ id, customerName, customerEmail, dueDate, descriptionOfWork|notes, items[] }` and replaces line items while recalculating subtotal/tax/total/balance using existing `amount_paid_cents`.
 - Invoice send payload expects `{ "id": <invoiceId> }` and sends branded HTML+text via Resend using `FROM_EMAIL`, `RESEND_API_KEY`, and optional `CC_EMAIL`.
 - CORS allowed origins are set in `wrangler.toml` (`ALLOWED_ORIGINS`) as a comma-separated list.
 - Messages include `reply_to` set to the submitter's email.

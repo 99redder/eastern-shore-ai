@@ -775,6 +775,8 @@
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
     const INVOICE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/send');
+    const INVOICE_DETAIL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/detail');
+    const INVOICE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/update');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -874,6 +876,7 @@
     const invoiceModeAddBtn = document.getElementById('invoice-mode-add-btn');
     const invoiceFabBtn = document.getElementById('invoice-fab-btn');
     const invoiceCreateModal = document.getElementById('invoice-create-modal');
+    const invoiceCreateTitleEl = document.getElementById('invoice-create-title');
     const invoiceCreateCancelBtn = document.getElementById('invoice-create-cancel-btn');
     const invoiceCustomerNameEl = document.getElementById('invoice-customer-name');
     const invoiceCustomerEmailEl = document.getElementById('invoice-customer-email');
@@ -966,6 +969,7 @@
     let blurMoneyEnabled = false;
     let activeInvoiceMode = 'view';
     let invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+    let editingInvoiceId = null;
 
     // ===== Time Slots =====
     const TIME_SLOTS = [
@@ -1023,6 +1027,18 @@
       errorModal.setAttribute('aria-hidden', 'true');
     }
 
+    function resetInvoiceForm() {
+      if (invoiceDescriptionEl) invoiceDescriptionEl.value = '';
+      if (invoiceCustomerEmailEl) invoiceCustomerEmailEl.value = '';
+      if (invoiceCustomerNameEl) invoiceCustomerNameEl.value = '';
+      if (invoiceDueDateEl) invoiceDueDateEl.value = '';
+      editingInvoiceId = null;
+      invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+      renderInvoiceLineItems();
+      if (invoiceCreateBtn) invoiceCreateBtn.textContent = 'Create Invoice';
+      if (invoiceCreateTitleEl) invoiceCreateTitleEl.textContent = 'Create New Invoice';
+    }
+
     function openInvoiceCreateModal() {
       invoiceCreateModal?.classList.add('active');
       invoiceCreateModal?.setAttribute('aria-hidden', 'false');
@@ -1032,6 +1048,7 @@
     function closeInvoiceCreateModal() {
       invoiceCreateModal?.classList.remove('active');
       invoiceCreateModal?.setAttribute('aria-hidden', 'true');
+      resetInvoiceForm();
     }
 
     function setInvoiceMode(mode = 'view') {
@@ -1041,6 +1058,7 @@
       invoiceModeViewBtn?.setAttribute('aria-selected', activeInvoiceMode === 'view' ? 'true' : 'false');
       invoiceModeAddBtn?.setAttribute('aria-selected', activeInvoiceMode === 'add' ? 'true' : 'false');
       if (activeInvoiceMode === 'add') {
+        resetInvoiceForm();
         openInvoiceCreateModal();
         activeInvoiceMode = 'view';
         invoiceModeViewBtn?.classList.add('active');
@@ -2498,7 +2516,7 @@
       if (invoiceTotalDisplayEl) invoiceTotalDisplayEl.textContent = `$${(totalCents / 100).toFixed(2)}`;
     }
 
-    async function createQuickInvoice() {
+    async function saveQuickInvoice() {
       const customerName = (invoiceCustomerNameEl?.value || '').trim();
       const customerEmail = (invoiceCustomerEmailEl?.value || '').trim();
       const dueDate = invoiceDueDateEl?.value;
@@ -2515,35 +2533,67 @@
         return;
       }
 
-      const issueDate = new Date().toISOString().slice(0, 10);
-      const invoiceNumber = `INV-${Date.now()}`;
+      const isEditing = Number(editingInvoiceId || 0) > 0;
       const payload = {
-        invoiceNumber,
         customerName,
         customerEmail,
         descriptionOfWork,
-        issueDate,
         dueDate,
-        status: 'draft',
         items
       };
 
-      const res = await fetch(INVOICES_API_URL, {
+      let endpoint = INVOICES_API_URL;
+      if (isEditing) {
+        endpoint = INVOICE_UPDATE_API_URL;
+        payload.id = Number(editingInvoiceId);
+      } else {
+        payload.issueDate = new Date().toISOString().slice(0, 10);
+        payload.invoiceNumber = `INV-${Date.now()}`;
+        payload.status = 'draft';
+      }
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
         body: JSON.stringify(payload)
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { openErrorModal(data.error || 'Failed to create invoice'); return; }
-      openSuccessModal('Invoice created', `Invoice #${data.invoiceId} created.`);
+      if (!res.ok) { openErrorModal(data.error || `Failed to ${isEditing ? 'update' : 'create'} invoice`); return; }
+      openSuccessModal(
+        isEditing ? 'Invoice updated' : 'Invoice created',
+        isEditing ? `Invoice #${payload.id} updated.` : `Invoice #${data.invoiceId} created.`
+      );
       closeInvoiceCreateModal();
       await refreshInvoiceList();
-      if (invoiceDescriptionEl) invoiceDescriptionEl.value = '';
-      if (invoiceCustomerEmailEl) invoiceCustomerEmailEl.value = '';
-      if (invoiceCustomerNameEl) invoiceCustomerNameEl.value = '';
-      if (invoiceDueDateEl) invoiceDueDateEl.value = '';
-      invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+    }
+
+    async function startInvoiceEdit(id) {
+      const invoiceId = Number(id || 0);
+      if (!invoiceId) return;
+      const res = await fetch(`${INVOICE_DETAIL_API_URL}?id=${encodeURIComponent(invoiceId)}`, {
+        headers: { 'X-Admin-Password': adminPassword }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.invoice) {
+        openErrorModal(data.error || 'Failed to load invoice details for editing.');
+        return;
+      }
+      const inv = data.invoice;
+      editingInvoiceId = invoiceId;
+      if (invoiceCustomerNameEl) invoiceCustomerNameEl.value = inv.customer_name || '';
+      if (invoiceCustomerEmailEl) invoiceCustomerEmailEl.value = inv.customer_email || '';
+      if (invoiceDueDateEl) invoiceDueDateEl.value = inv.due_date || '';
+      if (invoiceDescriptionEl) invoiceDescriptionEl.value = inv.notes || '';
+      invoiceDraftItems = (Array.isArray(inv.line_items) ? inv.line_items : []).map((item) => ({
+        description: item.item_description || '',
+        quantity: Number(item.quantity || 1),
+        unitAmount: (Number(item.unit_amount_cents || 0) / 100).toFixed(2)
+      }));
+      if (!invoiceDraftItems.length) invoiceDraftItems = [{ description: '', quantity: 1, unitAmount: '' }];
       renderInvoiceLineItems();
+      if (invoiceCreateBtn) invoiceCreateBtn.textContent = 'Save Invoice Changes';
+      if (invoiceCreateTitleEl) invoiceCreateTitleEl.textContent = 'Edit Invoice';
+      openInvoiceCreateModal();
     }
 
     function invoiceStatusBadge(status) {
@@ -2595,6 +2645,7 @@
             <span>Total: ${total} | Paid: ${paid} | Balance: <strong>${bal}</strong></span>
           </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
+            ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
             <button type="button" class="btn" data-invoice-action="email" data-invoice-id="${id}">Generate/Send Invoice Email</button>
             <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}">Mark Sent</button>
             <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
@@ -2610,6 +2661,11 @@
       const id = Number(btn.getAttribute('data-invoice-id') || 0);
       const action = btn.getAttribute('data-invoice-action') || '';
       if (!id || !action) return;
+
+      if (action === 'edit') {
+        await startInvoiceEdit(id);
+        return;
+      }
 
       if (action === 'payment') {
         const raw = prompt('Payment amount (USD), e.g. 125.50');
@@ -2879,7 +2935,7 @@
     invoiceModeViewBtn?.addEventListener('click', () => setInvoiceMode('view'));
     invoiceModeAddBtn?.addEventListener('click', () => setInvoiceMode('add'));
     invoiceFabBtn?.addEventListener('click', () => setInvoiceMode('add'));
-    invoiceCreateBtn?.addEventListener('click', createQuickInvoice);
+    invoiceCreateBtn?.addEventListener('click', saveQuickInvoice);
     invoiceAddLineItemBtn?.addEventListener('click', () => {
       captureInvoiceDraftItems();
       invoiceDraftItems.push({ description: '', quantity: 1, unitAmount: '' });
