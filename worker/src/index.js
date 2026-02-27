@@ -202,6 +202,10 @@ export default {
       return handleInvoiceSend(request, env, corsHeaders, url);
     }
 
+    if (url.pathname === '/api/accounts/invoices/delete' && request.method === 'POST') {
+      return handleInvoiceDelete(request, env, corsHeaders, url);
+    }
+
     // Quotes routes
     if (url.pathname === '/api/accounts/quotes' && request.method === 'GET') {
       return handleQuotesList(request, env, corsHeaders, url);
