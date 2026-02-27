@@ -714,7 +714,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
       }
 
       try {
-        await applyInvoicePayment(env.DB, {
+        const paymentResult = await applyInvoicePayment(env.DB, {
           invoiceId,
           requestedPaymentCents: amount,
           paymentEventId,
@@ -727,13 +727,24 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
         await env.DB.prepare(
           `UPDATE invoices
-           SET stripe_checkout_session_id = COALESCE(?1, stripe_checkout_session_id),
-               stripe_checkout_url = COALESCE(?2, stripe_checkout_url),
+           SET amount_paid_cents = COALESCE(?1, amount_paid_cents),
+               balance_due_cents = COALESCE(?2, balance_due_cents),
+               status = COALESCE(?3, status),
+               paid_date = CASE WHEN COALESCE(?2, balance_due_cents) = 0 THEN COALESCE(paid_date, date('now')) ELSE paid_date END,
+               stripe_checkout_session_id = COALESCE(?4, stripe_checkout_session_id),
+               stripe_checkout_url = COALESCE(?5, stripe_checkout_url),
                stripe_payment_status = 'paid',
                stripe_payment_completed_at = datetime('now'),
                updated_at = datetime('now')
-           WHERE id = ?3`
-        ).bind(sessionId || null, session.url || null, invoiceId).run();
+           WHERE id = ?6`
+        ).bind(
+          Number(paymentResult?.amountPaidCents ?? null),
+          Number(paymentResult?.balanceDueCents ?? null),
+          (paymentResult?.status || null),
+          sessionId || null,
+          session.url || null,
+          invoiceId
+        ).run();
       } catch (e) {
         console.error('Invoice Stripe webhook handling failed', e);
         return json({ ok: false, error: `Invoice webhook failed: ${e?.message || e}` }, 500, corsHeaders);
