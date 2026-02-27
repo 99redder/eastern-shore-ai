@@ -2568,9 +2568,8 @@ async function handleQuoteDeny(request, env, corsHeaders, url) {
     return new Response(htmlPage('Quote Expired', 'Quote Expired', `This quote expired on ${quote.valid_until}.`, false), { status: 400, headers: { 'Content-Type': 'text/html' } });
   }
 
-  // Hard delete the quote and line items
-  await env.DB.prepare(`DELETE FROM quote_line_items WHERE quote_id = ?1`).bind(quote.id).run();
-  await env.DB.prepare(`DELETE FROM quotes WHERE id = ?1`).bind(quote.id).run();
+  // Mark declined and retain record for manual admin cleanup
+  await env.DB.prepare(`UPDATE quotes SET status = 'denied', denied_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(quote.id).run();
 
   return new Response(htmlPage('Quote Declined', 'Quote Declined', 'The quote has been declined. Thank you for letting us know. Feel free to reach out if you have any questions.', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
 }
