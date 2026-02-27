@@ -2145,52 +2145,52 @@ async function applyInvoicePayment(db, {
   if (!eventId) throw new Error('Missing paymentEventId');
 
   const eventKey = `invoice-payment:${id}:${eventId}`;
-  await db.prepare(`BEGIN IMMEDIATE`).run();
+
+  const inv = await db.prepare(
+    `SELECT id, invoice_number, total_cents, amount_paid_cents
+     FROM invoices
+     WHERE id = ?1`
+  ).bind(id).first();
+  if (!inv) throw new Error('Invoice not found');
+
+  const existingPaymentEvent = await db.prepare(
+    `SELECT id
+     FROM tax_income
+     WHERE stripe_session_id = ?1
+     LIMIT 1`
+  ).bind(eventKey).first();
+
+  const total = Number(inv.total_cents || 0);
+  const currentlyPaid = Number(inv.amount_paid_cents || 0);
+
+  if (existingPaymentEvent?.id) {
+    const duplicateBalance = Math.max(0, total - currentlyPaid);
+    const duplicateStatus = duplicateBalance <= 0 ? 'paid' : 'partial';
+    return {
+      ok: true,
+      id,
+      amountPaidCents: currentlyPaid,
+      balanceDueCents: duplicateBalance,
+      status: duplicateStatus,
+      paymentPostedCents: 0,
+      booksUpdated: true,
+      duplicateEvent: true
+    };
+  }
+
+  const remaining = Math.max(0, total - currentlyPaid);
+  const appliedPaymentCents = Math.min(remaining, requestCents);
+  if (appliedPaymentCents <= 0) throw new Error('Invoice is already fully paid');
+
+  const resolvedIncomeDate = (incomeDate || new Date().toISOString().slice(0, 10)).toString().slice(0, 10);
+  let resolvedNotes = (incomeNotes || `Invoice payment posted to books | invoice_id=${id} | invoice_number=${inv.invoice_number || ''} | payment_event_id=${eventId}`).toString();
+  if (stripeSessionIdForBooks && !resolvedNotes.includes('stripe_session_id=')) {
+    resolvedNotes += ` | stripe_session_id=${stripeSessionIdForBooks}`;
+  }
+  const stripeIdForBooks = eventKey;
+
+  let incomeId = null;
   try {
-    const inv = await db.prepare(
-      `SELECT id, invoice_number, total_cents, amount_paid_cents
-       FROM invoices
-       WHERE id = ?1`
-    ).bind(id).first();
-    if (!inv) throw new Error('Invoice not found');
-
-    const existingPaymentEvent = await db.prepare(
-      `SELECT id
-       FROM tax_income
-       WHERE stripe_session_id = ?1
-       LIMIT 1`
-    ).bind(eventKey).first();
-
-    const total = Number(inv.total_cents || 0);
-    const currentlyPaid = Number(inv.amount_paid_cents || 0);
-
-    if (existingPaymentEvent?.id) {
-      const duplicateBalance = Math.max(0, total - currentlyPaid);
-      const duplicateStatus = duplicateBalance <= 0 ? 'paid' : 'partial';
-      await db.prepare(`COMMIT`).run();
-      return {
-        ok: true,
-        id,
-        amountPaidCents: currentlyPaid,
-        balanceDueCents: duplicateBalance,
-        status: duplicateStatus,
-        paymentPostedCents: 0,
-        booksUpdated: true,
-        duplicateEvent: true
-      };
-    }
-
-    const remaining = Math.max(0, total - currentlyPaid);
-    const appliedPaymentCents = Math.min(remaining, requestCents);
-    if (appliedPaymentCents <= 0) throw new Error('Invoice is already fully paid');
-
-    const resolvedIncomeDate = (incomeDate || new Date().toISOString().slice(0, 10)).toString().slice(0, 10);
-    let resolvedNotes = (incomeNotes || `Invoice payment posted to books | invoice_id=${id} | invoice_number=${inv.invoice_number || ''} | payment_event_id=${eventId}`).toString();
-    if (stripeSessionIdForBooks && !resolvedNotes.includes('stripe_session_id=')) {
-      resolvedNotes += ` | stripe_session_id=${stripeSessionIdForBooks}`;
-    }
-    const stripeIdForBooks = eventKey;
-
     const incomeInsert = await db.prepare(
       `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes)
        VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
@@ -2202,51 +2202,66 @@ async function applyInvoicePayment(db, {
       stripeIdForBooks,
       resolvedNotes
     ).run();
-
-    const incomeId = Number(incomeInsert.meta?.last_row_id || 0) || null;
-    if (!incomeId) throw new Error('Failed to create tax income entry for invoice payment');
-
-    await upsertTaxIncomeJournal(db, {
-      id: incomeId,
-      income_date: resolvedIncomeDate,
-      source: incomeSource,
-      category: incomeCategory,
-      amount_cents: appliedPaymentCents,
-      notes: resolvedNotes,
-      is_owner_funded: 0
-    });
-
-    const nextPaid = currentlyPaid + appliedPaymentCents;
-    const nextBalance = Math.max(0, total - nextPaid);
-    const nextStatus = nextBalance <= 0 ? 'paid' : 'partial';
-
-    await db.prepare(
-      `UPDATE invoices
-       SET amount_paid_cents = ?1,
-           balance_due_cents = ?2,
-           status = ?3,
-           paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END,
-           updated_at = datetime('now')
-       WHERE id = ?4`
-    ).bind(nextPaid, nextBalance, nextStatus, nextBalance, id).run();
-
-    await db.prepare(`COMMIT`).run();
-
-    return {
-      ok: true,
-      id,
-      amountPaidCents: nextPaid,
-      balanceDueCents: nextBalance,
-      status: nextStatus,
-      paymentPostedCents: appliedPaymentCents,
-      booksUpdated: true,
-      duplicateEvent: false
-    };
+    incomeId = Number(incomeInsert.meta?.last_row_id || 0) || null;
   } catch (e) {
-    try { await db.prepare(`ROLLBACK`).run(); } catch {}
+    // Idempotency race: if same payment event was inserted by a concurrent execution, treat as duplicate.
+    const raced = await db.prepare(`SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`).bind(eventKey).first();
+    if (raced?.id) {
+      const latest = await db.prepare(`SELECT total_cents, amount_paid_cents FROM invoices WHERE id = ?1`).bind(id).first();
+      const paidNow = Number(latest?.amount_paid_cents || currentlyPaid);
+      const balNow = Math.max(0, Number(latest?.total_cents || total) - paidNow);
+      return {
+        ok: true,
+        id,
+        amountPaidCents: paidNow,
+        balanceDueCents: balNow,
+        status: balNow <= 0 ? 'paid' : 'partial',
+        paymentPostedCents: 0,
+        booksUpdated: true,
+        duplicateEvent: true
+      };
+    }
     throw e;
   }
+
+  if (!incomeId) throw new Error('Failed to create tax income entry for invoice payment');
+
+  await upsertTaxIncomeJournal(db, {
+    id: incomeId,
+    income_date: resolvedIncomeDate,
+    source: incomeSource,
+    category: incomeCategory,
+    amount_cents: appliedPaymentCents,
+    notes: resolvedNotes,
+    is_owner_funded: 0
+  });
+
+  const nextPaid = currentlyPaid + appliedPaymentCents;
+  const nextBalance = Math.max(0, total - nextPaid);
+  const nextStatus = nextBalance <= 0 ? 'paid' : 'partial';
+
+  await db.prepare(
+    `UPDATE invoices
+     SET amount_paid_cents = ?1,
+         balance_due_cents = ?2,
+         status = ?3,
+         paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END,
+         updated_at = datetime('now')
+     WHERE id = ?4`
+  ).bind(nextPaid, nextBalance, nextStatus, nextBalance, id).run();
+
+  return {
+    ok: true,
+    id,
+    amountPaidCents: nextPaid,
+    balanceDueCents: nextBalance,
+    status: nextStatus,
+    paymentPostedCents: appliedPaymentCents,
+    booksUpdated: true,
+    duplicateEvent: false
+  };
 }
+
 
 async function handleInvoicePaymentLink(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
