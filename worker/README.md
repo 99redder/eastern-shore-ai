@@ -35,6 +35,7 @@ Default endpoints used by the site:
 - Admin invoice detail (with line items): `GET https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/detail?id=123`
 - Admin invoice update: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/update`
 - Admin invoice payment (updates invoice + books): `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/payment`
+- Admin invoice Stripe checkout link (create/reuse/refresh): `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/payment-link`
 - Admin invoice send email: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/send`
 
 ### Quotes Endpoints
@@ -55,7 +56,10 @@ Default endpoints used by the site:
 - Invoice detail endpoint returns the invoice row plus `line_items[]` for modal prefill/editing.
 - Invoice update payload expects `{ id, customerName, customerEmail, dueDate, descriptionOfWork|notes, items[] }` and replaces line items while recalculating subtotal/tax/total/balance using existing `amount_paid_cents`.
 - Invoice payment payload now expects `{ "id": <invoiceId>, "paymentCents": <integer>, "paymentEventId": "<uuid-or-client-id>" }`. On success it atomically (single DB transaction) posts a matching `tax_income` row and auto-journal entry, then updates invoice paid/balance/status. Duplicate `paymentEventId` submissions are treated as idempotent and do not double-post.
-- Invoice send payload expects `{ "id": <invoiceId> }` and sends branded HTML+text via Resend using `FROM_EMAIL`, `RESEND_API_KEY`, and optional `CC_EMAIL`.
+- Invoice send payload expects `{ "id": <invoiceId> }` and sends branded HTML+text via Resend using `FROM_EMAIL`, `RESEND_API_KEY`, and optional `CC_EMAIL`. If `stripe_checkout_url` exists on the invoice and balance is still due, the email includes a **Pay Invoice Securely** button.
+- Invoice payment-link payload expects `{ "id": <invoiceId>, "regenerate": false }` and returns a hosted Stripe Checkout URL. Existing active link is reused unless `regenerate: true`.
+- Stripe webhook `checkout.session.completed` now handles `metadata.checkout_type=invoice_payment` and routes it through the same invoice payment auto-post path used by manual **Record Payment** so books posting remains consistent + idempotent.
+- Optional env vars for customer redirect targets: `INVOICE_PAYMENT_SUCCESS_URL` and `INVOICE_PAYMENT_CANCEL_URL` (fallback: `PUBLIC_SITE_URL`, then `https://www.easternshore.ai`).
 - CORS allowed origins are set in `wrangler.toml` (`ALLOWED_ORIGINS`) as a comma-separated list.
 - Messages include `reply_to` set to the submitter's email.
 

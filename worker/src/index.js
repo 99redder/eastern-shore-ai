@@ -61,7 +61,7 @@ export default {
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic) {
@@ -196,6 +196,10 @@ export default {
 
     if (url.pathname === '/api/accounts/invoices/payment' && request.method === 'POST') {
       return handleInvoicePayment(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/invoices/payment-link' && request.method === 'POST') {
+      return handleInvoicePaymentLink(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/accounts/invoices/send' && request.method === 'POST') {
@@ -689,6 +693,45 @@ async function handleStripeWebhook(request, env, corsHeaders) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data?.object || {};
     const sessionId = session.id || null;
+
+    if ((session.metadata?.checkout_type || '').toString() === 'invoice_payment') {
+      const invoiceId = Number(session.metadata?.invoice_id || 0);
+      const amount = Math.round(Number(session.amount_total || 0));
+      const paymentEventId = (event.id || sessionId || '').toString().trim();
+
+      if (!invoiceId || amount <= 0 || !paymentEventId) {
+        return json({ ok: false, error: 'Invalid invoice checkout metadata' }, 400, corsHeaders);
+      }
+
+      try {
+        await applyInvoicePayment(env.DB, {
+          invoiceId,
+          requestedPaymentCents: amount,
+          paymentEventId,
+          incomeDate: event.created ? new Date(event.created * 1000).toISOString().slice(0, 10) : undefined,
+          incomeSource: 'Stripe Invoice Checkout',
+          incomeCategory: 'Service Revenue',
+          incomeNotes: `Stripe invoice checkout completed | invoice_id=${invoiceId} | invoice_number=${session.metadata?.invoice_number || ''} | session_id=${sessionId || ''}`,
+          stripeSessionIdForBooks: sessionId || null
+        });
+
+        await env.DB.prepare(
+          `UPDATE invoices
+           SET stripe_checkout_session_id = COALESCE(?1, stripe_checkout_session_id),
+               stripe_checkout_url = COALESCE(?2, stripe_checkout_url),
+               stripe_payment_status = 'paid',
+               stripe_payment_completed_at = datetime('now'),
+               updated_at = datetime('now')
+           WHERE id = ?3`
+        ).bind(sessionId || null, session.url || null, invoiceId).run();
+      } catch (e) {
+        console.error('Invoice Stripe webhook handling failed', e);
+        return json({ ok: false, error: `Invoice webhook failed: ${e?.message || e}` }, 500, corsHeaders);
+      }
+
+      return json({ ok: true }, 200, corsHeaders);
+    }
+
     const setupDate = session.metadata?.setup_date || null;
     const setupTime = session.metadata?.setup_time || null;
     const setupAt = session.metadata?.setup_at || (setupDate && setupTime ? `${setupDate}T${setupTime}` : null);
@@ -2075,6 +2118,237 @@ async function handleInvoiceStatus(request, env, corsHeaders, url) {
   return json({ ok: true, id, status }, 200, corsHeaders);
 }
 
+async function applyInvoicePayment(db, {
+  invoiceId,
+  requestedPaymentCents,
+  paymentEventId,
+  incomeDate,
+  incomeSource = 'Invoice Payment',
+  incomeCategory = 'Service Revenue',
+  incomeNotes,
+  stripeSessionIdForBooks = null
+}) {
+  const id = Number(invoiceId || 0);
+  const requestCents = Math.round(Number(requestedPaymentCents || 0));
+  const eventId = (paymentEventId || '').toString().trim();
+  if (!id || !Number.isFinite(requestCents) || requestCents <= 0) throw new Error('Invalid payment payload');
+  if (!eventId) throw new Error('Missing paymentEventId');
+
+  const eventKey = `invoice-payment:${id}:${eventId}`;
+  await db.prepare(`BEGIN IMMEDIATE`).run();
+  try {
+    const inv = await db.prepare(
+      `SELECT id, invoice_number, total_cents, amount_paid_cents
+       FROM invoices
+       WHERE id = ?1`
+    ).bind(id).first();
+    if (!inv) throw new Error('Invoice not found');
+
+    const existingPaymentEvent = await db.prepare(
+      `SELECT id
+       FROM tax_income
+       WHERE stripe_session_id = ?1
+       LIMIT 1`
+    ).bind(eventKey).first();
+
+    const total = Number(inv.total_cents || 0);
+    const currentlyPaid = Number(inv.amount_paid_cents || 0);
+
+    if (existingPaymentEvent?.id) {
+      const duplicateBalance = Math.max(0, total - currentlyPaid);
+      const duplicateStatus = duplicateBalance <= 0 ? 'paid' : 'partial';
+      await db.prepare(`COMMIT`).run();
+      return {
+        ok: true,
+        id,
+        amountPaidCents: currentlyPaid,
+        balanceDueCents: duplicateBalance,
+        status: duplicateStatus,
+        paymentPostedCents: 0,
+        booksUpdated: true,
+        duplicateEvent: true
+      };
+    }
+
+    const remaining = Math.max(0, total - currentlyPaid);
+    const appliedPaymentCents = Math.min(remaining, requestCents);
+    if (appliedPaymentCents <= 0) throw new Error('Invoice is already fully paid');
+
+    const resolvedIncomeDate = (incomeDate || new Date().toISOString().slice(0, 10)).toString().slice(0, 10);
+    let resolvedNotes = (incomeNotes || `Invoice payment posted to books | invoice_id=${id} | invoice_number=${inv.invoice_number || ''} | payment_event_id=${eventId}`).toString();
+    if (stripeSessionIdForBooks && !resolvedNotes.includes('stripe_session_id=')) {
+      resolvedNotes += ` | stripe_session_id=${stripeSessionIdForBooks}`;
+    }
+    const stripeIdForBooks = eventKey;
+
+    const incomeInsert = await db.prepare(
+      `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+    ).bind(
+      resolvedIncomeDate,
+      incomeSource,
+      incomeCategory,
+      appliedPaymentCents,
+      stripeIdForBooks,
+      resolvedNotes
+    ).run();
+
+    const incomeId = Number(incomeInsert.meta?.last_row_id || 0) || null;
+    if (!incomeId) throw new Error('Failed to create tax income entry for invoice payment');
+
+    await upsertTaxIncomeJournal(db, {
+      id: incomeId,
+      income_date: resolvedIncomeDate,
+      source: incomeSource,
+      category: incomeCategory,
+      amount_cents: appliedPaymentCents,
+      notes: resolvedNotes,
+      is_owner_funded: 0
+    });
+
+    const nextPaid = currentlyPaid + appliedPaymentCents;
+    const nextBalance = Math.max(0, total - nextPaid);
+    const nextStatus = nextBalance <= 0 ? 'paid' : 'partial';
+
+    await db.prepare(
+      `UPDATE invoices
+       SET amount_paid_cents = ?1,
+           balance_due_cents = ?2,
+           status = ?3,
+           paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END,
+           updated_at = datetime('now')
+       WHERE id = ?4`
+    ).bind(nextPaid, nextBalance, nextStatus, nextBalance, id).run();
+
+    await db.prepare(`COMMIT`).run();
+
+    return {
+      ok: true,
+      id,
+      amountPaidCents: nextPaid,
+      balanceDueCents: nextBalance,
+      status: nextStatus,
+      paymentPostedCents: appliedPaymentCents,
+      booksUpdated: true,
+      duplicateEvent: false
+    };
+  } catch (e) {
+    try { await db.prepare(`ROLLBACK`).run(); } catch {}
+    throw e;
+  }
+}
+
+async function handleInvoicePaymentLink(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  if (!env.STRIPE_SECRET_KEY) return json({ ok: false, error: 'Stripe secret not configured' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || data.invoiceId || 0);
+  const regenerate = !!data.regenerate;
+  if (!id) return json({ ok: false, error: 'Invalid invoice id' }, 400, corsHeaders);
+
+  const invoice = await env.DB.prepare(`SELECT * FROM invoices WHERE id = ?1`).bind(id).first();
+  if (!invoice) return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
+
+  const status = (invoice.status || '').toString().toLowerCase();
+  const existingUrl = (invoice.stripe_checkout_url || '').toString().trim();
+  const existingSessionId = (invoice.stripe_checkout_session_id || '').toString().trim();
+  if (!regenerate && existingUrl && existingSessionId && !['paid','void'].includes(status)) {
+    return json({ ok: true, id, paymentUrl: existingUrl, stripeCheckoutSessionId: existingSessionId, reused: true }, 200, corsHeaders);
+  }
+
+  const itemsRes = await env.DB.prepare(`SELECT item_description, quantity, unit_amount_cents, line_total_cents FROM invoice_line_items WHERE invoice_id = ?1 ORDER BY id ASC`).bind(id).all();
+  const items = itemsRes.results || [];
+  if (!items.length) return json({ ok: false, error: 'Invoice has no line items' }, 400, corsHeaders);
+
+  const totalCents = Number(invoice.total_cents || 0);
+  const balanceDueCents = Math.max(0, Number(invoice.balance_due_cents || 0));
+  if (balanceDueCents <= 0 || totalCents <= 0) return json({ ok: false, error: 'Invoice has no balance due' }, 400, corsHeaders);
+
+  const metadata = {
+    checkout_type: 'invoice_payment',
+    invoice_id: String(id),
+    invoice_number: String(invoice.invoice_number || `INV-${id}`),
+    customer_email: String(invoice.customer_email || ''),
+    balance_due_cents: String(balanceDueCents)
+  };
+
+  const successBase = (env.INVOICE_PAYMENT_SUCCESS_URL || env.PUBLIC_SITE_URL || 'https://www.easternshore.ai').replace(/\/$/, '');
+  const cancelBase = (env.INVOICE_PAYMENT_CANCEL_URL || env.PUBLIC_SITE_URL || 'https://www.easternshore.ai').replace(/\/$/, '');
+
+  const form = new URLSearchParams();
+  form.append('mode', 'payment');
+  form.append('success_url', `${successBase}/?invoice_paid=1&invoice_id=${encodeURIComponent(String(id))}`);
+  form.append('cancel_url', `${cancelBase}/?invoice_payment_cancelled=1&invoice_id=${encodeURIComponent(String(id))}`);
+  form.append('client_reference_id', `invoice:${id}`);
+  if (invoice.customer_email) form.append('customer_email', String(invoice.customer_email));
+
+  Object.entries(metadata).forEach(([k, v]) => {
+    form.append(`metadata[${k}]`, v);
+    form.append(`payment_intent_data[metadata][${k}]`, v);
+  });
+
+  let lineIdx = 0;
+  if (balanceDueCents < totalCents) {
+    form.append(`line_items[${lineIdx}][price_data][currency]`, 'usd');
+    form.append(`line_items[${lineIdx}][price_data][unit_amount]`, String(balanceDueCents));
+    form.append(`line_items[${lineIdx}][price_data][product_data][name]`, `Invoice ${String(invoice.invoice_number || `INV-${id}`)} Balance Due`);
+    form.append(`line_items[${lineIdx}][quantity]`, '1');
+    lineIdx += 1;
+  } else {
+    for (const item of items) {
+      const lineTotalCents = Math.round(Number(item.line_total_cents || 0));
+      if (lineTotalCents <= 0) continue;
+      form.append(`line_items[${lineIdx}][price_data][currency]`, 'usd');
+      form.append(`line_items[${lineIdx}][price_data][unit_amount]`, String(lineTotalCents));
+      form.append(`line_items[${lineIdx}][price_data][product_data][name]`, (item.item_description || 'Service').toString().slice(0, 120));
+      form.append(`line_items[${lineIdx}][quantity]`, '1');
+      lineIdx += 1;
+    }
+
+    const subtotalCents = Number(invoice.subtotal_cents || 0);
+    const taxCents = Math.max(0, Number(invoice.tax_cents || 0));
+    if (taxCents > 0 && subtotalCents > 0) {
+      form.append(`line_items[${lineIdx}][price_data][currency]`, 'usd');
+      form.append(`line_items[${lineIdx}][price_data][unit_amount]`, String(taxCents));
+      form.append(`line_items[${lineIdx}][price_data][product_data][name]`, 'Invoice Tax');
+      form.append(`line_items[${lineIdx}][quantity]`, '1');
+      lineIdx += 1;
+    }
+  }
+
+  if (!lineIdx) return json({ ok: false, error: 'Invoice line items are invalid for checkout' }, 400, corsHeaders);
+
+  const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: form.toString()
+  });
+
+  const stripeData = await stripeRes.json().catch(() => ({}));
+  if (!stripeRes.ok || !stripeData?.url || !stripeData?.id) {
+    return json({ ok: false, error: 'Stripe session failed', detail: stripeData }, 502, corsHeaders);
+  }
+
+  await env.DB.prepare(
+    `UPDATE invoices
+     SET stripe_checkout_session_id = ?1,
+         stripe_checkout_url = ?2,
+         stripe_payment_status = CASE WHEN status IN ('paid','void') THEN stripe_payment_status ELSE 'pending' END,
+         stripe_payment_link_generated_at = datetime('now'),
+         updated_at = datetime('now')
+     WHERE id = ?3`
+  ).bind(stripeData.id, stripeData.url, id).run();
+
+  return json({ ok: true, id, paymentUrl: stripeData.url, stripeCheckoutSessionId: stripeData.id, reused: false }, 200, corsHeaders);
+}
+
 async function handleInvoicePayment(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
@@ -2092,113 +2366,20 @@ async function handleInvoicePayment(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'Missing paymentEventId' }, 400, corsHeaders);
   }
 
-  const eventKey = `invoice-payment:${id}:${paymentEventId}`;
-
   try {
-    await env.DB.prepare(`BEGIN IMMEDIATE`).run();
-
-    const inv = await env.DB.prepare(
-      `SELECT id, invoice_number, customer_name, total_cents, amount_paid_cents
-       FROM invoices
-       WHERE id = ?1`
-    ).bind(id).first();
-    if (!inv) {
-      await env.DB.prepare(`ROLLBACK`).run();
-      return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
-    }
-
-    const existingPaymentEvent = await env.DB.prepare(
-      `SELECT id, amount_cents
-       FROM tax_income
-       WHERE stripe_session_id = ?1
-       LIMIT 1`
-    ).bind(eventKey).first();
-
-    const total = Number(inv.total_cents || 0);
-    const currentlyPaid = Number(inv.amount_paid_cents || 0);
-
-    if (existingPaymentEvent?.id) {
-      const duplicateBalance = Math.max(0, total - currentlyPaid);
-      const duplicateStatus = duplicateBalance <= 0 ? 'paid' : 'partial';
-      await env.DB.prepare(`COMMIT`).run();
-      return json({
-        ok: true,
-        id,
-        amountPaidCents: currentlyPaid,
-        balanceDueCents: duplicateBalance,
-        status: duplicateStatus,
-        paymentPostedCents: 0,
-        booksUpdated: true,
-        duplicateEvent: true
-      }, 200, corsHeaders);
-    }
-
-    const remaining = Math.max(0, total - currentlyPaid);
-    const appliedPaymentCents = Math.min(remaining, requestedPaymentCents);
-    if (appliedPaymentCents <= 0) {
-      await env.DB.prepare(`ROLLBACK`).run();
-      return json({ ok: false, error: 'Invoice is already fully paid' }, 400, corsHeaders);
-    }
-
-    const incomeDate = new Date().toISOString().slice(0, 10);
-    const incomeSource = 'Invoice Payment';
-    const incomeCategory = 'Service Revenue';
-    const incomeNotes = `Invoice payment posted to books | invoice_id=${id} | invoice_number=${inv.invoice_number || ''} | payment_event_id=${paymentEventId}`;
-
-    const incomeInsert = await env.DB.prepare(
-      `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
-    ).bind(
-      incomeDate,
-      incomeSource,
-      incomeCategory,
-      appliedPaymentCents,
-      eventKey,
-      incomeNotes
-    ).run();
-
-    const incomeId = Number(incomeInsert.meta?.last_row_id || 0) || null;
-    if (!incomeId) throw new Error('Failed to create tax income entry for invoice payment');
-
-    await upsertTaxIncomeJournal(env.DB, {
-      id: incomeId,
-      income_date: incomeDate,
-      source: incomeSource,
-      category: incomeCategory,
-      amount_cents: appliedPaymentCents,
-      notes: incomeNotes,
-      is_owner_funded: 0
+    const result = await applyInvoicePayment(env.DB, {
+      invoiceId: id,
+      requestedPaymentCents,
+      paymentEventId,
+      incomeSource: 'Invoice Payment',
+      incomeCategory: 'Service Revenue',
+      incomeNotes: `Invoice payment posted to books | invoice_id=${id} | payment_event_id=${paymentEventId}`
     });
-
-    const nextPaid = currentlyPaid + appliedPaymentCents;
-    const nextBalance = Math.max(0, total - nextPaid);
-    const nextStatus = nextBalance <= 0 ? 'paid' : 'partial';
-
-    await env.DB.prepare(
-      `UPDATE invoices
-       SET amount_paid_cents = ?1,
-           balance_due_cents = ?2,
-           status = ?3,
-           paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END,
-           updated_at = datetime('now')
-       WHERE id = ?4`
-    ).bind(nextPaid, nextBalance, nextStatus, nextBalance, id).run();
-
-    await env.DB.prepare(`COMMIT`).run();
-
-    return json({
-      ok: true,
-      id,
-      amountPaidCents: nextPaid,
-      balanceDueCents: nextBalance,
-      status: nextStatus,
-      paymentPostedCents: appliedPaymentCents,
-      booksUpdated: true,
-      duplicateEvent: false
-    }, 200, corsHeaders);
+    return json(result, 200, corsHeaders);
   } catch (e) {
-    try { await env.DB.prepare(`ROLLBACK`).run(); } catch {}
-    return json({ ok: false, error: `Payment update failed: ${e?.message || e}` }, 500, corsHeaders);
+    const msg = `${e?.message || e}`;
+    const status = msg.includes('Invoice not found') ? 404 : (msg.includes('already fully paid') || msg.includes('Invalid payment payload') || msg.includes('Missing paymentEventId') ? 400 : 500);
+    return json({ ok: false, error: `Payment update failed: ${msg}` }, status, corsHeaders);
   }
 }
 
@@ -2244,6 +2425,9 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   const amountPaidCents = Number(invoice.amount_paid_cents || 0);
   const balanceDueCents = Number(invoice.balance_due_cents || 0);
   const notes = (invoice.notes || '').toString().trim();
+  const paymentUrl = (invoice.stripe_checkout_url || '').toString().trim();
+  const hasPaymentLink = !!paymentUrl && balanceDueCents > 0 && !['paid','void'].includes(String(invoice.status || '').toLowerCase());
+  const payButtonHtml = hasPaymentLink ? `<div style="margin:18px 0 12px;text-align:center;"><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Pay Invoice Securely</a><div style="margin-top:8px;font-size:12px;color:#6b7280;">Secure checkout powered by Stripe</div></div>` : '';
   const fromEmail = (env.FROM_EMAIL || '').toString().trim();
   const replyToEmail = (env.CC_EMAIL || env.FROM_EMAIL || '').toString().trim();
 
@@ -2260,7 +2444,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
     </tr>`;
   }).join('');
 
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Invoice ${escapeHtml(invoice.invoice_number || `INV-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(invoice.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thanks for working with Eastern Shore AI. Your invoice details are below.</p><div style="margin:0 0 14px;color:#111827;"><strong>Issue Date:</strong> ${escapeHtml(invoice.issue_date || '')}<br><strong>Due Date:</strong> ${escapeHtml(invoice.due_date || '')}<br><strong>Customer:</strong> ${escapeHtml(invoice.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div>${taxCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Tax</span><strong>${formatUsd(taxCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div>${amountPaidCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Paid</span><strong>${formatUsd(amountPaidCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Balance Due</span><strong>${formatUsd(balanceDueCents)}</strong></div></div>${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<p style="margin:18px 0 0;color:#374151;text-align:center;">Questions? Reply to this email and we'll help right away, or contact us at (410) 692-8562.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><p style="margin:8px 0 0;font-size:12px;line-height:1.45;color:#6b7280;">Reply to this email or contact us here: (410) 692-8562 • contact@easternshore.ai</p><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to prepare and deliver your invoice and related service communications. Terms: Charges are based on the line items shown; taxes or third-party processing fees may apply where required.</p></div></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Invoice ${escapeHtml(invoice.invoice_number || `INV-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(invoice.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thanks for working with Eastern Shore AI. Your invoice details are below.</p><div style="margin:0 0 14px;color:#111827;"><strong>Issue Date:</strong> ${escapeHtml(invoice.issue_date || '')}<br><strong>Due Date:</strong> ${escapeHtml(invoice.due_date || '')}<br><strong>Customer:</strong> ${escapeHtml(invoice.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div>${taxCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Tax</span><strong>${formatUsd(taxCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div>${amountPaidCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Paid</span><strong>${formatUsd(amountPaidCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Balance Due</span><strong>${formatUsd(balanceDueCents)}</strong></div></div>${payButtonHtml}${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<p style="margin:18px 0 0;color:#374151;text-align:center;">Questions? Reply to this email and we'll help right away, or contact us at (410) 692-8562.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><p style="margin:8px 0 0;font-size:12px;line-height:1.45;color:#6b7280;">Reply to this email or contact us here: (410) 692-8562 • contact@easternshore.ai</p><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to prepare and deliver your invoice and related service communications. Terms: Charges are based on the line items shown; taxes or third-party processing fees may apply where required.</p></div></div></div>`;
 
   const textLines = [
     `Eastern Shore AI Invoice ${invoice.invoice_number || `INV-${id}`}`,
@@ -2278,6 +2462,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   textLines.push(`Total: ${formatUsd(totalCents)}`);
   if (amountPaidCents > 0) textLines.push(`Paid: ${formatUsd(amountPaidCents)}`);
   textLines.push(`Balance Due: ${formatUsd(balanceDueCents)}`);
+  if (hasPaymentLink) textLines.push('', `Pay Invoice Securely: ${paymentUrl}`);
   if (notes) textLines.push('', `Description of work: ${notes}`);
   textLines.push('', 'Reply to this email or contact us at (410) 692-8562 or contact@easternshore.ai.', 'Eastern Shore AI, LLC', 'Privacy: Contact details are used only for invoice/service communication.', 'Terms: Charges are based on listed line items; taxes/processing fees may apply.', 'https://www.easternshore.ai');
 

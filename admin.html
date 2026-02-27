@@ -857,6 +857,7 @@
     const INVOICES_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices');
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
+    const INVOICE_PAYMENT_LINK_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment-link');
     const INVOICE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/send');
     const INVOICE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/delete');
     const INVOICE_DETAIL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/detail');
@@ -2748,6 +2749,8 @@
         const paid = `$${(Number(inv.amount_paid_cents || 0) / 100).toFixed(2)}`;
         const bal = `$${(Number(inv.balance_due_cents || 0) / 100).toFixed(2)}`;
         const status = String(inv.status || 'draft').toLowerCase();
+        const paymentUrl = (inv.stripe_checkout_url || '').toString().trim();
+        const hasPaymentUrl = !!paymentUrl;
 
         return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
           <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
@@ -2762,8 +2765,13 @@
           <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
             <span>Total: ${total} | Paid: ${paid} | Balance: <strong>${bal}</strong></span>
           </div>
+          <div style="margin-top:.25rem; font-size:.86rem; color:var(--muted); word-break:break-all;">
+            ${hasPaymentUrl ? `Payment Link: <a href="${escHtml(paymentUrl)}" target="_blank" rel="noopener noreferrer">${escHtml(paymentUrl)}</a>` : 'Payment Link: Not generated yet'}
+          </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
             ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
+            <button type="button" class="btn" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="${hasPaymentUrl ? '1' : '0'}">${hasPaymentUrl ? 'Refresh Payment Link' : 'Generate Payment Link'}</button>
+            ${hasPaymentUrl ? `<button type="button" class="btn" data-invoice-action="copy-payment-link" data-invoice-id="${id}" data-payment-url="${encodeURIComponent(paymentUrl)}">Copy Payment Link</button>` : ''}
             <button type="button" class="btn" data-invoice-action="email" data-invoice-id="${id}">Generate/Send Invoice Email</button>
             <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
             <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
@@ -2783,6 +2791,32 @@
       const id = Number(btn.getAttribute('data-invoice-id') || 0);
       const action = btn.getAttribute('data-invoice-action') || '';
       if (!id || !action) return;
+
+      if (action === 'copy-payment-link') {
+        const paymentUrl = decodeURIComponent((btn.getAttribute('data-payment-url') || '').trim());
+        if (!paymentUrl) { openErrorModal('No payment link found for this invoice yet.'); return; }
+        try {
+          await navigator.clipboard.writeText(paymentUrl);
+          openSuccessModal('Payment link copied', 'Payment link copied to clipboard.');
+        } catch {
+          prompt('Copy payment link:', paymentUrl);
+        }
+        return;
+      }
+
+      if (action === 'payment-link') {
+        const regenerate = btn.getAttribute('data-regenerate') === '1';
+        const res = await fetch(INVOICE_PAYMENT_LINK_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ id, regenerate })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to create payment link'); return; }
+        openSuccessModal(regenerate ? 'Payment link refreshed' : 'Payment link generated', data.paymentUrl || 'Stripe checkout URL is ready.');
+        await refreshInvoiceList();
+        return;
+      }
 
       if (action === 'edit') {
         await startInvoiceEdit(id);
