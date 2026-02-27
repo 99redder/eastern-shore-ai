@@ -2769,13 +2769,13 @@
             ${hasPaymentUrl ? `Payment Link: <a href="${escHtml(paymentUrl)}" target="_blank" rel="noopener noreferrer">${escHtml(paymentUrl)}</a>` : 'Payment Link: Not generated yet'}
           </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
-            ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
-            ${hasPaymentUrl ? `<button type="button" class="btn" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="1">Refresh Payment Link</button>` : ''}
-            ${hasPaymentUrl ? `<button type="button" class="btn" data-invoice-action="copy-payment-link" data-invoice-id="${id}" data-payment-url="${encodeURIComponent(paymentUrl)}">Copy Payment Link</button>` : ''}
-            <button type="button" class="btn" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
-            <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
-            <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
-            <button type="button" class="btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
+            ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn action-pop" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
+            ${hasPaymentUrl ? `<button type="button" class="btn action-pop" data-invoice-action="copy-payment-link" data-invoice-id="${id}" data-payment-url="${encodeURIComponent(paymentUrl)}">Copy Payment Link</button>` : ''}
+            <button type="button" class="btn action-pop" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
+            <button type="button" class="btn action-pop" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
+            <button type="button" class="btn action-pop" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
+            <button type="button" class="btn action-pop" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
+            <button type="button" class="btn action-pop" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="${hasPaymentUrl ? '1' : '0'}">${hasPaymentUrl ? 'Refresh Payment Link' : 'Generate Payment Link'}</button>
             <button type="button" class="btn delete" data-invoice-action="delete" data-invoice-id="${id}">Delete</button>
           </div>
         </div>`;
@@ -3066,9 +3066,9 @@
             <span>Total: <strong>${total}</strong></span>
           </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
-            ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn" data-quote-action="edit" data-quote-id="${id}">Edit</button>` : ''}
-            ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn" data-quote-action="send" data-quote-id="${id}">Send Quote Email</button>` : ''}
-            ${['draft','sent','denied'].includes(status) ? `<button type="button" class="btn" data-quote-action="convert" data-quote-id="${id}">Convert to Invoice</button>` : ''}
+            ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn action-pop" data-quote-action="edit" data-quote-id="${id}">Edit</button>` : ''}
+            ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn action-pop" data-quote-action="send" data-quote-id="${id}">Send Quote Email</button>` : ''}
+            ${['draft','sent','denied'].includes(status) ? `<button type="button" class="btn action-pop" data-quote-action="convert" data-quote-id="${id}">Convert to Invoice</button>` : ''}
             <button type="button" class="btn delete" data-quote-action="delete" data-quote-id="${id}">Delete</button>
           </div>
         </div>`;
