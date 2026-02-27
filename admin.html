@@ -2851,9 +2851,9 @@
       if (!quoteLineItemsEl) return;
       quoteLineItemsEl.innerHTML = quoteDraftItems.map((item, idx) => `
         <div style="display:flex; gap:.4rem; margin-bottom:.35rem; align-items:center; flex-wrap:wrap;" data-quote-line-idx="${idx}">
-          <input type="text" placeholder="Description" value="${escHtml(item.description || '')}" style="flex:2; min-width:140px;" data-quote-field="description" />
+          <input type="text" placeholder="Description" value="${escHtml(item.description || '')}" style="flex:1.2; min-width:110px;" data-quote-field="description" />
           <input type="number" placeholder="Qty" value="${item.quantity || 1}" style="width:60px;" min="1" data-quote-field="quantity" />
-          <input type="number" placeholder="Unit $" value="${item.unitAmount || ''}" style="width:90px;" step="0.01" min="0" data-quote-field="unitAmount" />
+          <input type="number" placeholder="Unit $" value="${item.unitAmount || ''}" style="width:140px;" step="0.01" min="0" data-quote-field="unitAmount" />
           <button type="button" class="btn delete" style="padding:.35rem .6rem;" data-quote-remove-line="${idx}">×</button>
         </div>
       `).join('');
