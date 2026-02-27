@@ -99,6 +99,8 @@
     .invoice-mode-toggle { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.65rem; }
     .invoice-mode-toggle .btn.active { background:linear-gradient(145deg,#164277,#2a66b0); border-color:#3d7bc6; color:#d9ecff; box-shadow:0 0 10px rgba(61,123,198,.35); }
     .invoice-flow-note { margin:.1rem 0 .7rem; color:var(--muted); line-height:1.45; }
+    .btn.working { opacity:.8; cursor:progress; }
+    .spin-dot { display:inline-block; width:12px; text-align:left; }
     .invoice-fab {
       position: fixed;
       right: 1.1rem;
@@ -2715,6 +2717,10 @@
 
     async function refreshInvoiceList() {
       if (!adminUnlocked) return;
+      const prevTxt = invoiceRefreshBtn?.textContent || 'Refresh Invoices';
+      if (invoiceRefreshBtn) { invoiceRefreshBtn.disabled = true; invoiceRefreshBtn.classList.add('working'); invoiceRefreshBtn.textContent = 'Refreshing…'; }
+      if (invoiceListEl) invoiceListEl.innerHTML = '<div style="color:var(--muted);">Loading invoices…</div>';
+      try {
       let status = (invoiceFilterEl?.value || 'all').trim();
       if (status === 'open') status = 'sent';
       const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
@@ -2766,6 +2772,9 @@
           </div>
         </div>`;
       }).join('');
+      } finally {
+        if (invoiceRefreshBtn) { invoiceRefreshBtn.disabled = false; invoiceRefreshBtn.classList.remove('working'); invoiceRefreshBtn.textContent = prevTxt; }
+      }
     }
 
     async function handleInvoiceActionClick(e) {
@@ -2805,7 +2814,7 @@
           body: JSON.stringify({ id })
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) { openErrorModal(data.error || 'Failed to delete invoice'); return; }
+        if (!res.ok) { openErrorModal((res.status===404 ? 'Delete endpoint not found yet — deploy the worker, then retry.' : (data.error || 'Failed to delete invoice'))); return; }
         await refreshInvoiceList();
         return;
       }
@@ -2963,6 +2972,10 @@
 
     async function refreshQuoteList() {
       if (!adminUnlocked) return;
+      const prevTxt = quoteRefreshBtn?.textContent || 'Refresh Quotes';
+      if (quoteRefreshBtn) { quoteRefreshBtn.disabled = true; quoteRefreshBtn.classList.add('working'); quoteRefreshBtn.textContent = 'Refreshing…'; }
+      if (quoteListEl) quoteListEl.innerHTML = '<div style="color:var(--muted);">Loading quotes…</div>';
+      try {
       let status = (quoteFilterEl?.value || 'all').trim();
       const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
       const res = await fetch(`${QUOTES_API_URL}${query}`, { headers: { 'X-Admin-Password': adminPassword } });
@@ -3006,6 +3019,9 @@
           </div>
         </div>`;
       }).join('');
+      } finally {
+        if (quoteRefreshBtn) { quoteRefreshBtn.disabled = false; quoteRefreshBtn.classList.remove('working'); quoteRefreshBtn.textContent = prevTxt; }
+      }
     }
 
     async function handleQuoteActionClick(e) {
