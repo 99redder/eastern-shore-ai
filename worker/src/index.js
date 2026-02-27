@@ -61,7 +61,7 @@ export default {
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/status','/api/accounts/invoices/payment'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/send'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -186,6 +186,10 @@ export default {
 
     if (url.pathname === '/api/accounts/invoices/payment' && request.method === 'POST') {
       return handleInvoicePayment(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/invoices/send' && request.method === 'POST') {
+      return handleInvoiceSend(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/accounts/rebuild-auto-journal' && request.method === 'POST') {
@@ -1884,9 +1888,24 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
 
   const invoiceNumber = (data.invoiceNumber || `INV-${Date.now()}`).toString();
   const customerName = (data.customerName || '').toString().trim();
+  const customerEmail = (data.customerEmail || '').toString().trim();
   const issueDate = (data.issueDate || '').toString().trim();
   const dueDate = (data.dueDate || '').toString().trim();
-  const items = Array.isArray(data.items) ? data.items : [];
+  const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
+  const rawItems = Array.isArray(data.items) ? data.items : [];
+  const items = rawItems
+    .map((item) => {
+      const qtyRaw = Number(item.quantity ?? item.qty ?? 1);
+      const qty = Number.isFinite(qtyRaw) && qtyRaw > 0 ? qtyRaw : 1;
+      let unitAmountCents = Number(item.unitAmountCents ?? item.amountCents ?? 0);
+      if (!Number.isFinite(unitAmountCents) || unitAmountCents <= 0) {
+        unitAmountCents = Math.round(Number(item.unitAmount ?? item.amount ?? 0) * 100);
+      }
+      const description = (item.description || item.itemDescription || '').toString().trim();
+      return { description, quantity: qty, unitAmountCents: Math.max(0, Math.round(unitAmountCents)) };
+    })
+    .filter((item) => item.unitAmountCents > 0 || item.description);
+
   if (!customerName || !/^\d{4}-\d{2}-\d{2}$/.test(issueDate) || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !items.length) {
     return json({ ok: false, error: 'Missing required invoice fields' }, 400, corsHeaders);
   }
@@ -1897,7 +1916,7 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
   const total = subtotal + taxCents;
 
   const r = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
-    .bind(invoiceNumber, customerName, data.customerEmail || null, data.customerCompany || null, issueDate, dueDate, data.status || 'draft', subtotal, taxCents, total, data.notes || null).run();
+    .bind(invoiceNumber, customerName, customerEmail || null, data.customerCompany || null, issueDate, dueDate, data.status || 'draft', subtotal, taxCents, total, descriptionOfWork || null).run();
   const invoiceId = Number(r.meta?.last_row_id || 0);
 
   for (const item of items) {
@@ -1905,7 +1924,7 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
     const unit = Number(item.unitAmountCents || 0);
     const lineTotal = Math.round(qty * unit);
     await env.DB.prepare(`INSERT INTO invoice_line_items (invoice_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?1, ?2, ?3, ?4, ?5)`)
-      .bind(invoiceId, (item.description || '').toString(), qty, unit, lineTotal).run();
+      .bind(invoiceId, (item.description || 'Service').toString(), qty, unit, lineTotal).run();
   }
 
   return json({ ok: true, invoiceId }, 200, corsHeaders);
@@ -1932,7 +1951,7 @@ async function handleInvoiceStatus(request, env, corsHeaders, url) {
   const status = (data.status || '').toString();
   if (!id || !['draft','sent','partial','paid','void'].includes(status)) return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
   const paidDate = status === 'paid' ? (data.paidDate || new Date().toISOString().slice(0,10)) : null;
-  await env.DB.prepare(`UPDATE invoices SET status = ?1, paid_date = COALESCE(?2, paid_date), updated_at = datetime('now') WHERE id = ?3`).bind(status, paidDate, id).run();
+  await env.DB.prepare(`UPDATE invoices SET status = ?1, paid_date = COALESCE(?2, paid_date), sent_at = CASE WHEN ?1 = 'sent' AND sent_at IS NULL THEN datetime('now') ELSE sent_at END, updated_at = datetime('now') WHERE id = ?3`).bind(status, paidDate, id).run();
   return json({ ok: true, id, status }, 200, corsHeaders);
 }
 
@@ -1958,6 +1977,98 @@ async function handleInvoicePayment(request, env, corsHeaders, url) {
     .bind(paid, balance, status, balance, id).run();
 
   return json({ ok: true, id, amountPaidCents: paid, balanceDueCents: balance, status }, 200, corsHeaders);
+}
+
+async function handleInvoiceSend(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || data.invoiceId || 0);
+  if (!id) return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
+
+  const invoice = await env.DB.prepare(`SELECT * FROM invoices WHERE id = ?1`).bind(id).first();
+  if (!invoice) return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
+
+  const customerEmail = (invoice.customer_email || '').toString().trim();
+  if (!customerEmail) return json({ ok: false, error: 'Invoice has no customer email' }, 400, corsHeaders);
+
+  const itemsRes = await env.DB.prepare(`SELECT item_description, quantity, unit_amount_cents, line_total_cents FROM invoice_line_items WHERE invoice_id = ?1 ORDER BY id ASC`).bind(id).all();
+  const items = itemsRes.results || [];
+  if (!items.length) return json({ ok: false, error: 'Invoice has no line items' }, 400, corsHeaders);
+
+  const subtotalCents = Number(invoice.subtotal_cents || 0);
+  const taxCents = Number(invoice.tax_cents || 0);
+  const totalCents = Number(invoice.total_cents || 0);
+  const amountPaidCents = Number(invoice.amount_paid_cents || 0);
+  const balanceDueCents = Number(invoice.balance_due_cents || 0);
+  const notes = (invoice.notes || '').toString().trim();
+  const fromEmail = (env.FROM_EMAIL || '').toString().trim();
+  const replyToEmail = (env.CC_EMAIL || env.FROM_EMAIL || '').toString().trim();
+
+  const itemRowsHtml = items.map((item) => {
+    const desc = escapeHtml(item.item_description || 'Service');
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unit_amount_cents || 0);
+    const line = Number(item.line_total_cents || 0);
+    return `<tr>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;">${desc}</td>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:center;">${qty}</td>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(unit)}</td>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(line)}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Invoice ${escapeHtml(invoice.invoice_number || `INV-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(invoice.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thanks for working with Eastern Shore AI. Your invoice details are below.</p><div style="margin:0 0 14px;color:#111827;"><strong>Issue Date:</strong> ${escapeHtml(invoice.issue_date || '')}<br><strong>Due Date:</strong> ${escapeHtml(invoice.due_date || '')}<br><strong>Customer:</strong> ${escapeHtml(invoice.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div>${taxCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Tax</span><strong>${formatUsd(taxCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div>${amountPaidCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Paid</span><strong>${formatUsd(amountPaidCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Balance Due</span><strong>${formatUsd(balanceDueCents)}</strong></div></div>${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<p style="margin:18px 0 0;color:#374151;">Questions? Reply to this email and we’ll help right away.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;">Eastern Shore AI • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a> • ${escapeHtml(replyToEmail || fromEmail)}</div></div></div>`;
+
+  const textLines = [
+    `Eastern Shore AI Invoice ${invoice.invoice_number || `INV-${id}`}`,
+    `Customer: ${invoice.customer_name || ''}`,
+    `Issue Date: ${invoice.issue_date || ''}`,
+    `Due Date: ${invoice.due_date || ''}`,
+    '',
+    'Line Items:'
+  ];
+  for (const item of items) {
+    textLines.push(`- ${(item.item_description || 'Service').toString()}: ${Number(item.quantity || 1)} × ${formatUsd(Number(item.unit_amount_cents || 0))} = ${formatUsd(Number(item.line_total_cents || 0))}`);
+  }
+  textLines.push('', `Subtotal: ${formatUsd(subtotalCents)}`);
+  if (taxCents > 0) textLines.push(`Tax: ${formatUsd(taxCents)}`);
+  textLines.push(`Total: ${formatUsd(totalCents)}`);
+  if (amountPaidCents > 0) textLines.push(`Paid: ${formatUsd(amountPaidCents)}`);
+  textLines.push(`Balance Due: ${formatUsd(balanceDueCents)}`);
+  if (notes) textLines.push('', `Description of work: ${notes}`);
+  textLines.push('', `Reply to: ${replyToEmail || fromEmail}`, 'https://www.easternshore.ai');
+
+  const emailPayload = {
+    from: fromEmail,
+    to: [customerEmail],
+    subject: `Invoice ${invoice.invoice_number || `INV-${id}`} from Eastern Shore AI`,
+    html,
+    text: textLines.join('\n'),
+    reply_to: replyToEmail || fromEmail
+  };
+  if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
+
+  const sendRes = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(emailPayload)
+  });
+  const sendJson = await sendRes.json().catch(() => ({}));
+  if (!sendRes.ok) {
+    return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send invoice email' }, 502, corsHeaders);
+  }
+
+  await env.DB.prepare(`UPDATE invoices SET status = 'sent', sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
+  return json({ ok: true, id, emailId: sendJson?.id || null }, 200, corsHeaders);
 }
 
 async function accountingTablesReady(db) {
@@ -2153,4 +2264,17 @@ function json(payload, status = 200, headers = {}) {
     status,
     headers: { 'Content-Type': 'application/json', ...headers }
   });
+}
+
+function formatUsd(cents) {
+  return `$${(Number(cents || 0) / 100).toFixed(2)}`;
+}
+
+function escapeHtml(input) {
+  return String(input ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }

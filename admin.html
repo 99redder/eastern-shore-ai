@@ -455,10 +455,20 @@
         </div>
         <div id="invoices-body" class="admin-collapsible-body-collapsed">
           <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
-            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem;">
-              <input id="invoice-customer-name" placeholder="Customer name" />
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+              <input id="invoice-customer-name" placeholder="Customer name" style="min-width:220px;" />
+              <input id="invoice-customer-email" type="email" placeholder="Customer email" style="min-width:240px;" />
               <input id="invoice-due-date" type="date" />
-              <input id="invoice-amount" type="number" step="0.01" placeholder="Amount" style="max-width:140px;" />
+            </div>
+            <textarea id="invoice-description" placeholder="Description of work" rows="3" style="width:100%; margin-bottom:.6rem;"></textarea>
+            <div class="admin-list" style="margin-bottom:.6rem;">
+              <div id="invoice-line-items"></div>
+              <div class="admin-row" style="gap:.5rem; margin-top:.5rem; align-items:center; justify-content:space-between;">
+                <button type="button" class="btn" id="invoice-add-line-item-btn">+ Add Line Item</button>
+                <div><strong>Total: <span id="invoice-total-display">$0.00</span></strong></div>
+              </div>
+            </div>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem;">
               <button type="button" class="btn" id="invoice-create-btn">Create Invoice</button>
             </div>
             <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; align-items:center;">
@@ -734,6 +744,7 @@
     const INVOICES_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices');
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
+    const INVOICE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/send');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -830,8 +841,12 @@
     const reconRunBtn = document.getElementById('recon-run-btn');
     const reconSummaryEl = document.getElementById('recon-summary');
     const invoiceCustomerNameEl = document.getElementById('invoice-customer-name');
+    const invoiceCustomerEmailEl = document.getElementById('invoice-customer-email');
     const invoiceDueDateEl = document.getElementById('invoice-due-date');
-    const invoiceAmountEl = document.getElementById('invoice-amount');
+    const invoiceDescriptionEl = document.getElementById('invoice-description');
+    const invoiceLineItemsEl = document.getElementById('invoice-line-items');
+    const invoiceAddLineItemBtn = document.getElementById('invoice-add-line-item-btn');
+    const invoiceTotalDisplayEl = document.getElementById('invoice-total-display');
     const invoiceCreateBtn = document.getElementById('invoice-create-btn');
     const invoiceFilterEl = document.getElementById('invoice-filter');
     const invoiceRefreshBtn = document.getElementById('invoice-refresh-btn');
@@ -914,6 +929,7 @@
     let activeAccountsTab = 'balances';
     let activeAdminSectionTab = 'booking';
     let blurMoneyEnabled = false;
+    let invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
 
     // ===== Time Slots =====
     const TIME_SLOTS = [
@@ -2368,12 +2384,61 @@
       }
     }
 
+    function captureInvoiceDraftItems() {
+      const rows = Array.from(invoiceLineItemsEl?.querySelectorAll('[data-invoice-line-item-row]') || []);
+      if (!rows.length) return;
+      invoiceDraftItems = rows.map((row) => ({
+        description: (row.querySelector('[data-line-description]')?.value || '').trim(),
+        quantity: Number(row.querySelector('[data-line-qty]')?.value || 1) || 1,
+        unitAmount: (row.querySelector('[data-line-unit]')?.value || '').trim()
+      }));
+    }
+
+    function buildInvoiceItemsFromForm() {
+      const rows = Array.from(invoiceLineItemsEl?.querySelectorAll('[data-invoice-line-item-row]') || []);
+      return rows.map((row) => {
+        const description = (row.querySelector('[data-line-description]')?.value || '').trim();
+        const qtyRaw = Number(row.querySelector('[data-line-qty]')?.value || 1);
+        const qty = Number.isFinite(qtyRaw) && qtyRaw > 0 ? qtyRaw : 1;
+        const unitRaw = Number(row.querySelector('[data-line-unit]')?.value || 0);
+        const unitAmountCents = Number.isFinite(unitRaw) && unitRaw > 0 ? Math.round(unitRaw * 100) : 0;
+        return { description: description || 'Service', quantity: qty, unitAmountCents };
+      }).filter((item) => item.unitAmountCents > 0 || item.description);
+    }
+
+    function renderInvoiceLineItems() {
+      if (!invoiceLineItemsEl) return;
+      invoiceLineItemsEl.innerHTML = invoiceDraftItems.map((item, index) => `
+        <div class="admin-row" data-invoice-line-item-row style="gap:.45rem; margin-bottom:.45rem; align-items:center; flex-wrap:wrap;">
+          <input data-line-description value="${escHtml(item.description || '')}" placeholder="Line item description" style="min-width:220px; flex:1;" />
+          <input data-line-qty type="number" min="0.01" step="0.01" value="${Number(item.quantity || 1)}" placeholder="Qty" style="max-width:85px;" />
+          <input data-line-unit type="number" min="0" step="0.01" value="${item.unitAmount}" placeholder="Unit $" style="max-width:120px;" />
+          <button type="button" class="btn" data-remove-line-item="${index}">Remove</button>
+        </div>
+      `).join('');
+      updateInvoiceTotalDisplay();
+    }
+
+    function updateInvoiceTotalDisplay() {
+      const items = buildInvoiceItemsFromForm();
+      const totalCents = items.reduce((sum, item) => sum + Math.round(Number(item.quantity || 1) * Number(item.unitAmountCents || 0)), 0);
+      if (invoiceTotalDisplayEl) invoiceTotalDisplayEl.textContent = `$${(totalCents / 100).toFixed(2)}`;
+    }
+
     async function createQuickInvoice() {
       const customerName = (invoiceCustomerNameEl?.value || '').trim();
+      const customerEmail = (invoiceCustomerEmailEl?.value || '').trim();
       const dueDate = invoiceDueDateEl?.value;
-      const amount = Number(invoiceAmountEl?.value || 0);
-      if (!customerName || !dueDate || !Number.isFinite(amount) || amount <= 0) {
-        openErrorModal('Invoice requires customer, due date, and amount.');
+      const descriptionOfWork = (invoiceDescriptionEl?.value || '').trim();
+      const items = buildInvoiceItemsFromForm();
+      const totalCents = items.reduce((sum, item) => sum + Math.round(Number(item.quantity || 1) * Number(item.unitAmountCents || 0)), 0);
+
+      if (!customerName || !dueDate || !customerEmail || !/^\S+@\S+\.\S+$/.test(customerEmail)) {
+        openErrorModal('Invoice requires customer name, valid customer email, and due date.');
+        return;
+      }
+      if (!items.length || totalCents <= 0) {
+        openErrorModal('Add at least one line item with an amount.');
         return;
       }
 
@@ -2382,10 +2447,12 @@
       const payload = {
         invoiceNumber,
         customerName,
+        customerEmail,
+        descriptionOfWork,
         issueDate,
         dueDate,
-        status: 'sent',
-        items: [{ description: 'Services', quantity: 1, unitAmountCents: Math.round(amount * 100) }]
+        status: 'draft',
+        items
       };
 
       const res = await fetch(INVOICES_API_URL, {
@@ -2397,7 +2464,10 @@
       if (!res.ok) { openErrorModal(data.error || 'Failed to create invoice'); return; }
       openSuccessModal('Invoice created', `Invoice #${data.invoiceId} created.`);
       await refreshInvoiceList();
-      if (invoiceAmountEl) invoiceAmountEl.value = '';
+      if (invoiceDescriptionEl) invoiceDescriptionEl.value = '';
+      if (invoiceCustomerEmailEl) invoiceCustomerEmailEl.value = '';
+      invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+      renderInvoiceLineItems();
     }
 
     function invoiceStatusBadge(status) {
@@ -2441,13 +2511,15 @@
             ${invoiceStatusBadge(status)}
           </div>
           <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
-            <span>${customer}</span>
+            <span>${customer}${inv.customer_email ? ` • ${escHtml(inv.customer_email)}` : ''}</span>
             <span>Issue: ${issue} | Due: ${due}</span>
           </div>
+          ${inv.notes ? `<div style="margin-top:.2rem; color:var(--muted);">${escHtml(inv.notes)}</div>` : ''}
           <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
             <span>Total: ${total} | Paid: ${paid} | Balance: <strong>${bal}</strong></span>
           </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
+            <button type="button" class="btn" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
             <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}">Mark Sent</button>
             <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
             <button type="button" class="btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
@@ -2475,6 +2547,19 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Payment update failed'); return; }
+        await refreshInvoiceList();
+        return;
+      }
+
+      if (action === 'email') {
+        const res = await fetch(INVOICE_SEND_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to send invoice email'); return; }
+        openSuccessModal('Invoice email sent', 'Invoice email delivered to customer and status updated to sent.');
         await refreshInvoiceList();
         return;
       }
@@ -2715,6 +2800,23 @@
     auditPackageBtn?.addEventListener('click', openAuditPackageModal);
     reconRunBtn?.addEventListener('click', runReconciliation);
     invoiceCreateBtn?.addEventListener('click', createQuickInvoice);
+    invoiceAddLineItemBtn?.addEventListener('click', () => {
+      captureInvoiceDraftItems();
+      invoiceDraftItems.push({ description: '', quantity: 1, unitAmount: '' });
+      renderInvoiceLineItems();
+    });
+    invoiceLineItemsEl?.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('[data-remove-line-item]');
+      if (!removeBtn) return;
+      captureInvoiceDraftItems();
+      const idx = Number(removeBtn.getAttribute('data-remove-line-item') || -1);
+      if (idx < 0) return;
+      invoiceDraftItems.splice(idx, 1);
+      if (!invoiceDraftItems.length) invoiceDraftItems = [{ description: '', quantity: 1, unitAmount: '' }];
+      renderInvoiceLineItems();
+    });
+    invoiceLineItemsEl?.addEventListener('input', updateInvoiceTotalDisplay);
+    renderInvoiceLineItems();
     invoiceRefreshBtn?.addEventListener('click', refreshInvoiceList);
     invoiceFilterEl?.addEventListener('change', refreshInvoiceList);
     invoiceListEl?.addEventListener('click', handleInvoiceActionClick);
