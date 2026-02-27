@@ -2583,7 +2583,7 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
     }).catch(() => {});
   }
 
-  return new Response(htmlPage('Quote Accepted', 'Thank You!', 'Your quote has been accepted. We will follow up with an invoice shortly.', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
+  return new Response(htmlPage('Quote Accepted', 'Thank You!', 'Your quote has been accepted. We'll be in touch shortly for scheduling and confirmation.', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
 }
 
 async function handleQuoteDeny(request, env, corsHeaders, url) {
