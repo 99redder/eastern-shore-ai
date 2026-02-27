@@ -201,6 +201,7 @@
           <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
           <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
           <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
+          <button type="button" class="btn" data-admin-tab="invoices">Invoices</button>
           <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
           <button type="button" class="btn" data-admin-tab="audit-package">Audit Package</button>
         </div>
@@ -443,6 +444,33 @@
             </div>
             <div id="recon-summary" class="admin-list" style="margin-top:.6rem;">No reconciliation run yet.</div>
             <div id="recon-matches" class="admin-list" style="margin-top:.6rem;">Matched and unmatched lines will appear here.</div>
+          </section>
+        </div>
+      </div>
+
+      <div class="admin-collapsible-card" id="invoices-card" style="margin-top:1rem;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Invoices</h3>
+          <button type="button" class="btn" id="invoices-collapse-btn" aria-expanded="false">Expand</button>
+        </div>
+        <div id="invoices-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.6rem;">
+              <input id="invoice-customer-name" placeholder="Customer name" />
+              <input id="invoice-due-date" type="date" />
+              <input id="invoice-amount" type="number" step="0.01" placeholder="Amount" style="max-width:140px;" />
+              <button type="button" class="btn" id="invoice-create-btn">Quick Invoice</button>
+            </div>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; align-items:center;">
+              <label for="invoice-filter" style="margin:0;">Filter</label>
+              <select id="invoice-filter" style="max-width:160px;">
+                <option value="all">All</option>
+                <option value="open">Open</option>
+                <option value="paid">Paid</option>
+              </select>
+              <button type="button" class="btn" id="invoice-refresh-btn">Refresh Invoices</button>
+            </div>
+            <div id="invoice-list" class="admin-list">No invoices yet.</div>
           </section>
         </div>
       </div>
@@ -703,6 +731,9 @@
     const ACCOUNTS_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/journal');
     const ACCOUNTS_STATEMENTS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/statements');
     const ACCOUNTS_YEAR_CLOSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/year-close');
+    const INVOICES_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices');
+    const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
+    const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -722,6 +753,8 @@
     const accountsBody = document.getElementById('accounts-body');
     const reconciliationCollapseBtn = document.getElementById('reconciliation-collapse-btn');
     const reconciliationBody = document.getElementById('reconciliation-body');
+    const invoicesCollapseBtn = document.getElementById('invoices-collapse-btn');
+    const invoicesBody = document.getElementById('invoices-body');
     const yearCloseCollapseBtn = document.getElementById('year-close-collapse-btn');
     const yearCloseBody = document.getElementById('year-close-body');
     const auditPackageCollapseBtn = document.getElementById('audit-package-collapse-btn');
@@ -796,6 +829,13 @@
     const reconCsvEl = document.getElementById('recon-csv');
     const reconRunBtn = document.getElementById('recon-run-btn');
     const reconSummaryEl = document.getElementById('recon-summary');
+    const invoiceCustomerNameEl = document.getElementById('invoice-customer-name');
+    const invoiceDueDateEl = document.getElementById('invoice-due-date');
+    const invoiceAmountEl = document.getElementById('invoice-amount');
+    const invoiceCreateBtn = document.getElementById('invoice-create-btn');
+    const invoiceFilterEl = document.getElementById('invoice-filter');
+    const invoiceRefreshBtn = document.getElementById('invoice-refresh-btn');
+    const invoiceListEl = document.getElementById('invoice-list');
     const reconMatchesEl = document.getElementById('recon-matches');
 
     const accountsYearCloseBtn = document.getElementById('accounts-year-close-btn');
@@ -2328,6 +2368,128 @@
       }
     }
 
+    async function createQuickInvoice() {
+      const customerName = (invoiceCustomerNameEl?.value || '').trim();
+      const dueDate = invoiceDueDateEl?.value;
+      const amount = Number(invoiceAmountEl?.value || 0);
+      if (!customerName || !dueDate || !Number.isFinite(amount) || amount <= 0) {
+        openErrorModal('Invoice requires customer, due date, and amount.');
+        return;
+      }
+
+      const issueDate = new Date().toISOString().slice(0, 10);
+      const invoiceNumber = `INV-${Date.now()}`;
+      const payload = {
+        invoiceNumber,
+        customerName,
+        issueDate,
+        dueDate,
+        status: 'sent',
+        items: [{ description: 'Services', quantity: 1, unitAmountCents: Math.round(amount * 100) }]
+      };
+
+      const res = await fetch(INVOICES_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { openErrorModal(data.error || 'Failed to create invoice'); return; }
+      openSuccessModal('Invoice created', `Invoice #${data.invoiceId} created.`);
+      await refreshInvoiceList();
+      if (invoiceAmountEl) invoiceAmountEl.value = '';
+    }
+
+    function invoiceStatusBadge(status) {
+      const s = String(status || 'draft').toLowerCase();
+      return `<span class="type" style="text-transform:uppercase;">${escHtml(s)}</span>`;
+    }
+
+    async function refreshInvoiceList() {
+      if (!adminUnlocked) return;
+      let status = (invoiceFilterEl?.value || 'all').trim();
+      if (status === 'open') status = 'sent';
+      const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
+      const res = await fetch(`${INVOICES_API_URL}${query}`, { headers: { 'X-Admin-Password': adminPassword } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { invoiceListEl.textContent = data.error || 'Failed to load invoices.'; return; }
+
+      const rows = Array.isArray(data.invoices) ? data.invoices : [];
+      const filtered = (invoiceFilterEl?.value || 'all') === 'open'
+        ? rows.filter((r) => !['paid', 'void'].includes(String(r.status || '').toLowerCase()))
+        : rows;
+
+      if (!filtered.length) {
+        invoiceListEl.innerHTML = '<div style="color:var(--muted);">No invoices found for this filter.</div>';
+        return;
+      }
+
+      invoiceListEl.innerHTML = filtered.map((inv) => {
+        const id = Number(inv.id || 0);
+        const due = escHtml(inv.due_date || '');
+        const issue = escHtml(inv.issue_date || '');
+        const customer = escHtml(inv.customer_name || '');
+        const num = escHtml(inv.invoice_number || `INV-${id}`);
+        const total = `$${(Number(inv.total_cents || 0) / 100).toFixed(2)}`;
+        const paid = `$${(Number(inv.amount_paid_cents || 0) / 100).toFixed(2)}`;
+        const bal = `$${(Number(inv.balance_due_cents || 0) / 100).toFixed(2)}`;
+        const status = String(inv.status || 'draft').toLowerCase();
+
+        return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
+          <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
+            <strong>${num}</strong>
+            ${invoiceStatusBadge(status)}
+          </div>
+          <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
+            <span>${customer}</span>
+            <span>Issue: ${issue} | Due: ${due}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
+            <span>Total: ${total} | Paid: ${paid} | Balance: <strong>${bal}</strong></span>
+          </div>
+          <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
+            <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}">Mark Sent</button>
+            <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
+            <button type="button" class="btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function handleInvoiceActionClick(e) {
+      const btn = e.target.closest('[data-invoice-action]');
+      if (!btn) return;
+      const id = Number(btn.getAttribute('data-invoice-id') || 0);
+      const action = btn.getAttribute('data-invoice-action') || '';
+      if (!id || !action) return;
+
+      if (action === 'payment') {
+        const raw = prompt('Payment amount (USD), e.g. 125.50');
+        if (raw == null) return;
+        const amt = Number(raw);
+        if (!Number.isFinite(amt) || amt <= 0) { openErrorModal('Invalid payment amount.'); return; }
+        const res = await fetch(INVOICE_PAYMENT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ id, paymentCents: Math.round(amt * 100) })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Payment update failed'); return; }
+        await refreshInvoiceList();
+        return;
+      }
+
+      const targetStatus = action === 'paid' ? 'paid' : 'sent';
+      const res = await fetch(INVOICE_STATUS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        body: JSON.stringify({ id, status: targetStatus })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { openErrorModal(data.error || 'Invoice status update failed'); return; }
+      await refreshInvoiceList();
+    }
+
     function setAccountsTab(tab) {
       activeAccountsTab = tab;
       accountsTabBalancesBtn?.classList.toggle('active', tab === 'balances');
@@ -2354,15 +2516,17 @@
       show('tax-ledger-card', tab === 'tax');
       show('accounts-card', tab === 'accounts');
       show('reconciliation-card', tab === 'reconciliation');
+      show('invoices-card', tab === 'invoices');
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
+      if (tab === 'invoices' && adminUnlocked) refreshInvoiceList();
     }
 
     function disableLegacyCollapse() {
-      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, reconciliationCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
+      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, reconciliationCollapseBtn, invoicesCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
         if (btn) btn.style.display = 'none';
       });
-      [bookingControlsBody, taxLedgerBody, accountsBody, reconciliationBody, yearCloseBody, auditPackageBody].forEach((body) => {
+      [bookingControlsBody, taxLedgerBody, accountsBody, reconciliationBody, invoicesBody, yearCloseBody, auditPackageBody].forEach((body) => {
         body?.classList.remove('admin-collapsible-body-collapsed');
       });
     }
@@ -2394,6 +2558,7 @@
         await loadAdminData();
         await loadTaxTransactions();
         await loadAccountsData();
+        await refreshInvoiceList();
       } catch (e) {
         openErrorModal(`Admin unlock failed: ${e.message || e}`);
       }
@@ -2549,6 +2714,10 @@
     accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
     auditPackageBtn?.addEventListener('click', openAuditPackageModal);
     reconRunBtn?.addEventListener('click', runReconciliation);
+    invoiceCreateBtn?.addEventListener('click', createQuickInvoice);
+    invoiceRefreshBtn?.addEventListener('click', refreshInvoiceList);
+    invoiceFilterEl?.addEventListener('change', refreshInvoiceList);
+    invoiceListEl?.addEventListener('click', handleInvoiceActionClick);
     accountsYearEl?.addEventListener('change', loadAccountsData);
     accountsFromEl?.addEventListener('change', loadAccountsData);
     accountsToEl?.addEventListener('change', loadAccountsData);

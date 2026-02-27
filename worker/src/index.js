@@ -60,8 +60,8 @@ export default {
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
-      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices'].includes(url.pathname) && request.method === 'GET';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/status','/api/accounts/invoices/payment'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -168,8 +168,24 @@ export default {
       return handleAccountsStatements(request, env, corsHeaders, url);
     }
 
+    if (url.pathname === '/api/accounts/invoices' && request.method === 'GET') {
+      return handleInvoicesList(request, env, corsHeaders, url);
+    }
+
     if (url.pathname === '/api/accounts/journal' && request.method === 'POST') {
       return handleAccountsJournalCreate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/invoices' && request.method === 'POST') {
+      return handleInvoiceCreate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/invoices/status' && request.method === 'POST') {
+      return handleInvoiceStatus(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/invoices/payment' && request.method === 'POST') {
+      return handleInvoicePayment(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/accounts/rebuild-auto-journal' && request.method === 'POST') {
@@ -1857,6 +1873,91 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
   }
 
   return json({ ok: true, preview, applied: true }, 200, corsHeaders);
+}
+
+async function handleInvoiceCreate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const invoiceNumber = (data.invoiceNumber || `INV-${Date.now()}`).toString();
+  const customerName = (data.customerName || '').toString().trim();
+  const issueDate = (data.issueDate || '').toString().trim();
+  const dueDate = (data.dueDate || '').toString().trim();
+  const items = Array.isArray(data.items) ? data.items : [];
+  if (!customerName || !/^\d{4}-\d{2}-\d{2}$/.test(issueDate) || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !items.length) {
+    return json({ ok: false, error: 'Missing required invoice fields' }, 400, corsHeaders);
+  }
+
+  let subtotal = 0;
+  for (const item of items) subtotal += Math.round(Number(item.quantity || 1) * Number(item.unitAmountCents || 0));
+  const taxCents = Math.max(0, Number(data.taxCents || 0));
+  const total = subtotal + taxCents;
+
+  const r = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
+    .bind(invoiceNumber, customerName, data.customerEmail || null, data.customerCompany || null, issueDate, dueDate, data.status || 'draft', subtotal, taxCents, total, data.notes || null).run();
+  const invoiceId = Number(r.meta?.last_row_id || 0);
+
+  for (const item of items) {
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unitAmountCents || 0);
+    const lineTotal = Math.round(qty * unit);
+    await env.DB.prepare(`INSERT INTO invoice_line_items (invoice_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?1, ?2, ?3, ?4, ?5)`)
+      .bind(invoiceId, (item.description || '').toString(), qty, unit, lineTotal).run();
+  }
+
+  return json({ ok: true, invoiceId }, 200, corsHeaders);
+}
+
+async function handleInvoicesList(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  const status = (url.searchParams.get('status') || '').trim();
+  const rows = status
+    ? await env.DB.prepare(`SELECT * FROM invoices WHERE status = ?1 ORDER BY due_date ASC, id DESC LIMIT 300`).bind(status).all()
+    : await env.DB.prepare(`SELECT * FROM invoices ORDER BY due_date ASC, id DESC LIMIT 300`).all();
+  return json({ ok: true, invoices: rows.results || [] }, 200, corsHeaders);
+}
+
+async function handleInvoiceStatus(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const id = Number(data.id || 0);
+  const status = (data.status || '').toString();
+  if (!id || !['draft','sent','partial','paid','void'].includes(status)) return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
+  const paidDate = status === 'paid' ? (data.paidDate || new Date().toISOString().slice(0,10)) : null;
+  await env.DB.prepare(`UPDATE invoices SET status = ?1, paid_date = COALESCE(?2, paid_date), updated_at = datetime('now') WHERE id = ?3`).bind(status, paidDate, id).run();
+  return json({ ok: true, id, status }, 200, corsHeaders);
+}
+
+async function handleInvoicePayment(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const id = Number(data.id || 0);
+  const paymentCents = Math.max(0, Number(data.paymentCents || 0));
+  if (!id || paymentCents <= 0) return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
+
+  const inv = await env.DB.prepare(`SELECT total_cents, amount_paid_cents FROM invoices WHERE id = ?1`).bind(id).first();
+  if (!inv) return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
+
+  const paid = Number(inv.amount_paid_cents || 0) + paymentCents;
+  const total = Number(inv.total_cents || 0);
+  const balance = Math.max(0, total - paid);
+  const status = balance <= 0 ? 'paid' : 'partial';
+
+  await env.DB.prepare(`UPDATE invoices SET amount_paid_cents = ?1, balance_due_cents = ?2, status = ?3, paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END, updated_at = datetime('now') WHERE id = ?4`)
+    .bind(paid, balance, status, balance, id).run();
+
+  return json({ ok: true, id, amountPaidCents: paid, balanceDueCents: balance, status }, 200, corsHeaders);
 }
 
 async function accountingTablesReady(db) {
