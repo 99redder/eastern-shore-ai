@@ -63,13 +63,14 @@ export default {
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
+      const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
       // Public quote accept/deny endpoints don't require CORS origin check
-      if (!originAllowed && !isQuotePublic) {
+      if (!originAllowed && !isQuotePublic && !isInvoicePublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
@@ -250,6 +251,15 @@ export default {
 
     if (url.pathname === '/api/accounts/year-close' && request.method === 'POST') {
       return handleAccountsYearClose(request, env, corsHeaders, url);
+    }
+
+
+    if (url.pathname === '/invoice/payment-success' && request.method === 'GET') {
+      return handleInvoicePaymentSuccessPage(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/invoice/payment-cancelled' && request.method === 'GET') {
+      return handleInvoicePaymentCancelledPage(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -2276,13 +2286,14 @@ async function handleInvoicePaymentLink(request, env, corsHeaders, url) {
     balance_due_cents: String(balanceDueCents)
   };
 
-  const successBase = (env.INVOICE_PAYMENT_SUCCESS_URL || env.PUBLIC_SITE_URL || 'https://www.easternshore.ai').replace(/\/$/, '');
-  const cancelBase = (env.INVOICE_PAYMENT_CANCEL_URL || env.PUBLIC_SITE_URL || 'https://www.easternshore.ai').replace(/\/$/, '');
+  const baseUrl = new URL(request.url).origin;
+  const successBase = (env.INVOICE_PAYMENT_SUCCESS_URL || `${baseUrl}/invoice/payment-success`).replace(/\/$/, '');
+  const cancelBase = (env.INVOICE_PAYMENT_CANCEL_URL || `${baseUrl}/invoice/payment-cancelled`).replace(/\/$/, '');
 
   const form = new URLSearchParams();
   form.append('mode', 'payment');
-  form.append('success_url', `${successBase}/?invoice_paid=1&invoice_id=${encodeURIComponent(String(id))}`);
-  form.append('cancel_url', `${cancelBase}/?invoice_payment_cancelled=1&invoice_id=${encodeURIComponent(String(id))}`);
+  form.append('success_url', `${successBase}?invoice_id=${encodeURIComponent(String(id))}`);
+  form.append('cancel_url', `${cancelBase}?invoice_id=${encodeURIComponent(String(id))}`);
   form.append('client_reference_id', `invoice:${id}`);
   if (invoice.customer_email) form.append('customer_email', String(invoice.customer_email));
 
@@ -2775,6 +2786,56 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
 
   await env.DB.prepare(`UPDATE quotes SET status = 'sent', sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
   return json({ ok: true, id, emailId: sendJson?.id || null }, 200, corsHeaders);
+}
+
+
+function invoicePaymentPage(title, heading, message, success = true, invoiceId = '') {
+  const bgColor = success ? '#059669' : '#dc2626';
+  const icon = success ? '✓' : '✗';
+  const invLine = invoiceId ? `<p style="margin-top:10px;color:#111827;font-weight:600;">Invoice #${escapeHtml(String(invoiceId))}</p>` : '';
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)} - Eastern Shore AI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f7fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { max-width: 560px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; text-align: center; }
+    .hero img { width:100%; height:auto; display:block; }
+    .header { padding: 20px 24px; background: linear-gradient(135deg, #0f172a, #1f2937); color: #ffffff; }
+    .header h1 { font-size: 18px; }
+    .icon { width: 64px; height: 64px; border-radius: 50%; background: ${bgColor}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 24px auto 16px; }
+    .content { padding: 24px; }
+    .content h2 { color: #111827; margin-bottom: 12px; }
+    .content p { color: #4b5563; line-height: 1.6; }
+    .footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; color:#4b5563; }
+    .footer a { color: #2563eb; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="hero"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" /></div>
+    <div class="header"><h1>Eastern Shore AI, LLC</h1></div>
+    <div class="content"><div class="icon">${icon}</div><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(message)}</p>${invLine}</div>
+    <div class="footer">
+      <div><a href="https://www.easternshore.ai">www.easternshore.ai</a></div>
+      <div style="margin-top:6px; font-size:13px;">Reply to this email or contact us here: (410) 692-8562 • contact@easternshore.ai</div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+async function handleInvoicePaymentSuccessPage(request, env, corsHeaders, url) {
+  const invoiceId = url.searchParams.get('invoice_id') || '';
+  return new Response(invoicePaymentPage('Payment Successful', 'Payment Successful', 'Thank you — your invoice payment was successful.', true, invoiceId), { status: 200, headers: { 'Content-Type': 'text/html' } });
+}
+
+async function handleInvoicePaymentCancelledPage(request, env, corsHeaders, url) {
+  const invoiceId = url.searchParams.get('invoice_id') || '';
+  return new Response(invoicePaymentPage('Payment Cancelled', 'Payment Cancelled', 'Your payment was cancelled. You can return to the invoice and complete payment anytime.', false, invoiceId), { status: 200, headers: { 'Content-Type': 'text/html' } });
 }
 
 function htmlPage(title, heading, message, success = true) {
