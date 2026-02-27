@@ -60,14 +60,16 @@ export default {
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
-      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/send'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/send','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send'].includes(url.pathname) && request.method === 'POST';
+      const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
-      if (!originAllowed) {
+      // Public quote accept/deny endpoints don't require CORS origin check
+      if (!originAllowed && !isQuotePublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
@@ -198,6 +200,40 @@ export default {
 
     if (url.pathname === '/api/accounts/invoices/send' && request.method === 'POST') {
       return handleInvoiceSend(request, env, corsHeaders, url);
+    }
+
+    // Quotes routes
+    if (url.pathname === '/api/accounts/quotes' && request.method === 'GET') {
+      return handleQuotesList(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/quotes/detail' && request.method === 'GET') {
+      return handleQuoteDetail(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/quotes' && request.method === 'POST') {
+      return handleQuoteCreate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/quotes/update' && request.method === 'POST') {
+      return handleQuoteUpdate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/quotes/delete' && request.method === 'POST') {
+      return handleQuoteDelete(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/quotes/send' && request.method === 'POST') {
+      return handleQuoteSend(request, env, corsHeaders, url);
+    }
+
+    // Public quote accept/deny endpoints (no admin auth required, token-based)
+    if (url.pathname === '/api/quote/accept' && request.method === 'GET') {
+      return handleQuoteAccept(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/quote/deny' && request.method === 'GET') {
+      return handleQuoteDeny(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/accounts/rebuild-auto-journal' && request.method === 'POST') {
@@ -2103,7 +2139,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
     </tr>`;
   }).join('');
 
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Invoice ${escapeHtml(invoice.invoice_number || `INV-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(invoice.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thanks for working with Eastern Shore AI. Your invoice details are below.</p><div style="margin:0 0 14px;color:#111827;"><strong>Issue Date:</strong> ${escapeHtml(invoice.issue_date || '')}<br><strong>Due Date:</strong> ${escapeHtml(invoice.due_date || '')}<br><strong>Customer:</strong> ${escapeHtml(invoice.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div>${taxCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Tax</span><strong>${formatUsd(taxCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div>${amountPaidCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Paid</span><strong>${formatUsd(amountPaidCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Balance Due</span><strong>${formatUsd(balanceDueCents)}</strong></div></div>${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<p style="margin:18px 0 0;color:#374151;">Questions? Reply to this email and we’ll help right away.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;">Eastern Shore AI • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a> • ${escapeHtml(replyToEmail || fromEmail)}</div></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Invoice ${escapeHtml(invoice.invoice_number || `INV-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(invoice.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thanks for working with Eastern Shore AI. Your invoice details are below.</p><div style="margin:0 0 14px;color:#111827;"><strong>Issue Date:</strong> ${escapeHtml(invoice.issue_date || '')}<br><strong>Due Date:</strong> ${escapeHtml(invoice.due_date || '')}<br><strong>Customer:</strong> ${escapeHtml(invoice.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div>${taxCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Tax</span><strong>${formatUsd(taxCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div>${amountPaidCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Paid</span><strong>${formatUsd(amountPaidCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Balance Due</span><strong>${formatUsd(balanceDueCents)}</strong></div></div>${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<p style="margin:18px 0 0;color:#374151;">Questions? Reply to this email and we'll help right away.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;">Eastern Shore AI • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a></div></div></div>`;
 
   const textLines = [
     `Eastern Shore AI Invoice ${invoice.invoice_number || `INV-${id}`}`,
@@ -2122,7 +2158,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   if (amountPaidCents > 0) textLines.push(`Paid: ${formatUsd(amountPaidCents)}`);
   textLines.push(`Balance Due: ${formatUsd(balanceDueCents)}`);
   if (notes) textLines.push('', `Description of work: ${notes}`);
-  textLines.push('', `Reply to: ${replyToEmail || fromEmail}`, 'https://www.easternshore.ai');
+  textLines.push('', 'https://www.easternshore.ai');
 
   const emailPayload = {
     from: fromEmail,
@@ -2149,6 +2185,394 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
 
   await env.DB.prepare(`UPDATE invoices SET status = 'sent', sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
   return json({ ok: true, id, emailId: sendJson?.id || null }, 200, corsHeaders);
+}
+
+// ===== Quotes Handlers =====
+
+function generateToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+async function handleQuoteCreate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const quoteNumber = (data.quoteNumber || `Q-${Date.now()}`).toString();
+  const customerName = (data.customerName || '').toString().trim();
+  const customerEmail = (data.customerEmail || '').toString().trim();
+  let validUntil = (data.validUntil || '').toString().trim();
+
+  // Default to 30 days from now if no valid date
+  if (!validUntil) {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    validUntil = d.toISOString().slice(0, 10);
+  }
+
+  const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  if (!customerName || !customerEmail) {
+    return json({ ok: false, error: 'Missing required quote fields' }, 400, corsHeaders);
+  }
+
+  let subtotal = 0;
+  for (const item of items) {
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unitAmountCents || 0);
+    subtotal += Math.round(qty * unit);
+  }
+  const total = subtotal;
+
+  const acceptToken = generateToken();
+  const denyToken = generateToken();
+
+  const r = await env.DB.prepare(`INSERT INTO quotes (quote_number, customer_name, customer_email, valid_until, status, subtotal_cents, total_cents, notes, accept_token, deny_token) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`)
+    .bind(quoteNumber, customerName, customerEmail, validUntil, data.status || 'draft', subtotal, total, descriptionOfWork || null, acceptToken, denyToken).run();
+  const quoteId = Number(r.meta?.last_row_id || 0);
+
+  for (const item of items) {
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unitAmountCents || 0);
+    const lineTotal = Math.round(qty * unit);
+    await env.DB.prepare(`INSERT INTO quote_line_items (quote_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?1, ?2, ?3, ?4, ?5)`)
+      .bind(quoteId, (item.description || 'Service').toString(), qty, unit, lineTotal).run();
+  }
+
+  return json({ ok: true, quoteId }, 200, corsHeaders);
+}
+
+async function handleQuotesList(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const status = url.searchParams.get('status') || '';
+  const rows = status && status !== 'all'
+    ? await env.DB.prepare(`SELECT * FROM quotes WHERE status = ?1 ORDER BY valid_until ASC, id DESC LIMIT 300`).bind(status).all()
+    : await env.DB.prepare(`SELECT * FROM quotes ORDER BY valid_until ASC, id DESC LIMIT 300`).all();
+  return json({ ok: true, quotes: rows.results || [] }, 200, corsHeaders);
+}
+
+async function handleQuoteDetail(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const id = Number(url.searchParams.get('id') || 0);
+  if (!id) return json({ ok: false, error: 'Invalid quote id' }, 400, corsHeaders);
+
+  const quote = await env.DB.prepare(`SELECT * FROM quotes WHERE id = ?1`).bind(id).first();
+  if (!quote) return json({ ok: false, error: 'Quote not found' }, 404, corsHeaders);
+
+  const itemsRes = await env.DB.prepare(`SELECT id, item_description, quantity, unit_amount_cents, line_total_cents FROM quote_line_items WHERE quote_id = ?1 ORDER BY id ASC`).bind(id).all();
+  return json({ ok: true, quote: { ...quote, line_items: itemsRes.results || [] } }, 200, corsHeaders);
+}
+
+async function handleQuoteUpdate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || data.quoteId || 0);
+  const customerName = (data.customerName || '').toString().trim();
+  const customerEmail = (data.customerEmail || '').toString().trim();
+  let validUntil = (data.validUntil || '').toString().trim();
+  const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  if (!id || !customerName || !customerEmail) {
+    return json({ ok: false, error: 'Missing required quote fields' }, 400, corsHeaders);
+  }
+
+  const existing = await env.DB.prepare(`SELECT id FROM quotes WHERE id = ?1`).bind(id).first();
+  if (!existing) return json({ ok: false, error: 'Quote not found' }, 404, corsHeaders);
+
+  let subtotal = 0;
+  for (const item of items) {
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unitAmountCents || 0);
+    subtotal += Math.round(qty * unit);
+  }
+  const total = subtotal;
+
+  await env.DB.prepare(`UPDATE quotes SET customer_name = ?1, customer_email = ?2, valid_until = ?3, notes = ?4, subtotal_cents = ?5, total_cents = ?6, updated_at = datetime('now') WHERE id = ?7`)
+    .bind(customerName, customerEmail, validUntil, descriptionOfWork || null, subtotal, total, id).run();
+
+  await env.DB.prepare(`DELETE FROM quote_line_items WHERE quote_id = ?1`).bind(id).run();
+  for (const item of items) {
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unitAmountCents || 0);
+    const lineTotal = Math.round(qty * unit);
+    await env.DB.prepare(`INSERT INTO quote_line_items (quote_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?1, ?2, ?3, ?4, ?5)`)
+      .bind(id, (item.description || 'Service').toString(), qty, unit, lineTotal).run();
+  }
+
+  return json({ ok: true, quoteId: id }, 200, corsHeaders);
+}
+
+async function handleQuoteDelete(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || data.quoteId || 0);
+  if (!id) return json({ ok: false, error: 'Invalid quote id' }, 400, corsHeaders);
+
+  await env.DB.prepare(`DELETE FROM quote_line_items WHERE quote_id = ?1`).bind(id).run();
+  await env.DB.prepare(`DELETE FROM quotes WHERE id = ?1`).bind(id).run();
+
+  return json({ ok: true }, 200, corsHeaders);
+}
+
+async function handleQuoteSend(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = Number(data.id || data.quoteId || 0);
+  if (!id) return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
+
+  const quote = await env.DB.prepare(`SELECT * FROM quotes WHERE id = ?1`).bind(id).first();
+  if (!quote) return json({ ok: false, error: 'Quote not found' }, 404, corsHeaders);
+
+  const customerEmail = (quote.customer_email || '').toString().trim();
+  if (!customerEmail) return json({ ok: false, error: 'Quote has no customer email' }, 400, corsHeaders);
+
+  const itemsRes = await env.DB.prepare(`SELECT item_description, quantity, unit_amount_cents, line_total_cents FROM quote_line_items WHERE quote_id = ?1 ORDER BY id ASC`).bind(id).all();
+  const items = itemsRes.results || [];
+  if (!items.length) return json({ ok: false, error: 'Quote has no line items' }, 400, corsHeaders);
+
+  const subtotalCents = Number(quote.subtotal_cents || 0);
+  const totalCents = Number(quote.total_cents || 0);
+  const notes = (quote.notes || '').toString().trim();
+  const fromEmail = (env.FROM_EMAIL || '').toString().trim();
+
+  const baseUrl = new URL(request.url).origin;
+  const acceptUrl = `${baseUrl}/api/quote/accept?token=${encodeURIComponent(quote.accept_token)}`;
+  const denyUrl = `${baseUrl}/api/quote/deny?token=${encodeURIComponent(quote.deny_token)}`;
+
+  const itemRowsHtml = items.map((item) => {
+    const desc = escapeHtml(item.item_description || 'Service');
+    const qty = Number(item.quantity || 1);
+    const unit = Number(item.unit_amount_cents || 0);
+    const line = Number(item.line_total_cents || 0);
+    return `<tr>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;">${desc}</td>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:center;">${qty}</td>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(unit)}</td>
+      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(line)}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Quote ${escapeHtml(quote.quote_number || `Q-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(quote.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thank you for your interest in Eastern Shore AI services. Here is your personalized quote:</p><div style="margin:0 0 14px;color:#111827;"><strong>Valid Until:</strong> ${escapeHtml(quote.valid_until || '')}<br><strong>Customer:</strong> ${escapeHtml(quote.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div><div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div></div>${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<div style="margin:24px 0;text-align:center;"><a href="${acceptUrl}" style="display:inline-block;padding:14px 32px;margin:0 8px;background:#059669;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;">Accept Quote</a><a href="${denyUrl}" style="display:inline-block;padding:14px 32px;margin:0 8px;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;">Decline Quote</a></div><p style="margin:18px 0 0;color:#374151;">Questions? Reply to this email and we'll help right away.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;">Eastern Shore AI • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a></div></div></div>`;
+
+  const textLines = [
+    `Eastern Shore AI Quote ${quote.quote_number || `Q-${id}`}`,
+    `Customer: ${quote.customer_name || ''}`,
+    `Valid Until: ${quote.valid_until || ''}`,
+    '',
+    'Line Items:'
+  ];
+  for (const item of items) {
+    textLines.push(`- ${(item.item_description || 'Service').toString()}: ${Number(item.quantity || 1)} × ${formatUsd(Number(item.unit_amount_cents || 0))} = ${formatUsd(Number(item.line_total_cents || 0))}`);
+  }
+  textLines.push('', `Subtotal: ${formatUsd(subtotalCents)}`);
+  textLines.push(`Total: ${formatUsd(totalCents)}`);
+  if (notes) textLines.push('', `Description of work: ${notes}`);
+  textLines.push('', `Accept Quote: ${acceptUrl}`, `Decline Quote: ${denyUrl}`, '', 'https://www.easternshore.ai');
+
+  const emailPayload = {
+    from: fromEmail,
+    to: [customerEmail],
+    subject: `Quote ${quote.quote_number || `Q-${id}`} from Eastern Shore AI`,
+    html,
+    text: textLines.join('\n'),
+    reply_to: env.CC_EMAIL || fromEmail
+  };
+  if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
+
+  const sendRes = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(emailPayload)
+  });
+  const sendJson = await sendRes.json().catch(() => ({}));
+  if (!sendRes.ok) {
+    return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send quote email' }, 502, corsHeaders);
+  }
+
+  await env.DB.prepare(`UPDATE quotes SET status = 'sent', sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
+  return json({ ok: true, id, emailId: sendJson?.id || null }, 200, corsHeaders);
+}
+
+function htmlPage(title, heading, message, success = true) {
+  const bgColor = success ? '#059669' : '#dc2626';
+  const icon = success ? '✓' : '✗';
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(title)} - Eastern Shore AI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f7fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { max-width: 480px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; text-align: center; }
+    .header { padding: 24px; background: linear-gradient(135deg, #0f172a, #1f2937); color: #ffffff; }
+    .header h1 { font-size: 18px; margin-bottom: 8px; }
+    .icon { width: 64px; height: 64px; border-radius: 50%; background: ${bgColor}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 24px auto 16px; }
+    .content { padding: 24px; }
+    .content h2 { color: #111827; margin-bottom: 12px; }
+    .content p { color: #4b5563; line-height: 1.6; }
+    .footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
+    .footer a { color: #2563eb; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Eastern Shore AI</h1>
+    </div>
+    <div class="content">
+      <div class="icon">${icon}</div>
+      <h2>${escapeHtml(heading)}</h2>
+      <p>${escapeHtml(message)}</p>
+    </div>
+    <div class="footer">
+      <a href="https://www.easternshore.ai">www.easternshore.ai</a>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+async function handleQuoteAccept(request, env, corsHeaders, url) {
+  if (!env.DB) return new Response(htmlPage('Error', 'System Error', 'Database not configured.', false), { status: 500, headers: { 'Content-Type': 'text/html' } });
+
+  const token = url.searchParams.get('token') || '';
+  if (!token) return new Response(htmlPage('Invalid Link', 'Invalid Link', 'This quote link is invalid or missing a token.', false), { status: 400, headers: { 'Content-Type': 'text/html' } });
+
+  const quote = await env.DB.prepare(`SELECT * FROM quotes WHERE accept_token = ?1`).bind(token).first();
+  if (!quote) return new Response(htmlPage('Quote Not Found', 'Quote Not Found', 'This quote was not found or has already been processed.', false), { status: 404, headers: { 'Content-Type': 'text/html' } });
+
+  // Check if already accepted
+  if (quote.status === 'accepted' || quote.accepted_at) {
+    return new Response(htmlPage('Already Accepted', 'Quote Already Accepted', 'This quote has already been accepted. Thank you!', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  // Check if denied
+  if (quote.status === 'denied' || quote.denied_at) {
+    return new Response(htmlPage('Quote Declined', 'Quote Was Declined', 'This quote was previously declined.', false), { status: 400, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  // Check if expired
+  const validUntil = new Date(quote.valid_until);
+  const now = new Date();
+  if (validUntil < now) {
+    return new Response(htmlPage('Quote Expired', 'Quote Expired', `This quote expired on ${quote.valid_until}. Please contact us for a new quote.`, false), { status: 400, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  // Get line items to convert to invoice
+  const itemsRes = await env.DB.prepare(`SELECT item_description, quantity, unit_amount_cents, line_total_cents FROM quote_line_items WHERE quote_id = ?1 ORDER BY id ASC`).bind(quote.id).all();
+  const items = itemsRes.results || [];
+
+  // Create invoice from quote
+  const invoiceNumber = `INV-${Date.now()}`;
+  const issueDate = new Date().toISOString().slice(0, 10);
+  const dueDate = quote.valid_until;
+  const subtotal = Number(quote.subtotal_cents || 0);
+  const total = Number(quote.total_cents || 0);
+
+  const invRes = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
+    .bind(invoiceNumber, quote.customer_name, quote.customer_email, null, issueDate, dueDate, 'draft', subtotal, 0, total, quote.notes || null).run();
+  const invoiceId = Number(invRes.meta?.last_row_id || 0);
+
+  // Copy line items to invoice
+  for (const item of items) {
+    await env.DB.prepare(`INSERT INTO invoice_line_items (invoice_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?1, ?2, ?3, ?4, ?5)`)
+      .bind(invoiceId, item.item_description, item.quantity, item.unit_amount_cents, item.line_total_cents).run();
+  }
+
+  // Mark quote as accepted
+  await env.DB.prepare(`UPDATE quotes SET status = 'accepted', accepted_at = datetime('now'), converted_invoice_id = ?1, updated_at = datetime('now') WHERE id = ?2`).bind(invoiceId, quote.id).run();
+
+  // Send notification email to Chris
+  if (env.RESEND_API_KEY && env.TO_EMAIL) {
+    const notifyHtml = `<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#059669;">Quote Accepted!</h2><p><strong>Quote:</strong> ${escapeHtml(quote.quote_number || `Q-${quote.id}`)}</p><p><strong>Customer:</strong> ${escapeHtml(quote.customer_name)} (${escapeHtml(quote.customer_email)})</p><p><strong>Total:</strong> ${formatUsd(total)}</p><p><strong>Invoice Created:</strong> ${invoiceNumber} (status: draft - not sent to customer yet)</p><p>Log in to the admin panel to review and send the invoice.</p></div>`;
+
+    const notifyPayload = {
+      from: env.FROM_EMAIL,
+      to: [env.TO_EMAIL],
+      subject: `Quote ${quote.quote_number || `Q-${quote.id}`} Accepted by ${quote.customer_name}`,
+      html: notifyHtml,
+      text: `Quote Accepted!\n\nQuote: ${quote.quote_number || `Q-${quote.id}`}\nCustomer: ${quote.customer_name} (${quote.customer_email})\nTotal: ${formatUsd(total)}\nInvoice Created: ${invoiceNumber}\n\nLog in to the admin panel to review and send the invoice.`
+    };
+    if (env.CC_EMAIL) notifyPayload.cc = [env.CC_EMAIL];
+
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(notifyPayload)
+    }).catch(() => {});
+  }
+
+  return new Response(htmlPage('Quote Accepted', 'Thank You!', 'Your quote has been accepted. We will follow up with an invoice shortly.', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
+}
+
+async function handleQuoteDeny(request, env, corsHeaders, url) {
+  if (!env.DB) return new Response(htmlPage('Error', 'System Error', 'Database not configured.', false), { status: 500, headers: { 'Content-Type': 'text/html' } });
+
+  const token = url.searchParams.get('token') || '';
+  if (!token) return new Response(htmlPage('Invalid Link', 'Invalid Link', 'This quote link is invalid or missing a token.', false), { status: 400, headers: { 'Content-Type': 'text/html' } });
+
+  const quote = await env.DB.prepare(`SELECT * FROM quotes WHERE deny_token = ?1`).bind(token).first();
+  if (!quote) return new Response(htmlPage('Quote Not Found', 'Quote Not Found', 'This quote was not found or has already been processed.', false), { status: 404, headers: { 'Content-Type': 'text/html' } });
+
+  // Check if already accepted
+  if (quote.status === 'accepted' || quote.accepted_at) {
+    return new Response(htmlPage('Quote Accepted', 'Quote Was Accepted', 'This quote has already been accepted and cannot be declined.', false), { status: 400, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  // Check if already denied
+  if (quote.status === 'denied' || quote.denied_at) {
+    return new Response(htmlPage('Already Declined', 'Quote Already Declined', 'This quote has already been declined.', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  // Check if expired
+  const validUntil = new Date(quote.valid_until);
+  const now = new Date();
+  if (validUntil < now) {
+    return new Response(htmlPage('Quote Expired', 'Quote Expired', `This quote expired on ${quote.valid_until}.`, false), { status: 400, headers: { 'Content-Type': 'text/html' } });
+  }
+
+  // Hard delete the quote and line items
+  await env.DB.prepare(`DELETE FROM quote_line_items WHERE quote_id = ?1`).bind(quote.id).run();
+  await env.DB.prepare(`DELETE FROM quotes WHERE id = ?1`).bind(quote.id).run();
+
+  return new Response(htmlPage('Quote Declined', 'Quote Declined', 'The quote has been declined. Thank you for letting us know. Feel free to reach out if you have any questions.', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
 }
 
 async function accountingTablesReady(db) {

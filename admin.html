@@ -216,6 +216,7 @@
           <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
           <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
           <button type="button" class="btn" data-admin-tab="invoices">Invoices</button>
+          <button type="button" class="btn" data-admin-tab="quotes">Quotes</button>
           <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
           <button type="button" class="btn" data-admin-tab="audit-package">Audit Package</button>
         </div>
@@ -488,6 +489,34 @@
         </div>
       </div>
 
+      <div class="admin-collapsible-card" id="quotes-card" style="margin-top:1rem;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Quotes</h3>
+          <button type="button" class="btn" id="quotes-collapse-btn" aria-expanded="false">Expand</button>
+        </div>
+        <div id="quotes-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <div class="invoice-mode-toggle" id="quote-mode-toggle" role="tablist" aria-label="Quote views">
+              <button type="button" class="btn active" id="quote-mode-view-btn" data-quote-mode="view" role="tab" aria-selected="true">View Quotes</button>
+              <button type="button" class="btn" id="quote-mode-add-btn" data-quote-mode="add" role="tab" aria-selected="false">Add New Quote</button>
+            </div>
+            <p class="invoice-flow-note">Use <strong>View Quotes</strong> to see existing quotes, send quote emails, and manage status. Use <strong>Add New Quote</strong> to create a new quote with itemized pricing.</p>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; align-items:center;">
+              <label for="quote-filter" style="margin:0;">Filter</label>
+              <select id="quote-filter" style="max-width:160px;">
+                <option value="all">All</option>
+                <option value="draft">Draft</option>
+                <option value="sent">Sent</option>
+                <option value="accepted">Accepted</option>
+                <option value="expired">Expired</option>
+              </select>
+              <button type="button" class="btn" id="quote-refresh-btn">Refresh Quotes</button>
+            </div>
+            <div id="quote-list" class="admin-list">No quotes yet.</div>
+          </section>
+        </div>
+      </div>
+
       <div class="admin-collapsible-card" id="year-close-card" style="margin-top:1rem;">
         <div class="admin-collapsible-head">
           <h3 style="margin:0;">Year-End Close Wizard</h3>
@@ -723,15 +752,66 @@
   </div>
 
   <button type="button" class="btn btn-primary invoice-fab" id="invoice-fab-btn" aria-label="Add new invoice">+ New Invoice</button>
+  <button type="button" class="btn btn-primary invoice-fab" id="quote-fab-btn" aria-label="Add new quote" style="display:none; bottom:4.5rem;">+ New Quote</button>
+
+  <div class="success-modal-overlay" id="quote-create-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="quote-create-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
+      <h3 id="quote-create-title">Create New Quote</h3>
+      <p style="margin:.1rem 0 .7rem; color:var(--muted);">Build itemized quotes with automatic totals. Quotes can be emailed to customers with Accept/Deny links.</p>
+      <div class="form-grid" style="margin-bottom:.7rem;">
+        <div>
+          <label for="quote-customer-name" style="font-weight:600;">Customer Name</label>
+          <input id="quote-customer-name" placeholder="Customer name" />
+        </div>
+        <div>
+          <label for="quote-customer-email" style="font-weight:600;">Customer Email</label>
+          <input id="quote-customer-email" type="email" placeholder="Customer email" />
+        </div>
+        <div>
+          <label for="quote-valid-until" style="font-weight:600; color:var(--cyan);">Valid Until <span style="font-size:.85rem; color:var(--muted); font-weight:400;">(defaults to 30 days)</span></label>
+          <input id="quote-valid-until" type="date" style="border-color:var(--cyan);" />
+        </div>
+        <div>
+          <label style="font-weight:600; color:var(--muted);">Created Date</label>
+          <input type="text" value="(auto: today)" disabled style="opacity:0.6;" />
+        </div>
+      </div>
+      <textarea id="quote-description" placeholder="Description of work / scope" rows="3" style="width:100%; margin-bottom:.6rem;"></textarea>
+      <div class="admin-list" style="margin-bottom:.6rem; max-height:none;">
+        <div id="quote-line-items"></div>
+        <div class="admin-row" style="gap:.5rem; margin-top:.5rem; align-items:center; justify-content:space-between;">
+          <button type="button" class="btn" id="quote-add-line-item-btn">+ Add Line Item</button>
+          <div><strong>Total: <span id="quote-total-display">$0.00</span></strong></div>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="quote-create-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="quote-create-btn">Create Quote</button>
+      </div>
+    </div>
+  </div>
 
   <div class="success-modal-overlay" id="invoice-create-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="invoice-create-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="invoice-create-title">Create New Invoice</h3>
       <p style="margin:.1rem 0 .7rem; color:var(--muted);">Build itemized invoices with automatic totals, then create and return to the invoice list.</p>
-      <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
-        <input id="invoice-customer-name" placeholder="Customer name" style="min-width:220px;" />
-        <input id="invoice-customer-email" type="email" placeholder="Customer email" style="min-width:240px;" />
-        <input id="invoice-due-date" type="date" />
+      <div class="form-grid" style="margin-bottom:.7rem;">
+        <div>
+          <label for="invoice-customer-name" style="font-weight:600;">Customer Name</label>
+          <input id="invoice-customer-name" placeholder="Customer name" />
+        </div>
+        <div>
+          <label for="invoice-customer-email" style="font-weight:600;">Customer Email</label>
+          <input id="invoice-customer-email" type="email" placeholder="Customer email" />
+        </div>
+        <div>
+          <label for="invoice-due-date" style="font-weight:600; color:var(--cyan);">Due Date <span style="font-size:.85rem; color:var(--muted); font-weight:400;">(required)</span></label>
+          <input id="invoice-due-date" type="date" style="border-color:var(--cyan);" />
+        </div>
+        <div>
+          <label style="font-weight:600; color:var(--muted);">Issue Date</label>
+          <input type="text" value="(auto: today)" disabled style="opacity:0.6;" />
+        </div>
       </div>
       <textarea id="invoice-description" placeholder="Description of work" rows="3" style="width:100%; margin-bottom:.6rem;"></textarea>
       <div class="admin-list" style="margin-bottom:.6rem; max-height:none;">
@@ -777,6 +857,11 @@
     const INVOICE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/send');
     const INVOICE_DETAIL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/detail');
     const INVOICE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/update');
+    const QUOTES_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes');
+    const QUOTE_DETAIL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/detail');
+    const QUOTE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/update');
+    const QUOTE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/delete');
+    const QUOTE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/send');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -891,6 +976,27 @@
     const invoiceListEl = document.getElementById('invoice-list');
     const reconMatchesEl = document.getElementById('recon-matches');
 
+    // Quotes DOM refs
+    const quotesCollapseBtn = document.getElementById('quotes-collapse-btn');
+    const quotesBody = document.getElementById('quotes-body');
+    const quoteModeViewBtn = document.getElementById('quote-mode-view-btn');
+    const quoteModeAddBtn = document.getElementById('quote-mode-add-btn');
+    const quoteFabBtn = document.getElementById('quote-fab-btn');
+    const quoteCreateModal = document.getElementById('quote-create-modal');
+    const quoteCreateTitleEl = document.getElementById('quote-create-title');
+    const quoteCreateCancelBtn = document.getElementById('quote-create-cancel-btn');
+    const quoteCustomerNameEl = document.getElementById('quote-customer-name');
+    const quoteCustomerEmailEl = document.getElementById('quote-customer-email');
+    const quoteValidUntilEl = document.getElementById('quote-valid-until');
+    const quoteDescriptionEl = document.getElementById('quote-description');
+    const quoteLineItemsEl = document.getElementById('quote-line-items');
+    const quoteAddLineItemBtn = document.getElementById('quote-add-line-item-btn');
+    const quoteTotalDisplayEl = document.getElementById('quote-total-display');
+    const quoteCreateBtn = document.getElementById('quote-create-btn');
+    const quoteFilterEl = document.getElementById('quote-filter');
+    const quoteRefreshBtn = document.getElementById('quote-refresh-btn');
+    const quoteListEl = document.getElementById('quote-list');
+
     const accountsYearCloseBtn = document.getElementById('accounts-year-close-btn');
     const auditPackageBtn = document.getElementById('audit-package-btn');
     const accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
@@ -970,6 +1076,9 @@
     let activeInvoiceMode = 'view';
     let invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
     let editingInvoiceId = null;
+    let activeQuoteMode = 'view';
+    let quoteDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+    let editingQuoteId = null;
 
     // ===== Time Slots =====
     const TIME_SLOTS = [
@@ -2647,7 +2756,7 @@
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
             ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
             <button type="button" class="btn" data-invoice-action="email" data-invoice-id="${id}">Generate/Send Invoice Email</button>
-            <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}">Mark Sent</button>
+            <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
             <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
             <button type="button" class="btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
           </div>
@@ -2707,6 +2816,268 @@
       await refreshInvoiceList();
     }
 
+    // ===== Quotes Functions =====
+    function updateQuoteFabVisibility() {
+      if (!quoteFabBtn) return;
+      quoteFabBtn.style.display = (activeAdminSectionTab === 'quotes' && adminUnlocked) ? 'flex' : 'none';
+    }
+
+    function openQuoteCreateModal() {
+      if (!quoteCreateModal) return;
+      quoteCreateModal.classList.add('active');
+      quoteCreateModal.setAttribute('aria-hidden', 'false');
+      if (quoteCreateTitleEl) quoteCreateTitleEl.textContent = editingQuoteId ? 'Edit Quote' : 'Create New Quote';
+      if (quoteCreateBtn) quoteCreateBtn.textContent = editingQuoteId ? 'Save Quote' : 'Create Quote';
+    }
+
+    function closeQuoteCreateModal() {
+      if (!quoteCreateModal) return;
+      quoteCreateModal.classList.remove('active');
+      quoteCreateModal.setAttribute('aria-hidden', 'true');
+      resetQuoteForm();
+    }
+
+    function resetQuoteForm() {
+      if (quoteDescriptionEl) quoteDescriptionEl.value = '';
+      if (quoteCustomerEmailEl) quoteCustomerEmailEl.value = '';
+      if (quoteCustomerNameEl) quoteCustomerNameEl.value = '';
+      if (quoteValidUntilEl) quoteValidUntilEl.value = '';
+      editingQuoteId = null;
+      quoteDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+      renderQuoteLineItems();
+    }
+
+    function renderQuoteLineItems() {
+      if (!quoteLineItemsEl) return;
+      quoteLineItemsEl.innerHTML = quoteDraftItems.map((item, idx) => `
+        <div style="display:flex; gap:.4rem; margin-bottom:.35rem; align-items:center; flex-wrap:wrap;" data-quote-line-idx="${idx}">
+          <input type="text" placeholder="Description" value="${escHtml(item.description || '')}" style="flex:2; min-width:140px;" data-quote-field="description" />
+          <input type="number" placeholder="Qty" value="${item.quantity || 1}" style="width:60px;" min="1" data-quote-field="quantity" />
+          <input type="number" placeholder="Unit $" value="${item.unitAmount || ''}" style="width:90px;" step="0.01" min="0" data-quote-field="unitAmount" />
+          <button type="button" class="btn delete" style="padding:.35rem .6rem;" data-quote-remove-line="${idx}">×</button>
+        </div>
+      `).join('');
+      updateQuoteTotal();
+    }
+
+    function updateQuoteTotal() {
+      const total = quoteDraftItems.reduce((sum, item) => {
+        const qty = Number(item.quantity || 1);
+        const unit = Number(item.unitAmount || 0);
+        return sum + qty * unit;
+      }, 0);
+      if (quoteTotalDisplayEl) quoteTotalDisplayEl.textContent = `$${total.toFixed(2)}`;
+    }
+
+    function buildQuoteItemsFromForm() {
+      return quoteDraftItems.map((item) => ({
+        description: (item.description || 'Service').toString().trim(),
+        quantity: Number(item.quantity || 1),
+        unitAmountCents: Math.round(Number(item.unitAmount || 0) * 100)
+      }));
+    }
+
+    async function saveQuote() {
+      const customerName = (quoteCustomerNameEl?.value || '').trim();
+      const customerEmail = (quoteCustomerEmailEl?.value || '').trim();
+      let validUntil = quoteValidUntilEl?.value;
+      if (!validUntil) {
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        validUntil = d.toISOString().slice(0, 10);
+      }
+      const descriptionOfWork = (quoteDescriptionEl?.value || '').trim();
+      const items = buildQuoteItemsFromForm();
+      const totalCents = items.reduce((sum, item) => sum + Math.round(Number(item.quantity || 1) * Number(item.unitAmountCents || 0)), 0);
+
+      if (!customerName) { openErrorModal('Customer name is required.'); return; }
+      if (!customerEmail) { openErrorModal('Customer email is required.'); return; }
+      if (!items.length || totalCents <= 0) { openErrorModal('At least one line item with a valid amount is required.'); return; }
+
+      const isEditing = !!editingQuoteId;
+      const payload = { customerName, customerEmail, validUntil, descriptionOfWork, items };
+      let endpoint = QUOTES_API_URL;
+      if (isEditing) {
+        endpoint = QUOTE_UPDATE_API_URL;
+        payload.id = Number(editingQuoteId);
+      } else {
+        payload.quoteNumber = `Q-${Date.now()}`;
+      }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { openErrorModal(data.error || 'Failed to save quote'); return; }
+
+      closeQuoteCreateModal();
+      await refreshQuoteList();
+      openSuccessModal(isEditing ? 'Quote updated' : 'Quote created', `Quote ${isEditing ? 'updated' : 'created'} successfully.`);
+    }
+
+    async function startQuoteEdit(quoteId) {
+      const res = await fetch(`${QUOTE_DETAIL_API_URL}?id=${quoteId}`, { headers: { 'X-Admin-Password': adminPassword } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.quote) { openErrorModal(data.error || 'Failed to load quote'); return; }
+      const q = data.quote;
+      editingQuoteId = quoteId;
+      if (quoteCustomerNameEl) quoteCustomerNameEl.value = q.customer_name || '';
+      if (quoteCustomerEmailEl) quoteCustomerEmailEl.value = q.customer_email || '';
+      if (quoteValidUntilEl) quoteValidUntilEl.value = q.valid_until || '';
+      if (quoteDescriptionEl) quoteDescriptionEl.value = q.notes || '';
+      quoteDraftItems = (Array.isArray(q.line_items) ? q.line_items : []).map((item) => ({
+        description: item.item_description || '',
+        quantity: Number(item.quantity || 1),
+        unitAmount: (Number(item.unit_amount_cents || 0) / 100).toFixed(2)
+      }));
+      if (!quoteDraftItems.length) quoteDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+      renderQuoteLineItems();
+      openQuoteCreateModal();
+    }
+
+    function quoteStatusBadge(status) {
+      const colors = { draft: '#6b7280', sent: '#2563eb', accepted: '#059669', expired: '#dc2626', denied: '#7c3aed' };
+      const bg = colors[status] || '#6b7280';
+      return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${bg}; color:#fff; text-transform:uppercase;">${status}</span>`;
+    }
+
+    async function refreshQuoteList() {
+      if (!adminUnlocked) return;
+      let status = (quoteFilterEl?.value || 'all').trim();
+      const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
+      const res = await fetch(`${QUOTES_API_URL}${query}`, { headers: { 'X-Admin-Password': adminPassword } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { quoteListEl.textContent = data.error || 'Failed to load quotes.'; return; }
+
+      const rows = Array.isArray(data.quotes) ? data.quotes : [];
+      if (!rows.length) {
+        quoteListEl.innerHTML = '<div style="color:var(--muted);">No quotes found for this filter.</div>';
+        return;
+      }
+
+      quoteListEl.innerHTML = rows.map((q) => {
+        const id = Number(q.id || 0);
+        const validUntil = escHtml(q.valid_until || '');
+        const customer = escHtml(q.customer_name || '');
+        const num = escHtml(q.quote_number || `Q-${id}`);
+        const total = `$${(Number(q.total_cents || 0) / 100).toFixed(2)}`;
+        const status = String(q.status || 'draft').toLowerCase();
+        const isExpired = new Date(q.valid_until) < new Date();
+        const displayStatus = isExpired && !['accepted', 'denied'].includes(status) ? 'expired' : status;
+
+        return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
+          <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
+            <strong>${num}</strong>
+            ${quoteStatusBadge(displayStatus)}
+          </div>
+          <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
+            <span>${customer}${q.customer_email ? ` • ${escHtml(q.customer_email)}` : ''}</span>
+            <span>Valid Until: ${validUntil}</span>
+          </div>
+          ${q.notes ? `<div style="margin-top:.2rem; color:var(--muted);">${escHtml(q.notes)}</div>` : ''}
+          <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
+            <span>Total: <strong>${total}</strong></span>
+          </div>
+          <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
+            ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn" data-quote-action="edit" data-quote-id="${id}">Edit</button>` : ''}
+            ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn" data-quote-action="send" data-quote-id="${id}">Send Quote Email</button>` : ''}
+            <button type="button" class="btn delete" data-quote-action="delete" data-quote-id="${id}">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    async function handleQuoteActionClick(e) {
+      const btn = e.target.closest('[data-quote-action]');
+      if (!btn) return;
+      const id = Number(btn.getAttribute('data-quote-id') || 0);
+      const action = btn.getAttribute('data-quote-action') || '';
+      if (!id || !action) return;
+
+      if (action === 'edit') {
+        await startQuoteEdit(id);
+        return;
+      }
+
+      if (action === 'send') {
+        const res = await fetch(QUOTE_SEND_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to send quote email'); return; }
+        openSuccessModal('Quote email sent', 'Quote email with Accept/Deny links sent to customer.');
+        await refreshQuoteList();
+        return;
+      }
+
+      if (action === 'delete') {
+        if (!confirm('Are you sure you want to delete this quote?')) return;
+        const res = await fetch(QUOTE_DELETE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to delete quote'); return; }
+        await refreshQuoteList();
+        return;
+      }
+    }
+
+    // Quote line items event handlers
+    if (quoteLineItemsEl) {
+      quoteLineItemsEl.addEventListener('input', (e) => {
+        const lineEl = e.target.closest('[data-quote-line-idx]');
+        if (!lineEl) return;
+        const idx = Number(lineEl.getAttribute('data-quote-line-idx'));
+        const field = e.target.getAttribute('data-quote-field');
+        if (field && quoteDraftItems[idx]) {
+          quoteDraftItems[idx][field] = e.target.value;
+          updateQuoteTotal();
+        }
+      });
+      quoteLineItemsEl.addEventListener('click', (e) => {
+        const removeBtn = e.target.closest('[data-quote-remove-line]');
+        if (!removeBtn) return;
+        const idx = Number(removeBtn.getAttribute('data-quote-remove-line'));
+        quoteDraftItems.splice(idx, 1);
+        if (!quoteDraftItems.length) quoteDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
+        renderQuoteLineItems();
+      });
+    }
+
+    if (quoteAddLineItemBtn) {
+      quoteAddLineItemBtn.addEventListener('click', () => {
+        quoteDraftItems.push({ description: '', quantity: 1, unitAmount: '' });
+        renderQuoteLineItems();
+      });
+    }
+
+    if (quoteCreateBtn) quoteCreateBtn.addEventListener('click', saveQuote);
+    if (quoteCreateCancelBtn) quoteCreateCancelBtn.addEventListener('click', closeQuoteCreateModal);
+    if (quoteFabBtn) quoteFabBtn.addEventListener('click', () => { resetQuoteForm(); openQuoteCreateModal(); });
+    if (quoteModeAddBtn) quoteModeAddBtn.addEventListener('click', () => { resetQuoteForm(); openQuoteCreateModal(); });
+    if (quoteModeViewBtn) quoteModeViewBtn.addEventListener('click', refreshQuoteList);
+    if (quoteRefreshBtn) quoteRefreshBtn.addEventListener('click', refreshQuoteList);
+    if (quoteFilterEl) quoteFilterEl.addEventListener('change', refreshQuoteList);
+    if (quoteListEl) quoteListEl.addEventListener('click', handleQuoteActionClick);
+
+    // Quote mode toggle buttons
+    [quoteModeViewBtn, quoteModeAddBtn].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-quote-mode') || 'view';
+        activeQuoteMode = mode;
+        quoteModeViewBtn?.classList.toggle('active', mode === 'view');
+        quoteModeAddBtn?.classList.toggle('active', mode === 'add');
+        if (mode === 'add') { resetQuoteForm(); openQuoteCreateModal(); }
+      });
+    });
+
     function setAccountsTab(tab) {
       activeAccountsTab = tab;
       accountsTabBalancesBtn?.classList.toggle('active', tab === 'balances');
@@ -2734,17 +3105,20 @@
       show('accounts-card', tab === 'accounts');
       show('reconciliation-card', tab === 'reconciliation');
       show('invoices-card', tab === 'invoices');
+      show('quotes-card', tab === 'quotes');
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
       if (tab === 'invoices' && adminUnlocked) refreshInvoiceList();
+      if (tab === 'quotes' && adminUnlocked) refreshQuoteList();
       updateInvoiceFabVisibility();
+      updateQuoteFabVisibility();
     }
 
     function disableLegacyCollapse() {
-      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, reconciliationCollapseBtn, invoicesCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
+      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, reconciliationCollapseBtn, invoicesCollapseBtn, quotesCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
         if (btn) btn.style.display = 'none';
       });
-      [bookingControlsBody, taxLedgerBody, accountsBody, reconciliationBody, invoicesBody, yearCloseBody, auditPackageBody].forEach((body) => {
+      [bookingControlsBody, taxLedgerBody, accountsBody, reconciliationBody, invoicesBody, quotesBody, yearCloseBody, auditPackageBody].forEach((body) => {
         body?.classList.remove('admin-collapsible-body-collapsed');
       });
     }
