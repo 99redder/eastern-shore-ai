@@ -3162,15 +3162,76 @@
     adminSectionTabBtns.forEach((btn) => btn.addEventListener('click', () => setAdminSectionTab(btn.getAttribute('data-admin-tab'))));
 
     // ===== Admin Unlock =====
+    const ADMIN_LOGIN_GUARD_KEY = 'eastern_admin_login_guard_v1';
+    const ADMIN_MAX_TRIES = 3;
+    const ADMIN_TRY_WINDOW_MS = 5 * 60 * 1000;
+    const ADMIN_LOCK_MS = 60 * 60 * 1000;
+
+    function getAdminLoginGuard() {
+      try {
+        const raw = localStorage.getItem(ADMIN_LOGIN_GUARD_KEY);
+        if (!raw) return { attempts: [], lockedUntil: 0 };
+        const parsed = JSON.parse(raw);
+        return {
+          attempts: Array.isArray(parsed?.attempts) ? parsed.attempts : [],
+          lockedUntil: Number(parsed?.lockedUntil || 0)
+        };
+      } catch {
+        return { attempts: [], lockedUntil: 0 };
+      }
+    }
+
+    function setAdminLoginGuard(state) {
+      try { localStorage.setItem(ADMIN_LOGIN_GUARD_KEY, JSON.stringify(state)); } catch {}
+    }
+
+    function clearAdminLoginGuard() {
+      setAdminLoginGuard({ attempts: [], lockedUntil: 0 });
+    }
+
+    function recordFailedAdminAttempt() {
+      const now = Date.now();
+      const state = getAdminLoginGuard();
+      const attempts = [...state.attempts, now].filter((ts) => now - Number(ts || 0) <= ADMIN_TRY_WINDOW_MS);
+      let lockedUntil = Number(state.lockedUntil || 0);
+      if (attempts.length > ADMIN_MAX_TRIES) {
+        lockedUntil = now + ADMIN_LOCK_MS;
+      }
+      const next = { attempts, lockedUntil };
+      setAdminLoginGuard(next);
+      return next;
+    }
+
     adminUnlockBtn.addEventListener('click', async () => {
       const key = adminKeyEl.value.trim();
       if (!key) return;
+
+      const pre = getAdminLoginGuard();
+      const now = Date.now();
+      if (Number(pre.lockedUntil || 0) > now) {
+        const minsLeft = Math.ceil((pre.lockedUntil - now) / 60000);
+        openErrorModal(`Admin unlock failed: Too many wrong attempts. Account locked for ${minsLeft} more minute(s).`);
+        return;
+      }
+
       try {
         const res = await fetch(`${BOOKINGS_API_URL}?limit=1`, {
           headers: { 'X-Admin-Password': key }
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Invalid password');
+        if (!res.ok) {
+          const state = recordFailedAdminAttempt();
+          const now2 = Date.now();
+          if (Number(state.lockedUntil || 0) > now2) {
+            openErrorModal('Admin unlock failed: Too many wrong attempts. Account locked for 60 minutes.');
+            return;
+          }
+          const recentAttempts = state.attempts.filter((ts) => now2 - Number(ts || 0) <= ADMIN_TRY_WINDOW_MS).length;
+          const triesLeft = Math.max(0, (ADMIN_MAX_TRIES + 1) - recentAttempts);
+          openErrorModal(`Admin unlock failed: Wrong password entered, ${triesLeft} more tries available`);
+          return;
+        }
+        clearAdminLoginGuard();
         adminPassword = key;
         setAdminUnlocked(true);
         const n = new Date();
