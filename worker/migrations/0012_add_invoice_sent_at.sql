@@ -1,1 +1,1 @@
-ALTER TABLE invoices ADD COLUMN IF NOT EXISTS sent_at TEXT;
+ALTER TABLE invoices ADD COLUMN sent_at TEXT;
