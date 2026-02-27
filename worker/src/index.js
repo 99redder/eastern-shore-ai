@@ -2505,7 +2505,8 @@ function htmlPage(title, heading, message, success = true) {
       <p>${escapeHtml(message)}</p>
     </div>
     <div class="footer">
-      <a href="https://www.easternshore.ai">www.easternshore.ai</a>
+      <div><a href="https://www.easternshore.ai">www.easternshore.ai</a></div>
+      <div style="margin-top:6px; color:#4b5563; font-size:13px;">contact@easternshore.ai • (410) 692-8562</div>
     </div>
   </div>
 </body>
