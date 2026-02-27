@@ -99,6 +99,16 @@
     .invoice-mode-toggle { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.65rem; }
     .invoice-mode-toggle .btn.active { background:linear-gradient(145deg,#164277,#2a66b0); border-color:#3d7bc6; color:#d9ecff; box-shadow:0 0 10px rgba(61,123,198,.35); }
     .invoice-flow-note { margin:.1rem 0 .7rem; color:var(--muted); line-height:1.45; }
+    .invoice-fab {
+      position: fixed;
+      right: 1.1rem;
+      bottom: 1.1rem;
+      z-index: 1325;
+      border-radius: 999px;
+      padding: .8rem 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,.28);
+      display: none;
+    }
 
     /* ===== Tax Ledger ===== */
     .tax-row { display:grid; grid-template-columns:auto 1fr auto auto; gap:.45rem; align-items:center; padding:.55rem .5rem; border-bottom:1px dashed var(--line); gap:.6rem; }
@@ -712,6 +722,8 @@
     </div>
   </div>
 
+  <button type="button" class="btn btn-primary invoice-fab" id="invoice-fab-btn" aria-label="Add new invoice">+ New Invoice</button>
+
   <div class="success-modal-overlay" id="invoice-create-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="invoice-create-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="invoice-create-title">Create New Invoice</h3>
@@ -860,6 +872,7 @@
     const reconSummaryEl = document.getElementById('recon-summary');
     const invoiceModeViewBtn = document.getElementById('invoice-mode-view-btn');
     const invoiceModeAddBtn = document.getElementById('invoice-mode-add-btn');
+    const invoiceFabBtn = document.getElementById('invoice-fab-btn');
     const invoiceCreateModal = document.getElementById('invoice-create-modal');
     const invoiceCreateCancelBtn = document.getElementById('invoice-create-cancel-btn');
     const invoiceCustomerNameEl = document.getElementById('invoice-customer-name');
@@ -1378,11 +1391,18 @@
     });
 
     // ===== Admin Controls =====
+    function updateInvoiceFabVisibility() {
+      if (!invoiceFabBtn) return;
+      const shouldShow = adminUnlocked && activeAdminSectionTab === 'invoices';
+      invoiceFabBtn.style.display = shouldShow ? 'inline-flex' : 'none';
+    }
+
     function setAdminUnlocked(on) {
       adminUnlocked = !!on;
       adminLock.style.display = adminUnlocked ? 'none' : 'block';
       adminControls.classList.toggle('active', adminUnlocked);
       if (adminHeaderTools) adminHeaderTools.style.display = adminUnlocked ? 'flex' : 'none';
+      updateInvoiceFabVisibility();
     }
 
     function renderAdminCalendar(bookings = [], blockedSlots = [], blockedDays = []) {
@@ -2661,6 +2681,7 @@
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
       if (tab === 'invoices' && adminUnlocked) refreshInvoiceList();
+      updateInvoiceFabVisibility();
     }
 
     function disableLegacyCollapse() {
@@ -2857,6 +2878,7 @@
     reconRunBtn?.addEventListener('click', runReconciliation);
     invoiceModeViewBtn?.addEventListener('click', () => setInvoiceMode('view'));
     invoiceModeAddBtn?.addEventListener('click', () => setInvoiceMode('add'));
+    invoiceFabBtn?.addEventListener('click', () => setInvoiceMode('add'));
     invoiceCreateBtn?.addEventListener('click', createQuickInvoice);
     invoiceAddLineItemBtn?.addEventListener('click', () => {
       captureInvoiceDraftItems();
