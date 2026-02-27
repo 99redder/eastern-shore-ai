@@ -856,6 +856,7 @@
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
     const INVOICE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/send');
+    const INVOICE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/delete');
     const INVOICE_DETAIL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/detail');
     const INVOICE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/update');
     const QUOTES_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes');
@@ -2761,6 +2762,7 @@
             <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
             <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
             <button type="button" class="btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
+            <button type="button" class="btn delete" data-invoice-action="delete" data-invoice-id="${id}">Delete</button>
           </div>
         </div>`;
       }).join('');
@@ -2790,6 +2792,20 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Payment update failed'); return; }
+        await refreshInvoiceList();
+        return;
+      }
+
+      if (action === 'delete') {
+        const yes = confirm('Delete this invoice permanently?');
+        if (!yes) return;
+        const res = await fetch(INVOICE_DELETE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to delete invoice'); return; }
         await refreshInvoiceList();
         return;
       }
