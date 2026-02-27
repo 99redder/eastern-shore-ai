@@ -2794,13 +2794,20 @@
         if (raw == null) return;
         const amt = Number(raw);
         if (!Number.isFinite(amt) || amt <= 0) { openErrorModal('Invalid payment amount.'); return; }
+        const paymentEventId = (window.crypto?.randomUUID?.() || `evt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
         const res = await fetch(INVOICE_PAYMENT_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify({ id, paymentCents: Math.round(amt * 100) })
+          body: JSON.stringify({ id, paymentCents: Math.round(amt * 100), paymentEventId })
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Payment update failed'); return; }
+        const posted = Number(data.paymentPostedCents || 0) / 100;
+        if (data.duplicateEvent) {
+          openSuccessModal('Payment already recorded', 'This payment event was already processed earlier. No duplicate posting was created.');
+        } else {
+          openSuccessModal('Payment recorded + books updated', `Posted $${posted.toFixed(2)} to accounting and updated invoice balance.`);
+        }
         await refreshInvoiceList();
         return;
       }

@@ -2081,22 +2081,125 @@ async function handleInvoicePayment(request, env, corsHeaders, url) {
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
   const id = Number(data.id || 0);
-  const paymentCents = Math.max(0, Number(data.paymentCents || 0));
-  if (!id || paymentCents <= 0) return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
+  const requestedPaymentCents = Math.round(Number(data.paymentCents || 0));
+  const paymentEventId = (data.paymentEventId || '').toString().trim();
+  if (!id || !Number.isFinite(requestedPaymentCents) || requestedPaymentCents <= 0) {
+    return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
+  }
+  if (!paymentEventId) {
+    return json({ ok: false, error: 'Missing paymentEventId' }, 400, corsHeaders);
+  }
 
-  const inv = await env.DB.prepare(`SELECT total_cents, amount_paid_cents FROM invoices WHERE id = ?1`).bind(id).first();
-  if (!inv) return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
+  const eventKey = `invoice-payment:${id}:${paymentEventId}`;
 
-  const paid = Number(inv.amount_paid_cents || 0) + paymentCents;
-  const total = Number(inv.total_cents || 0);
-  const balance = Math.max(0, total - paid);
-  const status = balance <= 0 ? 'paid' : 'partial';
+  try {
+    await env.DB.prepare(`BEGIN IMMEDIATE`).run();
 
-  await env.DB.prepare(`UPDATE invoices SET amount_paid_cents = ?1, balance_due_cents = ?2, status = ?3, paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END, updated_at = datetime('now') WHERE id = ?4`)
-    .bind(paid, balance, status, balance, id).run();
+    const inv = await env.DB.prepare(
+      `SELECT id, invoice_number, customer_name, total_cents, amount_paid_cents
+       FROM invoices
+       WHERE id = ?1`
+    ).bind(id).first();
+    if (!inv) {
+      await env.DB.prepare(`ROLLBACK`).run();
+      return json({ ok: false, error: 'Invoice not found' }, 404, corsHeaders);
+    }
 
-  return json({ ok: true, id, amountPaidCents: paid, balanceDueCents: balance, status }, 200, corsHeaders);
+    const existingPaymentEvent = await env.DB.prepare(
+      `SELECT id, amount_cents
+       FROM tax_income
+       WHERE stripe_session_id = ?1
+       LIMIT 1`
+    ).bind(eventKey).first();
+
+    const total = Number(inv.total_cents || 0);
+    const currentlyPaid = Number(inv.amount_paid_cents || 0);
+
+    if (existingPaymentEvent?.id) {
+      const duplicateBalance = Math.max(0, total - currentlyPaid);
+      const duplicateStatus = duplicateBalance <= 0 ? 'paid' : 'partial';
+      await env.DB.prepare(`COMMIT`).run();
+      return json({
+        ok: true,
+        id,
+        amountPaidCents: currentlyPaid,
+        balanceDueCents: duplicateBalance,
+        status: duplicateStatus,
+        paymentPostedCents: 0,
+        booksUpdated: true,
+        duplicateEvent: true
+      }, 200, corsHeaders);
+    }
+
+    const remaining = Math.max(0, total - currentlyPaid);
+    const appliedPaymentCents = Math.min(remaining, requestedPaymentCents);
+    if (appliedPaymentCents <= 0) {
+      await env.DB.prepare(`ROLLBACK`).run();
+      return json({ ok: false, error: 'Invoice is already fully paid' }, 400, corsHeaders);
+    }
+
+    const incomeDate = new Date().toISOString().slice(0, 10);
+    const incomeSource = 'Invoice Payment';
+    const incomeCategory = 'Service Revenue';
+    const incomeNotes = `Invoice payment posted to books | invoice_id=${id} | invoice_number=${inv.invoice_number || ''} | payment_event_id=${paymentEventId}`;
+
+    const incomeInsert = await env.DB.prepare(
+      `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+    ).bind(
+      incomeDate,
+      incomeSource,
+      incomeCategory,
+      appliedPaymentCents,
+      eventKey,
+      incomeNotes
+    ).run();
+
+    const incomeId = Number(incomeInsert.meta?.last_row_id || 0) || null;
+    if (!incomeId) throw new Error('Failed to create tax income entry for invoice payment');
+
+    await upsertTaxIncomeJournal(env.DB, {
+      id: incomeId,
+      income_date: incomeDate,
+      source: incomeSource,
+      category: incomeCategory,
+      amount_cents: appliedPaymentCents,
+      notes: incomeNotes,
+      is_owner_funded: 0
+    });
+
+    const nextPaid = currentlyPaid + appliedPaymentCents;
+    const nextBalance = Math.max(0, total - nextPaid);
+    const nextStatus = nextBalance <= 0 ? 'paid' : 'partial';
+
+    await env.DB.prepare(
+      `UPDATE invoices
+       SET amount_paid_cents = ?1,
+           balance_due_cents = ?2,
+           status = ?3,
+           paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END,
+           updated_at = datetime('now')
+       WHERE id = ?4`
+    ).bind(nextPaid, nextBalance, nextStatus, nextBalance, id).run();
+
+    await env.DB.prepare(`COMMIT`).run();
+
+    return json({
+      ok: true,
+      id,
+      amountPaidCents: nextPaid,
+      balanceDueCents: nextBalance,
+      status: nextStatus,
+      paymentPostedCents: appliedPaymentCents,
+      booksUpdated: true,
+      duplicateEvent: false
+    }, 200, corsHeaders);
+  } catch (e) {
+    try { await env.DB.prepare(`ROLLBACK`).run(); } catch {}
+    return json({ ok: false, error: `Payment update failed: ${e?.message || e}` }, 500, corsHeaders);
+  }
 }
 
 

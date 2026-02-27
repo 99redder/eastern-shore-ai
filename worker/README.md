@@ -34,6 +34,7 @@ Default endpoints used by the site:
 - Admin invoices list/create: `GET/POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices`
 - Admin invoice detail (with line items): `GET https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/detail?id=123`
 - Admin invoice update: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/update`
+- Admin invoice payment (updates invoice + books): `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/payment`
 - Admin invoice send email: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/send`
 
 ### Quotes Endpoints
@@ -53,6 +54,7 @@ Default endpoints used by the site:
 - Invoice create payload expects `customerName`, `customerEmail`, `issueDate`, `dueDate`, `descriptionOfWork` (or `notes`), and `items[]` where each item has `description`, optional `quantity`, and `unitAmountCents` (or `unitAmount` in dollars).
 - Invoice detail endpoint returns the invoice row plus `line_items[]` for modal prefill/editing.
 - Invoice update payload expects `{ id, customerName, customerEmail, dueDate, descriptionOfWork|notes, items[] }` and replaces line items while recalculating subtotal/tax/total/balance using existing `amount_paid_cents`.
+- Invoice payment payload now expects `{ "id": <invoiceId>, "paymentCents": <integer>, "paymentEventId": "<uuid-or-client-id>" }`. On success it atomically (single DB transaction) posts a matching `tax_income` row and auto-journal entry, then updates invoice paid/balance/status. Duplicate `paymentEventId` submissions are treated as idempotent and do not double-post.
 - Invoice send payload expects `{ "id": <invoiceId> }` and sends branded HTML+text via Resend using `FROM_EMAIL`, `RESEND_API_KEY`, and optional `CC_EMAIL`.
 - CORS allowed origins are set in `wrangler.toml` (`ALLOWED_ORIGINS`) as a comma-separated list.
 - Messages include `reply_to` set to the submitter's email.
