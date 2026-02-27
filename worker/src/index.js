@@ -2128,6 +2128,33 @@ async function handleInvoiceStatus(request, env, corsHeaders, url) {
   return json({ ok: true, id, status }, 200, corsHeaders);
 }
 
+async function syncInvoicePaidFromIncome(db, invoiceId) {
+  const id = Number(invoiceId || 0);
+  if (!id) return null;
+  const inv = await db.prepare(`SELECT id, total_cents, amount_paid_cents FROM invoices WHERE id = ?1`).bind(id).first();
+  if (!inv) return null;
+  const total = Number(inv.total_cents || 0);
+  const sumRow = await db.prepare(
+    `SELECT COALESCE(SUM(amount_cents),0) AS s
+     FROM tax_income
+     WHERE stripe_session_id LIKE ?1
+        OR notes LIKE ?2`
+  ).bind(`invoice-payment:${id}:%`, `%invoice_id=${id}%`).first();
+  const paid = Math.max(0, Math.min(total, Number(sumRow?.s || 0)));
+  const balance = Math.max(0, total - paid);
+  const status = balance <= 0 ? 'paid' : (paid > 0 ? 'partial' : 'draft');
+  await db.prepare(
+    `UPDATE invoices
+     SET amount_paid_cents = ?1,
+         balance_due_cents = ?2,
+         status = CASE WHEN status = 'void' THEN status ELSE ?3 END,
+         paid_date = CASE WHEN ?2 = 0 THEN COALESCE(paid_date, date('now')) ELSE paid_date END,
+         updated_at = datetime('now')
+     WHERE id = ?4`
+  ).bind(paid, balance, status, balance, id).run();
+  return { paid, balance, status };
+}
+
 async function applyInvoicePayment(db, {
   invoiceId,
   requestedPaymentCents,
