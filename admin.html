@@ -2770,9 +2770,9 @@
           </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
             ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
-            <button type="button" class="btn" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="${hasPaymentUrl ? '1' : '0'}">${hasPaymentUrl ? 'Refresh Payment Link' : 'Generate Payment Link'}</button>
+            ${hasPaymentUrl ? `<button type="button" class="btn" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="1">Refresh Payment Link</button>` : ''}
             ${hasPaymentUrl ? `<button type="button" class="btn" data-invoice-action="copy-payment-link" data-invoice-id="${id}" data-payment-url="${encodeURIComponent(paymentUrl)}">Copy Payment Link</button>` : ''}
-            <button type="button" class="btn" data-invoice-action="email" data-invoice-id="${id}">Generate/Send Invoice Email</button>
+            <button type="button" class="btn" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
             <button type="button" class="btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
             <button type="button" class="btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
             <button type="button" class="btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
@@ -2861,6 +2861,19 @@
       }
 
       if (action === 'email') {
+        // Auto-generate payment link before sending so email includes Pay button when balance is due.
+        const linkRes = await fetch(INVOICE_PAYMENT_LINK_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ id, regenerate: false })
+        });
+        const linkData = await linkRes.json().catch(() => ({}));
+        if (!linkRes.ok) {
+          const msg = String(linkData.error || '');
+          const canIgnore = /no balance due/i.test(msg);
+          if (!canIgnore) { openErrorModal(linkData.error || 'Failed to prepare payment link before sending email'); return; }
+        }
+
         const res = await fetch(INVOICE_SEND_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
