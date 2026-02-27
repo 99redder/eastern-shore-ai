@@ -2871,29 +2871,39 @@
       }
 
       if (action === 'email') {
-        // Auto-generate payment link before sending so email includes Pay button when balance is due.
-        const linkRes = await fetch(INVOICE_PAYMENT_LINK_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify({ id, regenerate: false })
-        });
-        const linkData = await linkRes.json().catch(() => ({}));
-        if (!linkRes.ok) {
-          const msg = String(linkData.error || '');
-          const canIgnore = /no balance due/i.test(msg);
-          if (!canIgnore) { openErrorModal(linkData.error || 'Failed to prepare payment link before sending email'); return; }
-        }
+        const prevTxt = btn.textContent || 'Send Invoice Email';
+        btn.disabled = true;
+        btn.classList.add('working');
+        btn.textContent = 'Sending…';
+        try {
+          // Auto-generate payment link before sending so email includes Pay button when balance is due.
+          const linkRes = await fetch(INVOICE_PAYMENT_LINK_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            body: JSON.stringify({ id, regenerate: false })
+          });
+          const linkData = await linkRes.json().catch(() => ({}));
+          if (!linkRes.ok) {
+            const msg = String(linkData.error || '');
+            const canIgnore = /no balance due/i.test(msg);
+            if (!canIgnore) { openErrorModal(linkData.error || 'Failed to prepare payment link before sending email'); return; }
+          }
 
-        const res = await fetch(INVOICE_SEND_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify({ id })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { openErrorModal(data.error || 'Failed to send invoice email'); return; }
-        openSuccessModal('Invoice email sent', 'Invoice email delivered to customer and status updated to sent.');
-        await refreshInvoiceList();
-        return;
+          const res = await fetch(INVOICE_SEND_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            body: JSON.stringify({ id })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) { openErrorModal(data.error || 'Failed to send invoice email'); return; }
+          openSuccessModal('Invoice email sent', 'Invoice email delivered to customer and status updated to sent.');
+          await refreshInvoiceList();
+          return;
+        } finally {
+          btn.disabled = false;
+          btn.classList.remove('working');
+          btn.textContent = prevTxt;
+        }
       }
 
       const targetStatus = action === 'paid' ? 'paid' : 'sent';
