@@ -862,6 +862,7 @@
     const QUOTE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/update');
     const QUOTE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/delete');
     const QUOTE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/send');
+    const QUOTE_CONVERT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/convert');
 
     // ===== DOM Refs =====
     const adminLock = document.getElementById('admin-lock');
@@ -2983,6 +2984,7 @@
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
             ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn" data-quote-action="edit" data-quote-id="${id}">Edit</button>` : ''}
             ${['draft','sent'].includes(status) && !isExpired ? `<button type="button" class="btn" data-quote-action="send" data-quote-id="${id}">Send Quote Email</button>` : ''}
+            ${['draft','sent','denied'].includes(status) ? `<button type="button" class="btn" data-quote-action="convert" data-quote-id="${id}">Convert to Invoice</button>` : ''}
             <button type="button" class="btn delete" data-quote-action="delete" data-quote-id="${id}">Delete</button>
           </div>
         </div>`;
