@@ -2248,7 +2248,7 @@ async function applyInvoicePayment(db, {
          paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END,
          updated_at = datetime('now')
      WHERE id = ?4`
-  ).bind(nextPaid, nextBalance, nextStatus, nextBalance, id).run();
+  ).bind(nextPaid, nextBalance, nextStatus, id).run();
 
   return {
     ok: true,
