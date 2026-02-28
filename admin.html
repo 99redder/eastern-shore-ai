@@ -495,6 +495,12 @@
                 <option value="open">Open</option>
                 <option value="paid">Paid</option>
               </select>
+              <label for="invoice-sort" style="margin:0;">Sort By</label>
+              <select id="invoice-sort" style="max-width:190px;">
+                <option value="newest">Newest</option>
+                <option value="last-name">Customer Last Name</option>
+                <option value="status">Status</option>
+              </select>
               <button type="button" class="btn" id="invoice-refresh-btn">Refresh Invoices</button>
             </div>
             <div id="invoice-list" class="admin-list">No invoices yet.</div>
@@ -1004,6 +1010,7 @@
     const invoiceTotalDisplayEl = document.getElementById('invoice-total-display');
     const invoiceCreateBtn = document.getElementById('invoice-create-btn');
     const invoiceFilterEl = document.getElementById('invoice-filter');
+    const invoiceSortEl = document.getElementById('invoice-sort');
     const invoiceRefreshBtn = document.getElementById('invoice-refresh-btn');
     const invoiceListEl = document.getElementById('invoice-list');
     const reconMatchesEl = document.getElementById('recon-matches');
@@ -2766,6 +2773,29 @@
         ? rows.filter((r) => !['paid', 'void'].includes(String(r.status || '').toLowerCase()))
         : rows;
 
+      const sortMode = (invoiceSortEl?.value || 'newest').trim();
+      if (sortMode === 'last-name') {
+        filtered.sort((a, b) => {
+          const la = ((a.customer_name || '').toString().trim().split(/\s+/).pop() || '').toLowerCase();
+          const lb = ((b.customer_name || '').toString().trim().split(/\s+/).pop() || '').toLowerCase();
+          if (la < lb) return -1;
+          if (la > lb) return 1;
+          return Number(b.id || 0) - Number(a.id || 0);
+        });
+      } else if (sortMode === 'status') {
+        const rank = { draft: 0, sent: 1, partial: 2, paid: 3, void: 4 };
+        filtered.sort((a, b) => {
+          const sa = (a.status || 'draft').toString().toLowerCase();
+          const sb = (b.status || 'draft').toString().toLowerCase();
+          const ra = Number.isFinite(rank[sa]) ? rank[sa] : 99;
+          const rb = Number.isFinite(rank[sb]) ? rank[sb] : 99;
+          if (ra !== rb) return ra - rb;
+          return Number(b.id || 0) - Number(a.id || 0);
+        });
+      } else {
+        filtered.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+      }
+
       if (!filtered.length) {
         invoiceListEl.innerHTML = '<div style="color:var(--muted);">No invoices found for this filter.</div>';
         return;
@@ -3548,6 +3578,7 @@
     renderInvoiceLineItems();
     invoiceRefreshBtn?.addEventListener('click', refreshInvoiceList);
     invoiceFilterEl?.addEventListener('change', refreshInvoiceList);
+    invoiceSortEl?.addEventListener('change', refreshInvoiceList);
     invoiceListEl?.addEventListener('click', handleInvoiceActionClick);
     accountsYearEl?.addEventListener('change', loadAccountsData);
     accountsFromEl?.addEventListener('change', loadAccountsData);
