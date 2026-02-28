@@ -778,3 +778,47 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
 - CSS `perspective(700px) rotateX rotateY` applied to the canvas element each frame for 3D tilt
 - Drag inertia: `velX`/`velY` decay at 0.92 per frame; `rotX` gently returns to 20° default tilt
 - Hidden on mobile via `@media (max-width: 820px) { .hero-neural-wrap { display: none; } }`
+
+## Session Update — 2026-02-27 (Quotes/Invoices/Stripe stabilization)
+
+### Major additions shipped
+- Full **Invoices** and **Quotes** systems in `admin.html` with view/add modal flows, edit/delete, send email actions, and quote accept/deny links.
+- Quote accept flow converts accepted quote into draft invoice; deny flow keeps quote with `denied` status.
+- Stripe invoice checkout links integrated into invoice records and invoice emails.
+- Stripe invoice webhook now updates invoice status/balance and auto-posts books entries.
+- Public response pages (quote accepted/declined, payment success/cancelled) are branded.
+
+### Critical implementation lessons (must preserve when porting)
+1. **D1 transaction caveat**
+   - Do not use raw SQL `BEGIN/COMMIT/ROLLBACK` in this worker path for invoice webhook posting.
+   - It can throw D1 runtime errors in this environment.
+
+2. **SQL placeholder/bind count must match exactly**
+   - Several 1101/500 failures were caused by mismatch between SQL placeholders and `.bind(...)` values.
+   - Always validate insert/update statements after schema changes (especially invoice/quote convert paths).
+
+3. **Stripe invoice payment consistency**
+   - Webhook path must update both:
+     - Stripe tracking fields (`stripe_payment_status`, session ids)
+     - invoice money fields (`amount_paid_cents`, `balance_due_cents`, `status`).
+   - If income posted but invoice balance lags, replaying webhook should be idempotent and reconcile correctly.
+
+4. **Stripe fee auto-expense reliability**
+   - Invoice checkout webhook now inserts `Payment Processing Fees` expense using Stripe fee lookup.
+   - Fee lookup should use expanded payment intent/charge balance transaction data and retries.
+
+### Current migrations relevant to this feature set
+- `0011_add_invoices_tables.sql`
+- `0012_add_invoice_sent_at.sql`
+- `0013_add_quotes_tables.sql`
+- `0014_add_invoice_stripe_checkout_fields.sql`
+- `0015_add_customer_phone_to_invoices_quotes.sql`
+
+### Ops checklist after porting/changes
+1. Apply all pending migrations remotely.
+2. Deploy worker.
+3. End-to-end test:
+   - create invoice -> send email -> pay via Stripe -> webhook 200
+   - verify invoice paid/balance update
+   - verify tax income + payment processing fee expense entries
+   - verify quote accept/deny links and branded response pages.
