@@ -782,6 +782,10 @@
           <input id="quote-customer-email" type="email" placeholder="Customer email" />
         </div>
         <div>
+          <label for="quote-customer-phone" style="font-weight:600;">Customer Phone <span style="font-size:.85rem; color:var(--muted); font-weight:400;">(optional)</span></label>
+          <input id="quote-customer-phone" type="tel" placeholder="Customer phone" />
+        </div>
+        <div>
           <label for="quote-valid-until" style="font-weight:600; color:var(--cyan);">Valid Until <span style="font-size:.85rem; color:var(--muted); font-weight:400;">(defaults to 30 days)</span></label>
           <input id="quote-valid-until" type="date" style="border-color:var(--cyan);" />
         </div>
@@ -817,6 +821,10 @@
         <div>
           <label for="invoice-customer-email" style="font-weight:600;">Customer Email</label>
           <input id="invoice-customer-email" type="email" placeholder="Customer email" />
+        </div>
+        <div>
+          <label for="invoice-customer-phone" style="font-weight:600;">Customer Phone <span style="font-size:.85rem; color:var(--muted); font-weight:400;">(optional)</span></label>
+          <input id="invoice-customer-phone" type="tel" placeholder="Customer phone" />
         </div>
         <div>
           <label for="invoice-due-date" style="font-weight:600; color:var(--cyan);">Due Date <span style="font-size:.85rem; color:var(--muted); font-weight:400;">(required)</span></label>
@@ -982,6 +990,7 @@
     const invoiceCreateCancelBtn = document.getElementById('invoice-create-cancel-btn');
     const invoiceCustomerNameEl = document.getElementById('invoice-customer-name');
     const invoiceCustomerEmailEl = document.getElementById('invoice-customer-email');
+    const invoiceCustomerPhoneEl = document.getElementById('invoice-customer-phone');
     const invoiceDueDateEl = document.getElementById('invoice-due-date');
     const invoiceDescriptionEl = document.getElementById('invoice-description');
     const invoiceLineItemsEl = document.getElementById('invoice-line-items');
@@ -1004,6 +1013,7 @@
     const quoteCreateCancelBtn = document.getElementById('quote-create-cancel-btn');
     const quoteCustomerNameEl = document.getElementById('quote-customer-name');
     const quoteCustomerEmailEl = document.getElementById('quote-customer-email');
+    const quoteCustomerPhoneEl = document.getElementById('quote-customer-phone');
     const quoteValidUntilEl = document.getElementById('quote-valid-until');
     const quoteDescriptionEl = document.getElementById('quote-description');
     const quoteLineItemsEl = document.getElementById('quote-line-items');
@@ -1156,6 +1166,7 @@
     function resetInvoiceForm() {
       if (invoiceDescriptionEl) invoiceDescriptionEl.value = '';
       if (invoiceCustomerEmailEl) invoiceCustomerEmailEl.value = '';
+      if (invoiceCustomerPhoneEl) invoiceCustomerPhoneEl.value = '';
       if (invoiceCustomerNameEl) invoiceCustomerNameEl.value = '';
       if (invoiceDueDateEl) invoiceDueDateEl.value = '';
       editingInvoiceId = null;
@@ -2645,6 +2656,7 @@
     async function saveQuickInvoice() {
       const customerName = (invoiceCustomerNameEl?.value || '').trim();
       const customerEmail = (invoiceCustomerEmailEl?.value || '').trim();
+      const customerPhone = (invoiceCustomerPhoneEl?.value || '').trim();
       const dueDate = invoiceDueDateEl?.value;
       const descriptionOfWork = (invoiceDescriptionEl?.value || '').trim();
       const items = buildInvoiceItemsFromForm();
@@ -2663,6 +2675,7 @@
       const payload = {
         customerName,
         customerEmail,
+        customerPhone,
         descriptionOfWork,
         dueDate,
         items
@@ -2708,6 +2721,7 @@
       editingInvoiceId = invoiceId;
       if (invoiceCustomerNameEl) invoiceCustomerNameEl.value = inv.customer_name || '';
       if (invoiceCustomerEmailEl) invoiceCustomerEmailEl.value = inv.customer_email || '';
+      if (invoiceCustomerPhoneEl) invoiceCustomerPhoneEl.value = inv.customer_phone || '';
       if (invoiceDueDateEl) invoiceDueDateEl.value = inv.due_date || '';
       if (invoiceDescriptionEl) invoiceDescriptionEl.value = inv.notes || '';
       invoiceDraftItems = (Array.isArray(inv.line_items) ? inv.line_items : []).map((item) => ({
@@ -2769,7 +2783,7 @@
             ${invoiceStatusBadge(status)}
           </div>
           <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
-            <span>${customer}${inv.customer_email ? ` • ${escHtml(inv.customer_email)}` : ''}</span>
+            <span>${customer}${inv.customer_email ? ` • ${escHtml(inv.customer_email)}` : ''}${inv.customer_phone ? ` • ${escHtml(inv.customer_phone)}` : ''}</span>
             <span>Issue: ${issue} | Due: ${due}</span>
           </div>
           ${inv.notes ? `<div style="margin-top:.2rem; color:var(--muted);">${escHtml(inv.notes)}</div>` : ''}
@@ -2942,6 +2956,7 @@
     function resetQuoteForm() {
       if (quoteDescriptionEl) quoteDescriptionEl.value = '';
       if (quoteCustomerEmailEl) quoteCustomerEmailEl.value = '';
+      if (quoteCustomerPhoneEl) quoteCustomerPhoneEl.value = '';
       if (quoteCustomerNameEl) quoteCustomerNameEl.value = '';
       if (quoteValidUntilEl) quoteValidUntilEl.value = '';
       editingQuoteId = null;
@@ -2982,6 +2997,7 @@
     async function saveQuote() {
       const customerName = (quoteCustomerNameEl?.value || '').trim();
       const customerEmail = (quoteCustomerEmailEl?.value || '').trim();
+      const customerPhone = (quoteCustomerPhoneEl?.value || '').trim();
       let validUntil = quoteValidUntilEl?.value;
       if (!validUntil) {
         const d = new Date();
@@ -2997,7 +3013,7 @@
       if (!items.length || totalCents <= 0) { openErrorModal('At least one line item with a valid amount is required.'); return; }
 
       const isEditing = !!editingQuoteId;
-      const payload = { customerName, customerEmail, validUntil, descriptionOfWork, items };
+      const payload = { customerName, customerEmail, customerPhone, validUntil, descriptionOfWork, items };
       let endpoint = QUOTES_API_URL;
       if (isEditing) {
         endpoint = QUOTE_UPDATE_API_URL;
@@ -3027,6 +3043,7 @@
       editingQuoteId = quoteId;
       if (quoteCustomerNameEl) quoteCustomerNameEl.value = q.customer_name || '';
       if (quoteCustomerEmailEl) quoteCustomerEmailEl.value = q.customer_email || '';
+      if (quoteCustomerPhoneEl) quoteCustomerPhoneEl.value = q.customer_phone || '';
       if (quoteValidUntilEl) quoteValidUntilEl.value = q.valid_until || '';
       if (quoteDescriptionEl) quoteDescriptionEl.value = q.notes || '';
       quoteDraftItems = (Array.isArray(q.line_items) ? q.line_items : []).map((item) => ({
@@ -3079,7 +3096,7 @@
             ${quoteStatusBadge(displayStatus)}
           </div>
           <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
-            <span>${customer}${q.customer_email ? ` • ${escHtml(q.customer_email)}` : ''}</span>
+            <span>${customer}${q.customer_email ? ` • ${escHtml(q.customer_email)}` : ''}${q.customer_phone ? ` • ${escHtml(q.customer_phone)}` : ''}</span>
             <span>Valid Until: ${validUntil}</span>
           </div>
           ${q.notes ? `<div style="margin-top:.2rem; color:var(--muted);">${escHtml(q.notes)}</div>` : ''}

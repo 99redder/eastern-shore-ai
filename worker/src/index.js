@@ -2038,6 +2038,7 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
   const invoiceNumber = (data.invoiceNumber || `INV-${Date.now()}`).toString();
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const customerPhone = (data.customerPhone || '').toString().trim();
   const issueDate = (data.issueDate || '').toString().trim();
   const dueDate = (data.dueDate || '').toString().trim();
   const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
@@ -2064,8 +2065,8 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
   const taxCents = Math.max(0, Number(data.taxCents || 0));
   const total = subtotal + taxCents;
 
-  const r = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
-    .bind(invoiceNumber, customerName, customerEmail || null, data.customerCompany || null, issueDate, dueDate, data.status || 'draft', subtotal, taxCents, total, descriptionOfWork || null).run();
+  const r = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_phone, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, 0, ?11, ?12)`)
+    .bind(invoiceNumber, customerName, customerEmail || null, customerPhone || null, data.customerCompany || null, issueDate, dueDate, data.status || 'draft', subtotal, taxCents, total, descriptionOfWork || null).run();
   const invoiceId = Number(r.meta?.last_row_id || 0);
 
   for (const item of items) {
@@ -2116,6 +2117,7 @@ async function handleInvoiceUpdate(request, env, corsHeaders, url) {
   const id = Number(data.id || data.invoiceId || 0);
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const customerPhone = (data.customerPhone || '').toString().trim();
   const dueDate = (data.dueDate || '').toString().trim();
   const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
   const rawItems = Array.isArray(data.items) ? data.items : [];
@@ -2147,8 +2149,8 @@ async function handleInvoiceUpdate(request, env, corsHeaders, url) {
   const balance = Math.max(0, total - amountPaid);
   const nextStatus = balance <= 0 ? 'paid' : (amountPaid > 0 ? 'partial' : (existing.status || 'draft'));
 
-  await env.DB.prepare(`UPDATE invoices SET customer_name = ?1, customer_email = ?2, due_date = ?3, notes = ?4, subtotal_cents = ?5, tax_cents = ?6, total_cents = ?7, balance_due_cents = ?8, status = ?9, updated_at = datetime('now') WHERE id = ?10`)
-    .bind(customerName, customerEmail || null, dueDate, descriptionOfWork || null, subtotal, taxCents, total, balance, nextStatus, id).run();
+  await env.DB.prepare(`UPDATE invoices SET customer_name = ?1, customer_email = ?2, customer_phone = ?3, due_date = ?4, notes = ?5, subtotal_cents = ?6, tax_cents = ?7, total_cents = ?8, balance_due_cents = ?9, status = ?10, updated_at = datetime('now') WHERE id = ?11`)
+    .bind(customerName, customerEmail || null, customerPhone || null, dueDate, descriptionOfWork || null, subtotal, taxCents, total, balance, nextStatus, id).run();
 
   await env.DB.prepare(`DELETE FROM invoice_line_items WHERE invoice_id = ?1`).bind(id).run();
   for (const item of items) {
@@ -2607,8 +2609,8 @@ async function convertQuoteToInvoice(db, quote) {
   const dueDate = quote.valid_until || issueDate;
   const invoiceNumber = `INV-${Date.now()}-${quoteId}`;
 
-  const inv = await db.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'draft', ?7, 0, ?8, 0, ?8, ?9)`)
-    .bind(invoiceNumber, quote.customer_name || '', quote.customer_email || null, null, issueDate, dueDate, subtotal, total, quote.notes || null).run();
+  const inv = await db.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_phone, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'draft', ?8, 0, ?9, 0, ?9, ?10)`)
+    .bind(invoiceNumber, quote.customer_name || '', quote.customer_email || null, quote.customer_phone || null, null, issueDate, dueDate, subtotal, total, quote.notes || null).run();
   const invoiceId = Number(inv.meta?.last_row_id || 0);
 
   for (const item of items) {
@@ -2659,6 +2661,7 @@ async function handleQuoteCreate(request, env, corsHeaders, url) {
   const quoteNumber = (data.quoteNumber || `Q-${Date.now()}`).toString();
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const customerPhone = (data.customerPhone || '').toString().trim();
   let validUntil = (data.validUntil || '').toString().trim();
 
   // Default to 30 days from now if no valid date
@@ -2686,8 +2689,8 @@ async function handleQuoteCreate(request, env, corsHeaders, url) {
   const acceptToken = generateToken();
   const denyToken = generateToken();
 
-  const r = await env.DB.prepare(`INSERT INTO quotes (quote_number, customer_name, customer_email, valid_until, status, subtotal_cents, total_cents, notes, accept_token, deny_token) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`)
-    .bind(quoteNumber, customerName, customerEmail, validUntil, data.status || 'draft', subtotal, total, descriptionOfWork || null, acceptToken, denyToken).run();
+  const r = await env.DB.prepare(`INSERT INTO quotes (quote_number, customer_name, customer_email, customer_phone, valid_until, status, subtotal_cents, total_cents, notes, accept_token, deny_token) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)`)
+    .bind(quoteNumber, customerName, customerEmail, customerPhone || null, validUntil, data.status || 'draft', subtotal, total, descriptionOfWork || null, acceptToken, denyToken).run();
   const quoteId = Number(r.meta?.last_row_id || 0);
 
   for (const item of items) {
@@ -2739,6 +2742,7 @@ async function handleQuoteUpdate(request, env, corsHeaders, url) {
   const id = Number(data.id || data.quoteId || 0);
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const customerPhone = (data.customerPhone || '').toString().trim();
   let validUntil = (data.validUntil || '').toString().trim();
   const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
   const items = Array.isArray(data.items) ? data.items : [];
@@ -2758,8 +2762,8 @@ async function handleQuoteUpdate(request, env, corsHeaders, url) {
   }
   const total = subtotal;
 
-  await env.DB.prepare(`UPDATE quotes SET customer_name = ?1, customer_email = ?2, valid_until = ?3, notes = ?4, subtotal_cents = ?5, total_cents = ?6, updated_at = datetime('now') WHERE id = ?7`)
-    .bind(customerName, customerEmail, validUntil, descriptionOfWork || null, subtotal, total, id).run();
+  await env.DB.prepare(`UPDATE quotes SET customer_name = ?1, customer_email = ?2, customer_phone = ?3, valid_until = ?4, notes = ?5, subtotal_cents = ?6, total_cents = ?7, updated_at = datetime('now') WHERE id = ?8`)
+    .bind(customerName, customerEmail, customerPhone || null, validUntil, descriptionOfWork || null, subtotal, total, id).run();
 
   await env.DB.prepare(`DELETE FROM quote_line_items WHERE quote_id = ?1`).bind(id).run();
   for (const item of items) {
@@ -3009,8 +3013,8 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
   const subtotal = Number(quote.subtotal_cents || 0);
   const total = Number(quote.total_cents || 0);
 
-  const invRes = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
-    .bind(invoiceNumber, quote.customer_name, quote.customer_email, null, issueDate, dueDate, 'draft', subtotal, 0, total, quote.notes || null).run();
+  const invRes = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_phone, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
+    .bind(invoiceNumber, quote.customer_name, quote.customer_email, quote.customer_phone || null, issueDate, dueDate, 'draft', subtotal, 0, total, quote.notes || null).run();
   const invoiceId = Number(invRes.meta?.last_row_id || 0);
 
   // Copy line items to invoice
