@@ -2902,22 +2902,24 @@ function htmlPage(title, heading, message, success = true) {
   <title>${escapeHtml(title)} - Eastern Shore AI</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f7fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-    .card { max-width: 480px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; text-align: center; }
-    .header { padding: 24px; background: linear-gradient(135deg, #0f172a, #1f2937); color: #ffffff; }
-    .header h1 { font-size: 18px; margin-bottom: 8px; }
+    body { font-family: Arial, sans-serif; background: #0a0b10; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; color:#d8dce8; }
+    .card { max-width: 620px; width:100%; background: #141620; border: 1px solid #222438; border-radius: 8px; overflow: hidden; text-align: center; box-shadow:0 12px 30px rgba(0,0,0,.35); }
+    .hero img { width:100%; height:auto; display:block; }
+    .header { padding: 20px 24px; background: linear-gradient(145deg,#0f2f57,#1f4f90); color: #eaf3ff; border-top:1px solid #2b68ad; border-bottom:1px solid #2b68ad; }
+    .header h1 { font-size: 18px; letter-spacing:.2px; }
     .icon { width: 64px; height: 64px; border-radius: 50%; background: ${bgColor}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 24px auto 16px; }
     .content { padding: 24px; }
-    .content h2 { color: #111827; margin-bottom: 12px; }
-    .content p { color: #4b5563; line-height: 1.6; }
-    .footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
-    .footer a { color: #2563eb; text-decoration: none; }
+    .content h2 { color: #00e5ff; margin-bottom: 12px; }
+    .content p { color: #b7bfd3; line-height: 1.6; }
+    .footer { padding: 16px 24px; border-top: 1px solid #222438; background: #10121a; color:#9aa3b7; }
+    .footer a { color: #7bb6ff; text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="card">
+    <div class="hero"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" /></div>
     <div class="header">
-      <h1>Eastern Shore AI</h1>
+      <h1>Eastern Shore AI, LLC</h1>
     </div>
     <div class="content">
       <div class="icon">${icon}</div>
@@ -2926,7 +2928,7 @@ function htmlPage(title, heading, message, success = true) {
     </div>
     <div class="footer">
       <div><a href="https://www.easternshore.ai">www.easternshore.ai</a></div>
-      <div style="margin-top:6px; color:#4b5563; font-size:13px;">contact@easternshore.ai • (410) 692-8562</div>
+      <div style="margin-top:6px; font-size:13px;">Reply to this email or contact us here: (410) 692-8562 • contact@easternshore.ai</div>
     </div>
   </div>
 </body>
