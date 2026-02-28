@@ -2887,7 +2887,7 @@
             ${hasPaymentUrl ? `<button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="copy-payment-link" data-invoice-id="${id}" data-payment-url="${encodeURIComponent(paymentUrl)}">Copy Payment Link</button>` : ''}
             <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
             <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
-            <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
+            ${status === 'paid' ? `<button type="button" class="btn invoice-action-btn" data-invoice-action="paid" data-invoice-id="${id}" disabled style="opacity:.5; cursor:not-allowed;">Mark Paid</button>` : `<button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>`}
             ${(Number(inv.balance_due_cents || 0) > 0 && status !== 'paid') ? `<button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>` : '<span style="font-size:.82rem; color:var(--muted); padding:.45rem .2rem;">Already paid</span>'}
             <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="${hasPaymentUrl ? '1' : '0'}">${hasPaymentUrl ? 'Refresh Payment Link' : 'Generate Payment Link'}</button>
             <button type="button" class="btn delete invoice-action-btn" data-invoice-action="delete" data-invoice-id="${id}">Delete</button>
@@ -2902,6 +2902,7 @@
     async function handleInvoiceActionClick(e) {
       const btn = e.target.closest('[data-invoice-action]');
       if (!btn) return;
+      if (btn.hasAttribute('disabled')) return;
       const id = Number(btn.getAttribute('data-invoice-id') || 0);
       const action = btn.getAttribute('data-invoice-action') || '';
       if (!id || !action) return;
