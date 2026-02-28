@@ -109,6 +109,7 @@
     .invoice-mode-toggle { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.65rem; }
     .invoice-mode-toggle .btn.active { background:linear-gradient(145deg,#164277,#2a66b0); border-color:#3d7bc6; color:#d9ecff; box-shadow:0 0 10px rgba(61,123,198,.35); }
     .invoice-flow-note { margin:.1rem 0 .7rem; color:var(--muted); line-height:1.45; }
+    .invoice-action-btn { padding:.45rem .72rem; font-size:.9rem; }
     .btn.working { opacity:.8; cursor:progress; }
     .spin-dot { display:inline-block; width:12px; text-align:left; }
     .invoice-fab {
@@ -2779,14 +2780,14 @@
             ${hasPaymentUrl ? `Payment Link: <a href="${escHtml(paymentUrl)}" target="_blank" rel="noopener noreferrer">click here</a>` : 'Payment Link: Not generated yet'}
           </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
-            ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn action-pop" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
-            ${hasPaymentUrl ? `<button type="button" class="btn action-pop" data-invoice-action="copy-payment-link" data-invoice-id="${id}" data-payment-url="${encodeURIComponent(paymentUrl)}">Copy Payment Link</button>` : ''}
-            <button type="button" class="btn action-pop" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
-            <button type="button" class="btn action-pop" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
-            <button type="button" class="btn action-pop" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
-            <button type="button" class="btn action-pop" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
-            <button type="button" class="btn action-pop" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="${hasPaymentUrl ? '1' : '0'}">${hasPaymentUrl ? 'Refresh Payment Link' : 'Generate Payment Link'}</button>
-            <button type="button" class="btn delete" data-invoice-action="delete" data-invoice-id="${id}">Delete</button>
+            ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
+            ${hasPaymentUrl ? `<button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="copy-payment-link" data-invoice-id="${id}" data-payment-url="${encodeURIComponent(paymentUrl)}">Copy Payment Link</button>` : ''}
+            <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
+            <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
+            <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
+            <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
+            <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="${hasPaymentUrl ? '1' : '0'}">${hasPaymentUrl ? 'Refresh Payment Link' : 'Generate Payment Link'}</button>
+            <button type="button" class="btn delete invoice-action-btn" data-invoice-action="delete" data-invoice-id="${id}">Delete</button>
           </div>
         </div>`;
       }).join('');
