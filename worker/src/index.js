@@ -2915,7 +2915,7 @@ function invoicePaymentPage(title, heading, message, success = true, invoiceId =
     <div class="content"><div class="icon">${icon}</div><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(message)}</p>${invLine}</div>
     <div class="footer">
       <div><a href="https://www.easternshore.ai">www.easternshore.ai</a></div>
-      <div style="margin-top:6px; font-size:13px;">Questions? Contact us at: (302) 907-9162 or contact@easternshore.ai</div>
+      <div style="margin-top:6px; font-size:13px;">Questions? Contact us at: <a href="tel:+13029079162" style="color:#7bb6ff; text-decoration:underline;">(302) 907-9162</a> or <a href="mailto:contact@easternshore.ai" style="color:#7bb6ff; text-decoration:underline;">contact@easternshore.ai</a></div>
     </div>
   </div>
 </body>
@@ -2969,7 +2969,7 @@ function htmlPage(title, heading, message, success = true) {
     </div>
     <div class="footer">
       <div><a href="https://www.easternshore.ai">www.easternshore.ai</a></div>
-      <div style="margin-top:6px; font-size:13px;">Questions? Contact us at: (302) 907-9162 or contact@easternshore.ai</div>
+      <div style="margin-top:6px; font-size:13px;">Questions? Contact us at: <a href="tel:+13029079162" style="color:#7bb6ff; text-decoration:underline;">(302) 907-9162</a> or <a href="mailto:contact@easternshore.ai" style="color:#7bb6ff; text-decoration:underline;">contact@easternshore.ai</a></div>
     </div>
   </div>
 </body>
