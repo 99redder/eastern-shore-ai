@@ -2776,7 +2776,7 @@
             <span>Total: ${total} | Paid: ${paid} | Balance: <strong>${bal}</strong></span>
           </div>
           <div style="margin-top:.25rem; font-size:.86rem; color:var(--muted); word-break:break-all;">
-            ${hasPaymentUrl ? `Payment Link: <a href="${escHtml(paymentUrl)}" target="_blank" rel="noopener noreferrer">${escHtml(paymentUrl)}</a>` : 'Payment Link: Not generated yet'}
+            ${hasPaymentUrl ? `Payment Link: <a href="${escHtml(paymentUrl)}" target="_blank" rel="noopener noreferrer">click here</a>` : 'Payment Link: Not generated yet'}
           </div>
           <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
             ${['draft','sent','partial'].includes(status) ? `<button type="button" class="btn action-pop" data-invoice-action="edit" data-invoice-id="${id}">Edit</button>` : ''}
