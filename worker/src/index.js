@@ -3197,32 +3197,48 @@ async function upsertTaxIncomeJournal(db, row) {
  */
 async function fetchStripeFeeCents(stripeSecretKey, paymentIntentId) {
   if (!stripeSecretKey || !paymentIntentId) return 0;
-  const piRes = await fetch(`https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}`, {
-    headers: { Authorization: `Bearer ${stripeSecretKey}` }
-  });
-  const pi = await piRes.json().catch(() => ({}));
-  if (!piRes.ok) return 0;
 
-  const chargeId = pi?.latest_charge;
-  if (!chargeId) return 0;
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const chRes = await fetch(`https://api.stripe.com/v1/charges/${encodeURIComponent(chargeId)}`, {
-    headers: { Authorization: `Bearer ${stripeSecretKey}` }
-  });
-  const ch = await chRes.json().catch(() => ({}));
-  if (!chRes.ok) return 0;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const url = `https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}?expand[]=latest_charge.balance_transaction`;
+    const piRes = await fetch(url, {
+      headers: { Authorization: `Bearer ${stripeSecretKey}` }
+    });
+    const pi = await piRes.json().catch(() => ({}));
+    if (!piRes.ok) {
+      if (attempt < 2) await wait(1200);
+      continue;
+    }
 
-  const btId = ch?.balance_transaction;
-  if (!btId) return 0;
+    const latestCharge = pi?.latest_charge;
+    const bt = (latestCharge && typeof latestCharge === 'object') ? latestCharge.balance_transaction : null;
+    const feeExpanded = Number(bt?.fee || 0);
+    if (Number.isFinite(feeExpanded) && feeExpanded > 0) return feeExpanded;
 
-  const btRes = await fetch(`https://api.stripe.com/v1/balance_transactions/${encodeURIComponent(btId)}`, {
-    headers: { Authorization: `Bearer ${stripeSecretKey}` }
-  });
-  const bt = await btRes.json().catch(() => ({}));
-  if (!btRes.ok) return 0;
+    const chargeId = typeof latestCharge === 'string' ? latestCharge : latestCharge?.id;
+    if (chargeId) {
+      const chRes = await fetch(`https://api.stripe.com/v1/charges/${encodeURIComponent(chargeId)}`, {
+        headers: { Authorization: `Bearer ${stripeSecretKey}` }
+      });
+      const ch = await chRes.json().catch(() => ({}));
+      if (chRes.ok) {
+        const btId = ch?.balance_transaction;
+        if (btId) {
+          const btRes = await fetch(`https://api.stripe.com/v1/balance_transactions/${encodeURIComponent(btId)}`, {
+            headers: { Authorization: `Bearer ${stripeSecretKey}` }
+          });
+          const btObj = await btRes.json().catch(() => ({}));
+          const fee = Number(btObj?.fee || 0);
+          if (btRes.ok && Number.isFinite(fee) && fee > 0) return fee;
+        }
+      }
+    }
 
-  const fee = Number(bt?.fee || 0);
-  return Number.isFinite(fee) && fee > 0 ? fee : 0;
+    if (attempt < 2) await wait(1200);
+  }
+
+  return 0;
 }
 
 /**
