@@ -3013,8 +3013,19 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
   const subtotal = Number(quote.subtotal_cents || 0);
   const total = Number(quote.total_cents || 0);
 
-  const invRes = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_phone, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
-    .bind(invoiceNumber, quote.customer_name, quote.customer_email, quote.customer_phone || null, issueDate, dueDate, 'draft', subtotal, 0, total, quote.notes || null).run();
+  let invRes;
+  try {
+    invRes = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_phone, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
+      .bind(invoiceNumber, quote.customer_name, quote.customer_email, quote.customer_phone || null, null, issueDate, dueDate, 'draft', subtotal, total, quote.notes || null).run();
+  } catch (e) {
+    // Backward compatibility if customer_phone column is not migrated yet
+    if (String(e?.message || e).includes('customer_phone')) {
+      invRes = await env.DB.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, customer_company, issue_date, due_date, status, subtotal_cents, tax_cents, total_cents, amount_paid_cents, balance_due_cents, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 0, ?10, ?11)`)
+        .bind(invoiceNumber, quote.customer_name, quote.customer_email, null, issueDate, dueDate, 'draft', subtotal, 0, total, quote.notes || null).run();
+    } else {
+      throw e;
+    }
+  }
   const invoiceId = Number(invRes.meta?.last_row_id || 0);
 
   // Copy line items to invoice
