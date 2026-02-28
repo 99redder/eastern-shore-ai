@@ -745,6 +745,43 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           session.url || null,
           invoiceId
         ).run();
+
+        // Auto-insert Stripe processing fee for invoice checkout (deduped by session id)
+        const paymentIntentId = (session.payment_intent || '').toString().trim();
+        const feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
+        if (feeCents > 0 && sessionId) {
+          const feeNote = `Auto Stripe fee for invoice session ${sessionId}`;
+          const existingFee = await env.DB.prepare(
+            `SELECT id FROM tax_expenses WHERE notes = ?1 LIMIT 1`
+          ).bind(feeNote).first();
+
+          if (!existingFee?.id) {
+            const feeDate = event.created ? new Date(event.created * 1000).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+            const insFee = await env.DB.prepare(
+              `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes)
+               VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+            ).bind(
+              feeDate,
+              'Stripe',
+              'Payment Processing Fees',
+              feeCents,
+              'stripe',
+              feeNote
+            ).run();
+            const feeId = Number(insFee.meta?.last_row_id || 0) || null;
+            if (feeId) {
+              await upsertTaxExpenseJournal(env.DB, {
+                id: feeId,
+                expense_date: feeDate,
+                vendor: 'Stripe',
+                category: 'Payment Processing Fees',
+                amount_cents: feeCents,
+                paid_via: 'stripe',
+                notes: feeNote
+              });
+            }
+          }
+        }
       } catch (e) {
         console.error('Invoice Stripe webhook handling failed', e);
         return json({ ok: false, error: `Invoice webhook failed: ${e?.message || e}` }, 500, corsHeaders);
