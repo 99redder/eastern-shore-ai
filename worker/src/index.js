@@ -2845,7 +2845,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
 function invoicePaymentPage(title, heading, message, success = true, invoiceId = '') {
   const bgColor = success ? '#059669' : '#dc2626';
   const icon = success ? '✓' : '✗';
-  const invLine = invoiceId ? `<p style="margin-top:10px;color:#111827;font-weight:600;">Invoice #${escapeHtml(String(invoiceId))}</p>` : '';
+  const invLine = invoiceId ? `<p style="margin-top:10px;color:#d8dce8;font-weight:600;">Invoice #${escapeHtml(String(invoiceId))}</p>` : '';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2854,17 +2854,17 @@ function invoicePaymentPage(title, heading, message, success = true, invoiceId =
   <title>${escapeHtml(title)} - Eastern Shore AI</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #f7fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-    .card { max-width: 560px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; text-align: center; }
+    body { font-family: Arial, sans-serif; background: #0a0b10; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; color:#d8dce8; }
+    .card { max-width: 620px; width:100%; background: #141620; border: 1px solid #222438; border-radius: 8px; overflow: hidden; text-align: center; box-shadow:0 12px 30px rgba(0,0,0,.35); }
     .hero img { width:100%; height:auto; display:block; }
-    .header { padding: 20px 24px; background: linear-gradient(135deg, #0f172a, #1f2937); color: #ffffff; }
-    .header h1 { font-size: 18px; }
+    .header { padding: 20px 24px; background: linear-gradient(145deg,#0f2f57,#1f4f90); color: #eaf3ff; border-top:1px solid #2b68ad; border-bottom:1px solid #2b68ad; }
+    .header h1 { font-size: 18px; letter-spacing:.2px; }
     .icon { width: 64px; height: 64px; border-radius: 50%; background: ${bgColor}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 24px auto 16px; }
     .content { padding: 24px; }
-    .content h2 { color: #111827; margin-bottom: 12px; }
-    .content p { color: #4b5563; line-height: 1.6; }
-    .footer { padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; color:#4b5563; }
-    .footer a { color: #2563eb; text-decoration: none; }
+    .content h2 { color: #00e5ff; margin-bottom: 12px; }
+    .content p { color: #b7bfd3; line-height: 1.6; }
+    .footer { padding: 16px 24px; border-top: 1px solid #222438; background: #10121a; color:#9aa3b7; }
+    .footer a { color: #7bb6ff; text-decoration: none; }
   </style>
 </head>
 <body>
