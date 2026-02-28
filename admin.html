@@ -524,6 +524,12 @@
                 <option value="denied">Denied</option>
                 <option value="expired">Expired</option>
               </select>
+              <label for="quote-sort" style="margin:0;">Sort By</label>
+              <select id="quote-sort" style="max-width:190px;">
+                <option value="newest">Newest</option>
+                <option value="last-name">Customer Last Name</option>
+                <option value="status">Status</option>
+              </select>
               <button type="button" class="btn" id="quote-refresh-btn">Refresh Quotes</button>
             </div>
             <div id="quote-list" class="admin-list">No quotes yet.</div>
@@ -1021,6 +1027,7 @@
     const quoteTotalDisplayEl = document.getElementById('quote-total-display');
     const quoteCreateBtn = document.getElementById('quote-create-btn');
     const quoteFilterEl = document.getElementById('quote-filter');
+    const quoteSortEl = document.getElementById('quote-sort');
     const quoteRefreshBtn = document.getElementById('quote-refresh-btn');
     const quoteListEl = document.getElementById('quote-list');
 
@@ -3075,6 +3082,28 @@
       if (!res.ok) { quoteListEl.textContent = data.error || 'Failed to load quotes.'; return; }
 
       const rows = Array.isArray(data.quotes) ? data.quotes : [];
+      const sortMode = (quoteSortEl?.value || 'newest').trim();
+      if (sortMode === 'last-name') {
+        rows.sort((a, b) => {
+          const la = ((a.customer_name || '').toString().trim().split(/\s+/).pop() || '').toLowerCase();
+          const lb = ((b.customer_name || '').toString().trim().split(/\s+/).pop() || '').toLowerCase();
+          if (la < lb) return -1;
+          if (la > lb) return 1;
+          return Number(b.id || 0) - Number(a.id || 0);
+        });
+      } else if (sortMode === 'status') {
+        const rank = { draft: 0, sent: 1, accepted: 2, denied: 3, expired: 4 };
+        rows.sort((a, b) => {
+          const sa = (a.status || 'draft').toString().toLowerCase();
+          const sb = (b.status || 'draft').toString().toLowerCase();
+          const ra = Number.isFinite(rank[sa]) ? rank[sa] : 99;
+          const rb = Number.isFinite(rank[sb]) ? rank[sb] : 99;
+          if (ra !== rb) return ra - rb;
+          return Number(b.id || 0) - Number(a.id || 0);
+        });
+      } else {
+        rows.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+      }
       if (!rows.length) {
         quoteListEl.innerHTML = '<div style="color:var(--muted);">No quotes found for this filter.</div>';
         return;
