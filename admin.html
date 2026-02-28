@@ -614,6 +614,18 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="invoice-payment-modal" aria-hidden="true">
+    <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="invoice-payment-title">
+      <h3 id="invoice-payment-title">Record Payment</h3>
+      <p style="margin:.2rem 0 .7rem; color:var(--muted);">Enter payment amount (USD)</p>
+      <input id="invoice-payment-amount" type="number" min="0.01" step="0.01" placeholder="e.g. 125.50" />
+      <div class="form-actions" style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:.8rem;">
+        <button type="button" class="btn" id="invoice-payment-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="invoice-payment-save-btn">Record Payment</button>
+      </div>
+    </div>
+  </div>
+
   <div class="success-modal-overlay" id="tax-category-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tax-category-title" style="width:min(920px,94vw); max-height:86vh; overflow-y:auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:.5rem;">
@@ -1013,6 +1025,10 @@
     const invoiceSortEl = document.getElementById('invoice-sort');
     const invoiceRefreshBtn = document.getElementById('invoice-refresh-btn');
     const invoiceListEl = document.getElementById('invoice-list');
+    const invoicePaymentModal = document.getElementById('invoice-payment-modal');
+    const invoicePaymentAmountEl = document.getElementById('invoice-payment-amount');
+    const invoicePaymentCancelBtn = document.getElementById('invoice-payment-cancel-btn');
+    const invoicePaymentSaveBtn = document.getElementById('invoice-payment-save-btn');
     const reconMatchesEl = document.getElementById('recon-matches');
 
     // Quotes DOM refs
@@ -1525,6 +1541,41 @@
       });
     }
 
+    let pendingInvoicePayment = null;
+    function openInvoicePaymentModal(invoiceId) {
+      pendingInvoicePayment = Number(invoiceId || 0) || null;
+      if (invoicePaymentAmountEl) invoicePaymentAmountEl.value = '';
+      invoicePaymentModal?.classList.add('active');
+      invoicePaymentModal?.setAttribute('aria-hidden', 'false');
+      setTimeout(() => invoicePaymentAmountEl?.focus(), 0);
+    }
+    function closeInvoicePaymentModal() {
+      invoicePaymentModal?.classList.remove('active');
+      invoicePaymentModal?.setAttribute('aria-hidden', 'true');
+      pendingInvoicePayment = null;
+    }
+    async function submitInvoicePaymentModal() {
+      const id = Number(pendingInvoicePayment || 0);
+      const amt = Number(invoicePaymentAmountEl?.value || 0);
+      if (!id) { closeInvoicePaymentModal(); return; }
+      if (!Number.isFinite(amt) || amt <= 0) { openErrorModal('Invalid payment amount.'); return; }
+      const eventId = (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : `pay-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const res = await fetch(INVOICE_PAYMENT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        body: JSON.stringify({ id, paymentCents: Math.round(amt * 100), paymentEventId: eventId })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { openErrorModal(data.error || 'Payment update failed'); return; }
+      closeInvoicePaymentModal();
+      if (data.duplicateEvent) {
+        openSuccessModal('Payment already recorded', 'This payment event was already posted to books.');
+      } else {
+        openSuccessModal('Payment recorded', 'Invoice payment was recorded and books were updated.');
+      }
+      await refreshInvoiceList();
+    }
+
     successCloseBtn.addEventListener('click', closeSuccessModal);
     successModal.addEventListener('click', (e) => { if (e.target === successModal) closeSuccessModal(); });
     errorCloseBtn.addEventListener('click', closeErrorModal);
@@ -1555,6 +1606,7 @@
       if (e.key === 'Escape' && userGuideModal?.classList.contains('active')) closeUserGuideModal();
       if (e.key === 'Escape' && ownerTransferModal?.classList.contains('active')) closeOwnerTransferModal();
       if (e.key === 'Escape' && invoiceCreateModal?.classList.contains('active')) closeInvoiceCreateModal();
+      if (e.key === 'Escape' && invoicePaymentModal?.classList.contains('active')) closeInvoicePaymentModal();
       if (e.key === 'Escape' && yearCloseModal?.classList.contains('active')) closeYearCloseWizard();
       if (e.key === 'Escape' && auditPackageModal?.classList.contains('active')) closeAuditPackageModal();
     });
@@ -2836,7 +2888,7 @@
             <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="email" data-invoice-id="${id}">Send Invoice Email</button>
             <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="sent" data-invoice-id="${id}" title="Updates status to 'sent' without sending an email. Use if you sent the invoice another way.">Mark Sent</button>
             <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="paid" data-invoice-id="${id}">Mark Paid</button>
-            <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>
+            ${(Number(inv.balance_due_cents || 0) > 0 && status !== 'paid') ? `<button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="payment" data-invoice-id="${id}">Record Payment</button>` : '<span style="font-size:.82rem; color:var(--muted); padding:.45rem .2rem;">Already paid</span>'}
             <button type="button" class="btn action-pop invoice-action-btn" data-invoice-action="payment-link" data-invoice-id="${id}" data-regenerate="${hasPaymentUrl ? '1' : '0'}">${hasPaymentUrl ? 'Refresh Payment Link' : 'Generate Payment Link'}</button>
             <button type="button" class="btn delete invoice-action-btn" data-invoice-action="delete" data-invoice-id="${id}">Delete</button>
           </div>
@@ -2886,25 +2938,7 @@
       }
 
       if (action === 'payment') {
-        const raw = prompt('Payment amount (USD), e.g. 125.50');
-        if (raw == null) return;
-        const amt = Number(raw);
-        if (!Number.isFinite(amt) || amt <= 0) { openErrorModal('Invalid payment amount.'); return; }
-        const paymentEventId = (window.crypto?.randomUUID?.() || `evt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
-        const res = await fetch(INVOICE_PAYMENT_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify({ id, paymentCents: Math.round(amt * 100), paymentEventId })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { openErrorModal(data.error || 'Payment update failed'); return; }
-        const posted = Number(data.paymentPostedCents || 0) / 100;
-        if (data.duplicateEvent) {
-          openSuccessModal('Payment already recorded', 'This payment event was already processed earlier. No duplicate posting was created.');
-        } else {
-          openSuccessModal('Payment recorded + books updated', `Posted $${posted.toFixed(2)} to accounting and updated invoice balance.`);
-        }
-        await refreshInvoiceList();
+        openInvoicePaymentModal(id);
         return;
       }
 
@@ -3580,6 +3614,9 @@
     invoiceFilterEl?.addEventListener('change', refreshInvoiceList);
     invoiceSortEl?.addEventListener('change', refreshInvoiceList);
     invoiceListEl?.addEventListener('click', handleInvoiceActionClick);
+    invoicePaymentCancelBtn?.addEventListener('click', closeInvoicePaymentModal);
+    invoicePaymentSaveBtn?.addEventListener('click', submitInvoicePaymentModal);
+    invoicePaymentModal?.addEventListener('click', (e) => { if (e.target === invoicePaymentModal) closeInvoicePaymentModal(); });
     accountsYearEl?.addEventListener('change', loadAccountsData);
     accountsFromEl?.addEventListener('change', loadAccountsData);
     accountsToEl?.addEventListener('change', loadAccountsData);
