@@ -458,6 +458,7 @@
               <label>To</label>
               <input id="accounts-to" type="date" style="max-width:170px;" />
               <button type="button" class="btn" id="accounts-refresh-btn">Refresh</button>
+              <button type="button" class="btn" id="accounts-rebuild-auto-journal-btn">Rebuild Auto Journal</button>
             </div>
             <div id="accounts-balance-status" class="admin-calendar-title" style="margin-bottom:.4rem;">Trial Balance: —</div>
             <div class="admin-list" id="accounts-list">No data yet.</div>
@@ -919,6 +920,7 @@
     const ACCOUNTS_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/journal');
     const ACCOUNTS_STATEMENTS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/statements');
     const ACCOUNTS_YEAR_CLOSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/year-close');
+    const ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/rebuild-auto-journal');
     const INVOICES_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices');
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
@@ -1023,6 +1025,7 @@
     const accountsFromEl = document.getElementById('accounts-from');
     const accountsToEl = document.getElementById('accounts-to');
     const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
+    const accountsRebuildAutoJournalBtn = document.getElementById('accounts-rebuild-auto-journal-btn');
     const reconYearEl = document.getElementById('recon-year');
     const reconMonthEl = document.getElementById('recon-month');
     const reconCsvEl = document.getElementById('recon-csv');
@@ -3630,6 +3633,31 @@
     taxExportBtn?.addEventListener('click', downloadTaxCsv);
 
     accountsRefreshBtn?.addEventListener('click', loadAccountsData);
+    accountsRebuildAutoJournalBtn?.addEventListener('click', async () => {
+      if (!adminPassword) {
+        openErrorModal('Unlock admin first.');
+        return;
+      }
+      const proceed = await openConfirmModal(
+        'Rebuild all auto-generated journal entries from current Tax Income/Expense rows?',
+        'Rebuild Auto Journal?',
+        'Rebuild'
+      );
+      if (!proceed) return;
+      try {
+        const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({})
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Rebuild failed');
+        await Promise.all([loadTaxTransactions(), loadAccountsData()]);
+        openSuccessModal('Auto journal rebuilt successfully from current tax rows.', 'Rebuild Complete ✅');
+      } catch (e) {
+        openErrorModal(`Could not rebuild auto journal: ${e.message || e}`);
+      }
+    });
     accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
     auditPackageBtn?.addEventListener('click', openAuditPackageModal);
     reconRunBtn?.addEventListener('click', runReconciliation);
