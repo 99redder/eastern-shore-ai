@@ -360,7 +360,7 @@
 <body>
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
   <a href="#checkout" class="buy-now-float">Buy Now ↓</a>
-  <a href="/zombie-setup.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#f4f9ff; text-decoration:none; background:linear-gradient(145deg,#4b5f80,#7f99bf); border:1px solid rgba(198,220,255,.5); box-shadow:0 0 12px rgba(158,208,255,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
+  <a href="/zombie-setup.html" class="back-btn" style="left:auto; right:1rem;">Ghost Box Setup Guide</a>
 
   <main class="wrap">
     <div class="promo-row">
@@ -418,33 +418,47 @@
     </blockquote>
 
     <article class="card">
-        <h2>Choose Your Kit</h2>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
+          <h2 style="margin:0;">Choose Your Kit</h2>
+          <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
+            <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
+            <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
+          </div>
+        </div>
         <div class="offerings">
-          <section class="kit-card">
+          <section class="kit-card" style="display:flex; flex-direction:column;">
             <h3>Ghost Box: Essential — $349.99</h3>
             <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
-            <ul>
+            <ul style="flex:1;">
               <li>OnePlus 8 5G (8GB RAM, Snapdragon 865) with Offline Brain Software Pre-Installed<br><a href="#" id="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
               <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
               <li>Hard waterproof crushproof case</li>
               <li>Includes 1x Custom Ghost Box PVC Tactical Patch (Removable via Velcro Loop Panel)</li>
             </ul>
+            <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
+              <div class="price" style="font-size:1.4rem; margin:0 0 .5rem;">$349.99</div>
+              <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
+            </div>
           </section>
-          <section class="kit-card pro-kit">
+          <section class="kit-card pro-kit" style="display:flex; flex-direction:column;">
             <span class="kit-ribbon">EMP-Hardened</span>
             <h3>Ghost Box: Pro — $499.99</h3>
             <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
-            <ul>
+            <ul style="flex:1;">
               <li>OnePlus 8 5G (8GB RAM, Snapdragon 865) with Offline Brain Software Pre-Installed</li>
               <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
               <li>Two Faraday bags (phone + battery) with Dual-Layer Mission Darkness TitanRF Shielding <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
               <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
               <li>Includes 1x Custom Ghost Box PVC Tactical Patch (Removable via Velcro Loop Panel)</li>
             </ul>
+            <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
+              <div class="price" style="font-size:1.4rem; margin:0 0 .5rem;">$499.99</div>
+              <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
+            </div>
           </section>
         </div>
 
-        <ul>
+        <ul style="margin-top:.8rem;">
           <li><strong>Solar Power Bank includes built-in cable set:</strong> 2 attached USB-C cables, 1 iOS cable, and 1 extended USB-A input cable.</li>
           <li><strong>Free shipping to all continental US states.</strong></li>
           <li><strong>Free next day delivery in the Eastern Shore MD area.</strong></li>
