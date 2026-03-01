@@ -3153,6 +3153,9 @@ async function ensureAccountingSetup(db) {
     ['5000','Software Expense','expense','debit'],
     ['5100','Marketing Expense','expense','debit'],
     ['5200','Office Expense','expense','debit'],
+    ['5210','Inventory - Ghost Box Components','expense','debit'],
+    ['5220','Shipping - Ghost Box Fulfillment','expense','debit'],
+    ['5230','Packaging - Ghost Box Fulfillment','expense','debit'],
     ['5300','Payment Processing Fees','expense','debit'],
     ['5400','Contractor Expense','expense','debit'],
     ['5500','Travel Expense','expense','debit'],
@@ -3195,7 +3198,16 @@ async function upsertTaxExpenseJournal(db, row) {
   const amount = Number(row.amount_cents || 0);
   if (!Number.isFinite(amount) || amount <= 0) return;
 
-  const expenseAccountCode = row.category === 'Payment Processing Fees' ? '5300' : '5200';
+  const category = (row.category || '').toString().trim();
+  const expenseAccountCodeByCategory = {
+    'Payment Processing Fees': '5300',
+    'Inventory - Ghost Box Components': '5210',
+    'Shipping - Ghost Box Fulfillment': '5220',
+    'Packaging - Ghost Box Fulfillment': '5230',
+    'AI Services': '5000',
+    'Web Services': '5600'
+  };
+  const expenseAccountCode = expenseAccountCodeByCategory[category] || '5200';
   const paidVia = (row.paid_via || '').toLowerCase();
   const notesRaw = (row.notes || '').toString().toLowerCase();
   const isOwnerFunded = Number(row.is_owner_funded || 0) === 1 || notesRaw.includes('[owner-funded]');
@@ -3208,6 +3220,26 @@ async function upsertTaxExpenseJournal(db, row) {
       offsetCode = '2100';
     }
   }
+
+  const accountLabels = {
+    '5000': ['AI Services Expense', 'expense', 'debit'],
+    '5100': ['Marketing Expense', 'expense', 'debit'],
+    '5200': ['Office Expense', 'expense', 'debit'],
+    '5210': ['Inventory - Ghost Box Components', 'expense', 'debit'],
+    '5220': ['Shipping - Ghost Box Fulfillment', 'expense', 'debit'],
+    '5230': ['Packaging - Ghost Box Fulfillment', 'expense', 'debit'],
+    '5300': ['Payment Processing Fees', 'expense', 'debit'],
+    '5400': ['Contractor Expense', 'expense', 'debit'],
+    '5500': ['Travel Expense', 'expense', 'debit'],
+    '5600': ['Web Services Expense', 'expense', 'debit']
+  };
+  const debitDef = accountLabels[expenseAccountCode] || ['Office Expense', 'expense', 'debit'];
+  const creditDef = offsetCode === '1000'
+    ? ['Cash on Hand', 'asset', 'debit']
+    : (offsetCode === '2100' ? ['Credit Card Payable', 'liability', 'credit'] : ['Owner Contributions', 'equity', 'credit']);
+
+  await ensureAccountByCode(db, expenseAccountCode, debitDef[0], debitDef[1], debitDef[2]);
+  await ensureAccountByCode(db, offsetCode, creditDef[0], creditDef[1], creditDef[2]);
 
   const debitAccountId = await getAccountIdByCode(db, expenseAccountCode);
   const creditAccountId = await getAccountIdByCode(db, offsetCode);
