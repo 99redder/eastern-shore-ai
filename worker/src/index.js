@@ -614,8 +614,8 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
 
   const unitAmount = isByogSetup ? '4999' : (isProKit ? '49999' : '34999');
   const productName = isByogSetup
-    ? 'Zombie Case BYOG Setup-Only Service'
-    : (isProKit ? 'Zombie Case Pro Kit' : 'Zombie Case Base Kit');
+    ? 'AI Zombie Case BYOG Setup-Only Service'
+    : (isProKit ? 'AI Zombie Case Pro Kit' : 'AI Zombie Case Base Kit');
   const productDescription = isByogSetup
     ? 'Bring your own gear setup-only service'
     : (isProKit
