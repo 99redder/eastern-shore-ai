@@ -599,9 +599,9 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     data = {};
   }
 
-  const bagColor = (data.bagColor || 'not_selected').toString().trim().toLowerCase();
-  const checkoutType = (data.checkoutType || 'zombie_bag').toString().trim().toLowerCase();
+  const checkoutType = (data.checkoutType || 'base_kit').toString().trim().toLowerCase();
   const isByogSetup = checkoutType === 'byog_setup';
+  const isProKit = checkoutType === 'pro_kit';
   const termsAccepted = data.termsAccepted === true;
 
   if (!termsAccepted) {
@@ -612,20 +612,30 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   const successUrl = `${siteOrigin}/zombies.html?paid=1`;
   const cancelUrl = `${siteOrigin}/zombies.html?canceled=1`;
 
+  const unitAmount = isByogSetup ? '4999' : (isProKit ? '49999' : '34999');
+  const productName = isByogSetup
+    ? 'Zombie Case BYOG Setup-Only Service'
+    : (isProKit ? 'Zombie Case Pro Kit' : 'Zombie Case Base Kit');
+  const productDescription = isByogSetup
+    ? 'Bring your own gear setup-only service'
+    : (isProKit
+      ? '8GB renewed phone + solar power bank + hard waterproof crushproof case + 2 Faraday bags + heavy-duty USB-C cable'
+      : '8GB renewed phone + solar power bank + hard waterproof crushproof case');
+  const productCode = isByogSetup ? 'zombie_case_byog_setup' : (isProKit ? 'zombie_case_pro_kit' : 'zombie_case_base_kit');
+
   const body = new URLSearchParams({
     mode: 'payment',
     success_url: successUrl,
     cancel_url: cancelUrl,
     billing_address_collection: 'required',
     'line_items[0][price_data][currency]': 'usd',
-    'line_items[0][price_data][unit_amount]': isByogSetup ? '4999' : '14999',
-    'line_items[0][price_data][product_data][name]': isByogSetup ? 'Zombie Bag BYOG Setup-Only Service' : 'Zombie Bag',
-    'line_items[0][price_data][product_data][description]': isByogSetup ? 'Bring your own gear setup-only service' : 'Android tablet + solar charger + go bag with pre-installed emergency apps',
+    'line_items[0][price_data][unit_amount]': unitAmount,
+    'line_items[0][price_data][product_data][name]': productName,
+    'line_items[0][price_data][product_data][description]': productDescription,
     'line_items[0][quantity]': '1',
-    'metadata[product]': isByogSetup ? 'zombie_bag_byog_setup' : 'zombie_bag',
-    'metadata[unit_price_cents]': isByogSetup ? '4999' : '14999',
-    'metadata[bag_color]': bagColor,
-    'metadata[checkout_type]': isByogSetup ? 'byog_setup' : 'zombie_bag'
+    'metadata[product]': productCode,
+    'metadata[unit_price_cents]': unitAmount,
+    'metadata[checkout_type]': checkoutType
   });
 
   if (!isByogSetup) {

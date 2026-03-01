@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zombie Bag | Eastern Shore AI</title>
+  <title>Zombie Case | Eastern Shore AI</title>
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/fonts.css" />
@@ -14,16 +14,19 @@
       --line: #272b3f;
       --text: #e8ebf5;
       --muted: #9aa1ba;
-      --cyan: #00e5ff;
-      --violet: #c850ff;
-      --ok: #49e6a1;
-      --pink: #ff4fd8;
+      --cyan: #9dff7a;
+      --violet: #7cff3a;
+      --ok: #ffd166;
+      --pink: #ff5e5e;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(circle at top right, #151936 0%, var(--bg) 45%);
+      background:
+        radial-gradient(circle at 18% 8%, rgba(130, 255, 72, 0.16), transparent 34%),
+        radial-gradient(circle at 88% 2%, rgba(255, 78, 66, 0.12), transparent 28%),
+        linear-gradient(180deg, #10140e 0%, #0a0b10 54%, #0b0c08 100%);
       color: var(--text);
       min-height: 100vh;
     }
@@ -82,6 +85,19 @@
     .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.2rem; }
     ul { padding-left: 1.15rem; margin-top: .6rem; }
     li { margin: .45rem 0; }
+    .offerings {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: .7rem;
+      margin-top: .8rem;
+    }
+    .kit-card {
+      border: 1px solid var(--line);
+      background: #0d1017;
+      padding: .8rem;
+      border-radius: 8px;
+    }
+    .kit-card h3 { margin:.1rem 0 .25rem; color: var(--cyan); font-size:1.05rem; }
     .img-grid {
       margin-top: 1rem;
       display: grid;
@@ -205,6 +221,7 @@
     }
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
+      .offerings { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -212,61 +229,70 @@
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
 
   <main class="wrap">
-    <span class="sale-chip">Father's Day Special</span>
-    <h1>Zombie Bag</h1>
-    <div class="sub">Father's Day Special pre-launch pricing is live for early orders.</div>
+    <span class="sale-chip">Emergency Preparedness</span>
+    <h1>Zombie Case</h1>
+    <div class="sub">Two rugged kit options built for outages, disasters, and long-duration emergency scenarios.</div>
 
     <section class="grid">
       <article class="card">
-        <h2>What You Get</h2>
+        <h2>Choose Your Kit</h2>
+        <div class="offerings">
+          <section class="kit-card">
+            <h3>Base Kit — $349.99</h3>
+            <ul>
+              <li>8GB renewed phone</li>
+              <li>Solar power bank</li>
+              <li>Hard waterproof crushproof case</li>
+              <li>Free tech support included for 30 days</li>
+            </ul>
+          </section>
+          <section class="kit-card">
+            <h3>Pro Kit — $499.99</h3>
+            <ul>
+              <li>Everything in Base Kit</li>
+              <li>Two Faraday bags (phone + battery)</li>
+              <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
+              <li>Free tech support included for 30 days</li>
+            </ul>
+          </section>
+        </div>
+
         <ul>
-          <li>(1) Android Tablet</li>
-          <li>(1) Solar Powered Battery Charger</li>
-          <li>(1) Go Bag (available in camo, black, or olive green)</li>
           <li>Ships to all continental US states, shipping added at checkout.</li>
-          <li><strong>Free Delivery in the Eastern Shore MD area.</strong></li>
-          <li>Pre-installed: Petals, two LLMs (one large, one small), OpenMaps application with all of the United States maps preloaded, Red Cross First Aid App.</li>
-          <li>Note: additional programs were deleted from this tablet to add storage space.</li>
-          <li>A get started application on the main screen is installed that walks users through setup, troubleshooting, updating, and more.</li>
-          <li>Free technical support is included for 30 days.</li>
+          <li><strong>Free delivery in the Eastern Shore MD area.</strong></li>
         </ul>
 
         <div class="img-grid">
           <figure class="shot">
-            <img src="https://picsum.photos/seed/zombiebag1/900/600" alt="Placeholder screenshot 1" />
-            <figcaption>Placeholder screenshot — hardware layout</figcaption>
+            <img src="https://source.unsplash.com/900x600/?survival,kit,phone" alt="Placeholder screenshot of emergency kit with device" />
+            <figcaption>Placeholder — rugged kit layout</figcaption>
           </figure>
           <figure class="shot">
-            <img src="https://picsum.photos/seed/zombiebag2/900/600" alt="Placeholder screenshot 2" />
-            <figcaption>Placeholder screenshot — software setup flow</figcaption>
+            <img src="https://source.unsplash.com/900x600/?solar,powerbank" alt="Placeholder screenshot of solar power bank" />
+            <figcaption>Placeholder — solar charging setup</figcaption>
           </figure>
           <figure class="shot">
-            <img src="https://picsum.photos/seed/zombiebag3/900/600" alt="Placeholder screenshot 3" />
-            <figcaption>Placeholder screenshot — bag & charger</figcaption>
+            <img src="https://source.unsplash.com/900x600/?waterproof,hardcase" alt="Placeholder screenshot of hard waterproof case" />
+            <figcaption>Placeholder — waterproof crushproof case</figcaption>
           </figure>
           <figure class="shot">
-            <img src="https://picsum.photos/seed/zombiebag4/900/600" alt="Placeholder screenshot 4" />
-            <figcaption>Placeholder screenshot — in-field view</figcaption>
+            <img src="https://source.unsplash.com/900x600/?faraday,bag" alt="Placeholder screenshot of Faraday bag style gear" />
+            <figcaption>Placeholder — Faraday protection gear</figcaption>
           </figure>
         </div>
       </article>
 
       <aside class="card">
-        <span class="pill">Pre-launch checkout</span>
+        <span class="pill">Secure checkout</span>
         <h2>Checkout</h2>
-        <div class="price">$149.99 <span class="small">+ shipping</span></div>
-        <p class="small">Price is TBD long-term. Using $149.99 for now.</p>
-        <p class="small"><strong>Father's Day Special:</strong> reserve now before full release pricing updates.</p>
+        <p class="small">Choose your kit below. Shipping options appear in Stripe checkout.</p>
         <p class="small">Eastern Shore MD area customers can select free local delivery at checkout.</p>
 
-        <label for="bag-color">Go Bag Color</label>
-        <select id="bag-color">
-          <option value="camo">Camo</option>
-          <option value="black">Black</option>
-          <option value="olive green">Olive Green</option>
-        </select>
+        <div class="price" style="font-size:1.2rem; margin-bottom:.45rem;">Base Kit — $349.99</div>
+        <button id="buy-base-btn" class="btn" type="button">Buy Base Kit</button>
 
-        <button id="buy-btn" class="btn" type="button">Buy Zombie Bag</button>
+        <div class="price" style="font-size:1.2rem; margin:.9rem 0 .45rem;">Pro Kit — $499.99</div>
+        <button id="buy-pro-btn" class="btn" type="button">Buy Pro Kit</button>
 
         <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line);">
           <h3 style="margin:0 0 .35rem; color:var(--cyan); font-size:1rem;">BYOG Setup-Only</h3>
@@ -276,7 +302,7 @@
             <strong style="color:#dfe8ff;">Tablet System Requirements (BYOG)</strong><br>
             • Android 11 or newer<br>
             • At least 30GB free storage (required)<br>
-            • 4GB RAM minimum (8GB recommended)<br>
+            • 8GB RAM minimum<br>
             • Reliable Wi-Fi connection for setup/updates<br>
             • Working USB-C charging port and cable
           </div>
@@ -285,9 +311,9 @@
         </div>
 
         <div class="status" id="status"></div>
-        <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout for bag purchases.</div>
+        <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout for kit purchases.</div>
 
-        <a class="setup-link" href="/zombie-setup.html">View Zombie Bag Setup Guide →</a>
+        <a class="setup-link" href="/zombie-setup.html">View Zombie Case Setup Guide →</a>
 
         <section class="disclaimer" aria-label="Warranty and Liability Disclaimer">
           <h3>Warranty &amp; Liability Disclaimer</h3>
@@ -299,7 +325,7 @@
           <p><strong>Trademark Notice:</strong> All product names, logos, and brands are property of their respective owners. Use in this kit does not imply affiliation with or endorsement by them.</p>
           <p><strong>Trademark &amp; Affiliation Disclaimer — Independent Seller:</strong> Eastern Shore AI is an independent seller of curated goods and is not an authorized dealer, distributor, or affiliate of the manufacturers of individual items included in this kit.</p>
           <p><strong>Ownership of Marks:</strong> All product names, trademarks, and registered trademarks—including tablet and charger brand marks—are the property of their respective owners.</p>
-          <p><strong>No Endorsement:</strong> Brand names are used solely for identification to describe items included in the Zombie Bag. Reference to these brands does not imply endorsement, sponsorship, or association between trademark owners and Eastern Shore AI.</p>
+          <p><strong>No Endorsement:</strong> Brand names are used solely for identification to describe items included in the Zombie Case. Reference to these brands does not imply endorsement, sponsorship, or association between trademark owners and Eastern Shore AI.</p>
           <p><strong>SOFTWARE MODIFICATION &amp; SUPPORT NOTICE — MODIFIED DEVICE:</strong> This Android tablet has been modified by Eastern Shore AI to include custom offline software suites for emergency preparedness.</p>
           <p><strong>NO MANUFACTURER SUPPORT:</strong> Due to these modifications, the original equipment manufacturer (OEM) may no longer provide technical support, system updates, or warranty services for this device.</p>
           <p><strong>"AS-IS" SOFTWARE:</strong> All pre-installed apps are provided "AS IS" without any express or implied warranties. Eastern Shore AI does not guarantee that the software will be error-free or compatible with future system updates.</p>
@@ -321,7 +347,7 @@
         <p><strong>Trademark Notice:</strong> All product names, logos, and brands are the property of their respective owners. Their use in this kit does not imply any affiliation with or endorsement by them.</p>
         <p><strong>Trademark &amp; Affiliation Disclaimer — Independent Seller:</strong> Eastern Shore AI is an independent seller of curated goods and is not an authorized dealer, distributor, or affiliate of the manufacturers of the individual items included in this kit.</p>
         <p><strong>Ownership of Marks:</strong> All product names, trademarks, and registered trademarks—including but not limited to tablet and charger brand marks—are the property of their respective owners.</p>
-        <p><strong>No Endorsement:</strong> Brand names are used for identification purposes only to accurately describe items contained within the Zombie Bag. Reference to these brands does not imply endorsement, sponsorship, or association between trademark owners and Eastern Shore AI.</p>
+        <p><strong>No Endorsement:</strong> Brand names are used for identification purposes only to accurately describe items contained within the Zombie Case. Reference to these brands does not imply endorsement, sponsorship, or association between trademark owners and Eastern Shore AI.</p>
         <p><strong>SOFTWARE MODIFICATION &amp; SUPPORT NOTICE — MODIFIED DEVICE:</strong> This Android tablet has been modified by Eastern Shore AI to include custom offline software suites for emergency preparedness.</p>
         <p><strong>NO MANUFACTURER SUPPORT:</strong> Due to these modifications, the original equipment manufacturer (OEM) may no longer provide technical support, system updates, or warranty services for this device.</p>
         <p><strong>"AS-IS" SOFTWARE:</strong> All pre-installed apps are provided "AS IS" without any express or implied warranties. Eastern Shore AI does not guarantee that the software will be error-free or compatible with future system updates.</p>
@@ -342,10 +368,10 @@
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
 
-    const buyBtn = document.getElementById('buy-btn');
+    const buyBaseBtn = document.getElementById('buy-base-btn');
+    const buyProBtn = document.getElementById('buy-pro-btn');
     const byogBtn = document.getElementById('byog-btn');
     const status = document.getElementById('status');
-    const colorEl = document.getElementById('bag-color');
 
     const termsOverlay = document.getElementById('terms-overlay');
     const termsCheck = document.getElementById('terms-check');
@@ -355,7 +381,8 @@
 
     async function startCheckout(payload) {
       status.textContent = 'Redirecting to secure checkout...';
-      buyBtn.disabled = true;
+      buyBaseBtn.disabled = true;
+      buyProBtn.disabled = true;
       byogBtn.disabled = true;
 
       try {
@@ -373,7 +400,8 @@
         window.location.href = data.checkoutUrl;
       } catch (err) {
         status.textContent = err.message || 'Could not start checkout. Please try again.';
-        buyBtn.disabled = false;
+        buyBaseBtn.disabled = false;
+        buyProBtn.disabled = false;
         byogBtn.disabled = false;
       }
     }
@@ -406,8 +434,12 @@
       startCheckout(payload);
     });
 
-    buyBtn.addEventListener('click', () => {
-      openTerms({ bagColor: colorEl.value, checkoutType: 'zombie_bag' });
+    buyBaseBtn.addEventListener('click', () => {
+      openTerms({ checkoutType: 'base_kit' });
+    });
+
+    buyProBtn.addEventListener('click', () => {
+      openTerms({ checkoutType: 'pro_kit' });
     });
 
     byogBtn.addEventListener('click', () => {
