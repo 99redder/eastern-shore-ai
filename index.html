@@ -124,9 +124,9 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      max-width: 1100px;
+      max-width: 1220px;
       margin: 0 auto;
-      padding: 0 1.5rem;
+      padding: 0 .8rem;
       height: 56px;
     }
     .header-logo {
@@ -138,6 +138,7 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       text-decoration: none;
+      margin-left: -10px;
     }
     .header-logo span { color: var(--cyan); }
     /* ===== Logo Glitch ===== */
@@ -171,7 +172,7 @@
     }
     .header-logo.glitching::before { animation: glitch-top 0.55s steps(2) forwards; }
     .header-logo.glitching::after  { animation: glitch-bot 0.55s steps(2) forwards; }
-    .header-nav { display: flex; gap: 1.5rem; margin-left: auto; }
+    .header-nav { display: flex; gap: 1rem; margin-left: auto; }
     .header-nav a {
       color: var(--muted);
       font-size: 0.9rem;
