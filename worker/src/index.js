@@ -612,7 +612,7 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   const successUrl = `${siteOrigin}/ghostbox.html?paid=1`;
   const cancelUrl = `${siteOrigin}/ghostbox.html?canceled=1`;
 
-  const unitAmount = isByogSetup ? '4999' : (isProKit ? '49999' : '34999');
+  const unitAmount = isByogSetup ? '6999' : (isProKit ? '49999' : '34999');
   const productName = isByogSetup
     ? 'Ghost Box BYOG Setup-Only Service'
     : (isProKit ? 'Ghost Box Pro Kit' : 'Ghost Box Base Kit');
@@ -621,13 +621,22 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     : (isProKit
       ? 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Dual-Layer Mission Darkness TitanRF shielding + braided fail-safe USB-C cable'
       : 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Offline Brain Software');
-  const productCode = isByogSetup ? 'zombie_case_byog_setup' : (isProKit ? 'zombie_case_pro_kit' : 'zombie_case_base_kit');
+  const productCode = isByogSetup ? 'ghost_box_byog_setup' : (isProKit ? 'ghost_box_pro_kit' : 'ghost_box_essential_kit');
+
+  const contiguousStates = new Set([
+    'AL','AZ','AR','CA','CO','CT','DE','FL','GA','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'
+  ]);
+  const requestedState = (data.shippingState || '').toString().trim().toUpperCase();
+  if (!contiguousStates.has(requestedState)) {
+    return json({ ok: false, error: 'Checkout is only available for shipping addresses in the continental United States.' }, 400, corsHeaders);
+  }
 
   const body = new URLSearchParams({
     mode: 'payment',
     success_url: successUrl,
     cancel_url: cancelUrl,
     billing_address_collection: 'required',
+    'shipping_address_collection[allowed_countries][0]': 'US',
     'line_items[0][price_data][currency]': 'usd',
     'line_items[0][price_data][unit_amount]': unitAmount,
     'line_items[0][price_data][product_data][name]': productName,
@@ -635,21 +644,19 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     'line_items[0][quantity]': '1',
     'metadata[product]': productCode,
     'metadata[unit_price_cents]': unitAmount,
-    'metadata[checkout_type]': checkoutType
+    'metadata[checkout_type]': checkoutType,
+    'metadata[shipping_state_requested]': requestedState,
+    'custom_text[shipping_address][message]': 'Shipping is limited to the continental U.S. Free shipping included.'
   });
 
-  if (!isByogSetup) {
-    body.set('shipping_address_collection[allowed_countries][0]', 'US');
-    body.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
-    body.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', '0');
-    body.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'usd');
-    body.set('shipping_options[0][shipping_rate_data][display_name]', 'Free Delivery (Eastern Shore, MD area)');
-    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
-    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', '1');
-    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
-    body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '3');
-
-  }
+  body.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
+  body.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', '0');
+  body.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'usd');
+  body.set('shipping_options[0][shipping_rate_data][display_name]', 'Free Shipping (Continental U.S.)');
+  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
+  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', '7');
+  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
+  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '14');
 
   const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
