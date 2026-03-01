@@ -616,9 +616,9 @@
   </div>
 
   <div class="terms-overlay" id="software-modal" aria-hidden="true">
-    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="software-title" style="width:min(920px,98vw);">
-      <h3 id="software-title" style="margin:0 0 .7rem;">What software comes preloaded?</h3>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem; max-height:56vh;">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="software-title" style="width:min(920px,98vw); overflow-y:auto; display:flex; flex-direction:column;">
+      <h3 id="software-title" style="margin:0 0 .7rem; color:var(--cyan); flex-shrink:0;">What software comes preloaded?</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem; flex:1; min-height:0; overflow:hidden;">
 
         <!-- Essential column -->
         <div style="display:flex; flex-direction:column; min-height:0;">
@@ -677,8 +677,8 @@
         </div>
 
       </div>
-      <div style="margin-top:.6rem; font-size:.78rem; color:var(--muted); font-style:italic;">Specific apps and versions may vary. All software runs fully offline — no internet connection required after setup.</div>
-      <div class="terms-actions" style="margin-top:.6rem;">
+      <div style="margin-top:.6rem; font-size:.78rem; color:var(--muted); font-style:italic; flex-shrink:0;">Specific apps and versions may vary. All software runs fully offline — no internet connection required after setup.</div>
+      <div class="terms-actions" style="margin-top:.6rem; flex-shrink:0;">
         <button type="button" class="btn" id="software-close" style="width:auto; min-width:180px;">Got it</button>
       </div>
     </div>
