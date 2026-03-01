@@ -311,19 +311,59 @@
       cursor: pointer;
       font-weight: 700;
     }
+    .buy-now-float {
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6000;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.6rem 1.2rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-size: 0.78rem;
+      color: #071219;
+      text-decoration: none;
+      background: linear-gradient(90deg, var(--cyan), #6ef4ff);
+      border: 1px solid rgba(158, 240, 255, 0.6);
+      box-shadow: 0 0 18px rgba(158, 208, 255, 0.5);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+      white-space: nowrap;
+    }
+    .buy-now-float:hover { filter: brightness(1.08); }
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: .9rem;
+      margin-top: .8rem;
+    }
+    .checkout-option {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0d1017;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .checkout-option .btn { margin-top: auto; }
     @media (max-width: 900px) {
       .promo-row { grid-template-columns: 1fr; }
       .promo-ghost-left { max-width:90px; margin-bottom:.25rem; }
-      .grid { grid-template-columns: 1fr; }
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
       .brain-grid { grid-template-columns: 1fr; }
       .offerings { grid-template-columns: 1fr; }
+      .checkout-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
+  <a href="#checkout" class="buy-now-float">Buy Now ↓</a>
   <a href="/userguide.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#f4f9ff; text-decoration:none; background:linear-gradient(145deg,#4b5f80,#7f99bf); border:1px solid rgba(198,220,255,.5); box-shadow:0 0 12px rgba(158,208,255,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
 
   <main class="wrap">
@@ -382,8 +422,7 @@
       "Information is the ultimate survival resource, but in a crisis, your digital footprint is your greatest liability. The Ghost Box was engineered to provide the intelligence of the modern world with the invisibility of the old one. No pings. No tracking. No compromise. Just pure, hardened knowledge when you need it most."
     </blockquote>
 
-    <section class="grid">
-      <article class="card">
+    <article class="card">
         <h2>Choose Your Kit</h2>
         <div class="offerings">
           <section class="kit-card">
@@ -486,36 +525,44 @@
           </section>
         </section>
 
-      </article>
+    </article>
 
-      <aside class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
+    <section class="card" id="checkout" style="margin-top:1rem;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.5rem;">
+        <h2 style="margin:0;">Get Your Ghost Box</h2>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
           <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
           <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
         </div>
-        <h2 style="margin-top:.7rem;">Get Your Ghost Box</h2>
-        <p class="small">Choose your kit below. Free shipping is already included.</p>
+      </div>
+      <p class="small" style="margin:0 0 .2rem;">Choose your kit below. Free shipping is already included.</p>
 
-        <div class="price" style="font-size:1.2rem; margin-bottom:.45rem;">Ghost Box: Essential — $349.99</div>
-        <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
-
-        <div class="price" style="font-size:1.2rem; margin:.9rem 0 .45rem;">Ghost Box: Pro — $499.99</div>
-        <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
-
-        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line);">
-          <h3 style="margin:0 0 .35rem; color:var(--cyan); font-size:1rem;">BYOG Setup-Only Service</h3>
-          <p class="small" style="margin:.15rem 0 .4rem;">Bring your own phone and we handle secure Ghost Box software setup.</p>
-          <div class="price" style="font-size:1.1rem; margin:0 0 .45rem;">$49.99 <span class="small">setup service</span></div>
-          <button id="byog-btn" class="btn" type="button">BYOG Setup Only — $49.99</button>
-          <p class="small" style="margin:.45rem 0 0;"><strong>Free tech support included for 30 days.</strong></p>
+      <div class="checkout-grid">
+        <div class="checkout-option">
+          <h3 style="margin:0 0 .2rem; color:var(--cyan); font-size:1.05rem;">Ghost Box: Essential</h3>
+          <p class="small" style="margin:.1rem 0 .6rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit</strong></p>
+          <div class="price" style="font-size:1.5rem; margin:0 0 .7rem;">$349.99</div>
+          <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
         </div>
+        <div class="checkout-option" style="border-color: rgba(199,166,255,.4);">
+          <h3 style="margin:0 0 .2rem; color:var(--violet); font-size:1.05rem;">Ghost Box: Pro <span style="font-size:.7rem; background:linear-gradient(145deg,#8fbaf2,#c7a6ff); color:#0d1524; padding:.15rem .45rem; border-radius:4px; margin-left:.3rem; vertical-align:middle; font-weight:700; letter-spacing:.03em; text-transform:uppercase;">EMP-Hardened</span></h3>
+          <p class="small" style="margin:.1rem 0 .6rem; color:#d8ffb7;"><strong>Total Electronic Sovereignty</strong></p>
+          <div class="price" style="font-size:1.5rem; margin:0 0 .7rem;">$499.99</div>
+          <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
+        </div>
+        <div class="checkout-option" style="border-color: rgba(158,208,255,.25);">
+          <h3 style="margin:0 0 .2rem; color:var(--cyan); font-size:1.05rem;">BYOG Setup-Only</h3>
+          <p class="small" style="margin:.1rem 0 .6rem;">Bring your own phone and we handle secure Ghost Box software setup.</p>
+          <div class="price" style="font-size:1.5rem; margin:0 0 .3rem;">$49.99</div>
+          <p class="small" style="margin:0 0 .6rem;"><strong>Free tech support included for 30 days.</strong></p>
+          <button id="byog-btn" class="btn" type="button">BYOG Setup Only — $49.99</button>
+        </div>
+      </div>
 
-        <div class="status" id="status"></div>
-        <div class="note">Secure checkout is handled by Stripe. Free shipping is included for all kits.</div>
+      <div class="status" id="status"></div>
+      <div class="note">Secure checkout is handled by Stripe. Free shipping is included for all kits.</div>
 
-        <a class="setup-link" href="/zombie-setup.html">View Ghost Box Setup Guide →</a>
-
-      </aside>
+      <a class="setup-link" href="/zombie-setup.html">View Ghost Box Setup Guide →</a>
     </section>
   </main>
 
