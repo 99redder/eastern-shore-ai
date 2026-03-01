@@ -2374,6 +2374,7 @@
           receiptInput.value = '';
         }
         clearTaxExpenseForm();
+        setTaxEntryMode('none');
         await loadTaxTransactions();
         await loadAccountsData();
         openSuccessModal(isEdit ? 'Expense record updated successfully.' : 'Expense record added successfully.', isEdit ? 'Expense Updated ✅' : 'Expense Added ✅');
@@ -2457,6 +2458,7 @@
           receiptInput.value = '';
         }
         clearTaxIncomeForm();
+        setTaxEntryMode('none');
         await loadTaxTransactions();
         await loadAccountsData();
         openSuccessModal(isEdit ? 'Income record updated successfully.' : 'Income record added successfully.', isEdit ? 'Income Updated ✅' : 'Income Added ✅');
