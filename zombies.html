@@ -54,7 +54,7 @@
     .back-btn:hover { filter: brightness(1.1); }
 
     .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
-    .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem 0 .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
+    .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem auto .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
     h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
     .sub { color: var(--muted); margin-bottom: 1.2rem; }
     .sale-chip {
@@ -88,9 +88,15 @@
     li { margin: .45rem 0; }
     .ghost-intro {
       display:grid;
-      grid-template-columns: 1.25fr .75fr;
+      grid-template-columns: 1fr 1.2fr .8fr;
       gap:.9rem;
       align-items:center;
+    }
+    .ghost-intro-side {
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#0d111b;
+      padding:.7rem;
     }
     .ghost-intro img {
       width:100%;
@@ -293,6 +299,9 @@
 
     <section class="card" style="margin:0 0 1rem; max-width: 100%;">
       <div class="ghost-intro">
+        <div class="ghost-intro-side small">
+          A custom loaded phone loaded with survival apps, a fully offline enabled AI LLM chat bot, maps, and more. Keep your device running with the included solar charged battery pack with built in charging cables.
+        </div>
         <div>
           <h2 style="margin:0 0 .35rem; color:var(--cyan);">What is a Ghost Box?</h2>
           <p class="small" style="margin:0;">A Ghost Box is a device that exists but cannot be seen. By stripping away tracking software, de-googled the OS, and shielding the hardware in military-grade Faraday mesh, we’ve created a tool that provides the intelligence of a modern smartphone with the invisibility of a paper map. No pings, no tracking, no footprint.</p>
