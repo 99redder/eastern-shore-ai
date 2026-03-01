@@ -8,22 +8,23 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/fonts.css" />
   <style>
-    :root { --bg:#0b0c08; --card:#11150f; --line:#2b3a26; --text:#e8ebd9; --muted:#b2bb9a; --accent:#9dff7a; }
+    :root { --bg:#0b0d13; --card:#131926; --line:#2a3348; --text:#eaf1ff; --muted:#a5b1c8; --accent:#9ed0ff; }
     * { box-sizing:border-box; }
     body {
       margin:0;
       font-family:'Titillium Web', system-ui, sans-serif;
       color:var(--text);
-      background: radial-gradient(circle at 20% 8%, rgba(157,255,122,.12), transparent 35%), linear-gradient(180deg,#11150f,#0b0c08 60%);
+      background: radial-gradient(circle at 20% 8%, rgba(158,208,255,.14), transparent 35%), linear-gradient(180deg,#121723,#0b0d13 60%);
     }
     .wrap { max-width: 980px; margin: 0 auto; padding: 2rem 1rem 3rem; }
     .back {
-      position: fixed; top:1rem; left:1rem; z-index:20; text-decoration:none; color:#fff; font-weight:700; font-size:.8rem;
-      padding:.55rem .9rem; background:linear-gradient(145deg,#8b0000,#c1121f); border:1px solid rgba(255,80,80,.55);
+      position: fixed; top:1rem; left:1rem; z-index:20; text-decoration:none; color:#f4f9ff; font-weight:700; font-size:.8rem;
+      padding:.55rem .9rem; background:linear-gradient(145deg,#5f7597,#8fa6c8); border:1px solid rgba(198,220,255,.55);
     }
+    .ghost-logo { width:min(280px,70vw); display:block; margin:.2rem 0 .75rem; filter: drop-shadow(0 0 16px rgba(158,208,255,.25)); }
     .card { background:var(--card); border:1px solid var(--line); padding:1rem; margin-top:.9rem; }
     h1 { margin:.2rem 0 .4rem; font-size: clamp(1.4rem, 2.8vw, 2.2rem); color:var(--accent); }
-    h2 { margin:.1rem 0 .4rem; font-size:1.1rem; color:#d6ffb5; }
+    h2 { margin:.1rem 0 .4rem; font-size:1.1rem; color:#d8e8ff; }
     p, li { color:var(--text); }
     .muted { color:var(--muted); }
     ul { margin:.25rem 0 .2rem 1.1rem; }
@@ -33,6 +34,7 @@
 <body>
   <a class="back" href="/zombies.html">← Back to Ghost Box</a>
   <main class="wrap">
+    <img src="/images/ghostlogo.png" alt="Ghost Box logo" class="ghost-logo" />
     <h1>🛡️ Survivor’s Operations Manual: Ghost Box</h1>
     <p class="muted"><strong>Model:</strong> OnePlus 8 5G "Hardened Edition" | <strong>Storage:</strong> All-Weather Vault</p>
 
