@@ -363,7 +363,7 @@
 </head>
 <body>
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
-  <a href="#choose-kit" class="buy-now-float">Buy Now ↓</a>
+  <a href="#choose-kit" class="buy-now-float" onclick="event.preventDefault(); document.getElementById('choose-kit').scrollIntoView({behavior:'smooth',block:'end'});">Buy Now ↓</a>
   <a href="/ghost-setup.html" class="back-btn" style="left:auto; right:1rem;">Ghost Box Users Guide</a>
 
   <main class="wrap">
