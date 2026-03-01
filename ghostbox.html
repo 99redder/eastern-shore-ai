@@ -54,6 +54,8 @@
     .back-btn:hover { filter: brightness(1.1); }
 
     .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
+    .promo-row { display:grid; grid-template-columns: 120px 1fr; gap:.7rem; align-items:start; margin-bottom: 1rem; }
+    .promo-ghost-left { width:100%; max-width:110px; justify-self:start; filter: drop-shadow(0 0 14px rgba(158,208,255,.22)); }
     .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem auto .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
     h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
     .sub { color: var(--muted); margin-bottom: 1.2rem; }
@@ -269,6 +271,8 @@
       font-weight: 700;
     }
     @media (max-width: 900px) {
+      .promo-row { grid-template-columns: 1fr; }
+      .promo-ghost-left { max-width:90px; margin-bottom:.25rem; }
       .grid { grid-template-columns: 1fr; }
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
@@ -282,12 +286,15 @@
   <a href="/userguide.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#f4f9ff; text-decoration:none; background:linear-gradient(145deg,#4b5f80,#7f99bf); border:1px solid rgba(198,220,255,.5); box-shadow:0 0 12px rgba(158,208,255,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
 
   <main class="wrap">
-    <div class="card" style="margin: .1rem 0 1rem; border-color: rgba(157,255,122,.35); background: linear-gradient(160deg, rgba(157,255,122,.08), rgba(255,94,94,.06));">
-      <h2 style="margin:0 0 .4rem; font-size:1.05rem; color:#d9ffb2;">Father’s Day Special: Give Dad the Gift of Real-World Readiness</h2>
-      <p class="small" style="margin:0; color:#d9deef;">The ultimate high end gift for Dad. Ghost Box gives him a hardened AI device with 3 fully downloaded and offline available large language models (LLMs), complete offline maps of the entire continental United States, and dozens of offline survival apps covering everything from first aid to how to tie useful knots to what plants you can (or can't!) eat by utilizing the phone's camera. The included solar battery ensures your device will always be ready to use and has 4 built in cables, a flashlight, emergency strobe, and a compass. Upgrade to our Pro version also includes two Faraday bags to keep your devices EMP hardened and a heavy duty back up cable for charging. If your dad likes being prepared, practical, and one step ahead — he’s going to love this.</p>
+    <div class="promo-row">
+      <img src="/images/ghostlogo3.png" alt="Ghost Box ghost mark" class="promo-ghost-left" />
+      <div class="card" style="margin: .1rem 0 0; border-color: rgba(157,255,122,.35); background: linear-gradient(160deg, rgba(157,255,122,.08), rgba(255,94,94,.06));">
+        <h2 style="margin:0 0 .4rem; font-size:1.05rem; color:#d9ffb2;">Father’s Day Special: Give Dad the Gift of Real-World Readiness</h2>
+        <p class="small" style="margin:0; color:#d9deef;">The ultimate high end gift for Dad. Ghost Box gives him a hardened AI device with 3 fully downloaded and offline available large language models (LLMs), complete offline maps of the entire continental United States, and dozens of offline survival apps covering everything from first aid to how to tie useful knots to what plants you can (or can't!) eat by utilizing the phone's camera. The included solar battery ensures your device will always be ready to use and has 4 built in cables, a flashlight, emergency strobe, and a compass. Upgrade to our Pro version also includes two Faraday bags to keep your devices EMP hardened and a heavy duty back up cable for charging. If your dad likes being prepared, practical, and one step ahead — he’s going to love this.</p>
+      </div>
     </div>
 
-    <img src="/images/ghostlogo3.png" alt="Ghost Box logo" class="ghost-logo" />
+    <img src="/images/ghostlogo.png" alt="Ghost Box logo" class="ghost-logo" />
     <h1>Ghost Box</h1>
     <div class="sub" style="margin-top:-.15rem; margin-bottom:1rem;">Emergency Preparedness in the age of AI</div>
 
@@ -415,21 +422,6 @@
         <div class="price" style="font-size:1.2rem; margin:.9rem 0 .45rem;">Ghost Box: Pro — $499.99</div>
         <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
 
-        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line);">
-          <h3 style="margin:0 0 .35rem; color:var(--cyan); font-size:1rem;">Device System Requirements</h3>
-          <p class="small" style="margin:.25rem 0 .35rem;">Bring your own phone (BYOG) and we handle setup only.</p>
-          <p class="small" style="margin:0 0 .6rem;"><strong>Available only in the Eastern Shore, MD area.</strong></p>
-          <div class="small" style="margin:0 0 .65rem; padding:.55rem .6rem; border:1px solid var(--line); background:#0f1321; border-radius:6px;">
-            <strong style="color:#dfe8ff;">Phone System Requirements (BYOG)</strong><br>
-            • Android 11 or newer<br>
-            • At least 30GB free storage (required)<br>
-            • 8GB RAM minimum<br>
-            • Reliable Wi-Fi connection for setup/updates<br>
-            • Working USB-C charging port and cable
-          </div>
-          <div class="price" style="font-size:1.2rem; margin-bottom:.55rem;">$49.99 <span class="small">setup service</span></div>
-          <button id="byog-btn" class="btn" type="button">BYOG Setup Only — $49.99</button>
-        </div>
 
         <div class="status" id="status"></div>
         <div class="note">Secure checkout is handled by Stripe. Free shipping is included for all kits.</div>
@@ -549,7 +541,6 @@
 
     const buyBaseBtn = document.getElementById('buy-base-btn');
     const buyProBtn = document.getElementById('buy-pro-btn');
-    const byogBtn = document.getElementById('byog-btn');
     const status = document.getElementById('status');
 
     const termsOverlay = document.getElementById('terms-overlay');
@@ -568,7 +559,6 @@
       status.textContent = 'Redirecting to secure checkout...';
       buyBaseBtn.disabled = true;
       buyProBtn.disabled = true;
-      byogBtn.disabled = true;
 
       try {
         const res = await fetch(ZOMBIE_CHECKOUT_URL, {
@@ -587,7 +577,6 @@
         status.textContent = err.message || 'Could not start checkout. Please try again.';
         buyBaseBtn.disabled = false;
         buyProBtn.disabled = false;
-        byogBtn.disabled = false;
       }
     }
 
@@ -659,9 +648,6 @@
       openTerms({ checkoutType: 'pro_kit' });
     });
 
-    byogBtn.addEventListener('click', () => {
-      openTerms({ checkoutType: 'byog_setup' });
-    });
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') === '1') {
