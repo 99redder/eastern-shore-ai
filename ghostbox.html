@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ghost Box | Eastern Shore AI</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card: #131926;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #c7a6ff;
+      --ok: #b8f0ff;
+      --pink: #d8c2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(190, 220, 255, 0.16), transparent 35%),
+        radial-gradient(circle at 86% 6%, rgba(208, 188, 255, 0.14), transparent 32%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 58%, #090b11 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .back-btn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 6000;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.6rem 0.95rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.78rem;
+      color: #f4f9ff;
+      text-decoration: none;
+      background: linear-gradient(145deg, #5f7597, #8fa6c8);
+      border: 1px solid rgba(198, 220, 255, 0.55);
+      box-shadow: 0 0 12px rgba(158, 208, 255, 0.35);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+    }
+    .back-btn:hover { filter: brightness(1.1); }
+
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
+    .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem auto .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
+    h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
+    .sub { color: var(--muted); margin-bottom: 1.2rem; }
+    .sale-chip {
+      display: inline-block;
+      margin-bottom: .8rem;
+      padding: .38rem .68rem;
+      border: 1px solid rgba(173, 210, 255, 0.55);
+      box-shadow: 0 0 14px rgba(158, 208, 255, 0.30);
+      color: #e9f4ff;
+      background: linear-gradient(145deg, rgba(158,208,255,0.22), rgba(199,166,255,0.16));
+      font-family: 'Hanken Grotesk', sans-serif;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+      padding: 1rem;
+    }
+    .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.2rem; }
+    ul { padding-left: 1.15rem; margin-top: .6rem; }
+    li { margin: .45rem 0; }
+    .ghost-intro {
+      display:grid;
+      grid-template-columns: 1fr 1.2fr .8fr;
+      gap:.9rem;
+      align-items:center;
+    }
+    .ghost-intro-side {
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#0d111b;
+      padding:.7rem;
+    }
+    .ghost-intro img {
+      width:100%;
+      max-width:280px;
+      justify-self:end;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#0b1018;
+      padding:.35rem;
+    }
+
+    .brain-grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:.7rem;
+      margin: .35rem 0 1rem;
+    }
+    .brain-col {
+      border:1px solid var(--line);
+      background:#0d1017;
+      border-radius:8px;
+      padding:.75rem;
+    }
+    .brain-col .icon { font-size:1.1rem; margin-bottom:.2rem; }
+    .brain-col h3 { margin:.05rem 0 .25rem; color:var(--cyan); font-size:1rem; }
+
+    .offerings {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: .7rem;
+      margin-top: .8rem;
+    }
+    .kit-card {
+      position: relative;
+      border: 1px solid var(--line);
+      background: #0d1017;
+      padding: .8rem;
+      border-radius: 8px;
+    }
+    .kit-card.pro-kit { padding-top: 1.35rem; overflow: hidden; }
+    .kit-ribbon {
+      position:absolute;
+      top:12px;
+      right:-34px;
+      transform:rotate(34deg);
+      background:linear-gradient(145deg,#8fbaf2,#c7a6ff);
+      color:#0d1524;
+      font-size:.66rem;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:.22rem 2rem;
+      box-shadow:0 0 0 1px rgba(0,0,0,.2) inset;
+      pointer-events:none;
+    }
+    .kit-card h3 { margin:.1rem 0 .25rem; color: var(--cyan); font-size:1.05rem; }
+    .img-grid {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: .7rem;
+    }
+    .shot {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #090b12;
+    }
+    .shot img { width: 100%; display: block; aspect-ratio: 16 / 10; object-fit: cover; }
+    .shot figcaption { font-size: .78rem; color: var(--muted); padding: .45rem .55rem; }
+    .price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ok);
+      margin: .2rem 0 .4rem;
+    }
+    .small { color: var(--muted); font-size: .9rem; }
+    .pill {
+      display: inline-block;
+      padding: .3rem .55rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .78rem;
+      margin-bottom: .75rem;
+    }
+    label { display: block; font-size: .92rem; color: var(--muted); margin-bottom: .35rem; }
+    select {
+      width: 100%;
+      background: #0c0f1b;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: .75rem;
+      margin-bottom: .9rem;
+    }
+    .btn {
+      width: 100%;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: .01em;
+      padding: .88rem 1rem;
+      color: #071219;
+      background: linear-gradient(90deg, var(--cyan), #6ef4ff);
+      border-radius: 8px;
+    }
+    .btn:hover { filter: brightness(1.06); }
+    .status { margin-top: .7rem; min-height: 1.2rem; color: var(--muted); font-size: .88rem; }
+    .note { margin-top: .8rem; font-size: .84rem; color: var(--muted); }
+    .setup-link {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      display: block;
+      color: var(--cyan);
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .setup-link:hover { color: #8df3ff; }
+    .disclaimer {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.45;
+    }
+    .disclaimer h3 {
+      margin: 0 0 .5rem;
+      color: #ffd7f8;
+      font-size: .95rem;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .disclaimer p { margin: 0 0 .5rem; }
+    .terms-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 7000;
+      padding: 1rem;
+    }
+    .terms-modal {
+      width: min(760px, 98vw);
+      max-height: 92vh;
+      overflow: hidden;
+      background: linear-gradient(160deg, #141620, #10121a);
+      border: 1px solid var(--line);
+      padding: 1rem;
+    }
+    .terms-modal h3 { margin: 0 0 .55rem; color: #ffd7f8; }
+    .terms-scroll {
+      max-height: 52vh;
+      overflow: auto;
+      border: 1px solid var(--line);
+      background: #0f1321;
+      padding: .7rem;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.45;
+      margin-bottom: .7rem;
+    }
+    .terms-scroll p { margin: 0 0 .55rem; }
+    .terms-actions { display: flex; gap: .6rem; justify-content: flex-end; }
+    .btn-outline {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      padding: .68rem .9rem;
+      border-radius: 7px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .ghost-intro { grid-template-columns: 1fr; }
+      .ghost-intro img { justify-self:start; max-width:220px; }
+      .brain-grid { grid-template-columns: 1fr; }
+      .offerings { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
+  <a href="/userguide.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#f4f9ff; text-decoration:none; background:linear-gradient(145deg,#4b5f80,#7f99bf); border:1px solid rgba(198,220,255,.5); box-shadow:0 0 12px rgba(158,208,255,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
+
+  <main class="wrap">
+    <div class="card" style="margin: .1rem 0 1rem; border-color: rgba(157,255,122,.35); background: linear-gradient(160deg, rgba(157,255,122,.08), rgba(255,94,94,.06));">
+      <h2 style="margin:0 0 .4rem; font-size:1.05rem; color:#d9ffb2;">Father’s Day Special: Give Dad the Gift of Real-World Readiness</h2>
+      <p class="small" style="margin:0; color:#d9deef;">The ultimate high end gift for Dad. Ghost Box gives him a hardened AI device with 3 fully downloaded and offline available large language models (LLMs), complete offline maps of the entire continental United States, and dozens of offline survival apps covering everything from first aid to how to tie useful knots to what plants you can (or can't!) eat by utilizing the phone's camera. The included solar battery ensures your device will always be ready to use and has 4 built in cables, a flashlight, emergency strobe, and a compass. Upgrade to our Pro version also includes two Faraday bags to keep your devices EMP hardened and a heavy duty back up cable for charging. If your dad likes being prepared, practical, and one step ahead — he’s going to love this.</p>
+    </div>
+
+    <img src="/images/ghostlogo.png" alt="Ghost Box logo" class="ghost-logo" />
+    <h1>Ghost Box</h1>
+    <div class="sub" style="margin-top:-.15rem; margin-bottom:1rem;">Emergency Preparedness in the age of AI</div>
+
+    <section class="card" style="margin:0 0 1rem; max-width: 100%;">
+      <div class="ghost-intro">
+        <div class="ghost-intro-side small">
+          A custom loaded phone loaded with survival apps, a fully offline enabled AI LLM chat bot, maps, and more. Keep your device running with the included solar charged battery pack with built in charging cables.
+        </div>
+        <div>
+          <h2 style="margin:0 0 .35rem; color:var(--cyan);">What is a Ghost Box?</h2>
+          <p class="small" style="margin:0;">A Ghost Box is a device that exists but cannot be seen. By stripping away tracking software, de-googled the OS, and shielding the hardware in military-grade Faraday mesh, we’ve created a tool that provides the intelligence of a modern smartphone with the invisibility of a paper map. No pings, no tracking, no footprint.</p>
+        </div>
+        <img src="/images/ghostboxlogo2.png" alt="Ghost Box mark" />
+      </div>
+    </section>
+
+    <h2 style="margin:0 0 .45rem; color:var(--cyan);">The Brain: Offline Software Suite</h2>
+    <section class="brain-grid" aria-label="The Brain Offline Software Suite">
+      <article class="brain-col">
+        <div class="icon">◈</div>
+        <h3>The Brain: Offline Software Suite — Offline Knowledge</h3>
+        <p class="small">50GB+ of pre-loaded data including global maps, a full medical wiki, and survival libraries for no-signal scenarios.</p>
+      </article>
+      <article class="brain-col">
+        <div class="icon">◉</div>
+        <h3>Local AI</h3>
+        <p class="small">A privacy-focused Large Language Model (LLM) runs entirely offline with zero data tracking.</p>
+      </article>
+      <article class="brain-col">
+        <div class="icon">⬢</div>
+        <h3>Hardened OS</h3>
+        <p class="small">Runs a de-googled, open-source OS optimized for maximum battery life and security. All tracking bloatware has been removed to ensure zero-footprint operation.</p>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Choose Your Kit</h2>
+        <div class="offerings">
+          <section class="kit-card">
+            <h3>Ghost Box: Essential — $349.99</h3>
+            <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
+            <ul>
+              <li>OnePlus 8 5G (8GB RAM, Snapdragon 865) with Offline Brain Software Pre-Installed<br><a href="#" id="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
+              <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
+              <li>Hard waterproof crushproof case</li>
+              <li>Includes 1x Custom Ghost Box PVC Tactical Patch (Removable via Velcro Loop Panel)</li>
+              <li>Free tech support included for 30 days</li>
+            </ul>
+          </section>
+          <section class="kit-card pro-kit">
+            <span class="kit-ribbon">EMP-Hardened</span>
+            <h3>Ghost Box: Pro — $499.99</h3>
+            <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event. Includes Dual-Layer Mission Darkness TitanRF Shielding.</strong></p>
+            <ul>
+              <li>OnePlus 8 5G (8GB RAM, Snapdragon 865) with Offline Brain Software Pre-Installed</li>
+              <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
+              <li>Two Faraday bags (phone + battery) <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
+              <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
+              <li>Includes 1x Custom Ghost Box PVC Tactical Patch (Removable via Velcro Loop Panel)</li>
+              <li>Free tech support included for 30 days</li>
+            </ul>
+          </section>
+        </div>
+
+        <ul>
+          <li><strong>Solar Power Bank includes built-in cable set:</strong> 2 attached USB-C cables, 1 iOS cable, and 1 extended USB-A input cable.</li>
+          <li><strong>Free shipping to all continental US states.</strong></li>
+          <li><strong>Free next day delivery in the Eastern Shore MD area.</strong></li>
+        </ul>
+
+        <section class="kit-card" style="margin-top:.8rem;">
+          <h3 style="margin-top:0;">Which Kit Is Right For You?</h3>
+          <p class="small" style="margin:.2rem 0 .6rem;">Our kits are designed to be the ultimate offline knowledge and communication hubs. Whether you need an essential survival brain or a fully hardened, EMP-shielded system, we have a configuration that fits your preparedness level.</p>
+          <h3 style="font-size:.98rem; margin:.25rem 0 .5rem; color:#ffd7f8;">Tier Comparison: Essential vs. Professional</h3>
+          <div style="overflow:auto; border:1px solid var(--line); border-radius:6px;">
+            <table style="width:100%; border-collapse:collapse; min-width:560px; font-size:.88rem;">
+              <thead>
+                <tr style="background:#0a0d14; color:#dfe8ff;">
+                  <th style="text-align:left; padding:.5rem; border-bottom:1px solid var(--line);">Category</th>
+                  <th style="text-align:left; padding:.5rem; border-bottom:1px solid var(--line);">Ghost Box: Essential ($349.99)</th>
+                  <th style="text-align:left; padding:.5rem; border-bottom:1px solid var(--line);">Ghost Box: Pro ($499.99)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Operational Profile</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Low-Signature Offline Intelligence</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Total Digital Invisibility</td></tr>
+                <tr><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">EMP Shielding</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">None</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Dual Mission Darkness Faraday Bags</td></tr>
+                <tr><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Cable System</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">42,800mAh Hub + Integrated Cables</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">42,800mAh Hub + Integrated + Braided Fail-Safe</td></tr>
+                <tr><td style="padding:.45rem .5rem;">Software</td><td style="padding:.45rem .5rem;">Hardened OS + Offline AI &amp; Maps</td><td style="padding:.45rem .5rem;">Hardened OS + Offline AI &amp; Maps</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3 style="font-size:1rem; margin:.75rem 0 .45rem;">Why the Professional Kit is the Gold Standard</h3>
+          <p class="small" style="margin:.2rem 0 .45rem;">The $150 upgrade to the Professional Kit focuses on electronic survival. In a scenario involving an Electromagnetic Pulse (EMP) or high-intensity solar flare, standard hard cases will not protect your circuitry.</p>
+          <p class="small" style="margin:.2rem 0 .35rem;"><strong>Military-Grade EMP Isolation via Mission Darkness TitanRF Shielding:</strong> Dual-layer Faraday protection helps keep your core devices isolated from high-intensity electromagnetic events when properly sealed.</p>
+          <p class="small" style="margin:.2rem 0 0;"><strong>Integrated Hub + Braided Fail-Safe Cables:</strong> The Pro power system combines built-in hub cables with a reinforced braided backup line so you keep charging capability even under sustained field use.</p>
+        </section>
+
+        <div class="img-grid">
+          <figure class="shot">
+            <img src="https://source.unsplash.com/900x600/?survival,kit,phone" alt="Placeholder screenshot of emergency kit with device" />
+            <figcaption>Placeholder — rugged kit layout</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="https://source.unsplash.com/900x600/?solar,powerbank" alt="Placeholder screenshot of solar power bank" />
+            <figcaption>Placeholder — solar charging setup</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="https://source.unsplash.com/900x600/?waterproof,hardcase" alt="Placeholder screenshot of hard waterproof case" />
+            <figcaption>Placeholder — waterproof crushproof case</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="https://source.unsplash.com/900x600/?faraday,bag" alt="Placeholder screenshot of Faraday bag style gear" />
+            <figcaption>Placeholder — Faraday protection gear</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <aside class="card">
+        <span class="pill">Secure Checkout Powered By Stripe</span>
+        <h2>Checkout</h2>
+        <p class="small">Choose your kit below. Free shipping is already included.</p>
+        <p class="small">Eastern Shore MD area customers can select free local delivery at checkout.</p>
+
+        <div class="price" style="font-size:1.2rem; margin-bottom:.45rem;">Ghost Box: Essential — $349.99</div>
+        <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
+
+        <div class="price" style="font-size:1.2rem; margin:.9rem 0 .45rem;">Ghost Box: Pro — $499.99</div>
+        <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
+
+        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line);">
+          <h3 style="margin:0 0 .35rem; color:var(--cyan); font-size:1rem;">Device System Requirements</h3>
+          <p class="small" style="margin:.25rem 0 .35rem;">Bring your own phone (BYOG) and we handle setup only.</p>
+          <p class="small" style="margin:0 0 .6rem;"><strong>Available only in the Eastern Shore, MD area.</strong></p>
+          <div class="small" style="margin:0 0 .65rem; padding:.55rem .6rem; border:1px solid var(--line); background:#0f1321; border-radius:6px;">
+            <strong style="color:#dfe8ff;">Phone System Requirements (BYOG)</strong><br>
+            • Android 11 or newer<br>
+            • At least 30GB free storage (required)<br>
+            • 8GB RAM minimum<br>
+            • Reliable Wi-Fi connection for setup/updates<br>
+            • Working USB-C charging port and cable
+          </div>
+          <div class="price" style="font-size:1.2rem; margin-bottom:.55rem;">$49.99 <span class="small">setup service</span></div>
+          <button id="byog-btn" class="btn" type="button">BYOG Setup Only — $49.99</button>
+        </div>
+
+        <div class="status" id="status"></div>
+        <div class="note">Secure checkout is handled by Stripe. Free shipping is included for all kits.</div>
+
+        <a class="setup-link" href="/zombie-setup.html">View Ghost Box Setup Guide →</a>
+
+        <section class="disclaimer" aria-label="Warranty and Liability Disclaimer">
+          <h3>Ghost Box Manifesto</h3>
+          <p><em>"Information is the ultimate survival resource, but in a crisis, your digital footprint is your greatest liability. The Ghost Box was engineered to provide the intelligence of the modern world with the invisibility of the old one. No pings. No tracking. No compromise. Just pure, hardened knowledge when you need it most."</em></p>
+
+          <h3 style="margin-top:1rem;">Warranty &amp; Liability Disclaimer</h3>
+          <p><strong>No Manufacturer Warranty:</strong> Items in this kit (including the Android phone and solar-powered charger) are provided "AS IS" and "WITH ALL FAULTS." Eastern Shore AI is not an authorized reseller of these brands, so original manufacturer warranties may be void or non-transferable.</p>
+          <p><strong>Eastern Shore AI Warranty:</strong> Eastern Shore AI provides a 30-day warranty on all products included in this kit.</p>
+          <p><strong>Software Modifications:</strong> The phone includes offline software modifications, which typically void manufacturer warranty coverage.</p>
+          <p><strong>Disclaimer of Implied Warranties:</strong> Eastern Shore AI disclaims all express and implied warranties, including merchantability and fitness for a particular purpose, to the maximum extent permitted by law.</p>
+          <p><strong>Limitation of Liability:</strong> Eastern Shore AI is not liable for incidental or consequential damages arising from use or inability to use the products, to the maximum extent permitted by law.</p>
+          <p><strong>Trademark Notice:</strong> All product names, logos, and brands are property of their respective owners. Use in this kit does not imply affiliation with or endorsement by them.</p>
+          <p><strong>Trademark &amp; Affiliation Disclaimer — Independent Seller:</strong> Eastern Shore AI is an independent seller of curated goods and is not an authorized dealer, distributor, or affiliate of the manufacturers of individual items included in this kit.</p>
+          <p><strong>Ownership of Marks:</strong> All product names, trademarks, and registered trademarks—including phone and charger brand marks—are the property of their respective owners.</p>
+          <p><strong>No Endorsement:</strong> Brand names are used solely for identification to describe items included in the Ghost Box. Reference to these brands does not imply endorsement, sponsorship, or association between trademark owners and Eastern Shore AI.</p>
+          <p><strong>SOFTWARE MODIFICATION &amp; SUPPORT NOTICE — MODIFIED DEVICE:</strong> This Android phone has been modified by Eastern Shore AI to include custom offline software suites for emergency preparedness.</p>
+          <p><strong>NO MANUFACTURER SUPPORT:</strong> Due to these modifications, the original equipment manufacturer (OEM) may no longer provide technical support, system updates, or warranty services for this device.</p>
+          <p><strong>"AS-IS" SOFTWARE:</strong> All pre-installed apps are provided "AS IS" without any express or implied warranties. Eastern Shore AI does not guarantee that the software will be error-free or compatible with future system updates.</p>
+          <p><strong>USER RESPONSIBILITY:</strong> By purchasing this kit, the buyer acknowledges that responsibility for security, updating, and proper use of pre-installed software rests solely with the end user.</p>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <div class="terms-overlay" id="faraday-modal" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="faraday-title">
+      <h3 id="faraday-title">What is a Faraday Bag?</h3>
+      <div class="terms-scroll" style="max-height:38vh;">
+        <p>A Faraday bag is a signal-blocking pouch designed to isolate electronics from outside electromagnetic activity.</p>
+        <p>In practical terms, it can help shield sensitive devices from EMP-style surges and also blocks incoming/outgoing wireless signals while sealed inside.</p>
+        <p>For preparedness use, this gives you a hardened storage option for critical gear like a phone or backup power device.</p>
+      </div>
+      <div class="terms-actions">
+        <button type="button" class="btn" id="faraday-close" style="width:auto; min-width:180px;">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms-overlay" id="software-modal" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="software-title">
+      <h3 id="software-title">What software comes preloaded?</h3>
+      <div class="terms-scroll" style="max-height:44vh;">
+        <p>Placeholder app list (will be updated):</p>
+        <ul style="margin:0; padding-left:1.1rem;">
+          <li>App 01 — Offline Maps</li>
+          <li>App 02 — Local LLM Chat</li>
+          <li>App 03 — Medical Wiki</li>
+          <li>App 04 — Survival Library</li>
+          <li>App 05 — Field Notes</li>
+          <li>App 06 — Flashlight Utility</li>
+          <li>App 07 — Compass Pro</li>
+          <li>App 08 — Weather Snapshot</li>
+          <li>App 09 — Radio Frequency Guide</li>
+          <li>App 10 — First Aid QuickRef</li>
+          <li>App 11 — Gear Checklist</li>
+          <li>App 12 — Battery Health Tool</li>
+          <li>App 13 — Offline Translator</li>
+          <li>App 14 — Emergency Contacts Vault</li>
+          <li>App 15 — Secure File Locker</li>
+          <li>App 16 — PDF Manual Reader</li>
+          <li>App 17 — Local Docs Search</li>
+          <li>App 18 — Mesh Networking Helper</li>
+          <li>App 19 — Tactical Grid Planner</li>
+          <li>App 20 — System Recovery Toolkit</li>
+        </ul>
+      </div>
+      <div class="terms-actions">
+        <button type="button" class="btn" id="software-close" style="width:auto; min-width:180px;">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="terms-overlay" id="terms-overlay" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+      <h3 id="terms-title">Terms of Sale Acknowledgement Required</h3>
+      <div class="terms-scroll">
+
+        <p><strong>1) Battery Maintenance &amp; Storage Disclaimer</strong></p>
+        <p><strong>Initial Charge Required:</strong> I understand that while the 42,800mAh Solar Power Hub (with built-in cables) is shipped with a partial charge, I must fully charge it to 100% via a wall outlet upon receipt to ensure long-term battery health.</p>
+        <p><strong>Long-Term Storage:</strong> I acknowledge that lithium-ion batteries naturally discharge over time. To prevent permanent battery failure, I agree to check and recharge the 42,800mAh Solar Power Hub every 6 to 12 months.</p>
+        <p><strong>Temperature Sensitivity:</strong> I understand that storing this kit in extreme temperatures (e.g., a hot car trunk or uninsulated garage) can permanently damage the battery and the smartphone.</p>
+
+        <p><strong>2) "As-Is" Refurbished Electronics Disclosure</strong></p>
+        <p><strong>Device Condition:</strong> I acknowledge that the OnePlus 8 5G is a professionally refurbished device and may show minor cosmetic wear. I understand that the original manufacturer's warranty is voided due to the installation of custom open-source software.</p>
+        <p><strong>Software Responsibility:</strong> I understand that the device runs a custom, privacy-focused Operating System. I acknowledge that certain mainstream apps (e.g., banking or DRM-restricted apps) may not function as they do on standard retail devices.</p>
+
+        <p><strong>3) Emergency Use &amp; Reliability Disclaimer</strong></p>
+        <p><strong>No Guarantee of Survival:</strong> I acknowledge that this kit is a tool for preparedness and does not guarantee safety or survival in an emergency. The AI-provided information is for educational purposes and should not replace professional medical or tactical advice.</p>
+        <p><strong>Solar Limitations:</strong> I understand that the integrated solar panel is intended for emergency trickle-charging and is not a primary charging source. Full solar charging may take several days depending on weather conditions.</p>
+
+        <p><strong>4) Shipping &amp; Battery Regulations</strong></p>
+        <p><strong>Ground Shipping Only:</strong> I understand that due to the high-capacity lithium-ion battery, this product must ship via Ground Transportation only and may have longer transit times than standard electronics.</p>
+        <p><strong>Return Policy:</strong> I acknowledge that returns are only accepted within 30 days if the Faraday seals remain unbroken and the software has not been altered by the user.</p>
+
+        <p><strong>5) EMP Protection Acknowledgement (Pro Kit Only)</strong></p>
+        <p><strong>Faraday Integrity:</strong> I understand that the EMP protection provided by the Mission Darkness Faraday Bags is only effective if the bags are correctly folded and sealed. Any punctures or improper seals will compromise the protection.</p>
+      </div>
+      <label style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.8rem; color:#d8dce8;">
+        <input type="checkbox" id="terms-check" style="margin-top:.2rem;" />
+        <span>I acknowledge and agree.</span>
+      </label>
+      <div class="terms-actions">
+        <button type="button" class="btn-outline" id="terms-cancel">Cancel</button>
+        <button type="button" class="btn" id="terms-accept" style="width:auto; min-width:220px;" disabled>Continue to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+    const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
+
+    const buyBaseBtn = document.getElementById('buy-base-btn');
+    const buyProBtn = document.getElementById('buy-pro-btn');
+    const byogBtn = document.getElementById('byog-btn');
+    const status = document.getElementById('status');
+
+    const termsOverlay = document.getElementById('terms-overlay');
+    const termsCheck = document.getElementById('terms-check');
+    const termsCancel = document.getElementById('terms-cancel');
+    const termsAccept = document.getElementById('terms-accept');
+    const faradayInfoLink = document.getElementById('faraday-bag-info-link');
+    const faradayModal = document.getElementById('faraday-modal');
+    const faradayClose = document.getElementById('faraday-close');
+    const softwareInfoLink = document.getElementById('preloaded-software-link');
+    const softwareModal = document.getElementById('software-modal');
+    const softwareClose = document.getElementById('software-close');
+    let pendingPayload = null;
+
+    async function startCheckout(payload) {
+      status.textContent = 'Redirecting to secure checkout...';
+      buyBaseBtn.disabled = true;
+      buyProBtn.disabled = true;
+      byogBtn.disabled = true;
+
+      try {
+        const res = await fetch(ZOMBIE_CHECKOUT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...payload, termsAccepted: true })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok || !data.checkoutUrl) {
+          throw new Error(data.error || 'Could not create checkout session.');
+        }
+
+        window.location.href = data.checkoutUrl;
+      } catch (err) {
+        status.textContent = err.message || 'Could not start checkout. Please try again.';
+        buyBaseBtn.disabled = false;
+        buyProBtn.disabled = false;
+        byogBtn.disabled = false;
+      }
+    }
+
+    function openTerms(payload) {
+      pendingPayload = payload;
+      termsCheck.checked = false;
+      termsAccept.disabled = true;
+      termsOverlay.style.display = 'flex';
+      termsOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTerms() {
+      termsOverlay.style.display = 'none';
+      termsOverlay.setAttribute('aria-hidden', 'true');
+      pendingPayload = null;
+    }
+
+    termsCheck.addEventListener('change', () => {
+      termsAccept.disabled = !termsCheck.checked;
+    });
+
+    termsCancel.addEventListener('click', closeTerms);
+    termsOverlay.addEventListener('click', (e) => { if (e.target === termsOverlay) closeTerms(); });
+
+    faradayInfoLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      faradayModal.style.display = 'flex';
+      faradayModal.setAttribute('aria-hidden', 'false');
+    });
+    faradayClose?.addEventListener('click', () => {
+      faradayModal.style.display = 'none';
+      faradayModal.setAttribute('aria-hidden', 'true');
+    });
+    faradayModal?.addEventListener('click', (e) => {
+      if (e.target === faradayModal) {
+        faradayModal.style.display = 'none';
+        faradayModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    softwareInfoLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      softwareModal.style.display = 'flex';
+      softwareModal.setAttribute('aria-hidden', 'false');
+    });
+    softwareClose?.addEventListener('click', () => {
+      softwareModal.style.display = 'none';
+      softwareModal.setAttribute('aria-hidden', 'true');
+    });
+    softwareModal?.addEventListener('click', (e) => {
+      if (e.target === softwareModal) {
+        softwareModal.style.display = 'none';
+        softwareModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    termsAccept.addEventListener('click', () => {
+      if (!pendingPayload || !termsCheck.checked) return;
+      const payload = pendingPayload;
+      closeTerms();
+      startCheckout(payload);
+    });
+
+    buyBaseBtn.addEventListener('click', () => {
+      openTerms({ checkoutType: 'base_kit' });
+    });
+
+    buyProBtn.addEventListener('click', () => {
+      openTerms({ checkoutType: 'pro_kit' });
+    });
+
+    byogBtn.addEventListener('click', () => {
+      openTerms({ checkoutType: 'byog_setup' });
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === '1') {
+      status.textContent = 'Payment complete — thank you for your order!';
+    } else if (params.get('canceled') === '1') {
+      status.textContent = 'Checkout canceled. You can try again any time.';
+    }
+  </script>
+</body>
+</html>

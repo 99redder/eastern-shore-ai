@@ -609,8 +609,8 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   }
 
   const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
-  const successUrl = `${siteOrigin}/zombies.html?paid=1`;
-  const cancelUrl = `${siteOrigin}/zombies.html?canceled=1`;
+  const successUrl = `${siteOrigin}/ghostbox.html?paid=1`;
+  const cancelUrl = `${siteOrigin}/ghostbox.html?canceled=1`;
 
   const unitAmount = isByogSetup ? '4999' : (isProKit ? '49999' : '34999');
   const productName = isByogSetup
