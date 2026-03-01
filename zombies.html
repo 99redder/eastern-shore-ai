@@ -85,6 +85,21 @@
     .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.2rem; }
     ul { padding-left: 1.15rem; margin-top: .6rem; }
     li { margin: .45rem 0; }
+    .brain-grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:.7rem;
+      margin: .35rem 0 1rem;
+    }
+    .brain-col {
+      border:1px solid var(--line);
+      background:#0d1017;
+      border-radius:8px;
+      padding:.75rem;
+    }
+    .brain-col .icon { font-size:1.1rem; margin-bottom:.2rem; }
+    .brain-col h3 { margin:.05rem 0 .25rem; color:var(--cyan); font-size:1rem; }
+
     .offerings {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -92,10 +107,25 @@
       margin-top: .8rem;
     }
     .kit-card {
+      position: relative;
       border: 1px solid var(--line);
       background: #0d1017;
       padding: .8rem;
       border-radius: 8px;
+    }
+    .kit-ribbon {
+      position:absolute;
+      top:10px;
+      right:-30px;
+      transform:rotate(38deg);
+      background:#ff5e5e;
+      color:#fff;
+      font-size:.66rem;
+      font-weight:700;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:.22rem 2rem;
+      box-shadow:0 0 0 1px rgba(0,0,0,.2) inset;
     }
     .kit-card h3 { margin:.1rem 0 .25rem; color: var(--cyan); font-size:1.05rem; }
     .img-grid {
@@ -221,6 +251,7 @@
     }
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
+      .brain-grid { grid-template-columns: 1fr; }
       .offerings { grid-template-columns: 1fr; }
     }
   </style>
@@ -237,6 +268,25 @@
       <p class="small" style="margin:0; color:#d9deef;">This isn’t another gadget he’ll toss in a drawer. AI Zombie Case gives him a hardened offline AI + maps setup, backup power, and serious protection gear he can use during storms, outages, and emergencies. If your dad likes being prepared, practical, and one step ahead — he’s going to love this.</p>
     </div>
 
+    <h2 style="margin:0 0 .45rem; color:var(--cyan);">The Brain: Offline Software Suite</h2>
+    <section class="brain-grid" aria-label="The Brain Offline Software Suite">
+      <article class="brain-col">
+        <div class="icon">📚</div>
+        <h3>The Brain: Offline Software Suite — Offline Knowledge</h3>
+        <p class="small">50GB+ of pre-loaded data including global maps, a full medical wiki, and survival libraries for no-signal scenarios.</p>
+      </article>
+      <article class="brain-col">
+        <div class="icon">🧠</div>
+        <h3>Local AI</h3>
+        <p class="small">A privacy-focused Large Language Model (LLM) runs entirely offline with zero data tracking.</p>
+      </article>
+      <article class="brain-col">
+        <div class="icon">🛡️</div>
+        <h3>Hardened OS</h3>
+        <p class="small">Runs a de-googled, open-source OS optimized for maximum battery life and security.</p>
+      </article>
+    </section>
+
     <section class="grid">
       <article class="card">
         <h2>Choose Your Kit</h2>
@@ -251,10 +301,12 @@
             </ul>
           </section>
           <section class="kit-card">
+            <span class="kit-ribbon">EMP-Hardened</span>
             <h3>Pro Kit — $499.99</h3>
+            <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
             <ul>
               <li>Everything in Base Kit</li>
-              <li>Two Faraday bags (phone + battery) <a href="#" id="faraday-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Farday Bag?</a></li>
+              <li>Two Faraday bags (phone + battery) <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
               <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
               <li>Free tech support included for 30 days</li>
             </ul>
@@ -348,16 +400,16 @@
 
         <section class="disclaimer" aria-label="Warranty and Liability Disclaimer">
           <h3>Warranty &amp; Liability Disclaimer</h3>
-          <p><strong>No Manufacturer Warranty:</strong> Items in this kit (including the Android tablet and solar-powered charger) are provided "AS IS" and "WITH ALL FAULTS." Eastern Shore AI is not an authorized reseller of these brands, so original manufacturer warranties may be void or non-transferable.</p>
+          <p><strong>No Manufacturer Warranty:</strong> Items in this kit (including the Android phone and solar-powered charger) are provided "AS IS" and "WITH ALL FAULTS." Eastern Shore AI is not an authorized reseller of these brands, so original manufacturer warranties may be void or non-transferable.</p>
           <p><strong>Eastern Shore AI Warranty:</strong> Eastern Shore AI provides a 30-day warranty on all products included in this kit.</p>
-          <p><strong>Software Modifications:</strong> The tablet includes offline software modifications, which typically void manufacturer warranty coverage.</p>
+          <p><strong>Software Modifications:</strong> The phone includes offline software modifications, which typically void manufacturer warranty coverage.</p>
           <p><strong>Disclaimer of Implied Warranties:</strong> Eastern Shore AI disclaims all express and implied warranties, including merchantability and fitness for a particular purpose, to the maximum extent permitted by law.</p>
           <p><strong>Limitation of Liability:</strong> Eastern Shore AI is not liable for incidental or consequential damages arising from use or inability to use the products, to the maximum extent permitted by law.</p>
           <p><strong>Trademark Notice:</strong> All product names, logos, and brands are property of their respective owners. Use in this kit does not imply affiliation with or endorsement by them.</p>
           <p><strong>Trademark &amp; Affiliation Disclaimer — Independent Seller:</strong> Eastern Shore AI is an independent seller of curated goods and is not an authorized dealer, distributor, or affiliate of the manufacturers of individual items included in this kit.</p>
-          <p><strong>Ownership of Marks:</strong> All product names, trademarks, and registered trademarks—including tablet and charger brand marks—are the property of their respective owners.</p>
+          <p><strong>Ownership of Marks:</strong> All product names, trademarks, and registered trademarks—including phone and charger brand marks—are the property of their respective owners.</p>
           <p><strong>No Endorsement:</strong> Brand names are used solely for identification to describe items included in the AI Zombie Case. Reference to these brands does not imply endorsement, sponsorship, or association between trademark owners and Eastern Shore AI.</p>
-          <p><strong>SOFTWARE MODIFICATION &amp; SUPPORT NOTICE — MODIFIED DEVICE:</strong> This Android tablet has been modified by Eastern Shore AI to include custom offline software suites for emergency preparedness.</p>
+          <p><strong>SOFTWARE MODIFICATION &amp; SUPPORT NOTICE — MODIFIED DEVICE:</strong> This Android phone has been modified by Eastern Shore AI to include custom offline software suites for emergency preparedness.</p>
           <p><strong>NO MANUFACTURER SUPPORT:</strong> Due to these modifications, the original equipment manufacturer (OEM) may no longer provide technical support, system updates, or warranty services for this device.</p>
           <p><strong>"AS-IS" SOFTWARE:</strong> All pre-installed apps are provided "AS IS" without any express or implied warranties. Eastern Shore AI does not guarantee that the software will be error-free or compatible with future system updates.</p>
           <p><strong>USER RESPONSIBILITY:</strong> By purchasing this kit, the buyer acknowledges that responsibility for security, updating, and proper use of pre-installed software rests solely with the end user.</p>
@@ -368,7 +420,7 @@
 
   <div class="terms-overlay" id="faraday-modal" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="faraday-title">
-      <h3 id="faraday-title">What is a Farday Bag?</h3>
+      <h3 id="faraday-title">What is a Faraday Bag?</h3>
       <div class="terms-scroll" style="max-height:38vh;">
         <p>A Faraday bag is a signal-blocking pouch designed to isolate electronics from outside electromagnetic activity.</p>
         <p>In practical terms, it can help shield sensitive devices from EMP-style surges and also blocks incoming/outgoing wireless signals while sealed inside.</p>
@@ -430,7 +482,7 @@
     const termsCheck = document.getElementById('terms-check');
     const termsCancel = document.getElementById('terms-cancel');
     const termsAccept = document.getElementById('terms-accept');
-    const faradayInfoLink = document.getElementById('faraday-info-link');
+    const faradayInfoLink = document.getElementById('faraday-bag-info-link');
     const faradayModal = document.getElementById('faraday-modal');
     const faradayClose = document.getElementById('faraday-close');
     let pendingPayload = null;
