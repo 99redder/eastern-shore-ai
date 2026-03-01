@@ -612,7 +612,7 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   const successUrl = `${siteOrigin}/ghostbox.html?paid=1`;
   const cancelUrl = `${siteOrigin}/ghostbox-payment-cancelled.html`;
 
-  const unitAmount = isByogSetup ? '6999' : (isProKit ? '49999' : '34999');
+  const unitAmount = isByogSetup ? '6999' : (isProKit ? '39999' : '29999');
   const productName = isByogSetup
     ? 'Ghost Box BYOG Setup-Only Service'
     : (isProKit ? 'Ghost Box Pro Kit' : 'Ghost Box Base Kit');
