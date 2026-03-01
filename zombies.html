@@ -250,7 +250,7 @@
             <h3>Pro Kit — $499.99</h3>
             <ul>
               <li>Everything in Base Kit</li>
-              <li>Two Faraday bags (phone + battery)</li>
+              <li>Two Faraday bags (phone + battery) <a href="#" id="faraday-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Farday Bag?</a></li>
               <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
               <li>Free tech support included for 30 days</li>
             </ul>
@@ -258,7 +258,7 @@
         </div>
 
         <ul>
-          <li>Ships to all continental US states, shipping added at checkout.</li>
+          <li><strong>Free shipping to all continental US states.</strong></li>
           <li><strong>Free delivery in the Eastern Shore MD area.</strong></li>
         </ul>
 
@@ -312,7 +312,7 @@
       <aside class="card">
         <span class="pill">Secure checkout</span>
         <h2>Checkout</h2>
-        <p class="small">Choose your kit below. Shipping options appear in Stripe checkout.</p>
+        <p class="small">Choose your kit below. Free shipping is already included.</p>
         <p class="small">Eastern Shore MD area customers can select free local delivery at checkout.</p>
 
         <div class="price" style="font-size:1.2rem; margin-bottom:.45rem;">Base Kit — $349.99</div>
@@ -338,7 +338,7 @@
         </div>
 
         <div class="status" id="status"></div>
-        <div class="note">Secure checkout is handled by Stripe. Shipping options appear on Stripe checkout for kit purchases.</div>
+        <div class="note">Secure checkout is handled by Stripe. Free shipping is included for all kits.</div>
 
         <a class="setup-link" href="/zombie-setup.html">View Zombie Case Setup Guide →</a>
 
@@ -361,6 +361,20 @@
       </aside>
     </section>
   </main>
+
+  <div class="terms-overlay" id="faraday-modal" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="faraday-title">
+      <h3 id="faraday-title">What is a Farday Bag?</h3>
+      <div class="terms-scroll" style="max-height:38vh;">
+        <p>A Faraday bag is a signal-blocking pouch designed to isolate electronics from outside electromagnetic activity.</p>
+        <p>In practical terms, it can help shield sensitive devices from EMP-style surges and also blocks incoming/outgoing wireless signals while sealed inside.</p>
+        <p>For preparedness use, this gives you a hardened storage option for critical gear like a phone or backup power device.</p>
+      </div>
+      <div class="terms-actions">
+        <button type="button" class="btn" id="faraday-close" style="width:auto; min-width:180px;">Got it</button>
+      </div>
+    </div>
+  </div>
 
   <div class="terms-overlay" id="terms-overlay" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
@@ -404,6 +418,9 @@
     const termsCheck = document.getElementById('terms-check');
     const termsCancel = document.getElementById('terms-cancel');
     const termsAccept = document.getElementById('terms-accept');
+    const faradayInfoLink = document.getElementById('faraday-info-link');
+    const faradayModal = document.getElementById('faraday-modal');
+    const faradayClose = document.getElementById('faraday-close');
     let pendingPayload = null;
 
     async function startCheckout(payload) {
@@ -453,6 +470,22 @@
 
     termsCancel.addEventListener('click', closeTerms);
     termsOverlay.addEventListener('click', (e) => { if (e.target === termsOverlay) closeTerms(); });
+
+    faradayInfoLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      faradayModal.style.display = 'flex';
+      faradayModal.setAttribute('aria-hidden', 'false');
+    });
+    faradayClose?.addEventListener('click', () => {
+      faradayModal.style.display = 'none';
+      faradayModal.setAttribute('aria-hidden', 'true');
+    });
+    faradayModal?.addEventListener('click', (e) => {
+      if (e.target === faradayModal) {
+        faradayModal.style.display = 'none';
+        faradayModal.setAttribute('aria-hidden', 'true');
+      }
+    });
 
     termsAccept.addEventListener('click', () => {
       if (!pendingPayload || !termsCheck.checked) return;

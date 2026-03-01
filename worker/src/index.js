@@ -648,14 +648,7 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', '1');
     body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
     body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '3');
-    body.set('shipping_options[1][shipping_rate_data][type]', 'fixed_amount');
-    body.set('shipping_options[1][shipping_rate_data][fixed_amount][amount]', '1999');
-    body.set('shipping_options[1][shipping_rate_data][fixed_amount][currency]', 'usd');
-    body.set('shipping_options[1][shipping_rate_data][display_name]', 'Continental U.S. Shipping');
-    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
-    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][minimum][value]', '3');
-    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
-    body.set('shipping_options[1][shipping_rate_data][delivery_estimate][maximum][value]', '7');
+
   }
 
   const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
