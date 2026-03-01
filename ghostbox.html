@@ -23,6 +23,7 @@
     body {
       margin: 0;
       font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 1.06rem;
       background:
         radial-gradient(circle at 18% 10%, rgba(190, 220, 255, 0.16), transparent 35%),
         radial-gradient(circle at 86% 6%, rgba(208, 188, 255, 0.14), transparent 32%),
@@ -84,7 +85,7 @@
       clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
       padding: 1rem;
     }
-    .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.2rem; }
+    .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.3rem; }
     ul { padding-left: 1.15rem; margin-top: .6rem; }
     li { margin: .45rem 0; }
     .ghost-intro {
@@ -116,7 +117,7 @@
       padding:.75rem;
     }
     .brain-col .icon { font-size:1.1rem; margin-bottom:.2rem; }
-    .brain-col h3 { margin:.05rem 0 .25rem; color:var(--cyan); font-size:1rem; }
+    .brain-col h3 { margin:.05rem 0 .25rem; color:var(--cyan); font-size:1.1rem; }
 
     .offerings {
       display: grid;
@@ -148,7 +149,7 @@
       box-shadow:0 0 0 1px rgba(0,0,0,.2) inset;
       pointer-events:none;
     }
-    .kit-card h3 { margin:.1rem 0 .25rem; color: var(--cyan); font-size:1.05rem; }
+    .kit-card h3 { margin:.1rem 0 .25rem; color: var(--cyan); font-size:1.12rem; }
     .img-grid {
       margin-top: 1rem;
       display: grid;
@@ -169,7 +170,7 @@
       color: var(--ok);
       margin: .2rem 0 .4rem;
     }
-    .small { color: var(--muted); font-size: .9rem; }
+    .small { color: var(--muted); font-size: 1rem; }
     .pill {
       display: inline-block;
       padding: .3rem .55rem;
@@ -202,7 +203,7 @@
     }
     .btn:hover { filter: brightness(1.06); }
     .status { margin-top: .7rem; min-height: 1.2rem; color: var(--muted); font-size: .88rem; }
-    .note { margin-top: .8rem; font-size: .84rem; color: var(--muted); }
+    .note { margin-top: .8rem; font-size: .94rem; color: var(--muted); }
     .setup-link {
       margin-top: 1rem;
       padding-top: 1rem;
@@ -220,8 +221,8 @@
     }
     .faq h3 {
       margin: 0 0 .55rem;
-      color: #ffd7f8;
-      font-size: 1.02rem;
+      color: var(--cyan);
+      font-size: 1.1rem;
       letter-spacing: .02em;
       text-transform: uppercase;
     }
@@ -236,7 +237,7 @@
       cursor: pointer;
       color: #eaf0ff;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.06rem;
       line-height: 1.4;
       list-style: none;
     }
@@ -251,8 +252,8 @@
     .faq .answer {
       margin: .55rem 0 0;
       color: var(--muted);
-      font-size: .86rem;
-      line-height: 1.5;
+      font-size: .97rem;
+      line-height: 1.55;
     }
     .disclaimer {
       margin-top: 1rem;
@@ -368,7 +369,7 @@
       <div class="card" style="margin: .1rem 0 0; border-color: rgba(157,255,122,.35); background: linear-gradient(160deg, rgba(157,255,122,.08), rgba(255,94,94,.06));">
         <h2 style="margin:0 0 .4rem; font-size:1.05rem; color:#d9ffb2;">Father’s Day Special: Give Dad the Gift of Real-World Readiness</h2>
         <p class="small" style="margin:0 0 .45rem; color:#d9deef;">The ultimate off-grid gift. Every Ghost Box ships with a hardened 5G device loaded with AI and survival knowledge, a 42,800mAh solar power hub, and a waterproof crushproof case — everything Dad needs to stay self-sufficient when the grid goes down.</p>
-        <ul style="margin:.1rem 0 0; color:#d9deef; font-size:.88rem; padding-left:1.1rem;">
+        <ul style="margin:.1rem 0 0; color:#d9deef; font-size:1rem; padding-left:1.1rem;">
           <li>3 fully offline LLMs + complete continental US maps + dozens of survival apps</li>
           <li>Solar hub with 4 built-in cables, flashlight, emergency strobe &amp; compass</li>
           <li>Pro: adds dual Mission Darkness Faraday bags + heavy-duty backup cable</li>
@@ -414,7 +415,7 @@
       </article>
     </section>
 
-    <blockquote style="margin:0 0 1rem; padding:.9rem 1rem .9rem 1.1rem; border-left:3px solid var(--cyan); background:rgba(158,208,255,.06); border-radius:0 8px 8px 0; color:var(--muted); font-style:italic; font-size:.95rem; line-height:1.6;">
+    <blockquote style="margin:0 0 1rem; padding:.9rem 1rem .9rem 1.1rem; border-left:3px solid var(--cyan); background:rgba(158,208,255,.06); border-radius:0 8px 8px 0; color:var(--muted); font-style:italic; font-size:1.05rem; line-height:1.6;">
       "Information is the ultimate survival resource, but in a crisis, your digital footprint is your greatest liability. The Ghost Box was engineered to provide the intelligence of the modern world with the invisibility of the old one. No pings. No tracking. No compromise. Just pure, hardened knowledge when you need it most."
     </blockquote>
 
@@ -470,7 +471,7 @@
         </ul>
 
         <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line); text-align:center;">
-          <a href="#" id="byog-modal-link" style="color:var(--cyan); font-size:.88rem; font-weight:700; text-decoration:none;">Want us to install our Offline Brain Software Suite on your current phone?</a>
+          <a href="#" id="byog-modal-link" style="color:var(--cyan); font-size:1rem; font-weight:700; text-decoration:none;">Want us to install our Offline Brain Software Suite on your current phone?</a>
         </div>
 
     </article>
@@ -479,9 +480,9 @@
     <section class="card" style="margin-top:1rem;">
       <h2 style="margin-top:0;">Which Kit Is Right For You?</h2>
       <p class="small" style="margin:.2rem 0 .6rem;">Our kits are designed to be the ultimate offline knowledge and communication hubs. Whether you need an essential survival brain or a fully hardened, EMP-shielded system, we have a configuration that fits your preparedness level.</p>
-      <h3 style="font-size:.98rem; margin:.25rem 0 .5rem; color:#ffd7f8;">Tier Comparison: Essential vs. Professional</h3>
+      <h3 style="font-size:1.1rem; margin:.25rem 0 .5rem; color:var(--cyan);">Tier Comparison: Essential vs. Professional</h3>
       <div style="overflow:auto; border:1px solid var(--line); border-radius:6px;">
-        <table style="width:100%; border-collapse:collapse; min-width:560px; font-size:.88rem;">
+        <table style="width:100%; border-collapse:collapse; min-width:560px; font-size:.97rem;">
           <thead>
             <tr style="background:#0a0d14; color:#dfe8ff;">
               <th style="text-align:left; padding:.5rem; border-bottom:1px solid var(--line);">Category</th>
@@ -497,7 +498,7 @@
           </tbody>
         </table>
       </div>
-      <h3 style="font-size:1rem; margin:.75rem 0 .45rem;">Why the Professional Kit is the Gold Standard</h3>
+      <h3 style="font-size:1.1rem; margin:.75rem 0 .45rem; color:var(--cyan);">Why the Professional Kit is the Gold Standard</h3>
       <p class="small" style="margin:.2rem 0 .45rem;">The $150 upgrade to the Professional Kit focuses on electronic survival. In a scenario involving an Electromagnetic Pulse (EMP) or high-intensity solar flare, standard hard cases will not protect your circuitry.</p>
       <p class="small" style="margin:.2rem 0 .35rem;"><strong>Military-Grade EMP Isolation via Mission Darkness TitanRF Shielding:</strong> Dual-layer Faraday protection helps keep your core devices isolated from high-intensity electromagnetic events when properly sealed.</p>
       <p class="small" style="margin:.2rem 0 0;"><strong>Integrated Hub + Braided Fail-Safe Cables:</strong> The Pro power system combines built-in hub cables with a reinforced braided backup line so you keep charging capability even under sustained field use.</p>
