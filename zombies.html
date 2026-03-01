@@ -55,7 +55,6 @@
 
     .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
     .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem 0 .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
-    .ghost-logo-secondary { width:min(220px, 48vw); display:block; margin:.15rem 0 1rem auto; opacity:.9; filter: drop-shadow(0 0 14px rgba(199,166,255,.24)); }
     h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
     .sub { color: var(--muted); margin-bottom: 1.2rem; }
     .sale-chip {
@@ -87,6 +86,22 @@
     .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.2rem; }
     ul { padding-left: 1.15rem; margin-top: .6rem; }
     li { margin: .45rem 0; }
+    .ghost-intro {
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap:.9rem;
+      align-items:center;
+    }
+    .ghost-intro img {
+      width:100%;
+      max-width:280px;
+      justify-self:end;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#0b1018;
+      padding:.35rem;
+    }
+
     .brain-grid {
       display:grid;
       grid-template-columns:repeat(3,minmax(0,1fr));
@@ -255,6 +270,8 @@
     }
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
+      .ghost-intro { grid-template-columns: 1fr; }
+      .ghost-intro img { justify-self:start; max-width:220px; }
       .brain-grid { grid-template-columns: 1fr; }
       .offerings { grid-template-columns: 1fr; }
     }
@@ -272,12 +289,16 @@
 
     <img src="/images/ghostlogo.png" alt="Ghost Box logo" class="ghost-logo" />
     <h1>Ghost Box</h1>
-    <div class="sub" style="margin-top:-.15rem; margin-bottom:.45rem;">Emergency Preparedness in the age of AI</div>
-    <img src="/images/ghostboxlogo2.png" alt="Ghost Box alternate mark" class="ghost-logo-secondary" />
+    <div class="sub" style="margin-top:-.15rem; margin-bottom:1rem;">Emergency Preparedness in the age of AI</div>
 
-    <section class="card" style="margin:0 0 1rem;">
-      <h2 style="margin:0 0 .35rem; color:var(--cyan);">What is a Ghost Box?</h2>
-      <p class="small" style="margin:0;">A Ghost Box is a device that exists but cannot be seen. By stripping away tracking software, de-googled the OS, and shielding the hardware in military-grade Faraday mesh, we’ve created a tool that provides the intelligence of a modern smartphone with the invisibility of a paper map. No pings, no tracking, no footprint.</p>
+    <section class="card" style="margin:0 0 1rem; max-width: 100%;">
+      <div class="ghost-intro">
+        <div>
+          <h2 style="margin:0 0 .35rem; color:var(--cyan);">What is a Ghost Box?</h2>
+          <p class="small" style="margin:0;">A Ghost Box is a device that exists but cannot be seen. By stripping away tracking software, de-googled the OS, and shielding the hardware in military-grade Faraday mesh, we’ve created a tool that provides the intelligence of a modern smartphone with the invisibility of a paper map. No pings, no tracking, no footprint.</p>
+        </div>
+        <img src="/images/ghostboxlogo2.png" alt="Ghost Box mark" />
+      </div>
     </section>
 
     <h2 style="margin:0 0 .45rem; color:var(--cyan);">The Brain: Offline Software Suite</h2>
