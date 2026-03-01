@@ -339,20 +339,18 @@
               <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
               <li>Hard waterproof crushproof case</li>
               <li>Includes 1x Custom Ghost Box PVC Tactical Patch (Removable via Velcro Loop Panel)</li>
-              <li>Free tech support included for 30 days</li>
             </ul>
           </section>
           <section class="kit-card pro-kit">
             <span class="kit-ribbon">EMP-Hardened</span>
             <h3>Ghost Box: Pro — $499.99</h3>
-            <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event. Includes Dual-Layer Mission Darkness TitanRF Shielding.</strong></p>
+            <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
             <ul>
               <li>OnePlus 8 5G (8GB RAM, Snapdragon 865) with Offline Brain Software Pre-Installed</li>
               <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
-              <li>Two Faraday bags (phone + battery) <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
+              <li>Two Faraday bags (phone + battery) with Dual-Layer Mission Darkness TitanRF Shielding <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
               <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
               <li>Includes 1x Custom Ghost Box PVC Tactical Patch (Removable via Velcro Loop Panel)</li>
-              <li>Free tech support included for 30 days</li>
             </ul>
           </section>
         </div>
@@ -411,10 +409,12 @@
       </article>
 
       <aside class="card">
-        <span class="pill">Secure Checkout Powered By Stripe</span>
-        <h2>Checkout</h2>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
+          <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
+          <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
+        </div>
+        <h2 style="margin-top:.7rem;">Checkout</h2>
         <p class="small">Choose your kit below. Free shipping is already included.</p>
-        <p class="small">Eastern Shore MD area customers can select free local delivery at checkout.</p>
 
         <div class="price" style="font-size:1.2rem; margin-bottom:.45rem;">Ghost Box: Essential — $349.99</div>
         <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
@@ -422,6 +422,13 @@
         <div class="price" style="font-size:1.2rem; margin:.9rem 0 .45rem;">Ghost Box: Pro — $499.99</div>
         <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
 
+        <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line);">
+          <h3 style="margin:0 0 .35rem; color:var(--cyan); font-size:1rem;">BYOG Setup-Only Service</h3>
+          <p class="small" style="margin:.15rem 0 .4rem;">Bring your own phone and we handle secure Ghost Box software setup.</p>
+          <div class="price" style="font-size:1.1rem; margin:0 0 .45rem;">$49.99 <span class="small">setup service</span></div>
+          <button id="byog-btn" class="btn" type="button">BYOG Setup Only — $49.99</button>
+          <p class="small" style="margin:.45rem 0 0;"><strong>Free tech support included for 30 days.</strong></p>
+        </div>
 
         <div class="status" id="status"></div>
         <div class="note">Secure checkout is handled by Stripe. Free shipping is included for all kits.</div>
@@ -541,6 +548,7 @@
 
     const buyBaseBtn = document.getElementById('buy-base-btn');
     const buyProBtn = document.getElementById('buy-pro-btn');
+    const byogBtn = document.getElementById('byog-btn');
     const status = document.getElementById('status');
 
     const termsOverlay = document.getElementById('terms-overlay');
@@ -559,6 +567,7 @@
       status.textContent = 'Redirecting to secure checkout...';
       buyBaseBtn.disabled = true;
       buyProBtn.disabled = true;
+      byogBtn.disabled = true;
 
       try {
         const res = await fetch(ZOMBIE_CHECKOUT_URL, {
@@ -577,6 +586,7 @@
         status.textContent = err.message || 'Could not start checkout. Please try again.';
         buyBaseBtn.disabled = false;
         buyProBtn.disabled = false;
+        byogBtn.disabled = false;
       }
     }
 
@@ -648,6 +658,9 @@
       openTerms({ checkoutType: 'pro_kit' });
     });
 
+    byogBtn.addEventListener('click', () => {
+      openTerms({ checkoutType: 'byog_setup' });
+    });
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') === '1') {
