@@ -3644,6 +3644,16 @@
         'Rebuild'
       );
       if (!proceed) return;
+
+      const originalText = accountsRebuildAutoJournalBtn.textContent;
+      accountsRebuildAutoJournalBtn.disabled = true;
+      accountsRebuildAutoJournalBtn.textContent = 'Rebuilding…';
+      let animTick = 0;
+      const anim = setInterval(() => {
+        animTick = (animTick + 1) % 4;
+        accountsRebuildAutoJournalBtn.textContent = `Rebuilding${'.'.repeat(animTick)}${' '.repeat(3 - animTick)}`;
+      }, 350);
+
       try {
         const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
           method: 'POST',
@@ -3656,6 +3666,10 @@
         openSuccessModal('Auto journal rebuilt successfully from current tax rows.', 'Rebuild Complete ✅');
       } catch (e) {
         openErrorModal(`Could not rebuild auto journal: ${e.message || e}`);
+      } finally {
+        clearInterval(anim);
+        accountsRebuildAutoJournalBtn.disabled = false;
+        accountsRebuildAutoJournalBtn.textContent = originalText;
       }
     });
     accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
