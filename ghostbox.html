@@ -54,8 +54,7 @@
     .back-btn:hover { filter: brightness(1.1); }
 
     .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
-    .promo-row { display:grid; grid-template-columns: 120px 1fr; gap:.7rem; align-items:start; margin-bottom: 1rem; }
-    .promo-ghost-left { width:100%; max-width:110px; justify-self:start; filter: drop-shadow(0 0 14px rgba(158,208,255,.22)); }
+    .promo-row { margin-bottom: 1rem; }
     .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem auto .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
     h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
     .sub { color: var(--muted); margin-bottom: 1.2rem; }
@@ -350,8 +349,6 @@
     }
     .checkout-option .btn { margin-top: auto; }
     @media (max-width: 900px) {
-      .promo-row { grid-template-columns: 1fr; }
-      .promo-ghost-left { max-width:90px; margin-bottom:.25rem; }
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
       .brain-grid { grid-template-columns: 1fr; }
@@ -363,11 +360,10 @@
 <body>
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
   <a href="#checkout" class="buy-now-float">Buy Now ↓</a>
-  <a href="/userguide.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#f4f9ff; text-decoration:none; background:linear-gradient(145deg,#4b5f80,#7f99bf); border:1px solid rgba(198,220,255,.5); box-shadow:0 0 12px rgba(158,208,255,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
+  <a href="/zombie-setup.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#f4f9ff; text-decoration:none; background:linear-gradient(145deg,#4b5f80,#7f99bf); border:1px solid rgba(198,220,255,.5); box-shadow:0 0 12px rgba(158,208,255,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
 
   <main class="wrap">
     <div class="promo-row">
-      <img src="/images/ghostlogo3.png" alt="Ghost Box ghost mark" class="promo-ghost-left" />
       <div class="card" style="margin: .1rem 0 0; border-color: rgba(157,255,122,.35); background: linear-gradient(160deg, rgba(157,255,122,.08), rgba(255,94,94,.06));">
         <h2 style="margin:0 0 .4rem; font-size:1.05rem; color:#d9ffb2;">Father’s Day Special: Give Dad the Gift of Real-World Readiness</h2>
         <p class="small" style="margin:0 0 .45rem; color:#d9deef;">The ultimate off-grid gift. Every Ghost Box ships with a hardened 5G device loaded with AI and survival knowledge, a 42,800mAh solar power hub, and a waterproof crushproof case — everything Dad needs to stay self-sufficient when the grid goes down.</p>

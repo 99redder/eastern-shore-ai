@@ -3,26 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zombie Bag Setup Guide | Eastern Shore AI</title>
+  <title>Ghost Box User & Setup Guide | Eastern Shore AI</title>
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/fonts.css" />
   <style>
     :root {
-      --bg: #0a0b10;
-      --card: #121420;
-      --line: #272b3f;
-      --text: #e8ebf5;
-      --muted: #9aa1ba;
-      --cyan: #00e5ff;
-      --violet: #c850ff;
-      --pink: #ff4fd8;
+      --bg: #0b0d13;
+      --card: #131926;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #c7a6ff;
+      --ok: #b8f0ff;
+      --pink: #d8c2ff;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(circle at top right, #151936 0%, var(--bg) 45%);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(190, 220, 255, 0.16), transparent 35%),
+        radial-gradient(circle at 86% 6%, rgba(208, 188, 255, 0.14), transparent 32%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 58%, #090b11 100%);
       color: var(--text);
       min-height: 100vh;
     }
@@ -40,22 +44,23 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       font-size: 0.78rem;
-      color: #fff;
+      color: #f4f9ff;
       text-decoration: none;
-      background: linear-gradient(145deg, #ff4fd8, #c850ff);
-      border: 1px solid rgba(255, 79, 216, 0.45);
-      box-shadow: 0 0 12px rgba(255, 79, 216, 0.5);
+      background: linear-gradient(145deg, #5f7597, #8fa6c8);
+      border: 1px solid rgba(198, 220, 255, 0.55);
+      box-shadow: 0 0 12px rgba(158, 208, 255, 0.35);
       clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
-    .back-btn:hover { filter: brightness(1.06); }
+    .back-btn:hover { filter: brightness(1.1); }
 
-    .wrap { max-width: 980px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
-    h1 { margin: 0 0 .45rem; font-size: clamp(1.6rem, 3vw, 2.4rem); }
-    .sub { color: var(--muted); margin-bottom: 1.2rem; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
+    .hero-logo { width:min(180px, 42vw); display:block; margin: 0 auto .6rem; filter: drop-shadow(0 0 16px rgba(158,208,255,.25)); }
+    h1 { margin: 0 0 .35rem; font-size: clamp(1.6rem, 3vw, 2.45rem); text-align:center; }
+    .sub { color: var(--muted); margin: 0 auto 1.05rem; text-align:center; max-width:800px; }
 
     .topics {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: .55rem;
       margin-bottom: 1rem;
     }
@@ -63,23 +68,25 @@
       border: 1px solid var(--line);
       background: #0f1321;
       color: var(--text);
-      padding: .55rem .5rem;
-      font-size: .78rem;
+      padding: .62rem .55rem;
+      font-size: .8rem;
       font-weight: 700;
       cursor: pointer;
       border-radius: 6px;
+      line-height: 1.25;
     }
     .topic-btn.active {
-      border-color: rgba(255,79,216,.65);
-      box-shadow: 0 0 0 1px rgba(255,79,216,.25) inset;
-      background: linear-gradient(145deg, rgba(255,79,216,.18), rgba(200,80,255,.14));
+      border-color: rgba(158,208,255,.7);
+      box-shadow: 0 0 0 1px rgba(158,208,255,.22) inset;
+      background: linear-gradient(145deg, rgba(158,208,255,.18), rgba(199,166,255,.14));
+      color: #f2f7ff;
     }
 
     .guide-card {
       background: var(--card);
       border: 1px solid var(--line);
       clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
-      padding: 1.2rem;
+      padding: 1.1rem;
     }
     .guide-head {
       display: flex;
@@ -94,6 +101,7 @@
       margin: 0;
       color: var(--cyan);
       font-size: 1.2rem;
+      letter-spacing: .01em;
     }
     .nav-arrows { display: flex; gap: .5rem; }
     .arrow-btn {
@@ -107,12 +115,14 @@
     }
     .arrow-btn:hover { border-color: var(--cyan); color: var(--cyan); }
     .guide-content { line-height: 1.58; color: #d4d9eb; }
-    .guide-content p { margin: 0 0 .8rem; }
+    .guide-content p { margin: 0 0 .7rem; }
+    .guide-content ul { margin: .2rem 0 .7rem 1.15rem; }
+    .guide-content li { margin: .34rem 0; }
 
-    @media (max-width: 900px) {
+    @media (max-width: 980px) {
       .topics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
-    @media (max-width: 520px) {
+    @media (max-width: 560px) {
       .topics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .guide-head { flex-direction: column; align-items: flex-start; }
     }
@@ -122,14 +132,15 @@
   <a href="/ghostbox.html" id="global-back-btn" class="back-btn" aria-label="Back to Ghost Box page">← Back</a>
 
   <main class="wrap">
-    <h1>Zombie Bag Setup Guide</h1>
-    <div class="sub">Quick-start guide for setup, operation, maintenance, and troubleshooting.</div>
+    <img src="/images/ghostlogo3.png" alt="Ghost Box ghost mark" class="hero-logo" />
+    <h1>Ghost Box User & Setup Guide</h1>
+    <div class="sub">One page for setup, operation, maintenance, troubleshooting, and legal notices.</div>
 
     <section class="topics" id="topics"></section>
 
     <article class="guide-card">
       <div class="guide-head">
-        <h2 class="guide-title" id="guide-title">Getting Started</h2>
+        <h2 class="guide-title" id="guide-title">Initial Setup</h2>
         <div class="nav-arrows">
           <button class="arrow-btn" id="prev-btn" aria-label="Previous section">← Previous</button>
           <button class="arrow-btn" id="next-btn" aria-label="Next section">Next →</button>
@@ -142,67 +153,84 @@
   <script>
     const sections = [
       {
-        title: 'Getting Started',
-        html: `<p>Welcome to the Zombie Bag setup guide. This section gives a quick walkthrough of what to open first and where to start on first boot.</p>
-               <p>Unpack all hardware, verify included items, then power the tablet and charger. Confirm the home screen apps are visible and open the setup wizard app.</p>
-               <p>Follow the wizard prompts in order. This filler copy will be replaced with final production steps and screenshots.</p>`
+        title: 'Initial Setup',
+        html: `<p><strong>Do this immediately after delivery.</strong></p>
+               <ul>
+                 <li><strong>Full charge first:</strong> Plug the 42,800mAh Solar Power Hub into wall power and charge until all LEDs are solid.</li>
+                 <li><strong>Phone battery check:</strong> Power on the OnePlus 8 5G and confirm it is around 50% for long-term storage health.</li>
+                 <li><strong>Seal for readiness:</strong> Place phone and power hub into their Faraday bags, fold the top twice, seal tightly, then store both in the case with silica packs.</li>
+               </ul>`
       },
       {
-        title: 'Power & Charging',
-        html: `<p>This section explains recommended battery routines for both the tablet and solar charger.</p>
-               <p>Keep the charger in a dry, ventilated location while charging. For extended storage, recharge on a maintenance schedule.</p>
-               <p>Final version will include weather caveats, expected charge durations, and battery health tips.</p>`
+        title: 'Maintenance (6-Month Rule)',
+        html: `<p>Twice per year, run a full readiness check:</p>
+               <ul>
+                 <li>Open the case and remove items from Faraday bags.</li>
+                 <li>Top off the power hub to 100% on wall power.</li>
+                 <li>Power on the phone for 10 minutes, then power it down at roughly 50% charge.</li>
+                 <li>Inspect cables, seals, and bag folds for wear, then reseal.</li>
+                 <li>Set the next reminder now—preparedness fails when maintenance slips.</li>
+               </ul>`
       },
       {
-        title: 'Map Setup (OpenMaps)',
-        html: `<p>OpenMaps ships with all U.S. maps preloaded. Verify map packs are present and run a search test while online and offline.</p>
-               <p>Create a few saved locations and test route calculations. This confirms map files and local indexing are healthy.</p>
-               <p>Production content will include map refresh process and storage management best practices.</p>`
+        title: 'Emergency Deployment',
+        html: `<p><strong>Grid-down protocol:</strong></p>
+               <ul>
+                 <li>After removing the phone from Faraday storage, keep <strong>Airplane Mode ON</strong> to prevent battery drain from constant tower searching.</li>
+                 <li>Use your offline stack: maps, local AI, and local knowledge library first.</li>
+                 <li>Conserve power by lowering brightness and closing background apps.</li>
+               </ul>
+               <p><strong>Use-case order:</strong> navigation → medical/repair knowledge → communications when needed.</p>`
       },
       {
-        title: 'AI Apps Overview',
-        html: `<p>This section introduces Petals and the two installed LLM options (large and small model setup).</p>
-               <p>Use the smaller model for quick tasks and battery efficiency; use the larger model when you need deeper output quality.</p>
-               <p>Future documentation will provide model-switching guidance and offline/online usage notes.</p>`
+        title: 'Power & Solar Charging',
+        html: `<p><strong>Reality check:</strong> integrated solar is emergency trickle-charge, not full-speed daily charging.</p>
+               <ul>
+                 <li>Place panel in direct overhead sun and re-angle as sunlight shifts.</li>
+                 <li>Use wall charging whenever available for full recovery.</li>
+                 <li>Avoid high-heat charging sessions with phone connected.</li>
+                 <li>Plan power budget: prioritize mission-critical apps over convenience use.</li>
+               </ul>`
+      },
+      {
+        title: 'Offline Apps & Navigation',
+        html: `<p>Your Ghost Box is optimized for no-signal operation.</p>
+               <ul>
+                 <li><strong>Maps:</strong> verify offline map packs and test search/routes before you need them.</li>
+                 <li><strong>Local AI:</strong> use the smaller model for speed/power, larger model when depth matters.</li>
+                 <li><strong>Knowledge base:</strong> keep essential docs bookmarked for rapid access.</li>
+               </ul>
+               <p>Run an offline dry run once a month so there are no surprises during real deployment.</p>`
+      },
+      {
+        title: 'EMP Protocol (Pro Kit)',
+        html: `<p><strong>Pro-tier advantage:</strong> EMP protection is only as good as your sealing discipline.</p>
+               <ul>
+                 <li>At first sign of risk, isolate all mission-critical electronics in Faraday bags immediately.</li>
+                 <li>Fold the opening over itself at least twice before sealing Velcro.</li>
+                 <li>Check for punctures, worn seams, or contaminated seal surfaces.</li>
+                 <li>Keep spare storage sleeves in the case as backup protection.</li>
+               </ul>`
       },
       {
         title: 'Troubleshooting',
-        html: `<p>Start with quick checks: battery level, Wi-Fi status, storage space, and app permissions.</p>
-               <p>Reboot the device before advanced steps. If an app fails to open, clear cache and retry.</p>
-               <p>Final version will include error-specific decision trees and recovery workflows.</p>`
+        html: `<p>Before deep debugging, run quick checks in this order:</p>
+               <ul>
+                 <li>Battery level and charging cable integrity</li>
+                 <li>Storage capacity and free space</li>
+                 <li>App permissions and recent setting changes</li>
+                 <li>Full reboot, then retry core apps</li>
+               </ul>
+               <p>If behavior persists, document what changed right before failure. That usually reveals root cause faster than random toggling.</p>`
       },
       {
-        title: 'Limited Warranty',
-        html: `<p><strong>Eastern Shore AI Warranty:</strong> Eastern Shore AI provides a 30-day warranty on all products included in this kit.</p>
-               <p>This limited warranty is provided by Eastern Shore AI only and does not extend manufacturer coverage windows.</p>`
-      },
-      {
-        title: 'Manufacturer Warranty',
-        html: `<p><strong>No Manufacturer Warranty:</strong> All kit items (including the Android tablet and solar-powered charger) are provided "AS IS" and "WITH ALL FAULTS." Because Eastern Shore AI is not an authorized reseller of these brands, original manufacturer warranties may be void or non-transferable.</p>
-               <p><strong>Disclaimer of Implied Warranties:</strong> Eastern Shore AI disclaims all express and implied warranties, including merchantability and fitness for a particular purpose, to the maximum extent permitted by law.</p>`
-      },
-      {
-        title: 'Software Notice',
-        html: `<p><strong>SOFTWARE MODIFICATION &amp; SUPPORT NOTICE — MODIFIED DEVICE:</strong> This Android tablet has been modified by Eastern Shore AI to include custom offline software suites for emergency preparedness.</p>
-               <p><strong>NO MANUFACTURER SUPPORT:</strong> Due to these modifications, the original equipment manufacturer (OEM) may no longer provide technical support, system updates, or warranty services for this device.</p>
-               <p><strong>"AS-IS" SOFTWARE:</strong> All pre-installed apps are provided "AS IS" without any express or implied warranties. Eastern Shore AI does not guarantee that the software will be error-free or compatible with future system updates.</p>
-               <p><strong>USER RESPONSIBILITY:</strong> By purchasing this kit, responsibility for security, updating, and proper use of pre-installed software rests solely with the end user.</p>`
-      },
-      {
-        title: 'Trademark & Affiliation',
-        html: `<p><strong>Independent Seller:</strong> Eastern Shore AI is an independent seller of curated goods and is not an authorized dealer, distributor, or affiliate of the manufacturers of individual items included in this kit.</p>
-               <p><strong>Ownership of Marks:</strong> All product names, trademarks, and registered trademarks—including tablet and charger brand marks—are the property of their respective owners.</p>
-               <p><strong>No Endorsement:</strong> Brand names are used solely for identification to describe items included in the Zombie Bag. Reference to these brands does not imply endorsement, sponsorship, or association between trademark owners and Eastern Shore AI.</p>`
-      },
-      {
-        title: 'Liability Disclaimer',
-        html: `<p><strong>Limitation of Liability:</strong> To the maximum extent permitted by law, Eastern Shore AI is not liable for incidental or consequential damages arising from use or inability to use the products in this kit.</p>`
-      },
-      {
-        title: 'Updates & Support',
-        html: `<p>Use this section to check app updates and system updates in a controlled order.</p>
-               <p>Run updates when connected to stable power and internet. Restart after major update batches.</p>
-               <p>Remember: free technical support is included for 30 days. Final support contact flow will be added here.</p>`
+        title: 'Warranty, Legal & Support',
+        html: `<p><strong>Eastern Shore AI Warranty:</strong> 30-day limited warranty on products included in this kit.</p>
+               <p><strong>Manufacturer Warranty:</strong> may be void or non-transferable due to refurbishment and software hardening.</p>
+               <p><strong>Software Notice:</strong> pre-installed software is provided "AS IS"; compatibility and support may differ from stock devices.</p>
+               <p><strong>Liability:</strong> to the maximum extent permitted by law, Eastern Shore AI is not liable for incidental or consequential damages from product use or inability to use.</p>
+               <p><strong>Trademark/Affiliation:</strong> Eastern Shore AI is an independent seller and is not an authorized dealer or affiliate of OEM brands referenced for identification.</p>
+               <p><strong>Support Window:</strong> free technical support is included for 30 days after delivery.</p>`
       }
     ];
 
