@@ -614,13 +614,13 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
 
   const unitAmount = isByogSetup ? '4999' : (isProKit ? '49999' : '34999');
   const productName = isByogSetup
-    ? 'AI Zombie Case BYOG Setup-Only Service'
-    : (isProKit ? 'AI Zombie Case Pro Kit' : 'AI Zombie Case Base Kit');
+    ? 'Ghost Box BYOG Setup-Only Service'
+    : (isProKit ? 'Ghost Box Pro Kit' : 'Ghost Box Base Kit');
   const productDescription = isByogSetup
     ? 'Bring your own gear setup-only service'
     : (isProKit
-      ? '8GB renewed phone + solar power bank + hard waterproof crushproof case + 2 Faraday bags + heavy-duty USB-C cable'
-      : '8GB renewed phone + solar power bank + hard waterproof crushproof case');
+      ? '8GB memory renewed phone with Offline Brain Software pre-installed + solar power bank + hard waterproof crushproof case + 2 Faraday bags + heavy-duty USB-C cable'
+      : '8GB memory renewed phone with Offline Brain Software pre-installed + solar power bank + hard waterproof crushproof case');
   const productCode = isByogSetup ? 'zombie_case_byog_setup' : (isProKit ? 'zombie_case_pro_kit' : 'zombie_case_base_kit');
 
   const body = new URLSearchParams({
