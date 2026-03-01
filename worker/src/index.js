@@ -809,8 +809,17 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const preferredContactMethod = (session.metadata?.preferred_contact_method || 'email').toString();
     const serviceType = (session.metadata?.service_type || 'openclaw_setup').toString();
     const serviceLabel = (session.metadata?.service_label || '').toString().trim();
-    const incomeCategory = serviceType === 'lessons' ? 'AI Lessons' : 'OpenClaw Setup';
-    const incomeSource = serviceType === 'lessons' ? 'Stripe - Lessons' : 'Stripe';
+    const checkoutType = (session.metadata?.checkout_type || '').toString().trim().toLowerCase();
+    const productCode = (session.metadata?.product || '').toString().trim().toLowerCase();
+    const isGhostBoxSale = ['base_kit', 'pro_kit', 'byog_setup'].includes(checkoutType) || productCode.startsWith('ghost_box_');
+
+    const incomeCategory = isGhostBoxSale
+      ? (checkoutType === 'byog_setup' ? 'Ghost Box BYOG Setup' : 'Ghost Box Sales')
+      : (serviceType === 'lessons' ? 'AI Lessons' : 'OpenClaw Setup');
+    const incomeSource = isGhostBoxSale
+      ? 'Stripe - Ghost Box'
+      : (serviceType === 'lessons' ? 'Stripe - Lessons' : 'Stripe');
+
     const amount = Number(session.amount_total || 10000);
 
     if (sessionId) {
