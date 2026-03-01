@@ -88,6 +88,24 @@
     .success-modal-overlay.active { display:flex; }
     #tax-category-modal { z-index:1250; }
     #tax-category-edit-modal { z-index:1300; }
+    .tax-entry-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1240;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(5,8,15,.72);
+      backdrop-filter: blur(2px);
+    }
+    .tax-entry-modal.active { display: flex !important; }
+    .tax-entry-modal-card {
+      width: min(760px, 96vw);
+      max-height: 88vh;
+      overflow-y: auto;
+      margin: 0;
+    }
     #invoice-create-modal { z-index:1350; }
     #confirm-modal, #success-modal, #error-modal { z-index:1400; }
     .success-modal { width:min(560px,96vw); background:linear-gradient(160deg, #141620, #10121a); border:1px solid var(--line); border-radius:0; padding:1rem; }
@@ -329,9 +347,9 @@
                   <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
                 </div>
 
-                <div class="tax-entry-wrap" id="tax-expense-panel" style="margin-top:.5rem; display:none;">
-                  <div class="admin-calendar-wrap">
-                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Expense</div><button type="button" class="btn" id="tax-minimize-expense-btn">Minimize</button></div>
+                <div class="tax-entry-wrap tax-entry-modal" id="tax-expense-panel" style="display:none;" aria-hidden="true">
+                  <div class="admin-calendar-wrap tax-entry-modal-card">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Expense</div><button type="button" class="btn" id="tax-minimize-expense-btn">Close</button></div>
                     <div class="admin-row" id="tax-expense-fields" style="flex-direction:column; align-items:stretch;">
                       <label>Date</label>
                       <input id="tax-expense-date" type="date" />
@@ -365,9 +383,9 @@
                   </div>
                 </div>
 
-                <div class="tax-entry-wrap" id="tax-income-panel" style="margin-top:.5rem; display:none;">
-                  <div class="admin-calendar-wrap">
-                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Income</div><button type="button" class="btn" id="tax-minimize-income-btn">Minimize</button></div>
+                <div class="tax-entry-wrap tax-entry-modal" id="tax-income-panel" style="display:none;" aria-hidden="true">
+                  <div class="admin-calendar-wrap tax-entry-modal-card">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Income</div><button type="button" class="btn" id="tax-minimize-income-btn">Close</button></div>
                     <div class="admin-row" id="tax-income-fields" style="flex-direction:column; align-items:stretch;">
                       <label>Date</label>
                       <input id="tax-income-date" type="date" />
@@ -2081,15 +2099,25 @@
       const showExpense = mode === 'expense';
       const showOwnerTransfer = mode === 'owner_transfer';
       const showIncome = mode === 'income';
-      if (taxExpensePanel) taxExpensePanel.style.display = showExpense ? '' : 'none';
+
+      if (taxExpensePanel) {
+        taxExpensePanel.style.display = showExpense ? 'flex' : 'none';
+        taxExpensePanel.classList.toggle('active', showExpense);
+        taxExpensePanel.setAttribute('aria-hidden', showExpense ? 'false' : 'true');
+      }
+      if (taxIncomePanel) {
+        taxIncomePanel.style.display = showIncome ? 'flex' : 'none';
+        taxIncomePanel.classList.toggle('active', showIncome);
+        taxIncomePanel.setAttribute('aria-hidden', showIncome ? 'false' : 'true');
+      }
+
       if (taxOwnerTransferPanel) taxOwnerTransferPanel.style.display = showOwnerTransfer ? '' : 'none';
-      if (taxIncomePanel) taxIncomePanel.style.display = showIncome ? '' : 'none';
       if (taxExpenseFields) taxExpenseFields.style.display = showExpense ? '' : 'none';
       if (taxOwnerTransferFields) taxOwnerTransferFields.style.display = showOwnerTransfer ? '' : 'none';
       if (taxIncomeFields) taxIncomeFields.style.display = showIncome ? '' : 'none';
-      if (taxMinimizeExpenseBtn) taxMinimizeExpenseBtn.textContent = 'Minimize';
+      if (taxMinimizeExpenseBtn) taxMinimizeExpenseBtn.textContent = 'Close';
       if (taxMinimizeOwnerTransferBtn) taxMinimizeOwnerTransferBtn.textContent = 'Minimize';
-      if (taxMinimizeIncomeBtn) taxMinimizeIncomeBtn.textContent = 'Minimize';
+      if (taxMinimizeIncomeBtn) taxMinimizeIncomeBtn.textContent = 'Close';
       if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
       if (taxModeOwnerTransferBtn) taxModeOwnerTransferBtn.classList.toggle('active', showOwnerTransfer);
       if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome);
@@ -3549,9 +3577,7 @@
     });
 
     taxMinimizeExpenseBtn?.addEventListener('click', () => {
-      const isHidden = taxExpenseFields?.style.display === 'none';
-      if (taxExpenseFields) taxExpenseFields.style.display = isHidden ? '' : 'none';
-      taxMinimizeExpenseBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+      setTaxEntryMode('none');
     });
 
     taxMinimizeOwnerTransferBtn?.addEventListener('click', () => {
@@ -3561,9 +3587,14 @@
     });
 
     taxMinimizeIncomeBtn?.addEventListener('click', () => {
-      const isHidden = taxIncomeFields?.style.display === 'none';
-      if (taxIncomeFields) taxIncomeFields.style.display = isHidden ? '' : 'none';
-      taxMinimizeIncomeBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+      setTaxEntryMode('none');
+    });
+
+    taxExpensePanel?.addEventListener('click', (e) => {
+      if (e.target === taxExpensePanel) setTaxEntryMode('none');
+    });
+    taxIncomePanel?.addEventListener('click', (e) => {
+      if (e.target === taxIncomePanel) setTaxEntryMode('none');
     });
 
     txFilterBtns.forEach(btn => {
