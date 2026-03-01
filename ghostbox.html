@@ -359,7 +359,7 @@
 </head>
 <body>
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
-  <a href="#checkout" class="buy-now-float">Buy Now ↓</a>
+  <a href="#choose-kit" class="buy-now-float">Buy Now ↓</a>
   <a href="/zombie-setup.html" class="back-btn" style="left:auto; right:1rem;">Ghost Box Users Guide</a>
 
   <main class="wrap">
@@ -417,7 +417,7 @@
       "Information is the ultimate survival resource, but in a crisis, your digital footprint is your greatest liability. The Ghost Box was engineered to provide the intelligence of the modern world with the invisibility of the old one. No pings. No tracking. No compromise. Just pure, hardened knowledge when you need it most."
     </blockquote>
 
-    <article class="card">
+    <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
           <h2 style="margin:0;">Choose Your Kit</h2>
           <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
@@ -430,7 +430,7 @@
             <h3>Ghost Box: Essential — $349.99</h3>
             <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
             <ul style="flex:1;">
-              <li>OnePlus 8 5G (8GB RAM, Snapdragon 865) with Offline Brain Software Pre-Installed<br><a href="#" id="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
+              <li>(1) 8GB Smart Device (Refurbished) — Android OS wiped &amp; replaced with a low-memory-footprint, secure open-source OS; pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)<br><a href="#" id="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
               <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
               <li>Hard waterproof crushproof case</li>
               <li>Includes 1x Custom Ghost Box PVC Tactical Patch (Removable via Velcro Loop Panel)</li>
@@ -445,7 +445,7 @@
             <h3>Ghost Box: Pro — $499.99</h3>
             <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
             <ul style="flex:1;">
-              <li>OnePlus 8 5G (8GB RAM, Snapdragon 865) with Offline Brain Software Pre-Installed</li>
+              <li>(1) 8GB Smart Device (Refurbished) — Android OS wiped &amp; replaced with a low-memory-footprint, secure open-source OS; pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)</li>
               <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB)</li>
               <li>Two Faraday bags (phone + battery) with Dual-Layer Mission Darkness TitanRF Shielding <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
               <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
@@ -532,11 +532,18 @@
     <section class="card" style="margin-top:1rem;">
       <section class="disclaimer" aria-label="Warranty and Liability Disclaimer" style="margin-top:0; padding-top:0; border-top:0;">
         <h3>Warranty &amp; Liability Disclaimer</h3>
-        <p><strong>No Manufacturer Warranty:</strong> Items in this kit are provided "AS IS." Eastern Shore AI is not an authorized reseller, so original manufacturer warranties may be void. Eastern Shore AI provides a <strong>30-day warranty</strong> on all included products.</p>
-        <p><strong>Software Modifications:</strong> The phone runs a custom, privacy-focused OS. This voids the manufacturer's warranty. Certain mainstream apps may not function as on standard retail devices. All pre-installed software is provided "AS IS."</p>
-        <p><strong>Limitation of Liability:</strong> Eastern Shore AI disclaims all implied warranties and is not liable for incidental or consequential damages arising from use or inability to use the products, to the maximum extent permitted by law.</p>
-        <p><strong>Independent Seller:</strong> Eastern Shore AI is an independent seller of curated goods — not an authorized dealer or affiliate of the manufacturers of individual items. All product names and trademarks are property of their respective owners and are referenced solely for identification purposes.</p>
-        <p><strong>User Responsibility:</strong> By purchasing this kit, the buyer acknowledges that security, updating, and proper use of pre-installed software rests solely with the end user.</p>
+        <p><strong>No Manufacturer Warranty:</strong> All items in this kit are provided "AS IS." Eastern Shore AI is not an authorized reseller of any included component, and original manufacturer warranties are void. Eastern Shore AI provides a <strong>30-day limited warranty</strong> covering defects in hardware function and software configuration as delivered.</p>
+        <p><strong>Refurbished Device Condition:</strong> The smart device included in this kit is a professionally refurbished unit that has been inspected, wiped, and configured prior to shipment. Minor cosmetic wear consistent with prior use is normal and does not constitute a defect.</p>
+        <p><strong>Software Modifications &amp; OS:</strong> The device runs a custom, privacy-focused open-source operating system. This modification voids any remaining manufacturer warranty. Certain mainstream applications — including banking apps, DRM-restricted streaming services, and Google-dependent services — may not function as they do on standard retail devices. All pre-installed software is provided "AS IS."</p>
+        <p><strong>Battery Safety &amp; Maintenance:</strong> The included lithium-ion Solar Power Hub requires an initial full charge via wall outlet upon receipt. Lithium-ion batteries self-discharge over time; recharge every 6–12 months to prevent permanent capacity loss. Do not store in extreme temperatures (above 113°F / 45°C or below 14°F / -10°C), expose to moisture, puncture, or crush. Damaged or swollen batteries must be disposed of in accordance with local regulations.</p>
+        <p><strong>Shipping Regulations:</strong> Due to the high-capacity lithium-ion battery, this product ships via ground transportation only. Air shipping is not available. Delivery to Alaska, Hawaii, and international addresses may be unavailable or subject to additional fees and restrictions.</p>
+        <p><strong>Emergency Use &amp; No Survival Guarantee:</strong> This kit is a preparedness tool. It does not guarantee safety, survival, or operational success in any emergency scenario. AI-generated information is for educational and reference purposes only and must not replace professional medical, tactical, legal, or emergency response guidance.</p>
+        <p><strong>Solar Charging Limitations:</strong> The integrated solar panel is an emergency trickle-charge supplement, not a primary charging source. Full solar recharge may require several days under optimal direct sunlight. Use wall power whenever available.</p>
+        <p><strong>EMP Protection — Pro Kit Only:</strong> Signal-blocking and EMP protection is effective only when devices are fully enclosed and the Faraday bag is correctly folded and sealed per manufacturer instructions. Punctures, improper sealing, material degradation, or extreme events beyond tested parameters may reduce or eliminate protection. Eastern Shore AI makes no guarantee of protection against any specific electromagnetic threat or event.</p>
+        <p><strong>Return &amp; Refund Policy:</strong> Returns are accepted within 30 days of delivery, provided the device is in its original functional condition, all Faraday bag seals remain unbroken (Pro kit), and the operating system has not been further modified by the buyer. Buyer is responsible for return shipping costs. Items showing physical damage caused after receipt are not eligible for return.</p>
+        <p><strong>Limitation of Liability:</strong> To the maximum extent permitted by applicable law, Eastern Shore AI disclaims all implied warranties of merchantability and fitness for a particular purpose. Eastern Shore AI shall not be liable for any incidental, consequential, special, or punitive damages arising from the use or inability to use these products — including but not limited to loss of data, personal injury, property damage, or adverse emergency outcomes.</p>
+        <p><strong>Independent Seller &amp; Trademarks:</strong> Eastern Shore AI is an independent seller of curated goods and is not an authorized dealer, affiliate, or partner of any device or component manufacturer. All product names, brand names, and trademarks referenced are the property of their respective owners and are cited solely for product identification purposes.</p>
+        <p><strong>User Responsibility:</strong> By purchasing this kit, the buyer confirms they are 18 years of age or older and accepts full responsibility for the lawful use, safe storage, routine maintenance, and updating of all included hardware and software.</p>
       </section>
     </section>
 
@@ -604,36 +611,45 @@
 
   <div class="terms-overlay" id="terms-overlay" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
-      <h3 id="terms-title">Terms of Sale Acknowledgement Required</h3>
-      <div class="terms-scroll">
-
-        <p><strong>1) Battery Maintenance &amp; Storage Disclaimer</strong></p>
-        <p><strong>Initial Charge Required:</strong> I understand that while the 42,800mAh Solar Power Hub (with built-in cables) is shipped with a partial charge, I must fully charge it to 100% via a wall outlet upon receipt to ensure long-term battery health.</p>
-        <p><strong>Long-Term Storage:</strong> I acknowledge that lithium-ion batteries naturally discharge over time. To prevent permanent battery failure, I agree to check and recharge the 42,800mAh Solar Power Hub every 6 to 12 months.</p>
-        <p><strong>Temperature Sensitivity:</strong> I understand that storing this kit in extreme temperatures (e.g., a hot car trunk or uninsulated garage) can permanently damage the battery and the smartphone.</p>
-
-        <p><strong>2) "As-Is" Refurbished Electronics Disclosure</strong></p>
-        <p><strong>Device Condition:</strong> I acknowledge that the OnePlus 8 5G is a professionally refurbished device and may show minor cosmetic wear. I understand that the original manufacturer's warranty is voided due to the installation of custom open-source software.</p>
-        <p><strong>Software Responsibility:</strong> I understand that the device runs a custom, privacy-focused Operating System. I acknowledge that certain mainstream apps (e.g., banking or DRM-restricted apps) may not function as they do on standard retail devices.</p>
-
-        <p><strong>3) Emergency Use &amp; Reliability Disclaimer</strong></p>
-        <p><strong>No Guarantee of Survival:</strong> I acknowledge that this kit is a tool for preparedness and does not guarantee safety or survival in an emergency. The AI-provided information is for educational purposes and should not replace professional medical or tactical advice.</p>
-        <p><strong>Solar Limitations:</strong> I understand that the integrated solar panel is intended for emergency trickle-charging and is not a primary charging source. Full solar charging may take several days depending on weather conditions.</p>
-
-        <p><strong>4) Shipping &amp; Battery Regulations</strong></p>
-        <p><strong>Ground Shipping Only:</strong> I understand that due to the high-capacity lithium-ion battery, this product must ship via Ground Transportation only and may have longer transit times than standard electronics.</p>
-        <p><strong>Return Policy:</strong> I acknowledge that returns are only accepted within 30 days if the Faraday seals remain unbroken and the software has not been altered by the user.</p>
-
-        <p><strong>5) EMP Protection Acknowledgement (Pro Kit Only)</strong></p>
-        <p><strong>Faraday Integrity:</strong> I understand that the EMP protection provided by the Mission Darkness Faraday Bags is only effective if the bags are correctly folded and sealed. Any punctures or improper seals will compromise the protection.</p>
+      <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">GHOST BOX</span>
+        <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">Terms of Sale</span>
       </div>
-      <label style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.8rem; color:#d8dce8;">
-        <input type="checkbox" id="terms-check" style="margin-top:.2rem;" />
-        <span>I acknowledge and agree.</span>
+      <h3 id="terms-title" style="margin:0 0 .6rem; font-size:1.1rem; color:#ffd7f8; letter-spacing:.01em;">Review &amp; Acknowledge Before Purchase</h3>
+      <div class="terms-scroll">
+        <p style="color:var(--cyan); font-size:.78rem; text-transform:uppercase; letter-spacing:.07em; font-weight:700; margin:0 0 .65rem; font-family:'Hanken Grotesk',sans-serif;">— Please read all terms carefully —</p>
+
+        <p><strong>1. Battery Maintenance &amp; Storage</strong></p>
+        <p><strong>Initial Charge Required:</strong> The 42,800mAh Solar Power Hub ships with a partial charge. I will fully charge it via wall outlet upon receipt to ensure long-term battery health.</p>
+        <p><strong>Long-Term Storage:</strong> I acknowledge that lithium-ion batteries naturally self-discharge over time. I will recharge the power hub every 6–12 months to prevent permanent battery failure.</p>
+        <p><strong>Temperature &amp; Safety:</strong> I will not store this kit in extreme heat or cold (e.g., a hot car trunk or uninsulated garage). I understand extreme temperatures can permanently damage the battery and device. I will not puncture, crush, or expose the battery to moisture, and will dispose of any damaged battery per local regulations.</p>
+
+        <p><strong>2. Refurbished Device Disclosure</strong></p>
+        <p><strong>Device Condition:</strong> I acknowledge the included 8GB Smart Device is a professionally refurbished unit and may show minor cosmetic wear. The original manufacturer's warranty is void due to the installation of a custom open-source OS.</p>
+        <p><strong>Software Responsibility:</strong> I understand the device runs a privacy-focused open-source operating system. Certain mainstream apps — including banking, DRM-restricted streaming, and Google-dependent services — may not function as on standard retail devices. All pre-installed software is provided "AS IS."</p>
+
+        <p><strong>3. Emergency Use &amp; Reliability</strong></p>
+        <p><strong>No Survival Guarantee:</strong> I acknowledge this kit is a preparedness tool and does not guarantee safety or survival in any emergency. AI-provided information is for educational reference only and must not replace professional medical, tactical, or legal advice.</p>
+        <p><strong>Solar Limitations:</strong> I understand the solar panel is an emergency trickle-charge supplement, not a primary charger. Full solar recharge may take several days under optimal conditions. I will use wall power whenever available.</p>
+
+        <p><strong>4. Shipping &amp; Return Policy</strong></p>
+        <p><strong>Ground Shipping Only:</strong> Due to the high-capacity lithium-ion battery, this product ships via ground transportation only and may not be eligible for air shipping.</p>
+        <p><strong>Returns:</strong> Returns are accepted within 30 days of delivery if the device is in original functional condition, Faraday bag seals remain unbroken (Pro kit), and the OS has not been further modified by the buyer. I am responsible for return shipping costs. Items with physical damage caused after receipt are not eligible for return.</p>
+
+        <p><strong>5. EMP Protection — Pro Kit Only</strong></p>
+        <p><strong>Faraday Bag Integrity:</strong> I understand EMP and signal-blocking protection is only effective when the Faraday bag is correctly folded and sealed. Any punctures, improper sealing, or material degradation will reduce or eliminate protection. Eastern Shore AI makes no guarantee of protection against any specific electromagnetic event.</p>
+
+        <p><strong>6. Liability &amp; User Responsibility</strong></p>
+        <p><strong>Limitation of Liability:</strong> I acknowledge that Eastern Shore AI disclaims all implied warranties and is not liable for incidental, consequential, special, or punitive damages — including loss of data, personal injury, property damage, or adverse emergency outcomes — to the maximum extent permitted by law.</p>
+        <p><strong>User Responsibility:</strong> I confirm I am 18 years of age or older and accept full responsibility for the lawful use, safe storage, maintenance, and updating of all included hardware and software.</p>
+      </div>
+      <label style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.8rem; color:#d8dce8; font-size:.9rem;">
+        <input type="checkbox" id="terms-check" style="margin-top:.25rem; accent-color:var(--cyan);" />
+        <span>I have read and agree to all terms of sale above.</span>
       </label>
       <div class="terms-actions">
         <button type="button" class="btn-outline" id="terms-cancel">Cancel</button>
-        <button type="button" class="btn" id="terms-accept" style="width:auto; min-width:220px;" disabled>Continue to Checkout</button>
+        <button type="button" class="btn" id="terms-accept" style="width:auto; min-width:220px;" disabled>Continue to Checkout →</button>
       </div>
     </div>
   </div>
