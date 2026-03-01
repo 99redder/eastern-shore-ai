@@ -9,24 +9,24 @@
   <link rel="stylesheet" href="/fonts.css" />
   <style>
     :root {
-      --bg: #0a0b10;
-      --card: #121420;
-      --line: #272b3f;
-      --text: #e8ebf5;
-      --muted: #9aa1ba;
-      --cyan: #9dff7a;
-      --violet: #7cff3a;
-      --ok: #ffd166;
-      --pink: #ff5e5e;
+      --bg: #0b0d13;
+      --card: #131926;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #c7a6ff;
+      --ok: #b8f0ff;
+      --pink: #d8c2ff;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background:
-        radial-gradient(circle at 18% 8%, rgba(130, 255, 72, 0.16), transparent 34%),
-        radial-gradient(circle at 88% 2%, rgba(255, 78, 66, 0.12), transparent 28%),
-        linear-gradient(180deg, #10140e 0%, #0a0b10 54%, #0b0c08 100%);
+        radial-gradient(circle at 18% 10%, rgba(190, 220, 255, 0.16), transparent 35%),
+        radial-gradient(circle at 86% 6%, rgba(208, 188, 255, 0.14), transparent 32%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 58%, #090b11 100%);
       color: var(--text);
       min-height: 100vh;
     }
@@ -44,14 +44,14 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       font-size: 0.78rem;
-      color: #fff;
+      color: #f4f9ff;
       text-decoration: none;
-      background: linear-gradient(145deg, #8b0000, #c1121f);
-      border: 1px solid rgba(255, 80, 80, 0.55);
-      box-shadow: 0 0 12px rgba(193, 18, 31, 0.5);
+      background: linear-gradient(145deg, #5f7597, #8fa6c8);
+      border: 1px solid rgba(198, 220, 255, 0.55);
+      box-shadow: 0 0 12px rgba(158, 208, 255, 0.35);
       clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
-    .back-btn:hover { filter: brightness(1.12); }
+    .back-btn:hover { filter: brightness(1.1); }
 
     .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
     h1 { margin: 0 0 .4rem; font-size: clamp(1.8rem, 3vw, 2.8rem); }
@@ -60,10 +60,10 @@
       display: inline-block;
       margin-bottom: .8rem;
       padding: .38rem .68rem;
-      border: 1px solid rgba(255, 79, 216, 0.45);
-      box-shadow: 0 0 14px rgba(255,79,216,0.35);
-      color: #ffd7f8;
-      background: linear-gradient(145deg, rgba(255,79,216,0.2), rgba(200,80,255,0.12));
+      border: 1px solid rgba(173, 210, 255, 0.55);
+      box-shadow: 0 0 14px rgba(158, 208, 255, 0.30);
+      color: #e9f4ff;
+      background: linear-gradient(145deg, rgba(158,208,255,0.22), rgba(199,166,255,0.16));
       font-family: 'Hanken Grotesk', sans-serif;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -118,8 +118,8 @@
       top:10px;
       right:-30px;
       transform:rotate(38deg);
-      background:#ff5e5e;
-      color:#fff;
+      background:linear-gradient(145deg,#8fbaf2,#c7a6ff);
+      color:#0d1524;
       font-size:.66rem;
       font-weight:700;
       letter-spacing:.04em;
@@ -258,7 +258,7 @@
 </head>
 <body>
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
-  <a href="/userguide.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#fff; text-decoration:none; background:linear-gradient(145deg,#1c3b2a,#2f6a41); border:1px solid rgba(157,255,122,.45); box-shadow:0 0 12px rgba(157,255,122,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
+  <a href="/userguide.html" style="position:fixed; top:1rem; right:1rem; z-index:6000; display:inline-flex; align-items:center; gap:.35rem; padding:.6rem .95rem; font-family:'Hanken Grotesk', sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.78rem; color:#f4f9ff; text-decoration:none; background:linear-gradient(145deg,#4b5f80,#7f99bf); border:1px solid rgba(198,220,255,.5); box-shadow:0 0 12px rgba(158,208,255,.28); clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));">User's Guide</a>
 
   <main class="wrap">
     <span class="sale-chip">Father’s Day Special Pricing • While Supplies Last • Emergency Preparedness in the Age of AI</span>
