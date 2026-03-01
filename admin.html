@@ -343,6 +343,10 @@
                       <input id="tax-expense-amount" type="number" step="0.01" placeholder="0.00" />
                       <label>Paid via</label>
                       <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
+                      <label style="display:flex; gap:.45rem; align-items:center; font-size:.85rem; color:var(--muted); margin-top:.2rem;">
+                        <input id="tax-expense-owner-funded" type="checkbox" style="margin:0; width:16px; height:16px;" />
+                        <span>Paid personally (auto post to Owner Contributions)</span>
+                      </label>
                       <label>Notes</label>
                       <input id="tax-expense-notes" placeholder="optional" />
                       <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
@@ -1066,6 +1070,7 @@
     const taxExpenseCategoryEl = document.getElementById('tax-expense-category');
     const taxExpenseAmountEl = document.getElementById('tax-expense-amount');
     const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
+    const taxExpenseOwnerFundedEl = document.getElementById('tax-expense-owner-funded');
     const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
     const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
     const taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
@@ -2002,7 +2007,8 @@
     // ===== Tax Ledger =====
     function formatTaxRowLabel(type, r) {
       const counterparty = type === 'income' ? (r.source || '') : (r.vendor || '');
-      return `${r.date} | ${r.category || ''} | ${counterparty} | ${r.notes || ''}`;
+      const cleanNotes = (r.notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim();
+      return `${r.date} | ${r.category || ''} | ${counterparty} | ${cleanNotes}`;
     }
 
     async function editTaxRecord(type, r) {
@@ -2014,7 +2020,8 @@
         taxExpenseCategoryEl.value = r.category || TAX_EXPENSE_CATEGORIES[0];
         taxExpenseAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
         taxExpensePaidViaEl.value = r.paid_via || '';
-        taxExpenseNotesEl.value = r.notes || '';
+        if (taxExpenseOwnerFundedEl) taxExpenseOwnerFundedEl.checked = /\[owner-funded\]/i.test(r.notes || '');
+        taxExpenseNotesEl.value = (r.notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim();
         taxAddExpenseBtn.style.display = 'none';
         taxUpdateExpenseBtn.style.display = '';
         taxCancelExpenseEditBtn.style.display = '';
@@ -2273,6 +2280,7 @@
       taxExpenseVendorEl.value = '';
       taxExpenseAmountEl.value = '';
       taxExpensePaidViaEl.value = '';
+      if (taxExpenseOwnerFundedEl) taxExpenseOwnerFundedEl.checked = false;
       taxExpenseNotesEl.value = '';
       const expReceiptEl = document.getElementById('tax-expense-receipt');
       if (expReceiptEl) expReceiptEl.value = '';
@@ -2305,7 +2313,8 @@
         category: taxExpenseCategoryEl.value,
         amount: taxExpenseAmountEl.value,
         paidVia: taxExpensePaidViaEl.value.trim(),
-        notes: taxExpenseNotesEl.value.trim()
+        notes: taxExpenseNotesEl.value.trim(),
+        isOwnerFunded: taxExpenseOwnerFundedEl ? taxExpenseOwnerFundedEl.checked : false
       };
       if (!payload.date || !payload.category || !payload.amount) {
         openErrorModal('Expense date, category, and amount are required.');

@@ -1282,16 +1282,21 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
   const category = (data.category || '').toString().trim();
   const paidVia = (data.paidVia || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
+  const isOwnerFunded = data.isOwnerFunded === true ? 1 : 0;
   const cents = toCents(data.amount);
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(expenseDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
   if (!category) return json({ ok: false, error: 'Missing category' }, 400, corsHeaders);
   if (cents === null) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
 
+  const notesWithOwnerFlag = isOwnerFunded
+    ? (notes ? `${notes} [owner-funded]` : '[owner-funded]')
+    : notes;
+
   const r = await env.DB.prepare(
     `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes)
      VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
-  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notes || null).run();
+  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notesWithOwnerFlag || null).run();
 
   const id = Number(r.meta?.last_row_id || 0) || null;
   if (id) {
@@ -1302,7 +1307,8 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
       category,
       amount_cents: cents,
       paid_via: paidVia || null,
-      notes: notes || null
+      notes: notesWithOwnerFlag || null,
+      is_owner_funded: isOwnerFunded
     });
   }
 
@@ -1373,6 +1379,7 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
   const category = (data.category || '').toString().trim();
   const paidVia = (data.paidVia || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
+  const isOwnerFunded = data.isOwnerFunded === true ? 1 : 0;
   const cents = toCents(data.amount);
 
   if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
@@ -1383,6 +1390,10 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
   const existing = await env.DB.prepare('SELECT id FROM tax_expenses WHERE id = ?1').bind(id).first();
   if (!existing) return json({ ok: false, error: 'Expense not found' }, 404, corsHeaders);
 
+  const notesWithOwnerFlag = isOwnerFunded
+    ? (notes ? `${notes} [owner-funded]` : '[owner-funded]')
+    : notes.replace(/\s*\[owner-funded\]\s*/ig, ' ').trim();
+
   await env.DB.prepare(
     `UPDATE tax_expenses
      SET expense_date = ?1,
@@ -1392,7 +1403,7 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
          paid_via = ?5,
          notes = ?6
      WHERE id = ?7`
-  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notes || null, id).run();
+  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notesWithOwnerFlag || null, id).run();
 
   await upsertTaxExpenseJournal(env.DB, {
     id,
@@ -1401,7 +1412,8 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
     category,
     amount_cents: cents,
     paid_via: paidVia || null,
-    notes: notes || null
+    notes: notesWithOwnerFlag || null,
+    is_owner_funded: isOwnerFunded
   });
 
   return json({ ok: true, id }, 200, corsHeaders);
@@ -3185,12 +3197,16 @@ async function upsertTaxExpenseJournal(db, row) {
 
   const expenseAccountCode = row.category === 'Payment Processing Fees' ? '5300' : '5200';
   const paidVia = (row.paid_via || '').toLowerCase();
+  const notesRaw = (row.notes || '').toString().toLowerCase();
+  const isOwnerFunded = Number(row.is_owner_funded || 0) === 1 || notesRaw.includes('[owner-funded]');
 
   let offsetCode = '3100'; // default: treat as owner capital contribution
-  if (paidVia.includes('stripe') || paidVia.includes('cash') || paidVia.includes('checking') || paidVia.includes('bank')) {
-    offsetCode = '1000';
-  } else if (paidVia.includes('business card') || paidVia.includes('corp card')) {
-    offsetCode = '2100';
+  if (!isOwnerFunded) {
+    if (paidVia.includes('stripe') || paidVia.includes('cash') || paidVia.includes('checking') || paidVia.includes('bank')) {
+      offsetCode = '1000';
+    } else if (paidVia.includes('business card') || paidVia.includes('corp card')) {
+      offsetCode = '2100';
+    }
   }
 
   const debitAccountId = await getAccountIdByCode(db, expenseAccountCode);
