@@ -439,7 +439,7 @@
               <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
                 <ul>
                   <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
-                  <li>Essential Software Package: pre-loaded with 20GB+ survival apps and 1 offline LLM (AI Chat Bot)<br><a href="#" id="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
+                  <li>Essential Software Package: pre-loaded with 20GB+ survival apps and 1 offline LLM (AI Chat Bot)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
                   <li>Heavy Duty Armor Military Grade protective phone case</li>
                 </ul>
               </li>
@@ -462,7 +462,7 @@
               <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
                 <ul>
                   <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
-                  <li>Pro Software Package: pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)<br><a href="#" id="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
+                  <li>Pro Software Package: pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
                   <li>Heavy Duty Armor Military Grade protective phone case</li>
                 </ul>
               </li>
@@ -759,7 +759,7 @@
     const faradayInfoLink = document.getElementById('faraday-bag-info-link');
     const faradayModal = document.getElementById('faraday-modal');
     const faradayClose = document.getElementById('faraday-close');
-    const softwareInfoLink = document.getElementById('preloaded-software-link');
+    const softwareInfoLinks = document.querySelectorAll('.preloaded-software-link');
     const softwareModal = document.getElementById('software-modal');
     const softwareClose = document.getElementById('software-close');
     let pendingPayload = null;
@@ -835,10 +835,12 @@
       }
     });
 
-    softwareInfoLink?.addEventListener('click', (e) => {
-      e.preventDefault();
-      softwareModal.style.display = 'flex';
-      softwareModal.setAttribute('aria-hidden', 'false');
+    softwareInfoLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        softwareModal.style.display = 'flex';
+        softwareModal.setAttribute('aria-hidden', 'false');
+      });
     });
     softwareClose?.addEventListener('click', () => {
       softwareModal.style.display = 'none';
