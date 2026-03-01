@@ -462,7 +462,7 @@
               <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
                 <ul>
                   <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
-                  <li>Pro Software Package: pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)</li>
+                  <li>Pro Software Package: pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)<br><a href="#" id="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
                   <li>Heavy Duty Armor Military Grade protective phone case</li>
                 </ul>
               </li>
@@ -616,34 +616,69 @@
   </div>
 
   <div class="terms-overlay" id="software-modal" aria-hidden="true">
-    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="software-title">
-      <h3 id="software-title">What software comes preloaded?</h3>
-      <div class="terms-scroll" style="max-height:44vh;">
-        <p>Placeholder app list (will be updated):</p>
-        <ul style="margin:0; padding-left:1.1rem;">
-          <li>App 01 — Offline Maps</li>
-          <li>App 02 — Local LLM Chat</li>
-          <li>App 03 — Medical Wiki</li>
-          <li>App 04 — Survival Library</li>
-          <li>App 05 — Field Notes</li>
-          <li>App 06 — Flashlight Utility</li>
-          <li>App 07 — Compass Pro</li>
-          <li>App 08 — Weather Snapshot</li>
-          <li>App 09 — Radio Frequency Guide</li>
-          <li>App 10 — First Aid QuickRef</li>
-          <li>App 11 — Gear Checklist</li>
-          <li>App 12 — Battery Health Tool</li>
-          <li>App 13 — Offline Translator</li>
-          <li>App 14 — Emergency Contacts Vault</li>
-          <li>App 15 — Secure File Locker</li>
-          <li>App 16 — PDF Manual Reader</li>
-          <li>App 17 — Local Docs Search</li>
-          <li>App 18 — Mesh Networking Helper</li>
-          <li>App 19 — Tactical Grid Planner</li>
-          <li>App 20 — System Recovery Toolkit</li>
-        </ul>
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="software-title" style="width:min(920px,98vw);">
+      <h3 id="software-title" style="margin:0 0 .7rem;">What software comes preloaded?</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem; max-height:56vh;">
+
+        <!-- Essential column -->
+        <div style="display:flex; flex-direction:column; min-height:0;">
+          <div style="background:rgba(158,208,255,.1); border:1px solid rgba(158,208,255,.35); border-radius:6px 6px 0 0; padding:.5rem .75rem; flex-shrink:0;">
+            <div style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; color:var(--cyan); font-size:.95rem; text-transform:uppercase; letter-spacing:.05em;">Essential Package</div>
+            <div style="font-size:.78rem; color:var(--muted); margin-top:.1rem;">20GB+ · 1 Offline LLM</div>
+          </div>
+          <div style="flex:1; overflow-y:auto; border:1px solid rgba(158,208,255,.2); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
+            <p style="margin:0 0 .4rem; font-size:.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-family:'Hanken Grotesk',sans-serif;">Core Survival Apps</p>
+            <ul style="margin:0 0 .7rem; padding-left:1rem; font-size:.9rem; color:#d4d9eb;">
+              <li style="margin:.3rem 0;">Offline Maps — full continental US navigation, no cell signal required</li>
+              <li style="margin:.3rem 0;">PocketPal — local AI chat bot (1 small model included)</li>
+              <li style="margin:.3rem 0;">Offline First Aid Reference — step-by-step emergency medical guide</li>
+              <li style="margin:.3rem 0;">Survival Handbook — core wilderness and urban survival procedures</li>
+              <li style="margin:.3rem 0;">Offline Medical Wiki — comprehensive medical reference library</li>
+              <li style="margin:.3rem 0;">PDF Document Reader — view and annotate saved manuals and documents</li>
+              <li style="margin:.3rem 0;">Compass &amp; Orientation Tools — GPS-free directional navigation</li>
+              <li style="margin:.3rem 0;">Flashlight &amp; Emergency Strobe — full screen + LED torch control</li>
+              <li style="margin:.3rem 0;">Battery Health Monitor — track power hub and device charge cycles</li>
+              <li style="margin:.3rem 0;">Encrypted Notes &amp; Contacts Vault — secure offline storage for critical info</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pro column -->
+        <div style="display:flex; flex-direction:column; min-height:0;">
+          <div style="background:rgba(199,166,255,.12); border:1px solid rgba(199,166,255,.4); border-radius:6px 6px 0 0; padding:.5rem .75rem; flex-shrink:0;">
+            <div style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; color:var(--violet); font-size:.95rem; text-transform:uppercase; letter-spacing:.05em;">Pro Package</div>
+            <div style="font-size:.78rem; color:var(--muted); margin-top:.1rem;">50GB+ · 3 Offline LLMs (Small, Medium, Large)</div>
+          </div>
+          <div style="flex:1; overflow-y:auto; border:1px solid rgba(199,166,255,.25); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
+            <p style="margin:0 0 .4rem; font-size:.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-family:'Hanken Grotesk',sans-serif;">Everything in Essential, plus:</p>
+            <ul style="margin:0 0 .7rem; padding-left:1rem; font-size:.9rem; color:#d4d9eb;">
+              <li style="margin:.3rem 0;">PocketPal — 3 offline LLMs: small (fast), medium (balanced), large (deep knowledge)</li>
+              <li style="margin:.3rem 0;">Extended Offline Map Data — high-resolution tiles, terrain, and topographic overlays</li>
+              <li style="margin:.3rem 0;">Full Offline Wikipedia — complete English knowledge base snapshot, fully searchable offline</li>
+              <li style="margin:.3rem 0;">Wilderness &amp; Plant Identification Library — edible and medicinal plant guides with photos</li>
+              <li style="margin:.3rem 0;">Amateur Radio &amp; Frequency Reference — band plans, emergency freqs, GMRS/FRS/MURS</li>
+              <li style="margin:.3rem 0;">Offline Weather Pattern Reference — cloud ID, storm reading, barometric pressure guides</li>
+              <li style="margin:.3rem 0;">Water Purification &amp; Sourcing Guide — field water treatment protocols</li>
+              <li style="margin:.3rem 0;">Food Preservation &amp; Storage Calculator — caloric planning and preservation techniques</li>
+              <li style="margin:.3rem 0;">Tactical Navigation &amp; Grid Planner — coordinate plotting and grid reference tools</li>
+              <li style="margin:.3rem 0;">Mesh Network Communication — device-to-device local mesh messaging, no internet required</li>
+              <li style="margin:.3rem 0;">Offline Language Translator — survival phrases across 10+ languages</li>
+              <li style="margin:.3rem 0;">Secure File Vault — encrypted storage for sensitive documents and images</li>
+              <li style="margin:.3rem 0;">Ham Radio Log &amp; Reference — band charts, Q-codes, phonetic alphabet, log book</li>
+              <li style="margin:.3rem 0;">Knots &amp; Rigging Reference — illustrated guide to 50+ knots and their applications</li>
+              <li style="margin:.3rem 0;">Vehicle &amp; Mechanical Field Reference — basic repair guides for common vehicles</li>
+              <li style="margin:.3rem 0;">Power &amp; Solar Optimization Tools — charge cycle calculators and watt-hour planners</li>
+              <li style="margin:.3rem 0;">Extended First Aid &amp; Medical Protocols — certification-level procedures beyond basic first aid</li>
+              <li style="margin:.3rem 0;">Offline Encyclopedia — curated deep-reference library beyond Wikipedia</li>
+              <li style="margin:.3rem 0;">Emergency Communication Templates — pre-written scripts for common emergency scenarios</li>
+              <li style="margin:.3rem 0;">System Recovery &amp; Diagnostic Toolkit — device maintenance and troubleshooting utilities</li>
+            </ul>
+          </div>
+        </div>
+
       </div>
-      <div class="terms-actions">
+      <div style="margin-top:.6rem; font-size:.78rem; color:var(--muted); font-style:italic;">Specific apps and versions may vary. All software runs fully offline — no internet connection required after setup.</div>
+      <div class="terms-actions" style="margin-top:.6rem;">
         <button type="button" class="btn" id="software-close" style="width:auto; min-width:180px;">Got it</button>
       </div>
     </div>
