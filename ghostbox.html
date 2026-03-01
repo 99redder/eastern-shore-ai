@@ -464,7 +464,12 @@
           <li><strong>Free next day delivery in the Eastern Shore MD area.</strong></li>
         </ul>
 
+        <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line); text-align:center;">
+          <a href="#" id="byog-modal-link" style="color:var(--cyan); font-size:.88rem; font-weight:700; text-decoration:none;">Want us to install our Offline Brain Software Suite on your current phone?</a>
+        </div>
+
     </article>
+    <div class="status" id="status" style="margin-top:.5rem; font-size:.88rem; color:var(--muted);"></div>
 
     <section class="card" style="margin-top:1rem;">
       <h2 style="margin-top:0;">Which Kit Is Right For You?</h2>
@@ -547,19 +552,30 @@
       </section>
     </section>
 
-    <section class="card" id="checkout" style="margin-top:1rem;">
-      <h2 style="margin:0 0 .3rem; color:var(--cyan);">BYOG Setup-Only Service</h2>
-      <p class="small" style="margin:0 0 .7rem;">Bring your own compatible Android phone and we'll handle the full secure Ghost Box software setup for you.</p>
-      <div class="price" style="font-size:1.5rem; margin:0 0 .3rem;">$49.99 <span class="small">setup service</span></div>
-      <p class="small" style="margin:0 0 .7rem;"><strong>Free tech support included for 30 days.</strong></p>
-      <button id="byog-btn" class="btn" style="max-width:340px;" type="button">BYOG Setup Only — $49.99</button>
-
-      <div class="status" id="status"></div>
-      <div class="note">Secure checkout is handled by Stripe. Free shipping is included for all kits.</div>
-
-      <a class="setup-link" href="/zombie-setup.html">View Ghost Box Users Guide →</a>
-    </section>
   </main>
+
+  <div class="terms-overlay" id="byog-modal" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="byog-modal-title" style="max-width:540px;">
+      <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">GHOST BOX</span>
+        <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">BYOG Setup Service</span>
+      </div>
+      <h3 id="byog-modal-title" style="margin:0 0 .5rem; color:var(--cyan); font-size:1.15rem;">Bring Your Own Ghost — Setup Only</h3>
+      <p class="small" style="margin:0 0 .65rem;">Already have a compatible Android phone? We'll wipe it, install the hardened open-source OS, and load the full Offline Brain Software Suite — 50GB+ of survival apps and 3 offline LLMs — directly onto your device.</p>
+      <ul style="margin:.1rem 0 .7rem; padding-left:1.1rem; font-size:.9rem; color:var(--muted);">
+        <li>Full OS wipe &amp; custom hardened Android install</li>
+        <li>50GB+ pre-loaded survival apps, offline maps, and 3 offline LLMs</li>
+        <li>30 days of free tech support after setup</li>
+        <li>Secure checkout via Stripe</li>
+      </ul>
+      <div class="price" style="font-size:1.4rem; margin:0 0 .5rem;">$49.99 <span class="small">setup service</span></div>
+      <button id="byog-btn" class="btn" style="max-width:360px; margin-bottom:.7rem;" type="button">BYOG Setup Only — $49.99</button>
+      <div class="note" style="margin:0 0 .8rem;">Secure checkout handled by Stripe. <a href="/zombie-setup.html" style="color:var(--cyan);">View compatibility guide →</a></div>
+      <div class="terms-actions">
+        <button type="button" class="btn-outline" id="byog-close">Close</button>
+      </div>
+    </div>
+  </div>
 
   <div class="terms-overlay" id="faraday-modal" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="faraday-title">
@@ -667,6 +683,9 @@
     const termsCheck = document.getElementById('terms-check');
     const termsCancel = document.getElementById('terms-cancel');
     const termsAccept = document.getElementById('terms-accept');
+    const byogModalLink = document.getElementById('byog-modal-link');
+    const byogModalEl = document.getElementById('byog-modal');
+    const byogClose = document.getElementById('byog-close');
     const faradayInfoLink = document.getElementById('faraday-bag-info-link');
     const faradayModal = document.getElementById('faraday-modal');
     const faradayClose = document.getElementById('faraday-close');
@@ -770,7 +789,25 @@
       openTerms({ checkoutType: 'pro_kit' });
     });
 
+    byogModalLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      byogModalEl.style.display = 'flex';
+      byogModalEl.setAttribute('aria-hidden', 'false');
+    });
+    byogClose?.addEventListener('click', () => {
+      byogModalEl.style.display = 'none';
+      byogModalEl.setAttribute('aria-hidden', 'true');
+    });
+    byogModalEl?.addEventListener('click', (e) => {
+      if (e.target === byogModalEl) {
+        byogModalEl.style.display = 'none';
+        byogModalEl.setAttribute('aria-hidden', 'true');
+      }
+    });
+
     byogBtn.addEventListener('click', () => {
+      byogModalEl.style.display = 'none';
+      byogModalEl.setAttribute('aria-hidden', 'true');
       openTerms({ checkoutType: 'byog_setup' });
     });
 
