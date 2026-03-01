@@ -619,8 +619,8 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   const productDescription = isByogSetup
     ? 'Bring your own gear setup-only service'
     : (isProKit
-      ? '8GB memory renewed phone with Offline Brain Software pre-installed + solar power bank + hard waterproof crushproof case + 2 Faraday bags + heavy-duty USB-C cable'
-      : '8GB memory renewed phone with Offline Brain Software pre-installed + solar power bank + hard waterproof crushproof case');
+      ? 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Dual-Layer Mission Darkness TitanRF shielding + braided fail-safe USB-C cable'
+      : 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Offline Brain Software');
   const productCode = isByogSetup ? 'zombie_case_byog_setup' : (isProKit ? 'zombie_case_pro_kit' : 'zombie_case_base_kit');
 
   const body = new URLSearchParams({
