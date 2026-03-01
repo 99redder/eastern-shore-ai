@@ -180,6 +180,15 @@
       transition: color 0.2s;
     }
     .header-nav a:hover { color: var(--cyan); }
+    .header-nav a.openclaw-link {
+      transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
+      display: inline-block;
+    }
+    .header-nav a.openclaw-link:hover {
+      color: #ff7a66 !important;
+      text-shadow: 0 0 10px rgba(199,62,45,.55);
+      transform: translateY(-1px);
+    }
 
     /* Hamburger — hidden on desktop */
     .mobile-menu-btn {
@@ -692,7 +701,7 @@
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
       <a href="/" class="header-logo" data-text="Eastern Shore AI">Eastern Shore <span>AI</span></a>
       <nav class="header-nav" id="header-nav">
-        <a href="openclaw-setup.html" style="color:#C73E2D;">🦞 $100 OpenClaw Setup</a>
+        <a href="openclaw-setup.html" class="openclaw-link" style="color:#C73E2D;">🦞 $100 OpenClaw Setup</a>
         <a href="ghostbox.html">👻 Ghost Box</a>
         <a href="#website-portfolio">Website Design</a>
         <a href="#" class="quote-trigger">AI Agent Repair</a>
