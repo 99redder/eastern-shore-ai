@@ -762,11 +762,11 @@
 
   <div class="section-chip-wrap">
     <div class="logo-switch">
-      <button type="button" class="neon-switch off" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
+      <button type="button" class="neon-switch" id="logo-switch" aria-label="Toggle logo neon" title="Toggle logo neon">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/><rect x="8" y="4" width="8" height="16" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/><circle cx="12" cy="8" r="1.5" fill="currentColor" stroke="none"/></svg>
       </button>
     </div>
-    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo" id="results-logo" loading="lazy" decoding="async" />
+    <img src="/logo.jpg" alt="Eastern Shore AI logo" class="results-logo logo-full" id="results-logo" loading="lazy" decoding="async" />
   </div>
 
   <section class="section" id="how-it-works">
@@ -1107,7 +1107,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
 
     const logoSwitch = document.getElementById('logo-switch');
     const resultsLogo = document.getElementById('results-logo');
-    let logoFull = false;
+    let logoFull = true;
     let audioCtx;
 
     function neonBuzz(turnOn) {
