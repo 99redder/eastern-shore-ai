@@ -912,8 +912,9 @@
     (function() {
       const track = document.getElementById('car-track');
       const dots  = document.querySelectorAll('.car-dot');
+      const ytIframe = document.querySelector('#hero-carousel iframe');
       const total = 2;
-      let cur = 0, timer;
+      let cur = 0, timer, videoActive = false;
 
       function goTo(idx) {
         cur = (idx + total) % total;
@@ -922,12 +923,22 @@
       }
       function startTimer() {
         clearInterval(timer);
+        if (videoActive) return;
         timer = setInterval(() => goTo(cur + 1), 5000);
       }
 
-      document.getElementById('car-prev').addEventListener('click', () => { goTo(cur - 1); startTimer(); });
-      document.getElementById('car-next').addEventListener('click', () => { goTo(cur + 1); startTimer(); });
-      dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.idx); startTimer(); }));
+      // Detect iframe click via window blur — fires when focus moves into the iframe
+      window.addEventListener('blur', () => {
+        if (document.activeElement === ytIframe) {
+          videoActive = true;
+          clearInterval(timer);
+        }
+      });
+
+      // Manual navigation resets video lock
+      document.getElementById('car-prev').addEventListener('click', () => { videoActive = false; goTo(cur - 1); startTimer(); });
+      document.getElementById('car-next').addEventListener('click', () => { videoActive = false; goTo(cur + 1); startTimer(); });
+      dots.forEach(d => d.addEventListener('click', () => { videoActive = false; goTo(+d.dataset.idx); startTimer(); }));
 
       const car = document.getElementById('hero-carousel');
       car.addEventListener('mouseenter', () => clearInterval(timer));
