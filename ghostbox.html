@@ -413,9 +413,18 @@
       border: none; cursor: pointer; padding: 0; transition: background .2s;
     }
     .car-dot.active { background: var(--cyan); }
-    .slide2-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; padding: .5rem 0; }
-    .product-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: .5rem; }
-    .product-img { width: 100%; aspect-ratio: 4/3; object-fit: contain; border: 1px solid var(--line); border-radius: 6px; background: #0d1017; display: block; }
+    .slide2-inner { display: grid; grid-template-columns: 76px 1fr 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
+    .thumb-strip { display: flex; flex-direction: column; gap: .4rem; }
+    .thumb-img {
+      width: 100%; aspect-ratio: 1; object-fit: contain;
+      background: #0d1017; border: 1px solid var(--line); border-radius: 5px;
+      cursor: pointer; display: block; opacity: .6;
+      transition: opacity .15s, border-color .15s;
+    }
+    .thumb-img:hover { opacity: 1; }
+    .thumb-img.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(158,208,255,.35); }
+    .main-product-wrap { background: #0d1017; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+    .main-product-wrap img { width: 100%; display: block; object-fit: contain; aspect-ratio: 4/3; }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .yt-guard { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
@@ -426,6 +435,8 @@
       .offerings { grid-template-columns: 1fr; }
       .checkout-grid { grid-template-columns: 1fr; }
       .slide2-inner { grid-template-columns: 1fr; }
+      .thumb-strip { flex-direction: row; overflow-x: auto; }
+      .thumb-img { width: 64px; flex-shrink: 0; aspect-ratio: 1; }
     }
   </style>
 </head>
@@ -458,14 +469,17 @@
           <img src="/images/ghostbox-logo7.png" alt="Ghost Box — Emergency Preparedness in the age of AI" style="width:100%; display:block; filter:drop-shadow(0 0 18px rgba(158,208,255,.2));" />
         </div>
 
-        <!-- Slide 2: Product images + YouTube unboxing -->
+        <!-- Slide 2: Thumbnail browser + main image + YouTube unboxing -->
         <div class="car-slide">
           <div class="slide2-inner">
-            <div class="product-grid">
-              <img class="product-img" src="images/faraday.png" alt="Faraday Bags" />
-              <img class="product-img" src="images/case.png" alt="Hard Storage Case" />
-              <img class="product-img" src="https://placehold.co/400x300/0d1017/9ed0ff?text=AI+Chat" alt="AI Chatbot on Phone" />
-              <img class="product-img" src="images/charging.png" alt="Solar Power Hub" />
+            <div class="thumb-strip">
+              <img class="thumb-img active" src="images/faraday.png" alt="Faraday Bags" />
+              <img class="thumb-img" src="images/case.png" alt="Hard Storage Case" />
+              <img class="thumb-img" src="https://placehold.co/400x300/0d1017/9ed0ff?text=AI+Chat" alt="AI Chatbot on Phone" />
+              <img class="thumb-img" src="images/charging.png" alt="Solar Power Hub" />
+            </div>
+            <div class="main-product-wrap">
+              <img id="main-product-img" src="images/faraday.png" alt="Faraday Bags" />
             </div>
             <div>
               <div class="yt-wrap">
@@ -955,6 +969,20 @@
       car.addEventListener('mouseleave', startTimer);
 
       startTimer();
+    })();
+
+    // ===== Thumbnail Browser =====
+    (function() {
+      const mainImg = document.getElementById('main-product-img');
+      if (!mainImg) return;
+      document.querySelectorAll('.thumb-img').forEach(thumb => {
+        thumb.addEventListener('click', () => {
+          document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+          mainImg.src = thumb.src;
+          mainImg.alt = thumb.alt;
+        });
+      });
     })();
 
     (function() {
