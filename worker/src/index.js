@@ -361,6 +361,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const customerPhone = (data.phone || '').toString().trim();
   const preferredContactMethod = (data.preferredContactMethod || 'email').toString().trim().toLowerCase();
   const lessonTopic = (data.lessonTopic || '').toString().trim();
+  const setupLocation = (data.setupLocation || '').toString().trim();
+  const termsAccepted = data.termsAccepted === true;
   const lessonCountRaw = Number.parseInt((data.lessonCount ?? '1').toString(), 10);
   const lessonCount = Number.isFinite(lessonCountRaw) ? Math.min(Math.max(lessonCountRaw, 1), 2) : 1;
   const extraSlotsInput = Array.isArray(data.extraSlots) ? data.extraSlots : [];
@@ -400,13 +402,21 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
         quantity: uniqueSlots.length || 1,
         successPath: '/book-lessons.html'
       }
-    : {
-        key: 'openclaw_setup',
-        label: 'OpenClaw Setup',
-        amountCents: 10000,
-        quantity: 1,
-        successPath: '/openclaw-setup.html'
-      };
+    : requestedService === 'byog_setup'
+      ? {
+          key: 'byog_setup',
+          label: 'Ghost Box BYOG Setup Service',
+          amountCents: 6999,
+          quantity: 1,
+          successPath: '/ghostbox.html'
+        }
+      : {
+          key: 'openclaw_setup',
+          label: 'OpenClaw Setup',
+          amountCents: 10000,
+          quantity: 1,
+          successPath: '/openclaw-setup.html'
+        };
 
   // Reject past dates/blocks using America/New_York.
   {
@@ -438,6 +448,27 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
 
   if (requestedService === 'lessons' && !lessonTopic) {
     return json({ ok: false, error: 'Missing lesson topic' }, 400, corsHeaders);
+  }
+
+  const easternShoreKeywords = [
+    'eastern shore', 'chesapeake city', 'centreville', 'chestertown', 'denton', 'easton', 'cambridge', 'salisbury',
+    'ocean city', 'berlin', 'snow hill', 'fruitland', 'pocomoke', 'princess anne', 'federalsburg', 'hurlock',
+    'ridgely', 'st michaels', 'saint michaels', 'trappe', 'kent county', 'queen anne', 'caroline county',
+    'talbot county', 'dorchester county', 'wicomico county', 'somerset county', 'worcester county', ' maryland ', ' md '
+  ];
+  const normalizedLocation = ` ${(setupLocation || '').toLowerCase().replace(/[^a-z0-9\s']/g, ' ').replace(/\s+/g, ' ').trim()} `;
+  const isEasternShoreLocation = easternShoreKeywords.some((keyword) => normalizedLocation.includes(` ${keyword} `));
+
+  if (requestedService === 'byog_setup') {
+    if (!termsAccepted) {
+      return json({ ok: false, error: 'You must read and accept the Terms of Sale before checkout.' }, 400, corsHeaders);
+    }
+    if (!setupLocation) {
+      return json({ ok: false, error: 'Setup location is required for BYOG appointments.' }, 400, corsHeaders);
+    }
+    if (!isEasternShoreLocation) {
+      return json({ ok: false, error: 'Setup location must be on Maryland\'s Eastern Shore.' }, 400, corsHeaders);
+    }
   }
 
   if (!env.STRIPE_SECRET_KEY) {
@@ -519,9 +550,11 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'metadata[setup_at]': setupAt,
     'metadata[service_type]': serviceConfig.key,
     'metadata[service_label]': serviceConfig.label,
+    'metadata[checkout_type]': serviceConfig.key,
     'metadata[customer_name]': customerName || '(not provided)',
     'metadata[customer_phone]': customerPhone || '',
     'metadata[preferred_contact_method]': preferredContactMethod || 'email',
+    'metadata[setup_location]': setupLocation || '',
     'metadata[lesson_topic]': lessonTopic || '',
     'metadata[lesson_count]': String(serviceConfig.quantity || 1),
     'metadata[slots_json]': JSON.stringify(allSlots),
@@ -530,6 +563,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'payment_intent_data[metadata][setup_at]': setupAt,
     'payment_intent_data[metadata][service_type]': serviceConfig.key,
     'payment_intent_data[metadata][service_label]': serviceConfig.label,
+    'payment_intent_data[metadata][checkout_type]': serviceConfig.key,
+    'payment_intent_data[metadata][setup_location]': setupLocation || '',
     'payment_intent_data[metadata][lesson_topic]': lessonTopic || '',
     'payment_intent_data[metadata][lesson_count]': String(serviceConfig.quantity || 1),
     'payment_intent_data[metadata][customer_phone]': customerPhone || '',

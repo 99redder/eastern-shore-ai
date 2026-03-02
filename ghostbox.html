@@ -651,7 +651,7 @@
         </ul>
 
         <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line); text-align:center;">
-          <a href="#" id="byog-modal-link" style="color:var(--cyan); font-size:1rem; font-weight:700; text-decoration:none;">Want us to install our Offline Brain Software Suite on your current phone?</a>
+          <a href="#" id="byog-modal-link" style="color:var(--cyan); font-size:1rem; font-weight:700; text-decoration:none;">Want us to install the Ghost Box Software Suite on your current phone?</a><br><i>**Available only on the Eastern Shore of Maryland.</i>
         </div>
 
     </article>
@@ -789,7 +789,7 @@
 
         <details>
           <summary>I already have a compatible Android phone — do I have to buy a whole kit?</summary>
-          <p class="answer">No. The BYOG (Bring Your Own Ghost) option lets us wipe your existing compatible Android device, install LineageOS, and load the full Pro Software Suite — 50GB+ of survival apps and 3 offline LLMs — onto your hardware for $69.99. You skip the hardware cost and still get the same hardened OS and software stack. See the BYOG option further down the page.</p>
+          <p class="answer">No. The BYOG (Bring Your Own Gear) option lets us wipe your existing compatible Android device, install LineageOS, and load the full Pro Software Suite — 50GB+ of survival apps and 3 offline LLMs — onto your hardware for $69.99. You skip the hardware cost and still get the same hardened OS and software stack. See the BYOG option further down the page. Available only to residents of the Eastern Shore of Maryland.</p>
         </details>
 
         <details>
@@ -826,16 +826,33 @@
         <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">GHOST BOX</span>
         <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">BYOG Setup Service</span>
       </div>
-      <h3 id="byog-modal-title" style="margin:0 0 .5rem; color:var(--cyan); font-size:1.15rem;">Bring Your Own Ghost — Setup Only</h3>
-      <p class="small" style="margin:0 0 .65rem;">Already have a compatible Android phone? We'll wipe it, install LineageOS (our hardened open-source OS), and load the full Offline Brain Software Suite — 50GB+ of survival apps and 3 offline LLMs — directly onto your device.</p>
+      <h3 id="byog-modal-title" style="margin:0 0 .5rem; color:var(--cyan); font-size:1.15rem;">Bring Your Own Gear (BYOG) — Setup Only</h3>
+      <p class="small" style="margin:0 0 .65rem;">Already have a compatible Android phone? We'll wipe it, install LineageOS (our hardened open-source OS), and load the full Ghost Box Software Suite — 50GB+ of survival apps and 3 offline LLMs — directly onto your device. Available only to residents of the Eastern Shore of Maryland.</p>
       <ul style="margin:.1rem 0 .7rem; padding-left:1.1rem; font-size:.9rem; color:var(--muted);">
-        <li>Full OS wipe &amp; custom hardened Android install</li>
+        <li>Full OS wipe &amp; custom hardened LineageOS install</li>
         <li>50GB+ pre-loaded survival apps, offline maps, and 3 offline LLMs</li>
         <li>30 days of free tech support after setup</li>
         <li>Secure checkout via Stripe</li>
       </ul>
       <div class="price" style="font-size:1.4rem; margin:0 0 .5rem;">$69.99 <span class="small">setup service</span></div>
-      <button id="byog-btn" class="btn" style="max-width:360px; margin-bottom:.7rem;" type="button">BYOG Setup Only — $69.99</button>
+      <div style="display:grid; gap:.55rem; margin:.2rem 0 .7rem;">
+        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
+          Setup Date
+          <input id="byog-setup-date" type="date" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
+        </label>
+        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
+          Setup Time Block
+          <select id="byog-setup-time" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;">
+            <option value="">Select time block…</option>
+          </select>
+        </label>
+        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
+          Setup Location (Eastern Shore of Maryland)
+          <input id="byog-location" type="text" placeholder="Ex: 123 Main St, Salisbury MD or Starbucks Easton" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
+        </label>
+        <div id="byog-booking-error" style="display:none; color:#ffb4c7; font-size:.84rem;"></div>
+      </div>
+      <button id="byog-btn" class="btn" style="max-width:360px; margin-bottom:.7rem;" type="button">Book BYOG Setup + Pay — $69.99</button>
       <div class="note" style="margin:0 0 .8rem;">Secure checkout handled by Stripe. <a href="/ghost-setup.html" style="color:var(--cyan);">View compatibility guide →</a></div>
       <div class="terms-actions">
         <button type="button" class="btn-outline" id="byog-close">Close</button>
@@ -1066,10 +1083,16 @@
 
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
+    const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
+    const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
 
     const buyBaseBtn = document.getElementById('buy-base-btn');
     const buyProBtn = document.getElementById('buy-pro-btn');
     const byogBtn = document.getElementById('byog-btn');
+    const byogDateEl = document.getElementById('byog-setup-date');
+    const byogTimeEl = document.getElementById('byog-setup-time');
+    const byogLocationEl = document.getElementById('byog-location');
+    const byogBookingErrorEl = document.getElementById('byog-booking-error');
     const status = document.getElementById('status');
 
     const termsOverlay = document.getElementById('terms-overlay');
@@ -1088,6 +1111,116 @@
     const softwareModal = document.getElementById('software-modal');
     const softwareClose = document.getElementById('software-close');
     let pendingPayload = null;
+    let unavailableSlots = new Set();
+    let blockedDates = new Set();
+
+    const TIME_SLOTS = [
+      { value: '08:00-10:00', label: '8:00 AM – 10:00 AM' },
+      { value: '10:00-12:00', label: '10:00 AM – 12:00 PM' },
+      { value: '12:00-14:00', label: '12:00 PM – 2:00 PM' },
+      { value: '14:00-16:00', label: '2:00 PM – 4:00 PM' },
+      { value: '16:00-18:00', label: '4:00 PM – 6:00 PM' }
+    ];
+
+    const EASTERN_SHORE_KEYWORDS = [
+      'eastern shore', 'chesapeake city', 'centreville', 'chestertown', 'denton', 'easton', 'cambridge', 'salisbury',
+      'ocean city', 'berlin', 'snow hill', 'fruitland', 'pocomoke', 'princess anne', 'delmar', 'laurel', 'seaford',
+      'federalsburg', 'hurlock', 'ridgely', 'st michaels', 'saint michaels', 'trappe', 'queen anne', 'queen anne\'s',
+      'kent county', 'queen anne\'s county', 'caroline county', 'talbot county', 'dorchester county', 'wicomico county',
+      'somerset county', 'worcester county', 'maryland', ' md '
+    ];
+
+    function nowEtParts() {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).formatToParts(new Date());
+      const get = (t) => parts.find(p => p.type === t)?.value;
+      return { date: `${get('year')}-${get('month')}-${get('day')}`, time: `${get('hour')}:${get('minute')}` };
+    }
+
+    function slotStart(timeBlock) {
+      return (timeBlock || '').split('-')[0] || '';
+    }
+
+    function isPastEtSlot(date, timeBlock) {
+      if (!date || !timeBlock) return false;
+      const now = nowEtParts();
+      const start = slotStart(timeBlock);
+      if (!start) return false;
+      if (date < now.date) return true;
+      if (date > now.date) return false;
+      return start <= now.time;
+    }
+
+    function setupAtKey(date, time) {
+      return date && time ? `${date}T${time}` : '';
+    }
+
+    function slotIsUnavailable(date, time) {
+      if (blockedDates.has(date)) return true;
+      return unavailableSlots.has(setupAtKey(date, time));
+    }
+
+    function renderByogTimeOptions() {
+      if (!byogTimeEl) return;
+      const selectedDate = byogDateEl?.value || '';
+      const current = byogTimeEl.value;
+      const opts = ['<option value="">Select time block…</option>'];
+
+      if (selectedDate && blockedDates.has(selectedDate)) {
+        opts.push('<option value="" disabled>Entire day is blocked</option>');
+      }
+
+      for (const slot of TIME_SLOTS) {
+        const unavailable = selectedDate && (slotIsUnavailable(selectedDate, slot.value) || isPastEtSlot(selectedDate, slot.value));
+        opts.push(`<option value="${slot.value}" ${unavailable ? 'disabled' : ''}>${slot.label}${unavailable ? ' (unavailable)' : ''}</option>`);
+      }
+
+      byogTimeEl.innerHTML = opts.join('');
+      if (current && !(selectedDate && (slotIsUnavailable(selectedDate, current) || isPastEtSlot(selectedDate, current)))) {
+        byogTimeEl.value = current;
+      }
+    }
+
+    async function loadByogAvailability() {
+      try {
+        const res = await fetch(AVAILABILITY_API_URL, { headers: { 'Content-Type': 'application/json' } });
+        const data = await res.json();
+        unavailableSlots = new Set((data.unavailable || []).filter(Boolean));
+        blockedDates = new Set((data.blockedDates || []).filter(Boolean));
+      } catch {
+        unavailableSlots = new Set();
+        blockedDates = new Set();
+      }
+      renderByogTimeOptions();
+    }
+
+    function normalizeLocation(v) {
+      return ` ${String(v || '').toLowerCase().replace(/[^a-z0-9\s']/g, ' ').replace(/\s+/g, ' ').trim()} `;
+    }
+
+    function isEasternShoreLocation(locationText) {
+      const normalized = normalizeLocation(locationText);
+      if (!normalized.trim()) return false;
+      return EASTERN_SHORE_KEYWORDS.some((keyword) => normalized.includes(` ${keyword} `));
+    }
+
+    function setByogError(msg) {
+      if (!byogBookingErrorEl) return;
+      if (!msg) {
+        byogBookingErrorEl.style.display = 'none';
+        byogBookingErrorEl.textContent = '';
+      } else {
+        byogBookingErrorEl.style.display = 'block';
+        byogBookingErrorEl.textContent = msg;
+      }
+    }
 
     async function startCheckout(payload) {
       status.textContent = 'Redirecting to secure checkout...';
@@ -1096,10 +1229,22 @@
       byogBtn.disabled = true;
 
       try {
-        const res = await fetch(ZOMBIE_CHECKOUT_URL, {
+        const isByogBooking = (payload?.checkoutType || '').toLowerCase() === 'byog_setup' && payload?.setupDate && payload?.setupTime;
+        const endpoint = isByogBooking ? CHECKOUT_API_URL : ZOMBIE_CHECKOUT_URL;
+        const requestBody = isByogBooking
+          ? {
+              setupDate: payload.setupDate,
+              setupTime: payload.setupTime,
+              service: 'byog_setup',
+              setupLocation: payload.setupLocation || '',
+              termsAccepted: true
+            }
+          : { ...payload, termsAccepted: true };
+
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...payload, termsAccepted: true })
+          body: JSON.stringify(requestBody)
         });
 
         const data = await res.json().catch(() => ({}));
@@ -1197,26 +1342,68 @@
       openTerms({ checkoutType: 'pro_kit' });
     });
 
-    byogModalLink?.addEventListener('click', (e) => {
+    byogModalLink?.addEventListener('click', async (e) => {
       e.preventDefault();
+      setByogError('');
       byogModalEl.style.display = 'flex';
       byogModalEl.setAttribute('aria-hidden', 'false');
+      await loadByogAvailability();
     });
     byogClose?.addEventListener('click', () => {
       byogModalEl.style.display = 'none';
       byogModalEl.setAttribute('aria-hidden', 'true');
+      setByogError('');
     });
     byogModalEl?.addEventListener('click', (e) => {
       if (e.target === byogModalEl) {
         byogModalEl.style.display = 'none';
         byogModalEl.setAttribute('aria-hidden', 'true');
+        setByogError('');
       }
     });
 
-    byogBtn.addEventListener('click', () => {
+    byogDateEl?.addEventListener('change', renderByogTimeOptions);
+    byogLocationEl?.addEventListener('input', () => setByogError(''));
+
+    try {
+      if (byogDateEl) byogDateEl.min = nowEtParts().date;
+    } catch {}
+
+    byogBtn.addEventListener('click', async () => {
+      const setupDate = (byogDateEl?.value || '').trim();
+      const setupTime = (byogTimeEl?.value || '').trim();
+      const setupLocation = (byogLocationEl?.value || '').trim();
+
+      if (!setupDate || !setupTime) {
+        setByogError('Please choose your BYOG setup date and time.');
+        return;
+      }
+
+      if (!setupLocation) {
+        setByogError('Please enter your address or meetup location.');
+        return;
+      }
+
+      if (!isEasternShoreLocation(setupLocation)) {
+        setByogError('Location must be on Maryland\'s Eastern Shore (city/town/county). Please include a clear local place name.');
+        return;
+      }
+
+      if (isPastEtSlot(setupDate, setupTime)) {
+        setByogError('That time block has already passed (Eastern Time). Please choose another slot.');
+        return;
+      }
+
+      await loadByogAvailability();
+      if (slotIsUnavailable(setupDate, setupTime)) {
+        setByogError('That slot is unavailable. Please choose another date/time.');
+        return;
+      }
+
       byogModalEl.style.display = 'none';
       byogModalEl.setAttribute('aria-hidden', 'true');
-      openTerms({ checkoutType: 'byog_setup' });
+      setByogError('');
+      openTerms({ checkoutType: 'byog_setup', setupDate, setupTime, service: 'byog_setup', setupLocation });
     });
 
     const params = new URLSearchParams(window.location.search);
