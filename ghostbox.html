@@ -395,12 +395,36 @@
       flex-direction: column;
     }
     .checkout-option .btn { margin-top: auto; }
+    .carousel { position: relative; overflow: hidden; margin: 0 0 .8rem; }
+    .car-track { display: flex; transition: transform .45s cubic-bezier(.4,0,.2,1); }
+    .car-slide { flex-shrink: 0; width: 100%; }
+    .car-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+      background: rgba(9,11,17,.78); border: 1px solid var(--line); color: var(--cyan);
+      font-size: 1.8rem; line-height: 1; padding: .45rem .72rem; cursor: pointer;
+      border-radius: 6px; backdrop-filter: blur(4px); transition: background .15s;
+    }
+    .car-arrow:hover { background: rgba(30,40,60,.92); border-color: var(--cyan); }
+    .car-prev { left: .5rem; }
+    .car-next { right: .5rem; }
+    .car-dots { display: flex; justify-content: center; gap: .45rem; margin-top: .55rem; }
+    .car-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--line);
+      border: none; cursor: pointer; padding: 0; transition: background .2s;
+    }
+    .car-dot.active { background: var(--cyan); }
+    .slide2-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; padding: .5rem 0; }
+    .product-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: .5rem; }
+    .product-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border: 1px solid var(--line); border-radius: 6px; background: #0d1017; display: block; }
+    .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
+    .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     @media (max-width: 900px) {
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
       .brain-grid { grid-template-columns: 1fr; }
       .offerings { grid-template-columns: 1fr; }
       .checkout-grid { grid-template-columns: 1fr; }
+      .slide2-inner { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -425,7 +449,39 @@
   </div>
 
   <main class="wrap">
-    <img src="/images/ghostbox-logo7.png" alt="Ghost Box — Emergency Preparedness in the age of AI" style="width:100%; max-width:100%; display:block; margin:0 0 .7rem; filter:drop-shadow(0 0 18px rgba(158,208,255,.2));" />
+    <div class="carousel" id="hero-carousel">
+      <div class="car-track" id="car-track">
+
+        <!-- Slide 1: Logo banner -->
+        <div class="car-slide">
+          <img src="/images/ghostbox-logo7.png" alt="Ghost Box — Emergency Preparedness in the age of AI" style="width:100%; display:block; filter:drop-shadow(0 0 18px rgba(158,208,255,.2));" />
+        </div>
+
+        <!-- Slide 2: Product images + YouTube unboxing -->
+        <div class="car-slide">
+          <div class="slide2-inner">
+            <div class="product-grid">
+              <img class="product-img" src="https://placehold.co/400x300/0d1017/9ed0ff?text=Phone" alt="Ghost Box Phone" />
+              <img class="product-img" src="https://placehold.co/400x300/0d1017/c7a6ff?text=Case" alt="Hard Storage Case" />
+              <img class="product-img" src="https://placehold.co/400x300/0d1017/9ed0ff?text=AI+Chat" alt="AI Chatbot on Phone" />
+              <img class="product-img" src="https://placehold.co/400x300/0d1017/c7a6ff?text=Solar+Hub" alt="Solar Power Hub" />
+            </div>
+            <div>
+              <div class="yt-wrap">
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Ghost Box Unboxing Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <button class="car-arrow car-prev" id="car-prev" aria-label="Previous slide">‹</button>
+      <button class="car-arrow car-next" id="car-next" aria-label="Next slide">›</button>
+      <div class="car-dots" id="car-dots">
+        <button class="car-dot active" data-idx="0" aria-label="Slide 1"></button>
+        <button class="car-dot" data-idx="1" aria-label="Slide 2"></button>
+      </div>
+    </div>
 
     <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
@@ -846,6 +902,34 @@
   </div>
 
   <script>
+    // ===== Hero Carousel =====
+    (function() {
+      const track = document.getElementById('car-track');
+      const dots  = document.querySelectorAll('.car-dot');
+      const total = 2;
+      let cur = 0, timer;
+
+      function goTo(idx) {
+        cur = (idx + total) % total;
+        track.style.transform = `translateX(-${cur * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === cur));
+      }
+      function startTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => goTo(cur + 1), 5000);
+      }
+
+      document.getElementById('car-prev').addEventListener('click', () => { goTo(cur - 1); startTimer(); });
+      document.getElementById('car-next').addEventListener('click', () => { goTo(cur + 1); startTimer(); });
+      dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.idx); startTimer(); }));
+
+      const car = document.getElementById('hero-carousel');
+      car.addEventListener('mouseenter', () => clearInterval(timer));
+      car.addEventListener('mouseleave', startTimer);
+
+      startTimer();
+    })();
+
     (function() {
       const tog = document.getElementById('promo-toggle');
       const body = document.getElementById('promo-body');
