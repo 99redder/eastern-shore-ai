@@ -415,7 +415,23 @@
     .car-dot.active { background: var(--cyan); }
     .slide2-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; padding: .5rem 0; }
     .product-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: .5rem; }
-    .product-img { width: 100%; aspect-ratio: 4/3; object-fit: contain; border: 1px solid var(--line); border-radius: 6px; background: #0d1017; display: block; }
+    .product-img { width: 100%; aspect-ratio: 4/3; object-fit: contain; border: 1px solid var(--line); border-radius: 6px; background: #0d1017; display: block; cursor: zoom-in; }
+    .img-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.82);
+      display: none; align-items: center; justify-content: center;
+      z-index: 8000; padding: 1rem;
+    }
+    .img-modal-overlay.open { display: flex; }
+    .img-modal-inner { position: relative; max-width: min(860px, 96vw); }
+    .img-modal-inner img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 8px; }
+    .img-modal-close {
+      position: absolute; top: -.9rem; right: -.9rem;
+      background: var(--card); border: 1px solid var(--line); color: var(--cyan);
+      border-radius: 50%; width: 2rem; height: 2rem; font-size: 1.1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .img-modal-close:hover { border-color: var(--cyan); }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     @media (max-width: 900px) {
@@ -853,6 +869,13 @@
     </div>
   </div>
 
+  <div class="img-modal-overlay" id="img-modal" role="dialog" aria-modal="true" aria-label="Product image">
+    <div class="img-modal-inner">
+      <img id="img-modal-img" src="" alt="" />
+      <button class="img-modal-close" id="img-modal-close" aria-label="Close">✕</button>
+    </div>
+  </div>
+
   <div class="terms-overlay" id="terms-overlay" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
       <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
@@ -909,12 +932,12 @@
 
   <script>
     // ===== Hero Carousel =====
-    (function() {
+    const carousel = (function() {
       const track = document.getElementById('car-track');
       const dots  = document.querySelectorAll('.car-dot');
       const ytIframe = document.querySelector('#hero-carousel iframe');
       const total = 2;
-      let cur = 0, timer, videoActive = false;
+      let cur = 0, timer, videoActive = false, paused = false;
 
       function goTo(idx) {
         cur = (idx + total) % total;
@@ -923,11 +946,11 @@
       }
       function startTimer() {
         clearInterval(timer);
-        if (videoActive) return;
+        if (videoActive || paused) return;
         timer = setInterval(() => goTo(cur + 1), 5000);
       }
 
-      // Detect iframe click via window blur — fires when focus moves into the iframe
+      // Detect iframe click via window blur
       window.addEventListener('blur', () => {
         if (document.activeElement === ytIframe) {
           videoActive = true;
@@ -945,6 +968,38 @@
       car.addEventListener('mouseleave', startTimer);
 
       startTimer();
+
+      return {
+        pause()  { paused = true;  clearInterval(timer); },
+        resume() { paused = false; startTimer(); }
+      };
+    })();
+
+    // ===== Product Image Modal =====
+    (function() {
+      const overlay  = document.getElementById('img-modal');
+      const modalImg = document.getElementById('img-modal-img');
+      const closeBtn = document.getElementById('img-modal-close');
+
+      function open(src, alt) {
+        modalImg.src = src;
+        modalImg.alt = alt;
+        overlay.classList.add('open');
+        carousel.pause();
+      }
+      function close() {
+        overlay.classList.remove('open');
+        modalImg.src = '';
+        carousel.resume();
+      }
+
+      document.querySelectorAll('.product-img').forEach(img => {
+        img.addEventListener('click', () => open(img.src, img.alt));
+      });
+
+      closeBtn.addEventListener('click', close);
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
     })();
 
     (function() {
