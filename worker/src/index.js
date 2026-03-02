@@ -64,7 +64,7 @@ export default {
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
-      const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout'].includes(url.pathname) && request.method === 'POST';
+      const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout', '/api/validate-byog-location'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
@@ -85,6 +85,10 @@ export default {
 
     if (url.pathname === '/api/zombie-bag-checkout') {
       return handleZombieBagCheckout(request, env, corsHeaders, originAllowed, allowedOrigins);
+    }
+
+    if (url.pathname === '/api/validate-byog-location') {
+      return handleValidateByogLocation(request, env, corsHeaders);
     }
 
     if (url.pathname === '/api/stripe-webhook') {
@@ -340,6 +344,84 @@ async function handleContact(request, env, corsHeaders) {
 }
 
 /**
+ * Validate a BYOG location string against real geocoded results on Maryland's Eastern Shore
+ * @param {string} location
+ * @returns {Promise<{ok:boolean, error?:string, normalizedAddress?:string}>}
+ */
+async function validateEasternShoreAddress(location) {
+  const address = (location || '').toString().trim();
+  if (!address || address.length < 6) {
+    return { ok: false, error: 'Please enter a full address.' };
+  }
+
+  const easternShoreCounties = new Set([
+    'kent county',
+    'queen anne\'s county',
+    'queen annes county',
+    'caroline county',
+    'talbot county',
+    'dorchester county',
+    'wicomico county',
+    'somerset county',
+    'worcester county'
+  ]);
+
+  try {
+    const q = encodeURIComponent(`${address}, Maryland, USA`);
+    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&countrycodes=us&q=${q}`;
+    const geoRes = await fetch(url, {
+      headers: {
+        'User-Agent': 'EasternShoreAI/1.0 (BYOG location validation)'
+      }
+    });
+
+    if (!geoRes.ok) {
+      return { ok: false, error: 'Could not validate address right now. Please try again.' };
+    }
+
+    const matches = await geoRes.json().catch(() => []);
+    const goodMatch = (Array.isArray(matches) ? matches : []).find((m) => {
+      const a = m?.address || {};
+      const state = (a.state || '').toString().toLowerCase();
+      const county = (a.county || '').toString().toLowerCase();
+      const hasStreetLike = Boolean(a.road || a.house_number || a.neighbourhood || a.suburb || m?.type === 'house' || m?.class === 'building');
+      const md = state.includes('maryland');
+      const onShore = easternShoreCounties.has(county);
+      return md && onShore && hasStreetLike;
+    });
+
+    if (!goodMatch) {
+      return { ok: false, error: 'Address must be a real street address on Maryland\'s Eastern Shore (Kent, Queen Anne\'s, Caroline, Talbot, Dorchester, Wicomico, Somerset, or Worcester County).' };
+    }
+
+    return { ok: true, normalizedAddress: goodMatch.display_name || address };
+  } catch {
+    return { ok: false, error: 'Could not validate address right now. Please try again.' };
+  }
+}
+
+/**
+ * POST /api/validate-byog-location — Validate address is real-ish and on Eastern Shore, MD
+ * @param {Request} request - JSON body: { location }
+ */
+async function handleValidateByogLocation(request, env, corsHeaders) {
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const location = (data.location || '').toString().trim();
+  const result = await validateEasternShoreAddress(location);
+  if (!result.ok) {
+    return json({ ok: false, error: result.error || 'Invalid address' }, 400, corsHeaders);
+  }
+
+  return json({ ok: true, normalizedAddress: result.normalizedAddress || location }, 200, corsHeaders);
+}
+
+/**
  * POST /api/checkout-session — Create Stripe checkout session with booking conflict + past-time checks
  * @param {Request} request - JSON body: {setupDate, setupTime, customerName, customerEmail, serviceType?}
  * @param {Object} env - Worker env (STRIPE_SECRET_KEY, DB)
@@ -357,7 +439,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const setupTime = (data.setupTime || '').toString().trim();
   const customerEmail = (data.email || '').toString().trim();
   const customerName = (data.name || '').toString().trim();
-  const requestedService = (data.service || 'openclaw_setup').toString().trim().toLowerCase();
+  const requestedService = (data.service || data.serviceType || 'openclaw_setup').toString().trim().toLowerCase();
   const customerPhone = (data.phone || '').toString().trim();
   const preferredContactMethod = (data.preferredContactMethod || 'email').toString().trim().toLowerCase();
   const lessonTopic = (data.lessonTopic || '').toString().trim();
@@ -450,15 +532,6 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     return json({ ok: false, error: 'Missing lesson topic' }, 400, corsHeaders);
   }
 
-  const easternShoreKeywords = [
-    'eastern shore', 'chesapeake city', 'centreville', 'chestertown', 'denton', 'easton', 'cambridge', 'salisbury',
-    'ocean city', 'berlin', 'snow hill', 'fruitland', 'pocomoke', 'princess anne', 'federalsburg', 'hurlock',
-    'ridgely', 'st michaels', 'saint michaels', 'trappe', 'kent county', 'queen anne', 'caroline county',
-    'talbot county', 'dorchester county', 'wicomico county', 'somerset county', 'worcester county', ' maryland ', ' md '
-  ];
-  const normalizedLocation = ` ${(setupLocation || '').toLowerCase().replace(/[^a-z0-9\s']/g, ' ').replace(/\s+/g, ' ').trim()} `;
-  const isEasternShoreLocation = easternShoreKeywords.some((keyword) => normalizedLocation.includes(` ${keyword} `));
-
   if (requestedService === 'byog_setup') {
     if (!termsAccepted) {
       return json({ ok: false, error: 'You must read and accept the Terms of Sale before checkout.' }, 400, corsHeaders);
@@ -466,8 +539,9 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     if (!setupLocation) {
       return json({ ok: false, error: 'Setup location is required for BYOG appointments.' }, 400, corsHeaders);
     }
-    if (!isEasternShoreLocation) {
-      return json({ ok: false, error: 'Setup location must be on Maryland\'s Eastern Shore.' }, 400, corsHeaders);
+    const locationValidation = await validateEasternShoreAddress(setupLocation);
+    if (!locationValidation.ok) {
+      return json({ ok: false, error: locationValidation.error || 'Setup location must be a valid Eastern Shore address.' }, 400, corsHeaders);
     }
   }
 

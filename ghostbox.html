@@ -704,7 +704,7 @@
             <tr><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Operational Profile</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Low-Signature Offline Intelligence</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Total Digital Invisibility</td></tr>
             <tr><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">EMP Shielding</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">None</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Dual Mission Darkness Faraday Bags</td></tr>
             <tr><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">Cable System</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">42,800mAh Hub + Integrated Cables</td><td style="padding:.45rem .5rem; border-bottom:1px solid var(--line);">42,800mAh Hub + Integrated Cables + Premium Braided Fail-Safe Cable</td></tr>
-            <tr><td style="padding:.45rem .5rem;">Software</td><td style="padding:.45rem .5rem;">20GB of Survival Apps and Maps + (1) LLM</td><td style="padding:.45rem .5rem;"> 50GB of Survival Apps and Maps + (3) LLMs</td></tr>
+            <tr><td style="padding:.45rem .5rem;">Software</td><td style="padding:.45rem .5rem;">20GB of Survival Apps and Maps + (1) LLM (AI Chatbot)</td><td style="padding:.45rem .5rem;"> 50GB of Survival Apps and Maps + (3) LLMs (AI Chatbots)</td></tr>
           </tbody>
         </table>
       </div>
@@ -1122,6 +1122,7 @@
     const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
+    const BYOG_LOCATION_VALIDATE_URL = CONTACT_API_URL.replace('/api/contact', '/api/validate-byog-location');
 
     const buyBaseBtn = document.getElementById('buy-base-btn');
     const buyProBtn = document.getElementById('buy-pro-btn');
@@ -1254,6 +1255,13 @@
       return EASTERN_SHORE_KEYWORDS.some((keyword) => normalized.includes(` ${keyword} `));
     }
 
+    function looksLikeStreetAddress(locationText) {
+      const raw = String(locationText || '').trim();
+      const hasNumber = /\b\d{1,6}\b/.test(raw);
+      const hasStreetWord = /\b(st|street|rd|road|ave|avenue|blvd|boulevard|dr|drive|ln|lane|ct|court|way|hwy|highway|pl|place|pkwy|parkway)\b/i.test(raw);
+      return hasNumber && hasStreetWord;
+    }
+
     function setByogError(msg) {
       if (!byogBookingErrorEl) return;
       if (!msg) {
@@ -1263,6 +1271,19 @@
         byogBookingErrorEl.style.display = 'block';
         byogBookingErrorEl.textContent = msg;
       }
+    }
+
+    async function validateByogLocationWithApi(locationText) {
+      const res = await fetch(BYOG_LOCATION_VALIDATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ location: locationText })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || 'Please enter a valid Eastern Shore address.');
+      }
+      return data;
     }
 
     async function startCheckout(payload) {
@@ -1279,6 +1300,7 @@
               setupDate: payload.setupDate,
               setupTime: payload.setupTime,
               service: 'byog_setup',
+              serviceType: 'byog_setup',
               setupLocation: payload.setupLocation || '',
               termsAccepted: true
             }
@@ -1457,9 +1479,25 @@
         return;
       }
 
-      if (!isEasternShoreLocation(setupLocation)) {
-        setByogError('Location must be on Maryland\'s Eastern Shore (city/town/county). Please include a clear local place name.');
+      if (!looksLikeStreetAddress(setupLocation)) {
+        setByogError('Please enter a full street address (number + street) for your meetup location.');
         return;
+      }
+
+      if (!isEasternShoreLocation(setupLocation)) {
+        setByogError('Please enter a complete street address on Maryland\'s Eastern Shore.');
+        return;
+      }
+
+      try {
+        byogBtn.disabled = true;
+        await validateByogLocationWithApi(setupLocation);
+      } catch (err) {
+        setByogError(err?.message || 'Please enter a valid Eastern Shore address.');
+        byogBtn.disabled = false;
+        return;
+      } finally {
+        byogBtn.disabled = false;
       }
 
       if (isPastEtSlot(setupDate, setupTime)) {
