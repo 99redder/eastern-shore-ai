@@ -433,14 +433,14 @@
   <a href="#choose-kit" class="buy-now-float" onclick="event.preventDefault(); document.getElementById('choose-kit').scrollIntoView({behavior:'smooth',block:'end'});">Buy Now ↓</a>
   <a href="/ghost-setup.html" class="back-btn" style="left:auto; right:1rem;">Ghost Box Users Guide</a>
 
-  <div style="width:100%; border-bottom:1px solid rgba(157,255,122,.25); background:linear-gradient(160deg,rgba(157,255,122,.08),rgba(255,94,94,.06)); padding:.6rem max(1rem, calc(50% - 580px + 1rem));">
+  <div style="width:100%; border-bottom:1px solid rgba(0,0,0,.15); background:#9ed0ff; padding:.6rem max(1rem, calc(50% - 580px + 1rem));">
     <div style="display:flex; align-items:center; gap:.6rem;">
-      <h2 style="margin:0; font-size:1.05rem; color:#d9ffb2; flex:1;">Father’s Day Special: Give Dad the Gift of Real-World Readiness | The Ultimate Off-Grid Gift</h2>
-      <button class="promo-toggle" id="promo-toggle" aria-expanded="false" aria-controls="promo-body">▼</button>
+      <h2 style="margin:0; font-size:1.05rem; color:#000; flex:1;">Father’s Day Special: Give Dad the Gift of Real-World Readiness | The Ultimate Off-Grid Gift</h2>
+      <button class="promo-toggle" id="promo-toggle" aria-expanded="false" aria-controls="promo-body" style="border-color:rgba(0,0,0,.3); color:#000;">▼</button>
     </div>
     <div id="promo-body" hidden>
-      <p class="small" style="margin:.45rem 0 .35rem; color:#d9deef;">Every Ghost Box ships with a hardened smart phone loaded with AI and survival knowledge, a 42,800mAh solar power hub, and a Heavy Duty Armor Military Grade protective case — everything Dad needs to stay self-sufficient when the grid goes down.</p>
-      <ul style="margin:.1rem 0 0; color:#d9deef; font-size:1rem; padding-left:1.1rem;">
+      <p class="small" style="margin:.45rem 0 .35rem; color:#000;">Every Ghost Box ships with a hardened smart phone loaded with AI and survival knowledge, a 42,800mAh solar power hub, and a Heavy Duty Armor Military Grade protective case — everything Dad needs to stay self-sufficient when the grid goes down.</p>
+      <ul style="margin:.1rem 0 0; color:#000; font-size:1rem; padding-left:1.1rem;">
         <li>Essential: 20GB+ survival apps + 1 offline LLM | Pro: 50GB+ survival apps + 3 offline LLMs</li>
         <li>Solar power hub with built-in charging cables, flashlight &amp; emergency strobe</li>
         <li>Pro: adds dual Mission Darkness Faraday bags, heavy-duty backup cable, and Armor-Grade Data Blocker</li>
@@ -530,11 +530,14 @@
               </li>
             </ul>
             <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
-              <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
                 <div class="price" style="font-size:1.4rem; margin:0;">$299.99</div>
                 <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
               </div>
-              <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
+              <button id="buy-base-btn" class="btn" type="button" style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
+                <span style="font-size:1.05rem; font-weight:800; opacity:.88; white-space:nowrap;">$299.99</span>
+                <span>Buy Ghost Box: Essential</span>
+              </button>
             </div>
             <div style="text-align:center; margin-top:1.2rem; padding-top:.9rem; border-top:1px solid var(--line);">
               <img src="/images/ghostboxlogo2.png" alt="Ghost Box" style="width:min(160px,55%); opacity:.85; filter:drop-shadow(0 0 14px rgba(158,208,255,.3));" />
@@ -606,11 +609,14 @@
               </li>
             </ul>
             <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
-              <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
                 <div class="price" style="font-size:1.4rem; margin:0;">$399.99</div>
                 <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
               </div>
-              <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
+              <button id="buy-pro-btn" class="btn" type="button" style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
+                <span style="font-size:1.05rem; font-weight:800; opacity:.88; white-space:nowrap;">$399.99</span>
+                <span>Buy Ghost Box: Pro</span>
+              </button>
             </div>
           </section>
         </div>
