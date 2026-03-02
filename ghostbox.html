@@ -418,6 +418,7 @@
     .product-img { width: 100%; aspect-ratio: 4/3; object-fit: contain; border: 1px solid var(--line); border-radius: 6px; background: #0d1017; display: block; }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .yt-guard { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
     @media (max-width: 900px) {
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
@@ -468,6 +469,7 @@
             </div>
             <div>
               <div class="yt-wrap">
+                <div class="yt-guard" id="yt-guard"></div>
                 <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Ghost Box Unboxing Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
               </div>
             </div>
@@ -912,7 +914,7 @@
     (function() {
       const track = document.getElementById('car-track');
       const dots  = document.querySelectorAll('.car-dot');
-      const ytIframe = document.querySelector('#hero-carousel iframe');
+      const ytGuard = document.getElementById('yt-guard');
       const total = 2;
       let cur = 0, timer, videoActive = false;
 
@@ -927,18 +929,26 @@
         timer = setInterval(() => goTo(cur + 1), 5000);
       }
 
-      // Detect iframe click via window blur
-      window.addEventListener('blur', () => {
-        if (document.activeElement === ytIframe) {
+      // Guard intercepts the first click on the video area — 100% reliable cross-browser
+      if (ytGuard) {
+        ytGuard.addEventListener('click', () => {
           videoActive = true;
           clearInterval(timer);
-        }
-      });
+          ytGuard.style.display = 'none'; // let all subsequent clicks reach the iframe
+        });
+      }
 
-      // Manual navigation resets video lock
-      document.getElementById('car-prev').addEventListener('click', () => { videoActive = false; goTo(cur - 1); startTimer(); });
-      document.getElementById('car-next').addEventListener('click', () => { videoActive = false; goTo(cur + 1); startTimer(); });
-      dots.forEach(d => d.addEventListener('click', () => { videoActive = false; goTo(+d.dataset.idx); startTimer(); }));
+      // Manual navigation resets video lock and restores the guard
+      function manualNav(idx) {
+        videoActive = false;
+        if (ytGuard) ytGuard.style.display = '';
+        goTo(idx);
+        startTimer();
+      }
+
+      document.getElementById('car-prev').addEventListener('click', () => manualNav(cur - 1));
+      document.getElementById('car-next').addEventListener('click', () => manualNav(cur + 1));
+      dots.forEach(d => d.addEventListener('click', () => manualNav(+d.dataset.idx)));
 
       const car = document.getElementById('hero-carousel');
       car.addEventListener('mouseenter', () => clearInterval(timer));
