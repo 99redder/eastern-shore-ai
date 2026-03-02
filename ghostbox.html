@@ -352,6 +352,25 @@
       flex-direction: column;
     }
     .checkout-option .btn { margin-top: auto; }
+    .kit-details { display: none; margin: .5rem 0 .6rem; }
+    .kit-details.open { display: block; }
+    .kit-toggle {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--cyan);
+      padding: .28rem .65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .8rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      letter-spacing: .03em;
+      margin: .4rem 0 0;
+      display: block;
+      width: 100%;
+      text-align: left;
+    }
+    .kit-toggle:hover { border-color: var(--cyan); }
     @media (max-width: 900px) {
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
@@ -379,23 +398,96 @@
       </div>
     </div>
 
-    <img src="/images/ghostlogo.png" alt="Ghost Box logo" class="ghost-logo" />
-    <h1>Ghost Box</h1>
-    <div class="sub" style="margin-top:-.15rem; margin-bottom:.7rem;">Emergency Preparedness in the age of AI</div>
-    <div style="display:flex; flex-wrap:wrap; gap:.55rem; margin-bottom:1.1rem;">
-      <span class="sale-chip">1–3 Offline LLM AI Chat Bots</span>
-      <span class="sale-chip">20–50GB+ Survival Knowledge</span>
-      <span class="sale-chip">Zero Data Footprint</span>
+    <div style="display:flex; align-items:center; gap:1.2rem; margin:.4rem 0 .7rem; flex-wrap:wrap;">
+      <img src="/images/ghostbox-logo5.png" alt="Ghost Box" style="width:min(130px,28vw); flex-shrink:0; filter:drop-shadow(0 0 18px rgba(158,208,255,.25));" />
+      <div>
+        <h1 style="margin:0 0 .2rem;">Ghost Box</h1>
+        <div class="sub" style="margin:0 0 .5rem;">Emergency Preparedness in the age of AI</div>
+        <img src="/images/ghostboxlogo2.png" alt="Ghost Box mark" style="width:min(64px,14vw); opacity:.75;" />
+      </div>
     </div>
 
-    <section class="card" style="margin:0 0 1rem; max-width: 100%;">
-      <div class="ghost-intro">
-        <div>
-          <h2 style="margin:0 0 .35rem; color:var(--cyan);">What is a Ghost Box?</h2>
-          <p class="small" style="margin:0;">A Ghost Box is a device that exists but cannot be seen. By stripping away tracking software, de-Googling the OS, and shielding the hardware in military-grade Faraday mesh, we’ve created a tool that provides the intelligence of a modern smartphone with the invisibility of a paper map. No pings, no tracking, no footprint.</p>
+    <article class="card" id="choose-kit">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
+          <h2 style="margin:0;">Choose Your Kit</h2>
+          <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
+            <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
+            <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
+          </div>
         </div>
-        <img src="/images/ghostboxlogo2.png" alt="Ghost Box mark" />
-      </div>
+        <div class="offerings">
+          <section class="kit-card" style="display:flex; flex-direction:column;">
+            <h3>Ghost Box: Essential — $299.99</h3>
+            <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
+            <button class="kit-toggle" data-target="details-essential">See Details + (What’s Included)</button>
+            <div class="kit-details" id="details-essential" style="flex:1;">
+              <ul>
+                <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
+                  <ul>
+                    <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
+                    <li>Essential Software Package: pre-loaded with 20GB+ survival apps and 1 offline LLM (AI Chat Bot)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
+                    <li>Heavy Duty Armor Military Grade protective phone case</li>
+                  </ul>
+                </li>
+                <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light</li>
+                <li>Hard storage case: waterproof and crushproof. Ready to move anywhere if necessary</li>
+              </ul>
+            </div>
+            <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
+              <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+                <div class="price" style="font-size:1.4rem; margin:0;">$299.99</div>
+                <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
+              </div>
+              <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
+            </div>
+          </section>
+          <section class="kit-card pro-kit" style="display:flex; flex-direction:column;">
+            <span class="kit-ribbon">EMP-Hardened</span>
+            <h3>Ghost Box: Pro — $399.99</h3>
+            <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
+            <button class="kit-toggle" data-target="details-pro">See Details + (What’s Included)</button>
+            <div class="kit-details" id="details-pro" style="flex:1;">
+              <ul>
+                <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
+                  <ul>
+                    <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
+                    <li>Pro Software Package: pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
+                    <li>Heavy Duty Armor Military Grade protective phone case</li>
+                  </ul>
+                </li>
+                <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light</li>
+                <li>Two Faraday bags (phone + battery) with Dual-Layer Mission Darkness TitanRF Shielding <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
+                <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
+                <li>Armor-Grade Data Blocker: Case-friendly, high-speed charging bridge. Acts as a "digital condom" to prevent unauthorized handshakes and "Juice Jacking" attacks. Power flows in; data stays locked down.</li>
+                <li>Hard storage case: waterproof and crushproof. Ready to move anywhere if necessary</li>
+              </ul>
+            </div>
+            <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
+              <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
+                <div class="price" style="font-size:1.4rem; margin:0;">$399.99</div>
+                <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
+              </div>
+              <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
+            </div>
+          </section>
+        </div>
+
+        <ul style="margin-top:.8rem;">
+          <li><strong>Solar Power Bank includes built-in cable set:</strong> 2 attached USB-C cables, 1 iOS cable, and 1 extended USB-A input cable.</li>
+          <li><strong>Free shipping to all continental US states. **We cannot ship outside the continental United States.</strong></li>
+          <li><strong>Please allow 1–2 weeks for processing before your item ships.</strong></li>
+        </ul>
+
+        <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line); text-align:center;">
+          <a href="#" id="byog-modal-link" style="color:var(--cyan); font-size:1rem; font-weight:700; text-decoration:none;">Want us to install our Offline Brain Software Suite on your current phone?</a>
+        </div>
+
+    </article>
+    <div class="status" id="status" style="margin-top:.5rem; font-size:.88rem; color:var(--muted);"></div>
+
+    <section class="card" style="margin:1rem 0 1rem; max-width:100%;">
+      <h2 style="margin:0 0 .35rem; color:var(--cyan);">What is a Ghost Box?</h2>
+      <p class="small" style="margin:0;">A Ghost Box is a device that exists but cannot be seen. By stripping away tracking software, de-Googling the OS, and shielding the hardware in military-grade Faraday mesh, we’ve created a tool that provides the intelligence of a modern smartphone with the invisibility of a paper map. No pings, no tracking, no footprint.</p>
     </section>
 
     <h2 style="margin:0 0 .45rem; color:var(--cyan);">The Ghost Box Offline Software Suite</h2>
@@ -422,78 +514,6 @@
     <blockquote style="margin:0 0 1rem; padding:.9rem 1rem .9rem 1.1rem; border-left:3px solid var(--cyan); background:rgba(158,208,255,.06); border-radius:0 8px 8px 0; color:var(--muted); font-style:italic; font-size:1.05rem; line-height:1.6;">
       "Information is the ultimate survival resource, but in a crisis, your digital footprint is your greatest liability. The Ghost Box was engineered to provide the intelligence of the modern world with the invisibility of the old one. No pings. No tracking. No compromise. Just pure, hardened knowledge when you need it most."
     </blockquote>
-
-    <article class="card" id="choose-kit">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
-          <h2 style="margin:0;">Choose Your Kit</h2>
-          <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
-            <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
-            <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
-          </div>
-        </div>
-        <div class="offerings">
-          <section class="kit-card" style="display:flex; flex-direction:column;">
-            <h3>Ghost Box: Essential — $299.99</h3>
-            <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
-            <ul style="flex:1;">
-              <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
-                <ul>
-                  <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
-                  <li>Essential Software Package: pre-loaded with 20GB+ survival apps and 1 offline LLM (AI Chat Bot)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
-                  <li>Heavy Duty Armor Military Grade protective phone case</li>
-                </ul>
-              </li>
-              <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light</li>
-              <li>Hard storage case: waterproof and crushproof. Ready to move anywhere if necessary</li>
-            </ul>
-            <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
-              <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
-                <div class="price" style="font-size:1.4rem; margin:0;">$299.99</div>
-                <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
-              </div>
-              <button id="buy-base-btn" class="btn" type="button">Buy Ghost Box: Essential</button>
-            </div>
-          </section>
-          <section class="kit-card pro-kit" style="display:flex; flex-direction:column;">
-            <span class="kit-ribbon">EMP-Hardened</span>
-            <h3>Ghost Box: Pro — $399.99</h3>
-            <p class="small" style="margin:.1rem 0 .45rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
-            <ul style="flex:1;">
-              <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
-                <ul>
-                  <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
-                  <li>Pro Software Package: pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
-                  <li>Heavy Duty Armor Military Grade protective phone case</li>
-                </ul>
-              </li>
-              <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light</li>
-              <li>Two Faraday bags (phone + battery) with Dual-Layer Mission Darkness TitanRF Shielding <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
-              <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
-              <li>Armor-Grade Data Blocker: Case-friendly, high-speed charging bridge. Acts as a "digital condom" to prevent unauthorized handshakes and "Juice Jacking" attacks. Power flows in; data stays locked down.</li>
-              <li>Hard storage case: waterproof and crushproof. Ready to move anywhere if necessary</li>
-            </ul>
-            <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
-              <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
-                <div class="price" style="font-size:1.4rem; margin:0;">$399.99</div>
-                <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
-              </div>
-              <button id="buy-pro-btn" class="btn" type="button">Buy Ghost Box: Pro</button>
-            </div>
-          </section>
-        </div>
-
-        <ul style="margin-top:.8rem;">
-          <li><strong>Solar Power Bank includes built-in cable set:</strong> 2 attached USB-C cables, 1 iOS cable, and 1 extended USB-A input cable.</li>
-          <li><strong>Free shipping to all continental US states. **We cannot ship outside the continental United States.</strong></li>
-          <li><strong>Please allow 1–2 weeks for processing before your item ships.</strong></li>
-        </ul>
-
-        <div style="margin-top:.9rem; padding-top:.9rem; border-top:1px solid var(--line); text-align:center;">
-          <a href="#" id="byog-modal-link" style="color:var(--cyan); font-size:1rem; font-weight:700; text-decoration:none;">Want us to install our Offline Brain Software Suite on your current phone?</a>
-        </div>
-
-    </article>
-    <div class="status" id="status" style="margin-top:.5rem; font-size:.88rem; color:var(--muted);"></div>
 
     <section class="card" style="margin-top:1rem;">
       <h2 style="margin-top:0;">Which Kit Is Right For You?</h2>
@@ -739,6 +759,14 @@
   </div>
 
   <script>
+    document.querySelectorAll('.kit-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const details = document.getElementById(btn.dataset.target);
+        const isOpen = details.classList.toggle('open');
+        btn.textContent = isOpen ? "Hide Details − (What's Included)" : "See Details + (What's Included)";
+      });
+    });
+
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
 
