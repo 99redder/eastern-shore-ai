@@ -56,7 +56,63 @@
     }
     .back-btn:hover { filter: brightness(1.1); }
 
-    .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
+    .logo-fixed {
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 5980;
+      padding: .5rem .8rem .3rem;
+      background: linear-gradient(135deg, rgba(9,11,17,.88) 55%, transparent 100%);
+      pointer-events: none;
+    }
+    .logo-fixed-img {
+      width: min(200px, 30vw);
+      display: block;
+      filter: drop-shadow(0 0 20px rgba(158,208,255,.32));
+    }
+    #global-back-btn { top: auto; bottom: 1.2rem; }
+    .promo-toggle {
+      background: none;
+      border: 1px solid rgba(157,255,122,.45);
+      color: #d9ffb2;
+      border-radius: 6px;
+      padding: .18rem .48rem;
+      cursor: pointer;
+      font-size: .85rem;
+      flex-shrink: 0;
+      transition: transform .2s;
+      line-height: 1;
+    }
+    .promo-toggle[aria-expanded="true"] { transform: rotate(180deg); }
+    .acc-list { list-style: none; padding: 0; margin: .4rem 0 0; }
+    .acc-item { border-bottom: 1px solid rgba(42,51,72,.7); }
+    .acc-item:last-child { border-bottom: none; }
+    .acc-row {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--text);
+      padding: .45rem 0;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Titillium Web', sans-serif;
+      font-size: 1rem;
+    }
+    .acc-row:hover .acc-label { color: var(--cyan); }
+    .acc-label { flex: 1; font-weight: 700; font-size: .95rem; }
+    .acc-arrow { color: var(--cyan); font-size: .85rem; transition: transform .2s; flex-shrink: 0; }
+    .acc-row[aria-expanded="true"] .acc-arrow { transform: rotate(90deg); }
+    .acc-body {
+      padding: .3rem 0 .55rem .8rem;
+      color: #c4cedf;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    .acc-body ul { margin: .3rem 0 0; padding-left: 1rem; }
+    .acc-body li { margin: .25rem 0; font-size: .88rem; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 5rem 1rem 3rem; }
     .promo-row { margin-bottom: 1rem; }
     .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem auto .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
     h1 { margin: 0 0 .4rem; font-size: clamp(2rem, 3.5vw, 3rem); }
@@ -352,26 +408,8 @@
       flex-direction: column;
     }
     .checkout-option .btn { margin-top: auto; }
-    .kit-details { display: none; margin: .5rem 0 .6rem; }
-    .kit-details.open { display: block; }
-    .kit-toggle {
-      background: none;
-      border: 1px solid var(--line);
-      color: var(--cyan);
-      padding: .28rem .65rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: .8rem;
-      font-family: 'Hanken Grotesk', sans-serif;
-      font-weight: 700;
-      letter-spacing: .03em;
-      margin: .4rem 0 0;
-      display: block;
-      width: 100%;
-      text-align: left;
-    }
-    .kit-toggle:hover { border-color: var(--cyan); }
     @media (max-width: 900px) {
+      .wrap { padding-top: 3rem; }
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
       .brain-grid { grid-template-columns: 1fr; }
@@ -381,35 +419,40 @@
   </style>
 </head>
 <body>
+  <div class="logo-fixed">
+    <img src="/images/ghostbox-logo5.png" alt="Ghost Box" class="logo-fixed-img" />
+  </div>
   <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
   <a href="#choose-kit" class="buy-now-float" onclick="event.preventDefault(); document.getElementById('choose-kit').scrollIntoView({behavior:'smooth',block:'end'});">Buy Now ↓</a>
   <a href="/ghost-setup.html" class="back-btn" style="left:auto; right:1rem;">Ghost Box Users Guide</a>
 
   <main class="wrap">
     <div class="promo-row">
-      <div class="card" style="margin: .1rem 0 0; border-color: rgba(157,255,122,.35); background: linear-gradient(160deg, rgba(157,255,122,.08), rgba(255,94,94,.06));">
-        <h2 style="margin:0 0 .4rem; font-size:1.05rem; color:#d9ffb2;">Father’s Day Special: Give Dad the Gift of Real-World Readiness</h2>
-        <p class="small" style="margin:0 0 .45rem; color:#d9deef;">The ultimate off-grid gift. Every Ghost Box ships with a hardened smart phone loaded with AI and survival knowledge, a 42,800mAh solar power hub, and a Heavy Duty Armor Military Grade protective case — everything Dad needs to stay self-sufficient when the grid goes down.</p>
-        <ul style="margin:.1rem 0 0; color:#d9deef; font-size:1rem; padding-left:1.1rem;">
-          <li>Essential: 20GB+ survival apps + 1 offline LLM | Pro: 50GB+ survival apps + 3 offline LLMs</li>
-          <li>Solar power hub with built-in charging cables, flashlight &amp; emergency strobe</li>
-          <li>Pro: adds dual Mission Darkness Faraday bags, heavy-duty backup cable, and Armor-Grade Data Blocker</li>
-        </ul>
+      <div class="card" style="margin: .1rem 0 0; border-color: rgba(157,255,122,.35); background: linear-gradient(160deg, rgba(157,255,122,.08), rgba(255,94,94,.06)); padding:.65rem 1rem;">
+        <div style="display:flex; align-items:center; gap:.6rem;">
+          <h2 style="margin:0; font-size:1.05rem; color:#d9ffb2; flex:1;">Father’s Day Special: Give Dad the Gift of Real-World Readiness</h2>
+          <button class="promo-toggle" id="promo-toggle" aria-expanded="false" aria-controls="promo-body">▼</button>
+        </div>
+        <div id="promo-body" hidden>
+          <p class="small" style="margin:.45rem 0 .35rem; color:#d9deef;">The ultimate off-grid gift. Every Ghost Box ships with a hardened smart phone loaded with AI and survival knowledge, a 42,800mAh solar power hub, and a Heavy Duty Armor Military Grade protective case — everything Dad needs to stay self-sufficient when the grid goes down.</p>
+          <ul style="margin:.1rem 0 0; color:#d9deef; font-size:1rem; padding-left:1.1rem;">
+            <li>Essential: 20GB+ survival apps + 1 offline LLM | Pro: 50GB+ survival apps + 3 offline LLMs</li>
+            <li>Solar power hub with built-in charging cables, flashlight &amp; emergency strobe</li>
+            <li>Pro: adds dual Mission Darkness Faraday bags, heavy-duty backup cable, and Armor-Grade Data Blocker</li>
+          </ul>
+        </div>
       </div>
     </div>
 
-    <div style="display:flex; align-items:center; gap:1.2rem; margin:.4rem 0 .7rem; flex-wrap:wrap;">
-      <img src="/images/ghostbox-logo5.png" alt="Ghost Box" style="width:min(130px,28vw); flex-shrink:0; filter:drop-shadow(0 0 18px rgba(158,208,255,.25));" />
-      <div>
-        <h1 style="margin:0 0 .2rem;">Ghost Box</h1>
-        <div class="sub" style="margin:0 0 .5rem;">Emergency Preparedness in the age of AI</div>
-        <img src="/images/ghostboxlogo2.png" alt="Ghost Box mark" style="width:min(64px,14vw); opacity:.75;" />
-      </div>
+    <div style="margin:.4rem 0 .7rem;">
+      <h1 style="margin:0 0 .2rem;">Ghost Box</h1>
+      <div class="sub" style="margin:0;">Emergency Preparedness in the age of AI</div>
     </div>
 
     <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
           <h2 style="margin:0;">Choose Your Kit</h2>
+          <img src="/images/ghostboxlogo2.png" alt="" aria-hidden="true" style="width:min(48px,9vw); opacity:.55; flex-shrink:0;" />
           <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
             <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
             <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(184,240,255,.08);">🚚 FREE SHIPPING</span>
@@ -419,20 +462,40 @@
           <section class="kit-card" style="display:flex; flex-direction:column;">
             <h3>Ghost Box: Essential — $299.99</h3>
             <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
-            <button class="kit-toggle" data-target="details-essential">See Details + (What’s Included)</button>
-            <div class="kit-details" id="details-essential" style="flex:1;">
-              <ul>
-                <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
+            <ul class="acc-list">
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">(1) Ghost Box 8GB Core Unit</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability.
                   <ul>
                     <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
                     <li>Essential Software Package: pre-loaded with 20GB+ survival apps and 1 offline LLM (AI Chat Bot)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
                     <li>Heavy Duty Armor Military Grade protective phone case</li>
                   </ul>
-                </li>
-                <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light</li>
-                <li>Hard storage case: waterproof and crushproof. Ready to move anywhere if necessary</li>
-              </ul>
-            </div>
+                </div>
+              </li>
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">42,800mAh Solar Power Hub</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  Built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light.
+                </div>
+              </li>
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">Hard Storage Case</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  Waterproof and crushproof. Ready to move anywhere if necessary.
+                </div>
+              </li>
+            </ul>
             <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
               <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
                 <div class="price" style="font-size:1.4rem; margin:0;">$299.99</div>
@@ -445,23 +508,67 @@
             <span class="kit-ribbon">EMP-Hardened</span>
             <h3>Ghost Box: Pro — $399.99</h3>
             <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
-            <button class="kit-toggle" data-target="details-pro">See Details + (What’s Included)</button>
-            <div class="kit-details" id="details-pro" style="flex:1;">
-              <ul>
-                <li>(1) Ghost Box 8GB Core Unit: A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability
+            <ul class="acc-list">
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">(1) Ghost Box 8GB Core Unit</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  A hand-vetted, multi-point inspected smart phone optimized for maximum security and off-grid stability.
                   <ul>
                     <li>Android OS wiped &amp; replaced with LineageOS — a low-memory-footprint, secure open-source OS</li>
                     <li>Pro Software Package: pre-loaded with 50GB+ survival apps and 3 offline LLMs (AI Chat Bots)<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
                     <li>Heavy Duty Armor Military Grade protective phone case</li>
                   </ul>
-                </li>
-                <li>42,800mAh Solar Power Hub with built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light</li>
-                <li>Two Faraday bags (phone + battery) with Dual-Layer Mission Darkness TitanRF Shielding <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a></li>
-                <li>Backup heavy-duty long-lasting USB-C to USB-C cable</li>
-                <li>Armor-Grade Data Blocker: Case-friendly, high-speed charging bridge. Acts as a "digital condom" to prevent unauthorized handshakes and "Juice Jacking" attacks. Power flows in; data stays locked down.</li>
-                <li>Hard storage case: waterproof and crushproof. Ready to move anywhere if necessary</li>
-              </ul>
-            </div>
+                </div>
+              </li>
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">42,800mAh Solar Power Hub</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  Built-in cables (USB-C, iOS, Micro-USB) — keeps your phone charged and ready during extended periods without electricity; includes built-in flashlight and emergency strobe light.
+                </div>
+              </li>
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">Two Mission Darkness Faraday Bags</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  Dual-Layer TitanRF Shielding — one bag for the phone, one for the power hub. <a href="#" id="faraday-bag-info-link" style="color:var(--cyan); font-size:.82rem;">What is a Faraday Bag?</a>
+                </div>
+              </li>
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">Armor-Grade Data Blocker</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  Case-friendly, high-speed charging bridge. Acts as a "digital condom" to prevent unauthorized handshakes and Juice Jacking attacks. Power flows in; data stays locked down.
+                </div>
+              </li>
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">Backup Heavy-Duty USB-C to USB-C Cable</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  Long-lasting backup cable for charging and data transfer when your main cable is unavailable.
+                </div>
+              </li>
+              <li class="acc-item">
+                <button class="acc-row" aria-expanded="false">
+                  <span class="acc-label">Hard Storage Case</span>
+                  <span class="acc-arrow">›</span>
+                </button>
+                <div class="acc-body" hidden>
+                  Waterproof and crushproof. Ready to move anywhere if necessary.
+                </div>
+              </li>
+            </ul>
             <div style="margin-top:.9rem; padding-top:.8rem; border-top:1px solid var(--line);">
               <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem;">
                 <div class="price" style="font-size:1.4rem; margin:0;">$399.99</div>
@@ -759,11 +866,23 @@
   </div>
 
   <script>
-    document.querySelectorAll('.kit-toggle').forEach(btn => {
+    (function() {
+      const tog = document.getElementById('promo-toggle');
+      const body = document.getElementById('promo-body');
+      if (!tog) return;
+      tog.addEventListener('click', () => {
+        const open = body.hasAttribute('hidden');
+        if (open) { body.removeAttribute('hidden'); tog.setAttribute('aria-expanded','true'); }
+        else { body.setAttribute('hidden',''); tog.setAttribute('aria-expanded','false'); }
+      });
+    })();
+
+    document.querySelectorAll('.acc-row').forEach(btn => {
       btn.addEventListener('click', () => {
-        const details = document.getElementById(btn.dataset.target);
-        const isOpen = details.classList.toggle('open');
-        btn.textContent = isOpen ? "Hide Details − (What's Included)" : "See Details + (What's Included)";
+        const body = btn.nextElementSibling;
+        const open = body.hasAttribute('hidden');
+        if (open) { body.removeAttribute('hidden'); btn.setAttribute('aria-expanded','true'); }
+        else { body.setAttribute('hidden',''); btn.setAttribute('aria-expanded','false'); }
       });
     });
 
