@@ -997,6 +997,43 @@
     </div>
   </div>
 
+<div class="terms-overlay" id="byog-terms-overlay" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="byog-terms-title">
+      <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">GHOST BOX</span>
+        <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">BYOG Setup Terms</span>
+      </div>
+      <h3 id="byog-terms-title" style="margin:0 0 .6rem; font-size:1.1rem; color:var(--cyan); letter-spacing:.01em;">Review &amp; Acknowledge Before Purchase</h3>
+      <div class="terms-scroll">
+        <p style="color:var(--cyan); font-size:.78rem; text-transform:uppercase; letter-spacing:.07em; font-weight:700; margin:0 0 .65rem; font-family:'Hanken Grotesk',sans-serif;">— BYOG setup service terms —</p>
+
+        <p><strong>1. Service Scope</strong></p>
+        <p>This purchase is for a software setup service on a compatible Android device you already own. No hardware, battery, charger, cable, or Faraday bag is included.</p>
+
+        <p><strong>2. Device Wipe &amp; Data Loss</strong></p>
+        <p>Your device will be factory-reset/wiped during setup. You are responsible for backing up anything you want to keep before your appointment. Eastern Shore AI is not responsible for lost data on your device.</p>
+
+        <p><strong>3. Compatibility &amp; Third-Party App Limits</strong></p>
+        <p>Setup uses LineageOS (custom open-source OS). Some mainstream apps (banking, DRM-restricted streaming, or Google-dependent services) may not work the same as on stock Android.</p>
+
+        <p><strong>4. Eastern Shore Service Area</strong></p>
+        <p>BYOG setup appointments are only available on the Eastern Shore of Maryland. You must provide a valid local meetup/address location for service.</p>
+
+        <p><strong>5. Liability &amp; User Responsibility</strong></p>
+        <p>This is a preparedness software service and does not guarantee any emergency outcome. You are responsible for lawful use and maintenance of your device/software after setup.</p>
+      </div>
+      <label style="display:flex; gap:.55rem; align-items:flex-start; margin:.6rem 0 .35rem; color:#d8dce8; font-size:.9rem;">
+        <input type="checkbox" id="byog-terms-check" style="margin-top:.25rem; accent-color:var(--cyan);" />
+        <span>I have read and agree to the BYOG setup terms above.</span>
+      </label>
+      <div id="byog-terms-error" style="display:none; margin:0 0 .8rem; color:#ffb4c7; font-size:.88rem;">Please check the agreement box before continuing.</div>
+      <div class="terms-actions">
+        <button type="button" class="btn-outline" id="byog-terms-cancel">Cancel</button>
+        <button type="button" class="btn" id="byog-terms-accept" style="width:auto; min-width:220px;">Continue to Checkout →</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== Hero Carousel =====
     const carousel = (function() {
@@ -1101,6 +1138,11 @@
     const termsError = document.getElementById('terms-error');
     const termsCancel = document.getElementById('terms-cancel');
     const termsAccept = document.getElementById('terms-accept');
+    const byogTermsOverlay = document.getElementById('byog-terms-overlay');
+    const byogTermsCheck = document.getElementById('byog-terms-check');
+    const byogTermsError = document.getElementById('byog-terms-error');
+    const byogTermsCancel = document.getElementById('byog-terms-cancel');
+    const byogTermsAccept = document.getElementById('byog-terms-accept');
     const byogModalLink = document.getElementById('byog-modal-link');
     const byogModalEl = document.getElementById('byog-modal');
     const byogClose = document.getElementById('byog-close');
@@ -1111,6 +1153,7 @@
     const softwareModal = document.getElementById('software-modal');
     const softwareClose = document.getElementById('software-close');
     let pendingPayload = null;
+    let activeTermsType = 'product';
     let unavailableSlots = new Set();
     let blockedDates = new Set();
 
@@ -1263,6 +1306,16 @@
 
     function openTerms(payload) {
       pendingPayload = payload;
+      activeTermsType = ((payload?.checkoutType || '').toLowerCase() === 'byog_setup') ? 'byog' : 'product';
+
+      if (activeTermsType === 'byog') {
+        byogTermsCheck.checked = false;
+        byogTermsError.style.display = 'none';
+        byogTermsOverlay.style.display = 'flex';
+        byogTermsOverlay.setAttribute('aria-hidden', 'false');
+        return;
+      }
+
       termsCheck.checked = false;
       shippingState.value = '';
       termsError.style.display = 'none';
@@ -1274,20 +1327,29 @@
     function closeTerms() {
       termsOverlay.style.display = 'none';
       termsOverlay.setAttribute('aria-hidden', 'true');
+      byogTermsOverlay.style.display = 'none';
+      byogTermsOverlay.setAttribute('aria-hidden', 'true');
       pendingPayload = null;
+      activeTermsType = 'product';
     }
 
     function updateTermsReady() {
       if (termsCheck.checked && shippingState.value) {
         termsError.style.display = 'none';
       }
+      if (byogTermsCheck.checked) {
+        byogTermsError.style.display = 'none';
+      }
     }
 
     termsCheck.addEventListener('change', updateTermsReady);
     shippingState.addEventListener('change', updateTermsReady);
+    byogTermsCheck.addEventListener('change', updateTermsReady);
 
     termsCancel.addEventListener('click', closeTerms);
     termsOverlay.addEventListener('click', (e) => { if (e.target === termsOverlay) closeTerms(); });
+    byogTermsCancel.addEventListener('click', closeTerms);
+    byogTermsOverlay.addEventListener('click', (e) => { if (e.target === byogTermsOverlay) closeTerms(); });
 
     faradayInfoLink?.addEventListener('click', (e) => {
       e.preventDefault();
@@ -1330,6 +1392,17 @@
         return;
       }
       const payload = { ...pendingPayload, shippingState: shippingState.value };
+      closeTerms();
+      startCheckout(payload);
+    });
+
+    byogTermsAccept.addEventListener('click', () => {
+      if (!pendingPayload) return;
+      if (!byogTermsCheck.checked) {
+        byogTermsError.style.display = 'block';
+        return;
+      }
+      const payload = { ...pendingPayload };
       closeTerms();
       startCheckout(payload);
     });
