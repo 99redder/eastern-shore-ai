@@ -413,7 +413,7 @@
       border: none; cursor: pointer; padding: 0; transition: background .2s;
     }
     .car-dot.active { background: var(--cyan); }
-    .slide2-inner { display: grid; grid-template-columns: 54px 1fr 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
+    .slide2-inner { display: grid; grid-template-columns: 1fr 54px 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
     .yt-slide-inner { padding: .5rem 0; max-width: 820px; margin: 0 auto; }
     .thumb-strip { display: flex; flex-direction: column; gap: .4rem; }
     .thumb-img {
@@ -491,7 +491,7 @@
       /* Carousel — cap height so it doesn't dominate the phone screen */
       .carousel { max-height: 58vw; overflow: hidden; }
       /* Hide box-contents image on mobile — stacks awkwardly in single-col layout */
-      .slide2-inner > .main-product-wrap:last-child { display: none; }
+      .slide2-inner > .main-product-wrap:first-child { display: none; }
       /* Carousel arrows — smaller on mobile */
       .car-arrow { width: 28px; height: 28px; font-size: 1.2rem; }
       /* Software modal — collapse 2-column grid to 1 column */
@@ -545,9 +545,12 @@
           <img src="/images/ghostbox-logo7.jpg" alt="Ghost Box — Emergency Preparedness in the age of AI" style="width:100%; display:block; filter:drop-shadow(0 0 18px rgba(158,208,255,.2));" />
         </div>
 
-        <!-- Slide 2: Thumbnail browser + main image + box contents -->
+        <!-- Slide 2: Box contents (left) + Thumbnail browser + main image (right) -->
         <div class="car-slide">
           <div class="slide2-inner">
+            <div class="main-product-wrap">
+              <img src="https://placehold.co/600x450/0d1017/9ed0ff?text=Everything+in+the+Box" alt="Ghost Box — Complete Kit Contents" style="width:100%; display:block; object-fit:contain; aspect-ratio:4/3;" />
+            </div>
             <div class="thumb-strip">
               <img class="thumb-img" src="images/case.png" alt="Hard Storage Case" />
               <img class="thumb-img" src="https://placehold.co/400x300/0d1017/9ed0ff?text=AI+Chat" alt="AI Chatbot on Phone" />
@@ -556,9 +559,6 @@
             </div>
             <div class="main-product-wrap">
               <img id="main-product-img" src="images/faraday.png" alt="Faraday Bags" />
-            </div>
-            <div class="main-product-wrap">
-              <img src="https://placehold.co/600x450/0d1017/9ed0ff?text=Everything+in+the+Box" alt="Ghost Box — Complete Kit Contents" style="width:100%; display:block; object-fit:contain; aspect-ratio:4/3;" />
             </div>
           </div>
         </div>
