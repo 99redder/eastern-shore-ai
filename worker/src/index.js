@@ -55,7 +55,7 @@ export default {
 
     // Stripe webhook comes from Stripe servers (no browser Origin), so skip origin check there.
     if (url.pathname !== '/api/stripe-webhook') {
-      const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
+      const isBookingsRead = ['/api/bookings', '/api/planner/items'].includes(url.pathname) && request.method === 'GET';
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
@@ -64,7 +64,7 @@ export default {
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
-      const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout', '/api/validate-byog-location'].includes(url.pathname) && request.method === 'POST';
+      const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
@@ -105,6 +105,26 @@ export default {
 
     if (url.pathname === '/api/byog-location-suggest') {
       return handleByogLocationSuggest(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/planner/items' && request.method === 'GET') {
+      return handlePlannerItemsList(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/planner/items' && request.method === 'POST') {
+      return handlePlannerItemUpsert(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/planner/items/toggle') {
+      return handlePlannerItemToggle(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/planner/items/delete') {
+      return handlePlannerItemDelete(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/planner/items/reschedule') {
+      return handlePlannerItemReschedule(request, env, corsHeaders);
     }
 
     if (url.pathname === '/api/admin/block-slot') {
@@ -395,6 +415,140 @@ async function handleByogLocationSuggest(request, env, corsHeaders, url) {
   } catch {
     return json({ ok: true, suggestions: [] }, 200, corsHeaders);
   }
+}
+
+async function ensurePlannerSchema(db) {
+  await db.prepare(`CREATE TABLE IF NOT EXISTS planner_items (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL DEFAULT 'chris',
+    kind TEXT NOT NULL CHECK (kind IN ('task','appointment')) DEFAULT 'task',
+    title TEXT NOT NULL,
+    notes TEXT,
+    scheduled_for TEXT,
+    due_date TEXT,
+    reminder_minutes INTEGER,
+    status TEXT NOT NULL CHECK (status IN ('open','done','canceled')) DEFAULT 'open',
+    priority INTEGER NOT NULL DEFAULT 0,
+    source TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`).run();
+}
+
+/**
+ * GET /api/planner/items
+ */
+async function handlePlannerItemsList(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  await ensurePlannerSchema(env.DB);
+
+  const userId = (url.searchParams.get('userId') || 'chris').toString().trim() || 'chris';
+  const includeDone = (url.searchParams.get('includeDone') || '0') === '1';
+
+  let rows;
+  if (includeDone) {
+    rows = await env.DB.prepare(
+      `SELECT id, user_id, kind, title, notes, scheduled_for, due_date, reminder_minutes, status, priority, source, created_at, updated_at
+       FROM planner_items
+       WHERE user_id = ?1
+       ORDER BY COALESCE(due_date, substr(scheduled_for,1,10), '9999-12-31') ASC, updated_at DESC`
+    ).bind(userId).all();
+  } else {
+    rows = await env.DB.prepare(
+      `SELECT id, user_id, kind, title, notes, scheduled_for, due_date, reminder_minutes, status, priority, source, created_at, updated_at
+       FROM planner_items
+       WHERE user_id = ?1 AND status = 'open'
+       ORDER BY COALESCE(due_date, substr(scheduled_for,1,10), '9999-12-31') ASC, updated_at DESC`
+    ).bind(userId).all();
+  }
+
+  return json({ ok: true, items: rows?.results || [] }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/planner/items (create/update)
+ */
+async function handlePlannerItemUpsert(request, env, corsHeaders) {
+  if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  await ensurePlannerSchema(env.DB);
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const id = (data.id || crypto.randomUUID()).toString().trim();
+  const userId = (data.userId || 'chris').toString().trim() || 'chris';
+  const kind = (data.kind || 'task').toString().trim().toLowerCase() === 'appointment' ? 'appointment' : 'task';
+  const title = (data.title || '').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  const dueDate = (data.dueDate || '').toString().trim() || null;
+  const scheduledFor = (data.scheduledFor || '').toString().trim() || null;
+  const reminderMinutes = Number.isFinite(Number(data.reminderMinutes)) ? Number(data.reminderMinutes) : null;
+  const status = ['open', 'done', 'canceled'].includes((data.status || 'open').toString().trim()) ? (data.status || 'open').toString().trim() : 'open';
+  const priority = Number.isFinite(Number(data.priority)) ? Number(data.priority) : 0;
+  const source = (data.source || 'lookahead-app').toString().trim();
+
+  if (!title) return json({ ok: false, error: 'Title is required' }, 400, corsHeaders);
+
+  const nowIso = new Date().toISOString();
+  await env.DB.prepare(
+    `INSERT INTO planner_items (id, user_id, kind, title, notes, scheduled_for, due_date, reminder_minutes, status, priority, source, created_at, updated_at)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
+     ON CONFLICT(id) DO UPDATE SET
+       kind=excluded.kind,
+       title=excluded.title,
+       notes=excluded.notes,
+       scheduled_for=excluded.scheduled_for,
+       due_date=excluded.due_date,
+       reminder_minutes=excluded.reminder_minutes,
+       status=excluded.status,
+       priority=excluded.priority,
+       source=excluded.source,
+       updated_at=excluded.updated_at`
+  ).bind(id, userId, kind, title, notes || null, scheduledFor, dueDate, reminderMinutes, status, priority, source, nowIso, nowIso).run();
+
+  return json({ ok: true, id }, 200, corsHeaders);
+}
+
+/** POST /api/planner/items/toggle */
+async function handlePlannerItemToggle(request, env, corsHeaders) {
+  if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  await ensurePlannerSchema(env.DB);
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const id = (data.id || '').toString().trim();
+  if (!id) return json({ ok: false, error: 'Missing id' }, 400, corsHeaders);
+
+  const row = await env.DB.prepare(`SELECT status FROM planner_items WHERE id=?1 LIMIT 1`).bind(id).first();
+  if (!row) return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
+  const next = row.status === 'done' ? 'open' : 'done';
+  await env.DB.prepare(`UPDATE planner_items SET status=?2, updated_at=?3 WHERE id=?1`).bind(id, next, new Date().toISOString()).run();
+  return json({ ok: true, id, status: next }, 200, corsHeaders);
+}
+
+/** POST /api/planner/items/delete */
+async function handlePlannerItemDelete(request, env, corsHeaders) {
+  if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  await ensurePlannerSchema(env.DB);
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const id = (data.id || '').toString().trim();
+  if (!id) return json({ ok: false, error: 'Missing id' }, 400, corsHeaders);
+
+  await env.DB.prepare(`DELETE FROM planner_items WHERE id=?1`).bind(id).run();
+  return json({ ok: true, id }, 200, corsHeaders);
+}
+
+/** POST /api/planner/items/reschedule */
+async function handlePlannerItemReschedule(request, env, corsHeaders) {
+  if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  await ensurePlannerSchema(env.DB);
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const id = (data.id || '').toString().trim();
+  const dueDate = (data.dueDate || '').toString().trim();
+  if (!id || !dueDate) return json({ ok: false, error: 'Missing id or dueDate' }, 400, corsHeaders);
+
+  await env.DB.prepare(`UPDATE planner_items SET due_date=?2, updated_at=?3 WHERE id=?1`).bind(id, dueDate, new Date().toISOString()).run();
+  return json({ ok: true, id, dueDate }, 200, corsHeaders);
 }
 
 /**
