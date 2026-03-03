@@ -429,6 +429,10 @@
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .yt-guard { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
+    @keyframes pulse-alert {
+      0%, 100% { transform: scale(1); opacity: .85; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
     @media (max-width: 900px) {
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
@@ -448,6 +452,7 @@
 
   <div style="width:100%; border-bottom:1px solid rgba(0,0,0,.15); background:#9ed0ff; padding:.6rem max(1rem, calc(50% - 580px + 1rem));">
     <div style="display:flex; align-items:center; gap:.6rem;">
+      <span aria-hidden="true" title="Special Alert" style="font-size:1.15rem; filter:drop-shadow(0 0 6px rgba(255,0,0,.45)); animation:pulse-alert 1.1s ease-in-out infinite;">🚨</span>
       <h2 style="margin:0; font-size:1.05rem; color:#000; flex:1;">Father’s Day Special: Give Dad the Gift of Real-World Readiness | The Ultimate Off-Grid Gift</h2>
       <button class="promo-toggle" id="promo-toggle" aria-expanded="false" aria-controls="promo-body" style="border-color:rgba(0,0,0,.3); color:#000;">▼</button>
     </div>
