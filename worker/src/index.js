@@ -37,8 +37,9 @@ export default {
       .map(v => v.trim())
       .filter(Boolean);
     const allowAll = allowedOrigins.includes('*');
+    const isLocalDashboardOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(origin);
     // No Origin header = direct browser navigation (new tab link), not a cross-origin fetch — always allow.
-    const originAllowed = allowAll || !origin || allowedOrigins.includes(origin);
+    const originAllowed = allowAll || !origin || allowedOrigins.includes(origin) || isLocalDashboardOrigin;
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
