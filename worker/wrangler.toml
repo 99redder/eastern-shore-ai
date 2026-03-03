@@ -3,7 +3,7 @@ main = "src/index.js"
 compatibility_date = "2026-02-15"
 
 [vars]
-ALLOWED_ORIGINS = "https://easternshore.ai,https://www.easternshore.ai,https://99redder.github.io"
+ALLOWED_ORIGINS = "https://easternshore.ai,https://www.easternshore.ai,https://99redder.github.io,https://lookahead.easternshore.ai"
 TO_EMAIL = "99joefromalamo@gmail.com"
 CC_EMAIL = "officerk@agentmail.to"
 FROM_EMAIL = "noreply@easternshore.ai"
