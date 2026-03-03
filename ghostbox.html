@@ -415,6 +415,15 @@
     .car-dot.active { background: var(--cyan); }
     .slide2-inner { display: grid; grid-template-columns: 1fr 54px 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
     .yt-slide-inner { padding: .5rem 0; max-width: 820px; margin: 0 auto; }
+    .what-is-gb-btn {
+      position: absolute; top: .8rem; left: .8rem; z-index: 5;
+      background: rgba(9,11,17,.82); border: 1px solid var(--cyan);
+      color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .85rem; font-weight: 700; padding: .5rem .9rem;
+      border-radius: 6px; cursor: pointer; backdrop-filter: blur(4px);
+      letter-spacing: .04em; transition: background .15s, border-color .15s;
+    }
+    .what-is-gb-btn:hover { background: rgba(30,40,60,.95); border-color: #8df3ff; }
     .thumb-strip { display: flex; flex-direction: column; gap: .4rem; }
     .thumb-img {
       width: 100%; aspect-ratio: 1; object-fit: contain;
@@ -541,8 +550,9 @@
       <div class="car-track" id="car-track">
 
         <!-- Slide 1: Logo banner -->
-        <div class="car-slide">
+        <div class="car-slide" style="position:relative;">
           <img src="/images/ghostbox-logo7.jpg" alt="Ghost Box — Emergency Preparedness in the age of AI" style="width:100%; display:block;" />
+          <button id="what-is-gb-btn" class="what-is-gb-btn">What is a Ghost Box?</button>
         </div>
 
         <!-- Slide 2: Box contents (left) + Thumbnail browser + main image (right) -->
@@ -1166,7 +1176,17 @@
       car.addEventListener('mouseleave', startTimer);
 
       startTimer();
-      return { pause() { videoActive = true; clearInterval(timer); } };
+      return {
+        pause() { videoActive = true; clearInterval(timer); },
+        goToAndPause(idx) { videoActive = true; clearInterval(timer); goTo(idx); }
+      };
+    })();
+
+    // ===== What is a Ghost Box button =====
+    (function() {
+      const btn = document.getElementById('what-is-gb-btn');
+      if (!btn) return;
+      btn.addEventListener('click', () => carousel.goToAndPause(1));
     })();
 
     // ===== Thumbnail Browser =====
