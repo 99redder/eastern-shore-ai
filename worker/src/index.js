@@ -56,7 +56,7 @@ export default {
     // Stripe webhook comes from Stripe servers (no browser Origin), so skip origin check there.
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = url.pathname === '/api/bookings' && request.method === 'GET';
-      const isAvailabilityRead = url.pathname === '/api/availability' && request.method === 'GET';
+      const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
@@ -101,6 +101,10 @@ export default {
 
     if (url.pathname === '/api/availability') {
       return handleAvailability(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/byog-location-suggest') {
+      return handleByogLocationSuggest(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/admin/block-slot') {
@@ -341,6 +345,56 @@ async function handleContact(request, env, corsHeaders) {
   }
 
   return json({ ok: true }, 200, corsHeaders);
+}
+
+/**
+ * GET /api/byog-location-suggest?q=... — Address autocomplete suggestions on Eastern Shore, MD
+ */
+async function handleByogLocationSuggest(request, env, corsHeaders, url) {
+  const qRaw = (url.searchParams.get('q') || '').toString().trim();
+  if (!qRaw || qRaw.length < 4) {
+    return json({ ok: true, suggestions: [] }, 200, corsHeaders);
+  }
+
+  const easternShoreCounties = new Set([
+    'kent county',
+    'queen anne\'s county',
+    'queen annes county',
+    'caroline county',
+    'talbot county',
+    'dorchester county',
+    'wicomico county',
+    'somerset county',
+    'worcester county'
+  ]);
+
+  try {
+    const q = encodeURIComponent(`${qRaw}, Maryland, USA`);
+    const nmUrl = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&countrycodes=us&q=${q}`;
+    const res = await fetch(nmUrl, {
+      headers: {
+        'User-Agent': 'EasternShoreAI/1.0 (BYOG location autocomplete)'
+      }
+    });
+    if (!res.ok) return json({ ok: true, suggestions: [] }, 200, corsHeaders);
+
+    const rows = await res.json().catch(() => []);
+    const suggestions = (Array.isArray(rows) ? rows : [])
+      .filter((m) => {
+        const a = m?.address || {};
+        const state = (a.state || '').toString().toLowerCase();
+        const county = (a.county || '').toString().toLowerCase();
+        const hasStreetLike = Boolean(a.road || a.house_number || a.neighbourhood || a.suburb || m?.type === 'house' || m?.class === 'building');
+        return state.includes('maryland') && easternShoreCounties.has(county) && hasStreetLike;
+      })
+      .map((m) => (m?.display_name || '').toString().trim())
+      .filter(Boolean)
+      .slice(0, 6);
+
+    return json({ ok: true, suggestions: Array.from(new Set(suggestions)) }, 200, corsHeaders);
+  } catch {
+    return json({ ok: true, suggestions: [] }, 200, corsHeaders);
+  }
 }
 
 /**

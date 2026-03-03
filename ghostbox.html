@@ -898,7 +898,9 @@
         </label>
         <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
           Setup Location (Eastern Shore of Maryland)
-          <input id="byog-location" type="text" placeholder="Ex: 123 Main St, Salisbury MD or Starbucks Easton" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
+          <input id="byog-location" list="byog-location-suggestions" autocomplete="off" type="text" placeholder="Ex: 123 Main St, Salisbury MD" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
+          <datalist id="byog-location-suggestions"></datalist>
+          <small style="color:var(--muted);">Start typing your street address and pick a suggested match.</small>
         </label>
         <div id="byog-booking-error" style="display:none; color:#ffb4c7; font-size:.84rem;"></div>
       </div>
@@ -1173,6 +1175,7 @@
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
     const BYOG_LOCATION_VALIDATE_URL = CONTACT_API_URL.replace('/api/contact', '/api/validate-byog-location');
+    const BYOG_LOCATION_SUGGEST_URL = CONTACT_API_URL.replace('/api/contact', '/api/byog-location-suggest');
 
     const buyBaseBtn = document.getElementById('buy-base-btn');
     const buyProBtn = document.getElementById('buy-pro-btn');
@@ -1180,6 +1183,7 @@
     const byogDateEl = document.getElementById('byog-setup-date');
     const byogTimeEl = document.getElementById('byog-setup-time');
     const byogLocationEl = document.getElementById('byog-location');
+    const byogLocationSuggestionsEl = document.getElementById('byog-location-suggestions');
     const byogBookingErrorEl = document.getElementById('byog-booking-error');
     const status = document.getElementById('status');
 
@@ -1207,6 +1211,7 @@
     let activeTermsType = 'product';
     let unavailableSlots = new Set();
     let blockedDates = new Set();
+    let byogSuggestTimer = null;
 
     const TIME_SLOTS = [
       { value: '08:00-10:00', label: '8:00 AM – 10:00 AM' },
@@ -1334,6 +1339,20 @@
         throw new Error(data.error || 'Please enter a valid Eastern Shore address.');
       }
       return data;
+    }
+
+    async function fetchByogLocationSuggestions(query) {
+      const url = `${BYOG_LOCATION_SUGGEST_URL}?q=${encodeURIComponent(query)}`;
+      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+      const data = await res.json().catch(() => ({}));
+      return Array.isArray(data?.suggestions) ? data.suggestions : [];
+    }
+
+    function renderByogLocationSuggestions(items) {
+      if (!byogLocationSuggestionsEl) return;
+      byogLocationSuggestionsEl.innerHTML = (items || [])
+        .map((s) => `<option value="${String(s).replace(/"/g, '&quot;')}"></option>`)
+        .join('');
     }
 
     async function startCheckout(payload) {
@@ -1508,7 +1527,23 @@
     });
 
     byogDateEl?.addEventListener('change', renderByogTimeOptions);
-    byogLocationEl?.addEventListener('input', () => setByogError(''));
+    byogLocationEl?.addEventListener('input', () => {
+      setByogError('');
+      const q = (byogLocationEl.value || '').trim();
+      if (byogSuggestTimer) clearTimeout(byogSuggestTimer);
+      if (q.length < 4) {
+        renderByogLocationSuggestions([]);
+        return;
+      }
+      byogSuggestTimer = setTimeout(async () => {
+        try {
+          const suggestions = await fetchByogLocationSuggestions(q);
+          renderByogLocationSuggestions(suggestions);
+        } catch {
+          renderByogLocationSuggestions([]);
+        }
+      }, 220);
+    });
 
     try {
       if (byogDateEl) byogDateEl.min = nowEtParts().date;
