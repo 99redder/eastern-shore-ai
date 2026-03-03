@@ -896,10 +896,11 @@
             <option value="">Select time block…</option>
           </select>
         </label>
-        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
+        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted); position:relative;">
           Setup Location (Eastern Shore of Maryland)
           <input id="byog-location" list="byog-location-suggestions" autocomplete="off" type="text" placeholder="Ex: 123 Main St, Salisbury MD" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
           <datalist id="byog-location-suggestions"></datalist>
+          <div id="byog-location-menu" style="display:none; position:relative; margin-top:.2rem; background:#0f1320; border:1px solid var(--line); border-radius:7px; max-height:180px; overflow:auto;"></div>
           <small style="color:var(--muted);">Start typing your street address and pick a suggested match.</small>
         </label>
         <div id="byog-booking-error" style="display:none; color:#ffb4c7; font-size:.84rem;"></div>
@@ -1184,6 +1185,7 @@
     const byogTimeEl = document.getElementById('byog-setup-time');
     const byogLocationEl = document.getElementById('byog-location');
     const byogLocationSuggestionsEl = document.getElementById('byog-location-suggestions');
+    const byogLocationMenuEl = document.getElementById('byog-location-menu');
     const byogBookingErrorEl = document.getElementById('byog-booking-error');
     const status = document.getElementById('status');
 
@@ -1349,10 +1351,33 @@
     }
 
     function renderByogLocationSuggestions(items) {
-      if (!byogLocationSuggestionsEl) return;
-      byogLocationSuggestionsEl.innerHTML = (items || [])
-        .map((s) => `<option value="${String(s).replace(/"/g, '&quot;')}"></option>`)
-        .join('');
+      const safeItems = Array.isArray(items) ? items : [];
+
+      if (byogLocationSuggestionsEl) {
+        byogLocationSuggestionsEl.innerHTML = safeItems
+          .map((s) => `<option value="${String(s).replace(/"/g, '&quot;')}"></option>`)
+          .join('');
+      }
+
+      if (!byogLocationMenuEl) return;
+      if (!safeItems.length) {
+        byogLocationMenuEl.style.display = 'none';
+        byogLocationMenuEl.innerHTML = '';
+        return;
+      }
+
+      byogLocationMenuEl.innerHTML = safeItems.map((s) => (
+        `<button type="button" class="byog-loc-item" data-v="${String(s).replace(/"/g, '&quot;')}" style="display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.06);color:var(--text);padding:.55rem .6rem;cursor:pointer;">${String(s)}</button>`
+      )).join('');
+      byogLocationMenuEl.style.display = 'block';
+
+      byogLocationMenuEl.querySelectorAll('.byog-loc-item').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          byogLocationEl.value = btn.getAttribute('data-v') || '';
+          byogLocationMenuEl.style.display = 'none';
+          byogLocationMenuEl.innerHTML = '';
+        });
+      });
     }
 
     async function startCheckout(payload) {
@@ -1543,6 +1568,10 @@
           renderByogLocationSuggestions([]);
         }
       }, 220);
+    });
+
+    byogLocationEl?.addEventListener('blur', () => {
+      setTimeout(() => renderByogLocationSuggestions([]), 180);
     });
 
     try {
