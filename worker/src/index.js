@@ -67,12 +67,13 @@ export default {
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
+      const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
-      // Public quote accept/deny endpoints don't require CORS origin check
-      if (!originAllowed && !isQuotePublic && !isInvoicePublic) {
+      // Public quote accept/deny + planner sync endpoints don't require strict origin check
+      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
