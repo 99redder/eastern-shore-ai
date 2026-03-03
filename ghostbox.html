@@ -445,6 +445,8 @@
     }
     /* Mobile nav bar — hidden on desktop, shown inline on mobile below promo bar */
     .mobile-nav-bar { display: none; }
+    /* Promo dropdown subtitle — only shown on mobile where .promo-long is hidden */
+    .promo-mobile-subtitle { display: none; }
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
       #global-back-btn, #users-guide-btn, .buy-now-float { display: none !important; }
@@ -471,6 +473,7 @@
       }
       /* 3. Promo bar — show only "Father's Day Special" on mobile */
       .promo-long { display: none; }
+      .promo-mobile-subtitle { display: block; }
       .promo-heading { font-size: 1rem; }
       /* 4. Wrap — modest bottom padding (no sticky bar) */
       .wrap { padding-bottom: 2rem; }
@@ -517,6 +520,7 @@
       <button class="promo-toggle" id="promo-toggle" aria-expanded="false" aria-controls="promo-body" style="border-color:rgba(0,0,0,.3); color:#000;">▼</button>
     </div>
     <div id="promo-body" hidden>
+      <p class="promo-mobile-subtitle" style="margin:.3rem 0 .2rem; color:#000;"><strong>Give Dad the Gift of Real-World Readiness | The Ultimate Off-Grid Gift</strong></p>
       <p class="small" style="margin:.45rem 0 .35rem; color:#000;">Every Ghost Box ships with a hardened smart phone loaded with AI and survival knowledge, a 42,800mAh solar power hub, and a Heavy Duty Armor Military Grade protective case — everything Dad needs to stay self-sufficient when the grid goes down.</p>
       <ul style="margin:.1rem 0 0; color:#000; font-size:1rem; padding-left:1.1rem;">
         <li>Essential: 20GB+ survival apps + 1 offline LLM | Pro: 50GB+ survival apps + 3 offline LLMs</li>
