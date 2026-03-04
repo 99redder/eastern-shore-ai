@@ -136,10 +136,25 @@
       .back-btn, #topics, .guide-card, h1, .sub, .hero-logo { display: none !important; }
       .wrap { padding: 0 !important; max-width: 100% !important; }
       #pdf-print-content { display: block !important; font-family: 'Titillium Web', sans-serif; font-size: 12.5px; color: #111; }
-      .pdf-header { text-align: center; border-bottom: 2px solid #222; padding-bottom: 10px; margin-bottom: 0; }
-      .pdf-header h1 { font-size: 20px; font-family: 'Hanken Grotesk', sans-serif; margin: 0 0 3px; color: #000; }
-      .pdf-header p { font-size: 10px; color: #666; margin: 0; }
+
+      /* ── Title page ── */
+      .pdf-title-page {
+        page-break-after: always;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        min-height: 90vh; text-align: center; padding: 2rem;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .pdf-logo { width: 120px; height: auto; display: block; margin: 0 auto 1.4rem; }
+      .pdf-title-main { font-size: 40px; font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; color: #000; margin: 0 0 6px; letter-spacing: .02em; }
+      .pdf-title-sub { font-size: 13px; font-family: 'Hanken Grotesk', sans-serif; color: #555; margin: 0 0 1.8rem; letter-spacing: .2em; text-transform: uppercase; }
+      .pdf-title-rule { width: 52px; height: 2px; background: #222; margin: 0 auto 1.8rem; }
+      .pdf-contact p { margin: 0 0 3px; font-size: 11px; color: #555; font-family: 'Titillium Web', sans-serif; }
+      .pdf-contact .pdf-contact-name { color: #000; font-size: 13px; font-weight: 700; font-family: 'Hanken Grotesk', sans-serif; margin-bottom: 8px; }
+
+      /* ── Section pages ── */
       .pdf-page { page-break-before: always; padding: 16px 0 20px; }
+      .pdf-page-first { page-break-before: auto; }
       .pdf-page-title { font-size: 13.5px; font-weight: 700; font-family: 'Hanken Grotesk', sans-serif; color: #000; border-bottom: 1px solid #888; padding-bottom: 5px; margin: 0 0 10px; letter-spacing: .02em; text-transform: uppercase; }
       .pdf-page .guide-content, .pdf-page .guide-content * { color: #111 !important; line-height: 1.55; }
       .pdf-page .guide-content p { margin: 0 0 6px; }
@@ -396,17 +411,25 @@
       const container = document.createElement('div');
       container.id = 'pdf-print-content';
 
-      // Title header (shares page with section 1)
+      // Title page
       container.innerHTML =
-        '<div class="pdf-header">' +
-          '<h1>Ghost Box Users Guide</h1>' +
-          '<p>Eastern Shore AI, LLC &nbsp;·&nbsp; easternshore.ai</p>' +
+        '<div class="pdf-title-page">' +
+          '<img src="/images/ghostlogo3.png" class="pdf-logo" alt="Ghost Box" />' +
+          '<h1 class="pdf-title-main">Ghost Box</h1>' +
+          '<p class="pdf-title-sub">Users Guide</p>' +
+          '<div class="pdf-title-rule"></div>' +
+          '<div class="pdf-contact">' +
+            '<p class="pdf-contact-name">Eastern Shore AI, LLC</p>' +
+            '<p>support@easternshore.ai</p>' +
+            '<p>www.easternshore.ai</p>' +
+            '<p>PO BOX 317 &middot; Parsonsburg, MD 21849</p>' +
+          '</div>' +
         '</div>';
 
       // Strip inline style attributes so print CSS controls colors cleanly
-      sections.forEach(function(section) {
+      sections.forEach(function(section, idx) {
         const page = document.createElement('div');
-        page.className = 'pdf-page';
+        page.className = 'pdf-page' + (idx === 0 ? ' pdf-page-first' : '');
         const cleanHtml = section.html.replace(/ style="[^"]*"/g, '');
         page.innerHTML =
           '<div class="pdf-page-title">' + section.title + '</div>' +
