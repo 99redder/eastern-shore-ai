@@ -78,6 +78,10 @@ export default {
         : 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Offline Brain Software');
     const productCode = isByogSetup ? 'ghost_box_byog_setup' : (isProKit ? 'ghost_box_pro_kit' : 'ghost_box_essential_kit');
 
+    // Stripe Price IDs provided by Red (product-backed pricing for tax behavior)
+    const ESSENTIAL_PRICE_ID = 'price_1T74mgCrQuKPknEPondzKf9w';
+    const PRO_PRICE_ID = 'price_1T74pKCrQuKPknEPuVKYdx8b';
+
     const body = new URLSearchParams({
       mode: 'payment',
       success_url: successUrl,
@@ -85,10 +89,6 @@ export default {
       billing_address_collection: 'required',
       'automatic_tax[enabled]': 'true',
       'shipping_address_collection[allowed_countries][0]': 'US',
-      'line_items[0][price_data][currency]': 'usd',
-      'line_items[0][price_data][unit_amount]': unitAmount,
-      'line_items[0][price_data][product_data][name]': productName,
-      'line_items[0][price_data][product_data][description]': productDescription,
       'line_items[0][quantity]': '1',
       'metadata[product]': productCode,
       'metadata[unit_price_cents]': unitAmount,
@@ -96,6 +96,15 @@ export default {
       'metadata[shipping_state_requested]': requestedState,
       'custom_text[shipping_address][message]': 'Shipping is limited to the continental U.S. Free shipping included.'
     });
+
+    if (isByogSetup) {
+      body.set('line_items[0][price_data][currency]', 'usd');
+      body.set('line_items[0][price_data][unit_amount]', unitAmount);
+      body.set('line_items[0][price_data][product_data][name]', productName);
+      body.set('line_items[0][price_data][product_data][description]', productDescription);
+    } else {
+      body.set('line_items[0][price]', isProKit ? PRO_PRICE_ID : ESSENTIAL_PRICE_ID);
+    }
 
     body.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
     body.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', '0');
