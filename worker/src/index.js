@@ -1,7 +1,6 @@
 // ===== ROUTE HANDLER INDEX =====
 // POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
 // POST /api/checkout-session    → handleCheckoutSession() — Create Stripe checkout with conflict + past-time checks
-// POST /api/zombie-bag-checkout → handleZombieBagCheckout() — Create Stripe checkout for Zombie Bag product sales
 // POST /api/stripe-webhook      → handleStripeWebhook()   — Stripe payment confirmation, records booking in D1, auto-inserts tax income
 // GET  /api/availability        → handleAvailability()    — Public unavailable slots + blocked dates
 // GET  /api/bookings            → handleBookings()        — Admin: read bookings + blocked slots + blocked days
@@ -66,7 +65,7 @@ export default {
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
-      const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/zombie-bag-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
+      const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -86,9 +85,6 @@ export default {
       return handleCheckoutSession(request, env, corsHeaders, originAllowed, allowedOrigins);
     }
 
-    if (url.pathname === '/api/zombie-bag-checkout') {
-      return handleZombieBagCheckout(request, env, corsHeaders, originAllowed, allowedOrigins);
-    }
 
     if (url.pathname === '/api/validate-byog-location') {
       return handleValidateByogLocation(request, env, corsHeaders);
