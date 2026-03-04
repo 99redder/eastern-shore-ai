@@ -1283,7 +1283,7 @@
     });
 
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
-    const ZOMBIE_CHECKOUT_URL = CONTACT_API_URL.replace('/api/contact', '/api/zombie-bag-checkout');
+    const ZOMBIE_CHECKOUT_URL = window.GHOSTBOX_CHECKOUT_URL || 'https://ghostbox-checkout-api.99redder.workers.dev/api/ghostbox-checkout';
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
     const BYOG_LOCATION_VALIDATE_URL = CONTACT_API_URL.replace('/api/contact', '/api/validate-byog-location');
