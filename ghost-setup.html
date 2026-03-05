@@ -704,67 +704,80 @@ Operational Rules:
     render();
 
     document.getElementById('download-pdf-btn').addEventListener('click', function() {
-      if (!(window.jspdf && window.jspdf.jsPDF)) {
+      // High-fidelity export path (keeps images + formatting)
+      if (typeof window.html2pdf !== 'function') {
         window.print();
         return;
       }
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait' });
-      const margin = 14;
-      const pageW = doc.internal.pageSize.getWidth();
-      const pageH = doc.internal.pageSize.getHeight();
-      const maxW = pageW - margin * 2;
+      const old = document.getElementById('pdf-print-content');
+      if (old) old.remove();
 
-      const htmlToText = (html) => String(html || '')
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/p>/gi, '\n\n')
-        .replace(/<\/li>/gi, '\n')
-        .replace(/<li[^>]*>/gi, '- ')
-        .replace(/<[^>]+>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
+      const container = document.createElement('div');
+      container.id = 'pdf-print-content';
+      container.style.display = 'block';
+      container.style.position = 'fixed';
+      container.style.left = '0';
+      container.style.top = '0';
+      container.style.width = '850px';
+      container.style.background = '#fff';
+      container.style.color = '#111';
+      container.style.padding = '24px';
+      container.style.opacity = '0.01';
+      container.style.pointerEvents = 'none';
+      container.style.zIndex = '0';
 
-      doc.setTextColor(0, 0, 0);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(24);
-      doc.text('Ghost Box', margin, 55);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Users Guide', margin, 65);
-      doc.setFontSize(10);
-      doc.text('Eastern Shore AI, LLC', margin, 78);
-      doc.text('support@easternshore.ai', margin, 84);
-      doc.text('www.easternshore.ai', margin, 90);
+      const logoUrl = `${window.location.origin}/images/case2.png`;
+      container.innerHTML =
+        '<div class="pdf-title-page" style="page-break-after:always; text-align:center; min-height:92vh; display:flex; flex-direction:column; justify-content:center; align-items:center;">' +
+          `<img src="${logoUrl}" class="pdf-logo" alt="Ghost Box" style="width:120px; height:auto; margin-bottom:16px;" />` +
+          '<h1 class="pdf-title-main" style="font-size:40px; margin:0; color:#000;">Ghost Box</h1>' +
+          '<p class="pdf-title-sub" style="font-size:13px; margin:6px 0 20px; color:#555; letter-spacing:.18em; text-transform:uppercase;">Users Guide</p>' +
+          '<div style="width:52px; height:2px; background:#222; margin:0 0 18px;"></div>' +
+          '<p style="margin:0; font-size:12px; color:#333;">Eastern Shore AI, LLC</p>' +
+          '<p style="margin:0; font-size:12px; color:#333;">support@easternshore.ai</p>' +
+          '<p style="margin:0; font-size:12px; color:#333;">www.easternshore.ai</p>' +
+          '<p style="margin:0; font-size:12px; color:#333;">PO BOX 317 · Parsonsburg, MD 21849</p>' +
+        '</div>';
 
-      sections.forEach((section) => {
-        doc.addPage();
-        let y = margin;
-
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(13);
-        const titleLines = doc.splitTextToSize(section.title, maxW);
-        doc.text(titleLines, margin, y);
-        y += titleLines.length * 6 + 2;
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10.5);
-        const lines = doc.splitTextToSize(htmlToText(section.html), maxW);
-        for (const line of lines) {
-          if (y > pageH - margin) {
-            doc.addPage();
-            y = margin;
-          }
-          doc.text(String(line), margin, y);
-          y += 5;
-        }
+      sections.forEach(function(section, idx) {
+        const page = document.createElement('div');
+        page.className = 'pdf-page' + (idx === 0 ? ' pdf-page-first' : '');
+        page.style.pageBreakBefore = idx === 0 ? 'auto' : 'always';
+        page.style.padding = '10px 0 16px';
+        page.innerHTML =
+          '<div class="pdf-page-title" style="font-size:13.5px; font-weight:700; color:#000; border-bottom:1px solid #888; padding-bottom:5px; margin:0 0 10px; letter-spacing:.02em; text-transform:uppercase;">' + section.title + '</div>' +
+          '<div class="guide-content" style="color:#111; line-height:1.55;">' + section.html + '</div>';
+        container.appendChild(page);
       });
 
-      doc.save(`Ghost-Box-Users-Guide-${new Date().toISOString().slice(0,10)}.pdf`);
+      document.body.appendChild(container);
+
+      const cleanup = () => {
+        const c = document.getElementById('pdf-print-content');
+        if (c) c.remove();
+      };
+
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: `Ghost-Box-Users-Guide-${new Date().toISOString().slice(0,10)}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          letterRendering: true,
+          windowWidth: 1200
+        },
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      };
+
+      window.html2pdf().set(opt).from(container).save().then(cleanup).catch(() => {
+        cleanup();
+        window.print();
+      });
     });
   </script>
 </body>
