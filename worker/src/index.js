@@ -829,6 +829,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const body = new URLSearchParams({
     mode: 'payment',
     allow_promotion_codes: 'true',
+    billing_address_collection: 'required',
+    'automatic_tax[enabled]': 'true',
     success_url: `${siteOrigin}${serviceConfig.successPath}?paid=1`,
     cancel_url: `${siteOrigin}${serviceConfig.successPath}?canceled=1`,
     'line_items[0][price_data][currency]': 'usd',
