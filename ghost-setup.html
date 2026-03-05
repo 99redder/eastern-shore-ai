@@ -189,6 +189,7 @@
     </article>
   </main>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
     const appDisclaimer = `<p style="margin-top:1.2rem; padding-top:.75rem; border-top:1px solid rgba(158,208,255,.12); font-size:.78rem; color:var(--muted); line-height:1.65;"><strong style="color:var(--text);">Third-Party Software Disclaimer:</strong> This application is open-source, independently developed software. Eastern Shore AI, LLC has no partnership, affiliation, sponsorship, or arrangement of any kind with the developer(s) or vendor(s) of this software. All product names, brand names, and trademarks are the property of their respective owners and are referenced here solely for informational and identification purposes. This software is provided as-is; your use of it is entirely at your own risk. Eastern Shore AI, LLC makes no warranties — express or implied — regarding the accuracy, reliability, or fitness of any third-party application for any particular purpose.</p>`;
 
@@ -736,15 +737,35 @@ Operational Rules:
       });
 
       document.querySelector('.wrap').appendChild(container);
+      container.style.display = 'block';
+      container.style.position = 'fixed';
+      container.style.left = '-99999px';
+      container.style.top = '0';
+      container.style.width = '850px';
 
-      function cleanup() {
+      const cleanup = () => {
         const c = document.getElementById('pdf-print-content');
         if (c) c.remove();
-        window.removeEventListener('afterprint', cleanup);
-      }
-      window.addEventListener('afterprint', cleanup);
+      };
 
-      window.print();
+      if (typeof window.html2pdf === 'function') {
+        const opt = {
+          margin: [8, 8, 8, 8],
+          filename: `Ghost-Box-Users-Guide-${new Date().toISOString().slice(0,10)}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        window.html2pdf().set(opt).from(container).save().then(cleanup).catch(() => {
+          cleanup();
+          window.print();
+        });
+      } else {
+        window.print();
+        cleanup();
+      }
     });
   </script>
 </body>
