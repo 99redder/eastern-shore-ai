@@ -992,12 +992,21 @@
             <option value="">Select time block…</option>
           </select>
         </label>
-        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted); position:relative;">
-          Setup Location (Eastern Shore of Maryland)
-          <input id="byog-location" list="byog-location-suggestions" autocomplete="off" type="text" placeholder="Ex: 123 Main St, Salisbury MD" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
-          <datalist id="byog-location-suggestions"></datalist>
-          <div id="byog-location-menu" style="display:none; position:relative; margin-top:.2rem; background:#0f1320; border:1px solid var(--line); border-radius:7px; max-height:180px; overflow:auto;"></div>
-          <small style="color:var(--muted);">Start typing your street address and pick a suggested match.</small>
+        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
+          Eastern Shore City
+          <select id="byog-city" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;">
+            <option value="">Select city…</option>
+            <option>Berlin</option><option>Cambridge</option><option>Centreville</option><option>Chestertown</option><option>Crisfield</option>
+            <option>Denton</option><option>East New Market</option><option>Easton</option><option>Federalsburg</option><option>Fruitland</option>
+            <option>Galena</option><option>Greensboro</option><option>Hurlock</option><option>Mardela Springs</option><option>Ocean City</option>
+            <option>Oxford</option><option>Pocomoke City</option><option>Preston</option><option>Princess Anne</option><option>Queen Anne</option>
+            <option>Ridgely</option><option>Rock Hall</option><option>St. Michaels</option><option>Salisbury</option><option>Sharptown</option>
+            <option>Snow Hill</option><option>Stevensville</option><option>Trappe</option><option>Vienna</option>
+          </select>
+        </label>
+        <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
+          Street Address
+          <input id="byog-street" autocomplete="street-address" type="text" placeholder="Ex: 123 Main St" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
         </label>
         <div id="byog-booking-error" style="display:none; color:#ffb4c7; font-size:.84rem;"></div>
       </div>
@@ -1283,17 +1292,14 @@
     const ZOMBIE_CHECKOUT_URL = window.GHOSTBOX_CHECKOUT_URL || 'https://ghostbox-checkout-api.99redder.workers.dev/api/ghostbox-checkout';
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
-    const BYOG_LOCATION_VALIDATE_URL = CONTACT_API_URL.replace('/api/contact', '/api/validate-byog-location');
-    const BYOG_LOCATION_SUGGEST_URL = CONTACT_API_URL.replace('/api/contact', '/api/byog-location-suggest');
 
     const buyBaseBtn = document.getElementById('buy-base-btn');
     const buyProBtn = document.getElementById('buy-pro-btn');
     const byogBtn = document.getElementById('byog-btn');
     const byogDateEl = document.getElementById('byog-setup-date');
     const byogTimeEl = document.getElementById('byog-setup-time');
-    const byogLocationEl = document.getElementById('byog-location');
-    const byogLocationSuggestionsEl = document.getElementById('byog-location-suggestions');
-    const byogLocationMenuEl = document.getElementById('byog-location-menu');
+    const byogCityEl = document.getElementById('byog-city');
+    const byogStreetEl = document.getElementById('byog-street');
     const byogBookingErrorEl = document.getElementById('byog-booking-error');
     const status = document.getElementById('status');
 
@@ -1321,22 +1327,12 @@
     let activeTermsType = 'product';
     let unavailableSlots = new Set();
     let blockedDates = new Set();
-    let byogSuggestTimer = null;
-
     const TIME_SLOTS = [
       { value: '08:00-10:00', label: '8:00 AM – 10:00 AM' },
       { value: '10:00-12:00', label: '10:00 AM – 12:00 PM' },
       { value: '12:00-14:00', label: '12:00 PM – 2:00 PM' },
       { value: '14:00-16:00', label: '2:00 PM – 4:00 PM' },
       { value: '16:00-18:00', label: '4:00 PM – 6:00 PM' }
-    ];
-
-    const EASTERN_SHORE_KEYWORDS = [
-      'eastern shore', 'chesapeake city', 'centreville', 'chestertown', 'denton', 'easton', 'cambridge', 'salisbury',
-      'ocean city', 'berlin', 'snow hill', 'fruitland', 'pocomoke', 'princess anne', 'delmar', 'laurel', 'seaford',
-      'federalsburg', 'hurlock', 'ridgely', 'st michaels', 'saint michaels', 'trappe', 'queen anne', 'queen anne\'s',
-      'kent county', 'queen anne\'s county', 'caroline county', 'talbot county', 'dorchester county', 'wicomico county',
-      'somerset county', 'worcester county', 'maryland', ' md '
     ];
 
     function nowEtParts() {
@@ -1410,23 +1406,6 @@
       renderByogTimeOptions();
     }
 
-    function normalizeLocation(v) {
-      return ` ${String(v || '').toLowerCase().replace(/[^a-z0-9\s']/g, ' ').replace(/\s+/g, ' ').trim()} `;
-    }
-
-    function isEasternShoreLocation(locationText) {
-      const normalized = normalizeLocation(locationText);
-      if (!normalized.trim()) return false;
-      return EASTERN_SHORE_KEYWORDS.some((keyword) => normalized.includes(` ${keyword} `));
-    }
-
-    function looksLikeStreetAddress(locationText) {
-      const raw = String(locationText || '').trim();
-      const hasNumber = /\b\d{1,6}\b/.test(raw);
-      const hasStreetWord = /\b(st|street|rd|road|ave|avenue|blvd|boulevard|dr|drive|ln|lane|ct|court|way|hwy|highway|pl|place|pkwy|parkway)\b/i.test(raw);
-      return hasNumber && hasStreetWord;
-    }
-
     function setByogError(msg) {
       if (!byogBookingErrorEl) return;
       if (!msg) {
@@ -1436,56 +1415,6 @@
         byogBookingErrorEl.style.display = 'block';
         byogBookingErrorEl.textContent = msg;
       }
-    }
-
-    async function validateByogLocationWithApi(locationText) {
-      const res = await fetch(BYOG_LOCATION_VALIDATE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location: locationText })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || 'Please enter a valid Eastern Shore address.');
-      }
-      return data;
-    }
-
-    async function fetchByogLocationSuggestions(query) {
-      const url = `${BYOG_LOCATION_SUGGEST_URL}?q=${encodeURIComponent(query)}`;
-      const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
-      const data = await res.json().catch(() => ({}));
-      return Array.isArray(data?.suggestions) ? data.suggestions : [];
-    }
-
-    function renderByogLocationSuggestions(items) {
-      const safeItems = Array.isArray(items) ? items : [];
-
-      if (byogLocationSuggestionsEl) {
-        byogLocationSuggestionsEl.innerHTML = safeItems
-          .map((s) => `<option value="${String(s).replace(/"/g, '&quot;')}"></option>`)
-          .join('');
-      }
-
-      if (!byogLocationMenuEl) return;
-      if (!safeItems.length) {
-        byogLocationMenuEl.style.display = 'none';
-        byogLocationMenuEl.innerHTML = '';
-        return;
-      }
-
-      byogLocationMenuEl.innerHTML = safeItems.map((s) => (
-        `<button type="button" class="byog-loc-item" data-v="${String(s).replace(/"/g, '&quot;')}" style="display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.06);color:var(--text);padding:.55rem .6rem;cursor:pointer;">${String(s)}</button>`
-      )).join('');
-      byogLocationMenuEl.style.display = 'block';
-
-      byogLocationMenuEl.querySelectorAll('.byog-loc-item').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          byogLocationEl.value = btn.getAttribute('data-v') || '';
-          byogLocationMenuEl.style.display = 'none';
-          byogLocationMenuEl.innerHTML = '';
-        });
-      });
     }
 
     async function startCheckout(payload) {
@@ -1660,27 +1589,6 @@
     });
 
     byogDateEl?.addEventListener('change', renderByogTimeOptions);
-    byogLocationEl?.addEventListener('input', () => {
-      setByogError('');
-      const q = (byogLocationEl.value || '').trim();
-      if (byogSuggestTimer) clearTimeout(byogSuggestTimer);
-      if (q.length < 4) {
-        renderByogLocationSuggestions([]);
-        return;
-      }
-      byogSuggestTimer = setTimeout(async () => {
-        try {
-          const suggestions = await fetchByogLocationSuggestions(q);
-          renderByogLocationSuggestions(suggestions);
-        } catch {
-          renderByogLocationSuggestions([]);
-        }
-      }, 220);
-    });
-
-    byogLocationEl?.addEventListener('blur', () => {
-      setTimeout(() => renderByogLocationSuggestions([]), 180);
-    });
 
     try {
       if (byogDateEl) byogDateEl.min = nowEtParts().date;
@@ -1689,35 +1597,25 @@
     byogBtn.addEventListener('click', async () => {
       const setupDate = (byogDateEl?.value || '').trim();
       const setupTime = (byogTimeEl?.value || '').trim();
-      const setupLocation = (byogLocationEl?.value || '').trim();
+      const setupCity = (byogCityEl?.value || '').trim();
+      const setupStreet = (byogStreetEl?.value || '').trim();
 
       if (!setupDate || !setupTime) {
         setByogError('Please choose your BYOG setup date and time.');
         return;
       }
 
-      if (!setupLocation) {
-        setByogError('Please enter your address or meetup location.');
+      if (!setupCity) {
+        setByogError('Please choose an Eastern Shore city.');
         return;
       }
 
-      if (!looksLikeStreetAddress(setupLocation)) {
-        setByogError('Please enter a full street address (number + street) for your meetup location.');
+      if (!setupStreet || setupStreet.length < 5) {
+        setByogError('Please enter your street address.');
         return;
       }
 
-      // Do not hard-block on client-side keyword matching; rely on backend geocode validation.
-      // This avoids false negatives for legitimate addresses that don't include expected local keywords.
-      try {
-        byogBtn.disabled = true;
-        await validateByogLocationWithApi(setupLocation);
-      } catch (err) {
-        setByogError(err?.message || 'Please enter a valid Eastern Shore address.');
-        byogBtn.disabled = false;
-        return;
-      } finally {
-        byogBtn.disabled = false;
-      }
+      const setupLocation = `${setupStreet}, ${setupCity}, MD`;
 
       if (isPastEtSlot(setupDate, setupTime)) {
         setByogError('That time block has already passed (Eastern Time). Please choose another slot.');
