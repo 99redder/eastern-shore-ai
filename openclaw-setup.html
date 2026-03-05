@@ -349,7 +349,7 @@
             <button type="button" class="btn" id="toggle-standalone-device" style="width:auto; max-width:100%; font-size:.8rem; padding:.45rem .7rem;">Want to add a custom standalone device for your agent?</button>
           </div>
           <p>Choose your date and time, fill in your details, then hit Book + Pay Now.</p>
-          <p id="setup-cost-line" style="margin:.3rem 0 .5rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 + MD state taxes</p>
+          <p id="setup-cost-line" style="margin:.3rem 0 .5rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100.00</p>
           <div class="form-grid" style="margin-top:.4rem;">
             <div id="standalone-device-wrap" class="full" style="display:none;">
               <p style="margin:.1rem 0 .45rem; color:var(--muted); font-size:.92rem;">Adding a standalone device is ideal if you want a dedicated always-on machine for your AI agent so it doesn’t interfere with your daily computer use. Price includes hardware, full installation, setup, 30 days of technical support, and a 90-day limited warranty.</p>
@@ -922,7 +922,7 @@
       const base = 10000;
       const opt = STANDALONE_DEVICE_OPTIONS[standaloneDeviceEl?.value || ''];
       const total = base + (opt?.amountCents || 0);
-      setupCostLine.innerHTML = `<strong style="color:var(--text);">Cost:</strong> ${fmtUsd(total)}${opt ? ` (includes ${opt.label})` : ''} + MD state taxes`;
+      setupCostLine.innerHTML = `<strong style="color:var(--text);">Cost:</strong> ${fmtUsd(total)}${opt ? ` (includes ${opt.label})` : ''}`;
     }
 
     toggleStandaloneDeviceBtn?.addEventListener('click', () => {
