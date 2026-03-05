@@ -1041,17 +1041,17 @@
   </div>
 
   <div class="terms-overlay" id="software-modal" aria-hidden="true">
-    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="software-title" style="width:min(920px,98vw); overflow-y:auto; display:flex; flex-direction:column;">
-      <h3 id="software-title" style="margin:0 0 .7rem; color:var(--cyan); flex-shrink:0;">What software comes preloaded?</h3>
-      <div class="sw-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem; flex:1; min-height:0; overflow:hidden;">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="software-title" style="width:min(920px,98vw); max-height:92vh; overflow-y:auto;">
+      <h3 id="software-title" style="margin:0 0 .7rem; color:var(--cyan);">What software comes preloaded?</h3>
+      <div class="sw-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:.8rem;">
 
         <!-- Essential column -->
-        <div style="display:flex; flex-direction:column; min-height:0;">
-          <div style="background:rgba(158,208,255,.1); border:1px solid rgba(158,208,255,.35); border-radius:6px 6px 0 0; padding:.5rem .75rem; flex-shrink:0;">
+        <div style="display:flex; flex-direction:column;">
+          <div style="background:rgba(158,208,255,.1); border:1px solid rgba(158,208,255,.35); border-radius:6px 6px 0 0; padding:.5rem .75rem;">
             <div style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; color:var(--cyan); font-size:.95rem; text-transform:uppercase; letter-spacing:.05em;">Ghost Box: Essential</div>
             <div style="font-size:.78rem; color:var(--muted); margin-top:.1rem;">20GB+ · 1 Offline LLM</div>
           </div>
-          <div style="flex:1; overflow-y:auto; border:1px solid rgba(158,208,255,.2); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
+          <div style="border:1px solid rgba(158,208,255,.2); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
             <ul style="margin:0 0 .7rem; padding-left:1rem; font-size:.9rem; color:#d4d9eb;">
               <li style="margin:.3rem 0;"><strong>Fennec Browser</strong> — privacy-focused Firefox browser, no telemetry</li>
               <li style="margin:.3rem 0;"><strong>OpenMaps</strong> — full continental US offline navigation, pre-downloaded, no signal required</li>
@@ -1067,12 +1067,12 @@
         </div>
 
         <!-- Pro column -->
-        <div style="display:flex; flex-direction:column; min-height:0;">
-          <div style="background:rgba(199,166,255,.12); border:1px solid rgba(199,166,255,.4); border-radius:6px 6px 0 0; padding:.5rem .75rem; flex-shrink:0;">
+        <div style="display:flex; flex-direction:column;">
+          <div style="background:rgba(199,166,255,.12); border:1px solid rgba(199,166,255,.4); border-radius:6px 6px 0 0; padding:.5rem .75rem;">
             <div style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; color:var(--violet); font-size:.95rem; text-transform:uppercase; letter-spacing:.05em;">Ghost Box: Pro</div>
             <div style="font-size:.78rem; color:var(--muted); margin-top:.1rem;">50GB+ · 3 Offline LLMs (Small, Medium, Large)</div>
           </div>
-          <div style="flex:1; overflow-y:auto; border:1px solid rgba(199,166,255,.25); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
+          <div style="border:1px solid rgba(199,166,255,.25); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
             <p style="margin:0 0 .4rem; font-size:.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-family:'Hanken Grotesk',sans-serif;">Everything in Essential, plus:</p>
             <ul style="margin:0 0 .7rem; padding-left:0; list-style:none; font-size:.9rem;">
               <li style="margin:.3rem 0; border-left:2px solid rgba(199,166,255,.7); padding-left:.6rem; color:#e0d4ff;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>PocketPal</strong> — upgraded to 3 offline LLMs (small/medium/large) + "Ghost Box" survival Pal</li>
