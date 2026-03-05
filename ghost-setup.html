@@ -331,26 +331,70 @@
                </ul>`
       },
       {
-        title: 'Offline Apps & Navigation',
-        html: `<p>Your Ghost Box is optimized for no-signal operation.</p>
+        title: 'Fennec Browser',
+        html: `<p><em>Included in: Essential &amp; Pro</em></p>
+               <p><strong>What it is:</strong> Fennec is Mozilla Firefox for Android with telemetry and proprietary code removed. It is your Ghost Box's default browser for accessing locally cached content, saved HTML files, or any web content when brief Wi-Fi access is available.</p>
+               <p><strong>Key features:</strong></p>
                <ul>
-                 <li><strong>Maps:</strong> verify offline map packs are downloaded and test search/routes before you need them. See the Maintenance section for step-by-step update instructions.</li>
-                 <li><strong>Local AI:</strong> use the smaller model for speed and power efficiency; use the larger model when depth and accuracy matter.</li>
-                 <li><strong>Knowledge base:</strong> keep essential reference docs bookmarked for rapid access.</li>
+                 <li>Built-in tracking protection — blocks 2,000+ known trackers by default</li>
+                 <li>No Mozilla telemetry or background data collection</li>
+                 <li>Add-on support: uBlock Origin and other privacy extensions work natively</li>
+                 <li>Bookmark manager for offline resources you want one-tap access to</li>
                </ul>
-               <p>Run an offline dry run once a month so there are no surprises during real deployment.</p>
-               <p><strong>Your Pre-Configured AI Buddy: "Ghost Box" in PocketPal</strong></p>
-               <p>Every Ghost Box ships with a custom AI persona already set up inside PocketPal — named <strong>"Ghost Box"</strong>. This is not a generic AI assistant. It has been configured specifically for survival, field engineering, and emergency response: no introductory filler, direct answers first, critical safety warnings in bold, and every response formatted in numbered steps and bullet points for fast field reading.</p>
-               <p><strong>How to use the Ghost Box Pal in PocketPal:</strong></p>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>Fennec</strong> from your app drawer</li>
+                 <li>Tap the address bar and type a URL or search term</li>
+                 <li>Access bookmarks via the bottom menu → Bookmarks tab</li>
+                 <li>Tap the three-dot menu (⋮) → Settings to adjust tracking protection and default search engine</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: bookmark your most-used offline resources so they're one tap away during an emergency.</p>`
+      },
+      {
+        title: 'OpenMaps',
+        html: `<p><em>Included in: Essential &amp; Pro</em></p>
+               <p><strong>What it is:</strong> OpenMaps provides full offline navigation for the continental United States using OpenStreetMap data. The complete US map pack is pre-downloaded on your Ghost Box — no cell signal, no internet, and no Google required.</p>
+               <p><strong>Key features:</strong></p>
+               <ul>
+                 <li>Full continental US map pre-loaded — ready to use with no downloads</li>
+                 <li>Turn-by-turn voice navigation — driving, cycling, and pedestrian modes</li>
+                 <li>Offline address search, POI lookup, and route planning</li>
+                 <li>GPX track import/export for custom routes</li>
+                 <li>Zero tracking — fully private, no data sent anywhere</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>OpenMaps</strong> — the full US map loads with no internet connection</li>
+                 <li>Tap the search icon (🔍) to find a destination by address or place name</li>
+                 <li>Tap <strong>Directions</strong> to plan a route — choose driving, cycling, or walking mode</li>
+                 <li>Tap <strong>Go</strong> to start turn-by-turn navigation using your device GPS</li>
+                 <li>To drop a pin manually: press and hold anywhere on the map</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: GPS lock may take 30–60 seconds in a new location — power the app on before you need to move. Test your destination search and routing before an emergency, not during one.</p>
+               <p style="color:var(--muted); font-size:.9rem;">See the <strong>Maintenance</strong> section for how to update your map data when Wi-Fi is available.</p>`
+      },
+      {
+        title: 'PocketPal',
+        html: `<p><em>Included in: Essential (1 LLM) &amp; Pro (3 LLMs)</em></p>
+               <p><strong>What it is:</strong> PocketPal is an offline AI chat app that runs Large Language Models directly on your device — no internet, no cloud, and no data leaving your phone. It is your Ghost Box's core AI tool for survival, medical, and engineering questions.</p>
+               <p><strong>Model selection:</strong></p>
+               <ul>
+                 <li><strong>Small model</strong> — fastest responses, most battery-efficient. Best for quick lookups.</li>
+                 <li><strong>Medium model</strong> — balanced speed and depth. (Pro only)</li>
+                 <li><strong>Large model</strong> — deepest knowledge and most detailed answers. Use when accuracy matters most. (Pro only)</li>
+               </ul>
+               <p><strong>Your Pre-Configured Pal: "Ghost Box"</strong></p>
+               <p>Every Ghost Box ships with a custom Pal named <strong>"Ghost Box"</strong> already configured in PocketPal. It is tuned specifically for survival, field engineering, and emergency response — direct answers first, critical safety warnings in bold, and every response formatted in numbered steps and bullet points. No setup required.</p>
+               <p><strong>How to use the Ghost Box Pal:</strong></p>
                <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
                  <li>Open <strong>PocketPal</strong></li>
-                 <li>At the bottom of the screen, tap the <strong>upward-pointing arrow (↑)</strong> to the left of the "Type Your Message Here" input field — this opens the Pal picker</li>
+                 <li>Tap the <strong>upward-pointing arrow (↑)</strong> to the left of the "Type Your Message Here" input — this opens the Pal picker</li>
                  <li>Tap the <strong>Pals</strong> tab</li>
-                 <li>Select <strong>"Ghost Box"</strong> — the pre-configured survival and field engineering advisor</li>
-                 <li>Start chatting — the Pal is now active and the system prompt is applied automatically</li>
+                 <li>Select <strong>"Ghost Box"</strong></li>
+                 <li>Start chatting — the system prompt is applied automatically</li>
                </ol>
-               <p style="margin:.2rem 0 .6rem; color:var(--muted); font-size:.9rem;">Tip: the smaller model responds faster and is more battery-efficient; the larger model gives deeper, more detailed answers. You can switch models from the same Pal picker.</p>
-               <p>The full system prompt is also saved to the <strong>Documents</strong> folder on the device so you can restore or adapt it any time. It reads:</p>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: smaller model = faster and more battery-efficient. Larger model = deeper answers. Switch models from the same Pal picker.</p>
+               <p>The full system prompt is saved to the <strong>Documents</strong> folder on the device. It reads:</p>
                <pre style="background:#070910; border:1px solid rgba(158,208,255,.2); border-left:3px solid var(--cyan); border-radius:0 6px 6px 0; padding:.85rem 1rem; margin:.5rem 0 .9rem; font-size:.78rem; color:var(--ok); white-space:pre-wrap; line-height:1.65; font-family:'Courier New',monospace;">You are a high-level technical survival and field engineering advisor. Your goal is to provide objective, concise, and actionable information for off-grid survival, emergency medical care, and mechanical repair.
 
 Operational Rules:
@@ -361,14 +405,200 @@ Operational Rules:
 5. Offline Context: Assume zero internet and limited tools.
 6. No Speculation: If factual basis is missing, state DATA NOT AVAILABLE.</pre>
                <p><strong>AI Accuracy &amp; Limitations</strong></p>
-               <p>The AI models on your Ghost Box are powerful offline tools, but they are not infallible. AI can confidently state inaccurate information — a phenomenon called "hallucination." Always cross-reference AI outputs against reliable offline references (first aid manuals, printed guides, verified offline knowledge bases) before acting on them, especially for medical, legal, or safety-critical decisions. AI is a research and drafting tool — not a substitute for professional expertise.</p>
-               <p><strong>OS &amp; App Compatibility</strong></p>
-               <p>Your Ghost Box runs either <strong>LineageOS</strong> or <strong>debloated OxygenOS</strong> (for OnePlus 8 model phones). Both configurations provide a clean, bloat-free environment — all tracking and battery-draining software has been removed regardless of which OS your unit ships with. Performance is nearly identical and both setups include the full pre-installed app suite.</p>
+               <p>AI models are powerful but not infallible. They can confidently state wrong information — this is called "hallucination." Always cross-reference AI outputs against your offline reference libraries before acting on them, especially for medical, legal, or safety-critical decisions. AI is a research tool — not a substitute for professional expertise.</p>
+               <p style="color:var(--muted); font-size:.9rem;">If the AI gives a clearly wrong answer: start a fresh chat session, rephrase your question, or try a larger model.</p>`
+      },
+      {
+        title: 'F-Droid',
+        html: `<p><em>Included in: Essential &amp; Pro</em></p>
+               <p><strong>What it is:</strong> F-Droid is an open-source Android app marketplace for free, privacy-respecting software. It is your primary source for installing and updating apps that don't require Google Play. All apps listed in the F-Droid catalog are open-source and audited for trackers before listing.</p>
+               <p><strong>Key features:</strong></p>
                <ul>
-                 <li>Apps are installed via <strong>Aurora Store</strong> (anonymous Google Play access), <strong>F-Droid</strong> (open-source app marketplace), or directly from trusted APK sources using standard sideloading.</li>
-                 <li>Some apps that depend heavily on Google Play Services — such as banking apps, certain navigation apps, and apps requiring hardware attestation — may not work as expected. This is by design and does not affect your offline preparedness stack.</li>
-                 <li>Do not attempt to install Google Play Services — it would undermine the privacy and offline-reliability architecture the Ghost Box is built on.</li>
-               </ul>`
+                 <li>No Google account required — completely anonymous</li>
+                 <li>All apps are open-source and tracker-audited before listing</li>
+                 <li>Automatic update notifications for installed F-Droid apps</li>
+                 <li>Works fully on LineageOS and debloated OxygenOS without Google Play Services</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>F-Droid</strong> from your app drawer</li>
+                 <li>Tap <strong>Latest</strong> to browse recently updated apps, or use the search bar</li>
+                 <li>Tap an app → <strong>Install</strong> to download and install it</li>
+                 <li>Tap the <strong>Updates</strong> tab (bottom) to see and apply updates to your installed F-Droid apps</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Note: F-Droid requires Wi-Fi to download or update apps. All apps on your Ghost Box are pre-installed — F-Droid is there for future installs and updates when you have connectivity.</p>
+               <p><strong>OS &amp; App Compatibility</strong></p>
+               <p>Your Ghost Box runs <strong>LineageOS</strong> or <strong>debloated OxygenOS</strong>. Some apps requiring Google Play Services — banking apps, certain navigation apps, hardware attestation — may not function. This does not affect your offline preparedness stack. Do not install Google Play Services as it would undermine the privacy architecture of your Ghost Box.</p>`
+      },
+      {
+        title: 'Survival Manual',
+        html: `<p><em>Included in: Essential &amp; Pro</em></p>
+               <p><strong>What it is:</strong> The Survival Manual app is a fully offline reference guide based on the US Army Field Manual FM 3-05.70 — covering wilderness and emergency survival from shelter and fire to first aid and navigation. Open-source, no internet required.</p>
+               <p><strong>What it covers:</strong></p>
+               <ul>
+                 <li><strong>Psychology of Survival</strong> — maintaining mental resilience under stress</li>
+                 <li><strong>Shelters</strong> — building emergency shelter from natural and found materials</li>
+                 <li><strong>Water</strong> — finding, collecting, and purifying water in the field</li>
+                 <li><strong>Fire</strong> — fire-starting techniques with limited or improvised tools</li>
+                 <li><strong>Food</strong> — identifying edible plants, trapping, and field food preparation</li>
+                 <li><strong>First Aid</strong> — emergency field medical procedures</li>
+                 <li><strong>Signals</strong> — visual, audio, and electronic signaling for rescue</li>
+                 <li><strong>Navigation</strong> — land navigation without GPS using terrain and stars</li>
+                 <li><strong>Dangerous Plants &amp; Animals</strong> — threat identification by region</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>Survival Manual</strong> from your app drawer</li>
+                 <li>Browse chapters using the main menu — all content loads offline immediately</li>
+                 <li>Use the search function to find specific topics fast</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: browse the app before you need it so you know where key chapters live. Fire-starting, water purification, and first aid are the sections most commonly needed first.</p>`
+      },
+      {
+        title: 'Kiwix',
+        html: `<p><em>Included in: Essential &amp; Pro (Essential gets Wikipedia Medical; Pro gets full library)</em></p>
+               <p><strong>What it is:</strong> Kiwix is an offline content reader that lets you browse large reference libraries — encyclopedias, health guides, instructional content, and more — stored as compressed ZIM files on your device. No internet required.</p>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>Kiwix</strong> from your app drawer</li>
+                 <li>Your pre-loaded libraries appear in the <strong>Library</strong> tab — tap any to open it</li>
+                 <li>Browse and read exactly like a website — all offline</li>
+                 <li>Use the search bar within each library to find specific topics</li>
+                 <li>Tap the back arrow to return to the library list</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">If a library doesn't appear: swipe down in the Library tab to trigger a storage scan. ZIM files must be in internal storage to be detected.</p>
+
+               <p><strong>Pre-Loaded Kiwix Libraries</strong></p>
+
+               <p><strong>Wikipedia Medical Encyclopedia (Full)</strong> <em style="color:var(--cyan); font-size:.85rem;">— Essential &amp; Pro</em></p>
+               <p>The complete Wikipedia Medical encyclopedia snapshot — thousands of articles covering human anatomy, diseases, symptoms, medications, procedures, and emergency care. Fully searchable. Cross-reference symptoms, understand diagnoses, or look up medication interactions when professional care is unavailable.</p>
+
+               <p><strong>Knots</strong> <em style="color:var(--violet); font-size:.85rem;">— Pro only</em></p>
+               <p>A comprehensive illustrated knot reference covering dozens of essential knots for sailing, climbing, shelter-building, first aid, and general utility — with step-by-step diagrams and notes on correct application for each.</p>
+
+               <p><strong>Hesperian Health Guides</strong> <em style="color:var(--violet); font-size:.85rem;">— Pro only</em></p>
+               <p>Community health guides originally developed for remote and resource-limited settings. Covers childbirth, primary care, dental emergencies, disability support, women's health, and environmental health — written for non-medical professionals in field conditions.</p>
+
+               <p><strong>Water Treatment Library (with videos)</strong> <em style="color:var(--violet); font-size:.85rem;">— Pro only</em></p>
+               <p>A technical reference covering water sourcing, purification methods (boiling, chemical treatment, filtration, UV), and field water quality assessment. Includes embedded instructional video content for step-by-step visual guidance.</p>
+
+               <p><strong>Learning Self Reliance</strong> <em style="color:var(--violet); font-size:.85rem;">— Pro only</em></p>
+               <p>A practical guide to self-reliance skills including food storage, homesteading, gardening, animal husbandry, and long-term preparedness planning. Focused on building sustainable systems that function without grid dependency.</p>
+
+               <p><strong>Canadian Prepper</strong> <em style="color:var(--violet); font-size:.85rem;">— Pro only</em></p>
+               <p>Content from the Canadian Prepper knowledge library — threat assessment, emergency planning, gear selection, and advanced preparedness strategies from one of the most respected voices in the preparedness community.</p>
+
+               <p><strong>Environment Encyclopedia</strong> <em style="color:var(--violet); font-size:.85rem;">— Pro only</em></p>
+               <p>A broad reference covering ecology, environmental science, natural systems, and field identification — useful for understanding terrain, weather patterns, and local plant and animal ecosystems as they affect survival decisions.</p>`
+      },
+      {
+        title: 'Offline Translator',
+        html: `<p><em>Included in: Essential &amp; Pro</em></p>
+               <p><strong>What it is:</strong> The Offline Translator performs on-device language translation with no internet connection — no text is sent to any server. Useful for communicating across language barriers during regional emergencies or disaster response.</p>
+               <p><strong>Key features:</strong></p>
+               <ul>
+                 <li>Fully offline — all translation happens on-device</li>
+                 <li>No account, no cloud, no data collection</li>
+                 <li>OCR support — point camera at text in an image to translate it</li>
+                 <li>Fast, low-memory operation</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>Offline Translator</strong> from your app drawer</li>
+                 <li>Select the <strong>source language</strong> (what you're translating from)</li>
+                 <li>Select the <strong>target language</strong> (what you want output in)</li>
+                 <li>Type or paste the text — translation appears immediately</li>
+                 <li>To translate text in an image: select <strong>OCR mode</strong> and point your camera at the text</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: test translations in languages you might need before an emergency — confirm those language models are downloaded and working.</p>`
+      },
+      {
+        title: 'Project Gutenberg ★ Pro',
+        html: `<p><em style="color:var(--violet);">Pro Package only.</em></p>
+               <p><strong>What it is:</strong> Project Gutenberg is the world's largest collection of public domain books — over 60,000 literary works including classic novels, historical texts, philosophy, science, and technical publications. Your Ghost Box Pro ships with the General Literary Works collection (9GB) pre-loaded.</p>
+               <p><strong>What it includes:</strong> Classic and historical works spanning fiction, history, philosophy, poetry, and reference — authors include Shakespeare, Darwin, Sun Tzu, Benjamin Franklin, Jules Verne, Mark Twain, and thousands more.</p>
+               <p><strong>Best uses on Ghost Box:</strong></p>
+               <ul>
+                 <li>Extended reading during shelter-in-place or long-term scenarios</li>
+                 <li>Historical, scientific, and philosophical reference</li>
+                 <li>Mental engagement during extended emergencies</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open the <strong>Project Gutenberg</strong> app from your app drawer</li>
+                 <li>Browse the pre-downloaded library by title, author, or genre</li>
+                 <li>Tap a book to open it in the built-in EPUB reader</li>
+                 <li>Adjust font size and reading mode from the reader settings</li>
+               </ol>`
+      },
+      {
+        title: 'Exodus Privacy ★ Pro',
+        html: `<p><em style="color:var(--violet);">Pro Package only.</em></p>
+               <p><strong>What it is:</strong> Exodus Privacy is an app auditing tool that scans every app on your Ghost Box and reveals which trackers, analytics libraries, and permissions each one uses. It helps you maintain the integrity of your privacy setup over time — especially after installing new apps.</p>
+               <p><strong>Best uses on Ghost Box:</strong></p>
+               <ul>
+                 <li>Audit any new app you install via F-Droid or APK before trusting it</li>
+                 <li>Verify the privacy posture of your existing app stack</li>
+                 <li>Identify and remove apps with excessive permissions before a mission</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>Exodus Privacy</strong> from your app drawer</li>
+                 <li>The app automatically scans all installed applications</li>
+                 <li>Tap any app to see its full report: trackers found, permissions requested, and severity ratings</li>
+                 <li>Use this information to decide whether to keep, restrict, or uninstall a given app</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: run Exodus after installing any new app to confirm it is clean before using it with sensitive information.</p>`
+      },
+      {
+        title: 'Briar Messenger ★ Pro',
+        html: `<p><em style="color:var(--violet);">Pro Package only.</em></p>
+               <p><strong>What it is:</strong> Briar is an end-to-end encrypted messaging app designed for hostile network environments. It communicates device-to-device via Bluetooth or Wi-Fi — no internet, no central server, no phone number required. When cell networks and internet are down, Briar keeps working.</p>
+               <p><strong>Key features:</strong></p>
+               <ul>
+                 <li><strong>Bluetooth messaging</strong> — direct device-to-device with no network at all</li>
+                 <li><strong>Wi-Fi messaging</strong> — works across a local network or hotspot with no internet</li>
+                 <li>End-to-end encrypted — messages are unreadable to any third party</li>
+                 <li>No phone number or account registration required</li>
+                 <li>Messages stored on-device only — no cloud backup</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>Briar</strong> and create a local account (username + password, stored on-device only)</li>
+                 <li>To add a contact: tap <strong>+</strong> → <strong>Add contact nearby</strong> — both devices must be open and physically close to scan each other's QR code</li>
+                 <li>Enable <strong>Bluetooth</strong> and/or connect both devices to the same Wi-Fi network</li>
+                 <li>Tap a contact name to open a chat and send messages</li>
+                 <li>Messages deliver when the recipient device comes within Bluetooth or Wi-Fi range</li>
+               </ol>
+               <p style="border-left:3px solid var(--cyan); padding-left:.75rem; margin:.5rem 0 .7rem; color:var(--ok);">Add your key contacts to Briar before an emergency — contact exchange requires both devices to be present at the same time to scan QR codes.</p>`
+      },
+      {
+        title: 'LocalSend ★ Pro',
+        html: `<p><em style="color:var(--violet);">Pro Package only.</em></p>
+               <p><strong>What it is:</strong> LocalSend is an open-source file transfer app that moves files between nearby devices over a local Wi-Fi network — no internet, no cloud, no USB cable. Works across Android, iOS, Windows, macOS, and Linux.</p>
+               <p><strong>Best uses on Ghost Box:</strong></p>
+               <ul>
+                 <li>Transfer maps, documents, or reference files to another device in the field</li>
+                 <li>Share medical info, contacts, or plans with others in your group</li>
+                 <li>Move files between your Ghost Box and a laptop over a local hotspot</li>
+               </ul>
+               <p><strong>Key features:</strong></p>
+               <ul>
+                 <li>No internet required — works entirely over local Wi-Fi or device hotspot</li>
+                 <li>End-to-end encrypted transfers</li>
+                 <li>Transfers files, folders, text, and clipboard content</li>
+                 <li>Full Wi-Fi transfer speed — no server throttling</li>
+                 <li>No login or account needed</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>LocalSend</strong> on both devices</li>
+                 <li>Connect both devices to the same Wi-Fi network (or create a hotspot on one and connect the other to it)</li>
+                 <li>LocalSend auto-discovers other nearby devices running the app</li>
+                 <li>On the sending device: tap <strong>Send</strong>, select your files, then tap the recipient device name</li>
+                 <li>On the receiving device: accept the transfer — files save to your Downloads folder</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: if devices don't see each other, confirm they're on the same Wi-Fi network and that LocalSend has local network permission enabled in Android settings.</p>`
       },
       {
         title: 'EMP Protocol (Pro Kit)',
