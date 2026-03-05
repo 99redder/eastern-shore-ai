@@ -83,6 +83,13 @@
     .full { grid-column:1 / -1; }
     label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:.25rem; }
     input,textarea,select { width:100%; min-width:0; max-width:100%; border:1px solid var(--line); border-radius:2px; background:#10121a; color:var(--text); padding:.65rem .7rem; font:inherit; }
+    #setup-date::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      filter: invert(30%) sepia(95%) saturate(1800%) hue-rotate(340deg) brightness(95%) contrast(95%);
+    }
+    #setup-date::-webkit-calendar-picker-indicator:hover {
+      filter: invert(30%) sepia(95%) saturate(2200%) hue-rotate(340deg) brightness(105%) contrast(100%);
+    }
     textarea { min-height:120px; resize:vertical; }
     .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
     .form-status { margin-top:.6rem; color:var(--muted); min-height:1.2em; }
