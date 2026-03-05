@@ -703,7 +703,67 @@ Operational Rules:
     render();
 
     document.getElementById('download-pdf-btn').addEventListener('click', function() {
-      // Remove any leftover container from a previous click
+      // Primary path: build PDF directly with jsPDF text rendering (more reliable than HTML canvas capture).
+      if (window.jspdf && window.jspdf.jsPDF) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'letter', orientation: 'portrait' });
+        const margin = 14;
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const maxW = pageW - margin * 2;
+
+        const htmlToText = (html) => String(html || '')
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<\/p>/gi, '\n\n')
+          .replace(/<\/li>/gi, '\n')
+          .replace(/<li[^>]*>/gi, '• ')
+          .replace(/<[^>]+>/g, '')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
+
+        // Title page
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(24);
+        doc.text('Ghost Box', margin, 55);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Users Guide', margin, 65);
+        doc.setFontSize(10);
+        doc.text('Eastern Shore AI, LLC', margin, 78);
+        doc.text('support@easternshore.ai', margin, 84);
+        doc.text('www.easternshore.ai', margin, 90);
+
+        sections.forEach((section) => {
+          doc.addPage();
+          let y = margin;
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(13);
+          const titleLines = doc.splitTextToSize(section.title, maxW);
+          doc.text(titleLines, margin, y);
+          y += titleLines.length * 6 + 2;
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10.5);
+          const lines = doc.splitTextToSize(htmlToText(section.html), maxW);
+          for (const line of lines) {
+            if (y > pageH - margin) {
+              doc.addPage();
+              y = margin;
+            }
+            doc.text(line, margin, y);
+            y += 5;
+          }
+        });
+
+        doc.save(`Ghost-Box-Users-Guide-${new Date().toISOString().slice(0,10)}.pdf`);
+        return;
+      }
+
+      // Fallback path: HTML capture
       const old = document.getElementById('pdf-print-content');
       if (old) old.remove();
 
