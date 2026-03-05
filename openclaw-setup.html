@@ -344,10 +344,21 @@
       <h2>Pick Your Setup Day</h2>
       <div class="booking-grid" style="grid-template-columns:1fr;">
         <aside class="book-pay-panel">
-          <h3 style="margin:.1rem 0 .2rem;">Reserve Your Spot</h3>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
+            <h3 style="margin:.1rem 0 .2rem;">Reserve Your Spot</h3>
+            <button type="button" class="btn" id="toggle-standalone-device" style="width:auto; max-width:100%; font-size:.8rem; padding:.45rem .7rem;">Want to add a custom stand alone device for your agent?</button>
+          </div>
           <p>Choose your date and time, fill in your details, then hit Book + Pay Now.</p>
-          <p style="margin:.3rem 0 .5rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 + MD state taxes</p>
+          <p id="setup-cost-line" style="margin:.3rem 0 .5rem; font-size:0.95rem;"><strong style="color:var(--text);">Cost:</strong> $100 + MD state taxes</p>
           <div class="form-grid" style="margin-top:.4rem;">
+            <div id="standalone-device-wrap" class="full" style="display:none;">
+              <label for="standalone-device">Custom Stand Alone Device (optional)</label>
+              <select id="standalone-device">
+                <option value="">No standalone device</option>
+                <option value="mini8">Mini Computer (8GB) — $199.99</option>
+                <option value="mini16">Mini Computer (16GB) — $299.99</option>
+              </select>
+            </div>
             <div>
               <label for="setup-date">Preferred Setup Date</label>
               <input id="setup-date" type="date" />
@@ -716,6 +727,10 @@
     const statusEl = document.getElementById('status');
     const submitBtn = form.querySelector('button[type="submit"]');
     const bookPayBtn = document.getElementById('book-pay-btn');
+    const toggleStandaloneDeviceBtn = document.getElementById('toggle-standalone-device');
+    const standaloneDeviceWrap = document.getElementById('standalone-device-wrap');
+    const standaloneDeviceEl = document.getElementById('standalone-device');
+    const setupCostLine = document.getElementById('setup-cost-line');
     const contactLink = document.getElementById('contact-link');
     const aboutLink = document.getElementById('about-link');
     const termsLink = document.getElementById('terms-link');
@@ -849,6 +864,32 @@
       if (e.target === errorModal) closeErrorModal();
     });
 
+    const STANDALONE_DEVICE_OPTIONS = {
+      mini8: { label: 'Mini Computer (8GB)', amountCents: 19999 },
+      mini16: { label: 'Mini Computer (16GB)', amountCents: 29999 }
+    };
+
+    function fmtUsd(cents) {
+      return `$${(Number(cents || 0) / 100).toFixed(2)}`;
+    }
+
+    function updateSetupCostLine() {
+      const base = 10000;
+      const opt = STANDALONE_DEVICE_OPTIONS[standaloneDeviceEl?.value || ''];
+      const total = base + (opt?.amountCents || 0);
+      setupCostLine.innerHTML = `<strong style="color:var(--text);">Cost:</strong> ${fmtUsd(total)}${opt ? ` (includes ${opt.label})` : ''} + MD state taxes`;
+    }
+
+    toggleStandaloneDeviceBtn?.addEventListener('click', () => {
+      const isHidden = standaloneDeviceWrap.style.display === 'none';
+      standaloneDeviceWrap.style.display = isHidden ? 'block' : 'none';
+      if (!isHidden && standaloneDeviceEl) standaloneDeviceEl.value = '';
+      updateSetupCostLine();
+    });
+
+    standaloneDeviceEl?.addEventListener('change', updateSetupCostLine);
+    updateSetupCostLine();
+
     const TIME_SLOTS = [
       { value: '10:00-12:00', label: '1000 - 1200' },
       { value: '12:00-14:00', label: '1200 - 1400' },
@@ -970,6 +1011,7 @@
       const email = document.getElementById('book-email')?.value.trim() || '';
       const phone = document.getElementById('book-phone')?.value.trim() || '';
       const preferredContactMethod = document.getElementById('book-preferred-contact-method')?.value || 'email';
+      const standaloneDevice = standaloneDeviceWrap.style.display !== 'none' ? (standaloneDeviceEl?.value || '') : '';
 
       if (!name || !email) {
         openErrorModal('Name and email are required to book.');
@@ -996,7 +1038,7 @@
         return;
       }
 
-      localStorage.setItem('esa_last_setup_slot', JSON.stringify({ setupDate, setupTime }));
+      localStorage.setItem('esa_last_setup_slot', JSON.stringify({ setupDate, setupTime, standaloneDevice }));
 
       bookPayBtn.disabled = true;
       bookPayBtn.textContent = 'Redirecting…';
@@ -1005,7 +1047,7 @@
         const res = await fetch(CHECKOUT_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ setupDate, setupTime, name, email, phone, preferredContactMethod })
+          body: JSON.stringify({ setupDate, setupTime, name, email, phone, preferredContactMethod, standaloneDevice })
         });
 
         const data = await res.json();
@@ -1022,12 +1064,15 @@
     if (qs.get('paid') === '1') {
       let dateText = 'your selected date';
       let timeText = 'your selected time';
+      let addonText = '';
       try {
         const saved = JSON.parse(localStorage.getItem('esa_last_setup_slot') || '{}');
         if (saved.setupDate) dateText = saved.setupDate;
         if (saved.setupTime) timeText = saved.setupTime;
+        if (saved.standaloneDevice === 'mini8') addonText = ' + Mini Computer (8GB)';
+        if (saved.standaloneDevice === 'mini16') addonText = ' + Mini Computer (16GB)';
       } catch {}
-      openSuccessModal(`Payment successful — you purchased an OpenClaw setup session ($100.00) for ${dateText} at ${timeText}.`, 'Payment Received — Setup Booked ✅');
+      openSuccessModal(`Payment successful — you purchased an OpenClaw setup session${addonText} for ${dateText} at ${timeText}.`, 'Payment Received — Setup Booked ✅');
       window.history.replaceState({}, '', '/openclaw-setup.html');
     } else if (qs.get('canceled') === '1') {
       let dateText = 'your selected date';

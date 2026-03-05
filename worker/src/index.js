@@ -647,6 +647,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   const customerEmail = (data.email || '').toString().trim();
   const customerName = (data.name || '').toString().trim();
   const requestedService = (data.service || data.serviceType || 'openclaw_setup').toString().trim().toLowerCase();
+  const standaloneDevice = (data.standaloneDevice || '').toString().trim().toLowerCase();
   const customerPhone = (data.phone || '').toString().trim();
   const preferredContactMethod = (data.preferredContactMethod || 'email').toString().trim().toLowerCase();
   const lessonTopic = (data.lessonTopic || '').toString().trim();
@@ -706,6 +707,14 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
           quantity: 1,
           successPath: '/openclaw-setup.html'
         };
+
+  const standaloneDeviceConfig = requestedService === 'openclaw_setup'
+    ? (standaloneDevice === 'mini8'
+        ? { key: 'mini8', label: 'Mini Computer (8GB)', amountCents: 19999, priceId: 'price_1T7SxgCrQuKPknEPya0Wz5Tv' }
+        : standaloneDevice === 'mini16'
+          ? { key: 'mini16', label: 'Mini Computer (16GB)', amountCents: 29999, priceId: 'price_1T7SvMCrQuKPknEPYtf7mm01' }
+          : null)
+    : null;
 
   // Reject past dates/blocks using America/New_York.
   {
@@ -839,6 +848,9 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'metadata[lesson_topic]': lessonTopic || '',
     'metadata[lesson_count]': String(serviceConfig.quantity || 1),
     'metadata[slots_json]': JSON.stringify(allSlots),
+    'metadata[standalone_device]': standaloneDeviceConfig?.key || '',
+    'metadata[standalone_device_label]': standaloneDeviceConfig?.label || '',
+    'metadata[standalone_device_amount_cents]': standaloneDeviceConfig ? String(standaloneDeviceConfig.amountCents) : '0',
     'payment_intent_data[metadata][setup_date]': setupDate,
     'payment_intent_data[metadata][setup_time]': setupTime,
     'payment_intent_data[metadata][setup_at]': setupAt,
@@ -850,7 +862,15 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     'payment_intent_data[metadata][lesson_count]': String(serviceConfig.quantity || 1),
     'payment_intent_data[metadata][customer_phone]': customerPhone || '',
     'payment_intent_data[metadata][preferred_contact_method]': preferredContactMethod || 'email',
+    'payment_intent_data[metadata][standalone_device]': standaloneDeviceConfig?.key || '',
+    'payment_intent_data[metadata][standalone_device_label]': standaloneDeviceConfig?.label || '',
+    'payment_intent_data[metadata][standalone_device_amount_cents]': standaloneDeviceConfig ? String(standaloneDeviceConfig.amountCents) : '0',
   });
+
+  if (standaloneDeviceConfig) {
+    body.set('line_items[1][price]', standaloneDeviceConfig.priceId);
+    body.set('line_items[1][quantity]', '1');
+  }
 
   if (customerEmail) body.set('customer_email', customerEmail);
 
@@ -869,7 +889,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
   }
 
   if (env.DB) {
-    const totalAmount = serviceConfig.amountCents * (serviceConfig.quantity || 1);
+    const totalAmount = (serviceConfig.amountCents * (serviceConfig.quantity || 1)) + (standaloneDeviceConfig?.amountCents || 0);
     const splitAmount = Math.round(totalAmount / Math.max(allSlots.length, 1));
     for (let i = 0; i < allSlots.length; i++) {
       const slot = allSlots[i];
