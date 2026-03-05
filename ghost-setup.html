@@ -190,6 +190,8 @@
   </main>
 
   <script>
+    const appDisclaimer = `<p style="margin-top:1.2rem; padding-top:.75rem; border-top:1px solid rgba(158,208,255,.12); font-size:.78rem; color:var(--muted); line-height:1.65;"><strong style="color:var(--text);">Third-Party Software Disclaimer:</strong> This application is open-source, independently developed software. Eastern Shore AI, LLC has no partnership, affiliation, sponsorship, or arrangement of any kind with the developer(s) or vendor(s) of this software. All product names, brand names, and trademarks are the property of their respective owners and are referenced here solely for informational and identification purposes. This software is provided as-is; your use of it is entirely at your own risk. Eastern Shore AI, LLC makes no warranties — express or implied — regarding the accuracy, reliability, or fitness of any third-party application for any particular purpose.</p>`;
+
     const sections = [
       {
         title: 'Initial Setup',
@@ -348,7 +350,8 @@
                  <li>Access bookmarks via the bottom menu → Bookmarks tab</li>
                  <li>Tap the three-dot menu (⋮) → Settings to adjust tracking protection and default search engine</li>
                </ol>
-               <p style="color:var(--muted); font-size:.9rem;">Tip: bookmark your most-used offline resources so they're one tap away during an emergency.</p>`
+               <p style="color:var(--muted); font-size:.9rem;">Tip: bookmark your most-used offline resources so they're one tap away during an emergency.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'OpenMaps',
@@ -371,7 +374,8 @@
                  <li>To drop a pin manually: press and hold anywhere on the map</li>
                </ol>
                <p style="color:var(--muted); font-size:.9rem;">Tip: GPS lock may take 30–60 seconds in a new location — power the app on before you need to move. Test your destination search and routing before an emergency, not during one.</p>
-               <p style="color:var(--muted); font-size:.9rem;">See the <strong>Maintenance</strong> section for how to update your map data when Wi-Fi is available.</p>`
+               <p style="color:var(--muted); font-size:.9rem;">See the <strong>Maintenance</strong> section for how to update your map data when Wi-Fi is available.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'PocketPal',
@@ -406,7 +410,8 @@ Operational Rules:
 6. No Speculation: If factual basis is missing, state DATA NOT AVAILABLE.</pre>
                <p><strong>AI Accuracy &amp; Limitations</strong></p>
                <p>AI models are powerful but not infallible. They can confidently state wrong information — this is called "hallucination." Always cross-reference AI outputs against your offline reference libraries before acting on them, especially for medical, legal, or safety-critical decisions. AI is a research tool — not a substitute for professional expertise.</p>
-               <p style="color:var(--muted); font-size:.9rem;">If the AI gives a clearly wrong answer: start a fresh chat session, rephrase your question, or try a larger model.</p>`
+               <p style="color:var(--muted); font-size:.9rem;">If the AI gives a clearly wrong answer: start a fresh chat session, rephrase your question, or try a larger model.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'F-Droid App Marketplace',
@@ -428,7 +433,8 @@ Operational Rules:
                </ol>
                <p style="color:var(--muted); font-size:.9rem;">Note: F-Droid requires Wi-Fi to download or update apps. All apps on your Ghost Box are pre-installed — F-Droid is there for future installs and updates when you have connectivity.</p>
                <p><strong>OS &amp; App Compatibility</strong></p>
-               <p>Your Ghost Box runs <strong>LineageOS</strong> or <strong>debloated OxygenOS</strong>. Some apps requiring Google Play Services — banking apps, certain navigation apps, hardware attestation — may not function. This does not affect your offline preparedness stack. Do not install Google Play Services as it would undermine the privacy architecture of your Ghost Box.</p>`
+               <p>Your Ghost Box runs <strong>LineageOS</strong> or <strong>debloated OxygenOS</strong>. Some apps requiring Google Play Services — banking apps, certain navigation apps, hardware attestation — may not function. This does not affect your offline preparedness stack. Do not install Google Play Services as it would undermine the privacy architecture of your Ghost Box.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'Survival Manual App',
@@ -452,7 +458,8 @@ Operational Rules:
                  <li>Browse chapters using the main menu — all content loads offline immediately</li>
                  <li>Use the search function to find specific topics fast</li>
                </ol>
-               <p style="color:var(--muted); font-size:.9rem;">Tip: browse the app before you need it so you know where key chapters live. Fire-starting, water purification, and first aid are the sections most commonly needed first.</p>`
+               <p style="color:var(--muted); font-size:.9rem;">Tip: browse the app before you need it so you know where key chapters live. Fire-starting, water purification, and first aid are the sections most commonly needed first.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'Kiwix',
@@ -492,7 +499,8 @@ Operational Rules:
                <p>A broad reference covering ecology, environmental science, natural systems, and field identification — useful for understanding terrain, weather patterns, and local plant and animal ecosystems as they affect survival decisions.</p>
 
                <p><strong>Project Gutenberg — General Literary Works (9GB)</strong> <em style="color:var(--violet); font-size:.85rem;">— Pro only</em></p>
-               <p>Over 60,000 public domain literary works including classic novels, history, philosophy, poetry, science, and reference texts — authors include Shakespeare, Darwin, Sun Tzu, Benjamin Franklin, Jules Verne, Mark Twain, and thousands more. Load it in Kiwix to browse and read fully offline. Useful for extended shelter-in-place scenarios, historical reference, and morale during long emergencies.</p>`
+               <p>Over 60,000 public domain literary works including classic novels, history, philosophy, poetry, science, and reference texts — authors include Shakespeare, Darwin, Sun Tzu, Benjamin Franklin, Jules Verne, Mark Twain, and thousands more. Load it in Kiwix to browse and read fully offline. Useful for extended shelter-in-place scenarios, historical reference, and morale during long emergencies.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'Offline Translator',
@@ -513,7 +521,8 @@ Operational Rules:
                  <li>Type or paste the text — translation appears immediately</li>
                  <li>To translate text in an image: select <strong>OCR mode</strong> and point your camera at the text</li>
                </ol>
-               <p style="color:var(--muted); font-size:.9rem;">Tip: test translations in languages you might need before an emergency — confirm those language models are downloaded and working.</p>`
+               <p style="color:var(--muted); font-size:.9rem;">Tip: test translations in languages you might need before an emergency — confirm those language models are downloaded and working.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'Exodus Privacy ★ Pro',
@@ -532,7 +541,8 @@ Operational Rules:
                  <li>Tap any app to see its full report: trackers found, permissions requested, and severity ratings</li>
                  <li>Use this information to decide whether to keep, restrict, or uninstall a given app</li>
                </ol>
-               <p style="color:var(--muted); font-size:.9rem;">Tip: run Exodus after installing any new app to confirm it is clean before using it with sensitive information.</p>`
+               <p style="color:var(--muted); font-size:.9rem;">Tip: run Exodus after installing any new app to confirm it is clean before using it with sensitive information.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'Briar Messenger ★ Pro',
@@ -554,7 +564,8 @@ Operational Rules:
                  <li>Tap a contact name to open a chat and send messages</li>
                  <li>Messages deliver when the recipient device comes within Bluetooth or Wi-Fi range</li>
                </ol>
-               <p style="border-left:3px solid var(--cyan); padding-left:.75rem; margin:.5rem 0 .7rem; color:var(--ok);">Add your key contacts to Briar before an emergency — contact exchange requires both devices to be present at the same time to scan QR codes.</p>`
+               <p style="border-left:3px solid var(--cyan); padding-left:.75rem; margin:.5rem 0 .7rem; color:var(--ok);">Add your key contacts to Briar before an emergency — contact exchange requires both devices to be present at the same time to scan QR codes.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'LocalSend ★ Pro',
@@ -582,7 +593,8 @@ Operational Rules:
                  <li>On the sending device: tap <strong>Send</strong>, select your files, then tap the recipient device name</li>
                  <li>On the receiving device: accept the transfer — files save to your Downloads folder</li>
                </ol>
-               <p style="color:var(--muted); font-size:.9rem;">Tip: if devices don't see each other, confirm they're on the same Wi-Fi network and that LocalSend has local network permission enabled in Android settings.</p>`
+               <p style="color:var(--muted); font-size:.9rem;">Tip: if devices don't see each other, confirm they're on the same Wi-Fi network and that LocalSend has local network permission enabled in Android settings.</p>
+               ${appDisclaimer}`
       },
       {
         title: 'EMP Protocol (Pro Kit)',
