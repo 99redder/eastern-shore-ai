@@ -1706,11 +1706,8 @@
         return;
       }
 
-      if (!isEasternShoreLocation(setupLocation)) {
-        setByogError('Please enter a complete street address on Maryland\'s Eastern Shore.');
-        return;
-      }
-
+      // Do not hard-block on client-side keyword matching; rely on backend geocode validation.
+      // This avoids false negatives for legitimate addresses that don't include expected local keywords.
       try {
         byogBtn.disabled = true;
         await validateByogLocationWithApi(setupLocation);
