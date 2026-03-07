@@ -79,7 +79,7 @@ export default {
     const productCode = isByogSetup ? 'ghost_box_byog_setup' : (isProKit ? 'ghost_box_pro_kit' : 'ghost_box_essential_kit');
 
     // Stripe Price IDs provided by Red (product-backed pricing for tax behavior)
-    const ESSENTIAL_PRICE_ID = 'price_1T74mgCrQuKPknEPondzKf9w';
+    const ESSENTIAL_PRICE_ID = 'price_1T8CHGCrQuKPknEPwko1B9FP';
     const PRO_PRICE_ID = 'price_1T74pKCrQuKPknEPuVKYdx8b';
 
     const body = new URLSearchParams({
