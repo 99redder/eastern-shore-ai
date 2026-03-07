@@ -366,12 +366,12 @@
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.75rem 1.4rem;
+      padding: 0.9rem 1.75rem;
       font-family: 'Hanken Grotesk', sans-serif;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.07em;
-      font-size: 0.92rem;
+      font-size: 1.05rem;
       color: #071219;
       text-decoration: none;
       background: linear-gradient(90deg, var(--cyan), #6ef4ff);
@@ -459,6 +459,7 @@
     .promo-mobile-subtitle { display: none; }
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
+      .buy-now-float { padding: 0.75rem 1.2rem; font-size: 0.92rem; }
       #global-back-btn, #users-guide-btn, .buy-now-float { display: none !important; }
       /* 2. Inline nav bar below promo bar */
       .mobile-nav-bar {
