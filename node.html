@@ -877,6 +877,24 @@
         </details>
 
         <details>
+          <summary>How does the Survival Node compare to other off-grid AI products — like Raspberry Pi builds or tablet setups?</summary>
+          <div class="answer">
+            <p>Other products in this space typically use a Raspberry Pi, a laptop, or a tablet as the base hardware — and those are all legitimate options, with one critical problem: <strong>power</strong>.</p>
+            <p>In a long-term grid-down scenario, keeping a laptop charged with a solar battery is genuinely difficult. Laptops draw 30–80W+ under load — a solar panel that works well for a phone will barely trickle-charge a laptop, especially on overcast days. Tablets are better, but still draw significantly more power than a phone, and few tablets are designed to run machine learning workloads efficiently.</p>
+            <p>A smartphone is the most power-efficient computing platform ever built for its performance class. It runs on a battery measured in watt-hours, not tens of watt-hours — and our included solar battery can fully charge it multiple times over. That power efficiency is what makes the Survival Node viable for genuine long-term grid independence, not just a short power outage.</p>
+            <p><strong>Why a phone specifically — and why 8GB RAM?</strong></p>
+            <ul style="margin:.4rem 0 .6rem; padding-left:1.2rem; line-height:1.7;">
+              <li><strong>Processing power to run models locally:</strong> Most phones don't have enough RAM to run a meaningful local AI model at all. We specifically source 8GB RAM units because that's the minimum floor for loading a capable quantized LLM in memory and getting real, useful output — not a toy chatbot. Raspberry Pi builds often hit this same wall: the 8GB Pi 5 is close, but then you're back to power draw and form factor problems.</li>
+              <li><strong>The perfect survival app platform:</strong> A phone already has offline maps, a GPS chip, a camera, a flashlight, a compass, Bluetooth, a SIM slot for cellular when towers are up, and a mature app ecosystem of survival and field-reference tools. A Raspberry Pi needs peripherals, a screen, a keyboard, and a case before it's even usable in the field.</li>
+              <li><strong>Ask questions with your voice:</strong> The built-in microphone lets you speak your question instead of typing it. In a field situation — hands dirty, cold, dealing with an injury or equipment problem — being able to just ask out loud is a real advantage over a keyboard.</li>
+              <li><strong>Pocketable and deployable:</strong> The Survival Node fits in a cargo pocket or a pack. A Raspberry Pi build requires a bag just to carry the components. A laptop requires its own case and charger. In an emergency, form factor matters.</li>
+              <li><strong>Sealed and ready:</strong> Our phone arrives with the OS hardened, software pre-loaded, maps downloaded, AI persona configured, and battery tested. A Raspberry Pi build requires flashing an OS image, wiring components, solving dependencies, and configuring everything yourself — none of which you want to be doing when you actually need it.</li>
+            </ul>
+            <p>If you're technically inclined and want to build something from scratch, a Raspberry Pi is a great project. But the Survival Node is an operational tool built around the most practical form factor for off-grid AI — and one that can be solar-recharged indefinitely with real-world hardware, not a lab setup.</p>
+          </div>
+        </details>
+
+        <details>
           <summary>Does the Survival Node need cell service or an internet connection to work?</summary>
           <p class="answer">No — and that's the entire point. Every app, map, AI model, and reference library on the Survival Node runs entirely offline. No cell signal, no Wi-Fi, no cloud dependency. Once it's set up and in your hands, it works anywhere on earth regardless of what's happening to the power grid, cell towers, or internet infrastructure.</p>
         </details>
