@@ -459,7 +459,14 @@
     .thumb-img:hover { opacity: 1; }
     .thumb-img.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(158,208,255,.35); }
     .item-photo-gallery { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .2rem; }
-    .item-photo-gallery img { height: 180px; width: auto; min-width: 180px; border-radius: 6px; border: 1px solid var(--line); object-fit: cover; flex-shrink: 0; background: #0d1017; }
+    .item-photo-gallery img { height: 180px; width: auto; min-width: 180px; border-radius: 6px; border: 1px solid var(--line); object-fit: cover; flex-shrink: 0; background: #0d1017; cursor: zoom-in; transition: opacity .15s; }
+    .item-photo-gallery img:hover { opacity: .85; }
+    del { color: #d93025; text-decoration-color: #d93025; }
+    .photo-modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.9); align-items: center; justify-content: center; }
+    .photo-modal.open { display: flex; }
+    .photo-modal-img { max-width: 92vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(0,0,0,.8); }
+    .photo-modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); color: #fff; font-size: 1.6rem; width: 2.6rem; height: 2.6rem; border-radius: 50%; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; }
+    .photo-modal-close:hover { background: rgba(255,255,255,.18); }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .yt-guard { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
@@ -608,7 +615,7 @@
 
               <details class="slide1-q">
                 <summary>Essential or Pro — which is right for me?</summary>
-                <p class="slide1-answer">Essential ($199.99) is your solid off-grid foundation: offline AI, 20GB+ survival apps, standard Faraday bags, hard case. Pro ($399.99) upgrades to Mission Essential EMP-rated Faraday bags, a premium solar battery with 4 attached cables and built-in tools, shockproof phone case, padlock, and 3 offline AI models. If EMP or solar flare is a real concern, go Pro.</p>
+                <p class="slide1-answer">Essential is $199.99 (reg. $299.99) — offline AI, 20GB+ survival apps, standard Faraday bags, hard case. Pro is $399.99 (reg. $499.99) — upgrades to Mission Essential EMP-rated Faraday bags, a premium solar battery with 4 attached cables and built-in tools, shockproof phone case, padlock, and 3 offline AI models. Both prices are Father's Day sale pricing — limited time. If EMP or solar flare is a real concern, go Pro.</p>
               </details>
 
               <details class="slide1-q">
@@ -730,6 +737,7 @@
               <h3 style="margin:0;">Survival Node: Essential — <del style="opacity:.45; font-weight:400; font-size:.85em;">$299.99</del> <span style="color:var(--ok);">$199.99</span></h3>
               <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
             </div>
+            <p style="margin:.15rem 0 .5rem; font-size:.78rem; color:#e07828;">⏳ Father's Day sale — limited time offer, save $100</p>
             <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
             <ul class="acc-list">
               <li class="acc-item">
@@ -788,6 +796,7 @@
               <h3 style="margin:0;">Survival Node: Pro — <del style="opacity:.45; font-weight:400; font-size:.85em;">$499.99</del> <span style="color:var(--ok);">$399.99</span></h3>
               <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
             </div>
+            <p style="margin:.15rem 0 .5rem; font-size:.78rem; color:#e07828;">⏳ Father's Day sale — limited time offer, save $100</p>
             <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
             <ul class="acc-list">
               <li class="acc-item">
@@ -1109,6 +1118,12 @@
     </section>
 
   </main>
+
+  <!-- Photo lightbox modal -->
+  <div class="photo-modal" id="photo-modal" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="photo-modal-close" id="photo-modal-close" aria-label="Close photo">×</button>
+    <img class="photo-modal-img" id="photo-modal-img" src="" alt="" />
+  </div>
 
   <div class="terms-overlay" id="byog-modal" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="byog-modal-title" style="max-width:540px; max-height:92vh; overflow-y:auto;">
@@ -1576,6 +1591,26 @@
           carousel.pause();
         });
       });
+
+      // Photo lightbox
+      const photoModal    = document.getElementById('photo-modal');
+      const photoModalImg = document.getElementById('photo-modal-img');
+      const photoModalClose = document.getElementById('photo-modal-close');
+      function openPhoto(src, alt) {
+        photoModalImg.src = src;
+        photoModalImg.alt = alt;
+        photoModal.classList.add('open');
+      }
+      function closePhoto() {
+        photoModal.classList.remove('open');
+        photoModalImg.src = '';
+      }
+      galleryEl.addEventListener('click', e => {
+        if (e.target.tagName === 'IMG') openPhoto(e.target.src, e.target.alt);
+      });
+      photoModalClose.addEventListener('click', closePhoto);
+      photoModal.addEventListener('click', e => { if (e.target === photoModal) closePhoto(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhoto(); });
     })();
 
     // ===== Slide 1 Q&A — pause carousel on open =====
