@@ -5,31 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Survival Node | Eastern Shore AI, LLC</title>
   <meta name="robots" content="noindex,nofollow" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%23a8c84a'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230f1009'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="/fonts.css" />
   <style>
     :root {
-      --bg: #0f1009;
-      --card: #171a0c;
-      --line: #333820;
-      --text: #e2dfc8;
-      --muted: #969670;
-      --cyan: #a8c84a;
-      --violet: #c8b450;
-      --ok: #b8d44a;
-      --pink: #d4c870;
+      --bg: #0b0d13;
+      --card: #131926;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #c7a6ff;
+      --ok: #b8f0ff;
+      --pink: #d8c2ff;
     }
     * { box-sizing: border-box; }
-    html { background: #080800; }
+    html { background: #000; }
     body {
       margin: 0;
       font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       font-size: 1.13rem;
       background:
-        radial-gradient(circle at 18% 10%, rgba(100, 120, 20, 0.20), transparent 35%),
-        radial-gradient(circle at 86% 6%, rgba(110, 105, 20, 0.16), transparent 32%),
-        linear-gradient(180deg, #141709 0%, #0f1009 58%, #0c0d07 100%);
-      background-color: #080800;
+        radial-gradient(circle at 18% 10%, rgba(190, 220, 255, 0.16), transparent 35%),
+        radial-gradient(circle at 86% 6%, rgba(208, 188, 255, 0.14), transparent 32%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 58%, #090b11 100%);
+      background-color: #000;
       color: var(--text);
       min-height: 100vh;
     }
@@ -49,9 +49,9 @@
       font-size: 0.78rem;
       color: #f4f9ff;
       text-decoration: none;
-      background: linear-gradient(145deg, #4a5a30, #6a7a40);
-      border: 1px solid rgba(160, 190, 80, 0.55);
-      box-shadow: 0 0 12px rgba(168, 200, 74, 0.35);
+      background: linear-gradient(145deg, #5f7597, #8fa6c8);
+      border: 1px solid rgba(198, 220, 255, 0.55);
+      box-shadow: 0 0 12px rgba(158, 208, 255, 0.35);
       clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
     .back-btn:hover { filter: brightness(1.1); }
@@ -60,8 +60,8 @@
     #global-back-btn { top: auto; bottom: 1.2rem; }
 .promo-toggle {
       background: none;
-      border: 1px solid rgba(157,200,74,.45);
-      color: #d4e89a;
+      border: 1px solid rgba(157,255,122,.45);
+      color: #d9ffb2;
       border-radius: 6px;
       padding: .18rem .48rem;
       cursor: pointer;
@@ -94,7 +94,7 @@
     .acc-row[aria-expanded="true"] .acc-arrow { transform: rotate(90deg); }
     .acc-body {
       padding: .3rem 0 .55rem .8rem;
-      color: #c8c8a8;
+      color: #c4cedf;
       font-size: .9rem;
       line-height: 1.5;
     }
@@ -102,17 +102,17 @@
     .acc-body li { margin: .25rem 0; font-size: .88rem; }
     .wrap { max-width: 1160px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
     .promo-row { margin-bottom: 1rem; }
-    .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem auto .8rem; filter: drop-shadow(0 0 18px rgba(168,200,74,.25)); }
+    .ghost-logo { width: min(360px, 72vw); display:block; margin: .2rem auto .8rem; filter: drop-shadow(0 0 18px rgba(158,208,255,.25)); }
     h1 { margin: 0 0 .4rem; font-size: clamp(2rem, 3.5vw, 3rem); }
     .sub { color: var(--muted); margin-bottom: 1.2rem; }
     .sale-chip {
       display: inline-block;
       margin-bottom: .8rem;
       padding: .38rem .68rem;
-      border: 1px solid rgba(168, 200, 74, 0.55);
-      box-shadow: 0 0 14px rgba(168, 200, 74, 0.30);
+      border: 1px solid rgba(173, 210, 255, 0.55);
+      box-shadow: 0 0 14px rgba(158, 208, 255, 0.30);
       color: #e9f4ff;
-      background: linear-gradient(145deg, rgba(168,200,74,0.22), rgba(200,180,80,0.16));
+      background: linear-gradient(145deg, rgba(158,208,255,0.22), rgba(199,166,255,0.16));
       font-family: 'Hanken Grotesk', sans-serif;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -146,7 +146,7 @@
       justify-self:end;
       border:1px solid var(--line);
       border-radius:8px;
-      background:#0d0e08;
+      background:#0b1018;
       padding:.35rem;
     }
 
@@ -158,7 +158,7 @@
     }
     .brain-col {
       border:1px solid var(--line);
-      background:#0e1008;
+      background:#0d1017;
       border-radius:8px;
       padding:.75rem;
     }
@@ -174,7 +174,7 @@
     .kit-card {
       position: relative;
       border: 1px solid var(--line);
-      background: #0e1008;
+      background: #0d1017;
       padding: 1.55rem .8rem .8rem;
       border-radius: 8px;
     }
@@ -184,8 +184,8 @@
       top:14px;
       right:-46px;
       transform:rotate(30deg);
-      background:linear-gradient(145deg,#8aaa40,#c8b450);
-      color:#0c0e06;
+      background:linear-gradient(145deg,#8fbaf2,#c7a6ff);
+      color:#0d1524;
       font-size:.66rem;
       font-weight:700;
       letter-spacing:.04em;
@@ -206,7 +206,7 @@
       border: 1px solid var(--line);
       border-radius: 6px;
       overflow: hidden;
-      background: #090b06;
+      background: #090b12;
     }
     .shot img { width: 100%; display: block; aspect-ratio: 16 / 10; object-fit: cover; }
     .shot figcaption { font-size: .78rem; color: var(--muted); padding: .45rem .55rem; }
@@ -229,7 +229,7 @@
     label { display: block; font-size: .98rem; color: var(--muted); margin-bottom: .35rem; }
     select {
       width: 100%;
-      background: #0c0e07;
+      background: #0c0f1b;
       color: var(--text);
       border: 1px solid var(--line);
       border-radius: 7px;
@@ -243,8 +243,8 @@
       font-weight: 700;
       letter-spacing: .01em;
       padding: .88rem 1rem;
-      color: #0a0c04;
-      background: linear-gradient(90deg, var(--cyan), #c4e060);
+      color: #071219;
+      background: linear-gradient(90deg, var(--cyan), #6ef4ff);
       border-radius: 8px;
     }
     .btn:hover { filter: brightness(1.06); }
@@ -275,7 +275,7 @@
     .faq details {
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #10110a;
+      background: #101522;
       padding: .65rem .8rem;
       margin-bottom: .55rem;
     }
@@ -331,16 +331,16 @@
       width: min(760px, 98vw);
       max-height: 92vh;
       overflow: hidden;
-      background: linear-gradient(160deg, #141808, #10110a);
+      background: linear-gradient(160deg, #141620, #10121a);
       border: 1px solid var(--line);
       padding: 1rem;
     }
-    .terms-modal h3 { margin: 0 0 .55rem; color: #e8d888; }
+    .terms-modal h3 { margin: 0 0 .55rem; color: #ffd7f8; }
     .terms-scroll {
       max-height: 52vh;
       overflow: auto;
       border: 1px solid var(--line);
-      background: #0f1008;
+      background: #0f1321;
       padding: .7rem;
       color: var(--muted);
       font-size: .88rem;
@@ -372,11 +372,11 @@
       text-transform: uppercase;
       letter-spacing: 0.07em;
       font-size: 1.05rem;
-      color: #0a0c04;
+      color: #071219;
       text-decoration: none;
-      background: linear-gradient(90deg, var(--cyan), #c4e060);
-      border: 1px solid rgba(168, 200, 74, 0.6);
-      box-shadow: 0 0 18px rgba(168, 200, 74, 0.5);
+      background: linear-gradient(90deg, var(--cyan), #6ef4ff);
+      border: 1px solid rgba(158, 240, 255, 0.6);
+      box-shadow: 0 0 18px rgba(158, 208, 255, 0.5);
       clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
       white-space: nowrap;
     }
@@ -390,7 +390,7 @@
     .checkout-option {
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: #0e1008;
+      background: #0d1017;
       padding: 1rem;
       display: flex;
       flex-direction: column;
@@ -420,7 +420,7 @@
     .item-desc .item-desc-body { font-size: .88rem; color: var(--muted); line-height: 1.6; }
     .item-desc .item-desc-body p { margin: 0 0 .55rem; }
     .item-desc .item-desc-body p:last-child { margin: 0; }
-    .item-desc .item-desc-label { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ok); background: rgba(168,200,74,.1); border: 1px solid rgba(168,200,74,.3); border-radius: 4px; padding: .15rem .45rem; margin-bottom: .5rem; }
+    .item-desc .item-desc-label { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ok); background: rgba(158,208,255,.1); border: 1px solid rgba(158,208,255,.3); border-radius: 4px; padding: .15rem .45rem; margin-bottom: .5rem; }
     .yt-slide-inner { padding: .5rem 0; max-width: 820px; margin: 0 auto; }
     .slide1-inner {
       display: grid;
@@ -446,13 +446,13 @@
     .thumb-strip { display: flex; flex-direction: column; gap: .4rem; }
     .thumb-img {
       width: 100%; aspect-ratio: 1; object-fit: contain;
-      background: #0e1008; border: 1px solid var(--line); border-radius: 5px;
+      background: #0d1017; border: 1px solid var(--line); border-radius: 5px;
       cursor: pointer; display: block; opacity: .6;
       transition: opacity .15s, border-color .15s;
     }
     .thumb-img:hover { opacity: 1; }
-    .thumb-img.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(168,200,74,.35); }
-    .main-product-wrap { background: #0e1008; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; max-height: 260px; }
+    .thumb-img.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(158,208,255,.35); }
+    .main-product-wrap { background: #0d1017; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; max-height: 260px; }
     .main-product-wrap img { width: 100%; height: 100%; display: block; object-fit: contain; max-height: 260px; }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
@@ -487,7 +487,7 @@
         display: flex;
         gap: .5rem;
         padding: .45rem .8rem;
-        background: #0a0b06;
+        background: #0a0b10;
         border-bottom: 1px solid var(--line);
       }
       .mobile-nav-btn {
@@ -545,7 +545,7 @@
   <a href="#choose-kit" class="buy-now-float" onclick="event.preventDefault(); document.getElementById('choose-kit').scrollIntoView({behavior:'smooth',block:'end'});">Buy Now ↓</a>
   <a href="/node-setup.html" id="users-guide-btn" class="back-btn" style="left:auto; right:1rem;">Survival Node Users Guide</a>
 
-  <div style="width:100%; border-bottom:1px solid rgba(0,0,0,.15); background:#8aaa38; padding:.6rem max(1rem, calc(50% - 580px + 1rem));">
+  <div style="width:100%; border-bottom:1px solid rgba(0,0,0,.15); background:#9ed0ff; padding:.6rem max(1rem, calc(50% - 580px + 1rem));">
     <div style="display:flex; align-items:center; gap:.6rem;">
       <span aria-hidden="true" title="Special Alert" style="font-size:1.15rem; filter:drop-shadow(0 0 6px rgba(255,0,0,.45)); animation:pulse-alert 1.1s ease-in-out infinite;">🚨</span>
       <h2 class="promo-heading" style="margin:0; font-size:1.05rem; color:#000; flex:1;"><span class="promo-short">Father’s Day Special</span><span class="promo-long">: Give Dad the Gift of Real-World Readiness | The Ultimate Off-Grid Gift</span></h2>
@@ -655,16 +655,16 @@
           <h2 style="margin:0;">Choose Your Kit</h2>
           <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
             <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
-            <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(168,200,74,.08);">🚚 FREE SHIPPING</span>
+            <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08);">🚚 FREE SHIPPING</span>
           </div>
         </div>
         <div class="offerings">
           <section class="kit-card" style="display:flex; flex-direction:column;">
             <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.1rem;">
               <h3 style="margin:0;">Survival Node: Essential — $199.99</h3>
-              <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(168,200,74,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
+              <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
             </div>
-            <p class="small" style="margin:.1rem 0 .4rem; color:#c8d878;"><strong>Low-Signature Survival Kit.</strong></p>
+            <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>Low-Signature Survival Kit.</strong></p>
             <ul class="acc-list">
               <li class="acc-item">
                 <button class="acc-row" aria-expanded="false">
@@ -720,9 +720,9 @@
             <span class="kit-ribbon">EMP-Hardened</span>
             <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.1rem;">
               <h3 style="margin:0;">Survival Node: Pro — $399.99</h3>
-              <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(168,200,74,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
+              <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
             </div>
-            <p class="small" style="margin:.1rem 0 .4rem; color:#c8d878;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
+            <p class="small" style="margin:.1rem 0 .4rem; color:#d8ffb7;"><strong>The only tier designed for total electronic sovereignty during a grid-down EMP event.</strong></p>
             <ul class="acc-list">
               <li class="acc-item">
                 <button class="acc-row" aria-expanded="false">
@@ -829,7 +829,7 @@
       </article>
     </section>
 
-    <blockquote style="margin:0 0 1rem; padding:.9rem 1rem .9rem 1.1rem; border-left:3px solid var(--cyan); background:rgba(168,200,74,.06); border-radius:0 8px 8px 0; color:var(--muted); font-style:italic; font-size:1.05rem; line-height:1.6;">
+    <blockquote style="margin:0 0 1rem; padding:.9rem 1rem .9rem 1.1rem; border-left:3px solid var(--cyan); background:rgba(158,208,255,.06); border-radius:0 8px 8px 0; color:var(--muted); font-style:italic; font-size:1.05rem; line-height:1.6;">
       "Information is the ultimate survival resource, but in a crisis, your digital footprint is your greatest liability. The Survival Node was engineered to provide the intelligence of the modern world with the invisibility of the old one. No pings. No tracking. No compromise. Just pure, hardened knowledge when you need it most."
     </blockquote>
 
@@ -1050,7 +1050,7 @@
   <div class="terms-overlay" id="byog-modal" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="byog-modal-title" style="max-width:540px; max-height:92vh; overflow-y:auto;">
       <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
-        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(168,200,74,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(168,200,74,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
         <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">BYOG Setup Service</span>
       </div>
       <h3 id="byog-modal-title" style="margin:0 0 .5rem; color:var(--cyan); font-size:1.15rem;">Bring Your Own Gear (BYOG) — Setup Only</h3>
@@ -1061,7 +1061,7 @@
         <li>Pre-configured "Survival Node" AI buddy — customized survival and safety-focused persona installed and ready to go, no internet required</li>
         <li>Secure checkout via Stripe</li>
       </ul>
-      <div style="background:rgba(168,200,74,.07); border:1px solid rgba(168,200,74,.2); border-radius:8px; padding:.6rem .85rem; margin:.1rem 0 .75rem; font-size:.85rem;">
+      <div style="background:rgba(158,208,255,.07); border:1px solid rgba(158,208,255,.2); border-radius:8px; padding:.6rem .85rem; margin:.1rem 0 .75rem; font-size:.85rem;">
         <p style="margin:0 0 .3rem; color:var(--cyan); font-weight:700; font-family:'Hanken Grotesk',sans-serif; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;">Minimum Device Requirements</p>
         <ul style="margin:0; padding-left:1.1rem; color:var(--muted); line-height:1.7;">
           <li><strong style="color:var(--text);">Storage:</strong> 50GB+ available disk space</li>
@@ -1073,17 +1073,17 @@
       <div style="display:grid; gap:.55rem; margin:.2rem 0 .7rem;">
         <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
           Setup Date
-          <input id="byog-setup-date" type="date" style="background:#0c0e07; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
+          <input id="byog-setup-date" type="date" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
         </label>
         <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
           Setup Time Block
-          <select id="byog-setup-time" style="background:#0c0e07; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;">
+          <select id="byog-setup-time" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;">
             <option value="">Select time block…</option>
           </select>
         </label>
         <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
           Eastern Shore City
-          <select id="byog-city" style="background:#0c0e07; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;">
+          <select id="byog-city" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;">
             <option value="">Select city…</option>
             <option>Berlin</option><option>Cambridge</option><option>Centreville</option><option>Chestertown</option><option>Crisfield</option>
             <option>Denton</option><option>East New Market</option><option>Easton</option><option>Federalsburg</option><option>Fruitland</option>
@@ -1095,7 +1095,7 @@
         </label>
         <label style="display:grid; gap:.3rem; font-size:.88rem; color:var(--muted);">
           Street Address
-          <input id="byog-street" autocomplete="street-address" type="text" placeholder="Ex: 123 Main St" style="background:#0c0e07; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
+          <input id="byog-street" autocomplete="street-address" type="text" placeholder="Ex: 123 Main St" style="background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.6rem;" />
         </label>
         <div id="byog-booking-error" style="display:none; color:#ffb4c7; font-size:.84rem;"></div>
       </div>
@@ -1128,19 +1128,19 @@
 
         <!-- Essential column -->
         <div style="display:flex; flex-direction:column;">
-          <div style="background:rgba(168,200,74,.1); border:1px solid rgba(168,200,74,.35); border-radius:6px 6px 0 0; padding:.5rem .75rem;">
+          <div style="background:rgba(158,208,255,.1); border:1px solid rgba(158,208,255,.35); border-radius:6px 6px 0 0; padding:.5rem .75rem;">
             <div style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; color:var(--cyan); font-size:.95rem; text-transform:uppercase; letter-spacing:.05em;">Survival Node: Essential</div>
             <div style="font-size:.78rem; color:var(--muted); margin-top:.1rem;">20GB+ · 1 Offline LLM</div>
           </div>
-          <div style="border:1px solid rgba(168,200,74,.2); border-top:0; border-radius:0 0 6px 6px; background:#0e1008; padding:.6rem .75rem;">
-            <ul style="margin:0 0 .7rem; padding-left:1rem; font-size:.9rem; color:#d4d8b8;">
+          <div style="border:1px solid rgba(158,208,255,.2); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
+            <ul style="margin:0 0 .7rem; padding-left:1rem; font-size:.9rem; color:#d4d9eb;">
               <li style="margin:.3rem 0;"><strong>Fennec Browser</strong> — privacy-focused Firefox browser, no telemetry</li>
               <li style="margin:.3rem 0;"><strong>OpenMaps</strong> — full continental US offline navigation, pre-downloaded, no signal required</li>
               <li style="margin:.3rem 0;"><strong>PocketPal</strong> — offline AI chat with 1 LLM + pre-configured "Survival Node" survival Pal</li>
               <li style="margin:.3rem 0;"><strong>F-Droid</strong> — open-source app marketplace, no Google account required</li>
               <li style="margin:.3rem 0;"><strong>Survival Manual</strong> — US Army Field Manual FM 3-05.70 content, fully offline</li>
               <li style="margin:.3rem 0;"><strong>Kiwix</strong> — offline content hub</li>
-              <li style="margin:.55rem 0 .3rem 1rem; font-size:.85rem; color:#b8b88a;">↳ Wikipedia Medical Encyclopedia (Full) — thousands of medical articles, fully searchable offline</li>
+              <li style="margin:.55rem 0 .3rem 1rem; font-size:.85rem; color:#b0bcd6;">↳ Wikipedia Medical Encyclopedia (Full) — thousands of medical articles, fully searchable offline</li>
               <li style="margin:.3rem 0;"><strong>Offline Translator</strong> — on-device language translation, no internet required</li>
               <li style="margin:.3rem 0;"><strong>Battery Bot Pro</strong> — real-time battery monitoring and charge alarms</li>
             </ul>
@@ -1149,25 +1149,25 @@
 
         <!-- Pro column -->
         <div style="display:flex; flex-direction:column;">
-          <div style="background:rgba(200,180,80,.12); border:1px solid rgba(200,180,80,.4); border-radius:6px 6px 0 0; padding:.5rem .75rem;">
+          <div style="background:rgba(199,166,255,.12); border:1px solid rgba(199,166,255,.4); border-radius:6px 6px 0 0; padding:.5rem .75rem;">
             <div style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; color:var(--violet); font-size:.95rem; text-transform:uppercase; letter-spacing:.05em;">Survival Node: Pro</div>
             <div style="font-size:.78rem; color:var(--muted); margin-top:.1rem;">50GB+ · 3 Offline LLMs (Small, Medium, Large)</div>
           </div>
-          <div style="border:1px solid rgba(200,180,80,.25); border-top:0; border-radius:0 0 6px 6px; background:#0e1008; padding:.6rem .75rem;">
+          <div style="border:1px solid rgba(199,166,255,.25); border-top:0; border-radius:0 0 6px 6px; background:#0d1017; padding:.6rem .75rem;">
             <p style="margin:0 0 .4rem; font-size:.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-family:'Hanken Grotesk',sans-serif;">Everything in Essential, plus:</p>
             <ul style="margin:0 0 .7rem; padding-left:0; list-style:none; font-size:.9rem;">
-              <li style="margin:.3rem 0; border-left:2px solid rgba(200,180,80,.7); padding-left:.6rem; color:#e0d9a8;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>PocketPal</strong> — upgraded to 3 offline LLMs (small/medium/large) + "Survival Node" survival Pal</li>
-              <li style="margin:.3rem 0; border-left:2px solid rgba(200,180,80,.7); padding-left:.6rem; color:#e0d9a8;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>Additional Kiwix content:</strong></li>
-              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#b8b88a;">↳ Knots — illustrated knot reference for field, shelter, and utility use</li>
-              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#b8b88a;">↳ Hesperian Health Guides — community health and emergency care for non-medical professionals</li>
-              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#b8b88a;">↳ Water Treatment Library (with videos) — purification, filtration, and field water safety</li>
-              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#b8b88a;">↳ Learning Self Reliance — homesteading, food storage, and long-term grid-free living</li>
-              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#b8b88a;">↳ Canadian Prepper — threat assessment, gear selection, and advanced preparedness</li>
-              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#b8b88a;">↳ Environment Encyclopedia — ecology, terrain, and environmental field reference</li>
-              <li style="margin:.2rem 0 .6rem 1.4rem; font-size:.85rem; color:#b8b88a;">↳ Project Gutenberg (9GB) — 60,000+ classic public domain literary works</li>
-              <li style="margin:.3rem 0; border-left:2px solid rgba(200,180,80,.7); padding-left:.6rem; color:#e0d9a8;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>Exodus Privacy</strong> — app tracker auditor, scans installed apps for hidden trackers</li>
-              <li style="margin:.3rem 0; border-left:2px solid rgba(200,180,80,.7); padding-left:.6rem; color:#e0d9a8;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>Briar</strong> — Bluetooth/Wi-Fi encrypted mesh messenger, no internet or cell required</li>
-              <li style="margin:.3rem 0; border-left:2px solid rgba(200,180,80,.7); padding-left:.6rem; color:#e0d9a8;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>LocalSend</strong> — off-grid file transfer over local Wi-Fi, no cloud needed</li>
+              <li style="margin:.3rem 0; border-left:2px solid rgba(199,166,255,.7); padding-left:.6rem; color:#e0d4ff;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>PocketPal</strong> — upgraded to 3 offline LLMs (small/medium/large) + "Survival Node" survival Pal</li>
+              <li style="margin:.3rem 0; border-left:2px solid rgba(199,166,255,.7); padding-left:.6rem; color:#e0d4ff;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>Additional Kiwix content:</strong></li>
+              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#c8baf0;">↳ Knots — illustrated knot reference for field, shelter, and utility use</li>
+              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#c8baf0;">↳ Hesperian Health Guides — community health and emergency care for non-medical professionals</li>
+              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#c8baf0;">↳ Water Treatment Library (with videos) — purification, filtration, and field water safety</li>
+              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#c8baf0;">↳ Learning Self Reliance — homesteading, food storage, and long-term grid-free living</li>
+              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#c8baf0;">↳ Canadian Prepper — threat assessment, gear selection, and advanced preparedness</li>
+              <li style="margin:.2rem 0 .2rem 1.4rem; font-size:.85rem; color:#c8baf0;">↳ Environment Encyclopedia — ecology, terrain, and environmental field reference</li>
+              <li style="margin:.2rem 0 .6rem 1.4rem; font-size:.85rem; color:#c8baf0;">↳ Project Gutenberg (9GB) — 60,000+ classic public domain literary works</li>
+              <li style="margin:.3rem 0; border-left:2px solid rgba(199,166,255,.7); padding-left:.6rem; color:#e0d4ff;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>Exodus Privacy</strong> — app tracker auditor, scans installed apps for hidden trackers</li>
+              <li style="margin:.3rem 0; border-left:2px solid rgba(199,166,255,.7); padding-left:.6rem; color:#e0d4ff;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>Briar</strong> — Bluetooth/Wi-Fi encrypted mesh messenger, no internet or cell required</li>
+              <li style="margin:.3rem 0; border-left:2px solid rgba(199,166,255,.7); padding-left:.6rem; color:#e0d4ff;"><span style="color:var(--violet); font-size:.7rem; margin-right:.3rem;">◆</span><strong>LocalSend</strong> — off-grid file transfer over local Wi-Fi, no cloud needed</li>
             </ul>
           </div>
         </div>
@@ -1183,7 +1183,7 @@
   <div class="terms-overlay" id="checkout-status-modal" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-status-title" style="max-width:560px;">
       <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
-        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(168,200,74,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(168,200,74,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
         <span id="checkout-status-pill" style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">Checkout Status</span>
       </div>
       <h3 id="checkout-status-title" style="margin:0 0 .45rem; color:var(--cyan);"></h3>
@@ -1197,7 +1197,7 @@
 <div class="terms-overlay" id="terms-overlay" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
       <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
-        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(168,200,74,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(168,200,74,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
         <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">Terms of Sale</span>
       </div>
       <h3 id="terms-title" style="margin:0 0 .6rem; font-size:1.1rem; color:var(--cyan); letter-spacing:.01em;">Review &amp; Acknowledge Before Purchase</h3>
@@ -1236,7 +1236,7 @@
       </div>
       <label style="display:block; margin-bottom:.55rem; color:#d8dce8; font-size:.9rem;">
         Shipping State (continental U.S. only)
-        <select id="shipping-state" style="width:100%; margin-top:.35rem; background:#0c0e07; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.65rem;">
+        <select id="shipping-state" style="width:100%; margin-top:.35rem; background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.65rem;">
           <option value="">Select your shipping state</option>
           <option value="AL">Alabama</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option><option value="DC">District of Columbia</option>
         </select>
@@ -1256,7 +1256,7 @@
 <div class="terms-overlay" id="byog-terms-overlay" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="byog-terms-title">
       <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
-        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(168,200,74,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(168,200,74,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
         <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">BYOG Setup Terms</span>
       </div>
       <h3 id="byog-terms-title" style="margin:0 0 .6rem; font-size:1.1rem; color:var(--cyan); letter-spacing:.01em;">Review &amp; Acknowledge Before Purchase</h3>
