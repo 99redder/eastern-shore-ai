@@ -446,8 +446,8 @@
     }
     .thumb-img:hover { opacity: 1; }
     .thumb-img.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(168,200,74,.35); }
-    .main-product-wrap { background: #0e1008; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-    .main-product-wrap img { width: 100%; display: block; object-fit: contain; aspect-ratio: 4/3; }
+    .main-product-wrap { background: #0e1008; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; max-height: 260px; }
+    .main-product-wrap img { width: 100%; height: 100%; display: block; object-fit: contain; max-height: 260px; }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .yt-guard { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
@@ -610,13 +610,13 @@
         <div class="car-slide">
           <div class="slide2-inner">
             <div class="thumb-strip">
-              <img class="thumb-img" src="images/case.png" alt="Hard Storage Case" />
-              <img class="thumb-img" src="images/aiphone.png" alt="AI Chatbot on Phone" />
-              <img class="thumb-img" src="images/battery.png" alt="Solar Power Hub" />
-              <img class="thumb-img active" src="images/faraday.png" alt="Faraday Bags" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0e1008/a8c84a?text=Case" alt="Hard Storage Case" data-full="https://placehold.co/800x600/0e1008/a8c84a?text=Hard+Storage+Case" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0e1008/a8c84a?text=Phone" alt="AI Phone" data-full="https://placehold.co/800x600/0e1008/a8c84a?text=AI+Phone" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0e1008/a8c84a?text=Solar" alt="Solar Battery" data-full="https://placehold.co/800x600/0e1008/a8c84a?text=Solar+Battery" />
+              <img class="thumb-img active" src="https://placehold.co/72x72/0e1008/a8c84a?text=Faraday" alt="Faraday Bags" data-full="https://placehold.co/800x600/0e1008/a8c84a?text=Faraday+Bags" />
             </div>
             <div class="main-product-wrap">
-              <img id="main-product-img" src="images/faraday.png" alt="Faraday Bags" />
+              <img id="main-product-img" src="https://placehold.co/800x600/0e1008/a8c84a?text=Faraday+Bags" alt="Faraday Bags" />
             </div>
           </div>
         </div>
@@ -1359,7 +1359,7 @@
         thumb.addEventListener('click', () => {
           document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
           thumb.classList.add('active');
-          mainImg.src = thumb.src;
+          mainImg.src = thumb.dataset.full || thumb.src;
           mainImg.alt = thumb.alt;
           carousel.pause();
         });
