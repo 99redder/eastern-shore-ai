@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Survival Node | Eastern Shore AI, LLC</title>
   <meta name="robots" content="noindex,nofollow" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3C8 3 4 8 4 15L4 28L8 24L12 28L16 24L20 28L24 24L28 28L28 15C28 8 24 3 16 3Z' fill='%23a8c84a'/%3E%3Ccircle cx='12' cy='14' r='2.2' fill='%230f1009'/%3E%3Ccircle cx='20' cy='14' r='2.2' fill='%230f1009'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/fonts.css" />
   <style>
     :root {
@@ -414,17 +414,29 @@
       border: none; cursor: pointer; padding: 0; transition: background .2s;
     }
     .car-dot.active { background: var(--cyan); }
-    .slide2-inner { display: grid; grid-template-columns: 1fr 54px 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
+    .slide2-inner { display: grid; grid-template-columns: 72px 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
     .yt-slide-inner { padding: .5rem 0; max-width: 820px; margin: 0 auto; }
-    .what-is-gb-btn {
-      position: absolute; top: 1rem; left: 1rem; z-index: 5;
-      background: rgba(9,11,17,.82); border: 1px solid var(--cyan);
-      color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif;
-      font-size: 1.1rem; font-weight: 700; padding: .75rem 1.4rem;
-      border-radius: 8px; cursor: pointer; backdrop-filter: blur(4px);
-      letter-spacing: .04em; transition: background .15s, border-color .15s;
+    .slide1-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: start;
+      padding: .5rem 0;
     }
-    .what-is-gb-btn:hover { background: rgba(30,40,60,.95); border-color: #8df3ff; }
+    .slide1-img-col img { width: 100%; display: block; border-radius: 6px; border: 1px solid var(--line); }
+    .slide1-qa-col { padding: .15rem 0; }
+    .slide1-title { margin: 0 0 .5rem; color: var(--cyan); font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; font-family: 'Hanken Grotesk', sans-serif; }
+    .slide1-q { border-bottom: 1px solid var(--line); padding: .45rem 0; }
+    .slide1-q:last-child { border-bottom: none; }
+    .slide1-q summary {
+      cursor: pointer; list-style: none;
+      color: var(--text); font-weight: 700; font-size: .97rem; line-height: 1.35;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: .4rem;
+    }
+    .slide1-q summary::-webkit-details-marker { display: none; }
+    .slide1-q summary::after { content: '+'; color: var(--cyan); font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+    .slide1-q[open] summary::after { content: '−'; }
+    .slide1-answer { margin: .4rem 0 .25rem; font-size: .86rem; color: var(--muted); line-height: 1.55; }
     .thumb-strip { display: flex; flex-direction: column; gap: .4rem; }
     .thumb-img {
       width: 100%; aspect-ratio: 1; object-fit: contain;
@@ -449,6 +461,7 @@
       .brain-grid { grid-template-columns: 1fr; }
       .offerings { grid-template-columns: 1fr; }
       .checkout-grid { grid-template-columns: 1fr; }
+      .slide1-inner { grid-template-columns: 1fr; }
       .slide2-inner { grid-template-columns: 1fr; }
       .thumb-strip { flex-direction: row; overflow-x: auto; }
       .thumb-img { width: 64px; flex-shrink: 0; aspect-ratio: 1; }
@@ -501,8 +514,8 @@
       #byog-btn { max-width: 100% !important; width: 100%; }
       /* Carousel — cap height so it doesn't dominate the phone screen */
       .carousel { max-height: 58vw; overflow: hidden; }
-      /* Hide box-contents image on mobile — stacks awkwardly in single-col layout */
-      .slide2-inner > .main-product-wrap:first-child { display: none; }
+      /* Slide 1 — hide image on mobile, let Q&A take full width */
+      .slide1-img-col { display: none; }
       /* Carousel arrows — smaller on mobile */
       .car-arrow { width: 28px; height: 28px; font-size: 1.2rem; }
       /* Software modal — collapse 2-column grid to 1 column */
@@ -551,18 +564,51 @@
     <div class="carousel" id="hero-carousel">
       <div class="car-track" id="car-track">
 
-        <!-- Slide 1: Logo banner -->
-        <div class="car-slide" style="position:relative;">
-          <img src="/images/ghostbox-logo7.jpg" alt="Survival Node — Emergency Preparedness in the age of AI" style="width:100%; display:block;" />
-          <button id="what-is-gb-btn" class="what-is-gb-btn">What is a Survival Node?</button>
+        <!-- Slide 1: Hero image + Key Q&A -->
+        <div class="car-slide">
+          <div class="slide1-inner">
+            <div class="slide1-img-col">
+              <img src="/images/ghostbox-logo7.jpg" alt="Survival Node — Emergency Preparedness in the Age of AI" />
+            </div>
+            <div class="slide1-qa-col">
+              <p class="slide1-title">Quick Answers</p>
+
+              <details class="slide1-q">
+                <summary>What is a Survival Node?</summary>
+                <p class="slide1-answer">A hardened smartphone pre-loaded with offline AI, 20–50GB of survival knowledge, offline maps, and critical reference libraries — sealed in a Faraday bag inside a waterproof hard case. It works completely without internet, cell signal, or power grid.</p>
+              </details>
+
+              <details class="slide1-q">
+                <summary>What's inside the box?</summary>
+                <p class="slide1-answer">Every kit includes a vetted 8GB Android phone with debloated OS, pre-configured survival AI (no setup required), solar battery, (2) Faraday bags, waterproof hard case, wall charger, and USB-C cable. Pro adds premium EMP-rated Faraday bags, a solar battery with 4 cables + flashlight + strobe + laser, shockproof phone case, padlock, backup cable, and 3 offline AI models.</p>
+              </details>
+
+              <details class="slide1-q">
+                <summary>Why do I need this?</summary>
+                <p class="slide1-answer">When power goes out for days, cell towers fail, and internet goes down — your everyday phone can't load anything. The Survival Node runs entirely offline. It answers medical questions, walks through emergency procedures step-by-step, shows your position on a downloaded map, and keeps you thinking clearly under pressure. No grid required.</p>
+              </details>
+
+              <details class="slide1-q">
+                <summary>Why is this better than a Raspberry Pi or tablet?</summary>
+                <p class="slide1-answer">Power. Laptops and Pi builds are nearly impossible to keep charged with a solar battery during extended grid-down scenarios. Our phone platform draws a fraction of the power, charges multiple times from the included solar battery, and is already optimized for local AI with 8GB RAM. Ask questions by speaking into the mic instead of typing. And it fits in a cargo pocket.</p>
+              </details>
+
+              <details class="slide1-q">
+                <summary>Essential or Pro — which is right for me?</summary>
+                <p class="slide1-answer">Essential ($199.99) is your solid off-grid foundation: offline AI, 20GB+ survival apps, standard Faraday bags, hard case. Pro ($399.99) upgrades to Mission Essential EMP-rated Faraday bags, a premium solar battery with 4 cables and built-in tools, shockproof case, padlock, and 3 offline AI models. If EMP or solar flare is a real concern, go Pro.</p>
+              </details>
+
+              <details class="slide1-q">
+                <summary>Does the AI work without internet or cell signal?</summary>
+                <p class="slide1-answer">Entirely. Every AI model runs locally on the phone — no cloud, no Wi-Fi, no cell signal needed. Tap the mic to ask a question out loud. The "Survival Node" AI persona is pre-configured for direct, no-fluff answers with safety warnings called out automatically. Open the app and it's already ready to go.</p>
+              </details>
+            </div>
+          </div>
         </div>
 
-        <!-- Slide 2: Box contents (left) + Thumbnail browser + main image (right) -->
+        <!-- Slide 2: Thumbnail gallery -->
         <div class="car-slide">
           <div class="slide2-inner">
-            <div class="main-product-wrap">
-              <img src="https://placehold.co/600x450/0e1008/a8c84a?text=Everything+in+the+Box" alt="Survival Node — Complete Kit Contents" style="width:100%; display:block; object-fit:contain; aspect-ratio:4/3;" />
-            </div>
             <div class="thumb-strip">
               <img class="thumb-img" src="images/case.png" alt="Hard Storage Case" />
               <img class="thumb-img" src="images/aiphone.png" alt="AI Chatbot on Phone" />
@@ -1303,13 +1349,6 @@
         pause() { videoActive = true; clearInterval(timer); },
         goToAndPause(idx) { videoActive = true; clearInterval(timer); goTo(idx); }
       };
-    })();
-
-    // ===== What is a Survival Node button =====
-    (function() {
-      const btn = document.getElementById('what-is-gb-btn');
-      if (!btn) return;
-      btn.addEventListener('click', () => carousel.goToAndPause(1));
     })();
 
     // ===== Thumbnail Browser =====
