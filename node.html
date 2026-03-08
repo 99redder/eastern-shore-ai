@@ -414,7 +414,8 @@
       border: none; cursor: pointer; padding: 0; transition: background .2s;
     }
     .car-dot.active { background: var(--cyan); }
-    .slide2-inner { display: grid; grid-template-columns: 72px 1fr 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
+    .slide2-inner { display: grid; grid-template-columns: 80px 1fr; gap: .75rem; align-items: start; padding: .5rem 0; }
+    .slide2-content { display: flex; flex-direction: column; gap: .6rem; }
     .item-desc { padding: .25rem .1rem; }
     .item-desc h3 { margin: 0 0 .5rem; color: var(--cyan); font-size: 1.05rem; line-height: 1.3; }
     .item-desc .item-desc-body { font-size: .88rem; color: var(--muted); line-height: 1.6; }
@@ -452,8 +453,8 @@
     }
     .thumb-img:hover { opacity: 1; }
     .thumb-img.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(158,208,255,.35); }
-    .main-product-wrap { background: #0d1017; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; max-height: 260px; }
-    .main-product-wrap img { width: 100%; height: 100%; display: block; object-fit: contain; max-height: 260px; }
+    .item-photo-gallery { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .2rem; }
+    .item-photo-gallery img { height: 180px; width: auto; min-width: 180px; border-radius: 6px; border: 1px solid var(--line); object-fit: cover; flex-shrink: 0; background: #0d1017; }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .yt-guard { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
@@ -468,11 +469,7 @@
       .offerings { grid-template-columns: 1fr; }
       .checkout-grid { grid-template-columns: 1fr; }
       .slide1-inner { grid-template-columns: 1fr; }
-      .slide2-inner { grid-template-columns: 1fr 1fr; }
-      .slide2-inner .thumb-strip { grid-column: 1 / -1; flex-direction: row; overflow-x: auto; }
-      .slide2-inner .item-desc { grid-column: 2; grid-row: 2; }
-      .thumb-strip { flex-direction: row; overflow-x: auto; }
-      .thumb-img { width: 64px; flex-shrink: 0; aspect-ratio: 1; }
+      .thumb-img { width: 60px; flex-shrink: 0; aspect-ratio: 1; }
     }
     /* Mobile nav bar — hidden on desktop, shown inline on mobile below promo bar */
     .mobile-nav-bar { display: none; }
@@ -640,15 +637,21 @@
         <div class="car-slide">
           <div class="slide2-inner">
             <div class="thumb-strip">
-              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Case" alt="Hard Storage Case" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Hard+Storage+Case" data-key="case" />
+              <img class="thumb-img active" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Case" alt="Hard Storage Case" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Hard+Storage+Case" data-key="case" />
               <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Phone" alt="Core Unit" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Core+Unit" data-key="phone" />
               <img class="thumb-img" src="images/carousel/charging.png" alt="Solar Battery" data-full="images/carousel/charging.png" data-key="solar" />
-              <img class="thumb-img active" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Faraday" alt="Faraday Bags" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Faraday+Bags" data-key="faraday" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Faraday" alt="Faraday Bags" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Faraday+Bags" data-key="faraday" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Maps" alt="Offline Maps" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Offline+Maps" data-key="maps" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=AI" alt="Offline AI Models" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Offline+AI+Models" data-key="ai" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=First+Aid" alt="First Aid Apps" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=First+Aid+Apps" data-key="firstaid" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Cables" alt="USB Cables" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=USB+Cables" data-key="cables" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Phone+Case" alt="Shockproof Phone Case" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Shockproof+Phone+Case" data-key="phonecase" />
+              <img class="thumb-img" src="https://placehold.co/72x72/0d1017/9ed0ff?text=Padlock" alt="Padlock" data-full="https://placehold.co/800x600/0d1017/9ed0ff?text=Padlock" data-key="padlock" />
             </div>
-            <div class="main-product-wrap">
-              <img id="main-product-img" src="https://placehold.co/800x600/0d1017/9ed0ff?text=Faraday+Bags" alt="Faraday Bags" />
+            <div class="slide2-content">
+              <div class="item-photo-gallery" id="item-photo-gallery"></div>
+              <div class="item-desc" id="item-desc"></div>
             </div>
-            <div class="item-desc" id="item-desc"></div>
           </div>
         </div>
 
@@ -1379,12 +1382,17 @@
 
     // ===== Thumbnail Browser =====
     (function() {
-      const mainImg = document.getElementById('main-product-img');
-      const descEl  = document.getElementById('item-desc');
-      if (!mainImg || !descEl) return;
+      const galleryEl = document.getElementById('item-photo-gallery');
+      const descEl    = document.getElementById('item-desc');
+      if (!galleryEl || !descEl) return;
 
       const itemData = {
         case: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Case+Closed',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Case+Open',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Case+Interior',
+          ],
           label: 'Included in both kits',
           title: 'Waterproof Hard Storage Case',
           body: `<p>A military-grade waterproof and crushproof hard case with a pressure-relief valve, foam-cut interior, and secure latches. Everything your kit needs to survive transport, storage, and field conditions.</p>
@@ -1393,6 +1401,11 @@
                     <strong>Survival Node: Pro</strong> — padlock included.</p>`
         },
         phone: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Phone+Front',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Phone+Back',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Phone+Specs',
+          ],
           label: 'The brain of the system',
           title: 'Survival Node 8GB Core Unit',
           body: `<p>A hand-vetted refurbished Android smartphone with 8GB RAM and 90GB+ internal storage. Every unit is battery-tested at intake, during OS setup, and again before shipment.</p>
@@ -1401,6 +1414,11 @@
                     <strong>Pro</strong> — LineageOS or debloated OxygenOS, 50GB+ suite, 3 offline AI models, shockproof case.</p>`
         },
         solar: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Solar+Battery',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Solar+Panel',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Solar+Charging',
+          ],
           label: 'Off-grid power source',
           title: 'Solar Battery',
           body: `<p>A high-capacity solar battery that charges via USB wall power when available, and via built-in solar panel when you're off-grid. Stores enough power to fully charge the Core Unit multiple times over.</p>
@@ -1409,18 +1427,98 @@
                     <strong>Pro</strong> — premium solar battery with 4 attached cables (2× USB-C, 1× iOS, 1× USB-A), plus built-in flashlight, emergency strobe, and laser pointer.</p>`
         },
         faraday: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Faraday+Bag+Phone',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Faraday+Bag+Battery',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Faraday+Sealed',
+          ],
           label: 'EMP &amp; RF protection',
           title: 'Faraday Bags',
           body: `<p>Signal-blocking protective bags that prevent electromagnetic interference from reaching your electronics. One bag for the phone, one for the solar battery. Fully seal both before storage for maximum protection.</p>
                  <p>An electromagnetic pulse (EMP) or extreme solar flare can permanently destroy any unshielded electronics in an instant. Once the phone is fried, every AI model, map, and survival app on it is gone. Faraday bags are the last line of hardware defense.</p>
                  <p><strong>Essential</strong> — standard fireproof Faraday bags; protects against RF tracking and heat.<br>
                     <strong>Pro</strong> — premium Mission Essential Faraday bags rated for EMP-class events including nuclear detonation and extreme solar flares.</p>`
+        },
+        maps: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Map+Overview',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Map+Navigation',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Map+Waypoints',
+          ],
+          label: 'Pre-loaded on the core unit',
+          title: 'Offline Maps — Continental USA',
+          body: `<p>The entire continental United States is downloaded directly onto the device — no internet required to navigate. Zoom, pan, search, and drop waypoints anywhere in the country with full GPS functionality even when cell towers are down.</p>
+                 <p>Standard GPS works independently of the internet and cell networks — your phone's GPS chip receives satellite signals regardless of grid status. The Survival Node pre-loads maps so you always have a full-featured navigation tool available, even without a data connection.</p>
+                 <p>Additional regions and countries can be downloaded whenever Wi-Fi is available, and maps update automatically when connected.</p>`
+        },
+        ai: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=AI+Chat',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=AI+Voice',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=AI+Models',
+          ],
+          label: 'The core capability',
+          title: 'Offline AI Models',
+          body: `<p>One or more quantized large language models run fully locally on the Core Unit — no internet, no cloud, no API calls. Ask questions by voice or text. The custom "Survival Node" AI persona is pre-configured in PocketPal with a field-optimized system prompt for survival, first aid, and emergency response.</p>
+                 <p>8GB RAM is the minimum floor for running a capable local LLM with meaningful output. The debloated OS frees that RAM for AI inference instead of background processes. Open the app, select the persona, and it's already tuned to give direct answers with safety warnings flagged automatically.</p>
+                 <p><strong>Essential</strong> — 1 offline AI model pre-loaded.<br>
+                    <strong>Pro</strong> — 3 offline AI models pre-loaded, giving you options for different task types and response styles.</p>`
+        },
+        firstaid: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=First+Aid+App',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Medical+Wiki',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Field+Reference',
+          ],
+          label: 'Pre-loaded on the core unit',
+          title: 'First Aid &amp; Medical Reference',
+          body: `<p>A full stack of offline medical and first aid reference apps — covering trauma response, wound care, medication reference, CPR and AED procedures, and field triage. No internet required; everything runs from local storage.</p>
+                 <p>The offline Wikipedia Medical Encyclopedia is also included — a comprehensive reference covering conditions, treatments, anatomy, and pharmacology. In a grid-down scenario with no access to a doctor, having a deep medical reference available locally can be the difference between a manageable situation and a fatal one.</p>
+                 <p>All reference apps are pre-installed and accessible from the home screen on day one. No accounts, no subscriptions, no connectivity required.</p>`
+        },
+        cables: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=USB-C+Cable',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Wall+Adapter',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Cable+Set+Pro',
+          ],
+          label: 'Included in both kits',
+          title: 'USB Cables &amp; Charging Adapter',
+          body: `<p>Every kit includes the cables and adapter needed to charge the Core Unit from the solar battery and from a wall outlet. Essential includes a USB-C cable and wall charging adapter. Pro adds a backup USB-C cable and a premium solar battery with 4 attached cables — USB-C × 2, iOS, and USB-A.</p>
+                 <p>Having the right cables is the kind of thing that seems obvious until you're in the field without them. Every Survival Node ships with the charging chain fully covered — wall to battery, battery to phone — so you're not sourcing adapters separately.</p>`
+        },
+        phonecase: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Phone+Case+Front',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Phone+Case+Back',
+          ],
+          label: 'Survival Node: Pro only',
+          title: 'Shockproof Phone Case',
+          body: `<p>A heavy-duty shockproof case fitted to the Core Unit phone, providing drop protection, raised edge protection for the screen, and grip in wet or cold conditions.</p>
+                 <p>The Core Unit is the most critical component in the system — every app, map, and AI model lives on that phone. A dropped phone at the wrong moment is a failed mission. The Pro kit adds a shockproof case specifically so the hardware can handle the conditions you're likely to be in when you actually need it.</p>
+                 <p><strong>Essential</strong> — no phone case included.<br>
+                    <strong>Pro</strong> — shockproof case pre-installed on the Core Unit at time of shipment.</p>`
+        },
+        padlock: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Padlock',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Case+Locked',
+          ],
+          label: 'Survival Node: Pro only',
+          title: 'Padlock',
+          body: `<p>A padlock for the hard case, securing the latch and preventing unauthorized access to the kit. Keyed entry — not combination-based.</p>
+                 <p>A padlocked Survival Node stored in a vehicle, bug-out bag, or cache location stays secured against opportunistic access. In a grid-down scenario, the contents of a Survival Node have real value — offline AI, maps, medical references, and charged power. A padlock is simple, reliable, and doesn't require a battery.</p>
+                 <p><strong>Essential</strong> — case has a locking slot but no padlock included.<br>
+                    <strong>Pro</strong> — padlock included.</p>`
         }
       };
 
-      function renderDesc(key) {
+      function renderItem(key) {
         const d = itemData[key];
-        if (!d) { descEl.innerHTML = ''; return; }
+        if (!d) { galleryEl.innerHTML = ''; descEl.innerHTML = ''; return; }
+        galleryEl.innerHTML = d.photos.map(url =>
+          `<img src="${url}" alt="${d.title}" loading="lazy" />`
+        ).join('');
         descEl.innerHTML = `<span class="item-desc-label">${d.label}</span>
           <h3>${d.title}</h3>
           <div class="item-desc-body">${d.body}</div>`;
@@ -1428,15 +1526,13 @@
 
       // Init with the active thumb
       const initActive = document.querySelector('.thumb-img.active');
-      if (initActive) renderDesc(initActive.dataset.key);
+      if (initActive) renderItem(initActive.dataset.key);
 
       document.querySelectorAll('.thumb-img').forEach(thumb => {
         thumb.addEventListener('click', () => {
           document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
           thumb.classList.add('active');
-          mainImg.src = thumb.dataset.full || thumb.src;
-          mainImg.alt = thumb.alt;
-          renderDesc(thumb.dataset.key);
+          renderItem(thumb.dataset.key);
           carousel.pause();
         });
       });
