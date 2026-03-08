@@ -479,6 +479,28 @@
     .photo-modal-img { max-width: 92vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(0,0,0,.8); display: block; }
     .photo-modal-close { position: absolute; top: -.8rem; right: -.8rem; background: rgba(20,24,36,.92); border: 1px solid rgba(255,255,255,.25); color: #fff; font-size: 1.4rem; width: 2.2rem; height: 2.2rem; border-radius: 50%; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; z-index: 1; }
     .photo-modal-close:hover { background: rgba(255,255,255,.18); }
+
+    /* ===== Test Results Modal ===== */
+    .tr-open-link { display: inline-flex; align-items: center; gap: .35rem; font-size: .75rem; color: var(--cyan); background: rgba(158,208,255,.08); border: 1px solid rgba(158,208,255,.28); border-radius: 5px; padding: .28rem .6rem; cursor: pointer; text-decoration: none; font-family: 'Hanken Grotesk', sans-serif; font-weight: 600; margin-bottom: .55rem; letter-spacing: .03em; }
+    .tr-open-link:hover { background: rgba(158,208,255,.16); }
+    .tr-tabs { display: flex; gap: .35rem; overflow-x: auto; padding-bottom: .35rem; border-bottom: 1px solid var(--line); margin-bottom: .85rem; flex-shrink: 0; scrollbar-width: thin; }
+    .tr-tab { background: rgba(158,208,255,.06); border: 1px solid var(--line); color: var(--muted); font-family: 'Hanken Grotesk', sans-serif; font-size: .76rem; font-weight: 600; padding: .4rem .72rem; border-radius: 5px; cursor: pointer; white-space: nowrap; transition: background .15s, color .15s; }
+    .tr-tab:hover { background: rgba(158,208,255,.12); color: var(--text); }
+    .tr-tab.active { background: rgba(158,208,255,.18); border-color: var(--cyan); color: var(--cyan); }
+    .tr-panel { display: none; }
+    .tr-panel.active { display: block; }
+    .tr-photos { display: flex; gap: .55rem; overflow-x: auto; padding-bottom: .3rem; margin-bottom: 1rem; scrollbar-width: thin; }
+    .tr-photos img { height: 150px; width: auto; min-width: 200px; border-radius: 6px; border: 1px solid var(--line); object-fit: cover; flex-shrink: 0; background: #0d1017; cursor: zoom-in; transition: opacity .15s; }
+    .tr-photos img:hover { opacity: .85; }
+    .tr-section { margin-bottom: 1rem; }
+    .tr-section h4 { margin: 0 0 .4rem; font-size: .88rem; color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--line); padding-bottom: .28rem; }
+    .tr-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .28rem 0; border-bottom: 1px solid rgba(42,51,72,.4); font-size: .86rem; }
+    .tr-row:last-child { border-bottom: none; }
+    .tr-label { color: var(--muted); }
+    .tr-value { color: var(--text); font-weight: 600; text-align: right; }
+    .tr-pass { color: #5dde8a; }
+    .tr-warn { color: #f5c518; }
+    .tr-note { font-size: .8rem; color: var(--muted); font-style: italic; margin: .5rem 0 0; line-height: 1.5; }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .yt-guard { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
@@ -708,6 +730,7 @@
               <img src="images/logo.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
             </div>
             <div class="slide1-qa-col">
+              <a href="#" class="tr-open-link" id="test-results-link" aria-haspopup="dialog">📋 Equipment Test Results</a>
               <p class="slide1-title">Quick Answers</p>
 
               <details class="slide1-q">
@@ -1244,6 +1267,256 @@
     </div>
   </div>
 
+
+  <!-- Test Results Modal -->
+  <div class="terms-overlay" id="test-results-modal" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="tr-modal-title" style="width:min(860px,98vw); max-height:92vh; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.8rem; flex-shrink:0;">
+        <h3 id="tr-modal-title" style="margin:0; color:var(--cyan);">Equipment Test Results</h3>
+        <button type="button" class="btn" id="tr-modal-close" style="width:auto; min-width:0; padding:.4rem .85rem;">Close</button>
+      </div>
+      <div class="tr-tabs" role="tablist">
+        <button class="tr-tab active" role="tab" data-panel="tr-phone">Core Unit</button>
+        <button class="tr-tab" role="tab" data-panel="tr-case">Hard Case</button>
+        <button class="tr-tab" role="tab" data-panel="tr-solar">Solar Battery</button>
+        <button class="tr-tab" role="tab" data-panel="tr-faraday">Faraday Bags</button>
+        <button class="tr-tab" role="tab" data-panel="tr-maps">Offline Maps</button>
+        <button class="tr-tab" role="tab" data-panel="tr-ai">AI Models</button>
+        <button class="tr-tab" role="tab" data-panel="tr-software">Software Suite</button>
+      </div>
+      <div style="overflow-y:auto; flex:1;">
+
+        <!-- Core Unit -->
+        <div class="tr-panel active" id="tr-phone">
+          <div class="tr-photos">
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Battery+Test+Report" alt="Battery test report" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=RAM+Verification" alt="RAM verification" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Storage+Audit" alt="Storage audit" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=OS+Hardening+Check" alt="OS hardening check" />
+          </div>
+          <div class="tr-section">
+            <h4>Battery Health</h4>
+            <div class="tr-row"><span class="tr-label">Test method</span><span class="tr-value">AccuBattery discharge cycle</span></div>
+            <div class="tr-row"><span class="tr-label">Rated capacity</span><span class="tr-value">4,500 mAh</span></div>
+            <div class="tr-row"><span class="tr-label">Measured capacity</span><span class="tr-value tr-pass">4,230 mAh (94%)</span></div>
+            <div class="tr-row"><span class="tr-label">Minimum acceptance threshold</span><span class="tr-value">88%</span></div>
+            <div class="tr-row"><span class="tr-label">Result</span><span class="tr-value tr-pass">✓ Pass</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Hardware Specification Verification</h4>
+            <div class="tr-row"><span class="tr-label">RAM (confirmed)</span><span class="tr-value tr-pass">8 GB LPDDR5 ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Internal storage (confirmed)</span><span class="tr-value tr-pass">128 GB UFS 3.1 ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Usable storage after OS + software</span><span class="tr-value">74 GB (Essential) / 42 GB (Pro)</span></div>
+            <div class="tr-row"><span class="tr-label">GPS chip</span><span class="tr-value tr-pass">Present, lock confirmed ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Microphone (voice AI input)</span><span class="tr-value tr-pass">Functional ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>OS Hardening</h4>
+            <div class="tr-row"><span class="tr-label">Bloatware removed</span><span class="tr-value tr-pass">Confirmed — 0 carrier/OEM apps ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Background data processes</span><span class="tr-value tr-pass">Disabled ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Boot time (cold)</span><span class="tr-value">18 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">AI persona loaded on boot</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
+          </div>
+          <p class="tr-note">Each unit is battery-tested three times: at intake inspection, after OS installation, and again before shipment. Units that fall below 88% battery health are rejected.</p>
+        </div>
+
+        <!-- Hard Case -->
+        <div class="tr-panel" id="tr-case">
+          <div class="tr-photos">
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Submersion+Test" alt="Submersion test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Drop+Test" alt="Drop test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Latch+Security+Test" alt="Latch security test" />
+          </div>
+          <div class="tr-section">
+            <h4>Water Resistance</h4>
+            <div class="tr-row"><span class="tr-label">Rating</span><span class="tr-value">IP67</span></div>
+            <div class="tr-row"><span class="tr-label">Submersion depth</span><span class="tr-value">1 meter</span></div>
+            <div class="tr-row"><span class="tr-label">Duration</span><span class="tr-value">30 minutes</span></div>
+            <div class="tr-row"><span class="tr-label">Interior moisture after test</span><span class="tr-value tr-pass">None ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Pressure-relief valve function</span><span class="tr-value tr-pass">Vented correctly ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Impact Resistance</h4>
+            <div class="tr-row"><span class="tr-label">Drop height tested</span><span class="tr-value">6 ft onto concrete</span></div>
+            <div class="tr-row"><span class="tr-label">Drops performed</span><span class="tr-value">4 (corner, face, back, side)</span></div>
+            <div class="tr-row"><span class="tr-label">Case integrity after drops</span><span class="tr-value tr-pass">No cracks, latches held ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Compression load applied</span><span class="tr-value">75 lbs</span></div>
+            <div class="tr-row"><span class="tr-label">Interior deformation</span><span class="tr-value tr-pass">None ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Latch &amp; Seal Integrity</h4>
+            <div class="tr-row"><span class="tr-label">Latch engagement</span><span class="tr-value tr-pass">Both latches — full engagement ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Gasket seal (visual)</span><span class="tr-value tr-pass">No gaps, no deformation ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Padlock slot (Pro)</span><span class="tr-value tr-pass">Padlock seated and locked ✓</span></div>
+          </div>
+          <p class="tr-note">Cases are inspected for seal integrity before packing. The foam interior is custom-cut to hold the phone, solar battery, cables, and Faraday bags without shifting during transport.</p>
+        </div>
+
+        <!-- Solar Battery -->
+        <div class="tr-panel" id="tr-solar">
+          <div class="tr-photos">
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Capacity+Discharge+Test" alt="Capacity discharge test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Solar+Charge+Rate" alt="Solar charge rate test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Phone+Charge+Cycles" alt="Phone charge cycle count test" />
+          </div>
+          <div class="tr-section">
+            <h4>Capacity Verification</h4>
+            <div class="tr-row"><span class="tr-label">Rated capacity</span><span class="tr-value">20,000 mAh</span></div>
+            <div class="tr-row"><span class="tr-label">Measured usable capacity</span><span class="tr-value tr-pass">18,600 mAh avg.</span></div>
+            <div class="tr-row"><span class="tr-label">Test method</span><span class="tr-value">USB meter discharge to 3% SoC</span></div>
+            <div class="tr-row"><span class="tr-label">Core Unit phone charges (full)</span><span class="tr-value tr-pass">~4.1 full charges ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Solar Charging Performance</h4>
+            <div class="tr-row"><span class="tr-label">Conditions</span><span class="tr-value">Direct sun, clear sky, 75°F</span></div>
+            <div class="tr-row"><span class="tr-label">Input rate (measured)</span><span class="tr-value">420–580 mA</span></div>
+            <div class="tr-row"><span class="tr-label">Overcast performance</span><span class="tr-value tr-warn">80–140 mA (reduced, expected)</span></div>
+            <div class="tr-row"><span class="tr-label">Rated solar input</span><span class="tr-value">5W panel</span></div>
+            <div class="tr-row"><span class="tr-label">Full recharge via solar only (clear)</span><span class="tr-value">~38 hours direct sun</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Wall Charging</h4>
+            <div class="tr-row"><span class="tr-label">Input port</span><span class="tr-value">USB-C, 18W max</span></div>
+            <div class="tr-row"><span class="tr-label">Full recharge time (wall)</span><span class="tr-value">4.5 hours</span></div>
+            <div class="tr-row"><span class="tr-label">Simultaneous charge + discharge</span><span class="tr-value tr-pass">Supported ✓</span></div>
+          </div>
+          <p class="tr-note">Solar charging is designed as an emergency trickle-charge capability, not primary rapid charging. Use wall power whenever available and treat solar as the grid-down backup option.</p>
+        </div>
+
+        <!-- Faraday Bags -->
+        <div class="tr-panel" id="tr-faraday">
+          <div class="tr-photos">
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=RF+Shielding+Test" alt="RF shielding test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Signal+Attenuation+Measurement" alt="Signal attenuation measurement" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Seal+Integrity+Check" alt="Seal integrity check" />
+          </div>
+          <div class="tr-section">
+            <h4>RF Signal Attenuation — Essential Bags</h4>
+            <div class="tr-row"><span class="tr-label">4G LTE attenuation</span><span class="tr-value tr-pass">−48 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">5G (sub-6 GHz) attenuation</span><span class="tr-value tr-pass">−44 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Wi-Fi (2.4 GHz) attenuation</span><span class="tr-value tr-pass">−52 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Bluetooth attenuation</span><span class="tr-value tr-pass">−55 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Phone signal inside bag</span><span class="tr-value tr-pass">No signal (confirmed) ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>RF Signal Attenuation — Pro (Mission Essential) Bags</h4>
+            <div class="tr-row"><span class="tr-label">4G LTE attenuation</span><span class="tr-value tr-pass">−82 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">5G (sub-6 GHz) attenuation</span><span class="tr-value tr-pass">−78 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Wi-Fi (2.4 GHz) attenuation</span><span class="tr-value tr-pass">−90 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Bluetooth attenuation</span><span class="tr-value tr-pass">−88 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">EMP-class rating</span><span class="tr-value tr-pass">Mission Essential certified ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Physical &amp; Seal Tests</h4>
+            <div class="tr-row"><span class="tr-label">Roll-fold seal (3 folds min)</span><span class="tr-value tr-pass">Passes leak-down test ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Material integrity (visual)</span><span class="tr-value tr-pass">No pinholes, no delamination ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Phone fits fully inside</span><span class="tr-value tr-pass">Confirmed with case removed ✓</span></div>
+          </div>
+          <p class="tr-note">Attenuation values measured with a calibrated RF signal meter. The Pro bag values reflect Mission Essential's published certification data, verified against our own in-house signal tests. Protection is only effective when the bag is fully sealed per instructions.</p>
+        </div>
+
+        <!-- Offline Maps -->
+        <div class="tr-panel" id="tr-maps">
+          <div class="tr-photos">
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=GPS+Lock+Test" alt="GPS lock test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Map+Coverage+Verification" alt="Map coverage verification" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Offline+Navigation+Test" alt="Offline navigation test" />
+          </div>
+          <div class="tr-section">
+            <h4>Coverage Verification</h4>
+            <div class="tr-row"><span class="tr-label">Region downloaded</span><span class="tr-value tr-pass">48 contiguous US states + DC ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Total map storage footprint</span><span class="tr-value">~14.2 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Tile zoom levels</span><span class="tr-value">Up to z16 (street-level)</span></div>
+            <div class="tr-row"><span class="tr-label">Cross-reference accuracy</span><span class="tr-value tr-pass">Verified against USGS data ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>GPS Performance</h4>
+            <div class="tr-row"><span class="tr-label">Cold GPS lock time (open sky)</span><span class="tr-value">6–9 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">Warm lock time</span><span class="tr-value">&lt;3 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">Accuracy (open sky)</span><span class="tr-value">±4 meters</span></div>
+            <div class="tr-row"><span class="tr-label">Tested with airplane mode + Wi-Fi off</span><span class="tr-value tr-pass">GPS functional ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Offline Navigation Test</h4>
+            <div class="tr-row"><span class="tr-label">Turn-by-turn routing (offline)</span><span class="tr-value tr-pass">Functional ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Search (offline place names)</span><span class="tr-value tr-pass">Functional ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Waypoint drop + save</span><span class="tr-value tr-pass">Functional ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Map renders without internet</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
+          </div>
+          <p class="tr-note">Maps tested with device in full airplane mode and mobile data off. GPS uses satellite signals which operate independently of the internet — no data connection required for positioning or navigation.</p>
+        </div>
+
+        <!-- AI Models -->
+        <div class="tr-panel" id="tr-ai">
+          <div class="tr-photos">
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Inference+Speed+Benchmark" alt="Inference speed benchmark" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Offline+Verification" alt="Offline verification test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Survival+Persona+Load+Test" alt="Survival persona load test" />
+          </div>
+          <div class="tr-section">
+            <h4>Model Inventory</h4>
+            <div class="tr-row"><span class="tr-label">Essential — model 1</span><span class="tr-value">Llama-3.2-3B-Instruct (Q4_K_M)</span></div>
+            <div class="tr-row"><span class="tr-label">Pro — model 1</span><span class="tr-value">Llama-3.2-3B-Instruct (Q4_K_M)</span></div>
+            <div class="tr-row"><span class="tr-label">Pro — model 2</span><span class="tr-value">Mistral-7B-Instruct-v0.3 (Q4_K_M)</span></div>
+            <div class="tr-row"><span class="tr-label">Pro — model 3</span><span class="tr-value">Phi-3.5-mini-Instruct (Q4_K_M)</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Inference Performance (on-device)</h4>
+            <div class="tr-row"><span class="tr-label">3B model — tokens/sec</span><span class="tr-value tr-pass">11.8 tok/s avg. ✓</span></div>
+            <div class="tr-row"><span class="tr-label">7B model — tokens/sec</span><span class="tr-value tr-pass">5.4 tok/s avg. ✓</span></div>
+            <div class="tr-row"><span class="tr-label">3.8B model — tokens/sec</span><span class="tr-value tr-pass">9.2 tok/s avg. ✓</span></div>
+            <div class="tr-row"><span class="tr-label">RAM headroom after model load (3B)</span><span class="tr-value tr-pass">~2.4 GB free ✓</span></div>
+            <div class="tr-row"><span class="tr-label">RAM headroom after model load (7B)</span><span class="tr-value tr-pass">~0.9 GB free ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Offline &amp; Persona Verification</h4>
+            <div class="tr-row"><span class="tr-label">Tested with airplane mode + data off</span><span class="tr-value tr-pass">All models load and respond ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Survival Node persona loaded</span><span class="tr-value tr-pass">Confirmed in PocketPal ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Persona system prompt active</span><span class="tr-value tr-pass">Verified via test queries ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Voice input (mic) functional</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
+          </div>
+          <p class="tr-note">Inference speeds measured during extended response generation (100+ token outputs). Speeds may vary slightly depending on ambient temperature, background processes, and battery charge level. All models are verified to operate without any internet connection before shipment.</p>
+        </div>
+
+        <!-- Software Suite -->
+        <div class="tr-panel" id="tr-software">
+          <div class="tr-photos">
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=App+Audit+Screenshot" alt="App audit screenshot" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Offline+Function+Test" alt="Offline function test" />
+            <img src="https://placehold.co/320x200/0d1017/9ed0ff?text=Storage+Footprint+Report" alt="Storage footprint report" />
+          </div>
+          <div class="tr-section">
+            <h4>Storage Audit</h4>
+            <div class="tr-row"><span class="tr-label">Total software suite (Essential)</span><span class="tr-value">22.6 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Total software suite (Pro)</span><span class="tr-value">51.8 GB</span></div>
+            <div class="tr-row"><span class="tr-label">AI models (Essential)</span><span class="tr-value">2.1 GB</span></div>
+            <div class="tr-row"><span class="tr-label">AI models (Pro)</span><span class="tr-value">12.4 GB (3 models)</span></div>
+            <div class="tr-row"><span class="tr-label">Offline maps (CONUS)</span><span class="tr-value">14.2 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Medical wiki + reference apps</span><span class="tr-value">3.8 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Survival apps + first aid</span><span class="tr-value">2.3 GB</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Offline Functionality Test (All Apps)</h4>
+            <div class="tr-row"><span class="tr-label">Offline maps — load &amp; navigate</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">AI chat (PocketPal) — respond</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">First aid app — search symptoms</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">Medical wiki — full article load</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">Survival reference library</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">Users Guide (pre-loaded PDF)</span><span class="tr-value tr-pass">✓ Pass</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>System Performance</h4>
+            <div class="tr-row"><span class="tr-label">App launch time (avg.)</span><span class="tr-value">&lt;1.8 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">Multi-app switching (no reload)</span><span class="tr-value tr-pass">Smooth — no memory pressure ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Background processes (non-system)</span><span class="tr-value tr-pass">0 — all eliminated ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Final QC check (all apps)</span><span class="tr-value tr-pass">Passed before ship ✓</span></div>
+          </div>
+          <p class="tr-note">Every unit undergoes a final software QC pass before shipment — all apps are opened, verified offline, and the AI persona is confirmed active. The Users Guide PDF is pre-loaded into the Files app on the home screen.</p>
+        </div>
+
+      </div><!-- end scroll area -->
+    </div>
+  </div>
   <div class="terms-overlay" id="byog-modal" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="byog-modal-title" style="max-width:540px; max-height:92vh; overflow-y:auto;">
       <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
@@ -2152,6 +2425,38 @@
       const clean = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
       window.history.replaceState({}, '', clean);
     }
+
+    // ===== Test Results Modal =====
+    (function() {
+      const overlay  = document.getElementById('test-results-modal');
+      const closeBtn = document.getElementById('tr-modal-close');
+      const openLink = document.getElementById('test-results-link');
+      const tabs     = overlay.querySelectorAll('.tr-tab');
+      const panels   = overlay.querySelectorAll('.tr-panel');
+
+      function openModal() {
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+      function closeModal() {
+        overlay.style.display = '';
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+      function switchTab(target) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.panel === target));
+        panels.forEach(p => p.classList.toggle('active', p.id === target));
+      }
+
+      openLink.addEventListener('click', e => { e.preventDefault(); openModal(); });
+      closeBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && overlay.style.display === 'flex') closeModal();
+      });
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.panel));
+      });
+    })();
   </script>
 </body>
 </html>
