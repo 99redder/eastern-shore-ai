@@ -395,7 +395,8 @@
       flex-direction: column;
     }
     .checkout-option .btn { margin-top: auto; }
-    .carousel { position: relative; overflow: hidden; margin: 0 0 .8rem; }
+    .carousel-wrap { position: relative; padding: 0 3rem; }
+    .carousel { overflow: hidden; margin: 0 0 .8rem; }
     .car-track { display: flex; transition: transform .45s cubic-bezier(.4,0,.2,1); }
     .car-slide { flex-shrink: 0; width: 100%; }
     .car-arrow {
@@ -405,8 +406,8 @@
       border-radius: 6px; backdrop-filter: blur(4px); transition: background .15s;
     }
     .car-arrow:hover { background: rgba(30,40,60,.92); border-color: var(--cyan); }
-    .car-prev { left: .5rem; }
-    .car-next { right: .5rem; }
+    .car-prev { left: 0; }
+    .car-next { right: 0; }
     .car-dots { display: flex; justify-content: center; gap: .45rem; margin-top: .55rem; }
     .car-dot {
       width: 8px; height: 8px; border-radius: 50%; background: var(--line);
@@ -524,6 +525,7 @@
       /* Slide 1 — hide image on mobile, let Q&A take full width */
       .slide1-img-col { display: none; }
       /* Carousel arrows — smaller on mobile */
+      .carousel-wrap { padding: 0 2rem; }
       .car-arrow { width: 28px; height: 28px; font-size: 1.2rem; }
       /* Software modal — collapse 2-column grid to 1 column */
       .sw-grid { grid-template-columns: 1fr !important; }
@@ -568,6 +570,7 @@
   </div>
 
   <main class="wrap">
+    <div class="carousel-wrap">
     <div class="carousel" id="hero-carousel">
       <div class="car-track" id="car-track">
 
@@ -640,13 +643,14 @@
         </div>
 
       </div>
-      <button class="car-arrow car-prev" id="car-prev" aria-label="Previous slide">‹</button>
-      <button class="car-arrow car-next" id="car-next" aria-label="Next slide">›</button>
       <div class="car-dots" id="car-dots">
         <button class="car-dot active" data-idx="0" aria-label="Slide 1"></button>
         <button class="car-dot" data-idx="1" aria-label="Slide 2"></button>
         <button class="car-dot" data-idx="2" aria-label="Slide 3"></button>
       </div>
+    </div>
+    <button class="car-arrow car-prev" id="car-prev" aria-label="Previous slide">‹</button>
+    <button class="car-arrow car-next" id="car-next" aria-label="Next slide">›</button>
     </div>
 
     <article class="card" id="choose-kit">
