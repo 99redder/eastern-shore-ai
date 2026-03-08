@@ -1363,6 +1363,11 @@
       });
     })();
 
+    // ===== Slide 1 Q&A — pause carousel on open =====
+    document.querySelectorAll('.slide1-q').forEach(det => {
+      det.addEventListener('toggle', () => { if (det.open) carousel.pause(); });
+    });
+
     (function() {
       const tog = document.getElementById('promo-toggle');
       const body = document.getElementById('promo-body');
