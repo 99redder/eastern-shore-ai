@@ -475,8 +475,9 @@
     del { color: #d93025; text-decoration-color: #d93025; }
     .photo-modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.9); align-items: center; justify-content: center; }
     .photo-modal.open { display: flex; }
-    .photo-modal-img { max-width: 92vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(0,0,0,.8); }
-    .photo-modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); color: #fff; font-size: 1.6rem; width: 2.6rem; height: 2.6rem; border-radius: 50%; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; }
+    .photo-modal-inner { position: relative; display: inline-flex; }
+    .photo-modal-img { max-width: 92vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(0,0,0,.8); display: block; }
+    .photo-modal-close { position: absolute; top: -.8rem; right: -.8rem; background: rgba(20,24,36,.92); border: 1px solid rgba(255,255,255,.25); color: #fff; font-size: 1.4rem; width: 2.2rem; height: 2.2rem; border-radius: 50%; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; z-index: 1; }
     .photo-modal-close:hover { background: rgba(255,255,255,.18); }
     .yt-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; }
     .yt-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
@@ -566,8 +567,8 @@
       .item-desc h3 { font-size: .95rem; }
       /* Video placeholders — shorter on mobile */
       .video-ph { max-height: 160px; }
-      /* Photo modal — tighter padding on small screens */
-      .photo-modal-close { top: .5rem; right: .5rem; }
+      /* Photo modal — keep X button near image corner on small screens */
+      .photo-modal-close { top: -.6rem; right: -.6rem; width: 2rem; height: 2rem; font-size: 1.2rem; }
     }
   </style>
   <script type="application/ld+json">
@@ -1237,8 +1238,10 @@
 
   <!-- Photo lightbox modal -->
   <div class="photo-modal" id="photo-modal" role="dialog" aria-modal="true" aria-label="Photo viewer">
-    <button class="photo-modal-close" id="photo-modal-close" aria-label="Close photo">×</button>
-    <img class="photo-modal-img" id="photo-modal-img" src="" alt="" />
+    <div class="photo-modal-inner">
+      <button class="photo-modal-close" id="photo-modal-close" aria-label="Close photo">×</button>
+      <img class="photo-modal-img" id="photo-modal-img" src="" alt="" />
+    </div>
   </div>
 
   <div class="terms-overlay" id="byog-modal" aria-hidden="true">
@@ -1713,14 +1716,20 @@
       const photoModal    = document.getElementById('photo-modal');
       const photoModalImg = document.getElementById('photo-modal-img');
       const photoModalClose = document.getElementById('photo-modal-close');
+      const _backBtn  = document.getElementById('global-back-btn');
+      const _guideBtn = document.getElementById('users-guide-btn');
       function openPhoto(src, alt) {
         photoModalImg.src = src;
         photoModalImg.alt = alt;
         photoModal.classList.add('open');
+        if (_backBtn)  _backBtn.style.visibility  = 'hidden';
+        if (_guideBtn) _guideBtn.style.visibility = 'hidden';
       }
       function closePhoto() {
         photoModal.classList.remove('open');
         photoModalImg.src = '';
+        if (_backBtn)  _backBtn.style.visibility  = '';
+        if (_guideBtn) _guideBtn.style.visibility = '';
       }
       galleryEl.addEventListener('click', e => {
         if (e.target.tagName === 'IMG') openPhoto(e.target.src, e.target.alt);
