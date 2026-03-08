@@ -695,10 +695,10 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     : requestedService === 'byog_setup'
       ? {
           key: 'byog_setup',
-          label: 'Ghost Box BYOG Setup Service',
+          label: 'Survival Node BYOG Setup Service',
           amountCents: 6999,
           quantity: 1,
-          successPath: '/ghostbox.html'
+          successPath: '/node.html'
         }
       : {
           key: 'openclaw_setup',
@@ -947,19 +947,19 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   }
 
   const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
-  const successUrl = `${siteOrigin}/ghostbox.html?paid=1`;
-  const cancelUrl = `${siteOrigin}/ghostbox-payment-cancelled.html`;
+  const successUrl = `${siteOrigin}/node.html?paid=1`;
+  const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
   const unitAmount = isByogSetup ? '6999' : (isProKit ? '39999' : '29999');
   const productName = isByogSetup
-    ? 'Ghost Box BYOG Setup-Only Service'
-    : (isProKit ? 'Ghost Box Pro Kit' : 'Ghost Box Base Kit');
+    ? 'Survival Node BYOG Setup-Only Service'
+    : (isProKit ? 'Survival Node: Pro' : 'Survival Node: Essential');
   const productDescription = isByogSetup
     ? 'Bring your own gear setup-only service'
     : (isProKit
       ? 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Dual-Layer Mission Darkness TitanRF shielding + braided fail-safe USB-C cable'
       : 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Offline Brain Software');
-  const productCode = isByogSetup ? 'ghost_box_byog_setup' : (isProKit ? 'ghost_box_pro_kit' : 'ghost_box_essential_kit');
+  const productCode = isByogSetup ? 'survival_node_byog_setup' : (isProKit ? 'survival_node_pro_kit' : 'survival_node_essential_kit');
 
   const contiguousStates = new Set([
     'AL','AZ','AR','CA','CO','CT','DE','FL','GA','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'
@@ -1150,13 +1150,13 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const serviceLabel = (session.metadata?.service_label || '').toString().trim();
     const checkoutType = (session.metadata?.checkout_type || '').toString().trim().toLowerCase();
     const productCode = (session.metadata?.product || '').toString().trim().toLowerCase();
-    const isGhostBoxSale = ['base_kit', 'pro_kit', 'byog_setup'].includes(checkoutType) || productCode.startsWith('ghost_box_');
+    const isSurvivalNodeSale = ['base_kit', 'pro_kit', 'byog_setup'].includes(checkoutType) || productCode.startsWith('survival_node_');
 
-    const incomeCategory = isGhostBoxSale
-      ? (checkoutType === 'byog_setup' ? 'Ghost Box BYOG Setup' : 'Ghost Box Sales')
+    const incomeCategory = isSurvivalNodeSale
+      ? (checkoutType === 'byog_setup' ? 'Survival Node BYOG Setup' : 'Survival Node Sales')
       : (serviceType === 'lessons' ? 'AI Lessons' : 'OpenClaw Setup');
-    const incomeSource = isGhostBoxSale
-      ? 'Stripe - Ghost Box'
+    const incomeSource = isSurvivalNodeSale
+      ? 'Stripe - Survival Node'
       : (serviceType === 'lessons' ? 'Stripe - Lessons' : 'Stripe');
 
     const amount = Number(session.amount_total || 10000);
@@ -3492,9 +3492,9 @@ async function ensureAccountingSetup(db) {
     ['5000','Software Expense','expense','debit'],
     ['5100','Marketing Expense','expense','debit'],
     ['5200','Office Expense','expense','debit'],
-    ['5210','Inventory - Ghost Box Components','expense','debit'],
-    ['5220','Shipping - Ghost Box Fulfillment','expense','debit'],
-    ['5230','Packaging - Ghost Box Fulfillment','expense','debit'],
+    ['5210','Inventory - Survival Node Components','expense','debit'],
+    ['5220','Shipping - Survival Node Fulfillment','expense','debit'],
+    ['5230','Packaging - Survival Node Fulfillment','expense','debit'],
     ['5300','Payment Processing Fees','expense','debit'],
     ['5400','Contractor Expense','expense','debit'],
     ['5500','Travel Expense','expense','debit'],
@@ -3541,9 +3541,9 @@ async function upsertTaxExpenseJournal(db, row) {
   const category = (row.category || '').toString().trim();
   const expenseAccountCodeByCategory = {
     'Payment Processing Fees': '5300',
-    'Inventory - Ghost Box Components': '5210',
-    'Shipping - Ghost Box Fulfillment': '5220',
-    'Packaging - Ghost Box Fulfillment': '5230',
+    'Inventory - Survival Node Components': '5210',
+    'Shipping - Survival Node Fulfillment': '5220',
+    'Packaging - Survival Node Fulfillment': '5230',
     'AI Services': '5000',
     'Web Services': '5600'
   };
@@ -3565,9 +3565,9 @@ async function upsertTaxExpenseJournal(db, row) {
     '5000': ['AI Services Expense', 'expense', 'debit'],
     '5100': ['Marketing Expense', 'expense', 'debit'],
     '5200': ['Office Expense', 'expense', 'debit'],
-    '5210': ['Inventory - Ghost Box Components', 'expense', 'debit'],
-    '5220': ['Shipping - Ghost Box Fulfillment', 'expense', 'debit'],
-    '5230': ['Packaging - Ghost Box Fulfillment', 'expense', 'debit'],
+    '5210': ['Inventory - Survival Node Components', 'expense', 'debit'],
+    '5220': ['Shipping - Survival Node Fulfillment', 'expense', 'debit'],
+    '5230': ['Packaging - Survival Node Fulfillment', 'expense', 'debit'],
     '5300': ['Payment Processing Fees', 'expense', 'debit'],
     '5400': ['Contractor Expense', 'expense', 'debit'],
     '5500': ['Travel Expense', 'expense', 'debit'],
