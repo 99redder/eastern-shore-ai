@@ -48,7 +48,6 @@ export default {
 
     const checkoutType = (data.checkoutType || 'base_kit').toString().trim().toLowerCase();
     const isByogSetup = checkoutType === 'byog_setup';
-    const isProKit = checkoutType === 'pro_kit';
     const termsAccepted = data.termsAccepted === true;
 
     if (!termsAccepted) {
@@ -64,23 +63,17 @@ export default {
     }
 
     const siteOrigin = allowedOrigin || 'https://www.easternshore.ai';
-    const successUrl = `${siteOrigin}/ghostbox.html?paid=1`;
-    const cancelUrl = `${siteOrigin}/ghostbox-payment-cancelled.html`;
+    const successUrl = `${siteOrigin}/node.html?paid=1`;
+    const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
-    const unitAmount = isByogSetup ? '6999' : (isProKit ? '39999' : '29999');
+    const unitAmount = isByogSetup ? '6999' : '19999';
     const productName = isByogSetup
-      ? 'Ghost Box BYOG Setup-Only Service'
-      : (isProKit ? 'Ghost Box Pro Kit' : 'Ghost Box Base Kit');
+      ? 'Survival Node BYOG Setup-Only Service'
+      : 'Survival Node';
     const productDescription = isByogSetup
       ? 'Bring your own gear setup-only service'
-      : (isProKit
-        ? 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Dual-Layer Mission Darkness TitanRF shielding + braided fail-safe USB-C cable'
-        : 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + hard waterproof crushproof case + Offline Brain Software');
-    const productCode = isByogSetup ? 'ghost_box_byog_setup' : (isProKit ? 'ghost_box_pro_kit' : 'ghost_box_essential_kit');
-
-    // Stripe Price IDs provided by Red (product-backed pricing for tax behavior)
-    const ESSENTIAL_PRICE_ID = 'price_1T8CHGCrQuKPknEPwko1B9FP';
-    const PRO_PRICE_ID = 'price_1T74pKCrQuKPknEPuVKYdx8b';
+      : 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Faraday bags + 50GB Offline Brain Software';
+    const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
 
     const body = new URLSearchParams({
       mode: 'payment',
@@ -97,13 +90,24 @@ export default {
       'custom_text[shipping_address][message]': 'Shipping is limited to the continental U.S. Free shipping included.'
     });
 
-    if (isByogSetup) {
-      body.set('line_items[0][price_data][currency]', 'usd');
-      body.set('line_items[0][price_data][unit_amount]', unitAmount);
-      body.set('line_items[0][price_data][product_data][name]', productName);
-      body.set('line_items[0][price_data][product_data][description]', productDescription);
-    } else {
-      body.set('line_items[0][price]', isProKit ? PRO_PRICE_ID : ESSENTIAL_PRICE_ID);
+    body.set('line_items[0][price_data][currency]', 'usd');
+    body.set('line_items[0][price_data][unit_amount]', unitAmount);
+    body.set('line_items[0][price_data][product_data][name]', productName);
+    body.set('line_items[0][price_data][product_data][description]', productDescription);
+
+    const ALLOWED_UPGRADE_PRICE_IDS = new Set([
+      'price_1T9AXyCrQuKPknEPEDC39wfC', // Mission Essential Faraday Bags
+      'price_1T9AYeCrQuKPknEPy37kFtwn', // Premium Backup Charging Cable
+      'price_1T9AZeCrQuKPknEP62dDoshW', // Backup Mini Solar Battery
+    ]);
+    const upgrades = Array.isArray(data.upgrades) ? data.upgrades : [];
+    let lineIdx = 1;
+    for (const upgrade of upgrades) {
+      const priceId = (upgrade.priceId || '').toString().trim();
+      if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId)) continue;
+      body.set(`line_items[${lineIdx}][price]`, priceId);
+      body.set(`line_items[${lineIdx}][quantity]`, '1');
+      lineIdx++;
     }
 
     body.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
