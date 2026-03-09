@@ -189,6 +189,16 @@
       border-radius: 8px;
     }
     .kit-card.pro-kit { overflow: hidden; }
+    .upgrade-section { margin: .8rem 0 0; border-top: 1px solid var(--line); padding-top: .65rem; }
+    .upgrade-title { margin: 0 0 .45rem; font-size: .75rem; color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+    .upgrade-item { display: flex; align-items: flex-start; gap: .6rem; padding: .4rem .45rem; border-radius: 6px; cursor: pointer; transition: background .12s; border: 1px solid transparent; margin-bottom: .25rem; }
+    .upgrade-item:hover { background: rgba(158,208,255,.06); }
+    .upgrade-item:has(.upgrade-check:checked) { background: rgba(158,208,255,.1); border-color: rgba(158,208,255,.28); }
+    .upgrade-item input[type="checkbox"] { margin-top: .18rem; accent-color: var(--cyan); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+    .upgrade-info { flex: 1; min-width: 0; }
+    .upgrade-name { display: block; font-size: .88rem; color: var(--text); font-weight: 600; }
+    .upgrade-desc { display: block; font-size: .76rem; color: var(--muted); margin-top: .08rem; }
+    .upgrade-price { font-size: .88rem; color: var(--ok); font-weight: 700; white-space: nowrap; flex-shrink: 0; font-family: 'Hanken Grotesk', sans-serif; }
     .kit-offerings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
     .kit-gallery-col { min-width: 0; }
     .kit-offerings-grid .kit-card { max-width: none; margin: 0; }
@@ -801,7 +811,7 @@
 
     <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
-          <h2 style="margin:0;">Get Your Survival Node Now</h2>
+          <h2 style="margin:0;">Get Your Survival Node Now While Supplies Last</h2>
           <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
             <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
             <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08);">🚚 FREE SHIPPING</span>
@@ -877,10 +887,39 @@
                 </div>
               </li>
             </ul>
+
+            <div class="upgrade-section">
+              <p class="upgrade-title">Optional Upgrades</p>
+              <label class="upgrade-item">
+                <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Essential Faraday Bags" />
+                <span class="upgrade-info">
+                  <span class="upgrade-name">Upgrade to Mission Essential Faraday Bags</span>
+                  <span class="upgrade-desc">Premium EMP-rated protection for worst-case electromagnetic scenarios</span>
+                </span>
+                <span class="upgrade-price">+$50.00</span>
+              </label>
+              <label class="upgrade-item">
+                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" />
+                <span class="upgrade-info">
+                  <span class="upgrade-name">Add backup premium USB-C charging cable</span>
+                  <span class="upgrade-desc">Heavy-duty redundant cable for field conditions</span>
+                </span>
+                <span class="upgrade-price">+$20.00</span>
+              </label>
+              <label class="upgrade-item">
+                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" />
+                <span class="upgrade-info">
+                  <span class="upgrade-name">Add backup mini solar battery</span>
+                  <span class="upgrade-desc">Extra power reserve for extended grid-down scenarios</span>
+                </span>
+                <span class="upgrade-price">+$20.00</span>
+              </label>
+            </div>
+
             <div style="margin-top:auto; padding-top:.8rem; border-top:1px solid var(--line);">
               <button id="buy-btn" class="btn" type="button" style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
-                <span style="white-space:nowrap; line-height:1.2;"><del style="opacity:.45; font-size:.78rem; font-weight:400;">$299.99</del> <span style="font-size:1.05rem; font-weight:800;">$199.99</span></span>
-                <span style="font-size:1.2rem; font-weight:700;">Buy Survival Node</span>
+                <span style="white-space:nowrap; line-height:1.2;"><del style="opacity:.45; font-size:.78rem; font-weight:400;">$299.99</del> <span id="buy-price-display" style="font-size:1.05rem; font-weight:800;">$199.99</span></span>
+                <span style="font-size:1.2rem; font-weight:700;">Buy Survival Node Now</span>
               </button>
             </div>
           </section>
@@ -2150,8 +2189,27 @@
       startCheckout(payload);
     });
 
+    const priceDisplay = document.getElementById('buy-price-display');
+    const BASE_PRICE = 199.99;
+
+    function updateUpgradePrice() {
+      let total = BASE_PRICE;
+      document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
+        total += parseFloat(cb.value);
+      });
+      if (priceDisplay) priceDisplay.textContent = '$' + total.toFixed(2);
+    }
+
+    document.querySelectorAll('.upgrade-check').forEach(cb => {
+      cb.addEventListener('change', updateUpgradePrice);
+    });
+
     buyBtn.addEventListener('click', () => {
-      openTerms({ checkoutType: 'base_kit' });
+      const upgrades = [];
+      document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
+        upgrades.push({ label: cb.dataset.label, price: parseFloat(cb.value) });
+      });
+      openTerms({ checkoutType: 'base_kit', upgrades });
     });
 
     byogModalLink?.addEventListener('click', async (e) => {
