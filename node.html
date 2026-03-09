@@ -563,8 +563,9 @@
       /* BYOG modal inputs — full-width inside narrow modal */
       #byog-modal input, #byog-modal select { width: 100%; box-sizing: border-box; }
       #byog-btn { max-width: 100% !important; width: 100%; }
-      /* Slide 1 — hide image on mobile, let Q&A take full width */
-      .slide1-img-col { display: none; }
+      /* Slide 1 — show logo above Q&A on mobile, constrained height */
+      .slide1-img-col { display: block; }
+      .slide1-img-col img { max-height: 140px; width: auto; margin: 0 auto .5rem; display: block; }
       /* Carousel arrows — smaller on mobile */
       .carousel-wrap { padding: 0 2rem; }
       .car-arrow { width: 28px; height: 28px; font-size: 1.2rem; }
@@ -1838,8 +1839,7 @@
           photos: [
             'images/carousel/case2.png',
             'images/carousel/case1.png',
-            'images/carousel/case3.png',
-            'images/carousel/pro2.png'
+            'images/carousel/pro2.png',
           ],
           label: 'Included in both kits',
           title: 'Weatherproof Hard Storage Case',
