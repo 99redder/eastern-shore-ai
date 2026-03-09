@@ -94,6 +94,7 @@ export default {
     body.set('line_items[0][price_data][unit_amount]', unitAmount);
     body.set('line_items[0][price_data][product_data][name]', productName);
     body.set('line_items[0][price_data][product_data][description]', productDescription);
+    body.set('line_items[0][price_data][product_data][tax_code]', 'txcd_99999999');
 
     const ALLOWED_UPGRADE_PRICE_IDS = new Set([
       'price_1T9AXyCrQuKPknEPEDC39wfC', // Mission Essential Faraday Bags
