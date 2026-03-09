@@ -891,7 +891,7 @@
             <div class="upgrade-section">
               <p class="upgrade-title">Optional Upgrades</p>
               <label class="upgrade-item">
-                <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Essential Faraday Bags" />
+                <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Essential Faraday Bags" data-price-id="price_1T9AXyCrQuKPknEPEDC39wfC" />
                 <span class="upgrade-info">
                   <span class="upgrade-name">Upgrade to Mission Essential Faraday Bags</span>
                   <span class="upgrade-desc">Premium EMP-rated protection for worst-case electromagnetic scenarios</span>
@@ -899,7 +899,7 @@
                 <span class="upgrade-price">+$50.00</span>
               </label>
               <label class="upgrade-item">
-                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" />
+                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" data-price-id="price_1T9AYeCrQuKPknEPy37kFtwn" />
                 <span class="upgrade-info">
                   <span class="upgrade-name">Add backup premium USB-C charging cable</span>
                   <span class="upgrade-desc">Heavy-duty redundant cable for field conditions</span>
@@ -907,7 +907,7 @@
                 <span class="upgrade-price">+$20.00</span>
               </label>
               <label class="upgrade-item">
-                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" />
+                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" data-price-id="price_1T9AZeCrQuKPknEP62dDoshW" />
                 <span class="upgrade-info">
                   <span class="upgrade-name">Add backup mini solar battery</span>
                   <span class="upgrade-desc">Extra power reserve for extended grid-down scenarios</span>
@@ -2207,7 +2207,7 @@
     buyBtn.addEventListener('click', () => {
       const upgrades = [];
       document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
-        upgrades.push({ label: cb.dataset.label, price: parseFloat(cb.value) });
+        upgrades.push({ label: cb.dataset.label, price: parseFloat(cb.value), priceId: cb.dataset.priceId });
       });
       openTerms({ checkoutType: 'base_kit', upgrades });
     });
