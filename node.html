@@ -189,6 +189,9 @@
       border-radius: 8px;
     }
     .kit-card.pro-kit { overflow: hidden; }
+    .kit-offerings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+    .kit-gallery-col { min-width: 0; }
+    .kit-offerings-grid .kit-card { max-width: none; margin: 0; }
     .kit-ribbon {
       position:absolute;
       top:14px;
@@ -513,6 +516,7 @@
     @media (max-width: 900px) {
       .ghost-intro { grid-template-columns: 1fr; }
       .ghost-intro img { justify-self:start; max-width:220px; }
+      .kit-offerings-grid { grid-template-columns: 1fr; }
       .brain-grid { grid-template-columns: 1fr; }
       .offerings { grid-template-columns: 1fr; }
       .checkout-grid { grid-template-columns: 1fr; }
@@ -767,25 +771,7 @@
           </div>
         </div>
 
-        <!-- Slide 2: Thumbnail gallery -->
-        <div class="car-slide">
-          <div class="slide2-inner">
-            <div class="thumb-strip">
-              <img class="thumb-img active" src="images/carousel/case2.png" alt="Hard Storage Case" data-full="images/carousel/case2.png" data-key="case" />
-              <img class="thumb-img" src="images/carousel/phone2.png" alt="Core Unit" data-full="images/carousel/phone2.png" data-key="phone" />
-              <img class="thumb-img" src="images/carousel/charging.png" alt="Solar Battery" data-full="images/carousel/charging.png" data-key="solar" />
-              <img class="thumb-img" src="images/carousel/faraday3.png" alt="Faraday Bags" data-full="images/carousel/faraday3.png" data-key="faraday" />
-              <img class="thumb-img" src="images/carousel/phoneai3.png" alt="Offline Maps" data-full="images/carousel/phoneai3.png" data-key="maps" />
-              <img class="thumb-img" src="images/carousel/phoneai2.png" alt="Offline AI Models" data-full="images/carousel/phoneai2.png" data-key="ai" />
-            </div>
-            <div class="slide2-content">
-              <div class="item-photo-gallery" id="item-photo-gallery"></div>
-              <div class="item-desc" id="item-desc"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Slide 3: Videos -->
+        <!-- Slide 2: Videos -->
         <div class="car-slide">
           <div class="yt-slide-inner">
             <div class="video-pair">
@@ -807,7 +793,6 @@
       <div class="car-dots" id="car-dots">
         <button class="car-dot active" data-idx="0" aria-label="Slide 1"></button>
         <button class="car-dot" data-idx="1" aria-label="Slide 2"></button>
-        <button class="car-dot" data-idx="2" aria-label="Slide 3"></button>
       </div>
     </div>
     <button class="car-arrow car-prev" id="car-prev" aria-label="Previous slide">‹</button>
@@ -816,14 +801,32 @@
 
     <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
-          <h2 style="margin:0;">Choose Your Kit</h2>
+          <h2 style="margin:0;">Get Your Survival Node Now</h2>
           <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
             <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
             <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08);">🚚 FREE SHIPPING</span>
           </div>
         </div>
-        <div class="offerings" style="display:block;">
-          <section class="kit-card" style="display:flex; flex-direction:column; max-width:640px; margin:0 auto;">
+        <div class="offerings kit-offerings-grid">
+          <!-- Gallery column -->
+          <div class="kit-gallery-col">
+            <div class="slide2-inner">
+              <div class="thumb-strip">
+                <img class="thumb-img active" src="images/carousel/case2.png" alt="Hard Storage Case" data-full="images/carousel/case2.png" data-key="case" />
+                <img class="thumb-img" src="images/carousel/phone2.png" alt="Core Unit" data-full="images/carousel/phone2.png" data-key="phone" />
+                <img class="thumb-img" src="images/carousel/charging.png" alt="Solar Battery" data-full="images/carousel/charging.png" data-key="solar" />
+                <img class="thumb-img" src="images/carousel/faraday3.png" alt="Faraday Bags" data-full="images/carousel/faraday3.png" data-key="faraday" />
+                <img class="thumb-img" src="images/carousel/phoneai3.png" alt="Offline Maps" data-full="images/carousel/phoneai3.png" data-key="maps" />
+                <img class="thumb-img" src="images/carousel/phoneai2.png" alt="Offline AI Models" data-full="images/carousel/phoneai2.png" data-key="ai" />
+              </div>
+              <div class="slide2-content">
+                <div class="item-photo-gallery" id="item-photo-gallery"></div>
+                <div class="item-desc" id="item-desc"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Kit card column -->
+          <section class="kit-card" style="display:flex; flex-direction:column;">
             <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.1rem;">
               <h3 style="margin:0;">Survival Node — <del style="opacity:.45; font-weight:400; font-size:.85em;">$299.99</del> <span style="color:var(--ok);">$199.99</span></h3>
               <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
