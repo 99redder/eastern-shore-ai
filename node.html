@@ -1604,16 +1604,8 @@
     const carousel = (function() {
       const track = document.getElementById('car-track');
       const ytGuard = document.getElementById('yt-guard');
-      // On mobile: remove logo-banner slide → carousel becomes thumb+video only
-      const isMobile = window.matchMedia('(max-width: 480px)').matches;
-      if (isMobile && track.children.length >= 1) {
-        track.removeChild(track.children[0]);
-        const firstDot = document.querySelector('#car-dots .car-dot[data-idx="0"]');
-        if (firstDot) firstDot.remove();
-        document.querySelectorAll('#car-dots .car-dot').forEach((d, i) => { d.dataset.idx = String(i); });
-      }
       const dots = document.querySelectorAll('.car-dot');
-      const total = isMobile ? 2 : 3;
+      const total = track.children.length;
       let cur = 0, timer, videoActive = false;
 
       function goTo(idx) {
