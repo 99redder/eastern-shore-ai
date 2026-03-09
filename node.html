@@ -450,7 +450,9 @@
     .slide1-qa-col { padding: .15rem 0; }
     .slide1-title { margin: 0 0 .5rem; color: var(--cyan); font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; font-family: 'Hanken Grotesk', sans-serif; }
     .slide1-q { border-bottom: 1px solid var(--line); padding: .45rem 0; }
-    .slide1-q:last-child { border-bottom: none; }
+    .slide1-q:last-of-type { border-bottom: none; }
+    .slide1-more-link { display: inline-block; margin-top: .6rem; font-size: .85rem; color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif; text-decoration: none; letter-spacing: .03em; }
+    .slide1-more-link:hover { text-decoration: underline; }
     .slide1-q summary {
       cursor: pointer; list-style: none;
       color: var(--text); font-weight: 700; font-size: .97rem; line-height: 1.35;
@@ -750,11 +752,6 @@
               </details>
 
               <details class="slide1-q">
-                <summary>Why is this better than a laptop, Raspberry Pi, or tablet?</summary>
-                <p class="slide1-answer">Power. Laptops and Pi builds are nearly impossible to keep charged with a solar battery during extended grid-down scenarios. Our debloated and optimized phone platform draws a fraction of the power, charges multiple times from the included solar battery, and is already optimized for local AI with 8GB RAM. Ask questions by speaking into the mic instead of typing. And it fits in a cargo pocket. The included hard case makes getting on the go with all your gear simple.</p>
-              </details>
-
-              <details class="slide1-q">
                 <summary>Essential or Pro — which is right for me?</summary>
                 <p class="slide1-answer">Essential is $199.99 (reg. $299.99) — offline AI, 20GB+ survival apps, standard Faraday bags, hard case. Pro is $399.99 (reg. $499.99) — upgrades to Mission Essential EMP-rated Faraday bags, a premium solar battery with 4 attached cables and built-in tools, shockproof phone case, padlock, and 3 offline AI models. Both prices are Father's Day sale pricing — limited time. If EMP or solar flare is a real concern, go Pro.</p>
               </details>
@@ -770,33 +767,8 @@
               </details>
 
               <details class="slide1-q">
-                <summary>Is it ready to use right out of the box?</summary>
-                <p class="slide1-answer">Yes. It ships preloaded with a hardened OS and the full offline software suite — AI, maps, first aid guides, survival libraries — all configured and ready on day one. The custom "Survival Node" AI persona is already set up in PocketPal. No setup required. The Users Guide is also pre-loaded on the device; run through it once to lock in your maps and fallback configs for best performance.</p>
-              </details>
-
-              <details class="slide1-q">
-                <summary>Can it make calls and texts without internet?</summary>
-                <p class="slide1-answer">It's a fully functional phone, but it does not come with a SIM card. With a SIM installed, it makes standard calls and texts over any available carrier signal. Without any signal at all — no carrier, no Wi-Fi — everything in the software suite still works: AI chat, offline maps, first aid guides, and all reference libraries. The Node is designed to be useful even when the towers are down.</p>
-              </details>
-
-              <details class="slide1-q">
-                <summary>What does "EMP-hardened" mean?</summary>
-                <p class="slide1-answer">An EMP — from a nuclear detonation, high-powered microwave, or extreme solar flare — can fry unshielded electronics instantly. A Faraday bag blocks electromagnetic interference, protecting everything sealed inside. Both kits include Faraday bags. Essential includes standard fireproof bags for RF privacy and heat protection. Pro upgrades to Mission Essential EMP-rated bags rated for nuclear EMP-class events — a real distinction when the worst-case scenario is your planning baseline.</p>
-              </details>
-
-              <details class="slide1-q">
-                <summary>How do I store it so it actually works when I need it?</summary>
-                <p class="slide1-answer">Keep it sealed in its Faraday bag, in a dry, temperature-stable location away from prolonged heat. Recharge the solar battery every 6–12 months to keep it ready. Preparedness gear only works if you maintain it — a device left uncharged and forgotten will fail at the worst possible moment. The Users Guide includes a maintenance checklist to keep your Node deployment-ready.</p>
-              </details>
-
-              <details class="slide1-q">
                 <summary>What makes Survival Node: Pro worth it?</summary>
                 <p class="slide1-answer">Two upgrades: EMP protection and power. Pro swaps standard Faraday bags for Mission Essential EMP-rated bags designed for nuclear EMP and extreme solar flares — a meaningful distinction when worst-case planning is your baseline. Pro also includes a premium solar battery with 4 attached cables, built-in flashlight, emergency strobe, and laser pointer; a shockproof phone case; a padlocked hard case; a backup USB-C cable; and 3 offline AI models instead of 1. If EMP is a real concern, Pro is the right choice.</p>
-              </details>
-
-              <details class="slide1-q">
-                <summary>Why can't I just install a local model / AI chatbot on my everyday phone?</summary>
-                <p class="slide1-answer">You can — and you should. But your daily driver is already degraded from constant charge cycles, and a local LLM accelerates battery wear further. The Survival Node sits in storage at a preserved charge level with 90GB+ of dedicated storage for the full software suite — space your everyday phone likely doesn't have. It also ships with a custom "Survival Node" AI persona pre-configured in PocketPal, Faraday bag protection, and a hardened OS with all bloatware removed. It's a purpose-built survival brain, not an afterthought on a device that's already doing too much.</p>
               </details>
 
               <details class="slide1-q">
@@ -804,15 +776,7 @@
                 <p class="slide1-answer">Yes. Both can be updated whenever you have Wi-Fi. The offline map app lets you re-download updated map tiles at any time. PocketPal supports downloading new or updated LLM model files directly on the device — you can also swap in larger or more capable models as they become available. You can sideload additional apps as well. For step-by-step instructions, see the Maintenance section in the Survival Node Users Guide.</p>
               </details>
 
-              <details class="slide1-q">
-                <summary>What support and warranty are included?</summary>
-                <p class="slide1-answer">Every kit includes a 30-day Eastern Shore AI, LLC warranty covering defects in hardware function and software configuration as delivered. Manufacturer warranties do not apply — OS modification voids any remaining OEM warranty on the device. Support is direct: email us within 30 days and we'll make it right. See the full Warranty &amp; Liability Disclaimer at the bottom of this page.</p>
-              </details>
-
-              <details class="slide1-q">
-                <summary>Can I still use normal apps like banking or streaming?</summary>
-                <p class="slide1-answer">Some mainstream apps may behave differently or fail to function on a debloated or custom OS. The Survival Node is built for resilience and privacy under pressure — not for ad-tech convenience and always-online app ecosystems. We recommend reserving the phone for emergency use only. Running your daily apps on the Node defeats its purpose and degrades the battery you're counting on when the grid is down.</p>
-              </details>
+              <a href="#faq" class="slide1-more-link">More Questions ↓</a>
             </div>
           </div>
         </div>
@@ -1078,7 +1042,7 @@
     </section>
 
     <section class="card" style="margin-top:1rem;">
-      <section class="faq" aria-label="Survival Node Frequently Asked Questions" style="margin-top:0; padding-top:0; border-top:0;">
+      <section id="faq" class="faq" aria-label="Survival Node Frequently Asked Questions" style="margin-top:0; padding-top:0; border-top:0;">
         <h3>Frequently Asked Questions</h3>
 
         <details>
