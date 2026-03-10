@@ -836,7 +836,9 @@
           <div class="kit-gallery-col">
             <div class="slide2-inner">
               <div class="thumb-strip">
-                <img class="thumb-img active" src="images/carousel/phone2.png" alt="Core Unit" data-full="images/carousel/phone2.png" data-key="phone" />
+                <img class="thumb-img active" src="https://placehold.co/80x80/0d1017/9ed0ff?text=Full+Kit" alt="Full Kit" data-full="https://placehold.co/400x300/0d1017/9ed0ff?text=Full+Kit" data-key="kit" />
+                <span style="display:flex; align-items:center; color:var(--muted); font-size:.62rem; font-family:'Hanken Grotesk',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; padding:0 .2rem; border-right:1px solid var(--line); margin-right:.1rem;">Components</span>
+                <img class="thumb-img" src="images/carousel/phone2.png" alt="Core Unit" data-full="images/carousel/phone2.png" data-key="phone" />
                 <img class="thumb-img" src="images/carousel/phoneai2.png" alt="Offline AI Models" data-full="images/carousel/phoneai2.png" data-key="ai" />
                 <img class="thumb-img" src="images/carousel/phoneai3.png" alt="Offline Maps" data-full="images/carousel/phoneai3.png" data-key="maps" />
                 <img class="thumb-img" src="images/carousel/charging.png" alt="Solar Battery" data-full="images/carousel/charging.png" data-key="solar" />
@@ -1715,6 +1717,17 @@
       if (!galleryEl || !descEl) return;
 
       const itemData = {
+        kit: {
+          photos: [
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Full+Kit+Photo+1',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Full+Kit+Photo+2',
+            'https://placehold.co/400x300/0d1017/9ed0ff?text=Full+Kit+Photo+3',
+          ],
+          label: 'Everything in the box',
+          title: 'The Complete Survival Node Kit',
+          body: `<p>Everything included in every Survival Node — laid out and ready to go. One kit, built as a complete system: Core Unit phone with pre-loaded software, solar battery with 4 attached cables, (2) Faraday bags, shockproof phone case, weatherproof hard case with padlock, wall charger, and USB-C cable.</p>
+                 <p>Nothing to configure. Nothing to source separately. Every component has been tested together as a system — not just individually. Open the case and it's ready to deploy.</p>`
+        },
         case: {
           photos: [
             'images/carousel/case2.png',
