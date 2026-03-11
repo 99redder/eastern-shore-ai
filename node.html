@@ -547,10 +547,267 @@
     .mobile-nav-bar { display: none; }
     /* Promo dropdown subtitle — only shown on mobile where .promo-long is hidden */
     .promo-mobile-subtitle { display: none; }
+    /* ===== Ask K Assistant Drawer ===== */
+    .askk-fab {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 8000;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(145deg, var(--cyan), #6ef4ff);
+      box-shadow: 0 4px 20px rgba(158, 208, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: #071219;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .askk-fab:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(158, 208, 255, 0.7);
+    }
+    .askk-fab-label {
+      position: absolute;
+      right: 72px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 0.4rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .askk-fab:hover .askk-fab-label { opacity: 1; }
+    .askk-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 8500;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+    }
+    .askk-drawer-overlay.open { display: block; }
+    .askk-drawer {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: min(400px, 92vw);
+      height: 100%;
+      z-index: 9000;
+      background: linear-gradient(180deg, #131926 0%, #0b0d13 100%);
+      border-left: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .askk-drawer.open { right: 0; }
+    .askk-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--line);
+      background: rgba(158, 208, 255, 0.04);
+      flex-shrink: 0;
+    }
+    .askk-header-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--cyan), #6ef4ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: #071219;
+    }
+    .askk-header-text { flex: 1; }
+    .askk-header-title {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--cyan);
+      margin: 0;
+    }
+    .askk-header-subtitle {
+      font-size: 0.76rem;
+      color: var(--muted);
+      margin: 0.1rem 0 0;
+    }
+    .askk-close {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .askk-close:hover { border-color: var(--cyan); color: var(--text); }
+    .askk-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .askk-msg {
+      max-width: 88%;
+      padding: 0.7rem 0.9rem;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    .askk-msg.user {
+      align-self: flex-end;
+      background: linear-gradient(145deg, var(--cyan), #6ef4ff);
+      color: #071219;
+      border-bottom-right-radius: 4px;
+    }
+    .askk-msg.assistant {
+      align-self: flex-start;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+    .askk-msg.assistant a { color: var(--cyan); }
+    .askk-msg.system {
+      align-self: center;
+      background: rgba(158, 208, 255, 0.08);
+      border: 1px solid rgba(158, 208, 255, 0.2);
+      color: var(--muted);
+      font-size: 0.82rem;
+      max-width: 95%;
+    }
+    .askk-typing {
+      display: flex;
+      gap: 0.3rem;
+      padding: 0.5rem 0;
+    }
+    .askk-typing span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: askk-bounce 1.2s infinite;
+    }
+    .askk-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .askk-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes askk-bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+    .askk-input-area {
+      padding: 0.8rem 1rem;
+      border-top: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+    }
+    .askk-input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .askk-input {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: 'Titillium Web', sans-serif;
+      resize: none;
+      min-height: 42px;
+      max-height: 120px;
+    }
+    .askk-input:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+    .askk-send {
+      background: linear-gradient(145deg, var(--cyan), #6ef4ff);
+      border: none;
+      border-radius: 8px;
+      width: 44px;
+      height: 42px;
+      cursor: pointer;
+      color: #071219;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s;
+    }
+    .askk-send:hover { transform: scale(1.05); }
+    .askk-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .askk-escalate {
+      margin-top: 0.6rem;
+      text-align: center;
+    }
+    .askk-escalate-btn {
+      background: none;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Hanken Grotesk', sans-serif;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .askk-escalate-btn:hover { border-color: var(--cyan); color: var(--text); }
+    .askk-quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.15);
+    }
+    .askk-quick-btn {
+      background: rgba(158, 208, 255, 0.08);
+      border: 1px solid rgba(158, 208, 255, 0.25);
+      color: var(--text);
+      font-size: 0.78rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 16px;
+      cursor: pointer;
+      font-family: 'Titillium Web', sans-serif;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .askk-quick-btn:hover {
+      background: rgba(158, 208, 255, 0.15);
+      border-color: var(--cyan);
+    }
+
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
       .buy-now-float { padding: 0.75rem 1.2rem; font-size: 0.92rem; }
       #global-back-btn, #users-guide-btn, .buy-now-float { display: none !important; }
+      .askk-fab { width: 52px; height: 52px; font-size: 1.4rem; bottom: 1rem; right: 1rem; }
+      .askk-fab-label { display: none; }
+      .askk-drawer { width: 100vw; right: -100vw; }
+      .askk-input { font-size: 16px !important; }
       /* 2. Inline nav bar below promo bar */
       .mobile-nav-bar {
         display: flex;
@@ -2394,6 +2651,232 @@
         tab.addEventListener('click', () => switchTab(tab.dataset.panel));
       });
     })();
+
+    // ===== Ask K Assistant =====
+    (function() {
+      const ASKK_API_URL = (window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact').replace('/api/contact', '/api/admin/ask-k');
+
+      // DOM references
+      const fab = document.getElementById('askk-fab');
+      const overlay = document.getElementById('askk-drawer-overlay');
+      const drawer = document.getElementById('askk-drawer');
+      const closeBtn = document.getElementById('askk-close');
+      const messagesEl = document.getElementById('askk-messages');
+      const inputEl = document.getElementById('askk-input');
+      const sendBtn = document.getElementById('askk-send');
+      const escalateBtn = document.getElementById('askk-escalate-btn');
+      const quickActions = document.getElementById('askk-quick-actions');
+
+      if (!fab || !drawer) return;
+
+      let conversationHistory = [];
+      let isTyping = false;
+
+      // Collect page context for grounding
+      function collectPageContext() {
+        const ctx = {
+          page: 'Survival Node Product Page',
+          url: window.location.pathname + window.location.hash,
+          visibleSections: [],
+          expandedFAQs: [],
+          selectedUpgrades: []
+        };
+
+        // Visible headings
+        document.querySelectorAll('h1, h2, h3').forEach(h => {
+          const rect = h.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < window.innerHeight) {
+            ctx.visibleSections.push(h.textContent.trim().slice(0, 80));
+          }
+        });
+
+        // Expanded FAQ items
+        document.querySelectorAll('.faq details[open], .slide1-q[open]').forEach(d => {
+          const summary = d.querySelector('summary');
+          if (summary) ctx.expandedFAQs.push(summary.textContent.trim().slice(0, 100));
+        });
+
+        // Selected upgrades
+        document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
+          ctx.selectedUpgrades.push(cb.dataset.label || 'Upgrade');
+        });
+
+        return ctx;
+      }
+
+      function openDrawer() {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        inputEl.focus();
+
+        // Welcome message on first open
+        if (conversationHistory.length === 0) {
+          addMessage('assistant', 'Hi! I\'m K, your Survival Node assistant. I can help answer questions about the product, what\'s included, shipping, returns, and more. What would you like to know?');
+        }
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      function addMessage(role, content) {
+        const msg = document.createElement('div');
+        msg.className = `askk-msg ${role}`;
+        // Basic markdown-like formatting for assistant responses
+        if (role === 'assistant') {
+          content = content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+        }
+        msg.innerHTML = content;
+        messagesEl.appendChild(msg);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+
+        if (role !== 'system') {
+          conversationHistory.push({ role, content: content.replace(/<[^>]+>/g, '') });
+        }
+      }
+
+      function showTyping() {
+        const typing = document.createElement('div');
+        typing.className = 'askk-msg assistant';
+        typing.id = 'askk-typing-indicator';
+        typing.innerHTML = '<div class="askk-typing"><span></span><span></span><span></span></div>';
+        messagesEl.appendChild(typing);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      function hideTyping() {
+        const el = document.getElementById('askk-typing-indicator');
+        if (el) el.remove();
+      }
+
+      async function sendMessage(userText) {
+        if (!userText.trim() || isTyping) return;
+
+        addMessage('user', userText.trim());
+        inputEl.value = '';
+        inputEl.style.height = 'auto';
+        sendBtn.disabled = true;
+        isTyping = true;
+        showTyping();
+
+        // Hide quick actions after first message
+        if (quickActions) quickActions.style.display = 'none';
+
+        const pageContext = collectPageContext();
+
+        try {
+          const res = await fetch(ASKK_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: userText.trim(),
+              history: conversationHistory.slice(-10),
+              context: pageContext
+            })
+          });
+
+          const data = await res.json();
+          hideTyping();
+
+          if (data.ok && data.reply) {
+            addMessage('assistant', data.reply);
+          } else {
+            addMessage('assistant', data.error || 'Sorry, I couldn\'t process that. Please try again or contact our team directly.');
+          }
+        } catch (err) {
+          hideTyping();
+          addMessage('assistant', 'I\'m having trouble connecting right now. You can reach our team directly at (302) 907-9162 or through the contact form on our homepage.');
+        }
+
+        isTyping = false;
+        sendBtn.disabled = false;
+        inputEl.focus();
+      }
+
+      // Event listeners
+      fab.addEventListener('click', openDrawer);
+      overlay.addEventListener('click', closeDrawer);
+      closeBtn.addEventListener('click', closeDrawer);
+
+      sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage(inputEl.value);
+        }
+      });
+
+      // Auto-resize input
+      inputEl.addEventListener('input', () => {
+        inputEl.style.height = 'auto';
+        inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+      });
+
+      // Quick action buttons
+      quickActions?.addEventListener('click', (e) => {
+        if (e.target.classList.contains('askk-quick-btn')) {
+          sendMessage(e.target.textContent);
+        }
+      });
+
+      // Escalation button
+      escalateBtn?.addEventListener('click', () => {
+        addMessage('system', 'To speak with our team directly, call (302) 907-9162 or use the contact form on our homepage at www.easternshore.ai');
+      });
+
+      // Escape key to close
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) {
+          closeDrawer();
+        }
+      });
+    })();
   </script>
+
+  <!-- Ask K Floating Button -->
+  <button class="askk-fab" id="askk-fab" aria-label="Ask K - Product Assistant">
+    <span class="askk-fab-label">Ask K</span>
+    💬
+  </button>
+
+  <!-- Ask K Drawer Overlay -->
+  <div class="askk-drawer-overlay" id="askk-drawer-overlay"></div>
+
+  <!-- Ask K Drawer -->
+  <div class="askk-drawer" id="askk-drawer" role="dialog" aria-modal="true" aria-labelledby="askk-title">
+    <div class="askk-header">
+      <div class="askk-header-icon">K</div>
+      <div class="askk-header-text">
+        <h2 class="askk-header-title" id="askk-title">Ask K</h2>
+        <p class="askk-header-subtitle">Survival Node Assistant</p>
+      </div>
+      <button class="askk-close" id="askk-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="askk-messages" id="askk-messages"></div>
+
+    <div class="askk-quick-actions" id="askk-quick-actions">
+      <button class="askk-quick-btn">What's included?</button>
+      <button class="askk-quick-btn">Does it work offline?</button>
+      <button class="askk-quick-btn">How does shipping work?</button>
+      <button class="askk-quick-btn">What's the warranty?</button>
+    </div>
+
+    <div class="askk-input-area">
+      <div class="askk-input-row">
+        <textarea class="askk-input" id="askk-input" placeholder="Ask about the Survival Node..." rows="1"></textarea>
+        <button class="askk-send" id="askk-send" aria-label="Send">→</button>
+      </div>
+      <div class="askk-escalate">
+        <button class="askk-escalate-btn" id="askk-escalate-btn">Talk to a human</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

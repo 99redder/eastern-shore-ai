@@ -16,3 +16,9 @@ database_id = "59d029fc-5f2b-42af-bdff-c5814a717879"
 [[r2_buckets]]
 binding = "RECEIPTS"
 bucket_name = "eastern-shore-ai-receipts"
+
+# Ask K Assistant secrets (set via `wrangler secret put`):
+# - ASKK_API_KEY: API key for the LLM provider (required)
+# - ASKK_BASE_URL: provider base URL (optional, defaults to https://api.openai.com/v1)
+# - ASKK_MODEL: model identifier (optional, defaults to gpt-4o-mini)
+# - ASKK_STAFF_WEBHOOK_URL: webhook URL for escalation notifications (optional)
