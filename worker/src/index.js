@@ -4151,25 +4151,4 @@ async function handleAskKEscalate(request, env, corsHeaders) {
   }
 }
 
-function json(payload, status = 200, headers = {}) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: { 'Content-Type': 'application/json', ...headers }
-  });
-}
-
-function formatUsd(cents) {
-  return `$${(Number(cents || 0) / 100).toFixed(2)}`;
-}
-
-function escapeHtml(input) {
-  return String(input ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-// ===== Ask K Assistant =====
 
