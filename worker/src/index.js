@@ -20,6 +20,8 @@
 // GET  /api/accounts/summary    → handleAccountsSummary() — Admin: account balances + trial balance status
 // GET  /api/accounts/journal    → handleAccountsJournal() — Admin: journal entries list
 // POST /api/accounts/journal    → handleAccountsJournalCreate() — Admin: manual journal entry
+// POST /api/ask-k               → handleAskK()            — Public: AI assistant for Survival Node questions
+// POST /api/ask-k/escalate      → handleAskKEscalate()    — Public: escalation webhook to staff
 //
 // ===== UTILITY FUNCTIONS =====
 // requireAdmin(request, env)           — Validate X-Admin-Password header
@@ -65,7 +67,7 @@ export default {
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
-      const isAskKRoute = ['/api/ask-k', '/api/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
+      const isAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute) {
@@ -4081,7 +4083,7 @@ async function handleAskK(request, env, corsHeaders) {
 }
 
 /**
- * POST /api/admin/ask-k/escalate — Send escalation notification to staff webhook
+ * POST /api/ask-k/escalate — Send escalation notification to staff webhook (public endpoint)
  * @param {Request} request - JSON body: { conversation, customerInfo }
  * @param {Object} env - Worker env (ASKK_STAFF_WEBHOOK_URL)
  * @returns {Response} { ok: true } or { ok: false, error }
