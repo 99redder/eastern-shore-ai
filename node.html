@@ -3170,9 +3170,12 @@
       <button class="askk-close" id="askk-close" aria-label="Close">×</button>
     </div>
 
-    <div class="askk-human-status" id="askk-human-status">
-      <span class="askk-human-status-dot waiting"></span>
-      <span id="askk-human-status-text">Waiting for a team member to join...</span>
+    <div class="askk-human-status" id="askk-human-status" style="display:flex; align-items:center; justify-content:space-between; gap:.75rem;">
+      <div style="display:flex; align-items:center; gap:.6rem; min-width:0;">
+        <span class="askk-human-status-dot waiting"></span>
+        <span id="askk-human-status-text">Waiting for a team member to join...</span>
+      </div>
+      <button class="askk-escalate-btn" id="askk-close-chat-btn" style="display:none; margin:0; padding:.45rem .7rem; font-size:.82rem; white-space:nowrap; flex-shrink:0;">Close chat</button>
     </div>
 
     <div class="askk-messages" id="askk-messages"></div>
@@ -3191,7 +3194,6 @@
       </div>
       <div class="askk-escalate">
         <button class="askk-escalate-btn" id="askk-escalate-btn">Talk to a human</button>
-        <button class="askk-escalate-btn" id="askk-close-chat-btn" style="display:none; margin-top:.55rem;">Close chat</button>
       </div>
     </div>
   </div>
