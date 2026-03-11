@@ -687,6 +687,27 @@
       border-bottom-left-radius: 4px;
     }
     .askk-msg.assistant a { color: var(--cyan); }
+    .askk-msg-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      max-width: 96%;
+    }
+    .askk-msg-wrap.user {
+      align-self: flex-end;
+      justify-content: flex-end;
+    }
+    .askk-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid rgba(158, 208, 255, 0.35);
+      box-shadow: 0 0 10px rgba(158, 208, 255, 0.18);
+      background: #0b0d13;
+      margin-top: 0.12rem;
+    }
     .askk-msg.system {
       align-self: center;
       background: rgba(158, 208, 255, 0.08);
@@ -2851,7 +2872,7 @@
   <!-- Ask K Drawer -->
   <div class="askk-drawer" id="askk-drawer" role="dialog" aria-modal="true" aria-labelledby="askk-title">
     <div class="askk-header">
-      <div class="askk-header-icon">K</div>
+      <div class="askk-header-icon" style="overflow:hidden; padding:0; background:#0b0d13; border:1px solid rgba(158,208,255,.35);"><img src="/images/ask-k/k.png" alt="K" style="width:100%; height:100%; object-fit:cover; display:block;" /></div>
       <div class="askk-header-text">
         <h2 class="askk-header-title" id="askk-title">Ask K</h2>
         <p class="askk-header-subtitle">Survival Node Assistant</p>
