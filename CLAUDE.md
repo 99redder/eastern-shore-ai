@@ -60,8 +60,139 @@ All routes in `worker/src/index.js`:
 - `POST /api/tax/expense` — Admin add expense entry
 - `POST /api/tax/income` — Admin add income entry
 - `GET /api/tax/export.csv` — Admin CSV export for selected year/type
+- `POST /api/admin/ask-k` — Survival Node Ask K assistant endpoint
+- `POST /api/admin/ask-k/escalate` — Survival Node Ask K Discord/webhook escalation
+- `POST /api/chat/session` — Create a live human support chat session from the site
+- `GET /api/chat/session` — Fetch chat session metadata by token
+- `GET /api/chat/messages` — Poll chat messages + typing state by token
+- `POST /api/chat/message` — Send a chat message (user or staff)
+- `POST /api/chat/typing` — Update typing indicator state
+- `GET /api/chat/sessions` — Admin list of support chat sessions
+- `POST /api/chat/session/close` — Close a support chat session (admin or customer token flow)
+- `POST /api/chat/sessions/purge-old` — Admin delete closed chats older than N days
 
 Response shape: `{ ok: boolean, error?: string }`
+
+## Survival Node Ask K + Live Support (added 2026-03-11)
+
+### Overview
+
+The Survival Node page (`node.html`) now includes a reusable **Ask K** assistant patterned after the FlorenceMaeGifts implementation, but grounded to the Survival Node product/site instead of FMG admin workflows.
+
+Ask K is:
+- explain-only
+- prompt-injection hardened
+- page-aware
+- beginner-friendly and detailed
+- backed by the Eastern Shore AI Cloudflare Worker, not the FMG worker
+
+### Ask K frontend (`node.html`)
+
+Features added to the Survival Node page:
+- floating **Ask K** button + right-side drawer
+- K avatar in header and assistant responses
+- Survival-Node-specific quick actions / canned FAQ replies
+- freeform AI Q&A for custom questions
+- **Talk to a human** escalation button (pink/black styling so it stands out)
+- customer-side human support mode with:
+  - live human join state
+  - inline typing indicator in chat stream
+  - customer-side **Close chat** action with branded confirmation modal
+
+Important UX behavior:
+- human support status stays hidden until **Talk to a human** is pressed
+- "X has joined the chat" shows in the message stream
+- "X is typing…" shows in the chat area, not just in the header
+
+### Ask K backend (`worker/src/index.js`)
+
+The worker now supports the same Ask K provider pattern used on FMG:
+- `ASKK_API_KEY`
+- `ASKK_BASE_URL`
+- `ASKK_MODEL`
+- base URL normalization to `/chat/completions`
+- `<think>...</think>` stripping from model replies
+- intent-first behavior (question > page context)
+- explain-only role constraints
+
+Grounding file:
+- `worker/askk-survival-node-knowledge.md`
+
+That file is the project-specific read-only knowledge base for Survival Node Ask K and should be updated when the product/support/FAQ behavior changes.
+
+### Provider configuration
+
+If using MiniMax (same pattern as FMG):
+```bash
+wrangler secret put ASKK_API_KEY
+wrangler secret put ASKK_BASE_URL   # https://api.minimax.io/v1
+wrangler secret put ASKK_MODEL      # MiniMax-M2.5
+```
+
+Optional staff escalation secret:
+```bash
+wrangler secret put ASKK_STAFF_WEBHOOK_URL
+```
+
+### Survival Node support chat system
+
+A full live human-handoff support chat was added for the Survival Node page.
+
+Frontend pieces:
+- `node.html` — customer-side Ask K + live support chat UI
+- `support-chat.html` — operator/admin chat console
+- `support-chat-manifest.json` — PWA manifest
+- `support-chat-sw.js` — service worker for install/update behavior
+
+Backend pieces:
+- chat session/message/typing endpoints in `worker/src/index.js`
+- D1-backed chat persistence using `chat_sessions`, `chat_messages`, and `chat_typing`
+
+### Support chat behavior
+
+Customer-side:
+- user can escalate from Ask K to a live human support session
+- customer sees staff join + staff typing in the chat stream
+- customer can close the chat with branded confirmation modal
+
+Operator-side (`support-chat.html`):
+- persistent login via localStorage restore of admin password
+- editable operator display name (stored locally)
+- mobile/PWA-optimized support panel
+- mobile uses a two-screen pattern:
+  - sessions list first
+  - full-screen chat after selecting a session
+  - back button to return to sessions list
+- branded modal for close-session confirmation
+- **Clear 30+ Day Chats** maintenance action
+- closed customer chats automatically drop out of the **Active** view and belong under **Closed**
+
+### Required D1 migrations for support chat
+
+Relevant migration files now include:
+- `0017_create_chat_tables.sql`
+- `0018_add_chat_typing_state.sql`
+
+Apply to production with:
+```bash
+cd worker
+wrangler d1 migrations apply eastern-shore-ai-bookings --remote
+```
+Then deploy:
+```bash
+wrangler deploy
+```
+
+### Important implementation notes
+
+- Website chat is the source of truth; Discord is only the notification layer.
+- Do **not** try to make Discord the canonical chat backend.
+- The support chat operator surface should remain usable on phone/PWA.
+- For future sites, if Red says to “port Ask K,” treat the Survival Node/FM G pattern as reusable architecture:
+  - floating assistant drawer
+  - grounded project knowledge file
+  - own worker/env/API key setup
+  - optional live human handoff
 
 ## Code Conventions
 
