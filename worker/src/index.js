@@ -78,7 +78,7 @@ export default {
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
-      const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close'].includes(url.pathname) && request.method === 'POST');
+      const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
@@ -336,6 +336,10 @@ export default {
 
     if (url.pathname === '/api/chat/session/close' && request.method === 'POST') {
       return handleChatSessionClose(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/chat/sessions/purge-old' && request.method === 'POST') {
+      return handleChatSessionsPurgeOld(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -1515,9 +1519,6 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try {
     data = await request.json();
@@ -1557,9 +1558,6 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
-
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
 
   let data;
   try {
@@ -1672,9 +1670,6 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
  */
 async function handleTaxExpense(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -1723,9 +1718,6 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
  */
 async function handleTaxIncome(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -1768,9 +1760,6 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
  */
 async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -1865,9 +1854,6 @@ async function handleTaxOwnerTransfer(request, env, corsHeaders, url) {
  */
 async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -1919,9 +1905,6 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
  */
 async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
   const id = Number(data.id || 0);
@@ -1944,9 +1927,6 @@ async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
  */
 async function handleTaxIncomeDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
   const id = Number(data.id || 0);
@@ -2540,9 +2520,6 @@ async function handleInvoiceDetail(request, env, corsHeaders, url) {
 
 async function handleInvoiceUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -3084,9 +3061,6 @@ function generateToken() {
 
 async function handleQuoteCreate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -3165,9 +3139,6 @@ async function handleQuoteDetail(request, env, corsHeaders, url) {
 
 async function handleQuoteUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -3211,9 +3182,6 @@ async function handleQuoteUpdate(request, env, corsHeaders, url) {
 
 async function handleQuoteDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -4551,9 +4519,6 @@ async function handleChatSessionClose(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
-
   let data;
   try {
     data = await request.json();
@@ -4563,6 +4528,12 @@ async function handleChatSessionClose(request, env, corsHeaders, url) {
 
   const sessionId = data.sessionId ? parseInt(data.sessionId, 10) : null;
   const token = (data.token || '').toString().trim();
+  const isAdminClose = !!sessionId;
+
+  if (isAdminClose) {
+    const auth = requireAdmin(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+  }
 
   if (!sessionId && !token) {
     return json({ ok: false, error: 'Missing sessionId or token' }, 400, corsHeaders);
@@ -4594,13 +4565,38 @@ async function handleChatSessionClose(request, env, corsHeaders, url) {
     if (session) {
       await env.DB.prepare(
         `INSERT INTO chat_messages (session_id, role, content, sender_name, created_at)
-         VALUES (?1, 'system', 'This chat session has been closed.', 'System', ?2)`
-      ).bind(session.id, now).run();
+         VALUES (?1, 'system', ?3, 'System', ?2)`
+      ).bind(session.id, now, isAdminClose ? 'This chat session has been closed by support.' : 'This chat session has been closed by the customer.').run();
     }
 
     return json({ ok: true }, 200, corsHeaders);
   } catch (err) {
     return json({ ok: false, error: 'Failed to close session' }, 500, corsHeaders);
+  }
+}
+
+async function handleChatSessionsPurgeOld(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data = {};
+  try { data = await request.json(); } catch {}
+  const days = Math.max(1, Math.min(365, parseInt(data.days || '30', 10) || 30));
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+  try {
+    const oldSessions = await env.DB.prepare(`SELECT id FROM chat_sessions WHERE status = 'closed' AND closed_at IS NOT NULL AND closed_at < ?1`).bind(cutoff).all();
+    const ids = oldSessions.results.map((r) => r.id);
+    if (!ids.length) return json({ ok: true, deleted: 0 }, 200, corsHeaders);
+    for (const id of ids) {
+      await env.DB.prepare(`DELETE FROM chat_typing WHERE session_id = ?1`).bind(id).run();
+      await env.DB.prepare(`DELETE FROM chat_messages WHERE session_id = ?1`).bind(id).run();
+      await env.DB.prepare(`DELETE FROM chat_sessions WHERE id = ?1`).bind(id).run();
+    }
+    return json({ ok: true, deleted: ids.length }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to purge old chats' }, 500, corsHeaders);
   }
 }
 

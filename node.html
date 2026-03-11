@@ -2740,7 +2740,11 @@
       const inputEl = document.getElementById('askk-input');
       const sendBtn = document.getElementById('askk-send');
       const escalateBtn = document.getElementById('askk-escalate-btn');
+      const closeChatBtn = document.getElementById('askk-close-chat-btn');
       const quickActions = document.getElementById('askk-quick-actions');
+      const closeConfirmOverlay = document.getElementById('askk-confirm-overlay');
+      const closeCancelBtn = document.getElementById('askk-close-cancel');
+      const closeConfirmBtn = document.getElementById('askk-close-confirm');
       const humanStatusEl = document.getElementById('askk-human-status');
       const humanStatusTextEl = document.getElementById('askk-human-status-text');
       const humanStatusDotEl = humanStatusEl?.querySelector('.askk-human-status-dot');
@@ -2965,6 +2969,7 @@
         if (headerSubtitleEl) headerSubtitleEl.textContent = 'Live human support';
         if (humanStatusTextEl) humanStatusTextEl.textContent = 'Waiting for a team member to join...';
         if (humanStatusDotEl) humanStatusDotEl.classList.add('waiting');
+        if (closeChatBtn) closeChatBtn.style.display = 'block';
         // Start polling for new messages
         startPolling();
       }
@@ -3016,6 +3021,8 @@
           if (data.sessionStatus === 'closed') {
             addMessage('system', 'This chat session has ended.');
             if (pollInterval) clearInterval(pollInterval);
+            if (closeChatBtn) closeChatBtn.style.display = 'none';
+            if (humanStatusTextEl) humanStatusTextEl.textContent = 'Support chat closed';
           }
         } catch (err) {
           // Silent fail on poll errors
@@ -3073,6 +3080,32 @@
           sendUserTypingState(false);
         }
       }
+
+      closeChatBtn?.addEventListener('click', () => { if (humanMode && chatSessionToken && closeConfirmOverlay) closeConfirmOverlay.style.display = 'flex'; });
+      closeCancelBtn?.addEventListener('click', () => { if (closeConfirmOverlay) closeConfirmOverlay.style.display = 'none'; });
+      closeConfirmBtn?.addEventListener('click', async () => {
+        if (!chatSessionToken) return;
+        closeConfirmBtn.disabled = true;
+        try {
+          const res = await fetch(`${CHAT_API_BASE}/session/close`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: chatSessionToken })
+          });
+          const data = await res.json();
+          if (data.ok) {
+            addMessage('system', 'This chat session has been closed.');
+            if (closeConfirmOverlay) closeConfirmOverlay.style.display = 'none';
+            if (closeChatBtn) closeChatBtn.style.display = 'none';
+            if (pollInterval) clearInterval(pollInterval);
+          } else {
+            addMessage('system', data.error || 'Could not close the chat.');
+          }
+        } catch (err) {
+          addMessage('system', 'Could not close the chat.');
+        }
+        closeConfirmBtn.disabled = false;
+      });
 
       // Escalation button - now creates a live chat session
       escalateBtn?.addEventListener('click', async () => {
@@ -3158,6 +3191,17 @@
       </div>
       <div class="askk-escalate">
         <button class="askk-escalate-btn" id="askk-escalate-btn">Talk to a human</button>
+        <button class="askk-escalate-btn" id="askk-close-chat-btn" style="display:none; margin-top:.55rem;">Close chat</button>
+      </div>
+    </div>
+  </div>
+  <div class="askk-drawer-overlay" id="askk-confirm-overlay" style="display:none;">
+    <div class="confirm-modal" style="width:min(420px,calc(100vw - 2rem)); background:linear-gradient(180deg,#131926 0%,#0b0d13 100%); border:1px solid var(--line); border-radius:14px; box-shadow:0 18px 48px rgba(0,0,0,.45); padding:1.1rem; margin:auto;">
+      <h3 style="margin:0 0 .45rem; color:var(--cyan);">Close this chat?</h3>
+      <p style="margin:0 0 1rem; color:var(--muted); line-height:1.5;">This will end the current support session for both you and the support team.</p>
+      <div style="display:flex; gap:.65rem; justify-content:flex-end; flex-wrap:wrap;">
+        <button type="button" class="askk-escalate-btn" id="askk-close-cancel">Cancel</button>
+        <button type="button" class="askk-escalate-btn" id="askk-close-confirm">Close chat</button>
       </div>
     </div>
   </div>
