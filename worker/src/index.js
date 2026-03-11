@@ -4132,16 +4132,12 @@ async function handleAskKEscalate(request, env, corsHeaders) {
   }
 
   const conversation = Array.isArray(data.conversation) ? data.conversation : [];
-  const conversationText = conversation.map((m) => `${m.role === 'user' ? 'Customer' : 'Ask K'}: ${m.content}`).join('
-');
-  const payload = { content: `**Ask K Escalation Request**
-
-Page: Survival Node (node.html)
-
-**Conversation:**
-${conversationText || '(no conversation)'}
-
-Call: (302) 907-9162` };
+  const conversationText = conversation
+    .map((m) => `${m.role === 'user' ? 'Customer' : 'Ask K'}: ${m.content}`)
+    .join('\n');
+  const payload = {
+    content: `**Ask K Escalation Request**\n\nPage: Survival Node (node.html)\n\n**Conversation:**\n${conversationText || '(no conversation)'}\n\nCall: (302) 907-9162`
+  };
 
   try {
     await fetch(webhookUrl, {
