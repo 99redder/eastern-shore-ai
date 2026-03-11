@@ -2653,7 +2653,7 @@
     })();
 
     // ===== Ask K Assistant =====
-    (function() {
+    document.addEventListener('DOMContentLoaded', () => {
       const ASKK_API_URL = (window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact').replace('/api/contact', '/api/admin/ask-k');
 
       // DOM references
@@ -2836,7 +2836,7 @@
           closeDrawer();
         }
       });
-    })();
+    });
   </script>
 
   <!-- Ask K Floating Button -->
