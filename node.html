@@ -2860,8 +2860,22 @@
       });
 
       // Escalation button
-      escalateBtn?.addEventListener('click', () => {
-        addMessage('system', 'To speak with our team directly, call (302) 907-9162 or use the contact form on our homepage at www.easternshore.ai');
+      escalateBtn?.addEventListener('click', async () => {
+        try {
+          const res = await fetch(ASKK_API_URL + '/escalate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              conversation: conversationHistory.slice(-12),
+              page: 'Survival Node (node.html)',
+              context: collectPageContext()
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+          addMessage('system', data.message || 'I sent your request to the Eastern Shore AI team.');
+        } catch (err) {
+          addMessage('system', 'I could not send the request automatically. Please call (302) 907-9162 or use the contact form on our homepage.');
+        }
       });
 
       // Escape key to close

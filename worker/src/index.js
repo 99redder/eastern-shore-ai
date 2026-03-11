@@ -4139,20 +4139,46 @@ async function handleAskKEscalate(request, env, corsHeaders) {
   }
 
   const conversation = Array.isArray(data.conversation) ? data.conversation : [];
-  const conversationText = conversation
-    .map((m) => `${m.role === 'user' ? 'Customer' : 'Ask K'}: ${m.content}`)
-    .join('\n');
-  const payload = {
-    content: `**Ask K Escalation Request**\n\nPage: Survival Node (node.html)\n\n**Conversation:**\n${conversationText || '(no conversation)'}\n\nCall: (302) 907-9162`
+  const context = data.context && typeof data.context === 'object' ? data.context : {};
+  const clip = (value, max = 280) => {
+    const s = String(value || '').replace(/\s+/g, ' ').trim();
+    return s.length > max ? `${s.slice(0, max - 1)}…` : s;
   };
+  const clipList = (arr, itemMax = 60, totalMax = 220) => {
+    const joined = (Array.isArray(arr) ? arr : [])
+      .slice(0, 8)
+      .map((v) => clip(v, itemMax))
+      .filter(Boolean)
+      .join(', ');
+    return clip(joined, totalMax);
+  };
+  const conversationText = conversation
+    .slice(-10)
+    .map((m) => `${m.role === 'user' ? 'Customer' : 'Ask K'}: ${clip(m.content, 220)}`)
+    .join('\n');
+  const lines = [
+    '**Ask K escalation requested**',
+    '**Page:** Survival Node (node.html)',
+    context.url ? `**URL:** ${clip(context.url, 180)}` : null,
+    Array.isArray(context.visibleSections) && context.visibleSections.length ? `**Visible sections:** ${clipList(context.visibleSections, 40, 220)}` : null,
+    Array.isArray(context.expandedFAQs) && context.expandedFAQs.length ? `**Open FAQs:** ${clipList(context.expandedFAQs, 50, 220)}` : null,
+    Array.isArray(context.selectedUpgrades) && context.selectedUpgrades.length ? `**Selected upgrades:** ${clipList(context.selectedUpgrades, 50, 180)}` : null,
+    conversationText ? `**Conversation:**\n${conversationText}` : null,
+    '<@1389557053118222497> user requested human help from Survival Node Ask K.'
+  ].filter(Boolean);
+  const content = clip(lines.join('\n'), 1900);
 
   try {
-    await fetch(webhookUrl, {
+    const resp = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ content })
     });
-    return json({ ok: true, message: "Our team has been notified. We'll follow up soon. You can also call (302) 907-9162." }, 200, corsHeaders);
+    if (!resp.ok) {
+      const txt = await resp.text().catch(() => '');
+      return json({ ok: false, error: `Webhook notify failed (${resp.status}): ${txt || 'unknown error'}` }, 500, corsHeaders);
+    }
+    return json({ ok: true, message: "I sent your request to the Eastern Shore AI team." }, 200, corsHeaders);
   } catch (err) {
     return json({ ok: true, message: 'Please call (302) 907-9162 or use the contact form on our homepage.' }, 200, corsHeaders);
   }
