@@ -131,8 +131,11 @@
         border-top: 1px solid var(--line);
         padding-bottom: calc(0.6rem + env(safe-area-inset-bottom, 0px));
       }
-      .chat-input { font-size: 16px; min-height: 44px; padding: 0.5rem 0.7rem; }
-      .chat-send { width: 60px; min-height: 44px; font-size: 0.9rem; }
+      .chat-input { font-size: 16px; min-height: 64px; padding: 0.85rem 0.95rem; }
+      .chat-send { width: 74px; min-height: 56px; font-size: 1rem; }
+      .confirm-modal { width: min(92vw, 460px); padding: 1rem; }
+      .confirm-actions { flex-direction: column-reverse; }
+      .confirm-actions .btn { width: 100%; min-height: 48px; font-size: 0.98rem; }
       .operator-name-wrap { flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
       .operator-name-wrap input { max-width: 140px; padding: 0.35rem 0.5rem; }
       .filter-tabs { flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
@@ -154,8 +157,11 @@
       .sessions-list { max-height: 140px; }
       .chat-panel { min-height: calc(100vh - 320px); max-height: calc(100vh - 250px); }
       .chat-header { padding: 0.5rem 0.6rem; }
-      .chat-input-area { padding: 0.5rem; }
-      .chat-send { width: 50px; }
+      .chat-input-area { padding: 0.55rem; }
+      .chat-input { min-height: 72px; }
+      .chat-send { width: 78px; min-height: 58px; }
+      .chat-msg { max-width: 92%; font-size: 0.92rem; }
+      .confirm-modal { width: calc(100vw - 1rem); padding: 0.9rem; }
       .filter-tabs .btn { padding: 0.3rem 0.5rem; font-size: 0.75rem; }
       .operator-name-wrap label { font-size: 0.8rem; }
       .operator-name-wrap input { max-width: 110px; font-size: 14px; }
@@ -184,6 +190,8 @@
     .confirm-overlay.open { display: flex; }
     .confirm-modal {
       width: min(460px, 100%);
+      max-height: min(88vh, 720px);
+      overflow: auto;
       background: linear-gradient(180deg, #131926 0%, #0b0d13 100%);
       border: 1px solid var(--line);
       border-radius: 14px;
@@ -654,6 +662,7 @@
   });
 
   closeConfirmCancelBtn?.addEventListener('click', () => closeModal(closeConfirmOverlay));
+  closeConfirmOverlay?.addEventListener('click', (e) => { if (e.target === closeConfirmOverlay) closeModal(closeConfirmOverlay); });
   closeConfirmActionBtn?.addEventListener('click', async () => {
     if (!currentSessionId) return;
     closeSessionBtn.disabled = true;
@@ -686,6 +695,7 @@
   // Purge old chats
   purgeOldBtn?.addEventListener('click', () => openModal(purgeConfirmOverlay));
   purgeConfirmCancelBtn?.addEventListener('click', () => closeModal(purgeConfirmOverlay));
+  purgeConfirmOverlay?.addEventListener('click', (e) => { if (e.target === purgeConfirmOverlay) closeModal(purgeConfirmOverlay); });
   purgeConfirmActionBtn?.addEventListener('click', async () => {
     purgeConfirmActionBtn.disabled = true;
     try {
@@ -716,6 +726,13 @@
       statusFilter = btn.dataset.status;
       loadSessions();
     });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal(closeConfirmOverlay);
+      closeModal(purgeConfirmOverlay);
+    }
   });
 
   // Refresh
