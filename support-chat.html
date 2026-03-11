@@ -591,6 +591,22 @@
         chatInputArea.style.display = 'none';
         closeSessionBtn.style.display = 'none';
         typingIndicatorEl.classList.remove('active');
+        // If we are viewing active sessions, immediately move closed sessions out of this view
+        if (statusFilter === 'active') {
+          currentSessionToken = null;
+          currentSessionId = null;
+          lastMessageId = 0;
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+          chatHeader.style.display = 'none';
+          chatMessages.style.display = 'none';
+          chatInputArea.style.display = 'none';
+          chatEmpty.style.display = 'block';
+          chatMessages.innerHTML = '';
+          loadSessions();
+        }
       }
     } catch (e) {
       // Silent fail
