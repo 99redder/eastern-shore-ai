@@ -2737,6 +2737,7 @@
       const drawer = document.getElementById('askk-drawer');
       const closeBtn = document.getElementById('askk-close');
       const messagesEl = document.getElementById('askk-messages');
+      const inlineTypingEl = document.getElementById('askk-inline-typing');
       const inputEl = document.getElementById('askk-input');
       const sendBtn = document.getElementById('askk-send');
       const escalateBtn = document.getElementById('askk-escalate-btn');
@@ -2975,6 +2976,17 @@
         startPolling();
       }
 
+      function showInlineTyping(name) {
+        if (!inlineTypingEl) return;
+        inlineTypingEl.textContent = `${name || 'Support'} is typing…`;
+        inlineTypingEl.style.display = 'block';
+      }
+
+      function hideInlineTyping() {
+        if (!inlineTypingEl) return;
+        inlineTypingEl.style.display = 'none';
+      }
+
       // Poll for new messages from staff
       function startPolling() {
         if (pollInterval) clearInterval(pollInterval);
@@ -2993,8 +3005,14 @@
                 addMessage(msg.role, msg.content, msg.sender_name);
                 // Update status when staff joins
                 if (msg.role === 'staff' && humanStatusTextEl && humanStatusDotEl) {
-                  staffJoinedName = msg.sender_name || 'Team member';
-                  humanStatusTextEl.textContent = `${staffJoinedName} has joined the chat`;
+                  const joinedName = msg.sender_name || 'Team member';
+                  if (!staffJoinedName) {
+                    staffJoinedName = joinedName;
+                    addMessage('system', `${staffJoinedName} has joined the chat.`);
+                  } else {
+                    staffJoinedName = joinedName;
+                  }
+                  humanStatusTextEl.textContent = `${staffJoinedName} is here to help`;
                   humanStatusDotEl.classList.remove('waiting');
                   humanStatusDotEl.classList.remove('typing');
                 }
@@ -3007,14 +3025,17 @@
           if (data.ok && humanStatusTextEl && humanStatusDotEl) {
             const staffTyping = (data.typing || []).find(t => t.role === 'staff');
             if (staffTyping) {
-              const name = staffTyping.senderName || staffJoinedName || 'Staff';
-              humanStatusTextEl.textContent = `${name} is typing...`;
+              const name = staffTyping.senderName || staffJoinedName || 'Support';
+              showInlineTyping(name);
+              humanStatusTextEl.textContent = `${name} is here to help`;
               humanStatusDotEl.classList.add('typing');
               humanStatusDotEl.classList.remove('waiting');
             } else if (staffJoinedName) {
-              // Not typing, but staff has joined
-              humanStatusTextEl.textContent = `${staffJoinedName} has joined the chat`;
+              hideInlineTyping();
+              humanStatusTextEl.textContent = `${staffJoinedName} is here to help`;
               humanStatusDotEl.classList.remove('typing');
+            } else {
+              hideInlineTyping();
             }
           }
 
@@ -3024,6 +3045,7 @@
             if (pollInterval) clearInterval(pollInterval);
             if (closeChatBtn) closeChatBtn.style.display = 'none';
             if (humanStatusTextEl) humanStatusTextEl.textContent = 'Support chat closed';
+            hideInlineTyping();
           }
         } catch (err) {
           // Silent fail on poll errors
@@ -3137,6 +3159,7 @@
           }
         } catch (err) {
           addMessage('system', 'Could not connect to support. Please call (302) 907-9162 or use the contact form on our homepage.');
+          hideInlineTyping();
           escalateBtn.disabled = false;
           escalateBtn.textContent = 'Talk to a human';
         }
@@ -3180,6 +3203,7 @@
     </div>
 
     <div class="askk-messages" id="askk-messages"></div>
+    <div class="askk-inline-typing" id="askk-inline-typing" style="display:none; padding:.35rem .9rem .2rem; color:var(--muted); font-size:.84rem;">Support is typing…</div>
 
     <div class="askk-quick-actions" id="askk-quick-actions">
       <button class="askk-quick-btn">What's included?</button>
