@@ -2692,6 +2692,12 @@
 
       let conversationHistory = [];
       let isTyping = false;
+      const cannedQuickReplies = {
+        "What's included?": "The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, and charging accessories.",
+        "Does it work offline?": "Yes — the Survival Node is built to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required.",
+        "How does shipping work?": "Shipping is free to continental U.S. destinations, and orders ship by ground because of lithium battery rules. Alaska, Hawaii, U.S. territories, and international destinations are not currently supported.",
+        "What's the warranty?": "The kit includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration. Returns are accepted within 30 days of delivery if the device stays in original functional condition, the Faraday bag seals are unbroken, and the OS has not been further modified."
+      };
 
       // Collect page context for grounding
       function collectPageContext() {
@@ -2842,7 +2848,14 @@
       // Quick action buttons
       quickActions?.addEventListener('click', (e) => {
         if (e.target.classList.contains('askk-quick-btn')) {
-          sendMessage(e.target.textContent);
+          const prompt = e.target.textContent.trim();
+          if (cannedQuickReplies[prompt]) {
+            addMessage('user', prompt);
+            addMessage('assistant', cannedQuickReplies[prompt]);
+            if (quickActions) quickActions.style.display = 'none';
+          } else {
+            sendMessage(prompt);
+          }
         }
       });
 
