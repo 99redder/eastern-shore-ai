@@ -4070,10 +4070,9 @@ function clipAskKKnowledge(text, max = 12000) {
 }
 
 function stripThinkBlocks(text) {
-  return String(text || '').replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/
-{3,}/g, '
-
-');
+  return String(text || '')
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/\n{3,}/g, '\n\n');
 }
 
 function normalizeAskKChatCompletionsUrl(rawUrl) {
