@@ -312,6 +312,29 @@
   </div>
 </main>
 
+<div class="confirm-overlay" id="close-confirm-overlay" aria-hidden="true">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="close-confirm-title">
+      <h3 id="close-confirm-title">Close this support session?</h3>
+      <p>This will mark the current chat as closed in the support system. Use this when the conversation is finished.</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn secondary" id="close-confirm-cancel">Cancel</button>
+        <button type="button" class="btn" id="close-confirm-action">Close Session</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-overlay" id="purge-confirm-overlay" aria-hidden="true">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="purge-confirm-title">
+      <h3 id="purge-confirm-title">Delete old closed chats?</h3>
+      <p>This will permanently delete closed support chat sessions older than 30 days. Active chats will not be touched.</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn secondary" id="purge-confirm-cancel">Cancel</button>
+        <button type="button" class="btn delete" id="purge-confirm-action">Delete Old Chats</button>
+      </div>
+    </div>
+  </div>
+
+
 <script>
 (function() {
   const API_BASE = 'https://eastern-shore-ai-contact.99redder.workers.dev/api/chat';
@@ -837,29 +860,5 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-
-
-  <div class="confirm-overlay" id="close-confirm-overlay" aria-hidden="true">
-    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="close-confirm-title">
-      <h3 id="close-confirm-title">Close this support session?</h3>
-      <p>This will mark the current chat as closed in the support system. Use this when the conversation is finished.</p>
-      <div class="confirm-actions">
-        <button type="button" class="btn secondary" id="close-confirm-cancel">Cancel</button>
-        <button type="button" class="btn" id="close-confirm-action">Close Session</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="confirm-overlay" id="purge-confirm-overlay" aria-hidden="true">
-    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="purge-confirm-title">
-      <h3 id="purge-confirm-title">Delete old closed chats?</h3>
-      <p>This will permanently delete closed support chat sessions older than 30 days. Active chats will not be touched.</p>
-      <div class="confirm-actions">
-        <button type="button" class="btn secondary" id="purge-confirm-cancel">Cancel</button>
-        <button type="button" class="btn delete" id="purge-confirm-action">Delete Old Chats</button>
-      </div>
-    </div>
-  </div>
-
 </body>
 </html>
