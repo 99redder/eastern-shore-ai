@@ -742,6 +742,7 @@
         chatInputArea.style.display = 'none';
         closeSessionBtn.style.display = 'none';
         closeModal(closeConfirmOverlay);
+        setMobileChatOpen(false);
         loadSessions();
       } else {
         alert('Failed to close: ' + (data.error || 'Unknown error'));
