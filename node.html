@@ -820,6 +820,51 @@
       background: rgba(158, 208, 255, 0.15);
       border-color: var(--cyan);
     }
+    /* Human-support mode styles */
+    .askk-drawer.human-mode .askk-header {
+      background: rgba(255, 79, 216, 0.08);
+      border-bottom-color: rgba(255, 79, 216, 0.3);
+    }
+    .askk-drawer.human-mode .askk-header-title {
+      color: #ff4fd8;
+    }
+    .askk-msg.staff {
+      align-self: flex-start;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      color: #fff;
+      border-bottom-left-radius: 4px;
+    }
+    .askk-human-status {
+      display: none;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 79, 216, 0.08);
+      border-bottom: 1px solid rgba(255, 79, 216, 0.2);
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .askk-drawer.human-mode .askk-human-status {
+      display: block;
+    }
+    .askk-drawer.human-mode .askk-escalate {
+      display: none;
+    }
+    .askk-human-status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #44cc66;
+      margin-right: 0.4rem;
+      animation: askk-pulse 2s infinite;
+    }
+    .askk-human-status-dot.waiting {
+      background: #ffaa33;
+    }
+    @keyframes askk-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
 
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
@@ -2676,6 +2721,7 @@
     // ===== Ask K Assistant =====
     document.addEventListener('DOMContentLoaded', () => {
       const ASKK_API_URL = (window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact').replace('/api/contact', '/api/admin/ask-k');
+      const CHAT_API_BASE = (window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact').replace('/api/contact', '/api/chat');
 
       // DOM references
       const fab = document.getElementById('askk-fab');
@@ -2687,11 +2733,21 @@
       const sendBtn = document.getElementById('askk-send');
       const escalateBtn = document.getElementById('askk-escalate-btn');
       const quickActions = document.getElementById('askk-quick-actions');
+      const humanStatusEl = document.getElementById('askk-human-status');
+      const humanStatusTextEl = document.getElementById('askk-human-status-text');
+      const humanStatusDotEl = humanStatusEl?.querySelector('.askk-human-status-dot');
+      const headerTitleEl = document.getElementById('askk-title');
+      const headerSubtitleEl = drawer?.querySelector('.askk-header-subtitle');
 
       if (!fab || !drawer) return;
 
       let conversationHistory = [];
       let isTyping = false;
+      // Human-handoff state
+      let humanMode = false;
+      let chatSessionToken = null;
+      let lastMessageId = 0;
+      let pollInterval = null;
       const cannedQuickReplies = {
         "What's included?": "The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, and charging accessories.",
         "Does it work offline?": "Yes — the Survival Node is built to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required.",
@@ -2749,16 +2805,21 @@
         document.body.style.overflow = '';
       }
 
-      function addMessage(role, content) {
+      function addMessage(role, content, senderName) {
         const msg = document.createElement('div');
         msg.className = `askk-msg ${role}`;
-        // Basic markdown-like formatting for assistant responses
-        if (role === 'assistant') {
+        // Basic markdown-like formatting for assistant/staff responses
+        if (role === 'assistant' || role === 'staff') {
           content = content
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
         }
-        msg.innerHTML = content;
+        // Add sender name for staff messages
+        if (role === 'staff' && senderName) {
+          msg.innerHTML = `<strong style="font-size:0.8rem;opacity:0.8;">${senderName}</strong><br>${content}`;
+        } else {
+          msg.innerHTML = content;
+        }
         messagesEl.appendChild(msg);
         messagesEl.scrollTop = messagesEl.scrollHeight;
 
@@ -2830,12 +2891,22 @@
       overlay.addEventListener('click', closeDrawer);
       closeBtn.addEventListener('click', closeDrawer);
 
-      sendBtn.addEventListener('click', () => sendMessage(inputEl.value));
+      sendBtn.addEventListener('click', () => {
+        if (humanMode) {
+          sendHumanMessage(inputEl.value);
+        } else {
+          sendMessage(inputEl.value);
+        }
+      });
 
       inputEl.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          sendMessage(inputEl.value);
+          if (humanMode) {
+            sendHumanMessage(inputEl.value);
+          } else {
+            sendMessage(inputEl.value);
+          }
         }
       });
 
@@ -2859,22 +2930,111 @@
         }
       });
 
-      // Escalation button
-      escalateBtn?.addEventListener('click', async () => {
+      // Enter human-support mode
+      function enterHumanMode(token) {
+        humanMode = true;
+        chatSessionToken = token;
+        drawer.classList.add('human-mode');
+        if (headerTitleEl) headerTitleEl.textContent = 'Support Chat';
+        if (headerSubtitleEl) headerSubtitleEl.textContent = 'Live human support';
+        if (humanStatusTextEl) humanStatusTextEl.textContent = 'Waiting for a team member to join...';
+        if (humanStatusDotEl) humanStatusDotEl.classList.add('waiting');
+        // Start polling for new messages
+        startPolling();
+      }
+
+      // Poll for new messages from staff
+      function startPolling() {
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(pollMessages, 3000);
+      }
+
+      async function pollMessages() {
+        if (!chatSessionToken) return;
         try {
-          const res = await fetch(ASKK_API_URL + '/escalate', {
+          const res = await fetch(`${CHAT_API_BASE}/messages?token=${encodeURIComponent(chatSessionToken)}&after=${lastMessageId}`);
+          const data = await res.json();
+          if (data.ok && data.messages && data.messages.length > 0) {
+            for (const msg of data.messages) {
+              // Only show messages we haven't added locally
+              if (msg.role === 'staff' || msg.role === 'system') {
+                addMessage(msg.role, msg.content, msg.sender_name);
+                // Update status when staff joins
+                if (msg.role === 'staff' && humanStatusTextEl && humanStatusDotEl) {
+                  humanStatusTextEl.textContent = `${msg.sender_name || 'Team member'} has joined the chat`;
+                  humanStatusDotEl.classList.remove('waiting');
+                }
+              }
+              lastMessageId = Math.max(lastMessageId, msg.id);
+            }
+          }
+          // Check if session was closed
+          if (data.sessionStatus === 'closed') {
+            addMessage('system', 'This chat session has ended.');
+            if (pollInterval) clearInterval(pollInterval);
+          }
+        } catch (err) {
+          // Silent fail on poll errors
+        }
+      }
+
+      // Send message in human mode
+      async function sendHumanMessage(content) {
+        if (!content.trim() || !chatSessionToken) return;
+        addMessage('user', content.trim());
+        inputEl.value = '';
+        inputEl.style.height = 'auto';
+
+        try {
+          const res = await fetch(`${CHAT_API_BASE}/message`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              conversation: conversationHistory.slice(-12),
-              page: 'Survival Node (node.html)',
-              context: collectPageContext()
+              token: chatSessionToken,
+              content: content.trim(),
+              role: 'user'
             })
           });
-          const data = await res.json().catch(() => ({}));
-          addMessage('system', data.message || 'I sent your request to the Eastern Shore AI team.');
+          const data = await res.json();
+          if (data.ok && data.messageId) {
+            lastMessageId = Math.max(lastMessageId, data.messageId);
+          }
         } catch (err) {
-          addMessage('system', 'I could not send the request automatically. Please call (302) 907-9162 or use the contact form on our homepage.');
+          addMessage('system', 'Failed to send message. Please try again.');
+        }
+      }
+
+      // Escalation button - now creates a live chat session
+      escalateBtn?.addEventListener('click', async () => {
+        if (humanMode) return; // Already in human mode
+        escalateBtn.disabled = true;
+        escalateBtn.textContent = 'Connecting...';
+
+        try {
+          const pageContext = collectPageContext();
+          const res = await fetch(`${CHAT_API_BASE}/session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              page: 'Survival Node (node.html)',
+              pageUrl: window.location.href,
+              conversationHistory: conversationHistory.slice(-20),
+              context: pageContext
+            })
+          });
+          const data = await res.json();
+          if (data.ok && data.sessionToken) {
+            addMessage('system', 'Connected to human support. A team member will join shortly.');
+            enterHumanMode(data.sessionToken);
+          } else {
+            addMessage('system', data.error || 'Could not connect to support. Please call (302) 907-9162.');
+            escalateBtn.disabled = false;
+            escalateBtn.textContent = 'Talk to a human';
+          }
+        } catch (err) {
+          addMessage('system', 'Could not connect to support. Please call (302) 907-9162 or use the contact form on our homepage.');
+          escalateBtn.disabled = false;
+          escalateBtn.textContent = 'Talk to a human';
         }
       });
 
@@ -2905,6 +3065,11 @@
         <p class="askk-header-subtitle">Survival Node Assistant</p>
       </div>
       <button class="askk-close" id="askk-close" aria-label="Close">×</button>
+    </div>
+
+    <div class="askk-human-status" id="askk-human-status">
+      <span class="askk-human-status-dot waiting"></span>
+      <span id="askk-human-status-text">Waiting for a team member to join...</span>
     </div>
 
     <div class="askk-messages" id="askk-messages"></div>

@@ -22,6 +22,12 @@
 // POST /api/accounts/journal    → handleAccountsJournalCreate() — Admin: manual journal entry
 // POST /api/ask-k               → handleAskK()            — Public: AI assistant for Survival Node questions
 // POST /api/ask-k/escalate      → handleAskKEscalate()    — Public: escalation webhook to staff
+// POST /api/chat/session        → handleChatSessionCreate() — Public: create human-handoff chat session
+// GET  /api/chat/session        → handleChatSessionGet()  — Public: get session by token
+// GET  /api/chat/messages       → handleChatMessages()    — Public: list messages for session
+// POST /api/chat/message        → handleChatMessageSend() — Public: send message to session
+// GET  /api/chat/sessions       → handleChatSessionsList() — Admin: list open chat sessions
+// POST /api/chat/session/close  → handleChatSessionClose() — Admin: close a chat session
 //
 // ===== UTILITY FUNCTIONS =====
 // requireAdmin(request, env)           — Validate X-Admin-Password header
@@ -70,12 +76,14 @@ export default {
       const isAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute) {
+      const isChatPublic = (['/api/chat/session', '/api/chat/message'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
+      const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close'].includes(url.pathname) && request.method === 'POST');
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
-      // Public quote accept/deny + planner sync endpoints don't require strict origin check
-      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute) {
+      // Public quote accept/deny + planner sync + chat session endpoints don't require strict origin check
+      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute && !isChatPublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
@@ -298,6 +306,31 @@ export default {
 
     if (url.pathname === '/api/admin/ask-k/escalate' && request.method === 'POST') {
       return handleAskKEscalate(request, env, corsHeaders);
+    }
+
+    // Human-handoff chat routes
+    if (url.pathname === '/api/chat/session' && request.method === 'POST') {
+      return handleChatSessionCreate(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/chat/session' && request.method === 'GET') {
+      return handleChatSessionGet(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/chat/messages' && request.method === 'GET') {
+      return handleChatMessages(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/chat/message' && request.method === 'POST') {
+      return handleChatMessageSend(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/chat/sessions' && request.method === 'GET') {
+      return handleChatSessionsList(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/chat/session/close' && request.method === 'POST') {
+      return handleChatSessionClose(request, env, corsHeaders, url);
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
@@ -4184,4 +4217,376 @@ async function handleAskKEscalate(request, env, corsHeaders) {
   }
 }
 
+
+// ===== Human-Handoff Chat System =====
+
+/**
+ * Generate a random session token
+ * @returns {string} 32-character hex token
+ */
+function generateSessionToken() {
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * POST /api/chat/session — Create a new human-handoff chat session
+ * @param {Request} request - JSON body: { page, pageUrl, customerName, customerEmail, conversationHistory, context }
+ * @param {Object} env - Worker env (DB, ASKK_STAFF_WEBHOOK_URL)
+ * @returns {Response} { ok: true, sessionToken, sessionId } or { ok: false, error }
+ */
+async function handleChatSessionCreate(request, env, corsHeaders) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const page = (data.page || 'Unknown').toString().slice(0, 100);
+  const pageUrl = (data.pageUrl || '').toString().slice(0, 500);
+  const customerName = (data.customerName || '').toString().slice(0, 100);
+  const customerEmail = (data.customerEmail || '').toString().slice(0, 200);
+  const conversationHistory = Array.isArray(data.conversationHistory) ? data.conversationHistory : [];
+  const context = data.context && typeof data.context === 'object' ? data.context : {};
+
+  const sessionToken = generateSessionToken();
+  const now = new Date().toISOString();
+
+  try {
+    // Create session
+    const result = await env.DB.prepare(
+      `INSERT INTO chat_sessions (session_token, page, page_url, customer_name, customer_email, status, escalated_at, last_activity_at, created_at)
+       VALUES (?1, ?2, ?3, ?4, ?5, 'active', ?6, ?6, ?6)`
+    ).bind(sessionToken, page, pageUrl, customerName || null, customerEmail || null, now).run();
+
+    const sessionId = result.meta.last_row_id;
+
+    // Import conversation history as messages
+    for (const msg of conversationHistory.slice(-20)) {
+      const role = msg.role === 'user' ? 'user' : 'assistant';
+      const content = (msg.content || '').toString().slice(0, 4000);
+      if (content) {
+        await env.DB.prepare(
+          `INSERT INTO chat_messages (session_id, role, content, sender_name, created_at)
+           VALUES (?1, ?2, ?3, ?4, ?5)`
+        ).bind(sessionId, role, content, role === 'user' ? customerName : 'K', now).run();
+      }
+    }
+
+    // Add system message indicating escalation
+    await env.DB.prepare(
+      `INSERT INTO chat_messages (session_id, role, content, sender_name, created_at)
+       VALUES (?1, 'system', ?2, 'System', ?3)`
+    ).bind(sessionId, 'Customer requested human support. A team member will join shortly.', now).run();
+
+    // Send Discord webhook notification if configured
+    const webhookUrl = env.ASKK_STAFF_WEBHOOK_URL;
+    if (webhookUrl) {
+      const clip = (value, max = 280) => {
+        const s = String(value || '').replace(/\s+/g, ' ').trim();
+        return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+      };
+      const conversationText = conversationHistory
+        .slice(-6)
+        .map((m) => `${m.role === 'user' ? 'Customer' : 'K'}: ${clip(m.content, 180)}`)
+        .join('\n');
+      const lines = [
+        '**New Support Chat Session**',
+        `**Page:** ${page}`,
+        pageUrl ? `**URL:** ${clip(pageUrl, 180)}` : null,
+        customerName ? `**Customer:** ${clip(customerName, 80)}` : null,
+        customerEmail ? `**Email:** ${clip(customerEmail, 100)}` : null,
+        Array.isArray(context.visibleSections) && context.visibleSections.length ? `**Visible:** ${context.visibleSections.slice(0, 3).join(', ')}` : null,
+        conversationText ? `**Recent conversation:**\n${conversationText}` : null,
+        `**Session ID:** ${sessionId}`,
+        `<@1389557053118222497> new human support chat requested.`
+      ].filter(Boolean);
+      const content = clip(lines.join('\n'), 1900);
+
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+      } catch {
+        // Webhook failure is non-fatal
+      }
+    }
+
+    return json({ ok: true, sessionToken, sessionId }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to create session' }, 500, corsHeaders);
+  }
+}
+
+/**
+ * GET /api/chat/session — Get session info by token
+ * @param {Request} request
+ * @param {Object} env
+ * @param {URL} url - Query params: token
+ * @returns {Response} { ok: true, session } or { ok: false, error }
+ */
+async function handleChatSessionGet(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const token = (url.searchParams.get('token') || '').trim();
+  if (!token) {
+    return json({ ok: false, error: 'Missing token' }, 400, corsHeaders);
+  }
+
+  try {
+    const session = await env.DB.prepare(
+      `SELECT id, page, page_url, customer_name, customer_email, status, escalated_at, last_activity_at, closed_at, created_at
+       FROM chat_sessions WHERE session_token = ?1`
+    ).bind(token).first();
+
+    if (!session) {
+      return json({ ok: false, error: 'Session not found' }, 404, corsHeaders);
+    }
+
+    return json({ ok: true, session }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to fetch session' }, 500, corsHeaders);
+  }
+}
+
+/**
+ * GET /api/chat/messages — Get messages for a session
+ * @param {Request} request
+ * @param {Object} env
+ * @param {URL} url - Query params: token, after (optional message id for polling)
+ * @returns {Response} { ok: true, messages } or { ok: false, error }
+ */
+async function handleChatMessages(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const token = (url.searchParams.get('token') || '').trim();
+  const afterId = parseInt(url.searchParams.get('after') || '0', 10) || 0;
+
+  if (!token) {
+    return json({ ok: false, error: 'Missing token' }, 400, corsHeaders);
+  }
+
+  try {
+    // Look up session by token
+    const session = await env.DB.prepare(
+      `SELECT id, status FROM chat_sessions WHERE session_token = ?1`
+    ).bind(token).first();
+
+    if (!session) {
+      return json({ ok: false, error: 'Session not found' }, 404, corsHeaders);
+    }
+
+    // Fetch messages after the given ID (for polling)
+    const messages = await env.DB.prepare(
+      `SELECT id, role, content, sender_name, created_at
+       FROM chat_messages
+       WHERE session_id = ?1 AND id > ?2
+       ORDER BY id ASC
+       LIMIT 100`
+    ).bind(session.id, afterId).all();
+
+    return json({ ok: true, messages: messages.results, sessionStatus: session.status }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to fetch messages' }, 500, corsHeaders);
+  }
+}
+
+/**
+ * POST /api/chat/message — Send a message to a chat session
+ * @param {Request} request - JSON body: { token, content, role?, senderName? }
+ * @param {Object} env
+ * @returns {Response} { ok: true, messageId } or { ok: false, error }
+ */
+async function handleChatMessageSend(request, env, corsHeaders) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const token = (data.token || '').toString().trim();
+  const content = (data.content || '').toString().trim().slice(0, 4000);
+  const role = (data.role || 'user').toString();
+  const senderName = (data.senderName || '').toString().slice(0, 100) || null;
+
+  if (!token) {
+    return json({ ok: false, error: 'Missing token' }, 400, corsHeaders);
+  }
+  if (!content) {
+    return json({ ok: false, error: 'Missing content' }, 400, corsHeaders);
+  }
+  if (!['user', 'staff'].includes(role)) {
+    return json({ ok: false, error: 'Invalid role' }, 400, corsHeaders);
+  }
+
+  // Staff role requires admin password
+  if (role === 'staff') {
+    const url = new URL(request.url);
+    const auth = requireAdmin(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+  }
+
+  try {
+    // Look up session by token
+    const session = await env.DB.prepare(
+      `SELECT id, status FROM chat_sessions WHERE session_token = ?1`
+    ).bind(token).first();
+
+    if (!session) {
+      return json({ ok: false, error: 'Session not found' }, 404, corsHeaders);
+    }
+
+    if (session.status === 'closed') {
+      return json({ ok: false, error: 'Session is closed' }, 400, corsHeaders);
+    }
+
+    const now = new Date().toISOString();
+
+    // Insert message
+    const result = await env.DB.prepare(
+      `INSERT INTO chat_messages (session_id, role, content, sender_name, created_at)
+       VALUES (?1, ?2, ?3, ?4, ?5)`
+    ).bind(session.id, role, content, senderName, now).run();
+
+    // Update session last_activity_at
+    await env.DB.prepare(
+      `UPDATE chat_sessions SET last_activity_at = ?1 WHERE id = ?2`
+    ).bind(now, session.id).run();
+
+    return json({ ok: true, messageId: result.meta.last_row_id }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to send message' }, 500, corsHeaders);
+  }
+}
+
+/**
+ * GET /api/chat/sessions — Admin: List open chat sessions
+ * @param {Request} request
+ * @param {Object} env
+ * @param {URL} url - Query params: status (optional, default 'active')
+ * @returns {Response} { ok: true, sessions } or { ok: false, error }
+ */
+async function handleChatSessionsList(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const status = (url.searchParams.get('status') || 'active').trim();
+  const validStatuses = ['active', 'closed', 'all'];
+  if (!validStatuses.includes(status)) {
+    return json({ ok: false, error: 'Invalid status filter' }, 400, corsHeaders);
+  }
+
+  try {
+    let query = `SELECT id, session_token, page, page_url, customer_name, customer_email, status, escalated_at, last_activity_at, closed_at, created_at
+                 FROM chat_sessions`;
+    if (status !== 'all') {
+      query += ` WHERE status = ?1`;
+    }
+    query += ` ORDER BY last_activity_at DESC LIMIT 100`;
+
+    const stmt = status !== 'all'
+      ? env.DB.prepare(query).bind(status)
+      : env.DB.prepare(query);
+    const sessions = await stmt.all();
+
+    // For each session, get the last message preview
+    const sessionsWithPreview = await Promise.all(
+      sessions.results.map(async (s) => {
+        const lastMsg = await env.DB.prepare(
+          `SELECT content, role, sender_name FROM chat_messages WHERE session_id = ?1 ORDER BY id DESC LIMIT 1`
+        ).bind(s.id).first();
+        return { ...s, lastMessage: lastMsg || null };
+      })
+    );
+
+    return json({ ok: true, sessions: sessionsWithPreview }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to fetch sessions' }, 500, corsHeaders);
+  }
+}
+
+/**
+ * POST /api/chat/session/close — Admin: Close a chat session
+ * @param {Request} request - JSON body: { sessionId } or { token }
+ * @param {Object} env
+ * @returns {Response} { ok: true } or { ok: false, error }
+ */
+async function handleChatSessionClose(request, env, corsHeaders, url) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const sessionId = data.sessionId ? parseInt(data.sessionId, 10) : null;
+  const token = (data.token || '').toString().trim();
+
+  if (!sessionId && !token) {
+    return json({ ok: false, error: 'Missing sessionId or token' }, 400, corsHeaders);
+  }
+
+  try {
+    const now = new Date().toISOString();
+
+    let result;
+    if (sessionId) {
+      result = await env.DB.prepare(
+        `UPDATE chat_sessions SET status = 'closed', closed_at = ?1, last_activity_at = ?1 WHERE id = ?2 AND status = 'active'`
+      ).bind(now, sessionId).run();
+    } else {
+      result = await env.DB.prepare(
+        `UPDATE chat_sessions SET status = 'closed', closed_at = ?1, last_activity_at = ?1 WHERE session_token = ?2 AND status = 'active'`
+      ).bind(now, token).run();
+    }
+
+    if (result.meta.changes === 0) {
+      return json({ ok: false, error: 'Session not found or already closed' }, 404, corsHeaders);
+    }
+
+    // Add system message
+    const session = sessionId
+      ? await env.DB.prepare(`SELECT id FROM chat_sessions WHERE id = ?1`).bind(sessionId).first()
+      : await env.DB.prepare(`SELECT id FROM chat_sessions WHERE session_token = ?1`).bind(token).first();
+
+    if (session) {
+      await env.DB.prepare(
+        `INSERT INTO chat_messages (session_id, role, content, sender_name, created_at)
+         VALUES (?1, 'system', 'This chat session has been closed.', 'System', ?2)`
+      ).bind(session.id, now).run();
+    }
+
+    return json({ ok: true }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to close session' }, 500, corsHeaders);
+  }
+}
 
