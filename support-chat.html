@@ -116,6 +116,44 @@
       .sessions-list { max-height:250px; }
       input, textarea, select { font-size:16px; }
     }
+
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 1rem;
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-modal {
+      width: min(460px, 100%);
+      background: linear-gradient(180deg, #131926 0%, #0b0d13 100%);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 18px 48px rgba(0,0,0,.45);
+      padding: 1.1rem;
+    }
+    .confirm-modal h3 {
+      margin: 0 0 .45rem;
+      color: var(--cyan);
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 1.12rem;
+    }
+    .confirm-modal p {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .confirm-actions {
+      display: flex;
+      gap: .65rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
   </style>
 </head>
 <body>
@@ -603,6 +641,18 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+
+  <div class="confirm-overlay" id="close-confirm-overlay" aria-hidden="true">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="close-confirm-title">
+      <h3 id="close-confirm-title">Close this support session?</h3>
+      <p>This will mark the current chat as closed in the support system. Use this when the conversation is finished.</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn secondary" id="close-confirm-cancel">Cancel</button>
+        <button type="button" class="btn" id="close-confirm-action">Close Session</button>
+      </div>
+    </div>
+  </div>
 
 </body>
 </html>
