@@ -2965,6 +2965,7 @@
         humanMode = true;
         chatSessionToken = token;
         drawer.classList.add('human-mode');
+        if (humanStatusEl) humanStatusEl.style.display = 'flex';
         if (headerTitleEl) headerTitleEl.textContent = 'Support Chat';
         if (headerSubtitleEl) headerSubtitleEl.textContent = 'Live human support';
         if (humanStatusTextEl) humanStatusTextEl.textContent = 'Waiting for a team member to join...';
@@ -3170,7 +3171,7 @@
       <button class="askk-close" id="askk-close" aria-label="Close">×</button>
     </div>
 
-    <div class="askk-human-status" id="askk-human-status" style="display:flex; align-items:center; justify-content:space-between; gap:.75rem;">
+    <div class="askk-human-status" id="askk-human-status" style="display:none; align-items:center; justify-content:space-between; gap:.75rem;">
       <div style="display:flex; align-items:center; gap:.6rem; min-width:0;">
         <span class="askk-human-status-dot waiting"></span>
         <span id="askk-human-status-text">Waiting for a team member to join...</span>
