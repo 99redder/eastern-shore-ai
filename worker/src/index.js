@@ -292,11 +292,11 @@ export default {
       return handleInvoicePaymentCancelledPage(request, env, corsHeaders, url);
     }
 
-    if (url.pathname === '/api/ask-k' && request.method === 'POST') {
+    if (url.pathname === '/api/admin/ask-k' && request.method === 'POST') {
       return handleAskK(request, env, corsHeaders);
     }
 
-    if (url.pathname === '/api/ask-k/escalate' && request.method === 'POST') {
+    if (url.pathname === '/api/admin/ask-k/escalate' && request.method === 'POST') {
       return handleAskKEscalate(request, env, corsHeaders);
     }
 
