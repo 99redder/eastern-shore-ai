@@ -4051,8 +4051,15 @@ async function generateAskKAnswer(env, question, context, history = []) {
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const msg = data?.error?.message || data?.error || `Provider error (${response.status})`;
-    throw new Error(msg);
+    const providerMessage = data?.error?.message || data?.error || data?.message || '';
+    const safeUrl = baseUrl.replace(/\/chat\/completions$/, '');
+    const detail = [
+      `Provider error (${response.status})`,
+      providerMessage ? `message: ${providerMessage}` : null,
+      `base_url: ${safeUrl}`,
+      `model: ${model}`
+    ].filter(Boolean).join(' | ');
+    throw new Error(detail);
   }
 
   const text = data?.choices?.[0]?.message?.content;
