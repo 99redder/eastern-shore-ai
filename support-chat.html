@@ -152,6 +152,10 @@
       .confirm-modal { width: min(92vw, 460px); padding: 1rem; }
       .confirm-actions { flex-direction: column-reverse; }
       .confirm-actions .btn { width: 100%; min-height: 48px; font-size: 0.98rem; }
+
+      .confirm-overlay.open { display:flex !important; }
+      .confirm-modal { position: relative; z-index: 50001; }
+      #close-session-btn { position: relative; z-index: 2; }
       .operator-name-wrap { flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
       .operator-name-wrap input { max-width: 140px; padding: 0.35rem 0.5rem; }
       .filter-tabs { flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
@@ -200,8 +204,10 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 10000;
+      z-index: 50000;
       padding: 1rem;
+      -webkit-backdrop-filter: blur(2px);
+      backdrop-filter: blur(2px);
     }
     .confirm-overlay.open { display: flex; }
     .confirm-modal {
@@ -373,8 +379,8 @@
     return operatorNameEl.value.trim() || 'Red';
   }
 
-  function openModal(el) { if (!el) return; el.classList.add('open'); el.setAttribute('aria-hidden','false'); }
-  function closeModal(el) { if (!el) return; el.classList.remove('open'); el.setAttribute('aria-hidden','true'); }
+  function openModal(el) { if (!el) return; el.classList.add('open'); el.setAttribute('aria-hidden','false'); el.style.display = 'flex'; }
+  function closeModal(el) { if (!el) return; el.classList.remove('open'); el.setAttribute('aria-hidden','true'); el.style.display = 'none'; }
 
   // Try to restore saved session on page load
   async function tryRestoreSession() {
@@ -687,7 +693,10 @@
   // Close session
   closeSessionBtn.addEventListener('click', () => {
     if (!currentSessionId) return;
-    openModal(closeConfirmOverlay);
+    if (closeConfirmOverlay) {
+      openModal(closeConfirmOverlay);
+      closeConfirmOverlay.style.display = 'flex';
+    }
   });
 
   closeConfirmCancelBtn?.addEventListener('click', () => closeModal(closeConfirmOverlay));
