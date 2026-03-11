@@ -2,10 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="robots" content="noindex" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Support Chat" />
+  <meta name="theme-color" content="#0a0b10" />
   <title>Support Chat — Eastern Shore AI</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="manifest" href="/support-chat-manifest.json" />
   <link rel="stylesheet" href="/fonts.css" />
   <style>
     :root { --bg:#0a0b10; --bg2:#10121a; --card:#141620; --text:#d8dce8; --muted:#7a7e96; --cyan:#00e5ff; --line:#222438; --violet:#c850ff; }
@@ -82,6 +88,20 @@
     .chat-send:disabled { opacity:.5; cursor:not-allowed; }
     .chat-empty { flex:1; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:1.1rem; }
 
+    /* Typing indicator */
+    .chat-typing-indicator { padding:.5rem 1rem; font-size:.85rem; color:var(--cyan); font-style:italic; display:none; border-top:1px solid var(--line); background:rgba(0,229,255,.04); }
+    .chat-typing-indicator.active { display:block; }
+    .chat-typing-dots { display:inline-block; margin-left:.3rem; }
+    .chat-typing-dots span { display:inline-block; width:5px; height:5px; background:var(--cyan); border-radius:50%; margin:0 1px; animation:typingBounce .8s infinite; }
+    .chat-typing-dots span:nth-child(2) { animation-delay:.15s; }
+    .chat-typing-dots span:nth-child(3) { animation-delay:.3s; }
+    @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-4px);} }
+
+    /* Operator name input */
+    .operator-name-wrap { display:flex; align-items:center; gap:.5rem; margin-bottom:.6rem; }
+    .operator-name-wrap label { color:var(--muted); font-size:.88rem; white-space:nowrap; }
+    .operator-name-wrap input { flex:1; max-width:180px; padding:.4rem .6rem; font-size:.9rem; }
+
     /* Filter tabs */
     .filter-tabs { display:flex; gap:.4rem; margin-bottom:.6rem; }
     .filter-tabs .btn { padding:.4rem .8rem; font-size:.88rem; }
@@ -119,6 +139,11 @@
 
       <div class="admin-controls" id="admin-controls" style="padding:1rem;">
 
+        <div class="operator-name-wrap">
+          <label for="operator-name">Your name:</label>
+          <input type="text" id="operator-name" placeholder="Red" maxlength="50" />
+        </div>
+
         <div class="filter-tabs" id="filter-tabs">
           <button type="button" class="btn active" data-status="active">Active</button>
           <button type="button" class="btn" data-status="closed">Closed</button>
@@ -145,6 +170,10 @@
               <button type="button" class="btn delete" id="close-session-btn">Close Session</button>
             </div>
             <div class="chat-messages" id="chat-messages" style="display:none;"></div>
+            <div class="chat-typing-indicator" id="chat-typing-indicator">
+              <span id="chat-typing-text">Customer is typing</span>
+              <span class="chat-typing-dots"><span></span><span></span><span></span></span>
+            </div>
             <div class="chat-input-area" id="chat-input-area" style="display:none;">
               <textarea class="chat-input" id="chat-input" placeholder="Type your reply..." rows="1"></textarea>
               <button type="button" class="chat-send" id="chat-send">Send</button>
@@ -167,6 +196,8 @@
   let lastMessageId = 0;
   let pollInterval = null;
   let statusFilter = 'active';
+  let typingTimeout = null;
+  let isTypingLocally = false;
 
   // DOM refs
   const adminLock = document.getElementById('admin-lock');
@@ -187,6 +218,23 @@
   const closeSessionBtn = document.getElementById('close-session-btn');
   const refreshBtn = document.getElementById('refresh-btn');
   const filterTabs = document.getElementById('filter-tabs');
+  const operatorNameEl = document.getElementById('operator-name');
+  const typingIndicatorEl = document.getElementById('chat-typing-indicator');
+  const typingTextEl = document.getElementById('chat-typing-text');
+
+  // Load operator name from localStorage
+  const savedOperatorName = localStorage.getItem('supportChatOperatorName');
+  if (savedOperatorName) operatorNameEl.value = savedOperatorName;
+
+  // Save operator name on change
+  operatorNameEl.addEventListener('input', () => {
+    localStorage.setItem('supportChatOperatorName', operatorNameEl.value.trim());
+  });
+
+  // Get current operator name (default to Red)
+  function getOperatorName() {
+    return operatorNameEl.value.trim() || 'Red';
+  }
 
   // Unlock admin
   adminUnlockBtn.addEventListener('click', async () => {
@@ -265,9 +313,15 @@
 
   // Select a session
   async function selectSession(token, id) {
+    // Clear typing state from previous session
+    clearTypingState();
+
     currentSessionToken = token;
     currentSessionId = id;
     lastMessageId = 0;
+
+    // Hide typing indicator for new session
+    typingIndicatorEl.classList.remove('active');
 
     // Update UI
     sessionsListEl.querySelectorAll('.session-item').forEach(el => {
@@ -322,10 +376,20 @@
         lastMessageId = Math.max(lastMessageId, msg.id);
       }
 
+      // Handle typing indicator from user
+      const userTyping = (data.typing || []).find(t => t.role === 'user');
+      if (userTyping) {
+        typingTextEl.textContent = 'Customer is typing';
+        typingIndicatorEl.classList.add('active');
+      } else {
+        typingIndicatorEl.classList.remove('active');
+      }
+
       // Check if closed
       if (data.sessionStatus === 'closed') {
         chatInputArea.style.display = 'none';
         closeSessionBtn.style.display = 'none';
+        typingIndicatorEl.classList.remove('active');
       }
     } catch (e) {
       // Silent fail
@@ -363,6 +427,11 @@
     chatSend.disabled = true;
     chatInput.value = '';
 
+    // Clear typing state when sending
+    clearTypingState();
+
+    const operatorName = getOperatorName();
+
     try {
       const res = await fetch(`${API_BASE}/message`, {
         method: 'POST',
@@ -374,7 +443,7 @@
           token: currentSessionToken,
           content: content,
           role: 'staff',
-          senderName: 'Red'  // Could be configurable
+          senderName: operatorName
         })
       });
       const data = await res.json();
@@ -383,7 +452,7 @@
           id: data.messageId,
           role: 'staff',
           content: content,
-          sender_name: 'Red',
+          sender_name: operatorName,
           created_at: new Date().toISOString()
         });
         lastMessageId = Math.max(lastMessageId, data.messageId || 0);
@@ -397,6 +466,51 @@
     chatSend.disabled = false;
     chatInput.focus();
   }
+
+  // Typing indicator management
+  function sendTypingState(isTyping) {
+    if (!currentSessionToken) return;
+    fetch(`${API_BASE}/typing`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Password': adminPassword
+      },
+      body: JSON.stringify({
+        token: currentSessionToken,
+        role: 'staff',
+        senderName: getOperatorName(),
+        isTyping: isTyping
+      })
+    }).catch(() => {}); // Silent fail
+  }
+
+  function clearTypingState() {
+    if (typingTimeout) clearTimeout(typingTimeout);
+    typingTimeout = null;
+    if (isTypingLocally) {
+      isTypingLocally = false;
+      sendTypingState(false);
+    }
+  }
+
+  // Send typing state on input
+  chatInput.addEventListener('input', () => {
+    if (!currentSessionToken) return;
+
+    // Send typing = true if not already
+    if (!isTypingLocally) {
+      isTypingLocally = true;
+      sendTypingState(true);
+    }
+
+    // Reset timeout - clear typing after 3s of no input
+    if (typingTimeout) clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      isTypingLocally = false;
+      sendTypingState(false);
+    }, 3000);
+  });
 
   // Close session
   closeSessionBtn.addEventListener('click', async () => {
@@ -451,6 +565,43 @@
       .replace(/'/g, '&#39;');
   }
 })();
+
+// Service Worker registration with auto-update
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const registration = await navigator.serviceWorker.register('/support-chat-sw.js');
+
+      // Check for updates on page load
+      registration.update();
+
+      // Listen for new service worker installing
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New version available - activate it immediately
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        }
+      });
+
+      // Reload page when new service worker takes control
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+
+    } catch (err) {
+      console.log('Service worker registration failed:', err);
+    }
+  });
+}
 </script>
 
 </body>

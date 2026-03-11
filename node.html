@@ -861,9 +861,17 @@
     .askk-human-status-dot.waiting {
       background: #ffaa33;
     }
+    .askk-human-status-dot.typing {
+      background: var(--cyan);
+      animation: askk-typing-pulse 0.6s infinite;
+    }
     @keyframes askk-pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
+    }
+    @keyframes askk-typing-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.85); }
     }
 
     @media (max-width: 480px) {
@@ -2748,6 +2756,10 @@
       let chatSessionToken = null;
       let lastMessageId = 0;
       let pollInterval = null;
+      // Typing indicator state
+      let userTypingTimeout = null;
+      let isUserTypingLocally = false;
+      let staffJoinedName = null;
       const cannedQuickReplies = {
         "What's included?": "The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, and charging accessories.",
         "Does it work offline?": "Yes — the Survival Node is built to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required.",
@@ -2910,10 +2922,24 @@
         }
       });
 
-      // Auto-resize input
+      // Auto-resize input and send typing indicator in human mode
       inputEl.addEventListener('input', () => {
         inputEl.style.height = 'auto';
         inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+
+        // Send typing indicator in human mode
+        if (humanMode && chatSessionToken) {
+          if (!isUserTypingLocally) {
+            isUserTypingLocally = true;
+            sendUserTypingState(true);
+          }
+          // Reset timeout - clear typing after 3s of no input
+          if (userTypingTimeout) clearTimeout(userTypingTimeout);
+          userTypingTimeout = setTimeout(() => {
+            isUserTypingLocally = false;
+            sendUserTypingState(false);
+          }, 3000);
+        }
       });
 
       // Quick action buttons
@@ -2961,13 +2987,31 @@
                 addMessage(msg.role, msg.content, msg.sender_name);
                 // Update status when staff joins
                 if (msg.role === 'staff' && humanStatusTextEl && humanStatusDotEl) {
-                  humanStatusTextEl.textContent = `${msg.sender_name || 'Team member'} has joined the chat`;
+                  staffJoinedName = msg.sender_name || 'Team member';
+                  humanStatusTextEl.textContent = `${staffJoinedName} has joined the chat`;
                   humanStatusDotEl.classList.remove('waiting');
+                  humanStatusDotEl.classList.remove('typing');
                 }
               }
               lastMessageId = Math.max(lastMessageId, msg.id);
             }
           }
+
+          // Handle staff typing indicator
+          if (data.ok && humanStatusTextEl && humanStatusDotEl) {
+            const staffTyping = (data.typing || []).find(t => t.role === 'staff');
+            if (staffTyping) {
+              const name = staffTyping.senderName || staffJoinedName || 'Staff';
+              humanStatusTextEl.textContent = `${name} is typing...`;
+              humanStatusDotEl.classList.add('typing');
+              humanStatusDotEl.classList.remove('waiting');
+            } else if (staffJoinedName) {
+              // Not typing, but staff has joined
+              humanStatusTextEl.textContent = `${staffJoinedName} has joined the chat`;
+              humanStatusDotEl.classList.remove('typing');
+            }
+          }
+
           // Check if session was closed
           if (data.sessionStatus === 'closed') {
             addMessage('system', 'This chat session has ended.');
@@ -2985,6 +3029,9 @@
         inputEl.value = '';
         inputEl.style.height = 'auto';
 
+        // Clear typing state when sending
+        clearUserTypingState();
+
         try {
           const res = await fetch(`${CHAT_API_BASE}/message`, {
             method: 'POST',
@@ -3001,6 +3048,29 @@
           }
         } catch (err) {
           addMessage('system', 'Failed to send message. Please try again.');
+        }
+      }
+
+      // User typing indicator management
+      function sendUserTypingState(isTyping) {
+        if (!chatSessionToken) return;
+        fetch(`${CHAT_API_BASE}/typing`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: chatSessionToken,
+            role: 'user',
+            isTyping: isTyping
+          })
+        }).catch(() => {}); // Silent fail
+      }
+
+      function clearUserTypingState() {
+        if (userTypingTimeout) clearTimeout(userTypingTimeout);
+        userTypingTimeout = null;
+        if (isUserTypingLocally) {
+          isUserTypingLocally = false;
+          sendUserTypingState(false);
         }
       }
 

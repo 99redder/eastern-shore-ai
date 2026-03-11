@@ -26,6 +26,7 @@
 // GET  /api/chat/session        → handleChatSessionGet()  — Public: get session by token
 // GET  /api/chat/messages       → handleChatMessages()    — Public: list messages for session
 // POST /api/chat/message        → handleChatMessageSend() — Public: send message to session
+// POST /api/chat/typing         → handleChatTyping()      — Public: update typing indicator state
 // GET  /api/chat/sessions       → handleChatSessionsList() — Admin: list open chat sessions
 // POST /api/chat/session/close  → handleChatSessionClose() — Admin: close a chat session
 //
@@ -76,7 +77,7 @@ export default {
       const isAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
-      const isChatPublic = (['/api/chat/session', '/api/chat/message'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
+      const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close'].includes(url.pathname) && request.method === 'POST');
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -323,6 +324,10 @@ export default {
 
     if (url.pathname === '/api/chat/message' && request.method === 'POST') {
       return handleChatMessageSend(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/chat/typing' && request.method === 'POST') {
+      return handleChatTyping(request, env, corsHeaders);
     }
 
     if (url.pathname === '/api/chat/sessions' && request.method === 'GET') {
@@ -4397,7 +4402,16 @@ async function handleChatMessages(request, env, corsHeaders, url) {
        LIMIT 100`
     ).bind(session.id, afterId).all();
 
-    return json({ ok: true, messages: messages.results, sessionStatus: session.status }, 200, corsHeaders);
+    // Fetch active typing indicators (within last 5 seconds)
+    const fiveSecondsAgo = new Date(Date.now() - 5000).toISOString();
+    const typingRows = await env.DB.prepare(
+      `SELECT role, sender_name FROM chat_typing
+       WHERE session_id = ?1 AND updated_at > ?2`
+    ).bind(session.id, fiveSecondsAgo).all();
+
+    const typing = typingRows.results.map(r => ({ role: r.role, senderName: r.sender_name }));
+
+    return json({ ok: true, messages: messages.results, sessionStatus: session.status, typing }, 200, corsHeaders);
   } catch (err) {
     return json({ ok: false, error: 'Failed to fetch messages' }, 500, corsHeaders);
   }
@@ -4587,6 +4601,79 @@ async function handleChatSessionClose(request, env, corsHeaders, url) {
     return json({ ok: true }, 200, corsHeaders);
   } catch (err) {
     return json({ ok: false, error: 'Failed to close session' }, 500, corsHeaders);
+  }
+}
+
+/**
+ * POST /api/chat/typing — Update typing indicator state
+ * @param {Request} request - JSON body: { token, role, senderName?, isTyping }
+ * @param {Object} env
+ * @returns {Response} { ok: true } or { ok: false, error }
+ */
+async function handleChatTyping(request, env, corsHeaders) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  }
+
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const token = (data.token || '').toString().trim();
+  const role = (data.role || '').toString();
+  const senderName = (data.senderName || '').toString().slice(0, 100) || null;
+  const isTyping = data.isTyping === true;
+
+  if (!token) {
+    return json({ ok: false, error: 'Missing token' }, 400, corsHeaders);
+  }
+  if (!['user', 'staff'].includes(role)) {
+    return json({ ok: false, error: 'Invalid role' }, 400, corsHeaders);
+  }
+
+  // Staff role requires admin password
+  if (role === 'staff') {
+    const url = new URL(request.url);
+    const auth = requireAdmin(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+  }
+
+  try {
+    // Look up session by token
+    const session = await env.DB.prepare(
+      `SELECT id, status FROM chat_sessions WHERE session_token = ?1`
+    ).bind(token).first();
+
+    if (!session) {
+      return json({ ok: false, error: 'Session not found' }, 404, corsHeaders);
+    }
+
+    if (session.status === 'closed') {
+      return json({ ok: false, error: 'Session is closed' }, 400, corsHeaders);
+    }
+
+    const now = new Date().toISOString();
+
+    if (isTyping) {
+      // Upsert typing state
+      await env.DB.prepare(
+        `INSERT INTO chat_typing (session_id, role, sender_name, updated_at)
+         VALUES (?1, ?2, ?3, ?4)
+         ON CONFLICT(session_id, role) DO UPDATE SET sender_name = ?3, updated_at = ?4`
+      ).bind(session.id, role, senderName, now).run();
+    } else {
+      // Remove typing state
+      await env.DB.prepare(
+        `DELETE FROM chat_typing WHERE session_id = ?1 AND role = ?2`
+      ).bind(session.id, role).run();
+    }
+
+    return json({ ok: true }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Failed to update typing state' }, 500, corsHeaders);
   }
 }
 
