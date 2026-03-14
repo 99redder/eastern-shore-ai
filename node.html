@@ -396,15 +396,14 @@
       z-index: 6000;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      padding: 1.1rem 2rem;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 1.1rem 2.6rem;
       font-family: 'Hanken Grotesk', sans-serif;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.07em;
-      font-size: 1.15rem;
-      flex-direction: column;
-      gap: 0.1rem;
+      font-size: 1.35rem;
       color: #071219;
       text-decoration: none;
       background: linear-gradient(90deg, var(--cyan), #6ef4ff);
@@ -464,7 +463,7 @@
     .video-ph-sub { color: var(--muted); font-size: .78rem; margin: 0; }
     .slide1-inner {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 3fr 2fr;
       gap: 1rem;
       align-items: start;
       padding: .5rem 0;
@@ -876,7 +875,7 @@
 
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
-      .buy-now-float { padding: 0.75rem 1.2rem; font-size: 0.92rem; }
+      .buy-now-float { padding: 0.75rem 1.4rem; font-size: 1.05rem; }
       #global-back-btn, #users-guide-btn, .buy-now-float { display: none !important; }
       .askk-fab { width: 52px; height: 52px; font-size: 1.4rem; bottom: 1rem; right: 1rem; }
       .askk-fab-label { display: none; }
@@ -1038,8 +1037,8 @@
 <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
   <a href="#choose-kit" class="buy-now-float" onclick="event.preventDefault(); document.getElementById('choose-kit').scrollIntoView({behavior:'smooth',block:'end'});">
     <span>Buy Now ↓</span>
-    <span style="font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; opacity: 0.85;"><del style="opacity:.55; font-weight:400;">$299.99</del> $199.99</span>
-    <span style="font-size: 0.68rem; font-weight: 500; letter-spacing: 0.03em; opacity: 0.7; text-transform: none;">for a limited time</span>
+    <span style="font-size: 1.15rem; font-weight: 900; letter-spacing: 0.03em;"><del style="opacity:.45; font-weight:400; font-size:.75rem;">$299.99</del> $199.99</span>
+    <span style="font-size: 0.68rem; font-weight: 500; letter-spacing: 0.03em; opacity: 0.65; text-transform: none;">for a limited time</span>
   </a>
   <a href="/node-setup.html" id="users-guide-btn" class="back-btn" style="left:auto; right:1rem;">Survival Node Users Guide</a>
 
@@ -1075,7 +1074,7 @@
         <div class="car-slide">
           <div class="slide1-inner">
             <div class="slide1-img-col">
-              <img src="images/logo2.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
+              <img src="images/logo3.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
             </div>
             <div class="slide1-qa-col">
               <a href="#" class="tr-open-link" id="test-results-link" aria-haspopup="dialog">📋 Equipment Test Results</a>
