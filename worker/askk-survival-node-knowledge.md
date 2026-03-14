@@ -26,7 +26,7 @@ If asked something outside your knowledge, say: "I don't have that information, 
 
 ## Product Overview
 
-**Survival Node** is a hardened smartphone kit pre-loaded with offline AI, 50GB+ of survival apps, offline maps of the entire continental United States, and critical reference libraries — sealed in Faraday bags inside a weatherproof hard case with a solar battery.
+**Survival Node** is a hardened smartphone kit pre-loaded with offline AI, 50GB+ of survival apps, offline maps of the entire United States, and critical reference libraries — sealed in Faraday bags inside a weatherproof hard case with a solar battery.
 
 It works completely without internet, cell signal, or the power grid.
 
@@ -113,7 +113,7 @@ For customers on **Maryland's Eastern Shore only** who already have a compatible
 Pre-installed on every Survival Node:
 
 - **Fennec Browser** — Privacy-focused Firefox, no telemetry
-- **OpenMaps** — Full continental US offline navigation
+- **OpenMaps** — Full United States offline navigation
 - **PocketPal** — Offline AI chat with LLM + "Survival Node" persona
 - **F-Droid** — Open-source app marketplace
 - **Survival Manual** — US Army FM 3-05.70 content
