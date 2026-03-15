@@ -471,6 +471,8 @@
       align-items: start;
       padding: .5rem 0;
     }
+    .slide1-banner { grid-column: 1 / -1; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+    .slide1-banner img { width: 100%; display: block; }
     .slide1-img-col img { width: 100%; display: block; border-radius: 6px; border: 1px solid var(--line); }
     .slide1-qa-col { padding: .15rem 0; }
     .slide1-title { margin: 0 0 .5rem; color: var(--cyan); font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; font-family: 'Hanken Grotesk', sans-serif; }
@@ -1076,6 +1078,9 @@
         <!-- Slide 1: Hero image + Key Q&A -->
         <div class="car-slide">
           <div class="slide1-inner">
+            <div class="slide1-banner">
+              <img src="images/banner.png" alt="Survival Node" loading="lazy" />
+            </div>
             <div class="slide1-img-col">
               <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
             </div>
