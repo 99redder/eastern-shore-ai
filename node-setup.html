@@ -171,6 +171,36 @@
       .pdf-page .guide-content strong { font-weight: 700; }
       .pdf-page .guide-content em { font-style: italic; }
       .pdf-page .guide-content a { color: #005577 !important; text-decoration: underline; }
+
+      /* ── Phone-friendly print variant ── */
+      #pdf-print-content.phone-friendly { font-size: 19px !important; line-height: 1.95 !important; }
+      #pdf-print-content.phone-friendly .pdf-title-page {
+        min-height: auto;
+        padding: 1rem 0 1.2rem;
+        page-break-after: always;
+      }
+      #pdf-print-content.phone-friendly .pdf-logo { width: 120px; margin-bottom: 1rem; }
+      #pdf-print-content.phone-friendly .pdf-title-main { font-size: 34px; }
+      #pdf-print-content.phone-friendly .pdf-title-sub { font-size: 14px; letter-spacing: .12em; }
+      #pdf-print-content.phone-friendly .pdf-contact p { font-size: 13px; }
+      #pdf-print-content.phone-friendly .pdf-page {
+        page-break-before: always;
+        padding: 18px 0 24px;
+      }
+      #pdf-print-content.phone-friendly .pdf-page-title {
+        font-size: 22px;
+        margin: 0 0 18px;
+        padding-bottom: 10px;
+      }
+      #pdf-print-content.phone-friendly .guide-content,
+      #pdf-print-content.phone-friendly .guide-content * {
+        font-size: 17px !important;
+        line-height: 1.95 !important;
+      }
+      #pdf-print-content.phone-friendly .guide-content p { margin: 0 0 14px; }
+      #pdf-print-content.phone-friendly .guide-content ul,
+      #pdf-print-content.phone-friendly .guide-content ol { margin: 8px 0 14px 26px; }
+      #pdf-print-content.phone-friendly .guide-content li { margin: 9px 0; }
     }
   </style>
 </head>
@@ -191,6 +221,7 @@
           <button class="arrow-btn" id="prev-btn" aria-label="Previous section">← Previous</button>
           <button class="arrow-btn" id="next-btn" aria-label="Next section">Next →</button>
           <button class="arrow-btn" id="download-pdf-btn" title="Open print dialog for PDF">🖨️ Print PDF</button>
+          <button class="arrow-btn" id="download-phone-pdf-btn" title="Open phone-friendly print dialog">📱 Print Phone Friendly Version</button>
         </div>
       </div>
       <div class="guide-content" id="guide-content"></div>
@@ -723,20 +754,19 @@ Operational Rules:
 
     render();
 
-    document.getElementById('download-pdf-btn').addEventListener('click', function() {
-      // Print-first flow (browser save-to-PDF)
+    function buildPrintContainer(phoneFriendly = false) {
       const old = document.getElementById('pdf-print-content');
       if (old) old.remove();
 
       const container = document.createElement('div');
       container.id = 'pdf-print-content';
+      if (phoneFriendly) container.classList.add('phone-friendly');
 
-      // Title page
       container.innerHTML =
         '<div class="pdf-title-page">' +
           '<img src="/images/carousel/entirenode/wholekit1.png" class="pdf-logo" alt="Survival Node" />' +
           '<h1 class="pdf-title-main">Survival Node</h1>' +
-          '<p class="pdf-title-sub">Users Guide</p>' +
+          '<p class="pdf-title-sub">Users Guide' + (phoneFriendly ? ' · Phone Friendly Version' : '') + '</p>' +
           '<div class="pdf-title-rule"></div>' +
           '<div class="pdf-contact">' +
             '<p class="pdf-contact-name">Eastern Shore AI, LLC</p>' +
@@ -746,7 +776,6 @@ Operational Rules:
           '</div>' +
         '</div>';
 
-      // Strip inline style attributes so print CSS controls colors cleanly
       sections.forEach(function(section, idx) {
         const page = document.createElement('div');
         page.className = 'pdf-page' + (idx === 0 ? ' pdf-page-first' : '');
@@ -758,14 +787,24 @@ Operational Rules:
       });
 
       document.querySelector('.wrap').appendChild(container);
+      return container;
+    }
 
-      function cleanup() {
-        const c = document.getElementById('pdf-print-content');
-        if (c) c.remove();
-        window.removeEventListener('afterprint', cleanup);
-      }
-      window.addEventListener('afterprint', cleanup);
+    function cleanupPrintContainer() {
+      const c = document.getElementById('pdf-print-content');
+      if (c) c.remove();
+      window.removeEventListener('afterprint', cleanupPrintContainer);
+    }
 
+    document.getElementById('download-pdf-btn').addEventListener('click', function() {
+      buildPrintContainer(false);
+      window.addEventListener('afterprint', cleanupPrintContainer);
+      window.print();
+    });
+
+    document.getElementById('download-phone-pdf-btn').addEventListener('click', function() {
+      buildPrintContainer(true);
+      window.addEventListener('afterprint', cleanupPrintContainer);
       window.print();
     });
   </script>
