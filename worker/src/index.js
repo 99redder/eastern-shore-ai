@@ -4676,11 +4676,3 @@ async function handleChatTyping(request, env, corsHeaders) {
   }
 }
 
-false, error: 'Failed to update typing state' }, 500, corsHeaders);
-  }
-}
-
-aders);
-  }
-}
-
