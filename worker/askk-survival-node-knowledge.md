@@ -161,7 +161,7 @@ Use it as a reference tool, not a replacement for professionals. Cross-reference
 Your daily phone already has battery wear from constant use. The Survival Node is purpose-built: preserved battery, 90GB+ dedicated storage, hardened OS, Faraday protection, and pre-configured survival AI.
 
 ### Why not buy parts on Amazon myself?
-You're buying the configuration, vetting, and testing — not just parts. We source/test phones, debloat OS (which can brick if done wrong), configure 50GB+ software, and verify everything works as a system. 30-day support included.
+You're buying the configuration, vetting, and testing — not just parts. We source/test phones, debloat OS (which can brick if done wrong), configure 50GB+ software, and verify everything works as a system. Every kit includes a 30-day warranty, and free technical support is included for as long as the customer owns the device.
 
 ### What about Raspberry Pi or laptop alternatives?
 Laptops need 30–80W; hard to solar-charge. Phones are the most power-efficient platform for this performance. 8GB RAM is minimum for capable local AI.
