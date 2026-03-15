@@ -3227,35 +3227,129 @@
   </div>
 
   <script>
-    // Fallback Ask K drawer binding: keeps the drawer usable even if the
-    // earlier assistant script fails before wiring up click handlers.
-    window.openAskKDrawer = function () {
-      const drawer = document.getElementById('askk-drawer');
-      const overlay = document.getElementById('askk-drawer-overlay');
-      const input = document.getElementById('askk-input');
-      if (!drawer || !overlay) return;
-      drawer.classList.add('open');
-      overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-      input?.focus();
-    };
-
-    window.closeAskKDrawer = function () {
-      const drawer = document.getElementById('askk-drawer');
-      const overlay = document.getElementById('askk-drawer-overlay');
-      if (!drawer || !overlay) return;
-      drawer.classList.remove('open');
-      overlay.classList.remove('open');
-      document.body.style.overflow = '';
-    };
-
+    // Fallback Ask K implementation: keeps the drawer usable even if the
+    // earlier assistant script fails before wiring up the widget.
     (() => {
+      const ASKK_API_URL = (window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact').replace('/api/contact', '/api/admin/ask-k');
       const fab = document.getElementById('askk-fab');
+      const drawer = document.getElementById('askk-drawer');
       const overlay = document.getElementById('askk-drawer-overlay');
       const closeBtn = document.getElementById('askk-close');
-      fab?.addEventListener('click', window.openAskKDrawer);
-      overlay?.addEventListener('click', window.closeAskKDrawer);
+      const messagesEl = document.getElementById('askk-messages');
+      const inputEl = document.getElementById('askk-input');
+      const sendBtn = document.getElementById('askk-send');
+      const quickActions = document.getElementById('askk-quick-actions');
+      if (!fab || !drawer || !overlay || !messagesEl || !inputEl || !sendBtn) return;
+
+      const cannedQuickReplies = {
+        "What's included?": "The Survival Node includes a Motorola Moto G Power (2024) core unit (brand new or open box, hand-vetted), a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI Agent, a solar battery, two Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, and charging accessories.",
+        "Does it work offline?": "Yes — the Survival Node is built to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required.",
+        "How does shipping work?": "Shipping is free to continental U.S. destinations, and orders ship by ground because of lithium battery rules. Alaska, Hawaii, U.S. territories, and international destinations are not currently supported.",
+        "What's the warranty?": "The kit includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration. Returns are accepted within 30 days of delivery if the device stays in original functional condition, the Faraday bag seals are unbroken, and the OS has not been further modified."
+      };
+
+      let fallbackInitialized = false;
+      let fallbackBusy = false;
+      let fallbackHistory = [];
+
+      function addMessage(role, content) {
+        const msg = document.createElement('div');
+        msg.className = `askk-msg ${role}`;
+        const safe = String(content || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>');
+        msg.innerHTML = safe;
+        messagesEl.appendChild(msg);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        if (role !== 'system') fallbackHistory.push({ role, content: String(content || '') });
+      }
+
+      function setBusy(busy) {
+        fallbackBusy = busy;
+        sendBtn.disabled = busy;
+      }
+
+      function collectPageContext() {
+        return {
+          page: 'Survival Node Product Page',
+          url: window.location.pathname + window.location.hash
+        };
+      }
+
+      window.openAskKDrawer = function () {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        inputEl.focus();
+        if (!fallbackInitialized && messagesEl.children.length === 0) {
+          fallbackInitialized = true;
+          addMessage('assistant', "Hi! I'm K, your Survival Node assistant. I can help answer questions about the product, what's included, shipping, returns, and more. What would you like to know?");
+        }
+      };
+
+      window.closeAskKDrawer = function () {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      };
+
+      async function sendFallbackMessage(text) {
+        const userText = (text || '').trim();
+        if (!userText || fallbackBusy) return;
+        addMessage('user', userText);
+        inputEl.value = '';
+        inputEl.style.height = 'auto';
+        if (quickActions) quickActions.style.display = 'none';
+        setBusy(true);
+
+        try {
+          const res = await fetch(ASKK_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: userText,
+              history: fallbackHistory.slice(-10),
+              context: collectPageContext()
+            })
+          });
+          const data = await res.json();
+          if (data.ok && data.reply) {
+            addMessage('assistant', data.reply);
+          } else {
+            addMessage('assistant', data.error || "Sorry, I couldn't process that. Please try again.");
+          }
+        } catch (err) {
+          addMessage('assistant', "I'm having trouble connecting right now. Please try again in a moment.");
+        }
+
+        setBusy(false);
+        inputEl.focus();
+      }
+
+      fab.addEventListener('click', window.openAskKDrawer);
+      overlay.addEventListener('click', window.closeAskKDrawer);
       closeBtn?.addEventListener('click', window.closeAskKDrawer);
+      sendBtn.addEventListener('click', () => sendFallbackMessage(inputEl.value));
+      inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendFallbackMessage(inputEl.value);
+        }
+      });
+      quickActions?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.askk-quick-btn');
+        if (!btn) return;
+        const prompt = btn.textContent.trim();
+        if (cannedQuickReplies[prompt]) {
+          addMessage('user', prompt);
+          addMessage('assistant', cannedQuickReplies[prompt]);
+          if (quickActions) quickActions.style.display = 'none';
+        } else {
+          sendFallbackMessage(prompt);
+        }
+      });
     })();
   </script>
 </body>
