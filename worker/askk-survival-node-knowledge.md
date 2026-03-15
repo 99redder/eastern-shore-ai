@@ -54,7 +54,7 @@ It works completely without internet, cell signal, or the power grid.
 1. **Survival Node 8GB Core Unit**
    - Motorola Moto G Power (2024) — brand new or open box, hand-vetted for battery life, memory performance, and overall suitability (8GB RAM, 128GB storage)
    - De-bloated OS optimized for performance and longevity
-   - 50GB+ survival software suite with 1 offline LLM
+   - 50GB+ survival software suite with 3 offline LLMs
    - Pre-configured "Survival Node" AI persona (no setup required)
    - Shockproof protective phone case
    - Wall charger + USB-C cable
