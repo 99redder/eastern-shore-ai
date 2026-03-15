@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Survival Node Quick Start Insert</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --panel: #121824;
+      --text: #e8f1ff;
+      --muted: #8ca0bd;
+      --line: rgba(168,200,74,.22);
+      --cyan: #9ed0ff;
+      --lime: #a8c84a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 800px at 10% -10%, rgba(158,208,255,.18), transparent 40%), var(--bg);
+      color: var(--text);
+      font-family: 'Titillium Web', sans-serif;
+      line-height: 1.6;
+      padding: 1.2rem;
+    }
+    .shell {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: .65rem;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #162033 0%, #0f1420 100%);
+      color: var(--text);
+      border-radius: 12px;
+      padding: .8rem 1rem;
+      font: 700 .96rem 'Hanken Grotesk', sans-serif;
+      cursor: pointer;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(18,24,36,.96), rgba(10,14,22,.98));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 48px rgba(0,0,0,.34);
+      overflow: hidden;
+    }
+    .header {
+      padding: 1.3rem 1.3rem 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font: 800 .8rem 'Hanken Grotesk', sans-serif;
+      margin: 0 0 .35rem;
+    }
+    h1 {
+      margin: 0 0 .35rem;
+      color: var(--cyan);
+      font: 800 2rem 'Hanken Grotesk', sans-serif;
+      line-height: 1.1;
+    }
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .content {
+      padding: 1.2rem 1.3rem 1.35rem;
+    }
+    h2 {
+      margin: 0 0 .55rem;
+      color: var(--cyan);
+      font: 800 1.1rem 'Hanken Grotesk', sans-serif;
+    }
+    p { margin: 0 0 .85rem; }
+    ol, ul { margin: .25rem 0 1rem 1.25rem; padding: 0; }
+    li { margin: .45rem 0; }
+    .note {
+      margin-top: 1rem;
+      padding: .95rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(158,208,255,.06);
+    }
+    .footer {
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    @media print {
+      @page { size: letter; margin: 0.5in; }
+      body {
+        background: #fff;
+        color: #111;
+        padding: 0;
+      }
+      .toolbar { display: none !important; }
+      .card {
+        border: 0;
+        box-shadow: none;
+        background: #fff;
+      }
+      .header {
+        border-bottom: 1px solid #bbb;
+        padding: 0 0 .25in;
+      }
+      .content {
+        padding: .2in 0 0;
+      }
+      .eyebrow { color: #5a5a5a; }
+      h1, h2 { color: #000; }
+      .sub, .footer { color: #444; }
+      .note {
+        background: #f5f7fa;
+        border: 1px solid #cfd8e3;
+      }
+      .page-break-avoid { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="toolbar">
+      <button class="btn" onclick="window.print()">Save / Print PDF</button>
+    </div>
+
+    <div class="card">
+      <div class="header">
+        <p class="eyebrow">Survival Node</p>
+        <h1>Do This Now Upon Receipt</h1>
+        <p class="sub">A quick-start insert to help you prepare your Survival Node for long-term readiness.</p>
+      </div>
+
+      <div class="content">
+        <div class="page-break-avoid">
+          <h2>Complete these 3 steps first</h2>
+          <ol>
+            <li><strong>Charge the solar battery.</strong> Plug your solar battery into wall power using the included charger. You can charge it to 100% to verify all LEDs are solid and it is working correctly, then bring it back down to <strong>50–70%</strong> before sealing it for long-term storage.</li>
+            <li><strong>Charge the phone.</strong> Plug the phone in using the included wall charger and USB-C cable. Charge it to <strong>50–60%</strong>. This is the ideal range for long-term lithium battery storage. Do not store it fully charged or fully drained.</li>
+            <li><strong>Seal it for readiness.</strong> Place the phone and power hub into their Faraday bags, fold the top twice, seal them tightly, then store both in the case with the included reusable silica gel packs.</li>
+          </ol>
+        </div>
+
+        <div class="page-break-avoid">
+          <h2>Storage conditions</h2>
+          <p>Store your Survival Node in a cool, dry location — ideally between <strong>60°F (15°C) and 85°F (30°C)</strong>. Avoid cars, attics, and garages where temperatures reach damaging extremes.</p>
+          <p>The included silica gel packs are reusable. When the orange indicator beads turn dark green, they are saturated and need to be reactivated.</p>
+          <ul>
+            <li><strong>Preferred method:</strong> lay the packs flat in direct sunlight for 1–2 days.</li>
+            <li><strong>Alternative:</strong> microwave for about 5 minutes (start with less; different microwaves vary in power).</li>
+            <li><strong>Alternative:</strong> oven at 200–250°F for 30 minutes to 2 hours.</li>
+          </ul>
+        </div>
+
+        <div class="page-break-avoid">
+          <h2>SIM card &amp; cellular note</h2>
+          <p>No SIM card or service plan is required. All core features — AI, maps, and reference apps — work fully offline.</p>
+          <p>We do <strong>not</strong> recommend attempting to connect this phone to a cellular network or installing a SIM card.</p>
+        </div>
+
+        <div class="note page-break-avoid">
+          <h2 style="margin-top:0;">Where to find the full Users Guide</h2>
+          <p>The full <strong>Survival Node Users Guide</strong> is pre-loaded on the phone.</p>
+          <p>Open the <strong>Files</strong> folder on the home screen to view it offline any time.</p>
+        </div>
+
+        <p class="footer">Tip: After you complete these steps, store the case in a dry, temperature-stable location and set a reminder for your 6-month maintenance check.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
