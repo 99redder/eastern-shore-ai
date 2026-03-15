@@ -443,8 +443,8 @@
     .car-prev { left: 0; }
     .car-next { right: 0; }
     .car-dots { display: flex; justify-content: center; gap: .45rem; margin-top: .35rem; }
-    .car-hint { text-align: center; margin-top: .3rem; font-size: .9rem; color: var(--muted); font-family: 'Hanken Grotesk', sans-serif; letter-spacing: .04em; opacity: .9; }
-    .car-hint-arrows { color: var(--cyan); font-weight: 700; }
+    .car-hint { display: block; text-align: center; margin-top: .3rem; font-size: .9rem; color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif; letter-spacing: .04em; text-decoration: none; font-weight: 600; }
+    .car-hint:hover { text-decoration: underline; }
     .car-dot {
       width: 8px; height: 8px; border-radius: 50%; background: var(--line);
       border: none; cursor: pointer; padding: 0; transition: background .2s;
@@ -1151,7 +1151,7 @@
         <button class="car-dot active" data-idx="0" aria-label="Slide 1"></button>
         <button class="car-dot" data-idx="1" aria-label="Slide 2"></button>
       </div>
-      <p class="car-hint"><span class="car-hint-arrows">‹ ›</span> ▶️ Use the arrows to see unboxing video &amp; live demos 🎥</p>
+      <a class="car-hint" href="#" id="car-demo-link">▶️ Watch unboxing video &amp; live demos</a>
     </div>
     <button class="car-arrow car-prev" id="car-prev" aria-label="Previous slide">‹</button>
     <button class="car-arrow car-next" id="car-next" aria-label="Next slide">›</button>
@@ -2027,6 +2027,8 @@
 
       document.getElementById('car-prev').addEventListener('click', () => manualNav(cur - 1));
       document.getElementById('car-next').addEventListener('click', () => manualNav(cur + 1));
+      const demoLink = document.getElementById('car-demo-link');
+      if (demoLink) demoLink.addEventListener('click', e => { e.preventDefault(); manualNav(1); });
       dots.forEach(d => d.addEventListener('click', () => manualNav(+d.dataset.idx)));
       return {
         pause() { videoActive = true; clearInterval(timer); },
