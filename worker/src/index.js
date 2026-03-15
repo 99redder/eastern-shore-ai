@@ -3809,9 +3809,9 @@ It works completely without internet, cell signal, or the power grid.
 ## What's Included in the Survival Node
 
 1. **Survival Node 8GB Core Unit**
-   - Hand-vetted refurbished Android smartphone (8GB RAM, 90GB+ storage)
+   - Motorola Moto G Power (2024) — brand new or open box, hand-vetted for battery life, memory performance, and overall suitability (8GB RAM, 128GB storage)
    - De-bloated OS optimized for performance and longevity
-   - 50GB+ survival software suite with 1 offline LLM
+   - 50GB+ survival software suite with 3 offline LLMs
    - Pre-configured "Survival Node" AI persona (no setup required)
    - Shockproof protective phone case
    - Wall charger + USB-C cable
@@ -3898,7 +3898,7 @@ An EMP (electromagnetic pulse) from nuclear detonation or solar flare can fry un
 The Survival Node is built on a Motorola Moto G Power (2024).
 
 ### Can the phone make calls and texts?
-It does not come with a SIM card, and we do not recommend installing one on it. The intended use is as a dedicated offline Survival Node device.
+It does not come with a SIM card, and we do not recommend installing one on it. Even if a customer adds one, it may not work with the phone. The intended use is as a dedicated offline Survival Node device.
 
 ### How should I store it?
 Keep sealed in Faraday bag, in a dry, temperature-stable location. Recharge the solar battery every 6–12 months.
@@ -3955,7 +3955,7 @@ No — it's emergency trickle-charge capability. Use wall power when available; 
 - **Phone:** (302) 907-9162
 - **Email:** Contact form on main site
 
-30-day support included with every kit.
+Every kit includes a 30-day warranty, and free technical support is included for as long as the customer owns the device.
 
 ## Response Guidelines
 
@@ -4673,6 +4673,14 @@ async function handleChatTyping(request, env, corsHeaders) {
     return json({ ok: true }, 200, corsHeaders);
   } catch (err) {
     return json({ ok: false, error: 'Failed to update typing state' }, 500, corsHeaders);
+  }
+}
+
+false, error: 'Failed to update typing state' }, 500, corsHeaders);
+  }
+}
+
+aders);
   }
 }
 

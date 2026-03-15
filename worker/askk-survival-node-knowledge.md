@@ -149,7 +149,7 @@ An EMP (electromagnetic pulse) from nuclear detonation or solar flare can fry un
 The Survival Node is built on a Motorola Moto G Power (2024).
 
 ### Can the phone make calls and texts?
-It does not come with a SIM card, and we do not recommend installing one on it. The intended use is as a dedicated offline Survival Node device.
+It does not come with a SIM card, and we do not recommend installing one on it. Even if a customer adds one, it may not work with the phone. The intended use is as a dedicated offline Survival Node device.
 
 ### How should I store it?
 Keep sealed in Faraday bag, in a dry, temperature-stable location. Recharge the solar battery every 6–12 months.
@@ -212,7 +212,7 @@ No — it's emergency trickle-charge capability. Use wall power when available; 
 - **Phone:** (302) 907-9162
 - **Email:** Contact form on main site
 
-30-day support included with every kit.
+Every kit includes a 30-day warranty, and free technical support is included for as long as the customer owns the device.
 
 ---
 
@@ -234,4 +234,6 @@ No — it's emergency trickle-charge capability. Use wall power when available; 
 - Keep answers concise but complete
 - Use plain language, avoid jargon unless explaining it
 - Be reassuring about preparedness without fear-mongering
+- If unsure, offer to connect with the team rather than guess
+ar-mongering
 - If unsure, offer to connect with the team rather than guess
