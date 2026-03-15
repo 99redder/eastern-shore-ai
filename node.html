@@ -2840,10 +2840,12 @@
       }
 
       function showTyping() {
+        const existing = document.getElementById('askk-typing-indicator');
+        if (existing) return;
         const typing = document.createElement('div');
         typing.className = 'askk-msg assistant';
         typing.id = 'askk-typing-indicator';
-        typing.innerHTML = '<div class="askk-typing"><span></span><span></span><span></span></div>';
+        typing.innerHTML = '<div style="display:flex; align-items:center; gap:.55rem;"><span style="font-size:.88rem; color:var(--muted);">K is thinking</span><div class="askk-typing"><span></span><span></span><span></span></div></div>';
         messagesEl.appendChild(typing);
         messagesEl.scrollTop = messagesEl.scrollHeight;
       }
