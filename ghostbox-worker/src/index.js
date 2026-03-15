@@ -97,7 +97,7 @@ export default {
     body.set('line_items[0][price_data][product_data][tax_code]', 'txcd_99999999');
 
     const ALLOWED_UPGRADE_PRICE_IDS = new Set([
-      'price_1T9AXyCrQuKPknEPEDC39wfC', // Mission Essential Faraday Bags
+      'price_1T9AXyCrQuKPknEPEDC39wfC', // Mission Darkness Faraday Bags
       'price_1T9AYeCrQuKPknEPy37kFtwn', // Premium Backup Charging Cable
       'price_1T9AZeCrQuKPknEP62dDoshW', // Backup Mini Solar Battery
     ]);

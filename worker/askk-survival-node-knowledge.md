@@ -80,7 +80,7 @@ It works completely without internet, cell signal, or the power grid.
 
 | Upgrade | Price | Description |
 |---------|-------|-------------|
-| Mission Essential Faraday Bags | +$50 | Premium EMP-rated shielding (TitanRF-grade) |
+| Mission Darkness Faraday Bags | +$50 | Premium EMP-rated shielding (TitanRF-grade) |
 | Backup USB-C Charging Cable | +$20 | Heavy-duty braided backup cable |
 | Backup Mini Solar Battery | +$20 | Compact secondary power reserve |
 
