@@ -2692,6 +2692,7 @@
       const overlay  = document.getElementById('test-results-modal');
       const closeBtn = document.getElementById('tr-modal-close');
       const openLink = document.getElementById('test-results-link');
+      if (!overlay || !closeBtn || !openLink) return;
       const tabs     = overlay.querySelectorAll('.tr-tab');
       const panels   = overlay.querySelectorAll('.tr-panel');
 
