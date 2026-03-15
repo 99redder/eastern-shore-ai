@@ -173,34 +173,39 @@
       .pdf-page .guide-content a { color: #005577 !important; text-decoration: underline; }
 
       /* ── Phone-friendly print variant ── */
-      #pdf-print-content.phone-friendly { font-size: 19px !important; line-height: 1.95 !important; }
+      #pdf-print-content.phone-friendly { font-size: 21px !important; line-height: 2.05 !important; }
       #pdf-print-content.phone-friendly .pdf-title-page {
         min-height: auto;
-        padding: 1rem 0 1.2rem;
+        padding: 0.8rem 0 1rem;
         page-break-after: always;
       }
-      #pdf-print-content.phone-friendly .pdf-logo { width: 120px; margin-bottom: 1rem; }
-      #pdf-print-content.phone-friendly .pdf-title-main { font-size: 34px; }
-      #pdf-print-content.phone-friendly .pdf-title-sub { font-size: 14px; letter-spacing: .12em; }
-      #pdf-print-content.phone-friendly .pdf-contact p { font-size: 13px; }
+      #pdf-print-content.phone-friendly .pdf-logo { width: 108px; margin-bottom: .8rem; }
+      #pdf-print-content.phone-friendly .pdf-title-main { font-size: 30px; }
+      #pdf-print-content.phone-friendly .pdf-title-sub { font-size: 13px; letter-spacing: .1em; }
+      #pdf-print-content.phone-friendly .pdf-contact p { font-size: 12px; }
       #pdf-print-content.phone-friendly .pdf-page {
         page-break-before: always;
-        padding: 18px 0 24px;
+        padding: 14px 0 18px;
       }
       #pdf-print-content.phone-friendly .pdf-page-title {
-        font-size: 22px;
-        margin: 0 0 18px;
+        font-size: 24px;
+        margin: 0 auto 18px;
         padding-bottom: 10px;
+        max-width: 5.35in;
+      }
+      #pdf-print-content.phone-friendly .guide-content {
+        max-width: 5.35in;
+        margin: 0 auto;
       }
       #pdf-print-content.phone-friendly .guide-content,
       #pdf-print-content.phone-friendly .guide-content * {
-        font-size: 17px !important;
-        line-height: 1.95 !important;
+        font-size: 18px !important;
+        line-height: 2.05 !important;
       }
-      #pdf-print-content.phone-friendly .guide-content p { margin: 0 0 14px; }
+      #pdf-print-content.phone-friendly .guide-content p { margin: 0 0 16px; }
       #pdf-print-content.phone-friendly .guide-content ul,
-      #pdf-print-content.phone-friendly .guide-content ol { margin: 8px 0 14px 26px; }
-      #pdf-print-content.phone-friendly .guide-content li { margin: 9px 0; }
+      #pdf-print-content.phone-friendly .guide-content ol { margin: 10px 0 16px 28px; }
+      #pdf-print-content.phone-friendly .guide-content li { margin: 10px 0; }
     }
   </style>
 </head>
