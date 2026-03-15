@@ -52,7 +52,7 @@ It works completely without internet, cell signal, or the power grid.
 ## What's Included in the Survival Node
 
 1. **Survival Node 8GB Core Unit**
-   - Hand-vetted refurbished Android smartphone (8GB RAM, 90GB+ storage)
+   - Motorola Moto G Power (2024) — brand new or open box, hand-vetted for battery life, memory performance, and overall suitability (8GB RAM, 256GB storage)
    - De-bloated OS optimized for performance and longevity
    - 50GB+ survival software suite with 1 offline LLM
    - Pre-configured "Survival Node" AI persona (no setup required)
