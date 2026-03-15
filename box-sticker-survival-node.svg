@@ -1,0 +1,46 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="140" y1="120" x2="1040" y2="1080" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1724"/>
+      <stop offset="1" stop-color="#0A0D14"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="180" y1="180" x2="1020" y2="1020" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A8C84A"/>
+      <stop offset="1" stop-color="#7FB8FF"/>
+    </linearGradient>
+    <filter id="shadow" x="90" y="90" width="1020" height="1020" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000000" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="1200" rx="72" fill="#F4F6F8"/>
+
+  <g filter="url(#shadow)">
+    <rect x="120" y="120" width="960" height="960" rx="56" fill="url(#bg)"/>
+    <rect x="132" y="132" width="936" height="936" rx="44" stroke="url(#ring)" stroke-width="4"/>
+  </g>
+
+  <g opacity="0.12">
+    <circle cx="600" cy="600" r="300" stroke="#A8C84A" stroke-width="2"/>
+    <circle cx="600" cy="600" r="220" stroke="#7FB8FF" stroke-width="2"/>
+    <circle cx="600" cy="600" r="140" stroke="#A8C84A" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(600 355)">
+    <rect x="-72" y="-92" width="144" height="184" rx="22" fill="#111827" stroke="#A8C84A" stroke-width="6"/>
+    <rect x="-48" y="-54" width="96" height="112" rx="10" fill="#7FB8FF" opacity="0.18"/>
+    <rect x="-18" y="-80" width="36" height="6" rx="3" fill="#A8C84A" opacity="0.85"/>
+    <path d="M-6 -12C30 -12 56 13 56 47C56 81 29 106 -6 106C-36 106 -60 86 -66 58" stroke="#A8C84A" stroke-width="12" stroke-linecap="round"/>
+    <path d="M-72 58C-54 54 -37 44 -24 29" stroke="#7FB8FF" stroke-width="12" stroke-linecap="round"/>
+    <path d="M-22 29L-23 89L28 57L-22 29Z" fill="#7FB8FF"/>
+  </g>
+
+  <text x="600" y="580" text-anchor="middle" fill="#A8C84A" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" letter-spacing="10">EASTERN SHORE AI</text>
+  <text x="600" y="690" text-anchor="middle" fill="#F8FBFF" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="900" letter-spacing="4">SURVIVAL</text>
+  <text x="600" y="818" text-anchor="middle" fill="#7FB8FF" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="900" letter-spacing="8">NODE</text>
+
+  <rect x="250" y="872" width="700" height="74" rx="18" fill="#111827" stroke="#2A3348" stroke-width="2"/>
+  <text x="600" y="920" text-anchor="middle" fill="#E8F1FF" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="2">OFFLINE AI • OFF-GRID READY • FIELD CONFIGURED</text>
+
+  <text x="600" y="1008" text-anchor="middle" fill="#95A3B8" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600" letter-spacing="2">www.easternshore.ai</text>
+</svg>
