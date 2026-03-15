@@ -3894,8 +3894,11 @@ Yes. Ships with hardened OS, full software suite, and custom "Survival Node" AI 
 ### What does EMP-hardened mean?
 An EMP (electromagnetic pulse) from nuclear detonation or solar flare can fry unshielded electronics. The included Faraday bags block electromagnetic interference when properly sealed.
 
+### What model of phone is it?
+The Survival Node is built on a Motorola Moto G Power (2024).
+
 ### Can the phone make calls and texts?
-Yes — it's a fully functional phone, but no SIM card is included. With a SIM, it works like any phone. Without signal, all offline apps still work.
+It does not come with a SIM card, and we do not recommend installing one on it. The intended use is as a dedicated offline Survival Node device.
 
 ### How should I store it?
 Keep sealed in Faraday bag, in a dry, temperature-stable location. Recharge the solar battery every 6–12 months.
