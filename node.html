@@ -3225,5 +3225,35 @@
       </div>
     </div>
   </div>
+
+  <script>
+    // Fallback Ask K drawer binding: keeps the drawer usable even if the
+    // earlier assistant script fails before wiring up click handlers.
+    (() => {
+      const fab = document.getElementById('askk-fab');
+      const drawer = document.getElementById('askk-drawer');
+      const overlay = document.getElementById('askk-drawer-overlay');
+      const closeBtn = document.getElementById('askk-close');
+      const input = document.getElementById('askk-input');
+      if (!fab || !drawer || !overlay) return;
+
+      const openFallbackDrawer = () => {
+        drawer.classList.add('open');
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        input?.focus();
+      };
+
+      const closeFallbackDrawer = () => {
+        drawer.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      };
+
+      fab.addEventListener('click', openFallbackDrawer);
+      overlay.addEventListener('click', closeFallbackDrawer);
+      closeBtn?.addEventListener('click', closeFallbackDrawer);
+    })();
+  </script>
 </body>
 </html>
