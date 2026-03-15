@@ -2035,8 +2035,10 @@
         goTo(idx);
       }
 
-      document.getElementById('car-prev').addEventListener('click', () => manualNav(cur - 1));
-      document.getElementById('car-next').addEventListener('click', () => manualNav(cur + 1));
+      const prevBtn = document.getElementById('car-prev');
+      const nextBtn = document.getElementById('car-next');
+      if (prevBtn) prevBtn.addEventListener('click', () => manualNav(cur - 1));
+      if (nextBtn) nextBtn.addEventListener('click', () => manualNav(cur + 1));
       const demoLink = document.getElementById('car-demo-link');
       if (demoLink) demoLink.addEventListener('click', e => { e.preventDefault(); manualNav(1); });
       dots.forEach(d => d.addEventListener('click', () => manualNav(+d.dataset.idx)));
