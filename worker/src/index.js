@@ -1008,7 +1008,7 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     : 'Survival Node';
   const productDescription = isByogSetup
     ? 'Bring your own gear setup-only service'
-    : 'OnePlus 8 5G (8GB RAM, Snapdragon 865) + 42,800mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Faraday bags + 50GB Offline Brain Software';
+    : 'Motorola Moto G Power (2024) core unit + 3 offline LLMs + solar battery + weatherproof hard case + padlock + phone case + 2 Faraday bags + 50GB+ offline software suite';
   const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
 
   const contiguousStates = new Set([
