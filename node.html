@@ -3168,7 +3168,7 @@
   </script>
 
   <!-- Ask K Floating Button -->
-  <button class="askk-fab" id="askk-fab" aria-label="Ask K - Product Assistant">
+  <button class="askk-fab" id="askk-fab" aria-label="Ask K - Product Assistant" onclick="window.openAskKDrawer && window.openAskKDrawer()">
     <span class="askk-fab-label">Ask K</span>
     💬
   </button>
@@ -3229,30 +3229,33 @@
   <script>
     // Fallback Ask K drawer binding: keeps the drawer usable even if the
     // earlier assistant script fails before wiring up click handlers.
-    (() => {
-      const fab = document.getElementById('askk-fab');
+    window.openAskKDrawer = function () {
       const drawer = document.getElementById('askk-drawer');
       const overlay = document.getElementById('askk-drawer-overlay');
-      const closeBtn = document.getElementById('askk-close');
       const input = document.getElementById('askk-input');
-      if (!fab || !drawer || !overlay) return;
+      if (!drawer || !overlay) return;
+      drawer.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      input?.focus();
+    };
 
-      const openFallbackDrawer = () => {
-        drawer.classList.add('open');
-        overlay.classList.add('open');
-        document.body.style.overflow = 'hidden';
-        input?.focus();
-      };
+    window.closeAskKDrawer = function () {
+      const drawer = document.getElementById('askk-drawer');
+      const overlay = document.getElementById('askk-drawer-overlay');
+      if (!drawer || !overlay) return;
+      drawer.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    };
 
-      const closeFallbackDrawer = () => {
-        drawer.classList.remove('open');
-        overlay.classList.remove('open');
-        document.body.style.overflow = '';
-      };
-
-      fab.addEventListener('click', openFallbackDrawer);
-      overlay.addEventListener('click', closeFallbackDrawer);
-      closeBtn?.addEventListener('click', closeFallbackDrawer);
+    (() => {
+      const fab = document.getElementById('askk-fab');
+      const overlay = document.getElementById('askk-drawer-overlay');
+      const closeBtn = document.getElementById('askk-close');
+      fab?.addEventListener('click', window.openAskKDrawer);
+      overlay?.addEventListener('click', window.closeAskKDrawer);
+      closeBtn?.addEventListener('click', window.closeAskKDrawer);
     })();
   </script>
 </body>
