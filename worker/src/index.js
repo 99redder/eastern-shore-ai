@@ -1516,9 +1516,7 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
     return [
       `Hi ${customerName},`,
       '',
-      trackingProvider ? `Carrier: ${trackingProvider}` : '',
-      trackingNumber ? `Tracking number: ${trackingNumber}` : '',
-      trackingUrl ? `Tracking link: ${trackingUrl}` : ''
+      'Great news! Your order is on the way.'
     ].filter(Boolean).join('\n');
   }
   if (kind === 'delivered') {
