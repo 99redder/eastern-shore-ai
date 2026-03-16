@@ -1508,7 +1508,7 @@ function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '')
     '',
     'We’ll send another email as soon as it ships.',
     '',
-    'If you have any questions in the meantime, just reply to this message or call us at (302) 907-9162.'
+    'If you have any questions in the meantime, just reply to this message.'
   ].filter(Boolean).join('\n');
 }
 
@@ -1539,7 +1539,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const shippingGuideHtml = kind === 'shipping'
     ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">User Guide</div><div style="line-height:1.6;">The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.<br><br>You can also view it on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
     : '';
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}<p style="margin:18px 0 0;color:#374151;text-align:center;">Questions? Reply to this email, call us at (302) 907-9162, or contact us at (302) 907-9162 and we'll get back to you ASAP.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
   return { subject, bodyText, html };
 }
 
@@ -1839,16 +1839,14 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   });
 
   const fromEmail = (env.FROM_EMAIL || '').toString().trim();
-  const replyToEmail = (env.CC_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const emailPayload = {
     from: fromEmail,
     to: [customerEmail],
     subject: content.subject,
     html: content.html,
     text: content.bodyText,
-    reply_to: replyToEmail || fromEmail
+    reply_to: fromEmail
   };
-  if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
 
   const sendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
