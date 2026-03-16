@@ -121,7 +121,11 @@ export default {
     }
 
     if (url.pathname === '/api/orders/preview' && request.method === 'POST') {
-      return handleOrderEmailPreview(request, env, corsHeaders, url);
+      try {
+        return await handleOrderEmailPreview(request, env, corsHeaders, url);
+      } catch (err) {
+        return json({ ok: false, error: err?.message || 'Order preview failed' }, 500, corsHeaders);
+      }
     }
 
     if (url.pathname === '/api/orders/send' && request.method === 'POST') {
