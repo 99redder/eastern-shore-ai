@@ -1823,6 +1823,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!customerEmail) return json({ ok: false, error: 'Order has no customer email' }, 400, corsHeaders);
   if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
 
+  const trackingProvider = (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
   if (kind === 'shipping' && !trackingNumber) {
