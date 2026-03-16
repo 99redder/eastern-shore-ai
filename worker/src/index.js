@@ -1523,15 +1523,7 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
     return [
       `Hi ${customerName},`,
       '',
-      'Your Survival Node order shows as delivered.',
-      '',
-      'Your User Guide is stored on the phone itself — there is a shortcut to the file right on the main screen of the phone.',
-      '',
-      'There is also an insert in the case with the initial setup steps to help you get going.',
-      '',
-      'You can also view the User Guide on the web here: https://www.easternshore.ai/userguide.html',
-      '',
-      'If you have any questions, just reply to this message.'
+      'Your Survival Node has arrived.'
     ].filter(Boolean).join('\n');
   }
   return [
