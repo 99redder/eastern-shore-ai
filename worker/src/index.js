@@ -3396,6 +3396,7 @@ async function handleManualOrderCreate(request, env, corsHeaders, url) {
 
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const customerPhone = (data.customerPhone || '').toString().trim();
   const paymentMethod = (data.paymentMethod || '').toString().trim();
   const orderSummary = (data.orderSummary || 'Survival Node').toString().trim();
@@ -3403,6 +3404,7 @@ async function handleManualOrderCreate(request, env, corsHeaders, url) {
   const paymentDate = (data.paymentDate || '').toString().trim() || new Date().toISOString().slice(0,10);
   const amountCents = toCents(data.amount);
   if (!customerEmail) return json({ ok: false, error: 'Customer email is required' }, 400, corsHeaders);
+  if (!emailRegex.test(customerEmail)) return json({ ok: false, error: 'Invalid customer email' }, 400, corsHeaders);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) return json({ ok: false, error: 'Invalid payment date' }, 400, corsHeaders);
   if (amountCents === null || amountCents < 0) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
 
