@@ -1776,11 +1776,23 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
     bodyText: data.bodyText,
-    trackingProvider: data.trackingProvider,
+    trackingProvider,
     trackingNumber,
     trackingUrl
   });
-  return json({ ok: true, bookingId, kind, trackingProvider: (data.trackingProvider ?? hydratedRow.tracking_provider ?? '').toString().trim(), trackingNumber, trackingUrl, orderNumber: hydratedRow.order_number || null, ...content }, 200, corsHeaders);
+  return json({
+    ok: true,
+    bookingId,
+    kind,
+    trackingProvider,
+    trackingNumber,
+    trackingUrl,
+    orderNumber: hydratedRow.order_number || null,
+    orderSummary: orderSummaryFromRow(hydratedRow),
+    amountCents: Number(hydratedRow.amount_cents || 0),
+    paymentDate: (hydratedRow.payment_date || '').toString(),
+    ...content
+  }, 200, corsHeaders);
 }
 
 async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
