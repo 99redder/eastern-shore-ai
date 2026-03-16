@@ -1468,14 +1468,20 @@ function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '') {
 
 async function generateNextOrderNumber(db) {
   const yy = new Date().getFullYear().toString().slice(-2);
-  const prefix = `${yy}`;
-  const rows = await Promise.all([
-    db.prepare(`SELECT order_number FROM order_fulfillment WHERE order_number LIKE ?1 ORDER BY order_number DESC LIMIT 1`).bind(`${prefix}%`).first(),
-    db.prepare(`SELECT order_number FROM manual_survival_node_orders WHERE order_number LIKE ?1 ORDER BY order_number DESC LIMIT 1`).bind(`${prefix}%`).first()
-  ]);
-  const nums = rows.map(r => Number(String(r?.order_number || '').replace(/\D/g,'')) || 0);
-  const max = Math.max(...nums, Number(`${prefix}000`) );
-  return String(max + 1);
+  const yearBase = Number(`${yy}000`);
+  const seqKey = 'survival_node_orders';
+  await db.prepare(
+    `INSERT INTO order_number_sequence (seq_key, last_value)
+     VALUES (?1, ?2)
+     ON CONFLICT(seq_key) DO NOTHING`
+  ).bind(seqKey, yearBase).run();
+
+  const row = await db.prepare(`SELECT last_value FROM order_number_sequence WHERE seq_key = ?1 LIMIT 1`).bind(seqKey).first();
+  let current = Number(row?.last_value || 0);
+  if (!Number.isFinite(current) || current < yearBase) current = yearBase;
+  const next = current + 1;
+  await db.prepare(`UPDATE order_number_sequence SET last_value = ?1, updated_at = datetime('now') WHERE seq_key = ?2`).bind(next, seqKey).run();
+  return String(next);
 }
 
 function orderSummaryFromRow(row) {
