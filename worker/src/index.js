@@ -1466,6 +1466,18 @@ function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '') {
   return 'new';
 }
 
+async function generateNextOrderNumber(db) {
+  const yy = new Date().getFullYear().toString().slice(-2);
+  const prefix = `${yy}`;
+  const rows = await Promise.all([
+    db.prepare(`SELECT order_number FROM order_fulfillment WHERE order_number LIKE ?1 ORDER BY order_number DESC LIMIT 1`).bind(`${prefix}%`).first(),
+    db.prepare(`SELECT order_number FROM manual_survival_node_orders WHERE order_number LIKE ?1 ORDER BY order_number DESC LIMIT 1`).bind(`${prefix}%`).first()
+  ]);
+  const nums = rows.map(r => Number(String(r?.order_number || '').replace(/\D/g,'')) || 0);
+  const max = Math.max(...nums, Number(`${prefix}000`) );
+  return String(max + 1);
+}
+
 function orderSummaryFromRow(row) {
   const manualSummary = (row?.order_summary || '').toString().trim();
   if (manualSummary) return manualSummary;
@@ -1500,9 +1512,11 @@ function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '')
   return [
     `Hi ${customerName},`,
     '',
-    `Thanks for your order from Eastern Shore AI. We’ve received your payment and we’re getting everything ready now.`,
+    'Thanks for your order from Eastern Shore AI.',
     '',
+    row?.order_number ? `Order number: ${row.order_number}` : '',
     `Order: ${summary}`,
+    '',
     `Order total: ${amount}`,
     orderDate ? `Order date: ${orderDate}` : '',
     '',
@@ -1515,8 +1529,9 @@ function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '')
 function textToEmailHtml(text) {
   const blocks = (text || '').toString().trim().split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
   if (!blocks.length) return '<p style="margin:0 0 14px;color:#374151;">&nbsp;</p>';
-  return blocks.map((part) => `<p style="margin:0 0 14px;color:#374151;white-space:pre-wrap;">${escapeHtml(part)}</p>`).join('');
+  return blocks.map((part) => `<p style="margin:0 0 20px;color:#374151;white-space:pre-wrap;line-height:1.7;">${escapeHtml(part)}</p>`).join('');
 }
+
 
 function buildOrderEmailContent(kind, row, overrides = {}) {
   const trackingProvider = (overrides.trackingProvider ?? row?.tracking_provider ?? '').toString().trim();
@@ -1527,8 +1542,9 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const summary = orderSummaryFromRow(row);
   const preheader = kind === 'shipping'
     ? 'Your order is on the way.'
-    : 'We received your order and are getting it ready.';
+: 'Your items are currently being quality checked';
   const detailLines = [
+    row?.order_number ? `<strong>Order Number:</strong> ${escapeHtml(String(row.order_number))}` : '',
     `<strong>Order:</strong> ${escapeHtml(summary)}`,
     `<strong>Amount:</strong> ${escapeHtml(formatUsd(Number(row?.amount_cents || 0)))}`,
     row?.payment_date ? `<strong>Payment Date:</strong> ${escapeHtml(String(row.payment_date).slice(0, 10))}` : '',
@@ -1558,6 +1574,8 @@ async function getOrderRowByBookingId(db, bookingId) {
        b.paid_at,
        b.created_at,
        substr(COALESCE(ti.income_date, b.paid_at, b.created_at), 1, 10) AS payment_date,
+       of.order_number,
+       of.order_number,
        of.fulfillment_status,
        of.tracking_provider,
        of.tracking_number,
@@ -1580,13 +1598,15 @@ async function getOrderRowByBookingId(db, bookingId) {
 
 async function ensureOrderFulfillmentRow(db, row) {
   if (!row?.id) return;
+  const orderNumber = row.order_number || await generateNextOrderNumber(db);
   await db.prepare(
-    `INSERT INTO order_fulfillment (booking_id, stripe_session_id, fulfillment_status)
-     VALUES (?1, ?2, ?3)
+    `INSERT INTO order_fulfillment (booking_id, stripe_session_id, order_number, fulfillment_status)
+     VALUES (?1, ?2, ?3, ?4)
      ON CONFLICT(booking_id) DO UPDATE SET
        stripe_session_id = COALESCE(excluded.stripe_session_id, order_fulfillment.stripe_session_id),
+       order_number = COALESCE(order_fulfillment.order_number, excluded.order_number),
        updated_at = datetime('now')`
-  ).bind(row.id, row.stripe_session_id || null, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)).run();
+  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)).run();
 }
 
 
@@ -1600,6 +1620,7 @@ async function getManualOrderRowById(db, manualOrderId) {
        amount_cents,
        payment_date,
        payment_method,
+       order_number,
        order_summary,
        internal_notes,
        fulfillment_status,
@@ -1658,6 +1679,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        b.paid_at,
        b.created_at,
        substr(COALESCE(ti.income_date, b.paid_at, b.created_at), 1, 10) AS payment_date,
+       of.order_number,
        of.fulfillment_status,
        of.tracking_provider,
        of.tracking_number,
@@ -1688,6 +1710,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        amount_cents,
        payment_date,
        payment_method,
+       order_number,
        order_summary,
        internal_notes,
        fulfillment_status,
@@ -1745,18 +1768,19 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
-  if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
+  let hydratedRow = row;
+  if (row.order_source !== 'manual') { await ensureOrderFulfillmentRow(env.DB, row); hydratedRow = await getOrderRowByBookingId(env.DB, row.id) || row; hydratedRow = { ...hydratedRow, order_source: 'stripe', order_key: row.order_key }; }
   const trackingProvider = (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
-  const content = buildOrderEmailContent(kind, row, {
+  const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
     bodyText: data.bodyText,
     trackingProvider: data.trackingProvider,
     trackingNumber,
     trackingUrl
   });
-  return json({ ok: true, bookingId, kind, trackingProvider: (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim(), trackingNumber, trackingUrl, ...content }, 200, corsHeaders);
+  return json({ ok: true, bookingId, kind, trackingProvider: (data.trackingProvider ?? hydratedRow.tracking_provider ?? '').toString().trim(), trackingNumber, trackingUrl, orderNumber: hydratedRow.order_number || null, ...content }, 200, corsHeaders);
 }
 
 async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
@@ -1771,7 +1795,8 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
-  if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
+  let hydratedRow = row;
+  if (row.order_source !== 'manual') { await ensureOrderFulfillmentRow(env.DB, row); hydratedRow = await getOrderRowByBookingId(env.DB, row.id) || row; hydratedRow = { ...hydratedRow, order_source: 'stripe', order_key: row.order_key }; }
 
   const trackingProvider = (data.trackingProvider || '').toString().trim();
   const trackingNumber = (data.trackingNumber || '').toString().trim();
@@ -1821,7 +1846,8 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
   const customerEmail = (row.customer_email || '').toString().trim();
   if (!customerEmail) return json({ ok: false, error: 'Order has no customer email' }, 400, corsHeaders);
-  if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
+  let hydratedRow = row;
+  if (row.order_source !== 'manual') { await ensureOrderFulfillmentRow(env.DB, row); hydratedRow = await getOrderRowByBookingId(env.DB, row.id) || row; hydratedRow = { ...hydratedRow, order_source: 'stripe', order_key: row.order_key }; }
 
   const trackingProvider = (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
@@ -1830,7 +1856,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'Tracking number is required before sending the shipping email' }, 400, corsHeaders);
   }
 
-  const content = buildOrderEmailContent(kind, row, {
+  const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
     bodyText: data.bodyText,
     trackingProvider,
@@ -3386,10 +3412,11 @@ async function handleManualOrderCreate(request, env, corsHeaders, url) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) return json({ ok: false, error: 'Invalid payment date' }, 400, corsHeaders);
   if (amountCents === null || amountCents < 0) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
 
+  const orderNumber = await generateNextOrderNumber(env.DB);
   const r = await env.DB.prepare(
-    `INSERT INTO manual_survival_node_orders (customer_name, customer_email, customer_phone, amount_cents, payment_date, payment_method, order_summary, internal_notes)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
-  ).bind(customerName || null, customerEmail, customerPhone || null, amountCents, paymentDate, paymentMethod || null, orderSummary || 'Survival Node', notes || null).run();
+    `INSERT INTO manual_survival_node_orders (customer_name, customer_email, customer_phone, amount_cents, payment_date, payment_method, order_number, order_summary, internal_notes)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`
+  ).bind(customerName || null, customerEmail, customerPhone || null, amountCents, paymentDate, paymentMethod || null, orderNumber, orderSummary || 'Survival Node', notes || null).run();
   const id = Number(r.meta?.last_row_id || 0);
   return json({ ok: true, id, orderKey: makeOrderKey('manual', id) }, 200, corsHeaders);
 }
