@@ -1611,6 +1611,10 @@ async function handleOrdersList(request, env, corsHeaders, url) {
      LEFT JOIN order_fulfillment of ON of.booking_id = b.id
      WHERE b.status IN ('paid','confirmed')
        AND COALESCE(b.stripe_session_id, '') != ''
+       AND (
+         LOWER(COALESCE(ti.source, '')) = 'stripe - survival node'
+         OR LOWER(COALESCE(ti.category, '')) LIKE 'survival node%'
+       )
      ORDER BY COALESCE(b.paid_at, b.created_at) DESC, b.id DESC
      LIMIT ?1`
   ).bind(limit).all();
