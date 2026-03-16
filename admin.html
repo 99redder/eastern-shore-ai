@@ -3665,14 +3665,21 @@
         return;
       }
       if (action === 'shipping') {
-        openTrackingModal({
-          bookingId: id,
-          orderKey,
-          trackingProvider: btn.getAttribute('data-tracking-provider') || '',
-          trackingNumber: btn.getAttribute('data-tracking-number') || '',
-          trackingUrl: btn.getAttribute('data-tracking-url') || '',
-          forShippingEmail: true
-        });
+        const trackingProvider = btn.getAttribute('data-tracking-provider') || '';
+        const trackingNumber = btn.getAttribute('data-tracking-number') || '';
+        const trackingUrl = btn.getAttribute('data-tracking-url') || '';
+        if ((trackingNumber || '').trim()) {
+          await openOrderEmailDraft(id, 'shipping', orderKey);
+        } else {
+          openTrackingModal({
+            bookingId: id,
+            orderKey,
+            trackingProvider,
+            trackingNumber,
+            trackingUrl,
+            forShippingEmail: true
+          });
+        }
         return;
       }
       await openOrderEmailDraft(id, action, orderKey);
