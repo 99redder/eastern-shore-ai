@@ -9,6 +9,7 @@
 // POST /api/orders/send         → handleOrderEmailSend()  — Admin: send branded order/shipping email
 // POST /api/orders/tracking     → handleOrderTrackingUpdate() — Admin: save tracking + fulfillment notes
 // POST /api/orders/manual       → handleManualOrderCreate() — Admin: create offline/manual Survival Node order
+// POST /api/orders/delete       → handleManualOrderDelete() — Admin: delete manual Survival Node order
 // POST /api/admin/block-slot    → handleAdminBlockSlot()  — Admin: block/unblock a specific 2-hour slot
 // POST /api/admin/block-day     → handleAdminBlockDay()   — Admin: block/unblock an entire day
 // GET  /api/tax/transactions    → handleTaxTransactions() — Admin: tax entries by year/type
@@ -72,7 +73,7 @@ export default {
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = ['/api/bookings', '/api/orders', '/api/planner/items'].includes(url.pathname) && request.method === 'GET';
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
-      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual'].includes(url.pathname) && request.method === 'POST';
+      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual','/api/orders/delete'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
@@ -133,6 +134,10 @@ export default {
 
     if (url.pathname === '/api/orders/manual' && request.method === 'POST') {
       return handleManualOrderCreate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders/delete' && request.method === 'POST') {
+      return handleManualOrderDelete(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/availability') {
@@ -3343,6 +3348,24 @@ async function handleInvoicePaymentLink(request, env, corsHeaders, url) {
   ).bind(stripeData.id, stripeData.url, id).run();
 
   return json({ ok: true, id, paymentUrl: stripeData.url, stripeCheckoutSessionId: stripeData.id, reused: false }, 200, corsHeaders);
+}
+
+async function handleManualOrderDelete(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const orderKey = (data.orderKey || '').toString().trim();
+  const manualOrderId = Number(data.id || (orderKey.startsWith('manual:') ? orderKey.split(':')[1] : 0) || 0);
+  if (!manualOrderId) return json({ ok: false, error: 'Invalid manual order id' }, 400, corsHeaders);
+
+  const existing = await getManualOrderRowById(env.DB, manualOrderId);
+  if (!existing) return json({ ok: false, error: 'Manual order not found' }, 404, corsHeaders);
+
+  await env.DB.prepare(`DELETE FROM manual_survival_node_orders WHERE id = ?1`).bind(manualOrderId).run();
+  return json({ ok: true, id: manualOrderId }, 200, corsHeaders);
 }
 
 async function handleManualOrderCreate(request, env, corsHeaders, url) {

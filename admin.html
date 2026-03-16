@@ -1031,6 +1031,7 @@
     const ORDER_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/send');
     const ORDER_TRACKING_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/tracking');
     const ORDER_MANUAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/manual');
+    const ORDER_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/delete');
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
     const INVOICE_PAYMENT_LINK_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment-link');
@@ -3610,6 +3611,7 @@
               <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}">Preview Acknowledgment</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}">Preview Shipping Email</button>
+              ${order.order_source === 'manual' ? `<button type="button" class="btn delete order-action-btn" data-order-action="delete" data-order-id="${id}" data-order-key="${orderKey}">Delete</button>` : '<span style="font-size:.82rem; color:var(--muted); padding:.45rem .2rem;">Stripe order — cannot delete</span>'}
             </div>
           </div>`;
         }).join('');
@@ -3636,6 +3638,21 @@
       const orderKey = btn.getAttribute('data-order-key') || '';
       const action = btn.getAttribute('data-order-action') || '';
       if ((!id && !orderKey) || !action) return;
+      if (action === 'delete') {
+        if (!String(orderKey).startsWith('manual:')) { openErrorModal('Only manual orders can be deleted.'); return; }
+        const ok = await openConfirmModal('Delete this manual order permanently?', 'Delete Manual Order?', 'Delete');
+        if (!ok) return;
+        const res = await fetch(ORDER_DELETE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ orderKey, id })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to delete manual order'); return; }
+        openSuccessModal('Manual order deleted.', 'Order Deleted ✅');
+        await refreshOrderList();
+        return;
+      }
       if (action === 'tracking') {
         openTrackingModal({
           bookingId: id,
