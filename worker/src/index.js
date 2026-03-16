@@ -1465,6 +1465,7 @@ function csvEscape(v) {
 
 function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '') {
   const s = (status || '').toString().trim().toLowerCase();
+  if (s === 'delivered') return 'delivered';
   if (s === 'shipped' || shippedAt) return 'shipped';
   if (s === 'acknowledged' || ackSentAt) return 'acknowledged';
   return 'new';
@@ -1501,6 +1502,7 @@ function orderSummaryFromRow(row) {
 }
 
 function defaultOrderEmailSubject(kind, row) {
+  if (kind === 'delivered') return 'Your Survival Node Order Has Been Delivered';
   if (kind === 'shipping') return 'Your Survival Node Order Has Shipped';
   return 'We received your order';
 }
@@ -1517,6 +1519,21 @@ function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '')
       trackingProvider ? `Carrier: ${trackingProvider}` : '',
       trackingNumber ? `Tracking number: ${trackingNumber}` : '',
       trackingUrl ? `Tracking link: ${trackingUrl}` : ''
+    ].filter(Boolean).join('\n');
+  }
+  if (kind === 'delivered') {
+    return [
+      `Hi ${customerName},`,
+      '',
+      'Your Survival Node order shows as delivered.',
+      '',
+      'Your User Guide is stored on the phone itself — there is a shortcut to the file right on the main screen of the phone.',
+      '',
+      'There is also an insert in the case with the initial setup steps to help you get going.',
+      '',
+      'You can also view the User Guide on the web here: https://www.easternshore.ai/userguide.html',
+      '',
+      'If you have any questions, just reply to this message.'
     ].filter(Boolean).join('\n');
   }
   return [
@@ -1556,8 +1573,8 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
     trackingNumber ? `<strong>Tracking Number:</strong> ${escapeHtml(trackingNumber)}` : '',
     trackingUrl ? `<strong>Tracking Link:</strong> <a href="${escapeHtml(trackingUrl)}" style="color:#2563eb;">${escapeHtml(trackingUrl)}</a>` : ''
   ].filter(Boolean).join('<br>');
-  const shippingGuideHtml = kind === 'shipping'
-    ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">User Guide</div><div style="line-height:1.6;">The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.<br><br>You can also view it on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
+  const shippingGuideHtml = kind === 'delivered'
+    ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.<br><br>There is also an insert in the case with the initial setup steps to help you get started.<br><br>You can also view the User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
     : '';
   const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
   return { subject, bodyText, html };
@@ -1691,6 +1708,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        of.internal_notes,
        of.ack_email_sent_at,
        of.shipping_email_sent_at,
+       of.delivered_email_sent_at,
        of.shipped_at
      FROM bookings b
      LEFT JOIN tax_income ti ON ti.stripe_session_id = b.stripe_session_id
@@ -1723,6 +1741,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        tracking_url,
        ack_email_sent_at,
        shipping_email_sent_at,
+       delivered_email_sent_at,
        shipped_at,
        created_at,
        updated_at
@@ -1768,7 +1787,7 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
   if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
-  if (!['ack','shipping'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+  if (!['ack','shipping','delivered'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
@@ -1856,7 +1875,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
   if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
-  if (!['ack','shipping'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+  if (!['ack','shipping','delivered'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
@@ -1868,7 +1887,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const trackingProvider = (data.trackingProvider ?? hydratedRow.tracking_provider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
-  if (kind === 'shipping' && !trackingNumber) {
+  if ((kind === 'shipping' || kind === 'delivered') && !trackingNumber) {
     return json({ ok: false, error: 'Tracking number is required before sending the shipping email' }, 400, corsHeaders);
   }
 
@@ -1918,6 +1937,19 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
              updated_at = datetime('now')
          WHERE id = ?6`
       ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+    } else if (kind === 'delivered') {
+      await env.DB.prepare(
+        `UPDATE manual_survival_node_orders
+         SET fulfillment_status = 'delivered',
+             tracking_provider = ?1,
+             tracking_number = ?2,
+             tracking_url = ?3,
+             delivered_email_sent_at = datetime('now'),
+             delivered_email_subject = ?4,
+             delivered_email_body = ?5,
+             updated_at = datetime('now')
+         WHERE id = ?6`
+      ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
     } else {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
@@ -1940,6 +1972,19 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
            shipping_email_subject = ?4,
            shipping_email_body = ?5,
            shipped_at = COALESCE(shipped_at, datetime('now')),
+           updated_at = datetime('now')
+       WHERE booking_id = ?6`
+    ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+  } else if (kind === 'delivered') {
+    await env.DB.prepare(
+      `UPDATE order_fulfillment
+       SET fulfillment_status = 'delivered',
+           tracking_provider = ?1,
+           tracking_number = ?2,
+           tracking_url = ?3,
+           delivered_email_sent_at = datetime('now'),
+           delivered_email_subject = ?4,
+           delivered_email_body = ?5,
            updated_at = datetime('now')
        WHERE booking_id = ?6`
     ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();

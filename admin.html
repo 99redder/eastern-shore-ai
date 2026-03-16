@@ -494,6 +494,7 @@
                 <option value="new">New</option>
                 <option value="acknowledged">Acknowledged</option>
                 <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
               </select>
               <button type="button" class="btn" id="order-refresh-btn">Refresh Orders</button>
               <button type="button" class="btn btn-primary" id="order-add-manual-btn">Add Manual Order</button>
@@ -1373,9 +1374,11 @@
       const orderNumber = (activeOrderEmailDraft?.orderNumber || '').trim();
       const amount = (activeOrderEmailDraft?.amountDisplay || '').trim();
       const paymentDate = (activeOrderEmailDraft?.paymentDate || '').trim();
-      const preheader = activeOrderEmailDraft?.kind === 'shipping'
-        ? 'Your order is on the way.'
-        : 'Your items are currently being quality checked';
+      const preheader = activeOrderEmailDraft?.kind === 'delivered'
+        ? 'Your order has arrived.'
+        : activeOrderEmailDraft?.kind === 'shipping'
+          ? 'Your order is on the way.'
+          : 'Your items are currently being quality checked';
       const blocks = body ? body.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean) : [];
       const bodyHtml = blocks.map((part) => `<p style="margin:0 0 20px;color:#374151;white-space:pre-wrap;line-height:1.7;">${escHtml(part)}</p>`).join('') || '<p style="margin:0 0 20px;color:#374151;">&nbsp;</p>';
       const detailLines = [
@@ -1387,8 +1390,8 @@
         trackingNumber ? `<strong>Tracking Number:</strong> ${escHtml(trackingNumber)}` : '',
         trackingUrl ? `<strong>Tracking Link:</strong> <a href="${escHtml(trackingUrl)}" style="color:#2563eb;">${escHtml(trackingUrl)}</a>` : ''
       ].filter(Boolean).join('<br>');
-      const shippingGuideHtml = activeOrderEmailDraft?.kind === 'shipping'
-        ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">User Guide</div><div style="line-height:1.6;">The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.<br><br>You can also view it on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
+      const shippingGuideHtml = activeOrderEmailDraft?.kind === 'delivered'
+        ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is stored on the phone itself — there is a shortcut to the file right on the main screen of the phone.<br><br>There is also an insert in the case with the initial setup steps to help you get going.<br><br>You can also view the User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
         : '';
       orderEmailPreviewEl.innerHTML = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escHtml(subject || 'Preview')}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;line-height:1.6;">${detailLines}</div>${bodyHtml}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
     }
@@ -3593,7 +3596,7 @@
 
     function orderStatusBadge(status) {
       const s = String(status || 'new').toLowerCase();
-      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e' };
+      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e', delivered: '#6366f1' };
       return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${colors[s] || '#475569'}; color:#fff; text-transform:uppercase;">${escHtml(s)}</span>`;
     }
 
@@ -3627,12 +3630,13 @@
               <span>${escHtml(order.payment_date || '')} • ${amount}</span>
             </div>
             <div style="margin-top:.2rem; color:var(--muted);">${order.order_source === 'manual' ? `Payment Method: ${escHtml(order.payment_method || 'Not entered')}` : `Stripe: ${escHtml(order.stripe_session_id || '—')}`}</div>
-            <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(order.ack_email_sent_at || 'Not sent')} • Shipped: ${escHtml(order.shipping_email_sent_at || 'Not sent')}</div>
+            <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(order.ack_email_sent_at || 'Not sent')} • Shipped: ${escHtml(order.shipping_email_sent_at || 'Not sent')} • Delivered: ${escHtml(order.delivered_email_sent_at || 'Not sent')}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? `${trackingProvider ? `${escHtml(trackingProvider)} • ` : ''}${escHtml(tracking)}` : 'Not added yet'}</div>
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
               <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}">Preview Acknowledgment</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" title="${tracking ? 'Preview shipping email' : 'Add tracking first'}">Preview Shipping Email</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="delivered" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" title="${tracking ? 'Preview delivered email' : 'Add tracking first'}">Preview Delivered Email</button>
               ${order.order_source === 'manual' ? `<button type="button" class="btn delete order-action-btn" data-order-action="delete" data-order-id="${id}" data-order-key="${orderKey}">Delete</button>` : '<span style="font-size:.82rem; color:var(--muted); padding:.45rem .2rem;">Stripe order — cannot delete</span>'}
             </div>
           </div>`;
@@ -3705,13 +3709,13 @@
         });
         return;
       }
-      if (action === 'shipping') {
+      if (action === 'shipping' || action === 'delivered') {
         const trackingNumber = btn.getAttribute('data-tracking-number') || '';
         if (!(trackingNumber || '').trim()) {
-          openErrorModal('Add tracking first, then preview the shipping email.');
+          openErrorModal(`Add tracking first, then preview the ${action === 'delivered' ? 'delivered' : 'shipping'} email.`);
           return;
         }
-        await openOrderEmailDraft(id, 'shipping', orderKey, meta);
+        await openOrderEmailDraft(id, action, orderKey, meta);
         return;
       }
       await openOrderEmailDraft(id, action, orderKey, meta);
