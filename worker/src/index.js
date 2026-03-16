@@ -1865,9 +1865,9 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   let hydratedRow = row;
   if (row.order_source !== 'manual') { await ensureOrderFulfillmentRow(env.DB, row); hydratedRow = await getOrderRowByBookingId(env.DB, row.id) || row; hydratedRow = { ...hydratedRow, order_source: 'stripe', order_key: row.order_key }; }
 
-  const trackingProvider = (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim();
-  const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
-  const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
+  const trackingProvider = (data.trackingProvider ?? hydratedRow.tracking_provider ?? row.tracking_provider ?? '').toString().trim();
+  const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
+  const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
   if (kind === 'shipping' && !trackingNumber) {
     return json({ ok: false, error: 'Tracking number is required before sending the shipping email' }, 400, corsHeaders);
   }
