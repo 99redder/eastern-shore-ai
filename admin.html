@@ -694,7 +694,7 @@
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tracking-title" style="width:min(720px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="tracking-title">Add Tracking</h3>
       <div class="form-grid" style="margin-top:.5rem;">
-        <div><label for="tracking-provider">Carrier</label><input id="tracking-provider" placeholder="USPS, UPS, FedEx, etc." /></div>
+        <div><label for="tracking-provider">Carrier</label><select id="tracking-provider"><option value="">Select carrier</option><option value="USPS">USPS</option><option value="UPS">UPS</option><option value="FEDEX">FEDEX</option><option value="DHL">DHL</option></select></div>
         <div><label for="tracking-number">Tracking Number</label><input id="tracking-number" /></div>
         <div class="full"><label for="tracking-url">Tracking Link (optional)</label><input id="tracking-url" placeholder="https://..." /></div>
       </div>
