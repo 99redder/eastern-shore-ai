@@ -1525,7 +1525,7 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
       '',
       'Your Survival Node has arrived.',
       '',
-      'If you have technical support questions, reach out anytime at contact@easternshore.ai.'
+      'If you have technical support questions, reach out anytime at contact@easternshore.ai'
     ].filter(Boolean).join('\n');
   }
   return [
@@ -1542,7 +1542,10 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
 function textToEmailHtml(text) {
   const blocks = (text || '').toString().trim().split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
   if (!blocks.length) return '<p style="margin:0 0 14px;color:#374151;">&nbsp;</p>';
-  return blocks.map((part) => `<p style="margin:0 0 20px;color:#374151;white-space:pre-wrap;line-height:1.7;">${escapeHtml(part)}</p>`).join('');
+  return blocks.map((part) => {
+    const html = escapeHtml(part).replace(/contact@easternshore\.ai/g, '<a href="mailto:contact@easternshore.ai" style="color:#2563eb;">contact@easternshore.ai</a>');
+    return `<p style="margin:0 0 20px;color:#374151;white-space:pre-wrap;line-height:1.7;">${html}</p>`;
+  }).join('');
 }
 
 
