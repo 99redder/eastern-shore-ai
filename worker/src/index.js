@@ -1507,7 +1507,7 @@ function defaultOrderEmailSubject(kind, row) {
   return 'We received your order';
 }
 
-function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '') {
+function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber = '', trackingUrl = '') {
   const customerName = (row?.customer_name || 'there').toString().trim() || 'there';
   const summary = orderSummaryFromRow(row);
   const amount = formatUsd(Number(row?.amount_cents || 0));
@@ -1559,7 +1559,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const trackingNumber = (overrides.trackingNumber ?? row?.tracking_number ?? '').toString().trim();
   const trackingUrl = (overrides.trackingUrl ?? row?.tracking_url ?? '').toString().trim();
   const subject = (overrides.subject || '').toString().trim() || defaultOrderEmailSubject(kind, row);
-  const bodyText = (overrides.bodyText || '').toString().trim() || defaultOrderEmailBody(kind, row, trackingNumber, trackingUrl);
+  const bodyText = (overrides.bodyText || '').toString().trim() || defaultOrderEmailBody(kind, row, trackingProvider, trackingNumber, trackingUrl);
   const summary = orderSummaryFromRow(row);
   const preheader = kind === 'shipping'
     ? 'Your order is on the way.'
