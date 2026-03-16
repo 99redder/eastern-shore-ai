@@ -259,7 +259,7 @@
                  <li><strong>Seal for readiness:</strong> Place the phone and power hub into their Faraday bags, fold the top twice, seal tightly, then store both in the case with the included reusable silica gel packs.</li>
                </ul>
                <p><strong>Storage Conditions</strong></p>
-               <p>Store your Survival Node in a cool, dry location — ideally between 60°F (15°C) and 85°F (30°C). Avoid cars, attics, and garages where temperatures reach damaging extremes. The included silica gel packs absorb moisture and are reusable; when the orange indicator beads turn dark green they are saturated and need to be reactivated. <strong>Preferred method: lay the packs flat in direct sunlight for 1–2 days</strong> — no equipment needed, no risk of overheating, and it works reliably. Alternative methods per the manufacturer: microwave for about 5 minutes (start with less — different microwaves vary in power and overheating can melt the outer packaging), or oven at 200–250°F for 30 minutes to 2 hours. Store the case upright, away from direct sunlight.</p>
+               <p>Store your Survival Node in a cool, dry location — ideally between 60°F (15°C) and 85°F (30°C). Avoid cars, attics, and garages where temperatures reach damaging extremes. The included silica gel packs absorb moisture and are reusable; recharge them when the <strong>blue indicator dot turns light pink</strong>. To recharge, place the pack with the indicator dot facing up and microwave it for <strong>3–5 minutes</strong>. Once the dot turns blue again, the pack is ready to reuse. Store the case upright, away from direct sunlight.</p>
                <p><strong>SIM Card &amp; Cellular Connectivity</strong></p>
                <p>No SIM card or service plan is required. All core features — AI, maps, and reference apps — work fully offline.  We do not recommend attempting to connect this phone to a cellular network or installing a SIM card. Treat cellular connectivity as a bonus when available — your emergency operations should never depend on it.</p>`
       },
@@ -805,6 +805,17 @@ Operational Rules:
       buildPrintContainer(false);
       window.addEventListener('afterprint', cleanupPrintContainer);
       window.print();
+    });
+
+    document.getElementById('download-phone-pdf-btn').addEventListener('click', function() {
+      buildPrintContainer(true);
+      window.addEventListener('afterprint', cleanupPrintContainer);
+      window.print();
+    });
+  </script>
+</body>
+</html>
+;
     });
 
     document.getElementById('download-phone-pdf-btn').addEventListener('click', function() {
