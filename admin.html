@@ -3643,14 +3643,25 @@
     }
 
     async function openOrderEmailDraft(id, kind, orderKey = '', meta = {}) {
-      const res = await fetch(ORDER_PREVIEW_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-        body: JSON.stringify({ bookingId: id, orderKey, kind })
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
-      openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || '', trackingNumber: data.trackingNumber || '', trackingUrl: data.trackingUrl || '' });
+      try {
+        const res = await fetch(ORDER_PREVIEW_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({
+            bookingId: id,
+            orderKey,
+            kind,
+            trackingProvider: meta.trackingProvider || '',
+            trackingNumber: meta.trackingNumber || '',
+            trackingUrl: meta.trackingUrl || ''
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
+        openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || meta.trackingProvider || '', trackingNumber: data.trackingNumber || meta.trackingNumber || '', trackingUrl: data.trackingUrl || meta.trackingUrl || '' });
+      } catch (err) {
+        openErrorModal(err?.message || 'Failed to prepare order email preview');
+      }
     }
 
     async function handleOrderActionClick(e) {
@@ -3662,7 +3673,10 @@
       const meta = {
         orderSummary: btn.getAttribute('data-order-summary') || '',
         amountDisplay: btn.getAttribute('data-order-amount') || '',
-        paymentDate: btn.getAttribute('data-order-payment-date') || ''
+        paymentDate: btn.getAttribute('data-order-payment-date') || '',
+        trackingProvider: btn.getAttribute('data-tracking-provider') || '',
+        trackingNumber: btn.getAttribute('data-tracking-number') || '',
+        trackingUrl: btn.getAttribute('data-tracking-url') || ''
       };
       if ((!id && !orderKey) || !action) return;
       if (action === 'delete') {
