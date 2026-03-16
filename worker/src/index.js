@@ -3871,7 +3871,7 @@ Pre-installed on every Survival Node:
 - **Kiwix** offline content:
   - Wikipedia Medical Encyclopedia (Full)
   - Knots reference
-  - Hesperian Health Guides
+  - Wikipedia (Full)
   - Water Treatment Library (with videos)
   - Learning Self Reliance
   - Canadian Prepper
