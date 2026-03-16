@@ -690,6 +690,21 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="tracking-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="tracking-title" style="width:min(720px,96vw); max-height:90vh; overflow-y:auto;">
+      <h3 id="tracking-title">Add Tracking</h3>
+      <div class="form-grid" style="margin-top:.5rem;">
+        <div><label for="tracking-provider">Carrier</label><input id="tracking-provider" placeholder="USPS, UPS, FedEx, etc." /></div>
+        <div><label for="tracking-number">Tracking Number</label><input id="tracking-number" /></div>
+        <div class="full"><label for="tracking-url">Tracking Link (optional)</label><input id="tracking-url" placeholder="https://..." /></div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn" id="tracking-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="tracking-save-btn">Save Tracking</button>
+      </div>
+    </div>
+  </div>
+
   <div class="success-modal-overlay" id="order-email-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="order-email-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="order-email-title">Preview Order Email</h3>
@@ -1137,6 +1152,13 @@
     const manualOrderNotesEl = document.getElementById('manual-order-notes');
     const manualOrderCancelBtn = document.getElementById('manual-order-cancel-btn');
     const manualOrderSaveBtn = document.getElementById('manual-order-save-btn');
+    const trackingModal = document.getElementById('tracking-modal');
+    const trackingTitleEl = document.getElementById('tracking-title');
+    const trackingProviderEl = document.getElementById('tracking-provider');
+    const trackingNumberEl = document.getElementById('tracking-number');
+    const trackingUrlEl = document.getElementById('tracking-url');
+    const trackingCancelBtn = document.getElementById('tracking-cancel-btn');
+    const trackingSaveBtn = document.getElementById('tracking-save-btn');
     const orderEmailModal = document.getElementById('order-email-modal');
     const orderEmailTitleEl = document.getElementById('order-email-title');
     const orderEmailSubjectEl = document.getElementById('order-email-subject');
@@ -1277,6 +1299,7 @@
     let activeAccountsTab = 'balances';
     let activeAdminSectionTab = 'booking';
     let activeOrderEmailDraft = null;
+    let activeTrackingDraft = null;
     let blurMoneyEnabled = false;
     let activeInvoiceMode = 'view';
     let invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
@@ -1358,6 +1381,22 @@
       manualOrderModal?.setAttribute('aria-hidden', 'true');
     }
 
+    function openTrackingModal(draft) {
+      activeTrackingDraft = draft;
+      if (trackingTitleEl) trackingTitleEl.textContent = draft.forShippingEmail ? 'Enter Shipping Details' : 'Add Tracking';
+      if (trackingProviderEl) trackingProviderEl.value = draft.trackingProvider || '';
+      if (trackingNumberEl) trackingNumberEl.value = draft.trackingNumber || '';
+      if (trackingUrlEl) trackingUrlEl.value = draft.trackingUrl || '';
+      trackingModal?.classList.add('active');
+      trackingModal?.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTrackingModal() {
+      activeTrackingDraft = null;
+      trackingModal?.classList.remove('active');
+      trackingModal?.setAttribute('aria-hidden', 'true');
+    }
+
     function openOrderEmailModal(draft) {
       activeOrderEmailDraft = draft;
       if (orderEmailTitleEl) orderEmailTitleEl.textContent = draft.kind === 'shipping' ? 'Preview Shipping Email' : 'Preview Order Acknowledgment';
@@ -1366,6 +1405,8 @@
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
       if (orderEmailTrackingUrlEl) orderEmailTrackingUrlEl.value = draft.trackingUrl || '';
       if (orderEmailTrackingWrapEl) orderEmailTrackingWrapEl.style.display = draft.kind === 'shipping' ? '' : 'none';
+      if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
+      if (orderEmailTrackingUrlEl) orderEmailTrackingUrlEl.value = draft.trackingUrl || '';
       renderOrderEmailPreview();
       orderEmailModal?.classList.add('active');
       orderEmailModal?.setAttribute('aria-hidden', 'false');
@@ -3551,6 +3592,7 @@
           const orderKey = escHtml(order.order_key || `booking:${id}`);
           const statusBadge = orderStatusBadge(order.fulfillment_status || 'new');
           const amount = `$${(Number(order.amount_cents || 0) / 100).toFixed(2)}`;
+          const trackingProvider = (order.tracking_provider || '').toString().trim();
           const tracking = (order.tracking_number || '').toString().trim();
           return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
             <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
@@ -3563,10 +3605,10 @@
             </div>
             <div style="margin-top:.2rem; color:var(--muted);">Stripe: ${escHtml(order.stripe_session_id || '—')}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(order.ack_email_sent_at || 'Not sent')} • Shipped: ${escHtml(order.shipping_email_sent_at || 'Not sent')}</div>
-            <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? escHtml(tracking) : 'Not added yet'}</div>
+            <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? `${trackingProvider ? `${escHtml(trackingProvider)} • ` : ''}${escHtml(tracking)}` : 'Not added yet'}</div>
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
               <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}">Preview Acknowledgment</button>
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}">Preview Shipping Email</button>
             </div>
           </div>`;
@@ -3584,7 +3626,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
-      openOrderEmailModal({ bookingId: id, orderKey, kind, subject: data.subject || '', bodyText: data.bodyText || '', trackingNumber: data.trackingNumber || '', trackingUrl: data.trackingUrl || '' });
+      openOrderEmailModal({ bookingId: id, orderKey, kind, subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || '', trackingNumber: data.trackingNumber || '', trackingUrl: data.trackingUrl || '' });
     }
 
     async function handleOrderActionClick(e) {
@@ -3595,20 +3637,25 @@
       const action = btn.getAttribute('data-order-action') || '';
       if ((!id && !orderKey) || !action) return;
       if (action === 'tracking') {
-        const currentTracking = btn.getAttribute('data-tracking-number') || '';
-        const currentUrl = btn.getAttribute('data-tracking-url') || '';
-        const trackingNumber = (prompt('Tracking number:', currentTracking) || '').trim();
-        if (!trackingNumber && !confirm('Clear the saved tracking number for this order?')) return;
-        const trackingUrl = (prompt('Tracking link (optional):', currentUrl) || '').trim();
-        const res = await fetch(ORDER_TRACKING_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify({ bookingId: id, orderKey, trackingNumber, trackingUrl })
+        openTrackingModal({
+          bookingId: id,
+          orderKey,
+          trackingProvider: btn.getAttribute('data-tracking-provider') || '',
+          trackingNumber: btn.getAttribute('data-tracking-number') || '',
+          trackingUrl: btn.getAttribute('data-tracking-url') || '',
+          forShippingEmail: false
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { openErrorModal(data.error || 'Failed to save tracking'); return; }
-        openSuccessModal('Tracking saved for this order.', 'Tracking Updated ✅');
-        await refreshOrderList();
+        return;
+      }
+      if (action === 'shipping') {
+        openTrackingModal({
+          bookingId: id,
+          orderKey,
+          trackingProvider: btn.getAttribute('data-tracking-provider') || '',
+          trackingNumber: btn.getAttribute('data-tracking-number') || '',
+          trackingUrl: btn.getAttribute('data-tracking-url') || '',
+          forShippingEmail: true
+        });
         return;
       }
       await openOrderEmailDraft(id, action, orderKey);
@@ -3986,6 +4033,37 @@
         manualOrderSaveBtn.textContent = prevTxt;
       }
     });
+    trackingCancelBtn?.addEventListener('click', closeTrackingModal);
+    trackingSaveBtn?.addEventListener('click', async () => {
+      if (!activeTrackingDraft) return;
+      const payload = {
+        bookingId: activeTrackingDraft.bookingId,
+        orderKey: activeTrackingDraft.orderKey || '',
+        trackingProvider: trackingProviderEl?.value || '',
+        trackingNumber: trackingNumberEl?.value || '',
+        trackingUrl: trackingUrlEl?.value || ''
+      };
+      if (!(payload.trackingNumber || '').trim() && !confirm('Clear the saved tracking number for this order?')) return;
+      const prevTxt = trackingSaveBtn.textContent || 'Save Tracking';
+      const draft = { ...activeTrackingDraft };
+      trackingSaveBtn.disabled = true;
+      trackingSaveBtn.textContent = draft.forShippingEmail ? 'Continuing…' : 'Saving…';
+      try {
+        const res = await fetch(ORDER_TRACKING_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to save tracking'); return; }
+        closeTrackingModal();
+        await refreshOrderList();
+        if (draft.forShippingEmail) {
+          await openOrderEmailDraft(draft.bookingId, 'shipping', draft.orderKey || '');
+        } else {
+          openSuccessModal('Tracking saved for this order.', 'Tracking Updated ✅');
+        }
+      } finally {
+        trackingSaveBtn.disabled = false;
+        trackingSaveBtn.textContent = prevTxt;
+      }
+    });
     orderRefreshBtn?.addEventListener('click', refreshOrderList);
     orderFilterEl?.addEventListener('change', refreshOrderList);
     orderListEl?.addEventListener('click', handleOrderActionClick);
@@ -4002,6 +4080,7 @@
         kind: activeOrderEmailDraft.kind,
         subject: orderEmailSubjectEl?.value || '',
         bodyText: orderEmailBodyEl?.value || '',
+        trackingProvider: activeOrderEmailDraft.trackingProvider || '',
         trackingNumber: orderEmailTrackingNumberEl?.value || '',
         trackingUrl: orderEmailTrackingUrlEl?.value || ''
       };

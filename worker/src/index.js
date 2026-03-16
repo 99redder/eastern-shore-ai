@@ -1474,8 +1474,7 @@ function orderSummaryFromRow(row) {
 }
 
 function defaultOrderEmailSubject(kind, row) {
-  const summary = orderSummaryFromRow(row);
-  if (kind === 'shipping') return `Your ${summary} has shipped`;
+  if (kind === 'shipping') return 'Your Survival Node Order Has Shipped';
   return 'We received your order';
 }
 
@@ -1488,19 +1487,9 @@ function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '')
     return [
       `Hi ${customerName},`,
       '',
-      `Good news — your ${summary} order has shipped.`,
-      '',
-      `Order total: ${amount}`,
-      orderDate ? `Order date: ${orderDate}` : '',
+      trackingProvider ? `Carrier: ${trackingProvider}` : '',
       trackingNumber ? `Tracking number: ${trackingNumber}` : '',
-      trackingUrl ? `Tracking link: ${trackingUrl}` : '',
-      '',
-      'Your User Guide is here: https://www.easternshore.ai/userguide.html',
-      'There is also a shortcut to the User Guide file right on the main screen of the phone, so you can open it anytime even if you are away from this email.',
-      '',
-      'Thanks again for supporting Eastern Shore AI.',
-      '',
-      'Questions? Just reply to this email and we’ll help.'
+      trackingUrl ? `Tracking link: ${trackingUrl}` : ''
     ].filter(Boolean).join('\n');
   }
   return [
@@ -1525,6 +1514,7 @@ function textToEmailHtml(text) {
 }
 
 function buildOrderEmailContent(kind, row, overrides = {}) {
+  const trackingProvider = (overrides.trackingProvider ?? row?.tracking_provider ?? '').toString().trim();
   const trackingNumber = (overrides.trackingNumber ?? row?.tracking_number ?? '').toString().trim();
   const trackingUrl = (overrides.trackingUrl ?? row?.tracking_url ?? '').toString().trim();
   const subject = (overrides.subject || '').toString().trim() || defaultOrderEmailSubject(kind, row);
@@ -1537,11 +1527,12 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
     `<strong>Order:</strong> ${escapeHtml(summary)}`,
     `<strong>Amount:</strong> ${escapeHtml(formatUsd(Number(row?.amount_cents || 0)))}`,
     row?.payment_date ? `<strong>Payment Date:</strong> ${escapeHtml(String(row.payment_date).slice(0, 10))}` : '',
+    trackingProvider ? `<strong>Carrier:</strong> ${escapeHtml(trackingProvider)}` : '',
     trackingNumber ? `<strong>Tracking Number:</strong> ${escapeHtml(trackingNumber)}` : '',
     trackingUrl ? `<strong>Tracking Link:</strong> <a href="${escapeHtml(trackingUrl)}" style="color:#2563eb;">${escapeHtml(trackingUrl)}</a>` : ''
   ].filter(Boolean).join('<br>');
   const shippingGuideHtml = kind === 'shipping'
-    ? `<div style="margin:18px 0 0;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:6px;">User Guide</div><div style="line-height:1.5;">You can read the User Guide here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a><br><br>The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.</div></div>`
+    ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">User Guide</div><div style="line-height:1.6;">The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.<br><br>You can also view it on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
     : '';
   const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}<p style="margin:18px 0 0;color:#374151;text-align:center;">Questions? Reply to this email, call us at (302) 907-9162, or contact us at (302) 907-9162 and we'll get back to you ASAP.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
   return { subject, bodyText, html };
@@ -1563,6 +1554,7 @@ async function getOrderRowByBookingId(db, bookingId) {
        b.created_at,
        substr(COALESCE(ti.income_date, b.paid_at, b.created_at), 1, 10) AS payment_date,
        of.fulfillment_status,
+       of.tracking_provider,
        of.tracking_number,
        of.tracking_url,
        of.internal_notes,
@@ -1606,6 +1598,7 @@ async function getManualOrderRowById(db, manualOrderId) {
        order_summary,
        internal_notes,
        fulfillment_status,
+       tracking_provider,
        tracking_number,
        tracking_url,
        ack_email_sent_at,
@@ -1661,6 +1654,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        b.created_at,
        substr(COALESCE(ti.income_date, b.paid_at, b.created_at), 1, 10) AS payment_date,
        of.fulfillment_status,
+       of.tracking_provider,
        of.tracking_number,
        of.tracking_url,
        of.internal_notes,
@@ -1692,6 +1686,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        order_summary,
        internal_notes,
        fulfillment_status,
+       tracking_provider,
        tracking_number,
        tracking_url,
        ack_email_sent_at,
@@ -1746,15 +1741,17 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
   if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
+  const trackingProvider = (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
   const content = buildOrderEmailContent(kind, row, {
     subject: data.subject,
     bodyText: data.bodyText,
+    trackingProvider: data.trackingProvider,
     trackingNumber,
     trackingUrl
   });
-  return json({ ok: true, bookingId, kind, trackingNumber, trackingUrl, ...content }, 200, corsHeaders);
+  return json({ ok: true, bookingId, kind, trackingProvider: (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim(), trackingNumber, trackingUrl, ...content }, 200, corsHeaders);
 }
 
 async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
@@ -1771,31 +1768,35 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
   if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
 
+  const trackingProvider = (data.trackingProvider || '').toString().trim();
   const trackingNumber = (data.trackingNumber || '').toString().trim();
   const trackingUrl = (data.trackingUrl || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
   if (row.order_source === 'manual') {
     await env.DB.prepare(
       `UPDATE manual_survival_node_orders
-       SET tracking_number = ?1,
-           tracking_url = ?2,
-           internal_notes = COALESCE(?3, internal_notes),
+       SET tracking_provider = ?1,
+           tracking_number = ?2,
+           tracking_url = ?3,
+           internal_notes = COALESCE(?4, internal_notes),
            updated_at = datetime('now')
-       WHERE id = ?4`
-    ).bind(trackingNumber || null, trackingUrl || null, notes || null, row.id).run();
+       WHERE id = ?5`
+    ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, notes || null, row.id).run();
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET tracking_number = ?1,
-           tracking_url = ?2,
-           internal_notes = ?3,
+       SET tracking_provider = ?1,
+           tracking_number = ?2,
+           tracking_url = ?3,
+           internal_notes = ?4,
            updated_at = datetime('now')
-       WHERE booking_id = ?4`
-    ).bind(trackingNumber || null, trackingUrl || null, notes || null, row.id).run();
+       WHERE booking_id = ?5`
+    ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, notes || null, row.id).run();
   }
 
-  return json({ ok: true, orderKey: row.order_key, trackingNumber, trackingUrl }, 200, corsHeaders);
+  return json({ ok: true, orderKey: row.order_key, trackingProvider, trackingNumber, trackingUrl }, 200, corsHeaders);
 }
+
 
 async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
@@ -1826,6 +1827,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const content = buildOrderEmailContent(kind, row, {
     subject: data.subject,
     bodyText: data.bodyText,
+    trackingProvider,
     trackingNumber,
     trackingUrl
   });
@@ -1860,15 +1862,16 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
          SET fulfillment_status = 'shipped',
-             tracking_number = ?1,
-             tracking_url = ?2,
+             tracking_provider = ?1,
+             tracking_number = ?2,
+             tracking_url = ?3,
              shipping_email_sent_at = datetime('now'),
-             shipping_email_subject = ?3,
-             shipping_email_body = ?4,
+             shipping_email_subject = ?4,
+             shipping_email_body = ?5,
              shipped_at = COALESCE(shipped_at, datetime('now')),
              updated_at = datetime('now')
-         WHERE id = ?5`
-      ).bind(trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+         WHERE id = ?6`
+      ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
     } else {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
@@ -1884,15 +1887,16 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     await env.DB.prepare(
       `UPDATE order_fulfillment
        SET fulfillment_status = 'shipped',
-           tracking_number = ?1,
-           tracking_url = ?2,
+           tracking_provider = ?1,
+           tracking_number = ?2,
+           tracking_url = ?3,
            shipping_email_sent_at = datetime('now'),
-           shipping_email_subject = ?3,
-           shipping_email_body = ?4,
+           shipping_email_subject = ?4,
+           shipping_email_body = ?5,
            shipped_at = COALESCE(shipped_at, datetime('now')),
            updated_at = datetime('now')
-       WHERE booking_id = ?5`
-    ).bind(trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+       WHERE booking_id = ?6`
+    ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
