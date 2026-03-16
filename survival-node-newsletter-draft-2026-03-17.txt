@@ -1,0 +1,74 @@
+<html lang="en">
+  <body>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#0a0b10;padding:24px 0;font-family:Arial,Helvetica,sans-serif;">
+      <tr>
+        <td align="center">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;background:#141620;border:1px solid #222438;color:#d8dce8;">
+            <tr>
+              <td style="padding:0 24px;">
+                <img src="https://www.easternshore.ai/carousel.png" alt="Eastern Shore AI" style="display:block;width:100%;border:1px solid #222438;">
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px;">
+                <h1 style="color:#00e5ff;font-size:26px;margin:0 0 12px;">Eastern Shore AI — Weekly Update #4</h1>
+
+                <p style="font-size:15px;line-height:1.6;margin:0 0 10px;">Welcome to this week’s update from Eastern Shore AI.</p>
+
+                <p style="font-size:15px;line-height:1.6;margin:0 0 14px;color:#b9bfd3;">
+                  This week we’re highlighting one major AI development, one historical milestone that still shapes the field, and one featured product from our portfolio.
+                </p>
+
+                <h2 style="color:#00e5ff;font-size:18px;margin:18px 0 8px;">AI in the News</h2>
+
+                <p style="font-size:15px;line-height:1.6;margin:0 0 12px;">
+                  <strong style="color:#ff4fd8;">AI Agents Are Moving Closer to Real Operational Workflows</strong>
+                </p>
+
+                <p style="font-size:14px;line-height:1.6;margin:0 0 10px;">
+                  This week’s biggest trend isn’t just larger models — it’s the continued shift toward AI systems that can actually take action inside real workflows. Across the industry, more tools are moving beyond chat and into browsing, automation, research assistance, and task execution.
+                </p>
+
+                <p style="font-size:14px;line-height:1.6;margin:0 0 14px;">
+                  <strong>Why this matters:</strong> The value of AI is increasingly about practical execution, not just generating text. Businesses that understand how to pair reasoning with real-world tools will have a major advantage.
+                </p>
+
+                <p style="font-size:13px;line-height:1.6;margin:0 0 16px;">
+                  <a href="https://www.anthropic.com/news" style="color:#00e5ff;">🔗 Read the update</a>
+                </p>
+
+                <h2 style="color:#00e5ff;font-size:18px;margin:18px 0 8px;">AI History Corner</h2>
+
+                <p style="font-size:14px;line-height:1.6;margin:0 0 14px;">
+                  In <strong>1980</strong>, expert systems became one of the first major commercial AI waves. These systems encoded domain knowledge into rules and were used in medicine, engineering, and business decision support — proving early on that AI could deliver value when paired with real operational use cases.
+                </p>
+
+                <h2 style="color:#00e5ff;font-size:18px;margin:18px 0 8px;">Product Spotlight</h2>
+
+                <p style="font-size:15px;line-height:1.6;margin:0 0 12px;">
+                  <strong style="color:#ff4fd8;">Survival Node</strong>
+                </p>
+
+                <p style="font-size:14px;line-height:1.6;margin:0 0 12px;">
+                  The <strong>Survival Node</strong> is Eastern Shore AI’s off-grid resilience system built for outages, emergencies, and continuity planning. It combines a field-configured smartphone, offline AI, reference tools, maps, and portable power support into a deployable package designed to keep you operational when normal systems fail.
+                </p>
+
+                <p style="text-align:center;margin:0 0 14px;">
+                  <img src="https://www.easternshore.ai/images/carousel/entirenode/wholekit1.png" alt="Survival Node kit" style="display:block;margin:0 auto;max-width:320px;width:100%;height:auto;border:1px solid #222438;border-radius:10px;">
+                </p>
+
+                <p style="font-size:14px;line-height:1.6;margin:0 0 14px;">
+                  <strong>Why this matters:</strong> Preparedness is not just about stockpiling supplies — it’s about preserving decision-making, reference access, and operational capability when the network, grid, or cloud can’t be relied on.
+                </p>
+
+                <p style="font-size:13px;line-height:1.6;margin:0 0 18px;">
+                  <a href="https://www.easternshore.ai/node.html" style="color:#00e5ff;">🔗 Buy the Survival Node</a>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
