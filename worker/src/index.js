@@ -1523,7 +1523,9 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
     return [
       `Hi ${customerName},`,
       '',
-      'Your Survival Node has arrived.'
+      'Your Survival Node has arrived.',
+      '',
+      'If you have technical support questions, reach out anytime at contact@easternshore.ai.'
     ].filter(Boolean).join('\n');
   }
   return [
