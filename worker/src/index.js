@@ -1774,9 +1774,9 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
   let hydratedRow = row;
   if (row.order_source !== 'manual') { await ensureOrderFulfillmentRow(env.DB, row); hydratedRow = await getOrderRowByBookingId(env.DB, row.id) || row; hydratedRow = { ...hydratedRow, order_source: 'stripe', order_key: row.order_key }; }
-  const trackingProvider = (data.trackingProvider ?? row.tracking_provider ?? '').toString().trim();
-  const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
-  const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
+  const trackingProvider = (data.trackingProvider ?? hydratedRow.tracking_provider ?? row.tracking_provider ?? '').toString().trim();
+  const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
+  const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
   const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
     bodyText: data.bodyText,
