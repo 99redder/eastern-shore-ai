@@ -1514,12 +1514,6 @@ function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '')
     '',
     'Thanks for your order from Eastern Shore AI.',
     '',
-    row?.order_number ? `Order number: ${row.order_number}` : '',
-    `Order: ${summary}`,
-    '',
-    `Order total: ${amount}`,
-    orderDate ? `Order date: ${orderDate}` : '',
-    '',
     'We’ll send another email as soon as it ships.',
     '',
     'If you have any questions in the meantime, just reply to this message.'
