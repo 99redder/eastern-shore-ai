@@ -3702,6 +3702,9 @@
             trackingProvider,
             trackingNumber,
             trackingUrl,
+            orderSummary: meta.orderSummary || '',
+            amountDisplay: meta.amountDisplay || '',
+            paymentDate: meta.paymentDate || '',
             forShippingEmail: true
           });
         }
@@ -4104,7 +4107,11 @@
         closeTrackingModal();
         await refreshOrderList();
         if (draft.forShippingEmail) {
-          await openOrderEmailDraft(draft.bookingId, 'shipping', draft.orderKey || '');
+          await openOrderEmailDraft(draft.bookingId, 'shipping', draft.orderKey || '', {
+            orderSummary: draft.orderSummary || '',
+            amountDisplay: draft.amountDisplay || '',
+            paymentDate: draft.paymentDate || ''
+          });
         } else {
           openSuccessModal('Tracking saved for this order.', 'Tracking Updated ✅');
         }
