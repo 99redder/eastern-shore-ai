@@ -118,7 +118,7 @@ Pre-installed on every Survival Node:
 - **F-Droid** — Open-source app marketplace
 - **Survival Manual** — US Army FM 3-05.70 content
 - **Kiwix** offline content:
-  - Wikipedia Medical Encyclopedia (Full)
+  - WikiMed Medical Encyclopedia (Full)
   - Knots reference
   - Wikipedia (Full)
   - Water Treatment Library (with videos)
