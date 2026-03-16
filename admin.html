@@ -494,6 +494,7 @@
                 <option value="shipped">Shipped</option>
               </select>
               <button type="button" class="btn" id="order-refresh-btn">Refresh Orders</button>
+              <button type="button" class="btn btn-primary" id="order-add-manual-btn">Add Manual Order</button>
             </div>
             <div id="order-list" class="admin-list">No orders yet.</div>
           </section>
@@ -665,6 +666,26 @@
       <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
         <button type="button" class="btn" id="confirm-cancel-btn">Cancel</button>
         <button type="button" class="btn btn-primary" id="confirm-ok-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="manual-order-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="manual-order-title" style="width:min(760px,96vw); max-height:90vh; overflow-y:auto;">
+      <h3 id="manual-order-title">Add Manual Survival Node Order</h3>
+      <div class="form-grid" style="margin-top:.5rem;">
+        <div><label for="manual-order-customer-name">Customer Name</label><input id="manual-order-customer-name" /></div>
+        <div><label for="manual-order-customer-email">Customer Email</label><input id="manual-order-customer-email" type="email" /></div>
+        <div><label for="manual-order-customer-phone">Customer Phone</label><input id="manual-order-customer-phone" /></div>
+        <div><label for="manual-order-payment-method">Payment Method</label><input id="manual-order-payment-method" placeholder="cash, check, card, etc." /></div>
+        <div><label for="manual-order-payment-date">Payment Date</label><input id="manual-order-payment-date" type="date" /></div>
+        <div><label for="manual-order-amount">Amount (USD)</label><input id="manual-order-amount" type="number" step="0.01" min="0" /></div>
+        <div class="full"><label for="manual-order-summary">Order Summary</label><input id="manual-order-summary" value="Survival Node" /></div>
+        <div class="full"><label for="manual-order-notes">Notes (optional)</label><textarea id="manual-order-notes" rows="4"></textarea></div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn" id="manual-order-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="manual-order-save-btn">Create Manual Order</button>
       </div>
     </div>
   </div>
@@ -994,6 +1015,7 @@
     const ORDER_PREVIEW_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/preview');
     const ORDER_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/send');
     const ORDER_TRACKING_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/tracking');
+    const ORDER_MANUAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/manual');
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
     const INVOICE_PAYMENT_LINK_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment-link');
@@ -1103,6 +1125,18 @@
     const orderFilterEl = document.getElementById('order-filter');
     const orderRefreshBtn = document.getElementById('order-refresh-btn');
     const orderListEl = document.getElementById('order-list');
+    const orderAddManualBtn = document.getElementById('order-add-manual-btn');
+    const manualOrderModal = document.getElementById('manual-order-modal');
+    const manualOrderCustomerNameEl = document.getElementById('manual-order-customer-name');
+    const manualOrderCustomerEmailEl = document.getElementById('manual-order-customer-email');
+    const manualOrderCustomerPhoneEl = document.getElementById('manual-order-customer-phone');
+    const manualOrderPaymentMethodEl = document.getElementById('manual-order-payment-method');
+    const manualOrderPaymentDateEl = document.getElementById('manual-order-payment-date');
+    const manualOrderAmountEl = document.getElementById('manual-order-amount');
+    const manualOrderSummaryEl = document.getElementById('manual-order-summary');
+    const manualOrderNotesEl = document.getElementById('manual-order-notes');
+    const manualOrderCancelBtn = document.getElementById('manual-order-cancel-btn');
+    const manualOrderSaveBtn = document.getElementById('manual-order-save-btn');
     const orderEmailModal = document.getElementById('order-email-modal');
     const orderEmailTitleEl = document.getElementById('order-email-title');
     const orderEmailSubjectEl = document.getElementById('order-email-subject');
@@ -1311,6 +1345,17 @@
       const blocks = body ? body.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean) : [];
       const bodyHtml = blocks.map((part) => `<p style="margin:0 0 14px;color:#374151;white-space:pre-wrap;">${escHtml(part)}</p>`).join('') || '<p style="margin:0 0 14px;color:#374151;">&nbsp;</p>';
       orderEmailPreviewEl.innerHTML = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escHtml(subject || 'Preview')}</h1></div><div style="padding:24px;">${trackingNumber ? `<div style="margin:0 0 16px;color:#111827;"><strong>Tracking Number:</strong> ${escHtml(trackingNumber)}${trackingUrl ? `<br><strong>Tracking Link:</strong> <a href="${escHtml(trackingUrl)}" style="color:#2563eb;">${escHtml(trackingUrl)}</a>` : ''}</div>` : ''}${bodyHtml}</div></div></div>`;
+    }
+
+    function openManualOrderModal() {
+      if (manualOrderPaymentDateEl && !manualOrderPaymentDateEl.value) manualOrderPaymentDateEl.value = new Date().toISOString().slice(0,10);
+      manualOrderModal?.classList.add('active');
+      manualOrderModal?.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeManualOrderModal() {
+      manualOrderModal?.classList.remove('active');
+      manualOrderModal?.setAttribute('aria-hidden', 'true');
     }
 
     function openOrderEmailModal(draft) {
@@ -3503,6 +3548,7 @@
         if (!rows.length) { orderListEl.innerHTML = '<div style="color:var(--muted);">No orders found for this filter.</div>'; return; }
         orderListEl.innerHTML = rows.map((order) => {
           const id = Number(order.id || 0);
+          const orderKey = escHtml(order.order_key || `booking:${id}`);
           const statusBadge = orderStatusBadge(order.fulfillment_status || 'new');
           const amount = `$${(Number(order.amount_cents || 0) / 100).toFixed(2)}`;
           const tracking = (order.tracking_number || '').toString().trim();
@@ -3519,9 +3565,9 @@
             <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(order.ack_email_sent_at || 'Not sent')} • Shipped: ${escHtml(order.shipping_email_sent_at || 'Not sent')}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? escHtml(tracking) : 'Not added yet'}</div>
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}">Preview Acknowledgment</button>
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}">Preview Shipping Email</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}">Preview Acknowledgment</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}">Preview Shipping Email</button>
             </div>
           </div>`;
         }).join('');
@@ -3530,23 +3576,24 @@
       }
     }
 
-    async function openOrderEmailDraft(id, kind) {
+    async function openOrderEmailDraft(id, kind, orderKey = '') {
       const res = await fetch(ORDER_PREVIEW_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-        body: JSON.stringify({ bookingId: id, kind })
+        body: JSON.stringify({ bookingId: id, orderKey, kind })
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
-      openOrderEmailModal({ bookingId: id, kind, subject: data.subject || '', bodyText: data.bodyText || '', trackingNumber: data.trackingNumber || '', trackingUrl: data.trackingUrl || '' });
+      openOrderEmailModal({ bookingId: id, orderKey, kind, subject: data.subject || '', bodyText: data.bodyText || '', trackingNumber: data.trackingNumber || '', trackingUrl: data.trackingUrl || '' });
     }
 
     async function handleOrderActionClick(e) {
       const btn = e.target.closest('[data-order-action]');
       if (!btn) return;
       const id = Number(btn.getAttribute('data-order-id') || 0);
+      const orderKey = btn.getAttribute('data-order-key') || '';
       const action = btn.getAttribute('data-order-action') || '';
-      if (!id || !action) return;
+      if ((!id && !orderKey) || !action) return;
       if (action === 'tracking') {
         const currentTracking = btn.getAttribute('data-tracking-number') || '';
         const currentUrl = btn.getAttribute('data-tracking-url') || '';
@@ -3556,7 +3603,7 @@
         const res = await fetch(ORDER_TRACKING_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify({ bookingId: id, trackingNumber, trackingUrl })
+          body: JSON.stringify({ bookingId: id, orderKey, trackingNumber, trackingUrl })
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Failed to save tracking'); return; }
@@ -3564,7 +3611,7 @@
         await refreshOrderList();
         return;
       }
-      await openOrderEmailDraft(id, action);
+      await openOrderEmailDraft(id, action, orderKey);
     }
 
     function setAdminSectionTab(tab) {
@@ -3904,6 +3951,41 @@
     invoiceLineItemsEl?.addEventListener('input', updateInvoiceTotalDisplay);
     setInvoiceMode('view');
     renderInvoiceLineItems();
+    orderAddManualBtn?.addEventListener('click', openManualOrderModal);
+    manualOrderCancelBtn?.addEventListener('click', closeManualOrderModal);
+    manualOrderSaveBtn?.addEventListener('click', async () => {
+      const payload = {
+        customerName: manualOrderCustomerNameEl?.value || '',
+        customerEmail: manualOrderCustomerEmailEl?.value || '',
+        customerPhone: manualOrderCustomerPhoneEl?.value || '',
+        paymentMethod: manualOrderPaymentMethodEl?.value || '',
+        paymentDate: manualOrderPaymentDateEl?.value || '',
+        amount: manualOrderAmountEl?.value || '',
+        orderSummary: manualOrderSummaryEl?.value || 'Survival Node',
+        notes: manualOrderNotesEl?.value || ''
+      };
+      const prevTxt = manualOrderSaveBtn.textContent || 'Create Manual Order';
+      manualOrderSaveBtn.disabled = true;
+      manualOrderSaveBtn.textContent = 'Creating…';
+      try {
+        const res = await fetch(ORDER_MANUAL_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to create manual order'); return; }
+        closeManualOrderModal();
+        openSuccessModal('Manual Survival Node order created.', 'Manual Order Added ✅');
+        if (manualOrderCustomerNameEl) manualOrderCustomerNameEl.value = '';
+        if (manualOrderCustomerEmailEl) manualOrderCustomerEmailEl.value = '';
+        if (manualOrderCustomerPhoneEl) manualOrderCustomerPhoneEl.value = '';
+        if (manualOrderPaymentMethodEl) manualOrderPaymentMethodEl.value = '';
+        if (manualOrderAmountEl) manualOrderAmountEl.value = '';
+        if (manualOrderSummaryEl) manualOrderSummaryEl.value = 'Survival Node';
+        if (manualOrderNotesEl) manualOrderNotesEl.value = '';
+        await refreshOrderList();
+      } finally {
+        manualOrderSaveBtn.disabled = false;
+        manualOrderSaveBtn.textContent = prevTxt;
+      }
+    });
     orderRefreshBtn?.addEventListener('click', refreshOrderList);
     orderFilterEl?.addEventListener('change', refreshOrderList);
     orderListEl?.addEventListener('click', handleOrderActionClick);
@@ -3916,6 +3998,7 @@
       if (!activeOrderEmailDraft) return;
       const payload = {
         bookingId: activeOrderEmailDraft.bookingId,
+        orderKey: activeOrderEmailDraft.orderKey || '',
         kind: activeOrderEmailDraft.kind,
         subject: orderEmailSubjectEl?.value || '',
         bodyText: orderEmailBodyEl?.value || '',

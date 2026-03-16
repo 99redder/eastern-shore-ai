@@ -8,6 +8,7 @@
 // POST /api/orders/preview      → handleOrderEmailPreview() — Admin: build branded order/shipping email preview
 // POST /api/orders/send         → handleOrderEmailSend()  — Admin: send branded order/shipping email
 // POST /api/orders/tracking     → handleOrderTrackingUpdate() — Admin: save tracking + fulfillment notes
+// POST /api/orders/manual       → handleManualOrderCreate() — Admin: create offline/manual Survival Node order
 // POST /api/admin/block-slot    → handleAdminBlockSlot()  — Admin: block/unblock a specific 2-hour slot
 // POST /api/admin/block-day     → handleAdminBlockDay()   — Admin: block/unblock an entire day
 // GET  /api/tax/transactions    → handleTaxTransactions() — Admin: tax entries by year/type
@@ -71,7 +72,7 @@ export default {
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = ['/api/bookings', '/api/orders', '/api/planner/items'].includes(url.pathname) && request.method === 'GET';
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
-      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking'].includes(url.pathname) && request.method === 'POST';
+      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
@@ -128,6 +129,10 @@ export default {
 
     if (url.pathname === '/api/orders/tracking' && request.method === 'POST') {
       return handleOrderTrackingUpdate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders/manual' && request.method === 'POST') {
+      return handleManualOrderCreate(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/availability') {
@@ -1457,6 +1462,8 @@ function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '') {
 }
 
 function orderSummaryFromRow(row) {
+  const manualSummary = (row?.order_summary || '').toString().trim();
+  if (manualSummary) return manualSummary;
   const serviceType = (row?.service_type || '').toString().trim();
   if (!serviceType) return 'Eastern Shore AI order';
   return serviceType
@@ -1585,6 +1592,54 @@ async function ensureOrderFulfillmentRow(db, row) {
   ).bind(row.id, row.stripe_session_id || null, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)).run();
 }
 
+
+async function getManualOrderRowById(db, manualOrderId) {
+  return db.prepare(
+    `SELECT
+       id,
+       customer_name,
+       customer_email,
+       customer_phone,
+       amount_cents,
+       payment_date,
+       payment_method,
+       order_summary,
+       internal_notes,
+       fulfillment_status,
+       tracking_number,
+       tracking_url,
+       ack_email_sent_at,
+       ack_email_subject,
+       ack_email_body,
+       shipping_email_sent_at,
+       shipping_email_subject,
+       shipping_email_body,
+       shipped_at,
+       created_at,
+       updated_at
+     FROM manual_survival_node_orders
+     WHERE id = ?1
+     LIMIT 1`
+  ).bind(manualOrderId).first();
+}
+
+function makeOrderKey(kind, id) {
+  return `${kind}:${id}`;
+}
+
+async function getOrderRowByKey(db, orderKey, bookingId = 0) {
+  const raw = (orderKey || '').toString().trim();
+  if (raw.startsWith('manual:')) {
+    const id = Number(raw.split(':')[1] || 0);
+    const row = await getManualOrderRowById(db, id);
+    return row ? { ...row, id, order_key: makeOrderKey('manual', id), order_source: 'manual', stripe_session_id: null, service_type: 'survival_node_manual' } : null;
+  }
+  const resolvedBookingId = bookingId || Number(raw.startsWith('booking:') ? raw.split(':')[1] : raw || 0);
+  if (!resolvedBookingId) return null;
+  const row = await getOrderRowByBookingId(db, resolvedBookingId);
+  return row ? { ...row, order_key: makeOrderKey('booking', resolvedBookingId), order_source: 'stripe' } : null;
+}
+
 async function handleOrdersList(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
@@ -1592,7 +1647,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
 
   const status = (url.searchParams.get('status') || 'all').toString().trim().toLowerCase();
   const limit = Math.max(1, Math.min(300, Number(url.searchParams.get('limit') || 200)));
-  const rows = await env.DB.prepare(
+  const stripeRows = await env.DB.prepare(
     `SELECT
        b.id,
        b.stripe_session_id,
@@ -1625,14 +1680,52 @@ async function handleOrdersList(request, env, corsHeaders, url) {
      LIMIT ?1`
   ).bind(limit).all();
 
-  const orders = (rows.results || []).map((row) => {
-    const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at);
-    return {
+  const manualRows = await env.DB.prepare(
+    `SELECT
+       id,
+       customer_name,
+       customer_email,
+       customer_phone,
+       amount_cents,
+       payment_date,
+       payment_method,
+       order_summary,
+       internal_notes,
+       fulfillment_status,
+       tracking_number,
+       tracking_url,
+       ack_email_sent_at,
+       shipping_email_sent_at,
+       shipped_at,
+       created_at,
+       updated_at
+     FROM manual_survival_node_orders
+     ORDER BY payment_date DESC, id DESC
+     LIMIT ?1`
+  ).bind(limit).all();
+
+  const orders = [
+    ...(stripeRows.results || []).map((row) => {
+      const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at);
+      return {
+        ...row,
+        order_key: makeOrderKey('booking', row.id),
+        order_source: 'stripe',
+        fulfillment_status: fulfillmentStatus,
+        order_summary: orderSummaryFromRow(row)
+      };
+    }),
+    ...(manualRows.results || []).map((row) => ({
       ...row,
-      fulfillment_status: fulfillmentStatus,
-      order_summary: orderSummaryFromRow(row)
-    };
-  }).filter((row) => status === 'all' ? true : row.fulfillment_status === status);
+      stripe_session_id: null,
+      service_type: 'survival_node_manual',
+      order_key: makeOrderKey('manual', row.id),
+      order_source: 'manual',
+      fulfillment_status: normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)
+    }))
+  ]
+    .filter((row) => status === 'all' ? true : row.fulfillment_status === status)
+    .sort((a, b) => String(b.payment_date || b.created_at || '').localeCompare(String(a.payment_date || a.created_at || '')) || Number((b.id||0)) - Number((a.id||0)));
 
   return json({ ok: true, orders }, 200, corsHeaders);
 }
@@ -1645,13 +1738,14 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
   const bookingId = Number(data.bookingId || data.id || 0);
+  const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
-  if (!bookingId) return json({ ok: false, error: 'Invalid booking id' }, 400, corsHeaders);
+  if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
   if (!['ack','shipping'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
-  const row = await getOrderRowByBookingId(env.DB, bookingId);
+  const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
-  await ensureOrderFulfillmentRow(env.DB, row);
+  if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
   const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
   const content = buildOrderEmailContent(kind, row, {
@@ -1671,24 +1765,36 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
   const bookingId = Number(data.bookingId || data.id || 0);
-  if (!bookingId) return json({ ok: false, error: 'Invalid booking id' }, 400, corsHeaders);
-  const row = await getOrderRowByBookingId(env.DB, bookingId);
+  const orderKey = (data.orderKey || '').toString().trim();
+  if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
+  const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
-  await ensureOrderFulfillmentRow(env.DB, row);
+  if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
 
   const trackingNumber = (data.trackingNumber || '').toString().trim();
   const trackingUrl = (data.trackingUrl || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
-  await env.DB.prepare(
-    `UPDATE order_fulfillment
-     SET tracking_number = ?1,
-         tracking_url = ?2,
-         internal_notes = ?3,
-         updated_at = datetime('now')
-     WHERE booking_id = ?4`
-  ).bind(trackingNumber || null, trackingUrl || null, notes || null, bookingId).run();
+  if (row.order_source === 'manual') {
+    await env.DB.prepare(
+      `UPDATE manual_survival_node_orders
+       SET tracking_number = ?1,
+           tracking_url = ?2,
+           internal_notes = COALESCE(?3, internal_notes),
+           updated_at = datetime('now')
+       WHERE id = ?4`
+    ).bind(trackingNumber || null, trackingUrl || null, notes || null, row.id).run();
+  } else {
+    await env.DB.prepare(
+      `UPDATE order_fulfillment
+       SET tracking_number = ?1,
+           tracking_url = ?2,
+           internal_notes = ?3,
+           updated_at = datetime('now')
+       WHERE booking_id = ?4`
+    ).bind(trackingNumber || null, trackingUrl || null, notes || null, row.id).run();
+  }
 
-  return json({ ok: true, bookingId, trackingNumber, trackingUrl }, 200, corsHeaders);
+  return json({ ok: true, orderKey: row.order_key, trackingNumber, trackingUrl }, 200, corsHeaders);
 }
 
 async function handleOrderEmailSend(request, env, corsHeaders, url) {
@@ -1700,15 +1806,16 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
   const bookingId = Number(data.bookingId || data.id || 0);
+  const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
-  if (!bookingId) return json({ ok: false, error: 'Invalid booking id' }, 400, corsHeaders);
+  if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
   if (!['ack','shipping'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
-  const row = await getOrderRowByBookingId(env.DB, bookingId);
+  const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
   const customerEmail = (row.customer_email || '').toString().trim();
   if (!customerEmail) return json({ ok: false, error: 'Order has no customer email' }, 400, corsHeaders);
-  await ensureOrderFulfillmentRow(env.DB, row);
+  if (row.order_source !== 'manual') await ensureOrderFulfillmentRow(env.DB, row);
 
   const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
@@ -1748,7 +1855,32 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send order email' }, 502, corsHeaders);
   }
 
-  if (kind === 'shipping') {
+  if (row.order_source === 'manual') {
+    if (kind === 'shipping') {
+      await env.DB.prepare(
+        `UPDATE manual_survival_node_orders
+         SET fulfillment_status = 'shipped',
+             tracking_number = ?1,
+             tracking_url = ?2,
+             shipping_email_sent_at = datetime('now'),
+             shipping_email_subject = ?3,
+             shipping_email_body = ?4,
+             shipped_at = COALESCE(shipped_at, datetime('now')),
+             updated_at = datetime('now')
+         WHERE id = ?5`
+      ).bind(trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+    } else {
+      await env.DB.prepare(
+        `UPDATE manual_survival_node_orders
+         SET fulfillment_status = CASE WHEN fulfillment_status = 'shipped' THEN fulfillment_status ELSE 'acknowledged' END,
+             ack_email_sent_at = datetime('now'),
+             ack_email_subject = ?1,
+             ack_email_body = ?2,
+             updated_at = datetime('now')
+         WHERE id = ?3`
+      ).bind(content.subject, content.bodyText, row.id).run();
+    }
+  } else if (kind === 'shipping') {
     await env.DB.prepare(
       `UPDATE order_fulfillment
        SET fulfillment_status = 'shipped',
@@ -1760,7 +1892,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
            shipped_at = COALESCE(shipped_at, datetime('now')),
            updated_at = datetime('now')
        WHERE booking_id = ?5`
-    ).bind(trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, bookingId).run();
+    ).bind(trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
@@ -1770,10 +1902,10 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
            ack_email_body = ?2,
            updated_at = datetime('now')
        WHERE booking_id = ?3`
-    ).bind(content.subject, content.bodyText, bookingId).run();
+    ).bind(content.subject, content.bodyText, row.id).run();
   }
 
-  return json({ ok: true, bookingId, kind, emailId: sendJson?.id || null }, 200, corsHeaders);
+  return json({ ok: true, orderKey: row.order_key, kind, emailId: sendJson?.id || null }, 200, corsHeaders);
 }
 
 /**
@@ -3208,6 +3340,34 @@ async function handleInvoicePaymentLink(request, env, corsHeaders, url) {
 
   return json({ ok: true, id, paymentUrl: stripeData.url, stripeCheckoutSessionId: stripeData.id, reused: false }, 200, corsHeaders);
 }
+
+async function handleManualOrderCreate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const customerName = (data.customerName || '').toString().trim();
+  const customerEmail = (data.customerEmail || '').toString().trim();
+  const customerPhone = (data.customerPhone || '').toString().trim();
+  const paymentMethod = (data.paymentMethod || '').toString().trim();
+  const orderSummary = (data.orderSummary || 'Survival Node').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  const paymentDate = (data.paymentDate || '').toString().trim() || new Date().toISOString().slice(0,10);
+  const amountCents = toCents(data.amount);
+  if (!customerEmail) return json({ ok: false, error: 'Customer email is required' }, 400, corsHeaders);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) return json({ ok: false, error: 'Invalid payment date' }, 400, corsHeaders);
+  if (amountCents === null || amountCents < 0) return json({ ok: false, error: 'Invalid amount' }, 400, corsHeaders);
+
+  const r = await env.DB.prepare(
+    `INSERT INTO manual_survival_node_orders (customer_name, customer_email, customer_phone, amount_cents, payment_date, payment_method, order_summary, internal_notes)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)`
+  ).bind(customerName || null, customerEmail, customerPhone || null, amountCents, paymentDate, paymentMethod || null, orderSummary || 'Survival Node', notes || null).run();
+  const id = Number(r.meta?.last_row_id || 0);
+  return json({ ok: true, id, orderKey: makeOrderKey('manual', id) }, 200, corsHeaders);
+}
+
 
 async function handleInvoicePayment(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
