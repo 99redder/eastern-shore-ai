@@ -4,6 +4,10 @@
 // POST /api/stripe-webhook      → handleStripeWebhook()   — Stripe payment confirmation, records booking in D1, auto-inserts tax income
 // GET  /api/availability        → handleAvailability()    — Public unavailable slots + blocked dates
 // GET  /api/bookings            → handleBookings()        — Admin: read bookings + blocked slots + blocked days
+// GET  /api/orders              → handleOrdersList()      — Admin: list paid Stripe orders + fulfillment state
+// POST /api/orders/preview      → handleOrderEmailPreview() — Admin: build branded order/shipping email preview
+// POST /api/orders/send         → handleOrderEmailSend()  — Admin: send branded order/shipping email
+// POST /api/orders/tracking     → handleOrderTrackingUpdate() — Admin: save tracking + fulfillment notes
 // POST /api/admin/block-slot    → handleAdminBlockSlot()  — Admin: block/unblock a specific 2-hour slot
 // POST /api/admin/block-day     → handleAdminBlockDay()   — Admin: block/unblock an entire day
 // GET  /api/tax/transactions    → handleTaxTransactions() — Admin: tax entries by year/type
@@ -65,9 +69,9 @@ export default {
 
     // Stripe webhook comes from Stripe servers (no browser Origin), so skip origin check there.
     if (url.pathname !== '/api/stripe-webhook') {
-      const isBookingsRead = ['/api/bookings', '/api/planner/items'].includes(url.pathname) && request.method === 'GET';
+      const isBookingsRead = ['/api/bookings', '/api/orders', '/api/planner/items'].includes(url.pathname) && request.method === 'GET';
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
-      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending'].includes(url.pathname) && request.method === 'POST';
+      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
@@ -108,6 +112,22 @@ export default {
 
     if (url.pathname === '/api/bookings') {
       return handleBookings(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders' && request.method === 'GET') {
+      return handleOrdersList(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders/preview' && request.method === 'POST') {
+      return handleOrderEmailPreview(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders/send' && request.method === 'POST') {
+      return handleOrderEmailSend(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders/tracking' && request.method === 'POST') {
+      return handleOrderTrackingUpdate(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/availability') {
@@ -1426,6 +1446,324 @@ function csvEscape(v) {
   const s = (v ?? '').toString();
   if (/[\n\r",]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
   return s;
+}
+
+
+function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '') {
+  const s = (status || '').toString().trim().toLowerCase();
+  if (s === 'shipped' || shippedAt) return 'shipped';
+  if (s === 'acknowledged' || ackSentAt) return 'acknowledged';
+  return 'new';
+}
+
+function orderSummaryFromRow(row) {
+  const serviceType = (row?.service_type || '').toString().trim();
+  if (!serviceType) return 'Eastern Shore AI order';
+  return serviceType
+    .split(/[_-]+/)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\b\w/g, (m) => m.toUpperCase());
+}
+
+function defaultOrderEmailSubject(kind, row) {
+  const summary = orderSummaryFromRow(row);
+  if (kind === 'shipping') return `Your ${summary} has shipped`;
+  return `We received your ${summary} order`;
+}
+
+function defaultOrderEmailBody(kind, row, trackingNumber = '', trackingUrl = '') {
+  const customerName = (row?.customer_name || 'there').toString().trim() || 'there';
+  const summary = orderSummaryFromRow(row);
+  const amount = formatUsd(Number(row?.amount_cents || 0));
+  const orderDate = (row?.payment_date || row?.paid_at || row?.created_at || '').toString().slice(0, 10);
+  if (kind === 'shipping') {
+    return [
+      `Hi ${customerName},`,
+      '',
+      `Good news — your ${summary} order has shipped.`,
+      '',
+      `Order total: ${amount}`,
+      orderDate ? `Order date: ${orderDate}` : '',
+      trackingNumber ? `Tracking number: ${trackingNumber}` : '',
+      trackingUrl ? `Tracking link: ${trackingUrl}` : '',
+      '',
+      'Thanks again for supporting Eastern Shore AI.',
+      '',
+      'Questions? Just reply to this email and we’ll help.'
+    ].filter(Boolean).join('\n');
+  }
+  return [
+    `Hi ${customerName},`,
+    '',
+    `Thanks for your order from Eastern Shore AI. We’ve received your payment and we’re getting everything ready now.`,
+    '',
+    `Order: ${summary}`,
+    `Order total: ${amount}`,
+    orderDate ? `Order date: ${orderDate}` : '',
+    '',
+    'We’ll send another email as soon as it ships.',
+    '',
+    'If you have any questions in the meantime, just reply to this message.'
+  ].filter(Boolean).join('\n');
+}
+
+function textToEmailHtml(text) {
+  const blocks = (text || '').toString().trim().split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+  if (!blocks.length) return '<p style="margin:0 0 14px;color:#374151;">&nbsp;</p>';
+  return blocks.map((part) => `<p style="margin:0 0 14px;color:#374151;white-space:pre-wrap;">${escapeHtml(part)}</p>`).join('');
+}
+
+function buildOrderEmailContent(kind, row, overrides = {}) {
+  const trackingNumber = (overrides.trackingNumber ?? row?.tracking_number ?? '').toString().trim();
+  const trackingUrl = (overrides.trackingUrl ?? row?.tracking_url ?? '').toString().trim();
+  const subject = (overrides.subject || '').toString().trim() || defaultOrderEmailSubject(kind, row);
+  const bodyText = (overrides.bodyText || '').toString().trim() || defaultOrderEmailBody(kind, row, trackingNumber, trackingUrl);
+  const summary = orderSummaryFromRow(row);
+  const preheader = kind === 'shipping'
+    ? 'Your order is on the way.'
+    : 'We received your order and are getting it ready.';
+  const detailLines = [
+    `<strong>Order:</strong> ${escapeHtml(summary)}`,
+    `<strong>Amount:</strong> ${escapeHtml(formatUsd(Number(row?.amount_cents || 0)))}`,
+    row?.payment_date ? `<strong>Payment Date:</strong> ${escapeHtml(String(row.payment_date).slice(0, 10))}` : '',
+    trackingNumber ? `<strong>Tracking Number:</strong> ${escapeHtml(trackingNumber)}` : '',
+    trackingUrl ? `<strong>Tracking Link:</strong> <a href="${escapeHtml(trackingUrl)}" style="color:#2563eb;">${escapeHtml(trackingUrl)}</a>` : ''
+  ].filter(Boolean).join('<br>');
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}<p style="margin:18px 0 0;color:#374151;text-align:center;">Questions? Reply to this email or contact us at (302) 907-9162 and we'll get back to you ASAP.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
+  return { subject, bodyText, html };
+}
+
+async function getOrderRowByBookingId(db, bookingId) {
+  return db.prepare(
+    `SELECT
+       b.id,
+       b.stripe_session_id,
+       b.stripe_payment_intent_id,
+       b.status AS booking_status,
+       b.customer_name,
+       b.customer_email,
+       b.customer_phone,
+       b.amount_cents,
+       b.service_type,
+       b.paid_at,
+       b.created_at,
+       substr(COALESCE(ti.income_date, b.paid_at, b.created_at), 1, 10) AS payment_date,
+       of.fulfillment_status,
+       of.tracking_number,
+       of.tracking_url,
+       of.internal_notes,
+       of.ack_email_sent_at,
+       of.ack_email_subject,
+       of.ack_email_body,
+       of.shipping_email_sent_at,
+       of.shipping_email_subject,
+       of.shipping_email_body,
+       of.shipped_at
+     FROM bookings b
+     LEFT JOIN order_fulfillment of ON of.booking_id = b.id
+     LEFT JOIN tax_income ti ON ti.stripe_session_id = b.stripe_session_id
+     WHERE b.id = ?1
+     LIMIT 1`
+  ).bind(bookingId).first();
+}
+
+async function ensureOrderFulfillmentRow(db, row) {
+  if (!row?.id) return;
+  await db.prepare(
+    `INSERT INTO order_fulfillment (booking_id, stripe_session_id, fulfillment_status)
+     VALUES (?1, ?2, ?3)
+     ON CONFLICT(booking_id) DO UPDATE SET
+       stripe_session_id = COALESCE(excluded.stripe_session_id, order_fulfillment.stripe_session_id),
+       updated_at = datetime('now')`
+  ).bind(row.id, row.stripe_session_id || null, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)).run();
+}
+
+async function handleOrdersList(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  const status = (url.searchParams.get('status') || 'all').toString().trim().toLowerCase();
+  const limit = Math.max(1, Math.min(300, Number(url.searchParams.get('limit') || 200)));
+  const rows = await env.DB.prepare(
+    `SELECT
+       b.id,
+       b.stripe_session_id,
+       b.customer_name,
+       b.customer_email,
+       b.customer_phone,
+       b.amount_cents,
+       b.service_type,
+       b.status AS booking_status,
+       b.paid_at,
+       b.created_at,
+       substr(COALESCE(ti.income_date, b.paid_at, b.created_at), 1, 10) AS payment_date,
+       of.fulfillment_status,
+       of.tracking_number,
+       of.tracking_url,
+       of.internal_notes,
+       of.ack_email_sent_at,
+       of.shipping_email_sent_at,
+       of.shipped_at
+     FROM bookings b
+     LEFT JOIN tax_income ti ON ti.stripe_session_id = b.stripe_session_id
+     LEFT JOIN order_fulfillment of ON of.booking_id = b.id
+     WHERE b.status IN ('paid','confirmed')
+       AND COALESCE(b.stripe_session_id, '') != ''
+     ORDER BY COALESCE(b.paid_at, b.created_at) DESC, b.id DESC
+     LIMIT ?1`
+  ).bind(limit).all();
+
+  const orders = (rows.results || []).map((row) => {
+    const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at);
+    return {
+      ...row,
+      fulfillment_status: fulfillmentStatus,
+      order_summary: orderSummaryFromRow(row)
+    };
+  }).filter((row) => status === 'all' ? true : row.fulfillment_status === status);
+
+  return json({ ok: true, orders }, 200, corsHeaders);
+}
+
+async function handleOrderEmailPreview(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const bookingId = Number(data.bookingId || data.id || 0);
+  const kind = (data.kind || '').toString().trim().toLowerCase();
+  if (!bookingId) return json({ ok: false, error: 'Invalid booking id' }, 400, corsHeaders);
+  if (!['ack','shipping'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+
+  const row = await getOrderRowByBookingId(env.DB, bookingId);
+  if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
+  await ensureOrderFulfillmentRow(env.DB, row);
+  const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
+  const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
+  const content = buildOrderEmailContent(kind, row, {
+    subject: data.subject,
+    bodyText: data.bodyText,
+    trackingNumber,
+    trackingUrl
+  });
+  return json({ ok: true, bookingId, kind, trackingNumber, trackingUrl, ...content }, 200, corsHeaders);
+}
+
+async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const bookingId = Number(data.bookingId || data.id || 0);
+  if (!bookingId) return json({ ok: false, error: 'Invalid booking id' }, 400, corsHeaders);
+  const row = await getOrderRowByBookingId(env.DB, bookingId);
+  if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
+  await ensureOrderFulfillmentRow(env.DB, row);
+
+  const trackingNumber = (data.trackingNumber || '').toString().trim();
+  const trackingUrl = (data.trackingUrl || '').toString().trim();
+  const notes = (data.notes || '').toString().trim();
+  await env.DB.prepare(
+    `UPDATE order_fulfillment
+     SET tracking_number = ?1,
+         tracking_url = ?2,
+         internal_notes = ?3,
+         updated_at = datetime('now')
+     WHERE booking_id = ?4`
+  ).bind(trackingNumber || null, trackingUrl || null, notes || null, bookingId).run();
+
+  return json({ ok: true, bookingId, trackingNumber, trackingUrl }, 200, corsHeaders);
+}
+
+async function handleOrderEmailSend(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const bookingId = Number(data.bookingId || data.id || 0);
+  const kind = (data.kind || '').toString().trim().toLowerCase();
+  if (!bookingId) return json({ ok: false, error: 'Invalid booking id' }, 400, corsHeaders);
+  if (!['ack','shipping'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+
+  const row = await getOrderRowByBookingId(env.DB, bookingId);
+  if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
+  const customerEmail = (row.customer_email || '').toString().trim();
+  if (!customerEmail) return json({ ok: false, error: 'Order has no customer email' }, 400, corsHeaders);
+  await ensureOrderFulfillmentRow(env.DB, row);
+
+  const trackingNumber = (data.trackingNumber ?? row.tracking_number ?? '').toString().trim();
+  const trackingUrl = (data.trackingUrl ?? row.tracking_url ?? '').toString().trim();
+  if (kind === 'shipping' && !trackingNumber) {
+    return json({ ok: false, error: 'Tracking number is required before sending the shipping email' }, 400, corsHeaders);
+  }
+
+  const content = buildOrderEmailContent(kind, row, {
+    subject: data.subject,
+    bodyText: data.bodyText,
+    trackingNumber,
+    trackingUrl
+  });
+
+  const fromEmail = (env.FROM_EMAIL || '').toString().trim();
+  const replyToEmail = (env.CC_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const emailPayload = {
+    from: fromEmail,
+    to: [customerEmail],
+    subject: content.subject,
+    html: content.html,
+    text: content.bodyText,
+    reply_to: replyToEmail || fromEmail
+  };
+  if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
+
+  const sendRes = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(emailPayload)
+  });
+  const sendJson = await sendRes.json().catch(() => ({}));
+  if (!sendRes.ok) {
+    return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send order email' }, 502, corsHeaders);
+  }
+
+  if (kind === 'shipping') {
+    await env.DB.prepare(
+      `UPDATE order_fulfillment
+       SET fulfillment_status = 'shipped',
+           tracking_number = ?1,
+           tracking_url = ?2,
+           shipping_email_sent_at = datetime('now'),
+           shipping_email_subject = ?3,
+           shipping_email_body = ?4,
+           shipped_at = COALESCE(shipped_at, datetime('now')),
+           updated_at = datetime('now')
+       WHERE booking_id = ?5`
+    ).bind(trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, bookingId).run();
+  } else {
+    await env.DB.prepare(
+      `UPDATE order_fulfillment
+       SET fulfillment_status = CASE WHEN fulfillment_status = 'shipped' THEN fulfillment_status ELSE 'acknowledged' END,
+           ack_email_sent_at = datetime('now'),
+           ack_email_subject = ?1,
+           ack_email_body = ?2,
+           updated_at = datetime('now')
+       WHERE booking_id = ?3`
+    ).bind(content.subject, content.bodyText, bookingId).run();
+  }
+
+  return json({ ok: true, bookingId, kind, emailId: sendJson?.id || null }, 200, corsHeaders);
 }
 
 /**

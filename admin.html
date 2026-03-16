@@ -252,6 +252,7 @@
         <div class="admin-section-tabs" id="admin-section-tabs">
           <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
           <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
+          <button type="button" class="btn" data-admin-tab="orders">Orders</button>
           <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
           <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
           <button type="button" class="btn" data-admin-tab="invoices">Invoices</button>
@@ -476,6 +477,29 @@
         </div>
       </div>
 
+      <div class="admin-collapsible-card" id="orders-card" style="margin-top:1rem;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Orders</h3>
+          <button type="button" class="btn" id="orders-collapse-btn" aria-expanded="false">Expand</button>
+        </div>
+        <div id="orders-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <p class="invoice-flow-note">Paid Stripe orders show up here automatically. Preview and edit customer emails before sending, then add tracking manually when the order ships.</p>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; align-items:center;">
+              <label for="order-filter" style="margin:0;">Filter</label>
+              <select id="order-filter" style="max-width:180px;">
+                <option value="all">All</option>
+                <option value="new">New</option>
+                <option value="acknowledged">Acknowledged</option>
+                <option value="shipped">Shipped</option>
+              </select>
+              <button type="button" class="btn" id="order-refresh-btn">Refresh Orders</button>
+            </div>
+            <div id="order-list" class="admin-list">No orders yet.</div>
+          </section>
+        </div>
+      </div>
+
       <div class="admin-collapsible-card" id="reconciliation-card" style="margin-top:1rem;">
         <div class="admin-collapsible-head">
           <h3 style="margin:0;">Reconciliation</h3>
@@ -641,6 +665,42 @@
       <div class="form-actions" style="margin-top:1rem; display:flex; gap:.5rem; justify-content:flex-end;">
         <button type="button" class="btn" id="confirm-cancel-btn">Cancel</button>
         <button type="button" class="btn btn-primary" id="confirm-ok-btn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="order-email-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="order-email-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
+      <h3 id="order-email-title">Preview Order Email</h3>
+      <div style="display:grid; gap:.7rem;">
+        <div>
+          <label for="order-email-subject">Subject</label>
+          <input id="order-email-subject" />
+        </div>
+        <div>
+          <label for="order-email-body">Email Body</label>
+          <textarea id="order-email-body" rows="12" style="min-height:220px;"></textarea>
+        </div>
+        <div id="order-email-tracking-wrap" style="display:none;">
+          <div class="form-grid" style="margin-top:0;">
+            <div>
+              <label for="order-email-tracking-number">Tracking Number</label>
+              <input id="order-email-tracking-number" placeholder="Required for shipping email" />
+            </div>
+            <div>
+              <label for="order-email-tracking-url">Tracking Link (optional)</label>
+              <input id="order-email-tracking-url" placeholder="https://..." />
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:700; margin-bottom:.35rem;">Preview</div>
+          <div id="order-email-preview" class="admin-list" style="max-height:none; min-height:220px; background:#fff; color:#111827;"></div>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn" id="order-email-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="order-email-send-btn">Send Email</button>
       </div>
     </div>
   </div>
@@ -930,6 +990,10 @@
     const ACCOUNTS_YEAR_CLOSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/year-close');
     const ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/rebuild-auto-journal');
     const INVOICES_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices');
+    const ORDERS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders');
+    const ORDER_PREVIEW_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/preview');
+    const ORDER_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/send');
+    const ORDER_TRACKING_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/tracking');
     const INVOICE_STATUS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/status');
     const INVOICE_PAYMENT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment');
     const INVOICE_PAYMENT_LINK_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/invoices/payment-link');
@@ -958,6 +1022,8 @@
     const bookingControlsBody = document.getElementById('booking-controls-body');
     const taxCollapseBtn = document.getElementById('tax-collapse-btn');
     const taxLedgerBody = document.getElementById('tax-ledger-body');
+    const ordersCollapseBtn = document.getElementById('orders-collapse-btn');
+    const ordersBody = document.getElementById('orders-body');
     const accountsCollapseBtn = document.getElementById('accounts-collapse-btn');
     const accountsBody = document.getElementById('accounts-body');
     const reconciliationCollapseBtn = document.getElementById('reconciliation-collapse-btn');
@@ -1034,6 +1100,19 @@
     const accountsToEl = document.getElementById('accounts-to');
     const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
     const accountsRebuildAutoJournalBtn = document.getElementById('accounts-rebuild-auto-journal-btn');
+    const orderFilterEl = document.getElementById('order-filter');
+    const orderRefreshBtn = document.getElementById('order-refresh-btn');
+    const orderListEl = document.getElementById('order-list');
+    const orderEmailModal = document.getElementById('order-email-modal');
+    const orderEmailTitleEl = document.getElementById('order-email-title');
+    const orderEmailSubjectEl = document.getElementById('order-email-subject');
+    const orderEmailBodyEl = document.getElementById('order-email-body');
+    const orderEmailPreviewEl = document.getElementById('order-email-preview');
+    const orderEmailTrackingWrapEl = document.getElementById('order-email-tracking-wrap');
+    const orderEmailTrackingNumberEl = document.getElementById('order-email-tracking-number');
+    const orderEmailTrackingUrlEl = document.getElementById('order-email-tracking-url');
+    const orderEmailCancelBtn = document.getElementById('order-email-cancel-btn');
+    const orderEmailSendBtn = document.getElementById('order-email-send-btn');
     const reconYearEl = document.getElementById('recon-year');
     const reconMonthEl = document.getElementById('recon-month');
     const reconCsvEl = document.getElementById('recon-csv');
@@ -1163,6 +1242,7 @@
     let editingIncomeId = null;
     let activeAccountsTab = 'balances';
     let activeAdminSectionTab = 'booking';
+    let activeOrderEmailDraft = null;
     let blurMoneyEnabled = false;
     let activeInvoiceMode = 'view';
     let invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
@@ -1220,6 +1300,36 @@
       errorDetails.textContent = text;
       errorModal.classList.add('active');
       errorModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function renderOrderEmailPreview() {
+      if (!orderEmailPreviewEl) return;
+      const subject = (orderEmailSubjectEl?.value || '').trim();
+      const body = (orderEmailBodyEl?.value || '').trim();
+      const trackingNumber = (orderEmailTrackingNumberEl?.value || '').trim();
+      const trackingUrl = (orderEmailTrackingUrlEl?.value || '').trim();
+      const blocks = body ? body.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean) : [];
+      const bodyHtml = blocks.map((part) => `<p style="margin:0 0 14px;color:#374151;white-space:pre-wrap;">${escHtml(part)}</p>`).join('') || '<p style="margin:0 0 14px;color:#374151;">&nbsp;</p>';
+      orderEmailPreviewEl.innerHTML = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escHtml(subject || 'Preview')}</h1></div><div style="padding:24px;">${trackingNumber ? `<div style="margin:0 0 16px;color:#111827;"><strong>Tracking Number:</strong> ${escHtml(trackingNumber)}${trackingUrl ? `<br><strong>Tracking Link:</strong> <a href="${escHtml(trackingUrl)}" style="color:#2563eb;">${escHtml(trackingUrl)}</a>` : ''}</div>` : ''}${bodyHtml}</div></div></div>`;
+    }
+
+    function openOrderEmailModal(draft) {
+      activeOrderEmailDraft = draft;
+      if (orderEmailTitleEl) orderEmailTitleEl.textContent = draft.kind === 'shipping' ? 'Preview Shipping Email' : 'Preview Order Acknowledgment';
+      if (orderEmailSubjectEl) orderEmailSubjectEl.value = draft.subject || '';
+      if (orderEmailBodyEl) orderEmailBodyEl.value = draft.bodyText || '';
+      if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
+      if (orderEmailTrackingUrlEl) orderEmailTrackingUrlEl.value = draft.trackingUrl || '';
+      if (orderEmailTrackingWrapEl) orderEmailTrackingWrapEl.style.display = draft.kind === 'shipping' ? '' : 'none';
+      renderOrderEmailPreview();
+      orderEmailModal?.classList.add('active');
+      orderEmailModal?.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeOrderEmailModal() {
+      activeOrderEmailDraft = null;
+      orderEmailModal?.classList.remove('active');
+      orderEmailModal?.setAttribute('aria-hidden', 'true');
     }
 
     function closeErrorModal() {
@@ -3372,18 +3482,105 @@
       if (adminUnlocked) loadAccountsData();
     }
 
+    function orderStatusBadge(status) {
+      const s = String(status || 'new').toLowerCase();
+      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e' };
+      return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${colors[s] || '#475569'}; color:#fff; text-transform:uppercase;">${escHtml(s)}</span>`;
+    }
+
+    async function refreshOrderList() {
+      if (!adminUnlocked) return;
+      const prevTxt = orderRefreshBtn?.textContent || 'Refresh Orders';
+      if (orderRefreshBtn) { orderRefreshBtn.disabled = true; orderRefreshBtn.classList.add('working'); orderRefreshBtn.textContent = 'Refreshing…'; }
+      if (orderListEl) orderListEl.innerHTML = '<div style="color:var(--muted);">Loading orders…</div>';
+      try {
+        const status = (orderFilterEl?.value || 'all').trim();
+        const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
+        const res = await fetch(`${ORDERS_API_URL}${query}`, { headers: { 'X-Admin-Password': adminPassword } });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { orderListEl.textContent = data.error || 'Failed to load orders.'; return; }
+        const rows = Array.isArray(data.orders) ? data.orders : [];
+        if (!rows.length) { orderListEl.innerHTML = '<div style="color:var(--muted);">No orders found for this filter.</div>'; return; }
+        orderListEl.innerHTML = rows.map((order) => {
+          const id = Number(order.id || 0);
+          const statusBadge = orderStatusBadge(order.fulfillment_status || 'new');
+          const amount = `$${(Number(order.amount_cents || 0) / 100).toFixed(2)}`;
+          const tracking = (order.tracking_number || '').toString().trim();
+          return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
+            <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
+              <strong>${escHtml(order.order_summary || 'Order')}</strong>
+              ${statusBadge}
+            </div>
+            <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-top:.2rem;">
+              <span>${escHtml(order.customer_name || '')}${order.customer_email ? ` • ${escHtml(order.customer_email)}` : ''}</span>
+              <span>${escHtml(order.payment_date || '')} • ${amount}</span>
+            </div>
+            <div style="margin-top:.2rem; color:var(--muted);">Stripe: ${escHtml(order.stripe_session_id || '—')}</div>
+            <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(order.ack_email_sent_at || 'Not sent')} • Shipped: ${escHtml(order.shipping_email_sent_at || 'Not sent')}</div>
+            <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? escHtml(tracking) : 'Not added yet'}</div>
+            <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}">Preview Acknowledgment</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}">Preview Shipping Email</button>
+            </div>
+          </div>`;
+        }).join('');
+      } finally {
+        if (orderRefreshBtn) { orderRefreshBtn.disabled = false; orderRefreshBtn.classList.remove('working'); orderRefreshBtn.textContent = prevTxt; }
+      }
+    }
+
+    async function openOrderEmailDraft(id, kind) {
+      const res = await fetch(ORDER_PREVIEW_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        body: JSON.stringify({ bookingId: id, kind })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
+      openOrderEmailModal({ bookingId: id, kind, subject: data.subject || '', bodyText: data.bodyText || '', trackingNumber: data.trackingNumber || '', trackingUrl: data.trackingUrl || '' });
+    }
+
+    async function handleOrderActionClick(e) {
+      const btn = e.target.closest('[data-order-action]');
+      if (!btn) return;
+      const id = Number(btn.getAttribute('data-order-id') || 0);
+      const action = btn.getAttribute('data-order-action') || '';
+      if (!id || !action) return;
+      if (action === 'tracking') {
+        const currentTracking = btn.getAttribute('data-tracking-number') || '';
+        const currentUrl = btn.getAttribute('data-tracking-url') || '';
+        const trackingNumber = (prompt('Tracking number:', currentTracking) || '').trim();
+        if (!trackingNumber && !confirm('Clear the saved tracking number for this order?')) return;
+        const trackingUrl = (prompt('Tracking link (optional):', currentUrl) || '').trim();
+        const res = await fetch(ORDER_TRACKING_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify({ bookingId: id, trackingNumber, trackingUrl })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to save tracking'); return; }
+        openSuccessModal('Tracking saved for this order.', 'Tracking Updated ✅');
+        await refreshOrderList();
+        return;
+      }
+      await openOrderEmailDraft(id, action);
+    }
+
     function setAdminSectionTab(tab) {
       activeAdminSectionTab = tab;
       adminSectionTabBtns.forEach((btn) => btn.classList.toggle('active', btn.getAttribute('data-admin-tab') === tab));
       const show = (id, on) => { const el = document.getElementById(id); if (el) el.style.display = on ? '' : 'none'; };
       show('booking-controls-card', tab === 'booking');
       show('tax-ledger-card', tab === 'tax');
+      show('orders-card', tab === 'orders');
       show('accounts-card', tab === 'accounts');
       show('reconciliation-card', tab === 'reconciliation');
       show('invoices-card', tab === 'invoices');
       show('quotes-card', tab === 'quotes');
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
+      if (tab === 'orders' && adminUnlocked) refreshOrderList();
       if (tab === 'invoices' && adminUnlocked) refreshInvoiceList();
       if (tab === 'quotes' && adminUnlocked) refreshQuoteList();
       updateInvoiceFabVisibility();
@@ -3391,10 +3588,10 @@
     }
 
     function disableLegacyCollapse() {
-      [bookingCollapseBtn, taxCollapseBtn, accountsCollapseBtn, reconciliationCollapseBtn, invoicesCollapseBtn, quotesCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
+      [bookingCollapseBtn, taxCollapseBtn, ordersCollapseBtn, accountsCollapseBtn, reconciliationCollapseBtn, invoicesCollapseBtn, quotesCollapseBtn, yearCloseCollapseBtn, auditPackageCollapseBtn].forEach((btn) => {
         if (btn) btn.style.display = 'none';
       });
-      [bookingControlsBody, taxLedgerBody, accountsBody, reconciliationBody, invoicesBody, quotesBody, yearCloseBody, auditPackageBody].forEach((body) => {
+      [bookingControlsBody, taxLedgerBody, ordersBody, accountsBody, reconciliationBody, invoicesBody, quotesBody, yearCloseBody, auditPackageBody].forEach((body) => {
         body?.classList.remove('admin-collapsible-body-collapsed');
       });
     }
@@ -3707,6 +3904,43 @@
     invoiceLineItemsEl?.addEventListener('input', updateInvoiceTotalDisplay);
     setInvoiceMode('view');
     renderInvoiceLineItems();
+    orderRefreshBtn?.addEventListener('click', refreshOrderList);
+    orderFilterEl?.addEventListener('change', refreshOrderList);
+    orderListEl?.addEventListener('click', handleOrderActionClick);
+    orderEmailCancelBtn?.addEventListener('click', closeOrderEmailModal);
+    orderEmailSubjectEl?.addEventListener('input', renderOrderEmailPreview);
+    orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
+    orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);
+    orderEmailTrackingUrlEl?.addEventListener('input', renderOrderEmailPreview);
+    orderEmailSendBtn?.addEventListener('click', async () => {
+      if (!activeOrderEmailDraft) return;
+      const payload = {
+        bookingId: activeOrderEmailDraft.bookingId,
+        kind: activeOrderEmailDraft.kind,
+        subject: orderEmailSubjectEl?.value || '',
+        bodyText: orderEmailBodyEl?.value || '',
+        trackingNumber: orderEmailTrackingNumberEl?.value || '',
+        trackingUrl: orderEmailTrackingUrlEl?.value || ''
+      };
+      const prevTxt = orderEmailSendBtn.textContent || 'Send Email';
+      orderEmailSendBtn.disabled = true;
+      orderEmailSendBtn.textContent = 'Sending…';
+      try {
+        const res = await fetch(ORDER_SEND_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { openErrorModal(data.error || 'Failed to send order email'); return; }
+        closeOrderEmailModal();
+        openSuccessModal(activeOrderEmailDraft.kind === 'shipping' ? 'Shipping email sent and order marked shipped.' : 'Acknowledgment email sent.', activeOrderEmailDraft.kind === 'shipping' ? 'Shipment Email Sent ✅' : 'Acknowledgment Sent ✅');
+        await refreshOrderList();
+      } finally {
+        orderEmailSendBtn.disabled = false;
+        orderEmailSendBtn.textContent = prevTxt;
+      }
+    });
     invoiceRefreshBtn?.addEventListener('click', refreshInvoiceList);
     invoiceFilterEl?.addEventListener('change', refreshInvoiceList);
     invoiceSortEl?.addEventListener('change', refreshInvoiceList);
