@@ -3604,7 +3604,7 @@
               <span>${escHtml(order.customer_name || '')}${order.customer_email ? ` • ${escHtml(order.customer_email)}` : ''}</span>
               <span>${escHtml(order.payment_date || '')} • ${amount}</span>
             </div>
-            <div style="margin-top:.2rem; color:var(--muted);">Stripe: ${escHtml(order.stripe_session_id || '—')}</div>
+            <div style="margin-top:.2rem; color:var(--muted);">${order.order_source === 'manual' ? `Payment Method: ${escHtml(order.payment_method || 'Not entered')}` : `Stripe: ${escHtml(order.stripe_session_id || '—')}`}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(order.ack_email_sent_at || 'Not sent')} • Shipped: ${escHtml(order.shipping_email_sent_at || 'Not sent')}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? `${trackingProvider ? `${escHtml(trackingProvider)} • ` : ''}${escHtml(tracking)}` : 'Not added yet'}</div>
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
