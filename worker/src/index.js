@@ -129,7 +129,11 @@ export default {
     }
 
     if (url.pathname === '/api/orders/send' && request.method === 'POST') {
-      return handleOrderEmailSend(request, env, corsHeaders, url);
+      try {
+        return await handleOrderEmailSend(request, env, corsHeaders, url);
+      } catch (err) {
+        return json({ ok: false, error: err?.message || 'Order send failed' }, 500, corsHeaders);
+      }
     }
 
     if (url.pathname === '/api/orders/tracking' && request.method === 'POST') {
@@ -1463,9 +1467,9 @@ function csvEscape(v) {
 }
 
 
-function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '') {
+function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '', deliveredSentAt = '') {
   const s = (status || '').toString().trim().toLowerCase();
-  if (s === 'delivered') return 'delivered';
+  if (s === 'delivered' || deliveredSentAt) return 'delivered';
   if (s === 'shipped' || shippedAt) return 'shipped';
   if (s === 'acknowledged' || ackSentAt) return 'acknowledged';
   return 'new';
@@ -1622,7 +1626,7 @@ async function ensureOrderFulfillmentRow(db, row) {
        stripe_session_id = COALESCE(excluded.stripe_session_id, order_fulfillment.stripe_session_id),
        order_number = COALESCE(order_fulfillment.order_number, excluded.order_number),
        updated_at = datetime('now')`
-  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)).run();
+  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at)).run();
 }
 
 
@@ -1747,7 +1751,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
 
   const orders = [
     ...(stripeRows.results || []).map((row) => {
-      const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at);
+      const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at);
       return {
         ...row,
         order_key: makeOrderKey('booking', row.id),
@@ -1762,7 +1766,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
       service_type: 'survival_node_manual',
       order_key: makeOrderKey('manual', row.id),
       order_source: 'manual',
-      fulfillment_status: normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)
+      fulfillment_status: normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at)
     }))
   ]
     .filter((row) => status === 'all' ? true : row.fulfillment_status === status)
@@ -1935,8 +1939,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     } else if (kind === 'delivered') {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
-         SET fulfillment_status = 'delivered',
-             tracking_provider = ?1,
+         SET tracking_provider = ?1,
              tracking_number = ?2,
              tracking_url = ?3,
              delivered_email_sent_at = datetime('now'),
@@ -1973,8 +1976,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   } else if (kind === 'delivered') {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET fulfillment_status = 'delivered',
-           tracking_provider = ?1,
+       SET tracking_provider = ?1,
            tracking_number = ?2,
            tracking_url = ?3,
            delivered_email_sent_at = datetime('now'),
