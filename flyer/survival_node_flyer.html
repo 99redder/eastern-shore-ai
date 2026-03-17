@@ -31,7 +31,7 @@
   /* HERO */
   .hero { display: flex; flex: 1; flex-direction: column; padding: 8px 30px 6px; gap: 7px; min-height: 0; }
   .kit-image-box { border: 2px solid rgba(255,140,0,0.5); border-radius: 6px; overflow: hidden; box-shadow: 0 0 16px rgba(255,140,0,0.2); width: 100%; flex-shrink: 0; }
-  .kit-image-box img { width: 100%; max-height: 5.0in; object-fit: contain; background: #0a0a0a; display: block; }
+  .kit-image-box img { width: 100%; max-height: 4.2in; object-fit: contain; background: #0a0a0a; display: block; }
   .bottom-row { display: flex; flex: 1; gap: 12px; min-height: 0; align-items: flex-start; }
   .bottom-left { display: flex; flex-direction: column; gap: 6px; flex: 0 0 2.4in; }
   .box-contents { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,140,0,0.3); border-radius: 4px; padding: 9px 12px; }
@@ -47,10 +47,10 @@
 
 
   /* TAGLINE BAND */
-  .tagline-band { width: 100%; background: linear-gradient(90deg, #1a0a00 0%, #2a1200 40%, #1a0800 70%, #0f0500 100%); border-top: 2px solid #ff8c00; border-bottom: 2px solid rgba(255,140,0,0.35); padding: 9px 30px; display: flex; align-items: center; gap: 0; flex-shrink: 0; }
-  .tagline-band .tg-text { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.2; white-space: nowrap; }
-  .tagline-band .tg-text em { color: #ff8c00; font-style: normal; }
-  .tagline-band .tg-divider { flex: 1; height: 2px; background: linear-gradient(90deg, rgba(255,140,0,0.6), rgba(255,140,0,0.1)); margin: 0 18px; }
+  .tagline-band { width: 100%; background: linear-gradient(90deg, #1a0a00 0%, #2a1200 40%, #1a0800 70%, #0f0500 100%); border-top: 2px solid #ff8c00; border-bottom: 2px solid rgba(255,140,0,0.35); padding: 8px 30px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex-shrink: 0; }
+  .tagline-band .tg-line1 { font-family: 'Oswald', sans-serif; font-size: 22px; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.2; }
+  .tagline-band .tg-line2 { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600; color: #ff8c00; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.2; }
+  .tagline-band .tg-line2 span { color: #ccc; }
 
   /* RIGHT COL */
   .right-col { flex: 1; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
@@ -114,9 +114,8 @@
     </div>
 
     <div class="tagline-band">
-      <span class="tg-text">When the Grid Goes Down —</span>
-      <span class="tg-divider"></span>
-      <span class="tg-text"><em>Your AI Stays Online.</em> &nbsp;No Internet. &nbsp;No Cell Signal. &nbsp;No Problem.</span>
+      <div class="tg-line1">When the Grid Goes Down —</div>
+      <div class="tg-line2">Your AI Stays Online. <span>No Internet. No Cell Signal. No Problem.</span></div>
     </div>
 
     <div class="bottom-row">
