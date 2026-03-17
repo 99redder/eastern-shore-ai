@@ -4172,7 +4172,6 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Failed to send order email'); return; }
-        closeOrderEmailModal();
         const successText = draft.kind === 'shipping'
           ? 'Shipping email sent and order marked shipped.'
           : draft.kind === 'delivered'
@@ -4183,8 +4182,11 @@
           : draft.kind === 'delivered'
             ? 'Delivered Email Sent ✅'
             : 'Acknowledgment Sent ✅';
-        openSuccessModal(successText, successTitle);
-        await refreshOrderList();
+        try { closeOrderEmailModal(); } catch {}
+        try { openSuccessModal(successText, successTitle); } catch (err) { alert(successTitle + '\n\n' + successText); }
+        try { await refreshOrderList(); } catch {}
+      } catch (err) {
+        openErrorModal(err?.message || 'Failed to send order email');
       } finally {
         orderEmailSendBtn.disabled = false;
         orderEmailSendBtn.textContent = prevTxt;
