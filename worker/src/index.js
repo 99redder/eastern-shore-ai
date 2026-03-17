@@ -3020,6 +3020,7 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
   const invoiceNumber = (data.invoiceNumber || `INV-${Date.now()}`).toString();
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const customerPhone = (data.customerPhone || '').toString().trim();
   const issueDate = (data.issueDate || '').toString().trim();
   const dueDate = (data.dueDate || '').toString().trim();
@@ -3040,6 +3041,9 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
 
   if (!customerName || !/^\d{4}-\d{2}-\d{2}$/.test(issueDate) || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !items.length) {
     return json({ ok: false, error: 'Missing required invoice fields' }, 400, corsHeaders);
+  }
+  if (!customerEmail || !emailRegex.test(customerEmail)) {
+    return json({ ok: false, error: 'Invalid customer email' }, 400, corsHeaders);
   }
 
   let subtotal = 0;
@@ -3096,6 +3100,7 @@ async function handleInvoiceUpdate(request, env, corsHeaders, url) {
   const id = Number(data.id || data.invoiceId || 0);
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const customerPhone = (data.customerPhone || '').toString().trim();
   const dueDate = (data.dueDate || '').toString().trim();
   const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
@@ -3115,6 +3120,9 @@ async function handleInvoiceUpdate(request, env, corsHeaders, url) {
 
   if (!id || !customerName || !/^\d{4}-\d{2}-\d{2}$/.test(dueDate) || !items.length) {
     return json({ ok: false, error: 'Missing required invoice fields' }, 400, corsHeaders);
+  }
+  if (!customerEmail || !emailRegex.test(customerEmail)) {
+    return json({ ok: false, error: 'Invalid customer email' }, 400, corsHeaders);
   }
 
   const existing = await env.DB.prepare(`SELECT id, tax_cents, amount_paid_cents, issue_date, invoice_number, status, customer_company FROM invoices WHERE id = ?1`).bind(id).first();
