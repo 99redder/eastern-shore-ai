@@ -4161,6 +4161,7 @@
         trackingUrl: orderEmailTrackingUrlEl?.value || ''
       };
       const prevTxt = orderEmailSendBtn.textContent || 'Send Email';
+      const draft = { ...activeOrderEmailDraft };
       orderEmailSendBtn.disabled = true;
       orderEmailSendBtn.textContent = 'Sending…';
       try {
@@ -4172,7 +4173,17 @@
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Failed to send order email'); return; }
         closeOrderEmailModal();
-        openSuccessModal(activeOrderEmailDraft.kind === 'shipping' ? 'Shipping email sent and order marked shipped.' : 'Acknowledgment email sent.', activeOrderEmailDraft.kind === 'shipping' ? 'Shipment Email Sent ✅' : 'Acknowledgment Sent ✅');
+        const successText = draft.kind === 'shipping'
+          ? 'Shipping email sent and order marked shipped.'
+          : draft.kind === 'delivered'
+            ? 'Delivered email sent and order marked delivered.'
+            : 'Acknowledgment email sent.';
+        const successTitle = draft.kind === 'shipping'
+          ? 'Shipment Email Sent ✅'
+          : draft.kind === 'delivered'
+            ? 'Delivered Email Sent ✅'
+            : 'Acknowledgment Sent ✅';
+        openSuccessModal(successText, successTitle);
         await refreshOrderList();
       } finally {
         orderEmailSendBtn.disabled = false;
