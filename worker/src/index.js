@@ -3686,6 +3686,7 @@ async function handleQuoteCreate(request, env, corsHeaders, url) {
   const quoteNumber = (data.quoteNumber || `Q-${Date.now()}`).toString();
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const customerPhone = (data.customerPhone || '').toString().trim();
   let validUntil = (data.validUntil || '').toString().trim();
 
@@ -3701,6 +3702,9 @@ async function handleQuoteCreate(request, env, corsHeaders, url) {
 
   if (!customerName || !customerEmail) {
     return json({ ok: false, error: 'Missing required quote fields' }, 400, corsHeaders);
+  }
+  if (!emailRegex.test(customerEmail)) {
+    return json({ ok: false, error: 'Invalid customer email' }, 400, corsHeaders);
   }
 
   let subtotal = 0;
@@ -3764,6 +3768,7 @@ async function handleQuoteUpdate(request, env, corsHeaders, url) {
   const id = Number(data.id || data.quoteId || 0);
   const customerName = (data.customerName || '').toString().trim();
   const customerEmail = (data.customerEmail || '').toString().trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const customerPhone = (data.customerPhone || '').toString().trim();
   let validUntil = (data.validUntil || '').toString().trim();
   const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
@@ -3771,6 +3776,9 @@ async function handleQuoteUpdate(request, env, corsHeaders, url) {
 
   if (!id || !customerName || !customerEmail) {
     return json({ ok: false, error: 'Missing required quote fields' }, 400, corsHeaders);
+  }
+  if (!emailRegex.test(customerEmail)) {
+    return json({ ok: false, error: 'Invalid customer email' }, 400, corsHeaders);
   }
 
   const existing = await env.DB.prepare(`SELECT id FROM quotes WHERE id = ?1`).bind(id).first();

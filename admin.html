@@ -3358,6 +3358,7 @@
 
       if (!customerName) { openErrorModal('Customer name is required.'); return; }
       if (!customerEmail) { openErrorModal('Customer email is required.'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) { openErrorModal('Enter a valid customer email address.'); quoteCustomerEmailEl?.focus(); return; }
       if (!items.length || totalCents <= 0) { openErrorModal('At least one line item with a valid amount is required.'); return; }
 
       const isEditing = !!editingQuoteId;
