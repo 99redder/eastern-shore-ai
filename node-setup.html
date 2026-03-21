@@ -567,26 +567,65 @@ Operational Rules:
                ${appDisclaimer}`
       },
       {
-        title: 'Offline Translator',
-        html: `<p><strong>What it is:</strong> The Offline Translator performs on-device language translation with no internet connection — no text is sent to any server. Useful for communicating across language barriers during regional emergencies or disaster response.</p>
+        title: 'Seamless',
+        html: `<p><em>Available on your Survival Node.</em></p>
+               <p><strong>What it is:</strong> Seamless is an on-device voice translation app powered by Meta's Unity model from Hugging Face — no internet required. It performs real-time spoken language translation directly on the device, with no data sent to any server. Useful for communicating across language barriers during emergencies or disaster response when no connectivity is available.</p>
                <p><strong>Key features:</strong></p>
                <ul>
-                 <li>Fully offline — all translation happens on-device</li>
-                 <li><strong>All available language packs are pre-downloaded</strong> — no Wi-Fi or internet required, even for first use</li>
+                 <li>Fully offline — all translation runs on-device using the Unity model</li>
+                 <li>Voice input — speak in one language, hear the translation in another</li>
                  <li>No account, no cloud, no data collection</li>
-                 <li>OCR support — point camera at text in an image to translate it</li>
-                 <li>Fast, low-memory operation</li>
+                 <li>Supports a wide range of languages</li>
                </ul>
                <p><strong>Basic usage:</strong></p>
                <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
-                 <li>Open <strong>Offline Translator</strong> from your app drawer</li>
-                 <li>Select the <strong>source language</strong> (what you're translating from)</li>
+                 <li>Open <strong>Seamless</strong> from your app drawer</li>
+                 <li>Select the <strong>source language</strong> (what you're speaking)</li>
                  <li>Select the <strong>target language</strong> (what you want output in)</li>
-                 <li>Type or paste the text — translation appears immediately</li>
-                 <li>To translate text in an image: select <strong>OCR mode</strong> and point your camera at the text</li>
+                 <li>Tap the microphone and speak — translation plays back automatically</li>
                </ol>
-               <p style="color:var(--muted); font-size:.9rem;">Tip: all language packs are pre-downloaded — no setup needed. Still worth doing a quick test translation in any languages you expect to need before an emergency.</p>
-               <p style="margin-top:.6rem;"><a href="/node.html#choose-kit" style="color:var(--cyan); font-size:.88rem; font-weight:600;">View the full "What Software Comes Preloaded?" list on the product page →</a></p>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: test your target languages before an emergency to confirm the model performs well for your use case.</p>
+               ${appDisclaimer}`
+      },
+      {
+        title: 'DeepL',
+        html: `<p><em>Available on your Survival Node.</em></p>
+               <p><strong>What it is:</strong> DeepL is a high-accuracy text translation app supporting 30+ languages. It is well regarded for producing more natural, context-aware translations than most alternatives — particularly useful for technical, medical, or nuanced content.</p>
+               <p><strong>Best uses on Survival Node:</strong></p>
+               <ul>
+                 <li>Translating written text — documents, signs, written communications</li>
+                 <li>Translating longer passages where accuracy and natural phrasing matter</li>
+                 <li>Complementing Seamless (voice) with high-quality written output</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>DeepL</strong> from your app drawer</li>
+                 <li>Type or paste text into the input field</li>
+                 <li>Select source and target languages</li>
+                 <li>Translation appears immediately below</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Note: DeepL may require an internet connection for full functionality — use Seamless for fully offline voice translation in no-connectivity scenarios.</p>
+               ${appDisclaimer}`
+      },
+      {
+        title: 'Morse',
+        html: `<p><em>Available on your Survival Node.</em></p>
+               <p><strong>What it is:</strong> Morse is a simple, fully offline Morse code encoder and decoder. It converts text to Morse code and Morse code back to text — useful for off-grid signaling, radio communication, or emergency signaling with a flashlight or audio tone.</p>
+               <p><strong>Best uses on Survival Node:</strong></p>
+               <ul>
+                 <li>Encoding messages into Morse for radio or light-based signaling</li>
+                 <li>Decoding received Morse signals back into readable text</li>
+                 <li>Learning or refreshing Morse code before an emergency</li>
+                 <li>SOS signaling reference — three dots, three dashes, three dots (· · · — — — · · ·)</li>
+               </ul>
+               <p><strong>Basic usage:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>Morse</strong> from your app drawer</li>
+                 <li>Type your message to encode it into Morse code</li>
+                 <li>Or enter Morse dots and dashes to decode back to text</li>
+                 <li>Use the audio playback or flashlight output to transmit if supported</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: memorize SOS (· · · — — — · · ·) — it is the universal distress signal recognized across all emergency response systems.</p>
                ${appDisclaimer}`
       },
       {
