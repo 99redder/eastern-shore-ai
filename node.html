@@ -3206,6 +3206,108 @@
     });
   </script>
 
+  <footer>
+    <div style="max-width: 1100px; margin: 0 auto;">
+      <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 450px; margin-left: auto; margin-right: auto;">
+        <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: var(--cyan); letter-spacing: 0.08em; text-transform: uppercase;">OUR NEWSLETTER</h3>
+        <p style="margin: 0 0 1rem; color: var(--muted); font-size: 0.9rem;">Subscribe and stay updated.</p>
+        <form id="newsletter-form" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <input type="email" placeholder="your@email.com" required style="flex: 1; min-width: 200px; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+
+      <p style="margin: 0 0 0.5rem;">
+        © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp;
+        <a href="tel:+13029079162" style="color: var(--cyan);">(302) 907-9162</a> &nbsp;·&nbsp; <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Instagram</a> &nbsp;·&nbsp; <a href="https://www.facebook.com/easternshoreai" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Facebook</a> &nbsp;·&nbsp;
+        <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Discord</a>
+      </p>
+      <p style="margin: 0 0 0.4rem; font-size: 0.85rem;">
+        <a href="#" id="contact-link" style="color: var(--muted); margin-right: 1rem;">Contact Us</a>
+        <a href="#" id="about-link" style="color: var(--muted); margin-right: 1rem;">About Us</a>
+        <a href="#" id="privacy-link" style="color: var(--muted); margin-right: 1rem;">Privacy Policy</a>
+      </p>
+      <p style="margin: 0; font-size: 0.8rem; color: var(--muted); letter-spacing: 0.04em;">🇺🇸 Veteran-Owned Business</p>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="about-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem; color: var(--text);">About Us</h2>
+        <button class="modal-close about-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <p><strong>Eastern Shore AI, LLC</strong> builds and installs practical AI-powered automations, tools, products, and small business web applications.</p>
+        <p>Founded in February 2026 by Chris Gorham <a href="https://x.com/99redder" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">(Red)</a>, a resident of Fruitland, MD and retired Navy veteran 🇺🇸.</p>
+        <img src="/images/red.jpg" alt="Red — Founder, Eastern Shore AI" style="width:50%; border-radius:4px; margin-top:.75rem; display:block;" />
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="privacy-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
+    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; font-size: 1.25rem; color: var(--text);">Privacy Policy</h2>
+        <button class="modal-close privacy-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <p>We collect only the information you voluntarily submit through forms (such as name, email, and message details) to respond to inquiries and provide requested services.</p>
+        <p>Submitted information is used for communication and project-related follow-up. We do not sell your personal data. We may use trusted service providers to process form delivery and email notifications.</p>
+        <p>If you want your submitted information corrected or deleted, contact us and we will handle it promptly, subject to legal or operational retention requirements.</p>
+        <p>Contact: <a href="mailto:contact@easternshore.ai" style="color: var(--cyan);">contact@easternshore.ai</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    document.getElementById('newsletter-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = this.querySelector('input[type="email"]').value;
+      try {
+        const res = await fetch(CONTACT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'newsletter',
+            name: 'Newsletter Signup',
+            email,
+            message: 'Please add this email to the newsletter list.'
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
+        alert('Subscribed — thanks!');
+        this.reset();
+      } catch (err) {
+        alert('Could not submit newsletter signup right now. Please try again.');
+      }
+    });
+
+    const aboutModal = document.getElementById('about-modal');
+    document.getElementById('about-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      aboutModal.style.display = 'flex';
+    });
+    document.querySelector('.about-close').addEventListener('click', () => aboutModal.style.display = 'none');
+    aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.style.display = 'none'; });
+
+    const privacyModal = document.getElementById('privacy-modal');
+    document.getElementById('privacy-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      privacyModal.style.display = 'flex';
+    });
+    document.querySelector('.privacy-close').addEventListener('click', () => privacyModal.style.display = 'none');
+    privacyModal.addEventListener('click', (e) => { if (e.target === privacyModal) privacyModal.style.display = 'none'; });
+
+    document.getElementById('contact-link').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = 'index.html#contact';
+    });
+  </script>
+
   <!-- Ask K Floating Button -->
   <button class="askk-fab" id="askk-fab" aria-label="Ask K - Product Assistant">
     <span class="askk-fab-label">Ask K</span>
@@ -3290,5 +3392,3 @@
   </script>
 </body>
 </html>
->
-html>

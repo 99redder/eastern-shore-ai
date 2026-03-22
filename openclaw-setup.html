@@ -603,16 +603,15 @@
 
   <!-- ===== SECTION: Modal Overlays ===== -->
   <div class="success-modal-overlay" id="about-modal" aria-hidden="true">
-    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="about-title">
-      <h3 id="about-title">About Us</h3>
-      <p><strong>Eastern Shore AI, LLC</strong> builds practical AI-powered tools and small business websites, with a focus on fast shipping and clean UX.</p>
-      <p>Founded in February 2026 by Chris Gorham, a resident of Fruitland, MD and retired Navy veteran 🇺🇸.</p>
-      <div class="simple-modal-links">
-        <a class="footer-link" href="https://x.com/easternshoreai" target="_blank" rel="noopener noreferrer">Twitter / X</a>
-        <a class="footer-link" href="https://github.com/99redder" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" style="max-width: 500px;">
+      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+        <h3 id="about-title" style="margin: 0; font-size: 1.25rem; color: var(--text);">About Us</h3>
+        <button type="button" class="btn" id="about-close-btn" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1; min-width: auto;">&times;</button>
       </div>
-      <div class="simple-modal-actions">
-        <button type="button" class="btn btn-primary" id="about-close-btn">Close</button>
+      <div style="padding: 1.5rem; text-align: left;">
+        <p><strong>Eastern Shore AI, LLC</strong> builds and installs practical AI-powered automations, tools, products, and small business web applications.</p>
+        <p>Founded in February 2026 by Chris Gorham <a href="https://x.com/99redder" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">(Red)</a>, a resident of Fruitland, MD and retired Navy veteran 🇺🇸.</p>
+        <img src="/images/red.jpg" alt="Red — Founder, Eastern Shore AI" style="width:50%; border-radius:4px; margin-top:.75rem; display:block;" />
       </div>
     </div>
   </div>
