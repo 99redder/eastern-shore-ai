@@ -878,6 +878,44 @@
       50% { opacity: 0.7; transform: scale(0.85); }
     }
 
+    footer {
+      margin-top: 2rem;
+      padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--line);
+    }
+    .footer-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .footer-newsletter {
+      flex: 0.72;
+      min-width: 0;
+      max-width: 360px;
+    }
+    .footer-info {
+      flex: 1.28;
+      text-align: center;
+      min-width: 0;
+      padding-top: 0.25rem;
+    }
+    .footer-link {
+      display: inline-block;
+      margin: 0.2rem 0.4rem 0;
+      color: var(--cyan);
+      text-decoration: underline;
+    }
+    .footer-link:hover { opacity: 0.9; }
+
+    @media (max-width: 820px) {
+      .footer-inner { flex-direction: column; align-items: stretch; gap: 1.5rem; }
+      .footer-newsletter { flex: none; width: 100%; max-width: none; }
+    }
+
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
       .buy-now-float { padding: 0.75rem 1.4rem; font-size: 1.05rem; }
@@ -3207,27 +3245,24 @@
   </script>
 
   <footer>
-    <div style="max-width: 1100px; margin: 0 auto;">
-      <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 450px; margin-left: auto; margin-right: auto;">
-        <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: var(--cyan); letter-spacing: 0.08em; text-transform: uppercase;">OUR NEWSLETTER</h3>
-        <p style="margin: 0 0 1rem; color: var(--muted); font-size: 0.9rem;">Subscribe and stay updated.</p>
-        <form id="newsletter-form" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-          <input type="email" placeholder="your@email.com" required style="flex: 1; min-width: 200px; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
-          <button type="submit" class="btn btn-primary">Subscribe</button>
-        </form>
+    <div class="footer-inner">
+      <div class="footer-newsletter">
+        <div style="padding: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: 0;">
+          <h3 style="margin: 0 0 0.5rem; font-size: 1rem; color: var(--cyan); letter-spacing: 0.08em; text-transform: uppercase;">OUR NEWSLETTER</h3>
+          <p style="margin: 0 0 1rem; color: var(--muted); font-size: 0.9rem;">Subscribe and stay updated.</p>
+          <form id="newsletter-form" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <input type="email" placeholder="your@email.com" required style="flex: 1; min-width: 200px; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+          </form>
+        </div>
       </div>
-
-      <p style="margin: 0 0 0.5rem;">
-        © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp;
-        <a href="tel:+13029079162" style="color: var(--cyan);">(302) 907-9162</a> &nbsp;·&nbsp; <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Instagram</a> &nbsp;·&nbsp; <a href="https://www.facebook.com/easternshoreai" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Facebook</a> &nbsp;·&nbsp;
-        <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">Discord</a>
-      </p>
-      <p style="margin: 0 0 0.4rem; font-size: 0.85rem;">
-        <a href="#" id="contact-link" style="color: var(--muted); margin-right: 1rem;">Contact Us</a>
-        <a href="#" id="about-link" style="color: var(--muted); margin-right: 1rem;">About Us</a>
-        <a href="#" id="privacy-link" style="color: var(--muted); margin-right: 1rem;">Privacy Policy</a>
-      </p>
-      <p style="margin: 0; font-size: 0.8rem; color: var(--muted); letter-spacing: 0.04em;">🇺🇸 Veteran-Owned Business</p>
+      <div class="footer-info">
+        © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp; <a href="tel:+13029079162" class="footer-link">(302) 907-9162</a> &nbsp;·&nbsp; <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">Instagram</a> &nbsp;·&nbsp; <a href="https://www.facebook.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">Facebook</a> &nbsp;·&nbsp; <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" class="footer-link">Discord</a><br>
+        <a href="#" id="contact-link" class="footer-link">Contact Us</a>
+        <a href="#" id="about-link" class="footer-link">About Us</a>
+        <a href="#" id="privacy-link" class="footer-link">Privacy Policy</a>
+        <p style="margin: 0.45rem 0 0; font-size: 0.8rem; color: var(--muted); letter-spacing: 0.04em;">🇺🇸 Veteran-Owned Business</p>
+      </div>
     </div>
   </footer>
 
