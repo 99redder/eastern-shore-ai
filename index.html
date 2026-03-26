@@ -944,7 +944,7 @@
               <option value="phone">Phone</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center;">Get Your Free Quote Now</button>
+          <button type="submit" class="btn btn-primary" style="width: 100%; text-align: center;">Send Your Message</button>
         </form>
       </div>
     </div>
@@ -970,7 +970,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       const text = triggerText.trim();
       if (text === 'AI Agent Repair') return 'AI Agent Repair Quote';
       if (text === 'Get Your Free Assessment' || text === 'Book Your Free Call or Site Visit') return 'AI Automation Quote';
-      if (text === 'Website Design' || text === 'Get Your Free Website Design Quote Now' || text === 'Get Your Free Quote Now') return 'Website Quote';
+      if (text === 'Website Design' || text === 'Get Your Free Website Design Quote Now' || text === 'Get Your Free Quote Now' || text === 'Send Your Message') return 'Website Quote';
       return 'General Quote';
     }
 
