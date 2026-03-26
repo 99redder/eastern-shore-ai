@@ -4588,7 +4588,7 @@ No — it's emergency trickle-charge capability. Use wall power when available; 
 
 ## Testing & Demo Page (testing.html)
 
-There is a dedicated **Test Results & Demo Videos** page for Survival Node at `testing.html`.
+There is a dedicated **Test Results & Demo Videos** page for Survival Node at testing.html.
 
 **What the page contains:**
 - Pre-shipment test data for each major component
@@ -4680,7 +4680,7 @@ The page includes YouTube demo embeds for:
 - **Quick Unboxing** — a quick look at everything included
 - **Components & Pre-Shipment Testing** — a walkthrough of the kit and how it is tested before shipping
 
-When users ask about detailed testing, benchmarks, or proof-of-function, you can mention that there is a separate `testing.html` page with component test results and demo videos.
+When users ask about detailed testing, benchmarks, or proof-of-function, you can mention that there is a separate testing.html page with component test results and demo videos.
 
 ---
 
