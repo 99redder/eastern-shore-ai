@@ -4659,6 +4659,13 @@ Example benchmark figures shown on the page:
 - **Llama-3.2-3B:** 2.75 tokens/sec generation, 14.32 tokens/sec prompt processing, peak memory about 6 GB
 - **SmolVLM2-500M:** 19.31 tokens/sec generation, 101.13 tokens/sec prompt processing, peak memory about 1 GB
 
+### Quoted benchmark answer block
+If a user asks for the benchmark speeds, benchmark numbers, model performance, tokens/sec, prompt processing speed, or memory usage from testing.html, answer with these reported figures directly:
+- **Qwen2.5-3B-Instruct (Q5_K_M):** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory about 5 GB
+- **Llama-3.2-3B-Instruct (Q6_K):** 2.75 tokens/sec generation, 14.32 tokens/sec prompt processing, peak memory about 6 GB
+- **SmolVLM2-500M-Instruct (Q8_0):** 19.31 tokens/sec generation, 101.13 tokens/sec prompt processing, peak memory about 1 GB
+State clearly that these are the figures reported on the testing page and that real-world speeds can vary slightly.
+
 The page also says:
 - All models were verified in **airplane mode with data off**
 - The Survival Node persona is confirmed active in PocketPal
@@ -4759,6 +4766,7 @@ async function generateAskKAnswer(env, question, context, history = []) {
     "Prioritize the user's actual question over the current page section. Use the visible page context only when it helps answer more accurately or tell the user what to click next.",
     'You will be given a grounded knowledge base for this exact project. When it directly answers the question, use it confidently instead of guessing.',
     'If the grounded knowledge includes exact figures, benchmark numbers, dimensions, timings, capacities, prices, or model names that answer the question, quote those exact details instead of saying you do not have them.',
+    'If the user asks for benchmark speeds or model performance from testing.html, answer by quoting the reported benchmark figures directly from the grounded knowledge.',
     'Assume many users are not technical. Use plain English, define jargon briefly, and explain step by step when useful.',
     'For how-to questions, prefer numbered steps.',
     'Do not output chain-of-thought or hidden reasoning. Give only the final helpful answer.',
