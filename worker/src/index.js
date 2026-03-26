@@ -4586,6 +4586,104 @@ No — it's emergency trickle-charge capability. Use wall power when available; 
 - **Shipping:** Ground only (free to continental US)
 - **Tracking:** Provided after shipment
 
+## Testing & Demo Page (testing.html)
+
+There is a dedicated **Test Results & Demo Videos** page for Survival Node at `testing.html`.
+
+**What the page contains:**
+- Pre-shipment test data for each major component
+- Benchmark screenshots for the offline AI models
+- Demo videos showing quick unboxing and component/testing walkthroughs
+
+### Core Unit test results
+- Battery rated at **5,000 mAh**
+- Measured battery capacity example shown: **4,780 mAh (95.6%)**
+- Minimum acceptance threshold stated: **88% battery health**
+- Device shown as **Motorola Moto G Power (2024)**
+- RAM confirmed: **8 GB**
+- Internal storage confirmed: **128 GB**
+- Usable storage after OS + software: **about 57 GB**
+- GPS lock confirmed functional
+- Microphone confirmed functional for voice AI input
+- Cold boot time shown: **28 seconds**
+- Survival Node AI persona shown as loading on boot
+- The page says battery testing is done **three times**: intake inspection, after OS install, and again before shipment
+
+### Hard case test results
+- Hard case model shown: **342413**
+- Waterproof rating shown: **IP67**
+- Interior dimensions shown: **340 × 235 × 126 mm**
+- Product dimensions shown: **380 × 300 × 140 mm**
+- Weight shown: **1.8 kg / 3.97 lbs**
+- Water resistance example shown: **1 meter for 30 minutes** with no interior moisture
+- Drop test example shown: **6 ft onto concrete**
+- Pressure-relief valve and latch/seal integrity are described as verified
+- Foam interior is described as custom-cut to keep components from shifting
+
+### Solar battery test results
+- Rated capacity shown: **20,000 mAh**
+- Measured usable capacity example shown: **18,600 mAh average**
+- Claimed to provide about **3.7 full phone charges**
+- Solar input example shown: **420–580 mA in direct sun**
+- Overcast solar input example shown: **80–140 mA**
+- Full recharge via solar-only is shown as about **38 hours of direct sun**
+- Wall recharge time shown: about **4.5 hours**
+- The page says the founder has run a test unit on solar-only for **6+ months** under emergency-style use patterns
+
+### Faraday bag test results
+- Standard bag RF attenuation examples shown:
+  - **4G LTE:** −48 dB
+  - **5G sub-6:** −44 dB
+  - **Wi‑Fi 2.4 GHz:** −52 dB
+  - **Bluetooth:** −55 dB
+- The page states phone signal is blocked when the bag is sealed properly
+- The page emphasizes protection only works when the bag is **fully sealed per instructions**
+
+### Offline maps test results
+- The page says maps cover **all 50 U.S. states**
+- Map storage footprint shown: **about 14.2 GB**
+- GPS cold lock example shown: **6–9 seconds** in open sky
+- Warm lock shown: **under 3 seconds**
+- Accuracy example shown: **±4 meters** in open sky
+- Offline turn-by-turn routing, offline place search, and waypoint saving are described as functional
+- The page explains GPS works in airplane mode because it uses satellites, not internet connectivity
+
+### AI model and benchmark information
+The testing page lists three preloaded offline models:
+- **Qwen2.5-3B-Instruct (Q5_K_M)**
+- **Llama-3.2-3B-Instruct (Q6_K)**
+- **SmolVLM2-500M-Instruct (Q8_0)**
+
+Example benchmark figures shown on the page:
+- **Qwen2.5-3B:** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory about 5 GB
+- **Llama-3.2-3B:** 2.75 tokens/sec generation, 14.32 tokens/sec prompt processing, peak memory about 6 GB
+- **SmolVLM2-500M:** 19.31 tokens/sec generation, 101.13 tokens/sec prompt processing, peak memory about 1 GB
+
+The page also says:
+- All models were verified in **airplane mode with data off**
+- The Survival Node persona is confirmed active in PocketPal
+- Voice input is confirmed functional
+- Speeds may vary based on temperature, background processes, and battery charge
+
+### Software suite testing
+- Total software suite size shown: **51.8 GB**
+- AI models shown as using **12.4 GB**
+- Offline maps shown as using **14.2 GB**
+- Medical wiki and reference apps shown as using **3.8 GB**
+- Survival apps and first-aid content shown as using **2.3 GB**
+- The page says offline maps, PocketPal AI chat, first-aid apps, medical wiki, survival library, and the pre-loaded User Guide all pass offline checks
+- Average app launch time is shown as **under 1.8 seconds**
+- Final QC is described as a full offline verification before shipment
+
+### Demo videos on testing.html
+The page includes YouTube demo embeds for:
+- **Quick Unboxing** — a quick look at everything included
+- **Components & Pre-Shipment Testing** — a walkthrough of the kit and how it is tested before shipping
+
+When users ask about detailed testing, benchmarks, or proof-of-function, you can mention that there is a separate `testing.html` page with component test results and demo videos.
+
+---
+
 ## Contact & Support
 
 - **Website:** www.easternshore.ai
