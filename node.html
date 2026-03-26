@@ -464,6 +464,21 @@
     .video-ph-icon { font-size: 2.8rem; color: var(--cyan); opacity: .4; line-height: 1; }
     .video-ph-title { color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: .95rem; margin: 0; }
     .video-ph-sub { color: var(--muted); font-size: .78rem; margin: 0; }
+    .video-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .video-thumb-block { display: flex; flex-direction: column; gap: .5rem; }
+    .video-thumb { position: relative; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; background: #080b12; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .video-thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem; }
+    .video-play-btn { width: 52px; height: 52px; border-radius: 50%; background: rgba(0,229,255,.15); border: 2px solid var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--cyan); transition: background .15s, transform .15s; }
+    .video-thumb:hover .video-play-btn { background: rgba(0,229,255,.28); transform: scale(1.08); }
+    .video-thumb-label { font-size: .72rem; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #fff; background: rgba(0,0,0,.6); padding: .2rem .55rem; border-radius: 4px; }
+    .video-thumb-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem; }
+    .video-thumb-placeholder .vtp-icon { font-size: 2.2rem; opacity: .3; }
+    .video-thumb-placeholder .vtp-text { font-size: .82rem; color: var(--muted); font-family: 'Hanken Grotesk', sans-serif; }
+    .video-meta { padding: 0 .1rem; }
+    .video-meta-title { font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: .95rem; color: var(--text); line-height: 1.3; }
+    .video-meta-sub { font-size: .78rem; color: var(--muted); margin-top: .15rem; }
+    @media (max-width: 540px) { .video-card-grid { grid-template-columns: 1fr; } }
     .slide1-inner {
       display: grid;
       grid-template-columns: 1fr minmax(0, 265px);
@@ -1204,6 +1219,52 @@
     <button class="car-arrow car-next" id="car-next" aria-label="Next slide">›</button>
     -->
     </div>
+
+    <article class="card" style="padding:1rem 1.1rem;">
+      <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.85rem;">
+        <span style="font-size:1.1rem;">▶️</span>
+        <h2 style="margin:0; font-size:1.05rem;">Watch It In Action</h2>
+      </div>
+      <div class="video-card-grid">
+
+        <!-- Left: Quick Unboxing -->
+        <div class="video-thumb-block">
+          <a class="video-thumb" href="https://www.youtube.com/@easternshoreai" target="_blank" rel="noopener" aria-label="Watch Quick Unboxing Video">
+            <div class="video-thumb-overlay">
+              <div class="video-play-btn">▶</div>
+              <div class="video-thumb-label">YouTube</div>
+            </div>
+            <div class="video-thumb-placeholder">
+              <div class="vtp-icon">📦</div>
+              <div class="vtp-text">Thumbnail coming soon</div>
+            </div>
+          </a>
+          <div class="video-meta">
+            <div class="video-meta-title">Quick Unboxing</div>
+            <div class="video-meta-sub">See everything that comes in the box — start to finish.</div>
+          </div>
+        </div>
+
+        <!-- Right: TBD Video -->
+        <div class="video-thumb-block">
+          <div class="video-thumb" style="cursor:default;">
+            <div class="video-thumb-overlay">
+              <div class="video-play-btn" style="opacity:.4;">▶</div>
+              <div class="video-thumb-label" style="opacity:.5;">Coming Soon</div>
+            </div>
+            <div class="video-thumb-placeholder">
+              <div class="vtp-icon">🎬</div>
+              <div class="vtp-text">Thumbnail coming soon</div>
+            </div>
+          </div>
+          <div class="video-meta">
+            <div class="video-meta-title" style="color:var(--muted);">More Videos Coming Soon</div>
+            <div class="video-meta-sub">Live demos, field tests, and more — stay tuned.</div>
+          </div>
+        </div>
+
+      </div>
+    </article>
 
     <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
