@@ -4841,14 +4841,23 @@ function getAskKCannedTestingReply(question, context = {}) {
 
   const asksBenchmark = (
     q.includes('benchmark')
+    || q.includes('benchmarks')
+    || q.includes('benchmark speeds')
+    || q.includes('benchmark numbers')
     || q.includes('tokens/sec')
     || q.includes('token/sec')
     || q.includes('token generation')
     || q.includes('prompt processing')
+    || q.includes('speed figures')
+    || q.includes('performance figures')
     || q.includes('model performance')
     || q.includes('memory usage')
     || q.includes('peak memory')
-    || ((q.includes('testing page') || q.includes('testing.html')) && (q.includes('model') || q.includes('speed') || q.includes('performance')))
+    || q.includes('qwen')
+    || q.includes('llama')
+    || q.includes('smol')
+    || q.includes('smolvlm')
+    || ((q.includes('testing page') || q.includes('testing.html')) && (q.includes('model') || q.includes('models') || q.includes('speed') || q.includes('speeds') || q.includes('performance') || q.includes('numbers') || q.includes('values')))
   );
 
   if (testingContext && asksBenchmark) {
