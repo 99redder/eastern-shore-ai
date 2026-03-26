@@ -4741,6 +4741,11 @@ async function handleAskK(request, env, corsHeaders) {
     return json({ ok: true, reply: "I'm here to help with questions about the Survival Node. How can I assist you?" }, 200, corsHeaders);
   }
 
+  const cannedTestingReply = getAskKCannedTestingReply(question, context);
+  if (cannedTestingReply) {
+    return json({ ok: true, reply: cannedTestingReply }, 200, corsHeaders);
+  }
+
   try {
     const reply = await generateAskKAnswer(env, question, context, history);
     return json({ ok: true, reply }, 200, corsHeaders);
@@ -4822,6 +4827,43 @@ async function generateAskKAnswer(env, question, context, history = []) {
   }
 
   return fallbackAskKAnswer(question, context);
+}
+
+function getAskKCannedTestingReply(question, context = {}) {
+  const q = String(question || '').toLowerCase();
+  const url = String(context?.url || '').toLowerCase();
+  const visibleSections = Array.isArray(context?.visibleSections)
+    ? context.visibleSections.map((v) => String(v || '').toLowerCase())
+    : [];
+
+  const testingContext = url.includes('testing.html')
+    || visibleSections.some((v) => v.includes('testing') || v.includes('benchmark') || v.includes('demo'));
+
+  const asksBenchmark = (
+    q.includes('benchmark')
+    || q.includes('tokens/sec')
+    || q.includes('token/sec')
+    || q.includes('token generation')
+    || q.includes('prompt processing')
+    || q.includes('model performance')
+    || q.includes('memory usage')
+    || q.includes('peak memory')
+    || ((q.includes('testing page') || q.includes('testing.html')) && (q.includes('model') || q.includes('speed') || q.includes('performance')))
+  );
+
+  if (testingContext && asksBenchmark) {
+    return [
+      'The testing page reports these benchmark figures for the offline AI models:',
+      '',
+      '- **Qwen2.5-3B-Instruct (Q5_K_M):** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory about 5 GB',
+      '- **Llama-3.2-3B-Instruct (Q6_K):** 2.75 tokens/sec generation, 14.32 tokens/sec prompt processing, peak memory about 6 GB',
+      '- **SmolVLM2-500M-Instruct (Q8_0):** 19.31 tokens/sec generation, 101.13 tokens/sec prompt processing, peak memory about 1 GB',
+      '',
+      'Those are the figures reported on testing.html, and real-world speeds can vary a bit with temperature, battery level, and background load.'
+    ].join('\n');
+  }
+
+  return '';
 }
 
 function clipAskKKnowledge(text, max = 12000) {
