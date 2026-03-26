@@ -33,6 +33,30 @@
       min-height: 100vh;
     }
 
+    /* ── Back button ── */
+    .back-btn {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 6000;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .6rem .95rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-size: .78rem;
+      color: #f4f9ff;
+      text-decoration: none;
+      background: linear-gradient(145deg, #5f7597, #8fa6c8);
+      border: 1px solid rgba(198,220,255,.55);
+      box-shadow: 0 0 12px rgba(158,208,255,.35);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+    }
+    .back-btn:hover { filter: brightness(1.1); }
+
     /* ── Layout ── */
     .page-header {
       padding: 1.5rem 1.5rem 0;
@@ -314,6 +338,8 @@
   </style>
 </head>
 <body>
+
+  <a href="/node.html" class="back-btn" aria-label="Back to Survival Node page">← Back</a>
 
   <div class="page-header">
     <h1>Survival Node — Test Results &amp; Demo Videos</h1>
