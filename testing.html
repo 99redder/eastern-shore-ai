@@ -213,6 +213,78 @@
       aspect-ratio: 9/16;
     }
 
+    /* ── Benchmark view button ── */
+    .bench-btn {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      background: rgba(158,208,255,.08);
+      border: 1px solid rgba(158,208,255,.3);
+      border-radius: 3px;
+      padding: .18rem .45rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .bench-btn:hover { background: rgba(158,208,255,.18); }
+
+    /* ── Benchmark modal ── */
+    .bench-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .bench-modal-overlay.active { display: flex; }
+    .bench-modal {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--cyan);
+      max-width: 420px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .bench-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .75rem 1rem;
+      border-bottom: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .bench-modal-title {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--cyan);
+    }
+    .bench-modal-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    .bench-modal-close:hover { color: var(--text); }
+    .bench-modal img {
+      width: 100%;
+      display: block;
+    }
+
     /* ── Footer ── */
     footer {
       margin-top: 2rem;
@@ -280,7 +352,7 @@
             <div class="tr-row"><span class="tr-label">Device</span><span class="tr-value tr-pass">Motorola Moto G Power (2024) ✓</span></div>
             <div class="tr-row"><span class="tr-label">RAM (confirmed)</span><span class="tr-value tr-pass">8 GB LPDDR4X ✓</span></div>
             <div class="tr-row"><span class="tr-label">Internal storage (confirmed)</span><span class="tr-value tr-pass">128 GB ✓</span></div>
-            <div class="tr-row"><span class="tr-label">Usable storage after OS + software</span><span class="tr-value">~42 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Usable storage after OS + software</span><span class="tr-value">~57 GB</span></div>
             <div class="tr-row"><span class="tr-label">GPS chip</span><span class="tr-value tr-pass">Present, lock confirmed ✓</span></div>
             <div class="tr-row"><span class="tr-label">Microphone (voice AI input)</span><span class="tr-value tr-pass">Functional ✓</span></div>
           </div>
@@ -401,13 +473,16 @@
             <div class="tr-row"><span class="tr-label">Model 3</span><span class="tr-value">SmolVLM2-500M-Instruct (Q8_0)</span></div>
           </div>
           <div class="tr-section">
-            <h4>Inference Performance (on-device)</h4>
-            <div class="tr-row"><span class="tr-label">Qwen2.5-3B (Q5_K_M) — tokens/sec</span><span class="tr-value tr-pass">— tok/s avg.</span></div>
-            <div class="tr-row"><span class="tr-label">Llama-3.2-3B (Q6_K) — tokens/sec</span><span class="tr-value tr-pass">— tok/s avg.</span></div>
-            <div class="tr-row"><span class="tr-label">SmolVLM2-500M (Q8_0) — tokens/sec</span><span class="tr-value tr-pass">— tok/s avg.</span></div>
-            <div class="tr-row"><span class="tr-label">RAM headroom after load — Qwen2.5-3B</span><span class="tr-value tr-pass">— GB free</span></div>
-            <div class="tr-row"><span class="tr-label">RAM headroom after load — Llama-3.2-3B</span><span class="tr-value tr-pass">— GB free</span></div>
-            <div class="tr-row"><span class="tr-label">RAM headroom after load — SmolVLM2-500M</span><span class="tr-value tr-pass">— GB free</span></div>
+            <h4>Inference Performance — PocketPal Benchmark <span style="font-size:.7rem; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0;">3/26/2026 · PP:512 TG:128 Rep:3 · GPU Layers:99</span></h4>
+            <div class="tr-row"><span class="tr-label">Qwen2.5-3B (Q5_K_M) — token gen</span><span class="tr-value tr-pass">3.50 t/s &nbsp;<button class="bench-btn" data-model="qwen">View Result ↗</button></span></div>
+            <div class="tr-row"><span class="tr-label">Qwen2.5-3B — prompt processing</span><span class="tr-value">16.10 t/s</span></div>
+            <div class="tr-row"><span class="tr-label">Qwen2.5-3B — peak memory</span><span class="tr-value">5 GB / 8 GB (58.9%)</span></div>
+            <div class="tr-row"><span class="tr-label">Llama-3.2-3B (Q6_K) — token gen</span><span class="tr-value tr-pass">2.75 t/s &nbsp;<button class="bench-btn" data-model="llama">View Result ↗</button></span></div>
+            <div class="tr-row"><span class="tr-label">Llama-3.2-3B — prompt processing</span><span class="tr-value">14.32 t/s</span></div>
+            <div class="tr-row"><span class="tr-label">Llama-3.2-3B — peak memory</span><span class="tr-value">6 GB / 8 GB (72.4%)</span></div>
+            <div class="tr-row"><span class="tr-label">SmolVLM2-500M (Q8_0) — token gen</span><span class="tr-value tr-pass">19.31 t/s &nbsp;<button class="bench-btn" data-model="smol">View Result ↗</button></span></div>
+            <div class="tr-row"><span class="tr-label">SmolVLM2-500M — prompt processing</span><span class="tr-value">101.13 t/s</span></div>
+            <div class="tr-row"><span class="tr-label">SmolVLM2-500M — peak memory</span><span class="tr-value">1 GB / 8 GB (15.7%)</span></div>
           </div>
           <div class="tr-section">
             <h4>Offline &amp; Persona Verification</h4>
@@ -511,6 +586,17 @@
     </div>
   </footer>
 
+  <!-- Benchmark result modal -->
+  <div class="bench-modal-overlay" id="bench-modal">
+    <div class="bench-modal">
+      <div class="bench-modal-header">
+        <span class="bench-modal-title" id="bench-modal-title">Benchmark Result</span>
+        <button class="bench-modal-close" id="bench-modal-close">&times;</button>
+      </div>
+      <img id="bench-modal-img" src="" alt="Benchmark result screenshot" />
+    </div>
+  </div>
+
   <!-- About / Privacy modals -->
   <div id="about-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:1000; align-items:center; justify-content:center; padding:1rem;">
     <div style="background:var(--card); border:1px solid var(--line); max-width:500px; width:100%; max-height:90vh; overflow-y:auto;">
@@ -528,6 +614,29 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Benchmark modals
+    const benchImages = {
+      qwen:  { title: 'Qwen2.5-3B-Instruct (Q5_K_M) — Benchmark Result', src: 'images/benchmarks/bench-qwen25-3b.jpg' },
+      llama: { title: 'Llama-3.2-3B-Instruct (Q6_K) — Benchmark Result',  src: 'images/benchmarks/bench-llama32-3b.jpg' },
+      smol:  { title: 'SmolVLM2-500M-Instruct (Q8_0) — Benchmark Result', src: 'images/benchmarks/bench-smolvlm2-500m.jpg' }
+    };
+    const benchOverlay = document.getElementById('bench-modal');
+    const benchImg     = document.getElementById('bench-modal-img');
+    const benchTitle   = document.getElementById('bench-modal-title');
+
+    document.querySelectorAll('.bench-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const d = benchImages[btn.dataset.model];
+        benchTitle.textContent = d.title;
+        benchImg.src = d.src;
+        benchImg.alt = d.title;
+        benchOverlay.classList.add('active');
+      });
+    });
+    document.getElementById('bench-modal-close').addEventListener('click', () => benchOverlay.classList.remove('active'));
+    benchOverlay.addEventListener('click', e => { if (e.target === benchOverlay) benchOverlay.classList.remove('active'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') benchOverlay.classList.remove('active'); });
 
     // Video toggles
     document.querySelectorAll('.video-card-label').forEach(label => {
