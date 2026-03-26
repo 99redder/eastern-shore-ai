@@ -161,9 +161,27 @@
       text-transform: uppercase;
       letter-spacing: .06em;
       color: var(--cyan);
-      padding: .6rem .9rem .4rem;
-      border-bottom: 1px solid var(--line);
+      padding: .65rem .9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      gap: .5rem;
     }
+    .video-card-label:hover { background: rgba(158,208,255,.05); }
+    .video-arrow {
+      font-size: .85rem;
+      transition: transform .25s;
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+    .video-card.open .video-arrow { transform: rotate(180deg); }
+    .video-card-body {
+      display: none;
+      border-top: 1px solid var(--line);
+    }
+    .video-card.open .video-card-body { display: block; }
     .video-card-desc {
       font-size: .82rem;
       color: var(--muted);
@@ -436,30 +454,40 @@
     <div class="video-section">
 
       <div class="video-card">
-        <div class="video-card-label">▶ Quick Unboxing</div>
-        <div class="video-card-desc">A quick look at everything that arrives with your Survival Node — straight out of the box.</div>
-        <div class="video-embed-wrap portrait">
-          <iframe
-            src="https://www.youtube.com/embed/9P2wfJ-fGKA"
-            title="Survival Node Quick Unboxing"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen>
-          </iframe>
+        <div class="video-card-label">
+          <span>▶ Quick Unboxing</span>
+          <span class="video-arrow">▼</span>
+        </div>
+        <div class="video-card-body">
+          <div class="video-card-desc">A quick look at everything that arrives with your Survival Node — straight out of the box.</div>
+          <div class="video-embed-wrap portrait">
+            <iframe
+              src="https://www.youtube.com/embed/9P2wfJ-fGKA"
+              title="Survival Node Quick Unboxing"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
         </div>
       </div>
 
       <div class="video-card">
-        <div class="video-card-label">▶ Components &amp; Pre-Shipment Testing</div>
-        <div class="video-card-desc">A walkthrough of every component in the kit and the pre-shipment testing process each unit goes through before it ships.</div>
-        <div class="video-embed-wrap landscape">
-          <iframe
-            src="https://www.youtube.com/embed/hPN2Ta5B790"
-            title="Survival Node Components and Pre-Shipment Testing"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen>
-          </iframe>
+        <div class="video-card-label">
+          <span>▶ Components &amp; Pre-Shipment Testing</span>
+          <span class="video-arrow">▼</span>
+        </div>
+        <div class="video-card-body">
+          <div class="video-card-desc">A walkthrough of every component in the kit and the pre-shipment testing process each unit goes through before it ships.</div>
+          <div class="video-embed-wrap landscape">
+            <iframe
+              src="https://www.youtube.com/embed/hPN2Ta5B790"
+              title="Survival Node Components and Pre-Shipment Testing"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen>
+            </iframe>
+          </div>
         </div>
       </div>
 
@@ -499,6 +527,13 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Video toggles
+    document.querySelectorAll('.video-card-label').forEach(label => {
+      label.addEventListener('click', () => {
+        label.closest('.video-card').classList.toggle('open');
+      });
+    });
 
     // Tabs
     document.querySelectorAll('.tr-tab').forEach(btn => {
