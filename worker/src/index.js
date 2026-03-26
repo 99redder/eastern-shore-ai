@@ -4846,6 +4846,10 @@ function getAskKCannedTestingReply(question, context = {}) {
     || q.includes('benchmark numbers')
     || q.includes('tokens/sec')
     || q.includes('token/sec')
+    || q.includes('token per second')
+    || q.includes('tokens per second')
+    || q.includes('tok/sec')
+    || q.includes('t/s')
     || q.includes('token generation')
     || q.includes('prompt processing')
     || q.includes('speed figures')
@@ -4857,7 +4861,8 @@ function getAskKCannedTestingReply(question, context = {}) {
     || q.includes('llama')
     || q.includes('smol')
     || q.includes('smolvlm')
-    || ((q.includes('testing page') || q.includes('testing.html')) && (q.includes('model') || q.includes('models') || q.includes('speed') || q.includes('speeds') || q.includes('performance') || q.includes('numbers') || q.includes('values')))
+    || ((q.includes('how many') || q.includes('what are') || q.includes("what's")) && (q.includes('tokens') || q.includes('token')) && (q.includes('second') || q.includes('/sec') || q.includes('per sec')))
+    || ((q.includes('testing page') || q.includes('testing.html')) && (q.includes('model') || q.includes('models') || q.includes('speed') || q.includes('speeds') || q.includes('performance') || q.includes('numbers') || q.includes('values') || q.includes('tokens')))
   );
 
   if (testingContext && asksBenchmark) {
