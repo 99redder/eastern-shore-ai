@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Survival Node — Test Results & Demo Videos | Eastern Shore AI</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card: #131926;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #c7a6ff;
+      --ok: #b8f0ff;
+      --pink: #d8c2ff;
+    }
+    * { box-sizing: border-box; }
+    html { background: #000; }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 1.05rem;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(190, 220, 255, 0.16), transparent 35%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 58%, #090b11 100%);
+      background-color: #090b11;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .page-header {
+      padding: 1.5rem 1.5rem 0;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .page-header h1 {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--cyan);
+      margin: 0 0 .2rem;
+      letter-spacing: .02em;
+    }
+    .page-header p {
+      margin: 0 0 1.2rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      padding: 1.1rem 1.2rem;
+    }
+    .card-title {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin: 0 0 .8rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* ── Tabs ── */
+    .tr-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-bottom: .9rem;
+    }
+    .tr-tab {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .35rem .75rem;
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all .15s;
+    }
+    .tr-tab:hover { border-color: var(--cyan); color: var(--cyan); }
+    .tr-tab.active { background: rgba(158,208,255,.12); border-color: var(--cyan); color: var(--cyan); }
+
+    /* ── Test panels ── */
+    .tr-panel { display: none; }
+    .tr-panel.active { display: block; }
+    .tr-section { margin-bottom: 1rem; }
+    .tr-section h4 {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--violet);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin: 0 0 .45rem;
+    }
+    .tr-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: .5rem;
+      padding: .3rem 0;
+      border-bottom: 1px solid rgba(42,51,72,.6);
+      font-size: .88rem;
+    }
+    .tr-row:last-child { border-bottom: none; }
+    .tr-label { color: var(--muted); flex-shrink: 0; max-width: 55%; }
+    .tr-value { color: var(--text); text-align: right; font-weight: 600; }
+    .tr-pass { color: #7fe8a0; }
+    .tr-warn { color: #ffd97d; }
+    .tr-fail { color: #ff7a7a; }
+    .tr-note {
+      font-size: .8rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: .6rem;
+      padding-top: .6rem;
+      border-top: 1px solid var(--line);
+      line-height: 1.55;
+    }
+
+    /* ── Videos ── */
+    .video-section { display: flex; flex-direction: column; gap: 1.2rem; }
+    .video-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      overflow: hidden;
+    }
+    .video-card-label {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--cyan);
+      padding: .6rem .9rem .4rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .video-card-desc {
+      font-size: .82rem;
+      color: var(--muted);
+      padding: .35rem .9rem .55rem;
+    }
+    .video-embed-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .video-embed-wrap.landscape { padding-top: 56.25%; }
+    .video-embed-wrap.portrait {
+      max-width: 340px;
+      margin: 0 auto;
+      padding-top: 0;
+      aspect-ratio: 9/16;
+    }
+    .video-embed-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    .video-embed-wrap.portrait iframe {
+      position: static;
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 9/16;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2rem;
+      padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+      color: var(--muted);
+      font-size: .85rem;
+      border-top: 1px solid var(--line);
+    }
+    .footer-inner {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    .footer-info { flex: 1; text-align: center; min-width: 0; padding-top: .25rem; }
+    .footer-link {
+      display: inline-block;
+      margin: .2rem .4rem 0;
+      color: var(--cyan);
+      text-decoration: underline;
+    }
+    .footer-link:hover { opacity: .9; }
+    @media (max-width: 820px) {
+      .footer-inner { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>Survival Node — Test Results &amp; Demo Videos</h1>
+    <p>Pre-shipment test data for every component, plus demo videos from the field.</p>
+  </div>
+
+  <div class="two-col">
+
+    <!-- LEFT: Test Results -->
+    <div>
+      <div class="card">
+        <div class="card-title">Equipment Test Results</div>
+
+        <div class="tr-tabs" role="tablist">
+          <button class="tr-tab active" role="tab" data-panel="tr-phone">Core Unit</button>
+          <button class="tr-tab" role="tab" data-panel="tr-case">Hard Case</button>
+          <button class="tr-tab" role="tab" data-panel="tr-solar">Solar Battery</button>
+          <button class="tr-tab" role="tab" data-panel="tr-faraday">Faraday Bags</button>
+          <button class="tr-tab" role="tab" data-panel="tr-maps">Offline Maps</button>
+          <button class="tr-tab" role="tab" data-panel="tr-ai">AI Models</button>
+          <button class="tr-tab" role="tab" data-panel="tr-software">Software Suite</button>
+        </div>
+
+        <!-- Core Unit -->
+        <div class="tr-panel active" id="tr-phone">
+          <div class="tr-section">
+            <h4>Battery Health</h4>
+            <div class="tr-row"><span class="tr-label">Test method</span><span class="tr-value">AccuBattery discharge cycle</span></div>
+            <div class="tr-row"><span class="tr-label">Rated capacity</span><span class="tr-value">5,000 mAh</span></div>
+            <div class="tr-row"><span class="tr-label">Measured capacity</span><span class="tr-value tr-pass">4,780 mAh (95.6%)</span></div>
+            <div class="tr-row"><span class="tr-label">Minimum acceptance threshold</span><span class="tr-value">88%</span></div>
+            <div class="tr-row"><span class="tr-label">Result</span><span class="tr-value tr-pass">✓ Pass</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Hardware Specification Verification</h4>
+            <div class="tr-row"><span class="tr-label">Device</span><span class="tr-value tr-pass">Motorola Moto G Power (2024) ✓</span></div>
+            <div class="tr-row"><span class="tr-label">RAM (confirmed)</span><span class="tr-value tr-pass">8 GB LPDDR4X ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Internal storage (confirmed)</span><span class="tr-value tr-pass">128 GB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Usable storage after OS + software</span><span class="tr-value">~42 GB</span></div>
+            <div class="tr-row"><span class="tr-label">GPS chip</span><span class="tr-value tr-pass">Present, lock confirmed ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Microphone (voice AI input)</span><span class="tr-value tr-pass">Functional ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>OS Hardening</h4>
+            <div class="tr-row"><span class="tr-label">Bloatware removed</span><span class="tr-value tr-pass">Confirmed — 0 carrier/OEM apps ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Background data processes</span><span class="tr-value tr-pass">Disabled ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Boot time (cold)</span><span class="tr-value">22 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">AI persona loaded on boot</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
+          </div>
+          <p class="tr-note">Each unit is battery-tested three times: at intake inspection, after OS installation, and again before shipment. Units that fall below 88% battery health are rejected.</p>
+        </div>
+
+        <!-- Hard Case -->
+        <div class="tr-panel" id="tr-case">
+          <div class="tr-section">
+            <h4>Water Resistance</h4>
+            <div class="tr-row"><span class="tr-label">Rating</span><span class="tr-value">IP67</span></div>
+            <div class="tr-row"><span class="tr-label">Submersion depth</span><span class="tr-value">1 meter</span></div>
+            <div class="tr-row"><span class="tr-label">Duration</span><span class="tr-value">30 minutes</span></div>
+            <div class="tr-row"><span class="tr-label">Interior moisture after test</span><span class="tr-value tr-pass">None ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Pressure-relief valve function</span><span class="tr-value tr-pass">Vented correctly ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Impact Resistance</h4>
+            <div class="tr-row"><span class="tr-label">Drop height tested</span><span class="tr-value">6 ft onto concrete</span></div>
+            <div class="tr-row"><span class="tr-label">Drops performed</span><span class="tr-value">4 (corner, face, back, side)</span></div>
+            <div class="tr-row"><span class="tr-label">Case integrity after drops</span><span class="tr-value tr-pass">No cracks, latches held ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Compression load applied</span><span class="tr-value">75 lbs</span></div>
+            <div class="tr-row"><span class="tr-label">Interior deformation</span><span class="tr-value tr-pass">None ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Latch &amp; Seal Integrity</h4>
+            <div class="tr-row"><span class="tr-label">Latch engagement</span><span class="tr-value tr-pass">Both latches — full engagement ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Gasket seal (visual)</span><span class="tr-value tr-pass">No gaps, no deformation ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Padlock slot</span><span class="tr-value tr-pass">Padlock seated and locked ✓</span></div>
+          </div>
+          <p class="tr-note">Cases are inspected for seal integrity before packing. The foam interior is custom-cut to hold the phone, solar battery, cables, and Faraday bags without shifting during transport.</p>
+        </div>
+
+        <!-- Solar Battery -->
+        <div class="tr-panel" id="tr-solar">
+          <div class="tr-section">
+            <h4>Capacity Verification</h4>
+            <div class="tr-row"><span class="tr-label">Rated capacity</span><span class="tr-value">20,000 mAh</span></div>
+            <div class="tr-row"><span class="tr-label">Measured usable capacity</span><span class="tr-value tr-pass">18,600 mAh avg.</span></div>
+            <div class="tr-row"><span class="tr-label">Test method</span><span class="tr-value">USB meter discharge to 3% SoC</span></div>
+            <div class="tr-row"><span class="tr-label">Core Unit phone charges (full)</span><span class="tr-value tr-pass">~3.7 full charges ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Solar Charging Performance</h4>
+            <div class="tr-row"><span class="tr-label">Conditions</span><span class="tr-value">Direct sun, clear sky, 75°F</span></div>
+            <div class="tr-row"><span class="tr-label">Input rate (measured)</span><span class="tr-value">420–580 mA</span></div>
+            <div class="tr-row"><span class="tr-label">Overcast performance</span><span class="tr-value tr-warn">80–140 mA (reduced, expected)</span></div>
+            <div class="tr-row"><span class="tr-label">Rated solar input</span><span class="tr-value">5W panel</span></div>
+            <div class="tr-row"><span class="tr-label">Full recharge via solar only (clear)</span><span class="tr-value">~38 hours direct sun</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Wall Charging</h4>
+            <div class="tr-row"><span class="tr-label">Input port</span><span class="tr-value">USB-C, 18W max</span></div>
+            <div class="tr-row"><span class="tr-label">Full recharge time (wall)</span><span class="tr-value">4.5 hours</span></div>
+            <div class="tr-row"><span class="tr-label">Simultaneous charge + discharge</span><span class="tr-value tr-pass">Supported ✓</span></div>
+          </div>
+          <p class="tr-note">Solar input is not fast enough to sustain all-day normal use — but under emergency conditions (use the phone, then power it off), solar alone can sustain the kit for an extended period. Eastern Shore AI founder Chris Gorham has run his test unit on solar only for 6+ months.</p>
+        </div>
+
+        <!-- Faraday Bags -->
+        <div class="tr-panel" id="tr-faraday">
+          <div class="tr-section">
+            <h4>RF Signal Attenuation — Standard Bags</h4>
+            <div class="tr-row"><span class="tr-label">4G LTE attenuation</span><span class="tr-value tr-pass">−48 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">5G (sub-6 GHz) attenuation</span><span class="tr-value tr-pass">−44 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Wi-Fi (2.4 GHz) attenuation</span><span class="tr-value tr-pass">−52 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Bluetooth attenuation</span><span class="tr-value tr-pass">−55 dB ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Phone signal inside bag</span><span class="tr-value tr-pass">No signal (confirmed) ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Physical &amp; Seal Tests</h4>
+            <div class="tr-row"><span class="tr-label">Roll-fold seal (3 folds min)</span><span class="tr-value tr-pass">Passes leak-down test ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Material integrity (visual)</span><span class="tr-value tr-pass">No pinholes, no delamination ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Phone fits fully inside</span><span class="tr-value tr-pass">Confirmed with case removed ✓</span></div>
+          </div>
+          <p class="tr-note">Attenuation values measured with a calibrated RF signal meter. Protection is only effective when the bag is fully sealed per instructions.</p>
+        </div>
+
+        <!-- Offline Maps -->
+        <div class="tr-panel" id="tr-maps">
+          <div class="tr-section">
+            <h4>Coverage Verification</h4>
+            <div class="tr-row"><span class="tr-label">Region downloaded</span><span class="tr-value tr-pass">All 50 US states ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Total map storage footprint</span><span class="tr-value">~14.2 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Tile zoom levels</span><span class="tr-value">Up to z16 (street-level)</span></div>
+            <div class="tr-row"><span class="tr-label">Cross-reference accuracy</span><span class="tr-value tr-pass">Verified against USGS data ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>GPS Performance</h4>
+            <div class="tr-row"><span class="tr-label">Cold GPS lock time (open sky)</span><span class="tr-value">6–9 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">Warm lock time</span><span class="tr-value">&lt;3 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">Accuracy (open sky)</span><span class="tr-value">±4 meters</span></div>
+            <div class="tr-row"><span class="tr-label">Tested with airplane mode + Wi-Fi off</span><span class="tr-value tr-pass">GPS functional ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Offline Navigation Test</h4>
+            <div class="tr-row"><span class="tr-label">Turn-by-turn routing (offline)</span><span class="tr-value tr-pass">Functional ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Search (offline place names)</span><span class="tr-value tr-pass">Functional ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Waypoint drop + save</span><span class="tr-value tr-pass">Functional ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Map renders without internet</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
+          </div>
+          <p class="tr-note">Maps tested with device in full airplane mode and mobile data off. GPS uses satellite signals which operate independently of the internet — no data connection required.</p>
+        </div>
+
+        <!-- AI Models -->
+        <div class="tr-panel" id="tr-ai">
+          <div class="tr-section">
+            <h4>Model Inventory</h4>
+            <div class="tr-row"><span class="tr-label">Model 1</span><span class="tr-value">Llama-3.2-3B-Instruct (Q4_K_M)</span></div>
+            <div class="tr-row"><span class="tr-label">Model 2</span><span class="tr-value">Mistral-7B-Instruct-v0.3 (Q4_K_M)</span></div>
+            <div class="tr-row"><span class="tr-label">Model 3</span><span class="tr-value">Phi-3.5-mini-Instruct (Q4_K_M)</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Inference Performance (on-device)</h4>
+            <div class="tr-row"><span class="tr-label">3B model — tokens/sec</span><span class="tr-value tr-pass">11.8 tok/s avg. ✓</span></div>
+            <div class="tr-row"><span class="tr-label">7B model — tokens/sec</span><span class="tr-value tr-pass">5.4 tok/s avg. ✓</span></div>
+            <div class="tr-row"><span class="tr-label">3.8B model — tokens/sec</span><span class="tr-value tr-pass">9.2 tok/s avg. ✓</span></div>
+            <div class="tr-row"><span class="tr-label">RAM headroom after model load (3B)</span><span class="tr-value tr-pass">~2.4 GB free ✓</span></div>
+            <div class="tr-row"><span class="tr-label">RAM headroom after model load (7B)</span><span class="tr-value tr-pass">~0.9 GB free ✓</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Offline &amp; Persona Verification</h4>
+            <div class="tr-row"><span class="tr-label">Tested with airplane mode + data off</span><span class="tr-value tr-pass">All models load and respond ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Survival Node persona loaded</span><span class="tr-value tr-pass">Confirmed in PocketPal ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Persona system prompt active</span><span class="tr-value tr-pass">Verified via test queries ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Voice input (mic) functional</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
+          </div>
+          <p class="tr-note">Inference speeds measured during extended response generation (100+ token outputs). Speeds may vary slightly depending on ambient temperature, background processes, and battery charge level. All models verified offline before shipment.</p>
+        </div>
+
+        <!-- Software Suite -->
+        <div class="tr-panel" id="tr-software">
+          <div class="tr-section">
+            <h4>Storage Audit</h4>
+            <div class="tr-row"><span class="tr-label">Total software suite</span><span class="tr-value">51.8 GB</span></div>
+            <div class="tr-row"><span class="tr-label">AI models</span><span class="tr-value">12.4 GB (3 models)</span></div>
+            <div class="tr-row"><span class="tr-label">Offline maps (all 50 states)</span><span class="tr-value">14.2 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Medical wiki + reference apps</span><span class="tr-value">3.8 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Survival apps + first aid</span><span class="tr-value">2.3 GB</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>Offline Functionality Test (All Apps)</h4>
+            <div class="tr-row"><span class="tr-label">Offline maps — load &amp; navigate</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">AI chat (PocketPal) — respond</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">First aid app — search symptoms</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">Medical wiki — full article load</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">Survival reference library</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">User Guide (pre-loaded PDF)</span><span class="tr-value tr-pass">✓ Pass</span></div>
+          </div>
+          <div class="tr-section">
+            <h4>System Performance</h4>
+            <div class="tr-row"><span class="tr-label">App launch time (avg.)</span><span class="tr-value">&lt;1.8 seconds</span></div>
+            <div class="tr-row"><span class="tr-label">Multi-app switching (no reload)</span><span class="tr-value tr-pass">Smooth — no memory pressure ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Background processes (non-system)</span><span class="tr-value tr-pass">0 — all eliminated ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Final QC check (all apps)</span><span class="tr-value tr-pass">Passed before ship ✓</span></div>
+          </div>
+          <p class="tr-note">Every unit undergoes a final software QC pass before shipment — all apps are opened, verified offline, and the AI persona is confirmed active. The User Guide PDF is pre-loaded into the Files app on the home screen.</p>
+        </div>
+
+      </div><!-- /card -->
+    </div><!-- /left col -->
+
+    <!-- RIGHT: Demo Videos -->
+    <div class="video-section">
+
+      <div class="video-card">
+        <div class="video-card-label">▶ Quick Unboxing</div>
+        <div class="video-card-desc">A quick look at everything that arrives with your Survival Node — straight out of the box.</div>
+        <div class="video-embed-wrap portrait">
+          <iframe
+            src="https://www.youtube.com/embed/9P2wfJ-fGKA"
+            title="Survival Node Quick Unboxing"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+
+      <div class="video-card">
+        <div class="video-card-label">▶ Components &amp; Pre-Shipment Testing</div>
+        <div class="video-card-desc">A walkthrough of every component in the kit and the pre-shipment testing process each unit goes through before it ships.</div>
+        <div class="video-embed-wrap landscape">
+          <iframe
+            src="https://www.youtube.com/embed/hPN2Ta5B790"
+            title="Survival Node Components and Pre-Shipment Testing"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+
+    </div><!-- /right col -->
+
+  </div><!-- /two-col -->
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-info">
+        © <span id="year"></span> Eastern Shore AI, LLC &nbsp;·&nbsp;
+        <a href="tel:+13029079162" class="footer-link">(302) 907-9162</a> &nbsp;·&nbsp;
+        <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">Instagram</a> &nbsp;·&nbsp;
+        <a href="https://www.facebook.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">Facebook</a> &nbsp;·&nbsp;
+        <a href="https://x.com/SurvivalNode99" target="_blank" rel="noopener noreferrer" class="footer-link">Survival Node on X</a> &nbsp;·&nbsp;
+        <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" class="footer-link">Discord</a> &nbsp;·&nbsp;
+        <a href="https://www.youtube.com/@easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">YouTube</a><br>
+        <p style="margin:.45rem 0 0; font-size:.8rem; color:var(--muted); letter-spacing:.04em;">🇺🇸 Veteran-Owned Business</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- About / Privacy modals -->
+  <div id="about-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:1000; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:var(--card); border:1px solid var(--line); max-width:500px; width:100%; max-height:90vh; overflow-y:auto;">
+      <div style="padding:1.5rem; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0; font-size:1.25rem;">About Us</h2>
+        <button id="about-close" style="background:none; border:none; color:var(--muted); font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div style="padding:1.5rem;">
+        <p><strong>Eastern Shore AI, LLC</strong> builds and installs practical AI-powered automations, tools, products, and small business web applications.</p>
+        <p>Founded in February 2026 by Chris Gorham <a href="https://x.com/99redder" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);">(Red)</a>, a resident of Fruitland, MD and retired Navy veteran 🇺🇸.</p>
+        <img src="/images/red.jpg" alt="Red — Founder, Eastern Shore AI" style="width:50%; border-radius:4px; margin-top:.75rem; display:block;" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Tabs
+    document.querySelectorAll('.tr-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const panelId = btn.dataset.panel;
+        btn.closest('.card').querySelectorAll('.tr-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tr-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(panelId).classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>
