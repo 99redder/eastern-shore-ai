@@ -382,6 +382,17 @@
                </ol>
                <p style="border-left:3px solid var(--cyan); padding-left:.75rem; margin:.5rem 0 .7rem; color:var(--ok);">A battery stored at 100% or 0% for months will lose permanent capacity. The 40–60% storage target is the single most impactful habit for kit longevity.</p>
 
+               <p><strong>AccuBattery — Pre-Installed App</strong></p>
+               <p>AccuBattery is a battery health and diagnostics app pre-installed on every Survival Node. It measures your battery's actual capacity over time and tracks charge cycle wear so you know exactly how healthy your battery is.</p>
+               <ul>
+                 <li><strong>Real capacity measurement</strong> — measures actual mAh delivered during charge/discharge, not just estimated percentage</li>
+                 <li><strong>Battery health %</strong> — compares measured capacity against the factory-rated capacity to show true health over time</li>
+                 <li><strong>Charge cycle counter</strong> — tracks cumulative cycles so you know how much wear the battery has accumulated</li>
+                 <li><strong>Charge speed monitor</strong> — shows live mA input so you can verify your charger is working correctly</li>
+                 <li><strong>Wear alarms</strong> — alerts you when health drops below a threshold you set</li>
+               </ul>
+               <p><strong>Recommended use:</strong> Run a full discharge cycle once every 6 months during your maintenance check to get an accurate health reading. If AccuBattery shows capacity below 80% of the original rating, consider it a signal to plan for battery replacement or device swap before you need the kit.</p>
+
                <p><strong>Battery Bot Pro — Pre-Installed App</strong></p>
                <p>Battery Bot Pro is a lightweight, open-source battery monitor pre-installed on every Survival Node. It runs in the status bar and notification shade, giving you real-time battery data without opening any app.</p>
                <ul>
@@ -769,6 +780,27 @@ Operational Rules:
                  <li>Use the parts and tools list at the top of each guide to prepare before starting</li>
                </ol>
                <p style="color:var(--muted); font-size:.9rem;">Tip: browse guides for your most critical devices before an emergency so you know what tools and spare parts are worth keeping on hand.</p>
+               ${appDisclaimer}`
+      },
+      {
+        title: 'AccuBattery',
+        html: `<p><em>Available on your Survival Node.</em></p>
+               <p><strong>What it is:</strong> AccuBattery is a battery health and diagnostics app that measures your phone's actual battery capacity over time — not just the estimated percentage the OS reports. It's the same tool used by Eastern Shore AI to verify every unit's battery health before shipment.</p>
+               <p><strong>Best uses on Survival Node:</strong></p>
+               <ul>
+                 <li>Verifying your battery's true health % against factory-rated capacity</li>
+                 <li>Tracking capacity degradation over charge cycles so you know when performance is slipping</li>
+                 <li>Running a capacity test during your 6-month maintenance check</li>
+                 <li>Monitoring live charge speed to confirm your charger and cable are delivering full power</li>
+               </ul>
+               <p><strong>How to run a health check:</strong></p>
+               <ol style="margin:.3rem 0 .7rem; padding-left:1.2rem; line-height:1.8;">
+                 <li>Open <strong>AccuBattery</strong> from your app drawer</li>
+                 <li>Tap the <strong>Health</strong> tab — this shows your estimated capacity vs. the factory spec</li>
+                 <li>For a more accurate reading, let the phone discharge to around 10%, then charge it to 100% while AccuBattery is running — it will measure actual capacity delivered</li>
+                 <li>If health drops below <strong>80%</strong>, it's time to plan for a battery replacement or device swap before you need the kit in an emergency</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: AccuBattery's capacity measurement becomes more accurate over multiple charge cycles. The more data it collects, the more reliable the health estimate becomes.</p>
                ${appDisclaimer}`
       },
       {
