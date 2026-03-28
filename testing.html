@@ -369,8 +369,8 @@
             <h4>Battery Health</h4>
             <div class="tr-row"><span class="tr-label">Test method</span><span class="tr-value">AccuBattery discharge cycle (pre-shipment, one-time per unit)</span></div>
             <div class="tr-row"><span class="tr-label">Rated capacity</span><span class="tr-value">5,000 mAh</span></div>
-            <div class="tr-row"><span class="tr-label">Average Measured capacity</span><span class="tr-value tr-pass">4,780 mAh (95.6%)</span></div>
-            <div class="tr-row"><span class="tr-label">Minimum acceptance threshold</span><span class="tr-value">80%</span></div>
+            <div class="tr-row"><span class="tr-label">Average Measured capacity</span><span class="tr-value tr-pass">4,890 mAh (97.8%)</span></div>
+            <div class="tr-row"><span class="tr-label">Minimum acceptance threshold</span><span class="tr-value">88%</span></div>
             <div class="tr-row"><span class="tr-label">Result</span><span class="tr-value tr-pass">✓ Pass</span></div>
           </div>
           <div class="tr-section">
@@ -440,7 +440,7 @@
             <div class="tr-row"><span class="tr-label">Core Unit phone charges (full)</span><span class="tr-value tr-pass">3-4 full charges ✓</span></div>
             <div class="tr-row"><span class="tr-label">Result</span><span class="tr-value tr-pass">✓ Pass</span></div>
           </div>
-          <p class="tr-note" style="margin-bottom:1rem;">The manufacturer rating of 42,800 mAh is a fairly large capacity for a solar battery. To put it in perspective: the Moto G Power's battery is approximately 5,000 mAh. That means this solar battery, in theory, can fully recharge the phone roughly 8–9 times from dead - I've personally tested this and found it to be closer to 3-4 times. But optimal battery storage practices are essential for maintaining your Survival Node over time. My routine is to charge the phone to 60% after use, which is considered by many to be the optimal long term battery storage level (source: <a href="https://techfinepv.com/how-to-store-a-lithium-ion-battery/#:~:text=Tip%202:%20Don't%20Store,same%20principle%20applies%20to%20batteries." style="color:var(--cyan);">TechFine - How to Store A Lithium Ion Battery</a>) So while it is capable of fully charging the phone 4 times, the actual number may vary based on usage patterns and environmental conditions and I don't believe that to be the best way to do it anyway.</p>
+          <p class="tr-note" style="margin-bottom:1rem;">The manufacturer rating of 42,800 mAh is a fairly large capacity for a solar battery. To put it in perspective: the Moto G Power's battery is approximately 5,000 mAh. That means this solar battery, in theory, can fully recharge the phone roughly 8–9 times from dead - from the testing we've done we found it to be closer to 3-4 times. But optimal battery storage practices are essential for maintaining your Survival Node over time. Our testing routine is to charge the phone to 60% after use, which is considered by many to be the optimal long term battery storage level (source: <a href="https://techfinepv.com/how-to-store-a-lithium-ion-battery/#:~:text=Tip%202:%20Don't%20Store,same%20principle%20applies%20to%20batteries." style="color:var(--cyan);">TechFine - How to Store A Lithium Ion Battery</a>) So while it is capable of fully charging the phone 4 times, the actual number may vary based on usage patterns and environmental conditions and we don't believe that to be the best way to do it anyway.</p>
           <div class="tr-section">
             <h4>Wall Charging</h4>
             <div class="tr-row"><span class="tr-label">Input port</span><span class="tr-value">USB-C + iOS</span></div>
@@ -461,10 +461,6 @@
         <div class="tr-panel" id="tr-faraday">
           <div class="tr-section">
             <h4>RF Signal Attenuation — Standard Bags</h4>
-            <div class="tr-row"><span class="tr-label">4G LTE attenuation</span><span class="tr-value tr-pass">−48 dB ✓</span></div>
-            <div class="tr-row"><span class="tr-label">5G (sub-6 GHz) attenuation</span><span class="tr-value tr-pass">−44 dB ✓</span></div>
-            <div class="tr-row"><span class="tr-label">Wi-Fi (2.4 GHz) attenuation</span><span class="tr-value tr-pass">−52 dB ✓</span></div>
-            <div class="tr-row"><span class="tr-label">Bluetooth attenuation</span><span class="tr-value tr-pass">−55 dB ✓</span></div>
             <div class="tr-row"><span class="tr-label">Phone signal inside bag</span><span class="tr-value tr-pass">No signal (confirmed) ✓</span></div>
           </div>
           <div class="tr-section">
@@ -473,7 +469,7 @@
             <div class="tr-row"><span class="tr-label">Material integrity (visual)</span><span class="tr-value tr-pass">No pinholes, no delamination ✓</span></div>
             <div class="tr-row"><span class="tr-label">Phone fits fully inside</span><span class="tr-value tr-pass">Confirmed with case removed ✓</span></div>
           </div>
-          <p class="tr-note">Attenuation values measured with a calibrated RF signal meter. Protection is only effective when the bag is fully sealed per instructions.</p>
+          <p class="tr-note">Protection is only effective when the bag is fully sealed per instructions.</p>
         </div>
 
         <!-- Offline Maps -->
@@ -546,9 +542,9 @@
             <h4>Offline Functionality Test (All Apps)</h4>
             <div class="tr-row"><span class="tr-label">Offline maps — load &amp; navigate</span><span class="tr-value tr-pass">✓ Pass</span></div>
             <div class="tr-row"><span class="tr-label">AI chat (PocketPal) — respond</span><span class="tr-value tr-pass">✓ Pass</span></div>
-            <div class="tr-row"><span class="tr-label">First aid app — search symptoms</span><span class="tr-value tr-pass">✓ Pass</span></div>
             <div class="tr-row"><span class="tr-label">Medical wiki — full article load</span><span class="tr-value tr-pass">✓ Pass</span></div>
             <div class="tr-row"><span class="tr-label">Survival reference library</span><span class="tr-value tr-pass">✓ Pass</span></div>
+            <div class="tr-row"><span class="tr-label">Survival AI Agent Prompt Loaded (pre-loaded .txt file)</span><span class="tr-value tr-pass">✓ Pass</span></div>
             <div class="tr-row"><span class="tr-label">User Guide (pre-loaded PDF)</span><span class="tr-value tr-pass">✓ Pass</span></div>
           </div>
           <div class="tr-section">
@@ -558,7 +554,7 @@
             <div class="tr-row"><span class="tr-label">Background processes (non-system)</span><span class="tr-value tr-pass">0 — all eliminated ✓</span></div>
             <div class="tr-row"><span class="tr-label">Final QC check (all apps)</span><span class="tr-value tr-pass">Passed before ship ✓</span></div>
           </div>
-          <p class="tr-note">Every unit undergoes a final software QC pass before shipment — all apps are opened, verified offline, and the AI persona is confirmed active. The User Guide PDF is pre-loaded into the Files app on the home screen.</p>
+          <p class="tr-note">Every unit undergoes a final software QC pass before shipment — all apps are opened, updated, verified offline, and the AI persona is confirmed active. The User Guide PDF is pre-loaded into the Files app and with a shortcut on the home screen.</p>
         </div>
 
       </div><!-- /card -->
