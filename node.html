@@ -2582,7 +2582,7 @@
 
 
     // ===== Mobile Buy FAB =====
-    (function() {
+    document.addEventListener('DOMContentLoaded', function() {
       const fab = document.getElementById('mobile-buy-fab');
       const target = document.getElementById('choose-kit');
       const buyBtn = document.getElementById('buy-btn');
@@ -2597,7 +2597,7 @@
         { threshold: 0.1 }
       );
       observer.observe(target);
-    })();
+    });
 
     // ===== Ask K Assistant =====
     document.addEventListener('DOMContentLoaded', () => {
