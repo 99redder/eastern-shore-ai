@@ -2588,7 +2588,9 @@
       const buyBtn = document.getElementById('buy-btn');
       if (!fab || !target) return;
       fab.addEventListener('click', () => {
-        (buyBtn || target).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const el = buyBtn || target;
+        const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
       });
       const observer = new IntersectionObserver(
         ([entry]) => { fab.classList.toggle('hidden', entry.isIntersecting); },
