@@ -4013,7 +4013,13 @@
       if (!proceed) return;
 
       const originalText = accountsRebuildAutoJournalBtn.textContent;
+      const originalBg = accountsRebuildAutoJournalBtn.style.background;
+      const originalBorder = accountsRebuildAutoJournalBtn.style.borderColor;
+      const originalColor = accountsRebuildAutoJournalBtn.style.color;
       accountsRebuildAutoJournalBtn.disabled = true;
+      accountsRebuildAutoJournalBtn.style.background = '#ff4fa3';
+      accountsRebuildAutoJournalBtn.style.borderColor = '#ff4fa3';
+      accountsRebuildAutoJournalBtn.style.color = '#fff';
       accountsRebuildAutoJournalBtn.textContent = 'Rebuilding…';
       let animTick = 0;
       const anim = setInterval(() => {
@@ -4037,6 +4043,9 @@
         clearInterval(anim);
         accountsRebuildAutoJournalBtn.disabled = false;
         accountsRebuildAutoJournalBtn.textContent = originalText;
+        accountsRebuildAutoJournalBtn.style.background = originalBg;
+        accountsRebuildAutoJournalBtn.style.borderColor = originalBorder;
+        accountsRebuildAutoJournalBtn.style.color = originalColor;
       }
     });
     accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
