@@ -2585,9 +2585,10 @@
     (function() {
       const fab = document.getElementById('mobile-buy-fab');
       const target = document.getElementById('choose-kit');
+      const buyBtn = document.getElementById('buy-btn');
       if (!fab || !target) return;
       fab.addEventListener('click', () => {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        (buyBtn || target).scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       const observer = new IntersectionObserver(
         ([entry]) => { fab.classList.toggle('hidden', entry.isIntersecting); },
