@@ -4219,13 +4219,13 @@ async function upsertTaxExpenseJournal(db, row) {
   const notesRaw = (row.notes || '').toString().toLowerCase();
   const isOwnerFunded = Number(row.is_owner_funded || 0) === 1 || notesRaw.includes('[owner-funded]');
 
-  let offsetCode = '3100'; // default: treat as owner capital contribution
-  if (!isOwnerFunded) {
-    if (paidVia.includes('stripe') || paidVia.includes('cash') || paidVia.includes('checking') || paidVia.includes('bank')) {
-      offsetCode = '1000';
-    } else if (paidVia.includes('business card') || paidVia.includes('corp card')) {
-      offsetCode = '2100';
-    }
+  let offsetCode = '1000'; // default non-owner-funded expenses to business cash/bank
+  if (isOwnerFunded) {
+    offsetCode = '3100';
+  } else if (paidVia.includes('business card') || paidVia.includes('corp card') || paidVia.includes('credit card') || paidVia.includes('debit card') || paidVia.includes('visa') || paidVia.includes('mastercard') || paidVia.includes('amex')) {
+    offsetCode = '2100';
+  } else if (paidVia.includes('stripe') || paidVia.includes('cash') || paidVia.includes('checking') || paidVia.includes('bank') || paidVia.includes('ach') || paidVia.includes('wire') || paidVia.includes('paypal')) {
+    offsetCode = '1000';
   }
 
   const accountLabels = {
