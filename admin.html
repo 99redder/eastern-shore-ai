@@ -4275,12 +4275,12 @@
         }
       });
     }
-  </script>
-</body>
-</html>
 
     taxExpenseOwnerFundedEl?.addEventListener('change', () => {
       if (!taxExpenseFundingSourceEl) return;
       if (taxExpenseOwnerFundedEl.checked) taxExpenseFundingSourceEl.value = 'owner_contribution';
       else if (taxExpenseFundingSourceEl.value === 'owner_contribution') taxExpenseFundingSourceEl.value = 'cash_bank';
     });
+  </script>
+</body>
+</html>
