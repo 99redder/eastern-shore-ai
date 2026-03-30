@@ -986,6 +986,46 @@
       /* Photo modal — keep X button near image corner on small screens */
       .photo-modal-close { top: -.6rem; right: -.6rem; width: 2rem; height: 2rem; font-size: 1.2rem; }
     }
+
+    /* ===== Mobile Buy FAB ===== */
+    .mobile-buy-fab {
+      display: none; /* desktop: hidden */
+    }
+    @media (max-width: 480px) {
+      .mobile-buy-fab {
+        display: flex;
+        align-items: center;
+        gap: .45rem;
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+        z-index: 7500;
+        background: linear-gradient(145deg, #ff4fd8, #c850ff);
+        box-shadow: 0 4px 18px rgba(200, 80, 255, 0.55);
+        color: #fff;
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: .82rem;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 28px;
+        padding: .65rem 1rem .65rem .8rem;
+        cursor: pointer;
+        transition: opacity .25s, transform .25s;
+        white-space: nowrap;
+      }
+      .mobile-buy-fab.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(6px);
+      }
+      .mobile-buy-fab-icon {
+        font-size: 1rem;
+        line-height: 1;
+      }
+      .wrap { padding-bottom: 5rem; }
+    }
   </style>
   <script type="application/ld+json">
   [
@@ -2541,6 +2581,21 @@
     }
 
 
+    // ===== Mobile Buy FAB =====
+    (function() {
+      const fab = document.getElementById('mobile-buy-fab');
+      const target = document.getElementById('choose-kit');
+      if (!fab || !target) return;
+      fab.addEventListener('click', () => {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      const observer = new IntersectionObserver(
+        ([entry]) => { fab.classList.toggle('hidden', entry.isIntersecting); },
+        { threshold: 0.1 }
+      );
+      observer.observe(target);
+    })();
+
     // ===== Ask K Assistant =====
     document.addEventListener('DOMContentLoaded', () => {
       const ASKK_API_URL = (window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact').replace('/api/contact', '/api/admin/ask-k');
@@ -3089,6 +3144,12 @@
       window.location.href = 'index.html#contact';
     });
   </script>
+
+  <!-- Mobile Buy FAB -->
+  <button class="mobile-buy-fab" id="mobile-buy-fab" aria-label="Buy Survival Node Now">
+    <span class="mobile-buy-fab-icon">🛒</span>
+    <span>Buy Now — $199.99</span>
+  </button>
 
   <!-- Ask K Floating Button -->
   <button class="askk-fab" id="askk-fab" aria-label="Ask K - Product Assistant">
