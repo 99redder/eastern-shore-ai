@@ -372,6 +372,12 @@
                       <input id="tax-expense-amount" type="number" step="0.01" placeholder="0.00" />
                       <label>Paid via</label>
                       <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
+                      <label>Funding source</label>
+                      <select id="tax-expense-funding-source">
+                        <option value="cash_bank">Business Cash / Bank / Debit Card</option>
+                        <option value="credit_card">Credit Card Payable</option>
+                        <option value="owner_contribution">Owner Contribution</option>
+                      </select>
                       <label style="display:flex; gap:.45rem; align-items:center; font-size:.85rem; color:var(--muted); margin-top:.2rem;">
                         <input id="tax-expense-owner-funded" type="checkbox" style="margin:0; width:16px; height:16px;" />
                         <span>Did you pay for this with your personal card?</span>
@@ -1239,6 +1245,7 @@
     const taxExpenseAmountEl = document.getElementById('tax-expense-amount');
     const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
     const taxExpenseOwnerFundedEl = document.getElementById('tax-expense-owner-funded');
+    const taxExpenseFundingSourceEl = document.getElementById('tax-expense-funding-source');
     const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
     const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
     const taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
@@ -4271,3 +4278,9 @@
   </script>
 </body>
 </html>
+
+    taxExpenseOwnerFundedEl?.addEventListener('change', () => {
+      if (!taxExpenseFundingSourceEl) return;
+      if (taxExpenseOwnerFundedEl.checked) taxExpenseFundingSourceEl.value = 'owner_contribution';
+      else if (taxExpenseFundingSourceEl.value === 'owner_contribution') taxExpenseFundingSourceEl.value = 'cash_bank';
+    });

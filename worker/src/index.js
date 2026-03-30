@@ -2262,8 +2262,8 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
     : notes;
 
   const r = await env.DB.prepare(
-    `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+    `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes, funding_source)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
   ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notesWithOwnerFlag || null).run();
 
   const id = Number(r.meta?.last_row_id || 0) || null;
@@ -2903,7 +2903,7 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
   await env.DB.prepare(`DELETE FROM journal_entries WHERE source_type IN ('tax_expense','tax_income')`).run();
 
   const expenses = await env.DB.prepare(
-    `SELECT id, expense_date, vendor, category, amount_cents, paid_via, notes FROM tax_expenses ORDER BY id ASC`
+    `SELECT id, expense_date, vendor, category, amount_cents, paid_via, notes, funding_source, 0 AS is_owner_funded FROM tax_expenses ORDER BY id ASC`
   ).all();
   const income = await env.DB.prepare(
     `SELECT id, income_date, source, category, amount_cents, notes, is_owner_funded FROM tax_income ORDER BY id ASC`
@@ -4217,14 +4217,19 @@ async function upsertTaxExpenseJournal(db, row) {
   const expenseAccountCode = expenseAccountCodeByCategory[category] || '5200';
   const paidVia = (row.paid_via || '').toLowerCase();
   const notesRaw = (row.notes || '').toString().toLowerCase();
-  const isOwnerFunded = Number(row.is_owner_funded || 0) === 1 || notesRaw.includes('[owner-funded]');
+  const fundingSource = (row.funding_source || '').toString().trim().toLowerCase();
+  const isOwnerFunded = Number(row.is_owner_funded || 0) === 1 || fundingSource === 'owner_contribution' || notesRaw.includes('[owner-funded]');
 
-  let offsetCode = '1000'; // default non-owner-funded expenses to business cash/bank
-  if (isOwnerFunded) {
+  let offsetCode = '1000';
+  if (fundingSource === 'owner_contribution' || isOwnerFunded) {
     offsetCode = '3100';
-  } else if (paidVia.includes('business card') || paidVia.includes('corp card') || paidVia.includes('credit card') || paidVia.includes('debit card') || paidVia.includes('visa') || paidVia.includes('mastercard') || paidVia.includes('amex')) {
+  } else if (fundingSource === 'credit_card') {
     offsetCode = '2100';
-  } else if (paidVia.includes('stripe') || paidVia.includes('cash') || paidVia.includes('checking') || paidVia.includes('bank') || paidVia.includes('ach') || paidVia.includes('wire') || paidVia.includes('paypal')) {
+  } else if (fundingSource === 'cash_bank') {
+    offsetCode = '1000';
+  } else if (paidVia.includes('business card') || paidVia.includes('corp card') || paidVia.includes('credit card') || paidVia.includes('visa') || paidVia.includes('mastercard') || paidVia.includes('amex')) {
+    offsetCode = '2100';
+  } else if (paidVia.includes('stripe') || paidVia.includes('cash') || paidVia.includes('checking') || paidVia.includes('bank') || paidVia.includes('ach') || paidVia.includes('wire') || paidVia.includes('paypal') || paidVia.includes('debit')) {
     offsetCode = '1000';
   }
 
