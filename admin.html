@@ -2946,7 +2946,9 @@
         accountsJournalListEl.innerHTML = entries.length
           ? entries.map((e) => {
               const lines = (e.lines || []).map(l => `<div style="display:flex; justify-content:space-between;"><span>${l.code} — ${escHtml(l.name || '')}</span><span>Dr $${(Number(l.debit_cents||0)/100).toFixed(2)} | Cr $${(Number(l.credit_cents||0)/100).toFixed(2)}</span></div>`).join('');
-              return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);"><div><strong>${e.entry_date}</strong> — ${escHtml(e.memo || '(no memo)')}</div>${lines}</div>`;
+              const inlineNotes = (e.source_notes || '').trim();
+              const notePart = inlineNotes ? ` <span style="color:var(--muted);">(${escHtml(inlineNotes)})</span>` : '';
+              return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);"><div><strong>${e.entry_date}</strong> — ${escHtml(e.memo || '(no memo)')}${notePart}</div>${lines}</div>`;
             }).join('')
           : 'No journal entries for selected period.';
         markMoneyBlurTargets();

@@ -2785,7 +2785,34 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
     linesByEntry.get(key).push(l);
   }
 
-  const out = (entries.results || []).map((e) => ({ ...e, lines: linesByEntry.get(Number(e.id)) || [] }));
+  const results = entries.results || [];
+
+  const taxExpenseIds = results.filter(e => e.source_type === 'tax_expense').map(e => Number(e.source_id)).filter(Boolean);
+  const taxIncomeIds = results.filter(e => e.source_type === 'tax_income').map(e => Number(e.source_id)).filter(Boolean);
+  const ownerTransferIds = results.filter(e => e.source_type === 'owner_transfer').map(e => Number(e.id)).filter(Boolean);
+
+  const expenseNotes = new Map();
+  const incomeNotes = new Map();
+
+  if (taxExpenseIds.length) {
+    const placeholders = taxExpenseIds.map(() => '?').join(',');
+    const rows = await env.DB.prepare(`SELECT id, notes FROM tax_expenses WHERE id IN (${placeholders})`).bind(...taxExpenseIds).all();
+    for (const r of (rows.results || [])) expenseNotes.set(Number(r.id), String(r.notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim());
+  }
+  if (taxIncomeIds.length) {
+    const placeholders = taxIncomeIds.map(() => '?').join(',');
+    const rows = await env.DB.prepare(`SELECT id, notes FROM tax_income WHERE id IN (${placeholders})`).bind(...taxIncomeIds).all();
+    for (const r of (rows.results || [])) incomeNotes.set(Number(r.id), String(r.notes || '').trim());
+  }
+
+  const out = results.map((e) => {
+    let source_notes = '';
+    if (e.source_type === 'tax_expense') source_notes = expenseNotes.get(Number(e.source_id)) || '';
+    else if (e.source_type === 'tax_income') source_notes = incomeNotes.get(Number(e.source_id)) || '';
+    else if (e.source_type === 'owner_transfer') source_notes = '';
+    return { ...e, source_notes, lines: linesByEntry.get(Number(e.id)) || [] };
+  });
+
   return json({ ok: true, entries: out }, 200, corsHeaders);
 }
 
