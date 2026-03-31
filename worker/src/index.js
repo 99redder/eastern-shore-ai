@@ -4241,6 +4241,7 @@ async function upsertTaxExpenseJournal(db, row) {
   const expenseAccountCodeByCategory = {
     'Payment Processing Fees': '5300',
     'Inventory - Survival Node Components': '5210',
+    'Inventory - Ghost Box Components': '5210',
     'Shipping - Survival Node Fulfillment': '5220',
     'Packaging - Survival Node Fulfillment': '5230',
     'AI Services': '5000',
