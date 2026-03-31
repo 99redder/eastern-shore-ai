@@ -223,7 +223,7 @@ Two: **Seamless** (Meta's on-device voice translation model — no internet requ
 Laptops need 30–80W under load — hard to solar-charge. Tablets draw more power than phones. Smartphones are the most power-efficient platform for this performance class. The Moto G Power's 8GB RAM is the minimum for running capable quantized LLMs with useful output. A phone also has built-in GPS, camera, flashlight, compass, Bluetooth, and mic — a Raspberry Pi requires peripherals, screen, keyboard, and case. The Survival Node is pocketable, sealed, and ready on day one.
 
 ### Do you ship outside continental US?
-No. Shipment is via USPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. Air shipping is not available. Continental US only. No Alaska, Hawaii, US territories, or international orders.
+No. Shipment is via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. Air shipping is not available. Continental US only. No Alaska, Hawaii, US territories, or international orders.
 
 ### How long does shipping take?
 Please allow up to **7 business days** for order processing, plus up to **10 additional business days** for transit after shipment. Tracking is provided after shipment.
@@ -261,7 +261,7 @@ Probably not. Banking apps, DRM-restricted streaming services, and Google-depend
 
 **Battery Safety & Maintenance:** Lithium-ion battery ships with partial charge. Charge to 50–70% via wall outlet before sealing for long-term storage. Recharge every 6–12 months. Do not store above 113°F (45°C) or below 14°F (−10°C), expose to moisture, puncture, or crush. Swollen batteries must be disposed of per local regulations.
 
-**Shipping Regulations:** Ships via USPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. No air shipping. Continental US only. Up to 7 business days processing, plus up to 10 additional business days transit after shipment.
+**Shipping Regulations:** Ships via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. No air shipping. Continental US only. Up to 7 business days processing, plus up to 10 additional business days transit after shipment.
 
 **Return & Refund Policy:** 30 days from confirmed delivery. RMA required — contact via website contact form. No RMA = return not accepted. Device must be in original functional condition, OS not further modified. Buyer pays return shipping. No returns for physical damage caused after receipt. After 30-day window, all sales final.
 
