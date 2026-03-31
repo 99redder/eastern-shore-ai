@@ -2250,7 +2250,8 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
   const category = (data.category || '').toString().trim();
   const paidVia = (data.paidVia || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
-  const isOwnerFunded = data.isOwnerFunded === true ? 1 : 0;
+  const fundingSource = (data.fundingSource || '').toString().trim() || 'cash_bank';
+  const isOwnerFunded = fundingSource === 'owner_contribution' ? 1 : 0;
   const cents = toCents(data.amount);
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(expenseDate)) return json({ ok: false, error: 'Invalid date' }, 400, corsHeaders);
@@ -2264,7 +2265,7 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
   const r = await env.DB.prepare(
     `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes, funding_source)
      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
-  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notesWithOwnerFlag || null).run();
+  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notesWithOwnerFlag || null, fundingSource).run();
 
   const id = Number(r.meta?.last_row_id || 0) || null;
   if (id) {
@@ -2276,6 +2277,7 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
       amount_cents: cents,
       paid_via: paidVia || null,
       notes: notesWithOwnerFlag || null,
+      funding_source: fundingSource,
       is_owner_funded: isOwnerFunded
     });
   }
@@ -2341,7 +2343,8 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
   const category = (data.category || '').toString().trim();
   const paidVia = (data.paidVia || '').toString().trim();
   const notes = (data.notes || '').toString().trim();
-  const isOwnerFunded = data.isOwnerFunded === true ? 1 : 0;
+  const fundingSource = (data.fundingSource || '').toString().trim() || 'cash_bank';
+  const isOwnerFunded = fundingSource === 'owner_contribution' ? 1 : 0;
   const cents = toCents(data.amount);
 
   if (!Number.isInteger(id) || id <= 0) return json({ ok: false, error: 'Invalid id' }, 400, corsHeaders);
@@ -2363,9 +2366,10 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
          category = ?3,
          amount_cents = ?4,
          paid_via = ?5,
-         notes = ?6
-     WHERE id = ?7`
-  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notesWithOwnerFlag || null, id).run();
+         notes = ?6,
+         funding_source = ?7
+     WHERE id = ?8`
+  ).bind(expenseDate, vendor || null, category, cents, paidVia || null, notesWithOwnerFlag || null, fundingSource, id).run();
 
   await upsertTaxExpenseJournal(env.DB, {
     id,
@@ -2375,6 +2379,7 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
     amount_cents: cents,
     paid_via: paidVia || null,
     notes: notesWithOwnerFlag || null,
+    funding_source: fundingSource,
     is_owner_funded: isOwnerFunded
   });
 

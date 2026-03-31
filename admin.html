@@ -378,10 +378,6 @@
                         <option value="credit_card">Credit Card Payable</option>
                         <option value="owner_contribution">Owner Contribution</option>
                       </select>
-                      <label style="display:flex; gap:.45rem; align-items:center; font-size:.85rem; color:var(--muted); margin-top:.2rem;">
-                        <input id="tax-expense-owner-funded" type="checkbox" style="margin:0; width:16px; height:16px;" />
-                        <span>Did you pay for this with your personal card?</span>
-                      </label>
                       <label>Notes</label>
                       <input id="tax-expense-notes" placeholder="optional" />
                       <label>Receipt <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
@@ -1244,7 +1240,6 @@
     const taxExpenseCategoryEl = document.getElementById('tax-expense-category');
     const taxExpenseAmountEl = document.getElementById('tax-expense-amount');
     const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
-    const taxExpenseOwnerFundedEl = document.getElementById('tax-expense-owner-funded');
     const taxExpenseFundingSourceEl = document.getElementById('tax-expense-funding-source');
     const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
     const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
@@ -2278,7 +2273,6 @@
         taxExpenseCategoryEl.value = r.category || TAX_EXPENSE_CATEGORIES[0];
         taxExpenseAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
         taxExpensePaidViaEl.value = r.paid_via || '';
-        if (taxExpenseOwnerFundedEl) taxExpenseOwnerFundedEl.checked = /\[owner-funded\]/i.test(r.notes || '');
         taxExpenseNotesEl.value = (r.notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim();
         taxAddExpenseBtn.style.display = 'none';
         taxUpdateExpenseBtn.style.display = '';
@@ -4276,11 +4270,6 @@
       });
     }
 
-    taxExpenseOwnerFundedEl?.addEventListener('change', () => {
-      if (!taxExpenseFundingSourceEl) return;
-      if (taxExpenseOwnerFundedEl.checked) taxExpenseFundingSourceEl.value = 'owner_contribution';
-      else if (taxExpenseFundingSourceEl.value === 'owner_contribution') taxExpenseFundingSourceEl.value = 'cash_bank';
-    });
   </script>
 </body>
 </html>
