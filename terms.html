@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Terms, Warranty & Purchase Disclosures | Eastern Shore AI</title>
-  <meta name="description" content="Terms of sale, warranty disclaimers, returns, shipping, liability, and BYOG setup terms for Survival Node and Eastern Shore AI services." />
+  <meta name="description" content="Terms of sale, warranty disclaimers, returns, shipping, liability, and purchase disclosures for Survival Node products from Eastern Shore AI." />
   <link rel="canonical" href="https://www.easternshore.ai/terms.html" />
   <meta name="robots" content="index,follow" />
   <link rel="stylesheet" href="/fonts.css" />
@@ -36,18 +36,20 @@
       background: rgba(10,12,18,0.8);
       position: sticky; top:0; z-index:20; backdrop-filter: blur(8px);
     }
-    .topnav a {
+    .topnav a, .print-btn {
       text-decoration:none; color:var(--text); padding:.45rem .75rem; border:1px solid var(--line);
       border-radius:8px; font-family:'Hanken Grotesk',sans-serif; font-size:.88rem;
       background: rgba(19,25,38,.65);
+      cursor: pointer;
     }
-    .topnav a:hover { border-color: var(--cyan); }
+    .topnav a:hover, .print-btn:hover { border-color: var(--cyan); }
     .hero {
       background: rgba(19,25,38,.92); border:1px solid var(--line); border-radius:16px;
       padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 12px 30px rgba(0,0,0,.25);
     }
     .hero h1 { margin:.1rem 0 .45rem; font-size:2rem; color: var(--cyan); }
     .hero p { margin:.35rem 0; color: var(--muted); }
+    .hero-actions { display:flex; gap:.65rem; flex-wrap:wrap; margin-top:1rem; }
     .card {
       background: rgba(19,25,38,.92); border:1px solid var(--line); border-radius:16px;
       padding: 1.35rem; margin-bottom: 1rem; box-shadow: 0 12px 30px rgba(0,0,0,.22);
@@ -62,6 +64,14 @@
       background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif; margin-bottom:.55rem;
     }
     footer { margin-top:1.5rem; color:var(--muted); font-size:.9rem; text-align:center; }
+    @media print {
+      body { background: #fff; color: #000; }
+      .topnav, .hero-actions { display: none !important; }
+      .wrap { max-width: none; padding: 0; }
+      .hero, .card { background: #fff; color: #000; box-shadow: none; border: 1px solid #ccc; }
+      .hero h1, h2, h3, a, .eyebrow { color: #000 !important; }
+      p, li, footer { color: #000 !important; }
+    }
   </style>
 </head>
 <body>
@@ -77,88 +87,53 @@
     <section class="hero">
       <span class="eyebrow">Eastern Shore AI</span>
       <h1>Terms, Warranty &amp; Purchase Disclosures</h1>
-      <p>This page consolidates the Survival Node warranty and liability disclosures, the pre-purchase terms shown during checkout, and the BYOG setup terms.</p>
-      <p>It is intended to make the legal and practical terms easier to review in one place before purchase.</p>
+      <p>This page consolidates the main Survival Node purchase terms, warranty disclaimers, return policy, shipping disclosures, and liability language in one place.</p>
+      <p>Duplicative language from the checkout modal and page-bottom disclaimer has been merged here into a cleaner single reference.</p>
+      <div class="hero-actions">
+        <button class="print-btn" type="button" onclick="window.print()">Print This Page</button>
+      </div>
     </section>
 
     <section class="card">
       <span class="eyebrow">Survival Node</span>
-      <h2>Warranty &amp; Liability Disclaimer</h2>
+      <h2>Product, Warranty &amp; Liability Terms</h2>
+
+      <h3>1. Product Condition &amp; Components</h3>
       <p><strong>No Manufacturer Warranty:</strong> All items in this kit are provided "AS IS." Eastern Shore AI, LLC is not an authorized reseller of any included component, and original manufacturer warranties are void. Eastern Shore AI, LLC provides a <strong>30-day limited warranty</strong> covering defects in hardware function and software configuration as delivered.</p>
       <p><strong>Device Condition:</strong> Every Survival Node is built on a Motorola Moto G Power (2024) — brand new or open box. All units are hand-vetted for battery life, memory performance, and overall suitability prior to shipment. Minor cosmetic wear on open box units is normal and does not constitute a defect.</p>
-      <p><strong>Product Appearance:</strong> Hard storage cases may be sourced from multiple suppliers — interior layout, color, and latch style may differ slightly from the case pictured. The included padlock may also differ in appearance from the lock pictured. All units meet the same functional and software specifications regardless of cosmetic differences.</p>
-      <p><strong>Packaging:</strong> Your Survival Node ships in a standard cardboard box which may display the logo or branding of another company. This is standard supply chain practice — the presence of any third-party logo or brand name on packaging does not imply a partnership, sponsorship, endorsement, or affiliation of any kind between that company and Eastern Shore AI, LLC. All trademarks and brand names appearing on packaging are the property of their respective owners.</p>
-      <p><strong>Software Modifications &amp; OS:</strong> Every Survival Node ships with a deep-debloated Android OS, optimized for performance and longevity. 99% of all tracking and battery-draining software is removed in every configuration. This modification voids any remaining manufacturer warranty. Certain mainstream applications — including banking apps, DRM-restricted streaming services, and Google-dependent services — may not function as they do on standard retail devices. All pre-installed software is provided "AS IS."</p>
-      <p><strong>Battery Safety &amp; Maintenance:</strong> The included lithium-ion solar battery ships with a partial charge. Upon receipt, charge to 50–70% via wall outlet before storing for long-term readiness — you may charge to 100% to verify full capacity, then bring back to 50–70% before sealing. Lithium-ion batteries self-discharge over time; recharge every 6–12 months to prevent permanent capacity loss. Do not store in extreme temperatures (above 113°F / 45°C or below 14°F / -10°C), expose to moisture, puncture, or crush. Damaged or swollen batteries must be disposed of in accordance with local regulations.</p>
-      <p><strong>Solar Battery — Manufacturer Notices:</strong> Do not charge and discharge the solar battery simultaneously; input and output ports should not be connected at the same time, as doing so will reduce product service life and may prevent connected devices from charging. Keep this product dry — rain, moisture, and liquids will corrode electronic components and circuitry. Do not attempt to disassemble this product.</p>
-      <p><strong>Silica Pack — Manufacturer Notices:</strong> Recharge the included indicator silica packs only as directed by the manufacturer. Keep the indicator side facing up during microwave recharge, monitor the packs while heating, and do not exceed the manufacturer’s stated heat limit of <strong>210°F</strong>. If a pack appears damaged, leaking, or overheated, discard and replace it.</p>
+      <p><strong>Product Appearance:</strong> Hard storage cases may be sourced from multiple suppliers, and included accessories may differ slightly from those shown in product images while maintaining the same functional specifications. The included padlock may also differ in appearance from the one pictured.</p>
+      <p><strong>Packaging:</strong> Your Survival Node may ship in a standard cardboard box displaying the logo or branding of another company as part of normal supply chain practice. This does not imply partnership, sponsorship, endorsement, or affiliation. All brand names and trademarks remain the property of their respective owners.</p>
+
+      <h3>2. Software, SIM, and Compatibility</h3>
+      <p><strong>Software Modifications &amp; OS:</strong> Every Survival Node ships with a deep-debloated Android OS optimized for performance and longevity, with tracking and battery-draining software removed. This modification voids any remaining manufacturer warranty. Certain mainstream applications — including banking apps, DRM-restricted streaming services, and Google-dependent services — may not function as they do on standard retail devices. All pre-installed software is provided "AS IS."</p>
+      <p><strong>No SIM Card / Cellular Service:</strong> No SIM card, activation code, carrier plan, or cellular service is included. The device is sold for its offline capabilities only. Eastern Shore AI, LLC makes no representation that the modified device is compatible with any carrier network, SIM card, or cellular service plan. Lack of cellular functionality is not a defect.</p>
+
+      <h3>3. Battery, Solar, and Storage</h3>
+      <p><strong>Initial Charge Required:</strong> The included solar battery ships with a partial charge. Upon receipt, charge it to 50–70% via wall outlet before long-term storage. You may charge it to 100% to verify full capacity, then bring it back down to 50–70% for storage.</p>
+      <p><strong>Long-Term Storage:</strong> Lithium-ion batteries naturally self-discharge over time. Recharge the battery every 6–12 months to reduce the risk of permanent capacity loss or failure.</p>
+      <p><strong>Temperature &amp; Safety:</strong> Do not store the kit in extreme temperatures. Do not puncture, crush, or expose batteries to moisture, and dispose of damaged batteries in accordance with local regulations.</p>
+      <p><strong>Solar Battery Manufacturer Notices:</strong> Do not charge and discharge the solar battery simultaneously. Keep the product dry and do not attempt to disassemble it.</p>
+      <p><strong>Solar Charging Expectations:</strong> The solar panel is not designed to sustain all-day normal phone use. Under emergency conditions — brief, task-focused use followed by powering the device off — solar alone can sustain the kit for an extended period. Full recharge from empty via solar only requires extended direct sunlight.</p>
+
+      <h3>4. Faraday Bag, EMP, and Emergency Use</h3>
+      <p><strong>Faraday Bag Integrity:</strong> Every Survival Node includes two Faraday bags — one for the phone and one for the solar battery. Protection is only effective when devices are fully enclosed and the bags are correctly folded and sealed per manufacturer instructions. Punctures, improper sealing, material degradation, or extreme events beyond tested parameters may reduce or eliminate protection.</p>
+      <p><strong>No Survival Guarantee:</strong> This kit is a preparedness tool. It does not guarantee safety, survival, or operational success in any emergency scenario. AI-generated information is for educational and reference purposes only and must not replace professional medical, tactical, legal, or emergency response guidance.</p>
+
+      <h3>5. Shipping, Returns, and Service</h3>
+      <p><strong>Shipping Method:</strong> Due to lithium-ion battery and cellular-device shipping regulations, this product ships via USPS ground transportation only. Air shipping is not available.</p>
+      <p><strong>Shipping Area:</strong> Orders are accepted for continental U.S. destinations only.</p>
+      <p><strong>Processing &amp; Transit:</strong> Please allow up to 7 business days for order processing, plus up to 10 additional business days for transit after shipment.</p>
+      <p><strong>Returns:</strong> Returns are accepted within 30 days of confirmed delivery. To initiate a return, contact Eastern Shore AI, LLC through the website contact form within that window to receive an RMA number. Returns without prior RMA approval will not be accepted. Buyer is responsible for return shipping costs. Items must be in original functional condition, and the operating system must not have been further modified by the buyer.</p>
+      <p><strong>Post-Warranty Service:</strong> After the 30-day limited warranty period, Eastern Shore AI, LLC does not offer repair, replacement, or ongoing service for included hardware or software except on a discretionary case-by-case basis.</p>
+      <p><strong>Order Cancellation / Right to Refuse:</strong> Eastern Shore AI, LLC reserves the right to refuse service or cancel any order before shipment for reasons including suspected fraud, address verification concerns, supply constraints, or reasonable belief that the device may be used unlawfully or harmfully. Pre-shipment cancellations will be refunded to the original payment method.</p>
+
+      <h3>6. Liability, Payment, and Legal Notices</h3>
+      <p><strong>Limitation of Liability:</strong> To the maximum extent permitted by law, Eastern Shore AI, LLC disclaims implied warranties of merchantability and fitness for a particular purpose and shall not be liable for incidental, consequential, special, or punitive damages arising from the use or inability to use the product.</p>
+      <p><strong>User Responsibility:</strong> By purchasing this kit, the buyer confirms they are 18 years of age or older and accepts full responsibility for lawful use, safe storage, routine maintenance, and updating of included hardware and software.</p>
+      <p><strong>Payment Processing:</strong> Payments are processed securely by Stripe, Inc. Eastern Shore AI, LLC does not collect, store, or have access to your payment card or banking information directly. By completing a purchase, you agree to Stripe’s applicable terms and policies.</p>
+      <p><strong>Independent Seller &amp; Trademarks:</strong> Eastern Shore AI, LLC is an independent seller of curated goods and is not an authorized dealer, affiliate, or partner of any included hardware or component manufacturer. Brand names and trademarks are used solely for identification purposes.</p>
       <p><strong>California Proposition 65 Notice:</strong> This product may expose you to chemicals known to the State of California to cause cancer and birth defects or other reproductive harm. For more information, visit <a href="https://www.p65warnings.ca.gov" target="_blank" rel="noopener">www.P65Warnings.ca.gov</a>.</p>
-      <p><strong>Shipping Regulations:</strong> Due to the high-capacity lithium-ion battery and the inclusion of a cellular device, this product ships via USPS ground transportation only. Air shipping is not available. Orders are accepted for continental U.S. destinations only. Please allow up to 7 business days for order processing, plus up to 10 additional business days for transit after shipment.</p>
-      <p><strong>Emergency Use &amp; No Survival Guarantee:</strong> This kit is a preparedness tool. It does not guarantee safety, survival, or operational success in any emergency scenario. AI-generated information is for educational and reference purposes only and must not replace professional medical, tactical, legal, or emergency response guidance.</p>
-      <p><strong>Solar Charging:</strong> The integrated solar panel is not designed to sustain all-day normal phone use. Under emergency conditions — brief, task-focused use followed by powering the device off — solar alone can sustain the kit for an extended period. Full recharge of the solar battery from empty via solar only requires extended direct sunlight; use wall power whenever available to supplement. Power the phone off when not actively in use to maximize solar reserve.</p>
-      <p><strong>Faraday Bag &amp; EMP Protection:</strong> Every Survival Node includes two Faraday bags — one for the phone, one for the solar battery. Protection is only effective when devices are fully enclosed and the bag is correctly folded and sealed per manufacturer instructions. Punctures, improper sealing, material degradation, or extreme events beyond tested parameters may reduce or eliminate protection. Eastern Shore AI, LLC makes no guarantee of protection against any specific electromagnetic threat or event.</p>
-      <p><strong>Return &amp; Refund Policy:</strong> Returns are accepted within 30 days of the confirmed delivery date. To initiate a return, contact Eastern Shore AI, LLC through the website contact form within that window to receive a Return Merchandise Authorization (RMA) number — returns sent without a prior RMA will not be accepted. The device must be in its original functional condition and the operating system must not have been further modified by the buyer. Buyer is responsible for return shipping costs. Items showing physical damage caused after receipt are not eligible for return.</p>
-      <p><strong>Post-Warranty Service:</strong> After the 30-day warranty period, Eastern Shore AI, LLC does not offer repair, replacement, or ongoing service for any included hardware or software component. All products are provided "AS IS" beyond that window. Users requiring continued support may contact Eastern Shore AI, LLC directly to inquire about available service options on a case-by-case basis.</p>
-      <p><strong>Limitation of Liability:</strong> To the maximum extent permitted by applicable law, Eastern Shore AI, LLC disclaims all implied warranties of merchantability and fitness for a particular purpose. Eastern Shore AI, LLC shall not be liable for any incidental, consequential, special, or punitive damages arising from the use or inability to use these products — including but not limited to loss of data, personal injury, property damage, or adverse emergency outcomes.</p>
-      <p><strong>Independent Seller &amp; Trademarks:</strong> Eastern Shore AI, LLC is an independent seller of curated goods and is not an authorized dealer, affiliate, or partner of any device or component manufacturer. All product names, brand names, and trademarks referenced are the property of their respective owners and are cited solely for product identification purposes.</p>
-      <p><strong>User Responsibility:</strong> By purchasing this kit, the buyer confirms they are 18 years of age or older and accepts full responsibility for the lawful use, safe storage, routine maintenance, and updating of all included hardware and software.</p>
-      <p><strong>Right to Refuse &amp; Order Cancellation:</strong> Eastern Shore AI, LLC reserves the right to refuse service, cancel any order, or decline a return at its sole discretion — including but not limited to situations involving suspected fraud, address verification concerns, supply constraints, or reasonable belief that the device will be used for unlawful or harmful purposes. In the event of a pre-shipment cancellation, the full purchase amount will be refunded to the original payment method.</p>
-      <p><strong>Payment Processing:</strong> All payments are processed securely by Stripe, Inc. Eastern Shore AI, LLC does not collect, store, or have access to your credit card or banking information at any point in the transaction. By completing a purchase, you agree to Stripe's Terms of Service and Privacy Policy. Eastern Shore AI, LLC is not responsible for transaction errors, payment holds, or disputes initiated through the payment processor.</p>
-      <p><strong>Privacy:</strong> Please review our <a href="privacy.html">Privacy Policy</a> for information about how customer and support data is handled.</p>
-    </section>
-
-    <section class="card">
-      <span class="eyebrow">Survival Node Checkout</span>
-      <h2>Pre-Purchase Terms of Sale</h2>
-      <h3>1. Battery Maintenance &amp; Storage</h3>
-      <p><strong>Initial Charge Required:</strong> The included solar battery ships with a partial charge. The buyer should charge it to 50–70% via wall outlet upon receipt and store it at that level for long-term battery health. Storing a lithium-ion battery at full charge (100%) for extended periods degrades capacity.</p>
-      <p><strong>Long-Term Storage:</strong> Lithium-ion batteries naturally self-discharge over time. Recharge the power hub every 6–12 months to prevent permanent battery failure.</p>
-      <p><strong>Temperature &amp; Safety:</strong> Do not store this kit in extreme heat or cold. Extreme temperatures can permanently damage the battery and device. Do not puncture, crush, or expose the battery to moisture, and dispose of any damaged battery per local regulations.</p>
-      <h3>No SIM Card — Not Designed for Cellular Service</h3>
-      <p>No SIM card is included and no activation code, carrier plan, or cellular service of any kind is provided with this purchase.</p>
-      <p>This device has been deep-debloated and OS-modified specifically for offline, off-grid use. It is not designed to be used with a cellular carrier, and it is possible that it cannot be used with one. Eastern Shore AI, LLC makes no representation that this device is compatible with any carrier network, SIM card, or cellular service plan.</p>
-      <p>The device is sold for its offline capabilities only, and the absence of cellular connectivity is not a defect.</p>
-      <h3>2. Device Condition Disclosure</h3>
-      <p><strong>Device Condition:</strong> The included device is a Motorola Moto G Power (2024) — brand new or open box — hand-vetted for battery life, memory performance, and overall suitability. Minor cosmetic wear on open box units is normal. The original manufacturer's warranty is void due to OS modification.</p>
-      <p><strong>Software Responsibility:</strong> Every Survival Node ships with a deep-debloated Android OS optimized for performance and longevity, with tracking and battery-draining software removed. Certain applications or features may be limited or unavailable compared to stock Android.</p>
-      <p><strong>Product Appearance:</strong> Hard storage cases and included accessories may differ slightly from those shown in product images while maintaining the same functional specifications.</p>
-      <p><strong>Packaging:</strong> Units may ship in boxes bearing third-party logos or branding as part of normal supply chain practice; this does not imply affiliation.</p>
-      <h3>3. Emergency Use &amp; Reliability</h3>
-      <p><strong>No Survival Guarantee:</strong> This kit is a preparedness tool and does not guarantee safety or survival in any emergency. AI-provided information is for educational reference only and must not replace professional advice.</p>
-      <p><strong>Solar Charging:</strong> The solar panel cannot sustain all-day normal phone use. Under emergency conditions — brief, task-focused use followed by powering the device off — solar alone can sustain the kit for an extended period.</p>
-      <h3>4. Shipping &amp; Return Policy</h3>
-      <p><strong>Continental U.S. Only:</strong> Orders are accepted only for continental U.S. shipping destinations.</p>
-      <p><strong>Ground Shipping Only (USPS):</strong> Due to federal regulations governing lithium-ion batteries and cellular devices, this product ships via USPS ground transportation only.</p>
-      <p><strong>Returns:</strong> Returns are accepted within 30 days of confirmed delivery with prior RMA approval. Buyer is responsible for return shipping, and returns are limited to items in original functional condition.</p>
-      <p><strong>Order Cancellation:</strong> Eastern Shore AI, LLC reserves the right to cancel orders prior to shipment for reasons including fraud prevention, address verification concerns, or supply constraints.</p>
-      <h3>5. Faraday Bag &amp; EMP Protection</h3>
-      <p><strong>Faraday Bag Integrity:</strong> Protection is only effective when the bag is correctly folded and sealed. Improper sealing, punctures, or degradation may reduce or eliminate protection.</p>
-      <h3>6. Liability &amp; User Responsibility</h3>
-      <p><strong>Limitation of Liability:</strong> Eastern Shore AI, LLC disclaims implied warranties and is not liable for indirect, incidental, special, or consequential damages to the maximum extent permitted by law.</p>
-      <p><strong>User Responsibility:</strong> Buyers must be 18 or older and accept full responsibility for lawful use, safe storage, maintenance, and updates.</p>
-      <p><strong>Right to Refuse:</strong> Eastern Shore AI, LLC reserves the right to refuse service or cancel orders where unlawful, harmful, or fraudulent use is reasonably suspected.</p>
-      <p><strong>Payment Processing:</strong> Payments are processed by Stripe, Inc. Eastern Shore AI, LLC does not collect or store payment card data directly.</p>
-    </section>
-
-    <section class="card">
-      <span class="eyebrow">BYOG Setup</span>
-      <h2>BYOG Setup Terms</h2>
-      <h3>Minimum Device Requirements</h3>
-      <ul>
-        <li><strong>Storage:</strong> 50GB+ available disk space</li>
-        <li><strong>RAM (Memory):</strong> 8GB minimum</li>
-        <li><strong>OS:</strong> Android (stock or OEM — no iPhones or Windows devices)</li>
-      </ul>
-      <h3>1. Service Scope (BYOG Setup Only)</h3>
-      <p>This purchase is for software configuration on a customer-owned compatible Android device. No physical products are sold or delivered in this transaction.</p>
-      <h3>2. Required Data Backup &amp; Device Wipe Authorization</h3>
-      <p>You expressly authorize a full device wipe/reset as part of installation. You are solely responsible for backing up all data before the appointment. Eastern Shore AI, LLC is not liable for any loss of data, apps, settings, accounts, or files resulting from the setup process.</p>
-      <h3>3. OS / App Compatibility Disclosure</h3>
-      <p>BYOG setup performs a deep Android debloat optimized for performance and longevity. Certain apps or features may be limited, unavailable, or behave differently than on stock Android.</p>
-      <h3>4. Service Area Limitation</h3>
-      <p>BYOG setup service is offered only on Maryland’s Eastern Shore. A valid local meetup/address location is required and may be declined if outside the service area.</p>
-      <h3>5. Limited Warranty; Limitation of Liability</h3>
-      <p>This is a preparedness-oriented software service provided "AS IS" except where prohibited by law. Eastern Shore AI, LLC disclaims implied warranties to the maximum extent permitted and is not liable for indirect, incidental, special, or consequential damages. Customers accept responsibility for lawful use, ongoing maintenance, updates, and operational outcomes after setup.</p>
+      <p><strong>Privacy:</strong> Please review our <a href="privacy.html">Privacy Policy</a> for details on how customer and support data is handled.</p>
     </section>
 
     <footer>
