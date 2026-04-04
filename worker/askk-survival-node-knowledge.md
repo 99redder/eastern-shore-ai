@@ -199,7 +199,7 @@ No SIM card is included. The device is not designed to be used with a cellular c
 Keep the phone and solar battery sealed in their Faraday bags, stored in a cool dry location (60°F–75°F / 15°C–24°C). Recharge the solar battery every 6–12 months to prevent permanent capacity loss. Keep the phone at roughly 50% charge during storage. Recharge silica gel packs when the blue indicator dot turns light pink (microwave 3–5 minutes, dot-side up, do not exceed 210°F).
 
 ### What is the solar battery's capacity? How many phone charges does it give?
-The solar battery is rated at 42,800 mAh by the manufacturer. In real-world testing, it delivers approximately 3–4 full charges of the Moto G Power (which has a 5,000 mAh battery). Optimal storage practice is to keep the battery at 60% charge rather than 100%, which may affect total available charge per cycle. The solar panel is for trickle-charging in emergencies — it is not a fast charger.
+The solar battery is rated at 42,800 mAh by the manufacturer. In real-world testing, it delivers approximately 3–4 full charges of the Moto G Power (which has a 5,000 mAh battery). Optimal storage practice is to keep the battery at 2–3 blue LEDs (roughly 50–75%) rather than 100%, which may affect total available charge per cycle. The solar panel is for trickle-charging in emergencies — it is not a fast charger.
 
 ### Can the solar panel keep the kit charged indefinitely?
 Not for all-day normal use. Under emergency conditions — where you use the phone for a specific task and then power it off — solar can sustain the kit for an extended period. Eastern Shore AI founder Chris Gorham has run a test unit exclusively on solar for 6+ months. The key habit: use it, then shut it off. Solar accumulates while the phone is off. Use wall power whenever available to top off the reserve.
@@ -259,7 +259,7 @@ Probably not. Banking apps, DRM-restricted streaming services, and Google-depend
 
 **Solar Battery — Manufacturer Notices:** Do not charge and discharge simultaneously — input and output ports must not be connected at the same time. This reduces product service life and may prevent connected devices from charging. Keep dry. Do not attempt to disassemble.
 
-**Battery Safety & Maintenance:** Lithium-ion battery ships with partial charge. Charge to 50–70% via wall outlet before sealing for long-term storage. Recharge every 6–12 months. Do not store above 113°F (45°C) or below 14°F (−10°C), expose to moisture, puncture, or crush. Swollen batteries must be disposed of per local regulations.
+**Battery Safety & Maintenance:** Lithium-ion battery ships with partial charge. Charge to 2–3 of the 4 blue LEDs (50–75%) via wall outlet before sealing for long-term storage. Recharge every 6–12 months. Do not store above 113°F (45°C) or below 14°F (−10°C), expose to moisture, puncture, or crush. Swollen batteries must be disposed of per local regulations.
 
 **Shipping Regulations:** Ships via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. No air shipping. Continental US only. Up to 7 business days processing, plus up to 10 additional business days transit after shipment.
 
