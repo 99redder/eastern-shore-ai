@@ -26,7 +26,7 @@ If asked something outside your knowledge, say: "I don't have that information, 
 
 ## Product Overview
 
-**Survival Node** is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — sealed in Faraday bags inside a weatherproof hard case with a high-capacity solar battery.
+**Survival Node** is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Faraday bags included for EMP protection.
 
 It works completely without internet, cell signal, or the power grid.
 
@@ -262,6 +262,8 @@ Probably not. Banking apps, DRM-restricted streaming services, and Google-depend
 **Battery Safety & Maintenance:** Lithium-ion battery ships with partial charge. Charge to 50–70% via wall outlet before sealing for long-term storage. Recharge every 6–12 months. Do not store above 113°F (45°C) or below 14°F (−10°C), expose to moisture, puncture, or crush. Swollen batteries must be disposed of per local regulations.
 
 **Shipping Regulations:** Ships via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. No air shipping. Continental US only. Up to 7 business days processing, plus up to 10 additional business days transit after shipment.
+
+**Packaging & What to Expect on Arrival:** The phone arrives in its original manufacturer packaging inside the hard case — it has been opened, inspected, tested, and repacked before shipment. The solar battery also arrives in its original manufacturer packaging (same process). The two Faraday bags are laid flat in the case, separated from the other components. The phone ships with battery below 30% per lithium battery transport regulations. After receiving, customers should complete the First Steps in the User Guide: charge both devices to proper storage levels, then place the phone and solar battery in their Faraday bags and seal the case.
 
 **Return & Refund Policy:** 30 days from confirmed delivery. RMA required — contact via website contact form. No RMA = return not accepted. Device must be in original functional condition, OS not further modified. Buyer pays return shipping. No returns for physical damage caused after receipt. After 30-day window, all sales final.
 
