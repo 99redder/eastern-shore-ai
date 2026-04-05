@@ -60,7 +60,8 @@ It works completely without internet, cell signal, or the power grid.
 - Pre-configured "Survival Node" AI persona in PocketPal (no setup required)
 - Shockproof protective phone case
 - Wall charger + USB-C cable
-- Full User Guide available as an app on the home screen; PDF version also pre-loaded in Files → Downloads
+- **Eastern Shore AI Users Guide App** — installed as a dedicated app on the home screen (tap to open); covers setup, storage, maintenance, battery care, solar charging, Faraday bag use, and every preloaded app
+- PDF version of the Users Guide also pre-loaded in Files → Downloads via Fossify File Manager
 
 ### 2. Solar Battery with Attached Cables
 - **Rated capacity:** 42,800 mAh (manufacturer specification)
@@ -184,7 +185,7 @@ All models verified offline (airplane mode) before shipment. Speeds vary with am
 Yes — entirely. Every AI model, map, app, and reference library runs locally on the phone. No cloud, no Wi-Fi, no cell signal needed. That's the entire point.
 
 ### Is it ready to use out of the box?
-Yes. Ships with hardened OS, full software suite, and custom "Survival Node" AI persona already configured in PocketPal. No setup required. The User Guide is available as an app on the home screen. The PDF version is also pre-loaded in the Files folder under Downloads.
+Yes. Ships with hardened OS, full software suite, and custom "Survival Node" AI persona already configured in PocketPal. No setup required. The Eastern Shore AI Users Guide app is on the home screen — tap it to get started. The PDF version is also pre-loaded in Files → Downloads.
 
 ### What does EMP-hardened mean?
 An EMP (electromagnetic pulse) from a nuclear detonation or solar flare can fry unshielded electronics. The included Faraday bags block electromagnetic interference when properly sealed. Protection is only effective with correct sealing — full enclosure, folded 3 times minimum, sealed tightly. Eastern Shore AI makes no guarantee of protection against any specific electromagnetic event.
