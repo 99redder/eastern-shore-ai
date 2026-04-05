@@ -263,7 +263,18 @@ Probably not. Banking apps, DRM-restricted streaming services, and Google-depend
 
 **Shipping Regulations:** Ships via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. No air shipping. Continental US only. Up to 7 business days processing, plus up to 10 additional business days transit after shipment.
 
-**Packaging & What to Expect on Arrival:** The phone arrives wrapped in protective bubble wrap inside the hard case. The solar battery arrives in its original manufacturer packaging (opened, inspected, tested, and repacked before shipment). The two Faraday bags are in their original packaging and placed under the hard case inside the shipping box — not inside the case itself. The phone ships with battery below 30% per lithium battery transport regulations. After receiving, customers should complete the First Steps in the User Guide: charge both devices to proper storage levels, then place the phone and solar battery in their Faraday bags and seal the case.
+**Packaging & What to Expect on Arrival:** Here is exactly how the kit is packed when it ships:
+
+- **Outer shipping box:** A standard cardboard shipping box — may show branding from another company (normal supply chain practice, no affiliation implied).
+- **Faraday bags:** Located underneath the hard case inside the shipping box, in their original or protective packaging.
+- **Inside the weatherproof hard case:**
+  - **Phone:** Wrapped in a protective bubble pouch inside the case.
+  - **Solar battery:** In its original manufacturer packaging, but the packaging has been opened so the battery can be inspected and tested before shipment, then repacked.
+  - **Premium desiccant pouch:** Still sealed in its plastic wrapping inside the case — customer removes it from the plastic wrap and places it in the case for long-term storage.
+  - **Other accessories** (charging cable, wall charger, padlock, etc.): Loose inside the case.
+- **Phone battery level:** Intentionally shipped below 30% per federal lithium battery transport regulations — this is normal.
+
+After receiving, customers should complete the First Steps in the User Guide app (on the home screen): charge both devices to proper storage levels, remove the desiccant pouch from its plastic wrap, place the phone and solar battery in their Faraday bags, and seal the case.
 
 **Return & Refund Policy:** 30 days from confirmed delivery. RMA required — contact via website contact form. No RMA = return not accepted. Device must be in original functional condition, OS not further modified. Buyer pays return shipping. No returns for physical damage caused after receipt. After 30-day window, all sales final.
 
