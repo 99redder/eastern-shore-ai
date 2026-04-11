@@ -153,6 +153,29 @@
       color: var(--muted);
       font-size: .92rem;
     }
+    .alert-box {
+      margin: 1rem 0 1.5rem;
+      padding: 1.2rem 1.4rem;
+      background: #fff0d6;
+      border: 2px solid #ff9900;
+      border-radius: 14px;
+      text-align: center;
+    }
+    .alert-box strong {
+      display: block;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #b34700;
+      margin-bottom: .4rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .alert-box p {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #803300;
+    }
     @media print {
       @page { size: letter; margin: 0.65in; }
       body {
@@ -186,6 +209,12 @@
         color: #5a2a00;
       }
       .step-num { background: #173b63; }
+      .alert-box {
+        background: #fff8e6;
+        border: 2px solid #b34700;
+      }
+      .alert-box strong { color: #7a3a00; }
+      .alert-box p { color: #5a2a00; }
       .page-break-avoid { break-inside: avoid; }
       .page-break-before { break-before: page; }
     }
@@ -205,6 +234,10 @@
       </div>
 
       <div class="content">
+        <div class="alert-box">
+          <strong>Keep This Document With Your Case</strong>
+          <p>Do not throw this guide away — keep it with your Survival Node case for easy reference when deploying your kit.</p>
+        </div>
 
         <!-- PHASE 1: Open the Case -->
         <div class="page-break-avoid">
