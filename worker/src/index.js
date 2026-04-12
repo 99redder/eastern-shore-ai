@@ -1046,7 +1046,7 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     : 'Survival Node';
   const productDescription = isByogSetup
     ? 'Bring your own gear setup-only service'
-    : 'Motorola Moto G Power (2024) core unit + 3 offline LLMs + solar battery + weatherproof hard case + padlock + phone case + 2 Faraday bags + 50GB+ offline software suite';
+    : 'Motorola Moto G Power (2024) 8GB core unit + 50GB+ offline software suite (3 offline LLMs + Survival Node AI Agent) + 42,800mAh solar battery + weatherproof hard case + padlock + shockproof phone case + 2 Faraday bags';
   const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
 
   const contiguousStates = new Set([
