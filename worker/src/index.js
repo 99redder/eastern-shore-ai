@@ -1877,6 +1877,8 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
     orderSummary: orderSummaryFromRow(hydratedRow),
     amountCents: Number(hydratedRow.amount_cents || 0),
     paymentDate: (hydratedRow.payment_date || '').toString(),
+    batteryTestNote: (hydratedRow.battery_test_note || '').toString(),
+    batteryTestImageKey: (hydratedRow.battery_test_image_key || '').toString(),
     ...content
   }, 200, corsHeaders);
 }
