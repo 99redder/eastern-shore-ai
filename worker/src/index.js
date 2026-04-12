@@ -1346,6 +1346,49 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           }
         }
 
+        // For Survival Node sales (physical product, no time slot) the slots loop above
+        // never runs, so no booking row gets created. Insert one here so the order
+        // appears in the admin Orders tab and the bookings→tax_income join works.
+        if (isSurvivalNodeSale && slots.length === 0) {
+          const existingNodeBooking = await env.DB.prepare(
+            `SELECT id FROM bookings WHERE stripe_session_id = ?1 LIMIT 1`
+          ).bind(sessionId).first();
+
+          if (existingNodeBooking?.id) {
+            await env.DB.prepare(
+              `UPDATE bookings
+               SET stripe_payment_intent_id = COALESCE(?1, stripe_payment_intent_id),
+                   status = 'paid',
+                   customer_name = COALESCE(?2, customer_name),
+                   customer_email = COALESCE(?3, customer_email),
+                   customer_phone = COALESCE(?4, customer_phone),
+                   amount_cents = COALESCE(?5, amount_cents),
+                   service_type = COALESCE(?6, service_type),
+                   paid_at = datetime('now'),
+                   updated_at = datetime('now')
+               WHERE id = ?7`
+            ).bind(
+              session.payment_intent || null,
+              customerName, customerEmail, customerPhone,
+              amount, productCode || 'survival_node_kit',
+              existingNodeBooking.id
+            ).run();
+          } else {
+            await env.DB.prepare(
+              `INSERT INTO bookings (
+                stripe_session_id, stripe_payment_intent_id, status,
+                customer_name, customer_email, customer_phone,
+                amount_cents, service_type, paid_at
+              ) VALUES (?1, ?2, 'paid', ?3, ?4, ?5, ?6, ?7, datetime('now'))`
+            ).bind(
+              sessionId,
+              session.payment_intent || null,
+              customerName, customerEmail, customerPhone,
+              amount, productCode || 'survival_node_kit'
+            ).run();
+          }
+        }
+
         // Use the payment event timestamp for accounting date, not the appointment date
         const incomeDate = event.created
           ? new Date(event.created * 1000).toISOString().slice(0, 10)
