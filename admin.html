@@ -710,6 +710,29 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="battery-test-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="battery-test-modal-title" style="width:min(480px,96vw);">
+      <h3 id="battery-test-modal-title">Battery Test Results</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin:.25rem 0 .75rem;">This note and image link will appear in the shipping email.</p>
+      <div style="display:grid;gap:.65rem;">
+        <div>
+          <label for="battery-note-input" style="font-size:.85rem;font-weight:600;">Test Note</label>
+          <textarea id="battery-note-input" rows="4" placeholder="e.g. Battery health: 96% — Passed AccuBattery capacity test. Measured: 4,780 mAh (95.6%). Minimum threshold: 88%." style="width:100%;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+        <div>
+          <label for="battery-image-input" style="font-size:.85rem;font-weight:600;">AccuBattery Screenshot (JPG or PNG)</label>
+          <div id="battery-image-status" style="font-size:.82rem;color:var(--muted);margin:.2rem 0 .35rem;"></div>
+          <input type="file" id="battery-image-input" accept="image/jpeg,image/png" style="width:100%;">
+        </div>
+      </div>
+      <div id="battery-test-save-status" style="font-size:.85rem;color:var(--muted);min-height:1.2em;margin:.6rem 0 .2rem;"></div>
+      <div class="form-actions" style="margin-top:.5rem;">
+        <button type="button" class="btn" id="battery-test-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="battery-test-save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
   <div class="success-modal-overlay" id="order-email-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="order-email-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="order-email-title">Preview Order Email</h3>
@@ -1424,6 +1447,55 @@
       trackingModal?.classList.remove('active');
       trackingModal?.setAttribute('aria-hidden', 'true');
     }
+
+    let batteryTestOrderKey = '';
+    let batteryTestOrderId = 0;
+
+    function openBatteryTestModal(orderId, orderKey, currentNote, hasImage) {
+      batteryTestOrderId = orderId;
+      batteryTestOrderKey = orderKey;
+      const noteEl = document.getElementById('battery-note-input');
+      const fileEl = document.getElementById('battery-image-input');
+      const statusEl = document.getElementById('battery-image-status');
+      const saveStatusEl = document.getElementById('battery-test-save-status');
+      if (noteEl) noteEl.value = currentNote || '';
+      if (fileEl) fileEl.value = '';
+      if (statusEl) statusEl.textContent = hasImage ? 'Screenshot already uploaded.' : 'No screenshot uploaded yet.';
+      if (saveStatusEl) saveStatusEl.textContent = '';
+      const modal = document.getElementById('battery-test-modal');
+      if (modal) { modal.classList.add('active'); modal.setAttribute('aria-hidden', 'false'); }
+    }
+
+    function closeBatteryTestModal() {
+      const modal = document.getElementById('battery-test-modal');
+      if (modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden', 'true'); }
+    }
+
+    document.getElementById('battery-test-cancel-btn')?.addEventListener('click', closeBatteryTestModal);
+    document.getElementById('battery-test-modal')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeBatteryTestModal();
+    });
+    document.getElementById('battery-test-save-btn')?.addEventListener('click', async () => {
+      const note = (document.getElementById('battery-note-input')?.value || '').trim();
+      const imageFile = document.getElementById('battery-image-input')?.files?.[0];
+      const saveStatusEl = document.getElementById('battery-test-save-status');
+      if (saveStatusEl) saveStatusEl.textContent = 'Saving\u2026';
+      const fd = new FormData();
+      fd.append('orderKey', batteryTestOrderKey);
+      fd.append('note', note);
+      if (imageFile) fd.append('image', imageFile);
+      try {
+        const res = await fetch(`${API_BASE}/api/orders/battery-test`, {
+          method: 'POST',
+          headers: { 'X-Admin-Password': adminPassword },
+          body: fd
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { if (saveStatusEl) saveStatusEl.textContent = data.error || 'Save failed'; return; }
+        if (saveStatusEl) saveStatusEl.textContent = 'Saved!';
+        setTimeout(async () => { closeBatteryTestModal(); await refreshOrderList(); }, 700);
+      } catch { if (saveStatusEl) saveStatusEl.textContent = 'Network error'; }
+    });
 
     function openOrderEmailModal(draft) {
       activeOrderEmailDraft = draft;
@@ -3646,6 +3718,7 @@
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
               <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}">Preview Acknowledgment</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="battery-test" data-order-id="${id}" data-order-key="${orderKey}" data-battery-note="${escHtml(order.battery_test_note || '')}" data-battery-has-image="${order.battery_test_image_key ? '1' : ''}">${order.battery_test_note || order.battery_test_image_key ? 'Battery Test ✓' : 'Add Battery Test'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" title="${tracking ? 'Preview shipping email' : 'Add tracking first'}">Preview Shipping Email</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="delivered" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" title="${tracking ? 'Preview delivered email' : 'Add tracking first'}">Preview Delivered Email</button>
               ${order.order_source === 'manual' ? `<button type="button" class="btn delete order-action-btn" data-order-action="delete" data-order-id="${id}" data-order-key="${orderKey}">Delete</button>` : '<span style="font-size:.82rem; color:var(--muted); padding:.45rem .2rem;">Stripe order — cannot delete</span>'}
@@ -3718,6 +3791,15 @@
           trackingUrl: btn.getAttribute('data-tracking-url') || '',
           forShippingEmail: false
         });
+        return;
+      }
+      if (action === 'battery-test') {
+        openBatteryTestModal(
+          id,
+          orderKey,
+          btn.getAttribute('data-battery-note') || '',
+          btn.getAttribute('data-battery-has-image') === '1'
+        );
         return;
       }
       if (action === 'shipping' || action === 'delivered') {

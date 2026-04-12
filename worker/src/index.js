@@ -73,7 +73,7 @@ export default {
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = ['/api/bookings', '/api/orders', '/api/planner/items'].includes(url.pathname) && request.method === 'GET';
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
-      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual','/api/orders/delete'].includes(url.pathname) && request.method === 'POST';
+      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual','/api/orders/delete','/api/orders/battery-test'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
@@ -146,6 +146,14 @@ export default {
 
     if (url.pathname === '/api/orders/delete' && request.method === 'POST') {
       return handleManualOrderDelete(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders/battery-test' && request.method === 'POST') {
+      return handleOrderBatteryTestSave(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/orders/battery-image' && request.method === 'GET') {
+      return handleOrderBatteryImageGet(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/availability') {
@@ -1615,10 +1623,15 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
     trackingNumber ? `<strong>Tracking Number:</strong> ${escapeHtml(trackingNumber)}` : '',
     trackingUrl ? `<strong>Tracking Link:</strong> <a href="${escapeHtml(trackingUrl)}" style="color:#2563eb;">${escapeHtml(trackingUrl)}</a>` : ''
   ].filter(Boolean).join('<br>');
+  const batteryTestNote = (overrides.batteryTestNote ?? row?.battery_test_note ?? '').toString().trim();
+  const batteryTestImageKey = (overrides.batteryTestImageKey ?? row?.battery_test_image_key ?? '').toString().trim();
+  const batteryHtml = (batteryTestNote || batteryTestImageKey)
+    ? `<div style="margin:20px 0;padding:16px 20px;background:#f0fdf4;border-left:4px solid #16a34a;border-radius:6px;"><div style="font-weight:700;color:#15803d;margin-bottom:8px;">Battery Test Results</div>${batteryTestNote ? `<div style="color:#374151;white-space:pre-wrap;">${escapeHtml(batteryTestNote)}</div>` : ''}${batteryTestImageKey ? `<div style="margin-top:10px;"><a href="https://eastern-shore-ai-contact.99redder.workers.dev/api/orders/battery-image?key=${encodeURIComponent(batteryTestImageKey)}" style="color:#2563eb;">View AccuBattery results &rarr;</a></div>` : ''}</div>`
+    : '';
   const shippingGuideHtml = kind === 'delivered'
     ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.<br><br>There is also an insert in the case with the initial setup steps to help you get started.<br><br>You can also view the User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
     : '';
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${batteryHtml}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
   return { subject, bodyText, html };
 }
 
@@ -1650,7 +1663,9 @@ async function getOrderRowByBookingId(db, bookingId) {
        of.shipping_email_sent_at,
        of.shipping_email_subject,
        of.shipping_email_body,
-       of.shipped_at
+       of.shipped_at,
+       of.battery_test_note,
+       of.battery_test_image_key
      FROM bookings b
      LEFT JOIN order_fulfillment of ON of.booking_id = b.id
      LEFT JOIN tax_income ti ON ti.stripe_session_id = b.stripe_session_id
@@ -1697,6 +1712,8 @@ async function getManualOrderRowById(db, manualOrderId) {
        shipping_email_subject,
        shipping_email_body,
        shipped_at,
+       battery_test_note,
+       battery_test_image_key,
        created_at,
        updated_at
      FROM manual_survival_node_orders
@@ -1751,7 +1768,9 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        of.ack_email_sent_at,
        of.shipping_email_sent_at,
        of.delivered_email_sent_at,
-       of.shipped_at
+       of.shipped_at,
+       of.battery_test_note,
+       of.battery_test_image_key
      FROM bookings b
      LEFT JOIN tax_income ti ON ti.stripe_session_id = b.stripe_session_id
      LEFT JOIN order_fulfillment of ON of.booking_id = b.id
@@ -1785,6 +1804,8 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        shipping_email_sent_at,
        delivered_email_sent_at,
        shipped_at,
+       battery_test_note,
+       battery_test_image_key,
        created_at,
        updated_at
      FROM manual_survival_node_orders
@@ -2638,6 +2659,130 @@ async function handleTaxReceiptGet(request, env, corsHeaders, url) {
       'Content-Type': contentType,
       'Content-Disposition': `inline; filename="receipt.${r2Key.split('.').pop()}"`,
       'Cache-Control': 'private, max-age=3600'
+    }
+  });
+}
+
+/**
+ * POST /api/orders/battery-test — Admin: save battery test note + optional screenshot for an order
+ * Stores image in R2 under battery-test/{uuid}.{ext}; UUID is the access token (unlisted link model).
+ */
+async function handleOrderBatteryTestSave(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let formData;
+  try { formData = await request.formData(); } catch { return json({ ok: false, error: 'Invalid form data' }, 400, corsHeaders); }
+
+  const orderKey = (formData.get('orderKey') || '').toString().trim();
+  const note = (formData.get('note') || '').toString().trim();
+  const imageFile = formData.get('image');
+
+  if (!orderKey) return json({ ok: false, error: 'Missing orderKey' }, 400, corsHeaders);
+
+  // Resolve order key to table + id
+  const isManual = orderKey.startsWith('manual:');
+  const isBooking = orderKey.startsWith('booking:');
+  if (!isManual && !isBooking) return json({ ok: false, error: 'Invalid orderKey format' }, 400, corsHeaders);
+  const recordId = Number(orderKey.split(':')[1] || 0);
+  if (!recordId) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
+
+  // Fetch existing row to get current image key (for cleanup on replace)
+  let existingImageKey = null;
+  if (isManual) {
+    const existing = await env.DB.prepare(
+      `SELECT battery_test_image_key FROM manual_survival_node_orders WHERE id = ?1 LIMIT 1`
+    ).bind(recordId).first();
+    if (!existing) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
+    existingImageKey = existing.battery_test_image_key || null;
+  } else {
+    const existing = await env.DB.prepare(
+      `SELECT of.battery_test_image_key FROM order_fulfillment of
+       INNER JOIN bookings b ON b.id = of.booking_id
+       WHERE b.id = ?1 LIMIT 1`
+    ).bind(recordId).first();
+    // order_fulfillment row may not exist yet — that's OK, we'll upsert below
+    existingImageKey = existing?.battery_test_image_key || null;
+  }
+
+  // Handle image upload if provided
+  let imageKey = existingImageKey;
+  if (imageFile && typeof imageFile.arrayBuffer === 'function') {
+    const allowedTypes = { 'image/jpeg': 'jpg', 'image/png': 'png' };
+    const ext = allowedTypes[imageFile.type];
+    if (!ext) return json({ ok: false, error: 'Image must be JPG or PNG' }, 400, corsHeaders);
+    const bytes = await imageFile.arrayBuffer();
+    if (bytes.byteLength > 10 * 1024 * 1024) return json({ ok: false, error: 'Image exceeds 10MB limit' }, 400, corsHeaders);
+
+    // Delete old image if replacing
+    if (existingImageKey) {
+      await env.RECEIPTS.delete(existingImageKey).catch(() => {});
+    }
+
+    const uuid = crypto.randomUUID();
+    imageKey = `battery-test/${uuid}.${ext}`;
+    await env.RECEIPTS.put(imageKey, bytes, { httpMetadata: { contentType: imageFile.type } });
+  }
+
+  // Persist to DB
+  if (isManual) {
+    await env.DB.prepare(
+      `UPDATE manual_survival_node_orders
+       SET battery_test_note = ?1, battery_test_image_key = ?2, updated_at = datetime('now')
+       WHERE id = ?3`
+    ).bind(note || null, imageKey || null, recordId).run();
+  } else {
+    // Ensure fulfillment row exists first
+    const orderNumber = await env.DB.prepare(
+      `SELECT order_number FROM order_fulfillment WHERE booking_id = ?1 LIMIT 1`
+    ).bind(recordId).first().then(r => r?.order_number || null);
+    if (!orderNumber) {
+      // Row doesn't exist yet — create a minimal one
+      const nextNum = await generateNextOrderNumber(env.DB);
+      await env.DB.prepare(
+        `INSERT INTO order_fulfillment (booking_id, order_number, fulfillment_status, battery_test_note, battery_test_image_key)
+         VALUES (?1, ?2, 'new', ?3, ?4)
+         ON CONFLICT(booking_id) DO UPDATE SET
+           battery_test_note = excluded.battery_test_note,
+           battery_test_image_key = excluded.battery_test_image_key`
+      ).bind(recordId, nextNum, note || null, imageKey || null).run();
+    } else {
+      await env.DB.prepare(
+        `UPDATE order_fulfillment
+         SET battery_test_note = ?1, battery_test_image_key = ?2
+         WHERE booking_id = ?3`
+      ).bind(note || null, imageKey || null, recordId).run();
+    }
+  }
+
+  return json({ ok: true, note, imageKey: imageKey || null }, 200, corsHeaders);
+}
+
+/**
+ * GET /api/orders/battery-image — Public (no admin auth): serve battery test screenshot from R2.
+ * The UUID in the key IS the access control — only the recipient who received the email link can open it.
+ * Query param: key (e.g. battery-test/{uuid}.jpg)
+ */
+async function handleOrderBatteryImageGet(request, env, corsHeaders, url) {
+  if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
+
+  const r2Key = (url.searchParams.get('key') || '').toString().trim();
+  if (!r2Key) return json({ ok: false, error: 'Missing key' }, 400, corsHeaders);
+  // Prevent path traversal — only battery-test/ prefix allowed
+  if (!r2Key.startsWith('battery-test/')) return json({ ok: false, error: 'Invalid key' }, 400, corsHeaders);
+
+  const obj = await env.RECEIPTS.get(r2Key);
+  if (!obj) return new Response('Not found', { status: 404, headers: corsHeaders });
+
+  const contentType = obj.httpMetadata?.contentType || 'image/jpeg';
+  return new Response(obj.body, {
+    status: 200,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': contentType,
+      'Cache-Control': 'private, max-age=86400'
     }
   });
 }
