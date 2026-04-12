@@ -1941,7 +1941,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     trackingUrl
   });
 
-  const fromEmail = (env.FROM_EMAIL || '').toString().trim();
+  const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const emailPayload = {
     from: fromEmail,
     to: [customerEmail],
