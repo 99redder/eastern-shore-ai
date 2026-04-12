@@ -80,17 +80,18 @@ export default {
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
+      const isBatteryImagePublic = url.pathname === '/api/orders/battery-image' && request.method === 'GET';
       const isAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
       // Public quote accept/deny + planner sync + chat session endpoints don't require strict origin check
-      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute && !isChatPublic) {
+      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute && !isChatPublic && !isBatteryImagePublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
