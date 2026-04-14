@@ -2042,7 +2042,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         const bookingRows = (data.bookings || []).map((b) => {
-          const svc = b.service_type === 'lessons' ? 'LESSONS' : 'OPENCLAW';
+          const svc = b.service_type === 'lessons' ? 'LESSONS' : (b.service_type || '').startsWith('survival_node') || b.service_type === 'byog_setup' ? 'SURVIVAL NODE' : 'OPENCLAW';
           return `<div>[BOOKING:${svc}] ${b.status} | ${b.setup_at || '(n/a)'} | ${b.customer_name || '(no name)'}</div>`;
         });
 

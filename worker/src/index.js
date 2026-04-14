@@ -2083,6 +2083,7 @@ async function handleBookings(request, env, corsHeaders, url) {
   const rows = await env.DB.prepare(
     `SELECT id, stripe_session_id, stripe_payment_intent_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at, created_at, updated_at
      FROM bookings
+     WHERE (service_type IS NULL OR service_type = '' OR service_type IN ('openclaw_setup', 'lessons'))
      ORDER BY created_at DESC
      LIMIT ?1`
   ).bind(limit).all();
