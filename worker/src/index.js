@@ -81,17 +81,18 @@ export default {
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
       const isBatteryImagePublic = url.pathname === '/api/orders/battery-image' && request.method === 'GET';
+      const isTrackPublic = url.pathname === '/track' && request.method === 'GET';
       const isAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
       // Public quote accept/deny + planner sync + chat session endpoints don't require strict origin check
-      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute && !isChatPublic && !isBatteryImagePublic) {
+      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute && !isChatPublic && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
@@ -155,6 +156,10 @@ export default {
 
     if (url.pathname === '/api/orders/battery-image' && request.method === 'GET') {
       return handleOrderBatteryImageGet(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/track' && request.method === 'GET') {
+      return handleTrackRedirect(url);
     }
 
     if (url.pathname === '/api/availability') {
@@ -1631,7 +1636,8 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const shippingGuideHtml = kind === 'delivered'
     ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is also stored on the phone itself — there is a shortcut to the file right on the main screen of the phone, so you can open it anytime.<br><br>There is also an insert in the case with the initial setup steps to help you get started.<br><br>You can also view the User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
     : '';
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${batteryHtml}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
+  const trackProxyUrl = trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${batteryHtml}${trackProxyUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
   return { subject, bodyText, html };
 }
 
@@ -2769,6 +2775,20 @@ async function handleOrderBatteryTestSave(request, env, corsHeaders, url) {
  * The UUID in the key IS the access control — only the recipient who received the email link can open it.
  * Query param: key (e.g. battery-test/{uuid}.jpg)
  */
+function handleTrackRedirect(url) {
+  const n = (url.searchParams.get('n') || '').trim();
+  const c = (url.searchParams.get('c') || '').trim().toUpperCase();
+  if (!n) return new Response('Tracking number required.', { status: 400 });
+  const destinations = {
+    UPS:   `https://www.ups.com/track?tracknum=${encodeURIComponent(n)}`,
+    FEDEX: `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(n)}`,
+    DHL:   `https://www.dhl.com/us-en/home/tracking.html?tracking-id=${encodeURIComponent(n)}`,
+    USPS:  `https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(n)}`,
+  };
+  const dest = destinations[c] || destinations['USPS'];
+  return Response.redirect(dest, 302);
+}
+
 async function handleOrderBatteryImageGet(request, env, corsHeaders, url) {
   if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
 
