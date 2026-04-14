@@ -11,14 +11,22 @@ Deposit the check into your **business bank account** (LLC's account). Even thou
 
 ### 2. Accounting in admin.html
 
-When depositing the insurance reimbursement:
+**Important:** The `Shipping Insurance Reimbursement` category is in the expense list, which means it will **reduce your Net Income**. This is correct if you want to track it as an expense recovery.
 
-**Expense Entry:**
+However, since this is a reimbursement (not new income), it should **not affect your taxable income**. For proper tax treatment, consider one of these options:
+
+**Option 1 (Current approach - Expense Category):**
 - **Category:** `Shipping Insurance Reimbursement`
 - **Notes:** "USPS insurance reimbursement for lost Survival Node shipment - [Date of lost shipment] [Tracking # if known]"
-- **Amount:** The reimbursement amount from USPS
+- **Amount:** The reimbursement amount from USPS (positive)
 - **Date:** Date of deposit/receipt
 - **Paid via:** Check (or specify "insurance reimbursement")
+- **Effect:** Reduces Net Income (expense recovery)
+
+**Option 2 (Recommended - Owner Contribution):**
+- Go to **Owner Contributions** section
+- Enter the reimbursement amount
+- **Effect:** No impact on Net Income/taxable income; just tracks the money you put back into the business
 
 ### 3. Why This Works
 
