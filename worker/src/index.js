@@ -1969,6 +1969,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const emailPayload = {
     from: fromEmail,
     to: [customerEmail],
+    bcc: ['emailconfirm@easternshore.ai'],
     subject: content.subject,
     html: content.html,
     text: content.bodyText,
