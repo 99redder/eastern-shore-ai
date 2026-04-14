@@ -701,7 +701,6 @@
       <div class="form-grid" style="margin-top:.5rem;">
         <div><label for="tracking-provider">Carrier</label><select id="tracking-provider"><option value="">Select carrier</option><option value="USPS">USPS</option><option value="UPS">UPS</option><option value="FEDEX">FEDEX</option><option value="DHL">DHL</option></select></div>
         <div><label for="tracking-number">Tracking Number</label><input id="tracking-number" /></div>
-        <div class="full"><label for="tracking-url">Tracking Link (optional)</label><input id="tracking-url" placeholder="https://..." /></div>
       </div>
       <div class="form-actions" style="margin-top:1rem;">
         <button type="button" class="btn" id="tracking-cancel-btn">Cancel</button>
@@ -750,10 +749,6 @@
             <div>
               <label for="order-email-tracking-number">Tracking Number</label>
               <input id="order-email-tracking-number" placeholder="Required for shipping email" />
-            </div>
-            <div>
-              <label for="order-email-tracking-url">Tracking Link (optional)</label>
-              <input id="order-email-tracking-url" placeholder="https://..." />
             </div>
           </div>
         </div>
@@ -1395,7 +1390,6 @@
       const body = (orderEmailBodyEl?.value || '').trim();
       const trackingProvider = (activeOrderEmailDraft?.trackingProvider || '').trim();
       const trackingNumber = (orderEmailTrackingNumberEl?.value || '').trim();
-      const trackingUrl = (orderEmailTrackingUrlEl?.value || '').trim();
       const orderSummary = (activeOrderEmailDraft?.orderSummary || 'Order').trim();
       const orderNumber = (activeOrderEmailDraft?.orderNumber || '').trim();
       const amount = (activeOrderEmailDraft?.amountDisplay || '').trim();
@@ -1413,8 +1407,7 @@
         amount ? `<strong>Amount:</strong> ${escHtml(amount)}` : '',
         paymentDate ? `<strong>Payment Date:</strong> ${escHtml(paymentDate)}` : '',
         trackingProvider ? `<strong>Carrier:</strong> ${escHtml(trackingProvider)}` : '',
-        trackingNumber ? `<strong>Tracking Number:</strong> ${escHtml(trackingNumber)}` : '',
-        trackingUrl ? `<strong>Tracking Link:</strong> <a href="${escHtml(trackingUrl)}" style="color:#2563eb;">${escHtml(trackingUrl)}</a>` : ''
+        trackingNumber ? `<strong>Tracking Number:</strong> ${escHtml(trackingNumber)}` : ''
       ].filter(Boolean).join('<br>');
       const batteryTestNote = (activeOrderEmailDraft?.batteryTestNote || '').trim();
       const batteryTestImageKey = (activeOrderEmailDraft?.batteryTestImageKey || '').trim();
@@ -1424,7 +1417,7 @@
       const shippingGuideHtml = activeOrderEmailDraft?.kind === 'delivered'
         ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is stored on the phone itself — there is a shortcut to the file right on the main screen of the phone.<br><br>There is also an insert in the case with the initial setup steps to help you get going.<br><br>You can also view the User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
         : '';
-      orderEmailPreviewEl.innerHTML = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escHtml(subject || 'Preview')}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;line-height:1.6;">${detailLines}</div>${bodyHtml}${batteryHtml}${trackingUrl ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escHtml(trackingUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
+      orderEmailPreviewEl.innerHTML = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escHtml(subject || 'Preview')}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;line-height:1.6;">${detailLines}</div>${bodyHtml}${batteryHtml}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
     }
 
     function openManualOrderModal() {
@@ -1443,7 +1436,6 @@
       if (trackingTitleEl) trackingTitleEl.textContent = draft.forShippingEmail ? 'Enter Shipping Details' : 'Add Tracking';
       if (trackingProviderEl) trackingProviderEl.value = draft.trackingProvider || '';
       if (trackingNumberEl) trackingNumberEl.value = draft.trackingNumber || '';
-      if (trackingUrlEl) trackingUrlEl.value = draft.trackingUrl || '';
       trackingModal?.classList.add('active');
       trackingModal?.setAttribute('aria-hidden', 'false');
     }
@@ -1509,10 +1501,8 @@
       if (orderEmailSubjectEl) orderEmailSubjectEl.value = draft.subject || '';
       if (orderEmailBodyEl) orderEmailBodyEl.value = draft.bodyText || '';
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
-      if (orderEmailTrackingUrlEl) orderEmailTrackingUrlEl.value = draft.trackingUrl || '';
       if (orderEmailTrackingWrapEl) orderEmailTrackingWrapEl.style.display = draft.kind === 'shipping' ? '' : 'none';
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
-      if (orderEmailTrackingUrlEl) orderEmailTrackingUrlEl.value = draft.trackingUrl || '';
       renderOrderEmailPreview();
       orderEmailModal?.classList.add('active');
       orderEmailModal?.setAttribute('aria-hidden', 'false');
@@ -4214,8 +4204,7 @@
         bookingId: activeTrackingDraft.bookingId,
         orderKey: activeTrackingDraft.orderKey || '',
         trackingProvider: trackingProviderEl?.value || '',
-        trackingNumber: trackingNumberEl?.value || '',
-        trackingUrl: trackingUrlEl?.value || ''
+        trackingNumber: trackingNumberEl?.value || ''
       };
       if (!(payload.trackingNumber || '').trim() && !confirm('Clear the saved tracking number for this order?')) return;
       const prevTxt = trackingSaveBtn.textContent || 'Save Tracking';
@@ -4249,7 +4238,6 @@
     orderEmailSubjectEl?.addEventListener('input', renderOrderEmailPreview);
     orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
     orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);
-    orderEmailTrackingUrlEl?.addEventListener('input', renderOrderEmailPreview);
     orderEmailSendBtn?.addEventListener('click', async () => {
       if (!activeOrderEmailDraft) return;
       const payload = {
@@ -4259,8 +4247,7 @@
         subject: orderEmailSubjectEl?.value || '',
         bodyText: orderEmailBodyEl?.value || '',
         trackingProvider: activeOrderEmailDraft.trackingProvider || '',
-        trackingNumber: orderEmailTrackingNumberEl?.value || '',
-        trackingUrl: orderEmailTrackingUrlEl?.value || ''
+        trackingNumber: orderEmailTrackingNumberEl?.value || ''
       };
       const prevTxt = orderEmailSendBtn.textContent || 'Send Email';
       const draft = { ...activeOrderEmailDraft };
