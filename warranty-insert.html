@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Survival Node Warranty &amp; Return Policy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #111111;
+      --muted: #5f6b7a;
+      --line: rgba(0,0,0,.12);
+      --cyan: #173b63;
+      --lime: #4f6f1f;
+      --warn: #7a3a00;
+      --warn-bg: #fff8f0;
+      --warn-border: #e8b87a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Titillium Web', sans-serif;
+      line-height: 1.6;
+      padding: 1.2rem;
+    }
+    .shell {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: .65rem;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--text);
+      border-radius: 12px;
+      padding: .8rem 1rem;
+      font: 700 .96rem 'Hanken Grotesk', sans-serif;
+      cursor: pointer;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      overflow: hidden;
+    }
+    .header {
+      padding: 1.3rem 1.3rem 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font: 800 .8rem 'Hanken Grotesk', sans-serif;
+      margin: 0 0 .35rem;
+    }
+    h1 {
+      margin: 0 0 .35rem;
+      color: var(--cyan);
+      font: 800 2rem 'Hanken Grotesk', sans-serif;
+      line-height: 1.1;
+    }
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+    .content {
+      padding: 1.2rem 1.3rem 1.35rem;
+    }
+    h2 {
+      margin: 0 0 .55rem;
+      color: var(--cyan);
+      font: 800 1.1rem 'Hanken Grotesk', sans-serif;
+    }
+    h3 {
+      margin: .9rem 0 .3rem;
+      color: var(--cyan);
+      font: 700 .98rem 'Hanken Grotesk', sans-serif;
+    }
+    p { margin: 0 0 .75rem; }
+    ol, ul { margin: .25rem 0 .9rem 1.25rem; padding: 0; }
+    li { margin: .4rem 0; }
+    .note {
+      margin-top: 1rem;
+      padding: .95rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(158,208,255,.06);
+    }
+    .warn-box {
+      margin: .6rem 0 .9rem;
+      padding: .8rem 1rem;
+      border: 1px solid var(--warn-border);
+      border-radius: 12px;
+      background: var(--warn-bg);
+      color: var(--warn);
+      font-size: .95rem;
+    }
+    .warn-box strong { color: var(--warn); }
+    .legal {
+      margin-top: .9rem;
+      padding: .85rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f9fafc;
+      font-size: .88rem;
+      color: #444;
+      line-height: 1.55;
+    }
+    .legal p { margin: 0 0 .5rem; }
+    .legal p:last-child { margin: 0; }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 1.2rem 0;
+    }
+    .footer {
+      margin-top: 1rem;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    @media print {
+      @page { size: letter; margin: 0.65in; }
+      body {
+        background: #fff;
+        color: #111;
+        padding: 0;
+      }
+      .toolbar { display: none !important; }
+      .card {
+        border: 0;
+        box-shadow: none;
+        background: #fff;
+      }
+      .header {
+        border-bottom: 1px solid #bbb;
+        padding: 0.08in 0 0.28in;
+      }
+      .content {
+        padding: .2in 0 0;
+      }
+      .eyebrow { color: #5a5a5a; }
+      h1, h2, h3 { color: #000; }
+      .sub, .footer { color: #444; }
+      .note {
+        background: #f5f7fa;
+        border: 1px solid #cfd8e3;
+      }
+      .warn-box {
+        background: #fff8f0;
+        border: 1px solid #c89050;
+        color: #5a2a00;
+      }
+      .legal {
+        background: #f9fafc;
+        border: 1px solid #ccc;
+      }
+      .page-break-avoid { break-inside: avoid; }
+      .page-break-before { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="toolbar">
+      <button class="btn" onclick="window.print()">Save / Print PDF</button>
+    </div>
+
+    <div class="card">
+      <div class="header">
+        <p class="eyebrow">Survival Node</p>
+        <h1>Warranty &amp; Return Policy</h1>
+        <p class="sub">This document covers your 30-day limited warranty, how to initiate a return, and the full purchase disclosures and liability terms that apply to your kit.</p>
+      </div>
+
+      <div class="content">
+
+        <!-- WARRANTY -->
+        <div class="page-break-avoid">
+          <h2>30-Day Limited Warranty</h2>
+          <p>Eastern Shore AI, LLC provides a <strong>30-day limited warranty</strong> on every Survival Node, covering defects in hardware function and software configuration <em>as delivered</em>. The warranty period begins on the date of confirmed delivery.</p>
+
+          <h3>What is covered</h3>
+          <ul>
+            <li>Hardware defects present at time of delivery (device does not power on, charging port failure, display defects, etc.)</li>
+            <li>Software configuration defects in the pre-installed apps, AI model, or offline data as delivered</li>
+            <li>Missing or non-functional included accessories (Faraday bags, solar battery, cables, case hardware) discovered upon receipt</li>
+          </ul>
+
+          <h3>What is not covered</h3>
+          <ul>
+            <li>Physical damage caused after receipt (drops, water ingress, crushing, battery puncture)</li>
+            <li>Any issue arising from buyer-made modifications to the operating system, apps, or hardware after delivery</li>
+            <li>Normal battery capacity loss over time from use or storage</li>
+            <li>Loss of cellular compatibility — no SIM card or carrier plan is included; lack of cell service is not a defect</li>
+            <li>Cosmetic wear on open box units</li>
+            <li>Any issue arising from use outside the conditions described in the Users Guide</li>
+          </ul>
+
+          <div class="warn-box">
+            <strong>No manufacturer warranty applies.</strong> OS modification — a deep Android debloat performed before shipment — voids any remaining original manufacturer warranty on the device. Eastern Shore AI, LLC's 30-day limited warranty is the sole warranty that applies to your kit.
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- HOW TO INITIATE A RETURN -->
+        <div class="page-break-avoid">
+          <h2>How to Initiate a Return</h2>
+          <p>Returns are accepted within <strong>30 days of confirmed delivery</strong>. To be eligible, the device must be in original functional condition and the operating system must not have been further modified after purchase.</p>
+
+          <ol>
+            <li><strong>Contact us first.</strong> Submit a return request through the contact form at <strong>www.easternshore.ai</strong> or email <strong>support@easternshore.ai</strong> within the 30-day window. Provide your order information and a description of the issue.</li>
+            <li><strong>Receive your RMA number.</strong> We will reply with a Return Merchandise Authorization (RMA) number and return shipping instructions. Returns sent without prior RMA approval will not be accepted.</li>
+            <li><strong>Ship the item back.</strong> Package the kit carefully — ideally in the original shipping box — and ship it back to the address provided in your RMA instructions. <strong>Return shipping costs are the buyer's responsibility.</strong></li>
+            <li><strong>Receive resolution.</strong> Upon receipt and inspection of the returned kit, we will issue a replacement or refund as appropriate.</li>
+          </ol>
+
+          <p><strong>Items with physical damage caused after receipt are not eligible for return.</strong> Items returned without an RMA number will be refused.</p>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- PRODUCT DISCLOSURES -->
+        <div class="page-break-avoid">
+          <h2>Product &amp; Device Disclosures</h2>
+
+          <h3>Device condition</h3>
+          <p>Every Survival Node is built on a <strong>Motorola Moto G Power (2024)</strong> — brand new or open box — hand-vetted for battery life, memory performance, and overall suitability before shipment. Minor cosmetic wear on open box units is normal and does not constitute a defect.</p>
+
+          <h3>Software modifications</h3>
+          <p>Every Survival Node ships with a deep-debloated Android OS with tracking software, carrier apps, and battery-draining background services removed. This modification is necessary for the kit's long-term readiness and performance. As a result, certain mainstream applications — including banking apps, DRM-restricted streaming services, and Google-dependent services — may not function as they do on standard retail devices. All pre-installed software is provided "AS IS."</p>
+
+          <h3>No SIM card or cellular service</h3>
+          <p>No SIM card, activation code, carrier plan, or cellular service of any kind is included. The device is sold for its offline capabilities only. Lack of cellular functionality is not a defect.</p>
+
+          <h3>Packaging &amp; accessories</h3>
+          <p>Your Survival Node may ship in a box displaying the logo or branding of another company as part of normal supply chain practice. This does not imply partnership, endorsement, or affiliation. Hard cases may be sourced from multiple suppliers, and included accessories may differ slightly from those shown in product images while maintaining the same functional specifications.</p>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- BATTERY & FARADAY SAFETY -->
+        <div class="page-break-avoid">
+          <h2>Battery, Solar &amp; Faraday Bag Safety</h2>
+
+          <h3>Battery storage and maintenance</h3>
+          <p>Lithium-ion batteries self-discharge over time. Recharge the phone and solar battery every 6–12 months to prevent permanent capacity loss. Store the kit in a cool, dry location — between 60°F (15°C) and 85°F (30°C). Avoid cars, attics, and garages where temperatures reach damaging extremes.</p>
+          <p>Do not puncture, crush, or expose batteries to moisture. Dispose of damaged batteries in accordance with local regulations. Do not charge the solar battery and use it to charge the phone at the same time.</p>
+
+          <h3>Faraday bag integrity</h3>
+          <p>Protection against electromagnetic interference is only effective when the device is fully enclosed and the bag is correctly folded and sealed. Punctures, improper sealing, or material degradation may reduce or eliminate protection. Always fold the top of the bag over at least twice and press the seal flat with no gaps.</p>
+
+          <h3>Solar charging expectations</h3>
+          <p>The solar panel is designed for emergency sustainment — not all-day normal use. Under emergency conditions (brief, task-focused use followed by powering the device fully off), solar alone can sustain the kit for an extended period. In hot weather, check the solar battery regularly; it should feel warm, not hot. Move it to shade if it overheats. Do not charge above 113°F (45°C).</p>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- LEGAL / LIABILITY -->
+        <div class="page-break-avoid page-break-before">
+          <h2>Liability &amp; Legal Notices</h2>
+
+          <h3>No survival guarantee</h3>
+          <p>This kit is a preparedness tool. It does not guarantee safety, survival, or operational success in any emergency scenario. AI-generated information is for educational and reference purposes only and must not replace professional medical, tactical, legal, or emergency response guidance when qualified help is available.</p>
+
+          <h3>Limitation of liability</h3>
+          <div class="legal">
+            <p>To the maximum extent permitted by applicable law, Eastern Shore AI, LLC disclaims all implied warranties of merchantability and fitness for a particular purpose. Eastern Shore AI, LLC shall not be liable for any incidental, consequential, special, or punitive damages arising from the use or inability to use these products — including but not limited to loss of data, personal injury, property damage, or adverse emergency outcomes.</p>
+            <p>After the 30-day warranty period, all products are provided "AS IS." Eastern Shore AI, LLC does not offer repair, replacement, or ongoing service for any included hardware or software component beyond that window, except on a discretionary case-by-case basis.</p>
+          </div>
+
+          <h3>User responsibility</h3>
+          <p>By purchasing this kit, the buyer confirms they are 18 years of age or older and accepts full responsibility for lawful use, safe storage, routine maintenance, and updating of included hardware and software.</p>
+
+          <h3>Order cancellation / right to refuse</h3>
+          <p>Eastern Shore AI, LLC reserves the right to refuse service or cancel any order before shipment for reasons including suspected fraud, address verification concerns, supply constraints, or reasonable belief that the device may be used unlawfully or harmfully. Pre-shipment cancellations are refunded in full to the original payment method.</p>
+
+          <h3>Independent seller &amp; trademarks</h3>
+          <p>Eastern Shore AI, LLC is an independent seller of curated goods and is not an authorized dealer, affiliate, or partner of any included hardware manufacturer. Brand names and trademarks appearing on included components remain the property of their respective owners and are used solely for identification purposes.</p>
+
+          <h3>Payment processing</h3>
+          <p>Payments are processed securely by Stripe, Inc. Eastern Shore AI, LLC does not collect, store, or have direct access to your payment card or banking information.</p>
+
+          <div class="legal" style="margin-top:.75rem;">
+            <p><strong>California Proposition 65 Notice:</strong> This product may expose you to chemicals known to the State of California to cause cancer and birth defects or other reproductive harm. For more information, visit <strong>www.P65Warnings.ca.gov</strong>.</p>
+          </div>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="note page-break-avoid" style="margin-top:1.2rem;">
+          <h2 style="margin-top:0;">Questions or warranty claims?</h2>
+          <p>Contact Eastern Shore AI, LLC any time within your 30-day warranty window:</p>
+          <p><strong>Email:</strong> support@easternshore.ai<br>
+          <strong>Phone:</strong> (302) 907-9162<br>
+          <strong>Web:</strong> www.easternshore.ai</p>
+          <p>Full terms are published at: <strong>www.easternshore.ai/terms.html</strong></p>
+        </div>
+
+        <p class="footer">Eastern Shore AI, LLC — All sales subject to the terms stated above. Keep this document for your records.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
