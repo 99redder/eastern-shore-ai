@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Survival Node — New Order Checklist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #111111;
+      --muted: #5f6b7a;
+      --line: rgba(0,0,0,.12);
+      --cyan: #173b63;
+      --lime: #4f6f1f;
+      --warn: #7a3a00;
+      --warn-bg: #fff8f0;
+      --warn-border: #e8b87a;
+      --done-bg: #f0faf2;
+      --done-line: #c2e5c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Titillium Web', sans-serif;
+      line-height: 1.6;
+      padding: 1.2rem;
+    }
+    .shell { max-width: 850px; margin: 0 auto; }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .65rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .toolbar-right { display: flex; gap: .65rem; }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--text);
+      border-radius: 12px;
+      padding: .65rem 1rem;
+      font: 700 .93rem 'Hanken Grotesk', sans-serif;
+      cursor: pointer;
+    }
+    .btn-reset {
+      background: #fff0f0;
+      border-color: #f0bcbc;
+      color: #7a1a1a;
+    }
+    .progress-bar-wrap {
+      flex: 1;
+      min-width: 160px;
+    }
+    .progress-label {
+      font: 700 .82rem 'Hanken Grotesk', sans-serif;
+      color: var(--muted);
+      margin-bottom: .3rem;
+    }
+    .progress-bar {
+      background: #e4e8ef;
+      border-radius: 8px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #2e7d32, #66bb6a);
+      height: 100%;
+      border-radius: 8px;
+      transition: width .35s ease;
+      width: 0%;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      overflow: hidden;
+      margin-bottom: 1.1rem;
+    }
+    .header {
+      padding: 1.3rem 1.3rem 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font: 800 .8rem 'Hanken Grotesk', sans-serif;
+      margin: 0 0 .35rem;
+    }
+    h1 {
+      margin: 0 0 .35rem;
+      color: var(--cyan);
+      font: 800 2rem 'Hanken Grotesk', sans-serif;
+      line-height: 1.1;
+    }
+    .sub { margin: 0; color: var(--muted); font-size: 1rem; }
+    .section { padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--line); }
+    .section:last-child { border-bottom: 0; padding-bottom: 1.3rem; }
+    h2 {
+      margin: 0 0 .6rem;
+      color: var(--cyan);
+      font: 800 1.05rem 'Hanken Grotesk', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .phase-badge {
+      display: inline-block;
+      background: var(--cyan);
+      color: #fff;
+      font: 800 .7rem 'Hanken Grotesk', sans-serif;
+      letter-spacing: .05em;
+      border-radius: 20px;
+      padding: .18rem .55rem;
+      flex-shrink: 0;
+    }
+    .checklist { list-style: none; margin: 0; padding: 0; }
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .48rem 0;
+      border-bottom: 1px solid rgba(0,0,0,.05);
+      transition: background .15s;
+      border-radius: 8px;
+      padding-left: .25rem;
+      padding-right: .25rem;
+    }
+    .checklist li:last-child { border-bottom: 0; }
+    .checklist li.done {
+      background: var(--done-bg);
+      border-bottom-color: var(--done-line);
+    }
+    .checklist li.done .item-text { color: #3a6e40; text-decoration: line-through; text-decoration-color: #8dc496; }
+    .checklist li.done .item-text strong { color: #3a6e40; }
+    input[type="checkbox"] {
+      width: 1.2rem;
+      height: 1.2rem;
+      flex-shrink: 0;
+      margin-top: .2rem;
+      accent-color: #2e7d32;
+      cursor: pointer;
+    }
+    .item-text { flex: 1; font-size: .97rem; line-height: 1.5; }
+    .item-text strong { font-weight: 700; }
+    .item-note {
+      display: block;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-top: .15rem;
+    }
+    .warn-box {
+      margin: .75rem 0 .3rem;
+      padding: .75rem .9rem;
+      border: 1px solid var(--warn-border);
+      border-radius: 10px;
+      background: var(--warn-bg);
+      color: var(--warn);
+      font-size: .9rem;
+    }
+    .warn-box strong { color: var(--warn); }
+    .upgrade-section {
+      margin-top: .7rem;
+      padding: .7rem .85rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f9fafc;
+    }
+    .upgrade-section h3 {
+      margin: 0 0 .4rem;
+      color: var(--cyan);
+      font: 700 .9rem 'Hanken Grotesk', sans-serif;
+    }
+    .divider { border: none; border-top: 1px solid var(--line); margin: .6rem 0; }
+    @media print {
+      @page { size: letter; margin: 0.6in; }
+      body { background: #fff; color: #111; padding: 0; }
+      .toolbar { display: none !important; }
+      .card { border: 0; box-shadow: none; background: #fff; margin-bottom: .5in; }
+      .header { border-bottom: 1px solid #bbb; padding: 0.08in 0 0.22in; }
+      .section { padding: .18in 0; border-bottom: 1px solid #e0e0e0; }
+      .section:last-child { padding-bottom: 0; }
+      .eyebrow { color: #5a5a5a; }
+      h1, h2 { color: #000; }
+      .sub { color: #444; }
+      .phase-badge { background: #555; }
+      .warn-box { background: #fff8f0; border: 1px solid #c89050; color: #5a2a00; }
+      .upgrade-section { background: #f9fafc; border: 1px solid #ccc; }
+      .checklist li.done { background: #fff; }
+      .checklist li.done .item-text { color: #111; text-decoration: none; }
+      .checklist li.done .item-text strong { color: #111; }
+      input[type="checkbox"] { accent-color: #000; }
+      .progress-bar-wrap { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="toolbar">
+      <div class="progress-bar-wrap">
+        <div class="progress-label" id="progress-label">0 of 0 items complete</div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn btn-reset" onclick="resetAll()">Reset All</button>
+        <button class="btn" onclick="window.print()">Print / Save PDF</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="header">
+        <p class="eyebrow">Survival Node — Internal Use Only</p>
+        <h1>New Order Checklist</h1>
+        <p class="sub">Work through every phase in order. Check each item as you complete it. Do not ship until all phases are complete.</p>
+      </div>
+
+      <!-- PHASE 1: Intake -->
+      <div class="section">
+        <h2><span class="phase-badge">Phase 1</span> Phone Intake &amp; Inspection</h2>
+        <ul class="checklist">
+          <li id="li-1"><input type="checkbox" id="c1" onchange="toggle('li-1')"><label for="c1" class="item-text"><strong>Confirm device model and condition.</strong> Must be Motorola Moto G Power (2024) — brand new or open box. Check for physical defects, screen damage, or deformation.<span class="item-note">Open box units: minor cosmetic wear is acceptable. Document any surface marks if present.</span></label></li>
+          <li id="li-2"><input type="checkbox" id="c2" onchange="toggle('li-2')"><label for="c2" class="item-text"><strong>Power on the device and confirm it boots normally.</strong> No bootloop, no recovery mode, no unusual errors.</label></li>
+          <li id="li-3"><input type="checkbox" id="c3" onchange="toggle('li-3')"><label for="c3" class="item-text"><strong>Run AccuBattery intake test.</strong> Measure actual battery capacity against the rated spec. Log the result — this is the first of three tests.<span class="item-note">Reject any unit with significantly degraded capacity. Expected: 5000 mAh for the G Power 2024.</span></label></li>
+          <li id="li-4"><input type="checkbox" id="c4" onchange="toggle('li-4')"><label for="c4" class="item-text"><strong>Check all physical ports and hardware.</strong> USB-C port charges correctly; power and volume buttons function; speaker, mic, and camera are operational.</label></li>
+        </ul>
+      </div>
+
+      <!-- PHASE 2: OS Build -->
+      <div class="section">
+        <h2><span class="phase-badge">Phase 2</span> OS Build &amp; Debloat</h2>
+        <ul class="checklist">
+          <li id="li-5"><input type="checkbox" id="c5" onchange="toggle('li-5')"><label for="c5" class="item-text"><strong>Unlock the bootloader.</strong><span class="item-note">This is a destructive step — back out now if anything from Phase 1 was a concern. Unlocking voids the original manufacturer warranty. This is expected and disclosed to the customer.</span></label></li>
+          <li id="li-6"><input type="checkbox" id="c6" onchange="toggle('li-6')"><label for="c6" class="item-text"><strong>Perform deep Android debloat.</strong> Remove all tracking software, carrier apps, and unnecessary battery-draining background services. Optimize OS for performance and longevity.</label></li>
+          <li id="li-7"><input type="checkbox" id="c7" onchange="toggle('li-7')"><label for="c7" class="item-text"><strong>Confirm device reboots cleanly after debloat.</strong> No bootloop, no missing system components, no unexpected error screens.</label></li>
+          <li id="li-8"><input type="checkbox" id="c8" onchange="toggle('li-8')"><label for="c8" class="item-text"><strong>Run AccuBattery test after OS install.</strong> Confirm battery performance is consistent with or better than the intake reading. This is the second of three tests.<span class="item-note">A debloated OS typically improves effective battery endurance. Flag any significant capacity drop compared to intake.</span></label></li>
+        </ul>
+      </div>
+
+      <!-- PHASE 3: Software Suite -->
+      <div class="section">
+        <h2><span class="phase-badge">Phase 3</span> Software Suite Installation &amp; Configuration</h2>
+        <ul class="checklist">
+          <li id="li-9"><input type="checkbox" id="c9" onchange="toggle('li-9')"><label for="c9" class="item-text"><strong>Install PocketPal.</strong> Confirm the app opens and the AI chat interface functions.</label></li>
+          <li id="li-10"><input type="checkbox" id="c10" onchange="toggle('li-10')"><label for="c10" class="item-text"><strong>Load offline LLM(s) into PocketPal.</strong> Confirm the model(s) load without error and can respond to a test prompt.</label></li>
+          <li id="li-11"><input type="checkbox" id="c11" onchange="toggle('li-11')"><label for="c11" class="item-text"><strong>Pre-configure the "Survival Node" AI Agent in PocketPal.</strong> Survival Node persona must be selected and ready — no setup required by the customer on first open.<span class="item-note">Test it: open PocketPal, select "Survival Node" persona, send a test question, confirm it responds correctly with survival-focused framing.</span></label></li>
+          <li id="li-12"><input type="checkbox" id="c12" onchange="toggle('li-12')"><label for="c12" class="item-text"><strong>Install Organic Maps and pre-download the entire United States offline.</strong> Confirm the US maps are fully downloaded and the map loads without internet.<span class="item-note">GPS navigation must work in Airplane Mode. Test with a quick route.</span></label></li>
+          <li id="li-13"><input type="checkbox" id="c13" onchange="toggle('li-13')"><label for="c13" class="item-text"><strong>Install Kiwix and load WikiMed Medical Encyclopedia offline.</strong> Confirm the encyclopedia is searchable without internet.</label></li>
+          <li id="li-14"><input type="checkbox" id="c14" onchange="toggle('li-14')"><label for="c14" class="item-text"><strong>Install Survival Manual app.</strong> Confirm it opens and content is accessible offline.</label></li>
+          <li id="li-15"><input type="checkbox" id="c15" onchange="toggle('li-15')"><label for="c15" class="item-text"><strong>Install Briar.</strong> Confirm it opens and the Bluetooth/Wi-Fi mesh messaging interface is accessible.</label></li>
+          <li id="li-16"><input type="checkbox" id="c16" onchange="toggle('li-16')"><label for="c16" class="item-text"><strong>Install SOS Flashlight.</strong> Confirm SOS mode activates the flashlight correctly.</label></li>
+          <li id="li-17"><input type="checkbox" id="c17" onchange="toggle('li-17')"><label for="c17" class="item-text"><strong>Install Morse app.</strong> Confirm it encodes/decodes and functions offline.</label></li>
+          <li id="li-18"><input type="checkbox" id="c18" onchange="toggle('li-18')"><label for="c18" class="item-text"><strong>Install AccuBattery.</strong> Confirm it opens and battery stats are visible.</label></li>
+          <li id="li-19"><input type="checkbox" id="c19" onchange="toggle('li-19')"><label for="c19" class="item-text"><strong>Install Eastern Shore AI Users Guide app on the home screen.</strong> Must be the first visible app — tap to confirm it opens the full guide without internet.<span class="item-note">PDF version of the Users Guide must also be pre-loaded in Files &gt; Downloads on the device.</span></label></li>
+          <li id="li-20"><input type="checkbox" id="c20" onchange="toggle('li-20')"><label for="c20" class="item-text"><strong>Confirm full Airplane Mode test.</strong> Enable Airplane Mode and verify all offline functions work: AI chat, Organic Maps navigation, Kiwix search, Survival Manual, Users Guide app.</label></li>
+        </ul>
+      </div>
+
+      <!-- PHASE 4: Final testing -->
+      <div class="section">
+        <h2><span class="phase-badge">Phase 4</span> Final Testing &amp; Pre-Ship Checks</h2>
+        <ul class="checklist">
+          <li id="li-21"><input type="checkbox" id="c21" onchange="toggle('li-21')"><label for="c21" class="item-text"><strong>Run final AccuBattery pre-ship test.</strong> This is the third and final battery test. Log result and screenshot.<span class="item-note">Upload the battery test note and screenshot to the admin panel for this order (Orders → Battery Test).</span></label></li>
+          <li id="li-22"><input type="checkbox" id="c22" onchange="toggle('li-22')"><label for="c22" class="item-text"><strong>Charge phone down to below 30%.</strong> Federal lithium-ion battery shipping regulations require devices to be shipped below 30% charge. Do not ship at or above 30%.</label></li>
+          <li id="li-23"><input type="checkbox" id="c23" onchange="toggle('li-23')"><label for="c23" class="item-text"><strong>Inspect and test the solar battery.</strong> Press the power button to confirm charge indicator LEDs are working. Verify it outputs power through the attached cables by briefly connecting to a test device.</label></li>
+          <li id="li-24"><input type="checkbox" id="c24" onchange="toggle('li-24')"><label for="c24" class="item-text"><strong>Charge solar battery to 50–75% (2–3 of 4 LEDs).</strong> This is the ideal long-term storage level for lithium-ion. Do not ship at 100%.<span class="item-note">Per the terms: "Do not store at full charge for extended periods — degrades capacity."</span></label></li>
+          <li id="li-25"><input type="checkbox" id="c25" onchange="toggle('li-25')"><label for="c25" class="item-text"><strong>Install the shockproof phone case on the Core Unit.</strong> Confirm it is fully seated and the screen, ports, and buttons are accessible.</label></li>
+        </ul>
+
+        <div class="upgrade-section">
+          <h3>Check for add-on upgrades on this order</h3>
+          <ul class="checklist">
+            <li id="li-u1"><input type="checkbox" id="cu1" onchange="toggle('li-u1')"><label for="cu1" class="item-text"><strong>Mission Darkness Faraday Bags (+$50)</strong> — include if ordered</label></li>
+            <li id="li-u2"><input type="checkbox" id="cu2" onchange="toggle('li-u2')"><label for="cu2" class="item-text"><strong>Backup USB-C Charging Cable (+$20)</strong> — include if ordered</label></li>
+            <li id="li-u3"><input type="checkbox" id="cu3" onchange="toggle('li-u3')"><label for="cu3" class="item-text"><strong>Backup Mini Solar Battery (+$20)</strong> — include if ordered</label></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PHASE 5: Kit assembly -->
+      <div class="section">
+        <h2><span class="phase-badge">Phase 5</span> Kit Assembly &amp; Packing</h2>
+        <ul class="checklist">
+          <li id="li-26"><input type="checkbox" id="c26" onchange="toggle('li-26')"><label for="c26" class="item-text"><strong>Place the temporary white desiccant bag inside the hard case.</strong> This is the small shipping buffer desiccant — the customer will remove it upon receipt. It is not the long-term storage pack.</label></li>
+          <li id="li-27"><input type="checkbox" id="c27" onchange="toggle('li-27')"><label for="c27" class="item-text"><strong>Wrap phone in bubble wrap and place inside the hard case.</strong></label></li>
+          <li id="li-28"><input type="checkbox" id="c28" onchange="toggle('li-28')"><label for="c28" class="item-text"><strong>Place wall charger and USB-C cable inside the hard case.</strong></label></li>
+          <li id="li-29"><input type="checkbox" id="c29" onchange="toggle('li-29')"><label for="c29" class="item-text"><strong>Attach or include the padlock with the hard case.</strong></label></li>
+          <li id="li-30"><input type="checkbox" id="c30" onchange="toggle('li-30')"><label for="c30" class="item-text"><strong>Close and latch the hard case.</strong></label></li>
+          <li id="li-31"><input type="checkbox" id="c31" onchange="toggle('li-31')"><label for="c31" class="item-text"><strong>Place solar battery in its original manufacturer packaging</strong> (opened, inspected, tested, and repacked).</label></li>
+          <li id="li-32"><input type="checkbox" id="c32" onchange="toggle('li-32')"><label for="c32" class="item-text"><strong>Place both Faraday bags in their original packaging.</strong></label></li>
+          <li id="li-33"><input type="checkbox" id="c33" onchange="toggle('li-33')"><label for="c33" class="item-text"><strong>Place the premium long-term desiccant pouch in its sealed plastic bag.</strong> Customer will open it and move it inside the case upon receipt.</label></li>
+          <li id="li-34"><input type="checkbox" id="c34" onchange="toggle('li-34')"><label for="c34" class="item-text"><strong>Print and include all three inserts.</strong>
+            <span class="item-note">
+              1. Quick-Start Insert — easternshore.ai/quick-start-insert.html<br>
+              2. Deployment Guide Insert — easternshore.ai/deployment-insert.html<br>
+              3. Warranty &amp; Return Policy Insert — easternshore.ai/warranty-insert.html
+            </span>
+          </label></li>
+          <li id="li-35"><input type="checkbox" id="c35" onchange="toggle('li-35')"><label for="c35" class="item-text"><strong>Place the hard case, solar battery (in packaging), Faraday bags (in packaging), premium desiccant pouch, and inserts into the outer shipping box.</strong><span class="item-note">Faraday bags and desiccant go under/around the hard case — NOT inside it. Phone is inside the hard case.</span></label></li>
+          <li id="li-36"><input type="checkbox" id="c36" onchange="toggle('li-36')"><label for="c36" class="item-text"><strong>Verify the outer shipping box is sealed and ready.</strong> No rattling, no open flaps, correct contents confirmed.</label></li>
+        </ul>
+
+        <div class="warn-box">
+          <strong>Shipping rules:</strong> Ships via USPS or UPS <strong>ground only</strong> — no air shipping. Continental U.S. destinations only. Do not accept or ship orders to Alaska, Hawaii, U.S. territories, or international addresses.
+        </div>
+      </div>
+
+      <!-- PHASE 6: Fulfillment -->
+      <div class="section">
+        <h2><span class="phase-badge">Phase 6</span> Fulfillment &amp; Customer Communications</h2>
+        <ul class="checklist">
+          <li id="li-37"><input type="checkbox" id="c37" onchange="toggle('li-37')"><label for="c37" class="item-text"><strong>Send order acknowledgment email within 24 hours of order placement.</strong><span class="item-note">Promised on the product page: "We will send you an order confirmation that gives you an exact ship date within 24 hours of your order being placed." Use the admin Orders panel → Send Email (type: ack).</span></label></li>
+          <li id="li-38"><input type="checkbox" id="c38" onchange="toggle('li-38')"><label for="c38" class="item-text"><strong>Generate shipping label (USPS or UPS ground).</strong></label></li>
+          <li id="li-39"><input type="checkbox" id="c39" onchange="toggle('li-39')"><label for="c39" class="item-text"><strong>Enter tracking number in the admin Orders panel.</strong></label></li>
+          <li id="li-40"><input type="checkbox" id="c40" onchange="toggle('li-40')"><label for="c40" class="item-text"><strong>Send shipping confirmation email with tracking info to customer.</strong><span class="item-note">Admin Orders panel → Send Email (type: shipping).</span></label></li>
+          <li id="li-41"><input type="checkbox" id="c41" onchange="toggle('li-41')"><label for="c41" class="item-text"><strong>Drop off or hand off to carrier.</strong></label></li>
+          <li id="li-42"><input type="checkbox" id="c42" onchange="toggle('li-42')"><label for="c42" class="item-text"><strong>Send delivery confirmation email once tracking shows delivered.</strong><span class="item-note">Admin Orders panel → Send Email (type: delivered). Includes a link to the Users Guide.</span></label></li>
+          <li id="li-43"><input type="checkbox" id="c43" onchange="toggle('li-43')"><label for="c43" class="item-text"><strong>Verify tax income row exists in the admin Tax Ledger for this order.</strong><span class="item-note">Auto-inserted by the Stripe webhook on payment. Category: "Survival Node" or "OpenClaw Setup." Check admin → Tax Ledger if it's missing.</span></label></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function toggle(id) {
+      const li = document.getElementById(id);
+      const cb = li.querySelector('input[type="checkbox"]');
+      li.classList.toggle('done', cb.checked);
+      updateProgress();
+      saveState();
+    }
+
+    function updateProgress() {
+      const all = document.querySelectorAll('.checklist input[type="checkbox"]');
+      const done = document.querySelectorAll('.checklist input[type="checkbox"]:checked');
+      const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-label').textContent = done.length + ' of ' + all.length + ' items complete';
+    }
+
+    function saveState() {
+      const state = {};
+      document.querySelectorAll('.checklist input[type="checkbox"]').forEach(cb => {
+        state[cb.id] = cb.checked;
+      });
+      try { localStorage.setItem('sn-order-checklist', JSON.stringify(state)); } catch(e) {}
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem('sn-order-checklist');
+        if (!raw) return;
+        const state = JSON.parse(raw);
+        Object.entries(state).forEach(([id, checked]) => {
+          const cb = document.getElementById(id);
+          if (cb) {
+            cb.checked = checked;
+            const li = cb.closest('li');
+            if (li) li.classList.toggle('done', checked);
+          }
+        });
+      } catch(e) {}
+      updateProgress();
+    }
+
+    function resetAll() {
+      if (!confirm('Reset all checkboxes?')) return;
+      document.querySelectorAll('.checklist input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        const li = cb.closest('li');
+        if (li) li.classList.remove('done');
+      });
+      try { localStorage.removeItem('sn-order-checklist'); } catch(e) {}
+      updateProgress();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+    });
+  </script>
+</body>
+</html>
