@@ -1617,9 +1617,11 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const subject = (overrides.subject || '').toString().trim() || defaultOrderEmailSubject(kind, row);
   const bodyText = (overrides.bodyText || '').toString().trim() || defaultOrderEmailBody(kind, row, trackingProvider, trackingNumber, trackingUrl);
   const summary = orderSummaryFromRow(row);
-  const preheader = kind === 'shipping'
-    ? 'Your order is on the way.'
-: 'Your items are currently being quality checked';
+  const preheader = kind === 'delivered'
+    ? 'Your order has arrived — you\'re all set.'
+    : kind === 'shipping'
+      ? 'Your order is on the way.'
+      : 'Your items are currently being quality checked';
   const detailLines = [
     row?.order_number ? `<strong>Order Number:</strong> ${escapeHtml(String(row.order_number))}` : '',
     `<strong>Order:</strong> ${escapeHtml(summary)}`,

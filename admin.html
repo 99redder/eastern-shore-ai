@@ -1396,7 +1396,7 @@
       const amount = (activeOrderEmailDraft?.amountDisplay || '').trim();
       const paymentDate = (activeOrderEmailDraft?.paymentDate || '').trim();
       const preheader = activeOrderEmailDraft?.kind === 'delivered'
-        ? 'Your order has arrived.'
+        ? 'Your order has arrived — you\'re all set.'
         : activeOrderEmailDraft?.kind === 'shipping'
           ? 'Your order is on the way.'
           : 'Your items are currently being quality checked';
