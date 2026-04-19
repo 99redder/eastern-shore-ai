@@ -47,12 +47,6 @@
       letter-spacing: .02em;
       margin: 0 0 .3rem;
     }
-    .page-cta p {
-      font-size: .95rem;
-      color: var(--muted);
-      margin: 0;
-    }
-
     .buy-card {
       background: var(--surface);
       border: 1px solid var(--line);
@@ -75,6 +69,25 @@
       width: 100%;
       height: auto;
       display: block;
+    }
+
+    .card-badges {
+      display: flex;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+    .card-badge {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      background: rgba(158,208,255,.08);
+      border: 1px solid rgba(158,208,255,.25);
+      border-radius: 5px;
+      padding: .28rem .65rem;
+      white-space: nowrap;
     }
 
     .divider {
@@ -323,10 +336,14 @@
 
   <div class="page-cta">
     <h1>Emergency Preparedness in the Age of AI</h1>
-    <p>Ready to ship · Free continental U.S. shipping · Secure checkout via Stripe</p>
   </div>
 
   <div class="buy-card">
+
+    <div class="card-badges">
+      <span class="card-badge">🚚 Free Shipping</span>
+      <span class="card-badge">🔒 Secure Checkout via Stripe</span>
+    </div>
 
     <div class="logo-wrap">
       <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
