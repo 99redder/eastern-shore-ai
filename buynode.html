@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Buy Survival Node — Eastern Shore AI</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0b10;
+      --surface: #111320;
+      --line: #1e2240;
+      --cyan: #00e5ff;
+      --violet: #c850ff;
+      --text: #d8dce8;
+      --muted: #6b7091;
+      --ok: #4fffb0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Titillium Web', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .buy-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 2rem 2rem 1.75rem;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .logo-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .logo-wrap img {
+      max-width: 280px;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .upgrade-section {}
+    .upgrade-title {
+      font-size: .75rem;
+      color: var(--cyan);
+      font-family: 'Hanken Grotesk', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+
+    .upgrade-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      padding: .4rem .45rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .12s;
+      border: 1px solid transparent;
+      margin-bottom: .25rem;
+    }
+    .upgrade-item:hover { background: rgba(158,208,255,.06); }
+    .upgrade-item:has(.upgrade-check:checked) {
+      background: rgba(158,208,255,.1);
+      border-color: rgba(158,208,255,.28);
+    }
+    .upgrade-item input[type="checkbox"] {
+      margin-top: .18rem;
+      accent-color: var(--cyan);
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .upgrade-info { flex: 1; min-width: 0; }
+    .upgrade-name {
+      display: block;
+      font-size: .88rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .upgrade-desc {
+      display: block;
+      font-size: .76rem;
+      color: var(--muted);
+      margin-top: .06rem;
+    }
+    .upgrade-price {
+      font-size: .88rem;
+      color: var(--ok);
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-family: 'Hanken Grotesk', sans-serif;
+    }
+
+    .buy-cta {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .75rem;
+      width: 100%;
+      padding: .9rem 1.25rem;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      border: none;
+      border-radius: 9px;
+      color: #fff;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(200,80,255,.45);
+      transition: opacity .15s, box-shadow .15s;
+    }
+    .btn:hover { opacity: .9; box-shadow: 0 0 28px rgba(200,80,255,.6); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--muted);
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .92rem;
+      font-weight: 600;
+      padding: .55rem 1rem;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    .price-line {
+      display: flex;
+      align-items: baseline;
+      gap: .4rem;
+    }
+    .price-strike {
+      opacity: .45;
+      font-size: .8rem;
+      font-weight: 400;
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .price-current {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text);
+      font-family: 'Hanken Grotesk', sans-serif;
+    }
+
+    .status-msg {
+      font-size: .88rem;
+      color: var(--muted);
+      text-align: center;
+      min-height: 1.2em;
+    }
+    .status-msg.ok { color: var(--ok); }
+    .status-msg.err { color: #ffb4c7; }
+
+    .shipping-note {
+      font-size: .78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ===== Terms overlay ===== */
+    .terms-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,.72);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .terms-overlay.open { display: flex; }
+
+    .terms-modal {
+      background: #111320;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.4rem 1.4rem 1.2rem;
+      width: min(560px, 100%);
+      max-height: 92vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+
+    .terms-scroll {
+      overflow-y: auto;
+      max-height: 48vh;
+      font-size: .875rem;
+      line-height: 1.6;
+      color: var(--text);
+      padding-right: .4rem;
+    }
+    .terms-scroll p { margin: 0 0 .55rem; }
+
+    .terms-modal h3 {
+      margin: 0;
+      color: #ffd7f8;
+      font-family: 'Hanken Grotesk', sans-serif;
+    }
+
+    .terms-actions {
+      display: flex;
+      gap: .6rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* ===== Checkout status modal ===== */
+    .status-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+      background: rgba(0,0,0,.78);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .status-modal-overlay.open { display: flex; }
+    .status-modal {
+      background: #111320;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1.6rem 1.6rem 1.3rem;
+      width: min(460px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+    }
+    .status-modal-pill {
+      display: inline-block;
+      padding: .18rem .55rem;
+      border-radius: 4px;
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-family: 'Hanken Grotesk', sans-serif;
+    }
+    .status-modal-pill.success { background: rgba(79,255,176,.12); color: var(--ok); border: 1px solid rgba(79,255,176,.35); }
+    .status-modal-pill.cancel  { background: rgba(255,80,80,.08);   color: #ff8080; border: 1px solid rgba(255,100,100,.4); }
+    .status-modal h3 { color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif; margin: 0; }
+    .status-modal p  { color: var(--text); font-size: .95rem; margin: 0; line-height: 1.55; }
+
+    @media (max-width: 520px) {
+      .buy-card { padding: 1.5rem 1.25rem 1.4rem; }
+      .logo-wrap img { max-width: 220px; }
+      .terms-scroll { max-height: 38vh; }
+      body { justify-content: flex-start; padding-top: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="buy-card">
+
+    <div class="logo-wrap">
+      <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
+    </div>
+
+    <hr class="divider" />
+
+    <div class="upgrade-section">
+      <p class="upgrade-title">Optional Upgrades</p>
+      <label class="upgrade-item">
+        <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Darkness Faraday Bags" data-price-id="price_1T9AXyCrQuKPknEPEDC39wfC" />
+        <span class="upgrade-info">
+          <span class="upgrade-name">Upgrade to Mission Darkness Faraday Bags</span>
+          <span class="upgrade-desc">Premium EMP-rated protection for worst-case electromagnetic scenarios</span>
+        </span>
+        <span class="upgrade-price">+$50.00</span>
+      </label>
+      <label class="upgrade-item">
+        <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" data-price-id="price_1T9AYeCrQuKPknEPy37kFtwn" />
+        <span class="upgrade-info">
+          <span class="upgrade-name">Add backup premium USB-C charging cable</span>
+          <span class="upgrade-desc">Heavy-duty redundant cable for field conditions</span>
+        </span>
+        <span class="upgrade-price">+$20.00</span>
+      </label>
+      <label class="upgrade-item">
+        <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" data-price-id="price_1T9AZeCrQuKPknEP62dDoshW" />
+        <span class="upgrade-info">
+          <span class="upgrade-name">Add backup mini solar battery</span>
+          <span class="upgrade-desc">Extra power reserve for extended grid-down scenarios</span>
+        </span>
+        <span class="upgrade-price">+$20.00</span>
+      </label>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="buy-cta">
+      <button id="buy-btn" class="btn" type="button">
+        <span class="price-line">
+          <span class="price-strike">$299.99</span>
+          <span id="price-display" class="price-current">$199.99</span>
+        </span>
+        <span>Buy Survival Node Now</span>
+      </button>
+      <div id="status-msg" class="status-msg" aria-live="polite"></div>
+    </div>
+
+    <p class="shipping-note">
+      Free shipping · Continental U.S. only · Ground transport only (lithium battery regulations) · Allow up to 7 business days processing + up to 10 business days transit
+    </p>
+
+  </div>
+
+  <!-- ===== Terms of Sale modal ===== -->
+  <div class="terms-overlay" id="terms-overlay" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+    <div class="terms-modal">
+      <div style="display:flex; align-items:center; gap:.6rem;">
+        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
+        <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">Terms of Sale</span>
+      </div>
+      <h3 id="terms-title" style="font-size:1.1rem; letter-spacing:.01em;">Review &amp; Acknowledge Before Purchase</h3>
+      <div class="terms-scroll">
+        <p style="color:var(--cyan); font-size:.78rem; text-transform:uppercase; letter-spacing:.07em; font-weight:700; margin:0 0 .65rem; font-family:'Hanken Grotesk',sans-serif;">— Please read all terms carefully —</p>
+
+        <p><strong>1. Battery Maintenance &amp; Storage</strong></p>
+        <p><strong>Initial Charge Required:</strong> The included solar battery ships with a partial charge. I will charge it to 2–3 of the 4 blue LEDs (50–75%) via wall outlet upon receipt and store it at that level for long-term battery health. I understand that storing a lithium-ion battery at full charge (100%) for extended periods degrades capacity.</p>
+        <p><strong>Long-Term Storage:</strong> I acknowledge that lithium-ion batteries naturally self-discharge over time. I will recharge the power hub every 6–12 months to prevent permanent battery failure.</p>
+        <p><strong>Temperature &amp; Safety:</strong> I will not store this kit in extreme heat or cold (e.g., a hot car trunk or uninsulated garage). I understand extreme temperatures can permanently damage the battery and device. I will not puncture, crush, or expose the battery to moisture, and will dispose of any damaged battery per local regulations.</p>
+
+        <div style="background:rgba(255,80,80,0.08); border:2px solid rgba(255,100,100,0.5); border-radius:6px; padding:.75rem 1rem; margin:.1rem 0 .9rem;">
+          <p style="color:#ff8080; font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin:0 0 .4rem; font-family:'Hanken Grotesk',sans-serif;">⚠ No SIM Card — Not Designed for Cellular Service</p>
+          <p style="margin:0 0 .35rem; font-size:.9rem;"><strong>No SIM card is included</strong> and no activation code, carrier plan, or cellular service of any kind is provided with this purchase.</p>
+          <p style="margin:0 0 .35rem; font-size:.9rem;">This device has been <strong>deep-debloated and OS-modified</strong> specifically for offline, off-grid use. It is <strong>not designed to be used with a cellular carrier</strong>, and it is possible that it cannot be used with one. Eastern Shore AI, LLC makes no representation that this device is compatible with any carrier network, SIM card, or cellular service plan.</p>
+          <p style="margin:0; font-size:.9rem;">I acknowledge that I am purchasing this device for its <strong>offline capabilities only</strong>, and that the absence of cellular connectivity is not a defect.</p>
+        </div>
+
+        <p><strong>2. Device Condition Disclosure</strong></p>
+        <p><strong>Device Condition:</strong> I acknowledge the included device is a Motorola Moto G Power (2024) — brand new or open box — hand-vetted for battery life, memory performance, and overall suitability. Minor cosmetic wear on open box units is normal. The original manufacturer's warranty is void due to OS modification (deep Android debloat, optimized for performance and longevity).</p>
+        <p><strong>Software Responsibility:</strong> I understand every Survival Node ships with a deep-debloated Android OS, optimized for performance and longevity — all tracking and battery-draining software removed. Certain mainstream apps — including banking, DRM-restricted streaming, and Google-dependent services — may not function as on standard retail devices. All pre-installed software is provided "AS IS."</p>
+        <p><strong>Product Appearance:</strong> I acknowledge that the hard storage case included in this kit is sourced from multiple suppliers and may differ from those shown in product images — including color, latch style, interior layout, or dimensions. All units meet the same functional specifications.</p>
+        <p><strong>Packaging:</strong> I acknowledge that my Survival Node ships in a standard cardboard box which may display the logo or branding of another company. I understand this is standard supply chain practice and does not imply any partnership, sponsorship, endorsement, or affiliation between that company and Eastern Shore AI, LLC.</p>
+
+        <p><strong>3. Emergency Use &amp; Reliability</strong></p>
+        <p><strong>No Survival Guarantee:</strong> I acknowledge this kit is a preparedness tool and does not guarantee safety or survival in any emergency. AI-provided information is for educational reference only and must not replace professional medical, tactical, or legal advice.</p>
+        <p><strong>Solar Charging:</strong> I understand the solar panel cannot sustain all-day normal phone use. I understand that under emergency conditions — brief, task-focused use followed by powering the device off — solar alone can sustain the kit for an extended period. I will power the phone off when not actively in use to maximize solar reserve, and will use wall power whenever available to supplement.</p>
+
+        <p><strong>4. Shipping &amp; Return Policy</strong></p>
+        <p><strong>Continental U.S. Only:</strong> Orders are only accepted for continental United States shipping destinations (no Alaska, Hawaii, U.S. territories, or international shipping).</p>
+        <p><strong>Ground Shipping Only (USPS/UPS):</strong> Due to federal regulations governing lithium-ion batteries and cellular devices, this product ships via USPS or UPS ground transportation only. Air shipping is not available for this product. Please allow up to 7 business days for order processing, plus up to 10 additional business days for transit after shipment.</p>
+        <p><strong>Returns:</strong> Returns are accepted within 30 days of the confirmed delivery date. To initiate a return, I will contact Eastern Shore AI, LLC through the website contact form to receive a Return Merchandise Authorization (RMA) number before sending any item back — returns without a prior RMA will not be accepted. The device must be in original functional condition and the OS must not have been further modified by me. I am responsible for return shipping costs. Items with physical damage caused after receipt are not eligible for return. After the 30-day window, all sales are final and no repair or replacement service is offered.</p>
+        <p><strong>Order Cancellation:</strong> I acknowledge that Eastern Shore AI, LLC reserves the right to cancel my order prior to shipment for reasons including but not limited to fraud prevention, address verification concerns, or supply constraints. If my order is canceled, I will receive a full refund to my original payment method.</p>
+
+        <p><strong>5. Faraday Bag &amp; EMP Protection</strong></p>
+        <p><strong>Faraday Bag Integrity:</strong> Every Survival Node includes two Faraday bags (one for the phone, one for the solar battery). I understand protection is only effective when the bag is correctly folded and sealed. Any punctures, improper sealing, or material degradation will reduce or eliminate protection. Eastern Shore AI, LLC makes no guarantee of protection against any specific electromagnetic event.</p>
+
+        <p><strong>6. Liability &amp; User Responsibility</strong></p>
+        <p><strong>Limitation of Liability:</strong> I acknowledge that Eastern Shore AI, LLC disclaims all implied warranties and is not liable for incidental, consequential, special, or punitive damages — including loss of data, personal injury, property damage, or adverse emergency outcomes — to the maximum extent permitted by law.</p>
+        <p><strong>User Responsibility:</strong> I confirm I am 18 years of age or older and accept full responsibility for the lawful use, safe storage, maintenance, and updating of all included hardware and software.</p>
+        <p><strong>Right to Refuse:</strong> I acknowledge that Eastern Shore AI, LLC reserves the right to refuse service or cancel my order if there is reasonable belief that the device will be used for unlawful, harmful, or fraudulent purposes. Canceled orders will receive a full refund.</p>
+        <p><strong>Payment Processing:</strong> I understand that all payments are processed by Stripe, Inc. and that Eastern Shore AI, LLC does not collect, store, or access my payment card information. I agree to Stripe's Terms of Service and Privacy Policy as part of completing this purchase.</p>
+      </div>
+
+      <label style="display:block; color:#d8dce8; font-size:.9rem;">
+        Shipping State (continental U.S. only)
+        <select id="shipping-state" style="display:block; width:100%; margin-top:.35rem; background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.65rem; font-family:'Titillium Web',sans-serif; font-size:.95rem;">
+          <option value="">Select your shipping state</option>
+          <option value="AL">Alabama</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option><option value="DC">District of Columbia</option>
+        </select>
+      </label>
+
+      <label style="display:flex; gap:.55rem; align-items:flex-start; color:#d8dce8; font-size:.9rem;">
+        <input type="checkbox" id="terms-check" style="margin-top:.25rem; accent-color:var(--cyan); flex-shrink:0;" />
+        <span>I have read and agree to all terms of sale above.</span>
+      </label>
+
+      <div id="terms-error" style="display:none; color:#ffb4c7; font-size:.88rem;">Please select a shipping state and check the terms agreement box before continuing.</div>
+
+      <div class="terms-actions">
+        <button type="button" class="btn-outline" id="terms-cancel">Cancel</button>
+        <button type="button" class="btn" id="terms-accept" style="width:auto; min-width:220px;" disabled>Continue to Checkout →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Checkout status modal ===== -->
+  <div class="status-modal-overlay" id="status-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="status-modal-title">
+    <div class="status-modal">
+      <div>
+        <span class="status-modal-pill" id="status-modal-pill">STATUS</span>
+      </div>
+      <h3 id="status-modal-title">Order Placed</h3>
+      <p id="status-modal-text"></p>
+      <div class="terms-actions">
+        <button type="button" class="btn" id="status-modal-close" style="width:auto; min-width:160px;">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GHOSTBOX_CHECKOUT_URL = 'https://ghostbox-checkout-api.99redder.workers.dev/api/ghostbox-checkout';
+
+    const buyBtn      = document.getElementById('buy-btn');
+    const priceDisplay = document.getElementById('price-display');
+    const statusMsg   = document.getElementById('status-msg');
+    const BASE_PRICE  = 199.99;
+
+    // ===== Upgrade price =====
+    function updatePrice() {
+      let total = BASE_PRICE;
+      document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
+        total += parseFloat(cb.value);
+      });
+      priceDisplay.textContent = '$' + total.toFixed(2);
+    }
+    document.querySelectorAll('.upgrade-check').forEach(cb => cb.addEventListener('change', updatePrice));
+
+    // ===== Terms modal =====
+    const termsOverlay  = document.getElementById('terms-overlay');
+    const termsCheck    = document.getElementById('terms-check');
+    const shippingState = document.getElementById('shipping-state');
+    const termsError    = document.getElementById('terms-error');
+    const termsCancel   = document.getElementById('terms-cancel');
+    const termsAccept   = document.getElementById('terms-accept');
+    let pendingPayload  = null;
+
+    function openTerms(payload) {
+      pendingPayload  = payload;
+      termsCheck.checked   = false;
+      shippingState.value  = '';
+      termsAccept.disabled = true;
+      termsError.style.display = 'none';
+      termsOverlay.classList.add('open');
+      termsOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTerms() {
+      termsOverlay.classList.remove('open');
+      termsOverlay.setAttribute('aria-hidden', 'true');
+      pendingPayload = null;
+    }
+
+    function checkTermsReady() {
+      const ready = termsCheck.checked && shippingState.value;
+      termsAccept.disabled = !ready;
+      if (ready) termsError.style.display = 'none';
+    }
+
+    termsCheck.addEventListener('change', checkTermsReady);
+    shippingState.addEventListener('change', checkTermsReady);
+    termsCancel.addEventListener('click', closeTerms);
+    termsOverlay.addEventListener('click', e => { if (e.target === termsOverlay) closeTerms(); });
+
+    termsAccept.addEventListener('click', () => {
+      if (!termsCheck.checked || !shippingState.value) {
+        termsError.style.display = 'block';
+        return;
+      }
+      const payload = { ...pendingPayload, shippingState: shippingState.value };
+      closeTerms();
+      startCheckout(payload);
+    });
+
+    // ===== Buy button =====
+    buyBtn.addEventListener('click', () => {
+      const upgrades = [];
+      document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
+        upgrades.push({ label: cb.dataset.label, price: parseFloat(cb.value), priceId: cb.dataset.priceId });
+      });
+      openTerms({ checkoutType: 'base_kit', upgrades });
+    });
+
+    // ===== Checkout =====
+    async function startCheckout(payload) {
+      statusMsg.textContent = 'Redirecting to secure checkout…';
+      statusMsg.className   = 'status-msg';
+      buyBtn.disabled = true;
+
+      try {
+        const res  = await fetch(GHOSTBOX_CHECKOUT_URL, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ ...payload, termsAccepted: true })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok || !data.checkoutUrl) {
+          throw new Error(data.error || 'Could not create checkout session.');
+        }
+        window.location.href = data.checkoutUrl;
+      } catch (err) {
+        statusMsg.textContent = err.message || 'Could not start checkout. Please try again.';
+        statusMsg.className   = 'status-msg err';
+        buyBtn.disabled = false;
+      }
+    }
+
+    // ===== Status modal =====
+    const statusModalOverlay = document.getElementById('status-modal-overlay');
+    const statusModalPill    = document.getElementById('status-modal-pill');
+    const statusModalTitle   = document.getElementById('status-modal-title');
+    const statusModalText    = document.getElementById('status-modal-text');
+    const statusModalClose   = document.getElementById('status-modal-close');
+
+    function showStatusModal(type) {
+      if (type === 'success') {
+        statusModalPill.className  = 'status-modal-pill success';
+        statusModalPill.textContent = 'Order Confirmed';
+        statusModalTitle.textContent = 'Thank You for Your Order!';
+        statusModalText.textContent  = 'Payment complete — you\'ll receive an order confirmation email within 24 hours with your expected ship date. Thank you for your purchase!';
+      } else {
+        statusModalPill.className  = 'status-modal-pill cancel';
+        statusModalPill.textContent = 'Canceled';
+        statusModalTitle.textContent = 'Checkout Canceled';
+        statusModalText.textContent  = 'Checkout canceled — no charge was made. You can try again any time.';
+      }
+      statusModalOverlay.classList.add('open');
+      statusModalOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    statusModalClose.addEventListener('click', () => {
+      statusModalOverlay.classList.remove('open');
+      statusModalOverlay.setAttribute('aria-hidden', 'true');
+    });
+
+    // ===== Handle redirect-back params =====
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === '1') {
+      showStatusModal('success');
+      params.delete('paid');
+      const clean = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+      window.history.replaceState({}, '', clean);
+    } else if (params.get('canceled') === '1') {
+      showStatusModal('cancel');
+      params.delete('canceled');
+      const clean = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+      window.history.replaceState({}, '', clean);
+    }
+  </script>
+</body>
+</html>
