@@ -59,7 +59,7 @@
       border-radius: 14px;
       padding: 2rem 2.25rem 1.75rem;
       width: 100%;
-      max-width: 680px;
+      max-width: 780px;
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
@@ -139,6 +139,27 @@
       font-family: 'Hanken Grotesk', sans-serif;
     }
 
+    .order-total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .65rem .5rem;
+      border-top: 1px solid var(--line);
+    }
+    .order-total-label {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+    .order-total-amount {
+      display: flex;
+      align-items: baseline;
+      gap: .45rem;
+    }
+
     .buy-cta {
       display: flex;
       flex-direction: column;
@@ -180,20 +201,15 @@
     }
     .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
 
-    .price-line {
-      display: flex;
-      align-items: baseline;
-      gap: .4rem;
-    }
     .price-strike {
       opacity: .45;
-      font-size: .8rem;
+      font-size: .85rem;
       font-weight: 400;
       text-decoration: line-through;
       color: var(--muted);
     }
     .price-current {
-      font-size: 1.15rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: var(--text);
       font-family: 'Hanken Grotesk', sans-serif;
@@ -207,12 +223,6 @@
     }
     .status-msg.ok { color: var(--ok); }
     .status-msg.err { color: #ffb4c7; }
-
-    .shipping-note {
-      font-size: .78rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
 
     /* ===== Terms overlay ===== */
     .terms-overlay {
@@ -352,22 +362,18 @@
       </label>
     </div>
 
-    <hr class="divider" />
-
-    <div class="buy-cta">
-      <button id="buy-btn" class="btn" type="button">
-        <span class="price-line">
-          <span class="price-strike">$299.99</span>
-          <span id="price-display" class="price-current">$199.99</span>
-        </span>
-        <span>Buy Survival Node Now</span>
-      </button>
-      <div id="status-msg" class="status-msg" aria-live="polite"></div>
+    <div class="order-total">
+      <span class="order-total-label">Order Total</span>
+      <span class="order-total-amount">
+        <del class="price-strike">$299.99</del>
+        <span id="price-display" class="price-current">$199.99</span>
+      </span>
     </div>
 
-    <p class="shipping-note">
-      Free shipping · Continental U.S. only · Ground transport only (lithium battery regulations) · Allow up to 7 business days processing + up to 10 business days transit
-    </p>
+    <div class="buy-cta">
+      <button id="buy-btn" class="btn" type="button">BUY SURVIVAL NODE NOW</button>
+      <div id="status-msg" class="status-msg" aria-live="polite"></div>
+    </div>
 
   </div>
 
