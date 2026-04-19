@@ -35,13 +35,31 @@
       padding: 2rem 1rem;
     }
 
+    .page-cta {
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .page-cta h1 {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--cyan);
+      letter-spacing: .02em;
+      margin: 0 0 .3rem;
+    }
+    .page-cta p {
+      font-size: .95rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
     .buy-card {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 14px;
-      padding: 2rem 2rem 1.75rem;
+      padding: 2rem 2.25rem 1.75rem;
       width: 100%;
-      max-width: 480px;
+      max-width: 680px;
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
@@ -53,7 +71,7 @@
     }
 
     .logo-wrap img {
-      max-width: 280px;
+      max-width: 440px;
       width: 100%;
       height: auto;
       display: block;
@@ -134,20 +152,19 @@
       gap: .75rem;
       width: 100%;
       padding: .9rem 1.25rem;
-      background: linear-gradient(145deg, #ff4fd8, #c850ff);
+      background: linear-gradient(90deg, var(--cyan), #6ef4ff);
       border: none;
-      border-radius: 9px;
-      color: #fff;
+      border-radius: 8px;
+      color: #071219;
       font-family: 'Hanken Grotesk', sans-serif;
       font-size: 1.1rem;
       font-weight: 700;
       letter-spacing: .02em;
       cursor: pointer;
-      box-shadow: 0 0 18px rgba(200,80,255,.45);
-      transition: opacity .15s, box-shadow .15s;
+      transition: filter .15s;
     }
-    .btn:hover { opacity: .9; box-shadow: 0 0 28px rgba(200,80,255,.6); }
-    .btn:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; filter: none; }
 
     .btn-outline {
       background: transparent;
@@ -283,15 +300,21 @@
     .status-modal h3 { color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif; margin: 0; }
     .status-modal p  { color: var(--text); font-size: .95rem; margin: 0; line-height: 1.55; }
 
-    @media (max-width: 520px) {
+    @media (max-width: 720px) {
       .buy-card { padding: 1.5rem 1.25rem 1.4rem; }
-      .logo-wrap img { max-width: 220px; }
+      .logo-wrap img { max-width: 280px; }
       .terms-scroll { max-height: 38vh; }
       body { justify-content: flex-start; padding-top: 1.5rem; }
+      .page-cta h1 { font-size: 1.15rem; }
     }
   </style>
 </head>
 <body>
+
+  <div class="page-cta">
+    <h1>Emergency Preparedness in the Age of AI</h1>
+    <p>Ready to ship · Free continental U.S. shipping · Secure checkout via Stripe</p>
+  </div>
 
   <div class="buy-card">
 
