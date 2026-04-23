@@ -1524,8 +1524,9 @@ function csvEscape(v) {
 }
 
 
-function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '', deliveredSentAt = '') {
+function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '', deliveredSentAt = '', reviewSentAt = '') {
   const s = (status || '').toString().trim().toLowerCase();
+  if (s === 'reviewed' || reviewSentAt) return 'reviewed';
   if (s === 'delivered' || deliveredSentAt) return 'delivered';
   if (s === 'shipped' || shippedAt) return 'shipped';
   if (s === 'acknowledged' || ackSentAt) return 'acknowledged';
@@ -2044,7 +2045,8 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     } else if (kind === 'review') {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
-         SET review_email_sent_at = datetime('now'),
+         SET fulfillment_status = 'reviewed',
+             review_email_sent_at = datetime('now'),
              review_email_subject = ?1,
              review_email_body = ?2,
              updated_at = datetime('now')
@@ -2090,7 +2092,8 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   } else if (kind === 'review') {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET review_email_sent_at = datetime('now'),
+       SET fulfillment_status = 'reviewed',
+           review_email_sent_at = datetime('now'),
            review_email_subject = ?1,
            review_email_body = ?2,
            updated_at = datetime('now')

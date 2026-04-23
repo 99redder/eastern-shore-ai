@@ -3684,7 +3684,7 @@
 
     function orderStatusBadge(status) {
       const s = String(status || 'new').toLowerCase();
-      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e', delivered: '#6366f1' };
+      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e', delivered: '#6366f1', reviewed: '#f59e0b' };
       return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${colors[s] || '#475569'}; color:#fff; text-transform:uppercase;">${escHtml(s)}</span>`;
     }
 
