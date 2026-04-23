@@ -1565,6 +1565,7 @@ function orderSummaryFromRow(row) {
 function defaultOrderEmailSubject(kind, row) {
   if (kind === 'delivered') return 'Your Survival Node Order Has Been Delivered';
   if (kind === 'shipping') return 'Your Survival Node Order Has Shipped';
+  if (kind === 'review') return 'How Did We Do? Leave Us a Review';
   return 'We received your order';
 }
 
@@ -1587,6 +1588,17 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
       'Your Survival Node has arrived.',
       '',
       'If you have technical support questions, reach out anytime at contact@easternshore.ai'
+    ].filter(Boolean).join('\n');
+  }
+  if (kind === 'review') {
+    return [
+      `Hi ${customerName},`,
+      '',
+      'We hope you\'re loving your Survival Node!',
+      '',
+      'If you have a moment, we\'d really appreciate it if you could leave us a review on Trustpilot. Your feedback helps other preppers find us and helps us keep improving.',
+      '',
+      'It only takes a minute — thank you so much for your support!'
     ].filter(Boolean).join('\n');
   }
   return [
@@ -1621,7 +1633,9 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
     ? 'Your order has arrived — you\'re all set.'
     : kind === 'shipping'
       ? 'Your order is on the way.'
-      : 'Your items are currently being quality checked';
+      : kind === 'review'
+        ? 'We\'d love to hear what you think!'
+        : 'Your items are currently being quality checked';
   const detailLines = [
     row?.order_number ? `<strong>Order Number:</strong> ${escapeHtml(String(row.order_number))}` : '',
     `<strong>Order:</strong> ${escapeHtml(summary)}`,
@@ -1638,8 +1652,11 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const shippingGuideHtml = kind === 'delivered'
     ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is an app on the main screen of the phone — just tap it to open anytime.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
     : '';
+  const trustPilotHtml = kind === 'review'
+    ? `<div style="margin:24px 0;text-align:center;"><a href="https://www.trustpilot.com/evaluate/easternshore.ai" style="display:inline-block;background:#00b67a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:700;font-size:16px;">Leave a Review on Trustpilot &#9733;</a></div>`
+    : '';
   const trackProxyUrl = trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${kind === 'delivered' ? '' : batteryHtml}${trackProxyUrl && kind !== 'delivered' ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${(kind === 'delivered' || kind === 'review') ? '' : batteryHtml}${trackProxyUrl && kind !== 'delivered' && kind !== 'review' ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}${trustPilotHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
   return { subject, bodyText, html };
 }
 
@@ -1673,7 +1690,8 @@ async function getOrderRowByBookingId(db, bookingId) {
        of.shipping_email_body,
        of.shipped_at,
        of.battery_test_note,
-       of.battery_test_image_key
+       of.battery_test_image_key,
+       of.review_email_sent_at
      FROM bookings b
      LEFT JOIN order_fulfillment of ON of.booking_id = b.id
      LEFT JOIN tax_income ti ON ti.stripe_session_id = b.stripe_session_id
@@ -1858,7 +1876,7 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
   if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
-  if (!['ack','shipping','delivered'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+  if (!['ack','shipping','delivered','review'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
@@ -1948,7 +1966,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
   if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
-  if (!['ack','shipping','delivered'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+  if (!['ack','shipping','delivered','review'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
@@ -1961,7 +1979,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
   if ((kind === 'shipping' || kind === 'delivered') && !trackingNumber) {
-    return json({ ok: false, error: 'Tracking number is required before sending the shipping email' }, 400, corsHeaders);
+    return json({ ok: false, error: 'Tracking number is required before sending the shipping or delivered email' }, 400, corsHeaders);
   }
 
   const content = buildOrderEmailContent(kind, hydratedRow, {
@@ -2023,6 +2041,15 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
              updated_at = datetime('now')
          WHERE id = ?6`
       ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+    } else if (kind === 'review') {
+      await env.DB.prepare(
+        `UPDATE manual_survival_node_orders
+         SET review_email_sent_at = datetime('now'),
+             review_email_subject = ?1,
+             review_email_body = ?2,
+             updated_at = datetime('now')
+         WHERE id = ?3`
+      ).bind(content.subject, content.bodyText, row.id).run();
     } else {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
@@ -2060,6 +2087,15 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
            updated_at = datetime('now')
        WHERE booking_id = ?6`
     ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+  } else if (kind === 'review') {
+    await env.DB.prepare(
+      `UPDATE order_fulfillment
+       SET review_email_sent_at = datetime('now'),
+           review_email_subject = ?1,
+           review_email_body = ?2,
+           updated_at = datetime('now')
+       WHERE booking_id = ?3`
+    ).bind(content.subject, content.bodyText, row.id).run();
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
