@@ -204,12 +204,12 @@
     .terms-agree-error {
       display: none;
       margin: 0 0 .55rem;
-      padding: .5rem .75rem;
+      padding: .55rem .8rem;
       background: rgba(255,80,120,0.12);
       border: 1px solid rgba(255,100,140,0.55);
       border-radius: 6px;
       color: #ffb4c7;
-      font-size: .85rem;
+      font-size: .9rem;
       font-weight: 600;
       line-height: 1.4;
     }
@@ -221,6 +221,14 @@
     @keyframes terms-pulse {
       0%, 100% { background: transparent; box-shadow: none; }
       50% { background: rgba(255,100,140,0.18); box-shadow: 0 0 0 4px rgba(255,100,140,0.18); }
+    }
+    /* Honor reduced-motion preference: skip the pulse, keep the highlight */
+    @media (prefers-reduced-motion: reduce) {
+      .terms-agree.is-flagged {
+        animation: none;
+        background: rgba(255,100,140,0.18);
+        box-shadow: 0 0 0 4px rgba(255,100,140,0.18);
+      }
     }
 
     .btn-outline {
@@ -345,6 +353,15 @@
       .terms-scroll { max-height: 38vh; }
       body { justify-content: flex-start; padding-top: 1.5rem; }
       .page-cta h1 { font-size: 1.15rem; }
+    }
+    /* Mobile: bigger checkbox tap target + readable agreement / error text */
+    @media (max-width: 540px) {
+      #agree-terms-check { width: 20px; height: 20px; }
+      .terms-agree { font-size: .95rem; line-height: 1.45; gap: .6rem; }
+      .terms-agree-error { font-size: .95rem; padding: .65rem .9rem; }
+      .ship-callout { padding: .8rem 1rem; }
+      .ship-callout p { font-size: .92rem; }
+      .ship-callout p:last-child { font-size: .88rem; }
     }
   </style>
 </head>

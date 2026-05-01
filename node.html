@@ -284,12 +284,12 @@
     .terms-agree-error {
       display: none;
       margin: 0 0 .55rem;
-      padding: .5rem .75rem;
+      padding: .55rem .8rem;
       background: rgba(255,80,120,0.12);
       border: 1px solid rgba(255,100,140,0.55);
       border-radius: 6px;
       color: #ffb4c7;
-      font-size: .85rem;
+      font-size: .9rem;
       font-weight: 600;
       line-height: 1.4;
     }
@@ -301,6 +301,20 @@
     @keyframes terms-pulse {
       0%, 100% { background: transparent; box-shadow: none; }
       50% { background: rgba(255,100,140,0.18); box-shadow: 0 0 0 4px rgba(255,100,140,0.18); }
+    }
+    /* Mobile: bigger checkbox tap target + slightly larger error/agreement text */
+    @media (max-width: 540px) {
+      #agree-terms-check { width: 20px; height: 20px; margin-top: .15rem !important; }
+      .terms-agree { font-size: .95rem !important; line-height: 1.45 !important; gap: .6rem !important; }
+      .terms-agree-error { font-size: .95rem; padding: .65rem .9rem; }
+    }
+    /* Honor reduced-motion preference: skip the pulse, keep the highlight */
+    @media (prefers-reduced-motion: reduce) {
+      .terms-agree.is-flagged {
+        animation: none;
+        background: rgba(255,100,140,0.18);
+        box-shadow: 0 0 0 4px rgba(255,100,140,0.18);
+      }
     }
     .status { margin-top: .7rem; min-height: 1.2rem; color: var(--muted); font-size: .94rem; }
     .note { margin-top: .8rem; font-size: 1rem; color: var(--muted); }
@@ -1119,7 +1133,7 @@
         {
           "@type": "Question",
           "name": "Does this ship outside the continental United States?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Not at this time. All Survival Node orders ship via USPS or UPS ground transportation to continental US destinations only. Alaska, Hawaii, US territories, and international destinations are not currently supported due to federal regulations governing lithium-ion batteries and cellular devices. Please allow up to 7 business days for processing and up to 10 additional business days for transit." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Not at this time. All Survival Node orders ship via USPS or UPS ground transportation to continental US destinations only. Alaska, Hawaii, US territories, and international destinations are not currently supported due to federal regulations governing lithium-ion batteries and cellular devices. Please allow up to 7 days for processing and up to 10 additional business days for transit. Average shipping time is 5-7 business days once the order is received." }
         }
       ]
     },
@@ -1446,7 +1460,7 @@
 
         <ul style="margin-top:.8rem;">
           <li><strong>Free shipping to all continental US states. **We cannot ship outside the continental United States.</strong></li>
-          <li><strong>Please allow up to 7 business days for processing before your item ships. (We will send you an order confirmation that gives you exact ship date within 24 hours of your order being placed)</strong></li>
+          <li><strong>Please allow up to 7 days for processing before your item ships. (We will send you an order confirmation that gives you exact ship date within 24 hours of your order being placed)</strong></li>
           <li><strong>Ships via UPS or USPS ground transportation only</strong> (required by federal regulations due to lithium-ion battery). Transit time may be up to 10 additional business days after shipment.</li>
         </ul>
 
