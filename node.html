@@ -1402,12 +1402,16 @@
             </div>
 
             <div style="margin-top:auto; padding-top:.8rem; border-top:1px solid var(--line);">
-              <!-- KEEP IN SYNC with buynode.html .terms-agree block -->
-              <label class="terms-agree" style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.55rem; color:var(--text); font-size:.9rem; line-height:1.4;">
+              <!-- KEEP IN SYNC with buynode.html ship-callout + terms-agree block -->
+              <div class="ship-callout" style="background:rgba(255,170,80,0.08); border:2px solid rgba(255,170,80,0.55); border-radius:8px; padding:.7rem .9rem; margin-bottom:.7rem;">
+                <p style="margin:0 0 .35rem; color:#ffb96b; font-family:'Hanken Grotesk',sans-serif; font-size:.78rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase;">&#9888; Continental U.S. (CONUS) Shipping Only</p>
+                <p style="margin:0 0 .35rem; font-size:.85rem; line-height:1.45; color:var(--text);"><strong>CONUS</strong> = the 48 contiguous states + D.C. We <strong>cannot ship</strong> to Alaska, Hawaii, Puerto Rico, U.S. territories, APO/FPO/DPO, or international addresses.</p>
+                <p style="margin:0; font-size:.8rem; line-height:1.45; color:var(--muted);">Non-CONUS orders are canceled and refunded <strong style="color:var(--text);">minus the Stripe processing fee</strong> (approx. 2.9% + $0.30, which Stripe does not return on refunds).</p>
+              </div>
+              <label class="terms-agree" style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.7rem; color:var(--text); font-size:.9rem; line-height:1.4;">
                 <input type="checkbox" id="agree-terms-check" style="margin-top:.25rem; accent-color:var(--cyan); flex-shrink:0;" />
-                <span>I'm 18+, shipping to the continental U.S. (no AK, HI, U.S. territories, or international), and I agree to the <a href="/terms.html" target="_blank" rel="noopener" style="color:var(--cyan);">Terms of Sale</a> and <a href="/privacy.html" target="_blank" rel="noopener" style="color:var(--cyan);">Privacy Policy</a>.</span>
+                <span>I'm 18+, my shipping address is in the continental U.S. (CONUS), and I agree to the <a href="/terms.html" target="_blank" rel="noopener" style="color:var(--cyan);">Terms of Sale</a> (including the non-CONUS refund-minus-fee policy) and <a href="/privacy.html" target="_blank" rel="noopener" style="color:var(--cyan);">Privacy Policy</a>.</span>
               </label>
-              <p class="terms-ship-note" style="margin:0 0 .6rem; font-size:.8rem; color:var(--muted); line-height:1.45;">We ship to the 48 continental U.S. states only. Orders to Alaska, Hawaii, U.S. territories, or international addresses will be canceled and refunded.</p>
               <button id="buy-btn" class="btn" type="button" disabled style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
                 <span style="white-space:nowrap; line-height:1.2;"><del style="opacity:.45; font-size:.78rem; font-weight:400;">$299.99</del> <span id="buy-price-display" style="font-size:1.05rem; font-weight:800;">$199.99</span></span>
                 <span style="font-size:1.2rem; font-weight:700;">Buy Survival Node Now</span>

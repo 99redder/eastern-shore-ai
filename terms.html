@@ -154,6 +154,26 @@
     .sim-callout p { margin: 0 0 .35rem; font-size: .95rem; }
     .sim-callout p:last-child { margin-bottom: 0; }
 
+    .conus-callout {
+      background: rgba(255,170,80,0.08);
+      border: 2px solid rgba(255,170,80,0.55);
+      border-radius: 12px;
+      padding: 1.1rem 1.3rem;
+      margin: 0 0 1rem;
+      box-shadow: 0 0 18px rgba(255,170,80,0.10);
+    }
+    .conus-callout-title {
+      color: #ffb96b;
+      font-size: 1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin: 0 0 .55rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+    }
+    .conus-callout p { margin: 0 0 .55rem; font-size: .95rem; line-height: 1.55; }
+    .conus-callout p:last-child { margin-bottom: 0; }
+
     .back-row {
       display:flex; justify-content:center; gap:.7rem; flex-wrap:wrap;
       margin-top: 1.5rem;
@@ -212,6 +232,7 @@
     <section class="summary-box" aria-label="Key purchase summary">
       <h2>Key things to know before you buy</h2>
       <ul>
+        <li><strong>Continental U.S. only (CONUS &mdash; the 48 connected states + D.C.).</strong> No shipping to Alaska, Hawaii, U.S. territories, or international addresses. Non-CONUS orders are canceled and refunded <strong>minus the Stripe processing fee</strong> (approx. 2.9% + $0.30 that Stripe does not return on refunds).</li>
         <li>You're 18+ and shipping to the continental U.S.</li>
         <li>Lithium-ion battery &mdash; store at 50&ndash;70%, recharge every 6&ndash;12 months</li>
         <li>Phone OS is modified; manufacturer warranty is void</li>
@@ -220,6 +241,12 @@
         <li>Final sale after 30 days</li>
       </ul>
     </section>
+
+    <div class="conus-callout" role="note" aria-label="Continental U.S. only">
+      <p class="conus-callout-title">&#9888; Continental U.S. (CONUS) Shipping Only</p>
+      <p><strong>"CONUS"</strong> means the <strong>contiguous United States</strong> &mdash; the 48 connected states plus the District of Columbia. It does <strong>not</strong> include Alaska, Hawaii, Puerto Rico, U.S. Virgin Islands, Guam, American Samoa, Northern Mariana Islands, APO/FPO/DPO military addresses, or any international destination.</p>
+      <p>We ship <strong>only to CONUS</strong>. If you place an order with a non-CONUS shipping address, your order will be canceled and refunded <strong>minus the Stripe payment processing fee</strong> (approximately 2.9% + $0.30). Stripe retains this fee on refunded transactions and does not return it to us, so it cannot be returned to you. By completing checkout you acknowledge and accept this fee policy.</p>
+    </div>
 
     <section class="card">
       <span class="eyebrow">Survival Node</span>
@@ -278,7 +305,8 @@
             <span class="acc-arrow">&rsaquo;</span>
           </button>
           <div class="acc-body" hidden>
-            <p><strong>Continental U.S. Only:</strong> Orders are only accepted for continental United States shipping destinations (no Alaska, Hawaii, U.S. territories, or international shipping). Orders to non-CONUS addresses will be canceled and refunded.</p>
+            <p><strong>Continental U.S. (CONUS) Only:</strong> Orders are only accepted for shipping to the continental United States &mdash; meaning the <strong>48 contiguous states plus the District of Columbia</strong>. CONUS does <strong>not</strong> include Alaska, Hawaii, Puerto Rico, U.S. Virgin Islands, Guam, American Samoa, Northern Mariana Islands, APO/FPO/DPO military addresses, or any international destination.</p>
+            <p><strong>Non-CONUS Orders &mdash; Refund Minus Stripe Processing Fee:</strong> If a buyer submits an order with a non-CONUS shipping address, the order will be canceled and refunded <strong>minus the Stripe payment processing fee</strong> (approximately 2.9% of the order total plus $0.30). Stripe retains this fee on refunded transactions and does not return it to the seller, so it cannot be returned to the buyer. By completing checkout, the buyer acknowledges and accepts that any non-CONUS refund will be reduced by this fee.</p>
             <p><strong>Ground Shipping Only (USPS/UPS):</strong> Due to federal regulations governing lithium-ion batteries and cellular devices, this product ships via USPS or UPS ground transportation only. Air shipping is not available for this product. Please allow up to 7 business days for order processing, plus up to 10 additional business days for transit after shipment.</p>
             <p><strong>Returns:</strong> Returns are accepted within 30 days of the confirmed delivery date. To initiate a return, I will contact Eastern Shore AI, LLC through the website contact form to receive a Return Merchandise Authorization (RMA) number before sending any item back &mdash; returns without a prior RMA will not be accepted. The device must be in original functional condition and the OS must not have been further modified by me. I am responsible for return shipping costs. Items with physical damage caused after receipt are not eligible for return. After the 30-day window, all sales are final and no repair or replacement service is offered.</p>
             <p><strong>Post-Warranty Service:</strong> After the 30-day limited warranty period, Eastern Shore AI, LLC does not offer repair, replacement, or ongoing service for included hardware or software except on a discretionary case-by-case basis.</p>

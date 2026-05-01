@@ -1274,16 +1274,34 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
     // CONUS-only enforcement: Stripe Checkout's allowed_countries filters at the
     // country level only — AK, HI, PR, etc. still pass. For shippable Survival
-    // Node sales, validate the captured shipping state here and refund any
-    // order that lands outside the 48 continental U.S. states.
+    // Node sales we refund any order that lands outside the 48 contiguous U.S.
+    // states (CONUS). Per the Terms of Sale, the refund is the order total
+    // MINUS the Stripe processing fee (Stripe keeps the fee on refunds and
+    // does not return it to the seller, so the buyer absorbs it).
     if (isShippableNodeSale) {
       const shipState = (session.shipping_details?.address?.state || session.customer_details?.address?.state || '').toString().trim().toUpperCase();
       if (shipState && NON_CONUS_STATES.has(shipState)) {
         const paymentIntentId = (session.payment_intent || '').toString().trim();
         const buyerEmail = session.customer_details?.email || session.customer_email || null;
         const buyerName = session.shipping_details?.name || session.customer_details?.name || null;
-        console.warn(`Non-CONUS Survival Node order rejected | session=${sessionId} | state=${shipState} | email=${buyerEmail || 'unknown'}`);
-        const refund = await refundStripePaymentIntent(env.STRIPE_SECRET_KEY, paymentIntentId, `Non-CONUS state: ${shipState}`);
+        const orderTotalCents = Number(session.amount_total || 0) || 0;
+
+        let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
+        let feeSource = 'actual';
+        if (!feeCents || feeCents <= 0) {
+          feeCents = estimateStripeFeeCents(orderTotalCents);
+          feeSource = 'estimated';
+        }
+        const refundCents = Math.max(orderTotalCents - feeCents, 0);
+
+        console.warn(`Non-CONUS Survival Node order rejected | session=${sessionId} | state=${shipState} | email=${buyerEmail || 'unknown'} | total=${orderTotalCents} | fee=${feeCents}(${feeSource}) | refund=${refundCents}`);
+
+        const refund = await refundStripePaymentIntent(
+          env.STRIPE_SECRET_KEY,
+          paymentIntentId,
+          `Non-CONUS state ${shipState} (refund minus Stripe fee per Terms of Sale)`,
+          refundCents
+        );
         if (!refund.ok) {
           console.error('Non-CONUS auto-refund failed', refund.error);
         }
@@ -1292,13 +1310,23 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             toEmail: buyerEmail,
             customerName: buyerName,
             state: shipState,
-            sessionId
+            sessionId,
+            orderTotalCents,
+            feeCents,
+            refundCents,
+            refundIssued: refund.ok
           });
           if (!emailRes.ok) console.error('Non-CONUS refund email failed', emailRes.error);
         }
         // Ack the webhook so Stripe doesn't retry; do NOT write a booking or
         // income row for a refunded non-CONUS order.
-        return json({ ok: true, refunded: refund.ok, reason: `non-CONUS state ${shipState}` }, 200, corsHeaders);
+        return json({
+          ok: true,
+          refunded: refund.ok,
+          refundedCents: refund.ok ? refundCents : 0,
+          feeRetainedCents: feeCents,
+          reason: `non-CONUS state ${shipState}`
+        }, 200, corsHeaders);
       }
     }
 
@@ -4662,18 +4690,23 @@ async function fetchStripeFeeCents(stripeSecretKey, paymentIntentId) {
 const NON_CONUS_STATES = new Set(['AK','HI','PR','VI','GU','AS','MP','AE','AP','AA']);
 
 /**
- * Refund a Stripe payment intent (for CONUS-only enforcement).
- * Returns { ok, refundId, error }.
+ * Refund a Stripe payment intent. If `amountCents` is provided, performs a
+ * partial refund of that amount; otherwise refunds the full charge.
+ * Returns { ok, refundId, refundedCents, error }.
  */
-async function refundStripePaymentIntent(stripeSecretKey, paymentIntentId, reason) {
+async function refundStripePaymentIntent(stripeSecretKey, paymentIntentId, reason, amountCents) {
   if (!stripeSecretKey || !paymentIntentId) {
     return { ok: false, error: 'missing stripe key or payment intent' };
   }
-  const body = new URLSearchParams({
+  const params = {
     payment_intent: paymentIntentId,
     reason: 'requested_by_customer',
     'metadata[refund_reason]': (reason || 'CONUS-only shipping policy').slice(0, 200)
-  });
+  };
+  if (Number.isFinite(amountCents) && amountCents > 0) {
+    params.amount = String(Math.round(amountCents));
+  }
+  const body = new URLSearchParams(params);
   const res = await fetch('https://api.stripe.com/v1/refunds', {
     method: 'POST',
     headers: {
@@ -4684,21 +4717,53 @@ async function refundStripePaymentIntent(stripeSecretKey, paymentIntentId, reaso
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return { ok: false, error: data?.error?.message || 'refund failed', detail: data };
-  return { ok: true, refundId: data?.id || null };
+  return {
+    ok: true,
+    refundId: data?.id || null,
+    refundedCents: Number(data?.amount || 0) || null
+  };
 }
 
 /**
- * Email the buyer that their non-CONUS order was refunded.
+ * Estimate Stripe's standard 2.9% + 30c card processing fee. Used as a
+ * fallback when fetchStripeFeeCents() can't retrieve the actual fee.
  */
-async function sendNonConusRefundEmail(env, { toEmail, customerName, state, sessionId }) {
+function estimateStripeFeeCents(amountCents) {
+  if (!Number.isFinite(amountCents) || amountCents <= 0) return 0;
+  return Math.round(amountCents * 0.029) + 30;
+}
+
+/**
+ * Email the buyer that their non-CONUS order was refunded (minus Stripe fee).
+ */
+async function sendNonConusRefundEmail(env, {
+  toEmail,
+  customerName,
+  state,
+  sessionId,
+  orderTotalCents,
+  feeCents,
+  refundCents,
+  refundIssued
+}) {
   if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !toEmail) return { ok: false, error: 'email not configured' };
   const greeting = customerName ? `Hi ${customerName},` : 'Hi,';
-  const subject = 'Your Survival Node order has been refunded';
+  const subject = 'Your Survival Node order has been refunded (CONUS-only shipping)';
+  const fmt = (c) => `$${(Math.max(Number(c) || 0, 0) / 100).toFixed(2)}`;
+  const refundLine = refundIssued
+    ? `<p>We have refunded <strong>${fmt(refundCents)}</strong> to your original payment method. The refund typically appears within 5&ndash;10 business days depending on your bank.</p>`
+    : `<p>Our automated refund attempt did not succeed. We've been alerted and will issue your refund manually within 1&ndash;2 business days.</p>`;
   const html = `
     <p>${greeting}</p>
-    <p>Thanks for your Survival Node order. Unfortunately we can only ship to the 48 continental U.S. states, and the shipping address on your order was in <strong>${state || 'a non-CONUS region'}</strong> (Alaska, Hawaii, U.S. territories, or international).</p>
-    <p>We've fully refunded your payment to the original payment method. The refund typically appears within 5&ndash;10 business days depending on your bank.</p>
-    <p>If you believe this was a mistake or you'd like to ship to a continental U.S. address, please reply to this email or use our <a href="https://www.easternshore.ai/contact.html">contact form</a> and we'll help work it out.</p>
+    <p>Thanks for your Survival Node order. Unfortunately we can only ship to the <strong>continental United States (CONUS &mdash; the 48 contiguous states + D.C.)</strong>, and the shipping address on your order was in <strong>${state || 'a non-CONUS region'}</strong> (Alaska, Hawaii, U.S. territory, military APO/FPO/DPO, or international).</p>
+    <p>Per our <a href="https://www.easternshore.ai/terms.html">Terms of Sale</a>, non-CONUS orders are canceled and refunded <strong>minus the Stripe payment processing fee</strong>. Stripe retains this fee on refunded transactions and does not return it to us, so it cannot be returned to you.</p>
+    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse; margin:12px 0; font-size:14px;">
+      <tr><td>Order total charged:</td><td style="text-align:right;"><strong>${fmt(orderTotalCents)}</strong></td></tr>
+      <tr><td>Stripe processing fee (retained):</td><td style="text-align:right;">&minus; ${fmt(feeCents)}</td></tr>
+      <tr style="border-top:1px solid #ccc;"><td><strong>Refund issued:</strong></td><td style="text-align:right;"><strong>${fmt(refundCents)}</strong></td></tr>
+    </table>
+    ${refundLine}
+    <p>If you'd like to ship to a continental U.S. address instead, please reply to this email or use our <a href="https://www.easternshore.ai/contact.html">contact form</a> and we'll help work it out.</p>
     <p>&mdash; Eastern Shore AI</p>
     <hr />
     <p style="color:#888; font-size:12px;">Reference: ${sessionId || 'n/a'}</p>
