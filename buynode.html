@@ -199,6 +199,29 @@
     }
     .btn:hover { filter: brightness(1.06); }
     .btn:disabled { opacity: .55; cursor: not-allowed; filter: none; }
+    .btn.is-locked { opacity: .55; cursor: not-allowed; filter: none; }
+    .btn.is-locked:hover { filter: none; }
+    .terms-agree-error {
+      display: none;
+      margin: 0 0 .55rem;
+      padding: .5rem .75rem;
+      background: rgba(255,80,120,0.12);
+      border: 1px solid rgba(255,100,140,0.55);
+      border-radius: 6px;
+      color: #ffb4c7;
+      font-size: .85rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .terms-agree-error.visible { display: block; }
+    .terms-agree.is-flagged {
+      animation: terms-pulse 0.45s ease-out 2;
+      border-radius: 6px;
+    }
+    @keyframes terms-pulse {
+      0%, 100% { background: transparent; box-shadow: none; }
+      50% { background: rgba(255,100,140,0.18); box-shadow: 0 0 0 4px rgba(255,100,140,0.18); }
+    }
 
     .btn-outline {
       background: transparent;
@@ -387,11 +410,12 @@
         <p><strong>CONUS</strong> = the 48 contiguous states + D.C. We <strong>cannot ship</strong> to Alaska, Hawaii, Puerto Rico, U.S. territories, APO/FPO/DPO, or international addresses.</p>
         <p>Non-CONUS orders are canceled and refunded <strong>minus the Stripe processing fee</strong> (approx. 2.9% + $0.30, which Stripe does not return on refunds).</p>
       </div>
-      <label class="terms-agree" for="agree-terms-check">
+      <label class="terms-agree" id="agree-terms-label" for="agree-terms-check" style="padding:.15rem .25rem;">
         <input type="checkbox" id="agree-terms-check" />
         <span>I'm 18+, my shipping address is in the continental U.S. (CONUS), and I agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms of Sale</a> (including the non-CONUS refund-minus-fee policy) and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span>
       </label>
-      <button id="buy-btn" class="btn" type="button" disabled>BUY SURVIVAL NODE NOW</button>
+      <div id="agree-terms-error" class="terms-agree-error" role="alert" aria-live="polite">&#9888; Please check the agreement box above to continue.</div>
+      <button id="buy-btn" class="btn is-locked" type="button" aria-disabled="true">BUY SURVIVAL NODE NOW</button>
       <div id="status-msg" class="status-msg" aria-live="polite"></div>
     </div>
 
@@ -430,13 +454,29 @@
     document.querySelectorAll('.upgrade-check').forEach(cb => cb.addEventListener('change', updatePrice));
 
     // ===== Inline terms agreement =====
-    const TERMS_VERSION   = '2026-05-01';
-    const TERMS_URL       = 'https://www.easternshore.ai/terms.html';
-    const agreeTermsCheck = document.getElementById('agree-terms-check');
-    let termsAcceptedAt   = null;
+    // Button stays clickable (no `disabled` attr) so a click without
+    // agreement can show a visible "check the box" error rather than
+    // appearing broken.
+    const TERMS_VERSION    = '2026-05-01';
+    const TERMS_URL        = 'https://www.easternshore.ai/terms.html';
+    const agreeTermsCheck  = document.getElementById('agree-terms-check');
+    const agreeTermsLabel  = document.getElementById('agree-terms-label');
+    const agreeTermsError  = document.getElementById('agree-terms-error');
+    let termsAcceptedAt    = null;
 
     function syncBuyButtonState() {
-      buyBtn.disabled = !agreeTermsCheck.checked;
+      const ok = agreeTermsCheck.checked;
+      buyBtn.classList.toggle('is-locked', !ok);
+      buyBtn.setAttribute('aria-disabled', ok ? 'false' : 'true');
+      if (ok) agreeTermsError.classList.remove('visible');
+    }
+    function flagTermsAgreement() {
+      agreeTermsError.classList.add('visible');
+      agreeTermsLabel.classList.remove('is-flagged');
+      void agreeTermsLabel.offsetWidth;
+      agreeTermsLabel.classList.add('is-flagged');
+      agreeTermsLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      agreeTermsCheck.focus({ preventScroll: true });
     }
     agreeTermsCheck.addEventListener('change', () => {
       if (agreeTermsCheck.checked && !termsAcceptedAt) {
@@ -451,7 +491,7 @@
     // ===== Buy button =====
     buyBtn.addEventListener('click', () => {
       if (!agreeTermsCheck.checked) {
-        agreeTermsCheck.focus();
+        flagTermsAgreement();
         return;
       }
       if (!termsAcceptedAt) termsAcceptedAt = new Date().toISOString();

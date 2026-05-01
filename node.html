@@ -279,6 +279,29 @@
       border-radius: 8px;
     }
     .btn:hover { filter: brightness(1.06); }
+    .btn.is-locked { opacity: .55; cursor: not-allowed; filter: none; }
+    .btn.is-locked:hover { filter: none; }
+    .terms-agree-error {
+      display: none;
+      margin: 0 0 .55rem;
+      padding: .5rem .75rem;
+      background: rgba(255,80,120,0.12);
+      border: 1px solid rgba(255,100,140,0.55);
+      border-radius: 6px;
+      color: #ffb4c7;
+      font-size: .85rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .terms-agree-error.visible { display: block; }
+    .terms-agree.is-flagged {
+      animation: terms-pulse 0.45s ease-out 2;
+      border-radius: 6px;
+    }
+    @keyframes terms-pulse {
+      0%, 100% { background: transparent; box-shadow: none; }
+      50% { background: rgba(255,100,140,0.18); box-shadow: 0 0 0 4px rgba(255,100,140,0.18); }
+    }
     .status { margin-top: .7rem; min-height: 1.2rem; color: var(--muted); font-size: .94rem; }
     .note { margin-top: .8rem; font-size: 1rem; color: var(--muted); }
     .setup-link {
@@ -1408,11 +1431,12 @@
                 <p style="margin:0 0 .35rem; font-size:.85rem; line-height:1.45; color:var(--text);"><strong>CONUS</strong> = the 48 contiguous states + D.C. We <strong>cannot ship</strong> to Alaska, Hawaii, Puerto Rico, U.S. territories, APO/FPO/DPO, or international addresses.</p>
                 <p style="margin:0; font-size:.8rem; line-height:1.45; color:var(--muted);">Non-CONUS orders are canceled and refunded <strong style="color:var(--text);">minus the Stripe processing fee</strong> (approx. 2.9% + $0.30, which Stripe does not return on refunds).</p>
               </div>
-              <label class="terms-agree" style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.7rem; color:var(--text); font-size:.9rem; line-height:1.4;">
+              <label class="terms-agree" id="agree-terms-label" style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.7rem; padding:.15rem .25rem; color:var(--text); font-size:.9rem; line-height:1.4;">
                 <input type="checkbox" id="agree-terms-check" style="margin-top:.25rem; accent-color:var(--cyan); flex-shrink:0;" />
                 <span>I'm 18+, my shipping address is in the continental U.S. (CONUS), and I agree to the <a href="/terms.html" target="_blank" rel="noopener" style="color:var(--cyan);">Terms of Sale</a> (including the non-CONUS refund-minus-fee policy) and <a href="/privacy.html" target="_blank" rel="noopener" style="color:var(--cyan);">Privacy Policy</a>.</span>
               </label>
-              <button id="buy-btn" class="btn" type="button" disabled style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
+              <div id="agree-terms-error" class="terms-agree-error" role="alert" aria-live="polite">&#9888; Please check the agreement box above to continue.</div>
+              <button id="buy-btn" class="btn is-locked" type="button" aria-disabled="true" style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
                 <span style="white-space:nowrap; line-height:1.2;"><del style="opacity:.45; font-size:.78rem; font-weight:400;">$299.99</del> <span id="buy-price-display" style="font-size:1.05rem; font-weight:800;">$199.99</span></span>
                 <span style="font-size:1.2rem; font-weight:700;">Buy Survival Node Now</span>
               </button>
@@ -2381,13 +2405,31 @@
     byogTermsCancel.addEventListener('click', closeTerms);
     byogTermsOverlay.addEventListener('click', (e) => { if (e.target === byogTermsOverlay) closeTerms(); });
 
-    // Inline product-terms agreement: gates the Buy button + captures
-    // the buyer-side acceptance timestamp for Stripe metadata.
+    // Inline product-terms agreement: visually gates the Buy button +
+    // captures the buyer-side acceptance timestamp for Stripe metadata.
     // CONUS-only enforcement is post-payment in the webhook (refund +
-    // notify); we accept the Stripe processing fee on those edge cases
-    // in exchange for a frictionless flow.
+    // notify); we accept the Stripe processing fee on non-CONUS edge
+    // cases in exchange for a frictionless flow.
+    //
+    // Note: the button stays clickable (no `disabled` attr) so a click
+    // without agreement can surface a visible "check the box" error
+    // instead of doing nothing.
+    const agreeTermsLabel = document.getElementById('agree-terms-label');
+    const agreeTermsError = document.getElementById('agree-terms-error');
     function syncBuyButtonState() {
-      buyBtn.disabled = !agreeTermsCheck.checked;
+      const ok = agreeTermsCheck.checked;
+      buyBtn.classList.toggle('is-locked', !ok);
+      buyBtn.setAttribute('aria-disabled', ok ? 'false' : 'true');
+      if (ok) agreeTermsError.classList.remove('visible');
+    }
+    function flagTermsAgreement() {
+      agreeTermsError.classList.add('visible');
+      agreeTermsLabel.classList.remove('is-flagged');
+      // Restart the pulse animation
+      void agreeTermsLabel.offsetWidth;
+      agreeTermsLabel.classList.add('is-flagged');
+      agreeTermsLabel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      agreeTermsCheck.focus({ preventScroll: true });
     }
     agreeTermsCheck.addEventListener('change', () => {
       if (agreeTermsCheck.checked && !termsAcceptedAt) {
@@ -2461,7 +2503,7 @@
 
     buyBtn.addEventListener('click', () => {
       if (!agreeTermsCheck.checked) {
-        agreeTermsCheck.focus();
+        flagTermsAgreement();
         return;
       }
       if (!termsAcceptedAt) termsAcceptedAt = new Date().toISOString();
