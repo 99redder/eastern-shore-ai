@@ -4503,6 +4503,7 @@ async function ensureAccountingSetup(db) {
     ['3100','Owner Contributions','equity','credit'],
     ['3200','Owner Draw','equity','debit'],
     ['4000','Service Revenue','income','credit'],
+    ['4100','Interest Income','income','credit'],
     ['4900','Other Income','income','credit'],
     ['5000','Software Expense','expense','debit'],
     ['5100','Marketing Expense','expense','debit'],
@@ -4630,7 +4631,15 @@ async function upsertTaxIncomeJournal(db, row) {
   const categoryRaw = (row.category || '').toString().trim().toLowerCase();
   const sourceRaw = (row.source || '').toString().trim().toLowerCase();
   const isOwnerFunded = Number(row.is_owner_funded || 0) === 1 || categoryRaw.includes('owner funded') || categoryRaw.includes('non-revenue') || sourceRaw.includes('owner funded') || sourceRaw.includes('test');
-  const creditAccountCode = isOwnerFunded ? '3100' : '4000';
+  const isBankInterest = categoryRaw.includes('bank interest') || categoryRaw === 'interest income';
+  let creditAccountCode = '4000';
+  if (isOwnerFunded) {
+    creditAccountCode = '3100';
+  } else if (isBankInterest) {
+    // Lazy-create on existing prod DBs that were seeded before 4100 was added.
+    await ensureAccountByCode(db, '4100', 'Interest Income', 'income', 'credit');
+    creditAccountCode = '4100';
+  }
   const creditAccountId = await getAccountIdByCode(db, creditAccountCode);
   if (!debitAccountId || !creditAccountId) return;
 
