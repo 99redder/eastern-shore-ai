@@ -4490,36 +4490,43 @@ async function ensureAccountingSetup(db) {
   const ready = await accountingTablesReady(db);
   if (!ready) return false;
   const existing = await db.prepare(`SELECT COUNT(*) AS c FROM accounts`).first();
-  if (Number(existing?.c || 0) > 0) return true;
+  const isFresh = Number(existing?.c || 0) === 0;
 
-  const seed = [
-    ['1000','Cash on Hand','asset','debit'],
-    ['1010','Owner Personal Card Clearing','liability','credit'],
-    ['1100','Accounts Receivable','asset','debit'],
-    ['2000','Accounts Payable','liability','credit'],
-    ['2100','Credit Card Payable','liability','credit'],
-    ['2200','Sales Tax Payable','liability','credit'],
-    ['3000','Owner Equity','equity','credit'],
-    ['3100','Owner Contributions','equity','credit'],
-    ['3200','Owner Draw','equity','debit'],
-    ['4000','Service Revenue','income','credit'],
-    ['4100','Interest Income','income','credit'],
-    ['4900','Other Income','income','credit'],
-    ['5000','Software Expense','expense','debit'],
-    ['5100','Marketing Expense','expense','debit'],
-    ['5200','Office Expense','expense','debit'],
-    ['5210','Inventory - Survival Node Components','expense','debit'],
-    ['5220','Shipping - Survival Node Fulfillment','expense','debit'],
-    ['5230','Packaging - Survival Node Fulfillment','expense','debit'],
-    ['5300','Payment Processing Fees','expense','debit'],
-    ['5400','Contractor Expense','expense','debit'],
-    ['5500','Travel Expense','expense','debit'],
-    ['5600','Utilities Expense','expense','debit']
-  ];
-
-  for (const s of seed) {
-    await db.prepare(`INSERT INTO accounts (code, name, account_type, normal_side, is_system, active) VALUES (?1, ?2, ?3, ?4, 1, 1)`).bind(...s).run();
+  if (isFresh) {
+    const seed = [
+      ['1000','Cash on Hand','asset','debit'],
+      ['1010','Owner Personal Card Clearing','liability','credit'],
+      ['1100','Accounts Receivable','asset','debit'],
+      ['2000','Accounts Payable','liability','credit'],
+      ['2100','Credit Card Payable','liability','credit'],
+      ['2200','Sales Tax Payable','liability','credit'],
+      ['3000','Owner Equity','equity','credit'],
+      ['3100','Owner Contributions','equity','credit'],
+      ['3200','Owner Draw','equity','debit'],
+      ['4000','Service Revenue','income','credit'],
+      ['4100','Interest Income','income','credit'],
+      ['4900','Other Income','income','credit'],
+      ['5000','Software Expense','expense','debit'],
+      ['5100','Marketing Expense','expense','debit'],
+      ['5200','Office Expense','expense','debit'],
+      ['5210','Inventory - Survival Node Components','expense','debit'],
+      ['5220','Shipping - Survival Node Fulfillment','expense','debit'],
+      ['5230','Packaging - Survival Node Fulfillment','expense','debit'],
+      ['5300','Payment Processing Fees','expense','debit'],
+      ['5400','Contractor Expense','expense','debit'],
+      ['5500','Travel Expense','expense','debit'],
+      ['5600','Utilities Expense','expense','debit']
+    ];
+    for (const s of seed) {
+      await db.prepare(`INSERT INTO accounts (code, name, account_type, normal_side, is_system, active) VALUES (?1, ?2, ?3, ?4, 1, 1)`).bind(...s).run();
+    }
+    return true;
   }
+
+  // Existing DB — idempotently upsert any accounts added after the original
+  // seed so prod chart-of-accounts stays current (each ensureAccountByCode
+  // call is a single cheap SELECT, with INSERT only when missing).
+  await ensureAccountByCode(db, '4100', 'Interest Income', 'income', 'credit');
   return true;
 }
 
