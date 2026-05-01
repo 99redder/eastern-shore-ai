@@ -1402,7 +1402,13 @@
             </div>
 
             <div style="margin-top:auto; padding-top:.8rem; border-top:1px solid var(--line);">
-              <button id="buy-btn" class="btn" type="button" style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
+              <!-- KEEP IN SYNC with buynode.html .terms-agree block -->
+              <label class="terms-agree" style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.55rem; color:var(--text); font-size:.9rem; line-height:1.4;">
+                <input type="checkbox" id="agree-terms-check" style="margin-top:.25rem; accent-color:var(--cyan); flex-shrink:0;" />
+                <span>I'm 18+, shipping to the continental U.S. (no AK, HI, U.S. territories, or international), and I agree to the <a href="/terms.html" target="_blank" rel="noopener" style="color:var(--cyan);">Terms of Sale</a> and <a href="/privacy.html" target="_blank" rel="noopener" style="color:var(--cyan);">Privacy Policy</a>.</span>
+              </label>
+              <p class="terms-ship-note" style="margin:0 0 .6rem; font-size:.8rem; color:var(--muted); line-height:1.45;">We ship to the 48 continental U.S. states only. Orders to Alaska, Hawaii, U.S. territories, or international addresses will be canceled and refunded.</p>
+              <button id="buy-btn" class="btn" type="button" disabled style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
                 <span style="white-space:nowrap; line-height:1.2;"><del style="opacity:.45; font-size:.78rem; font-weight:400;">$299.99</del> <span id="buy-price-display" style="font-size:1.05rem; font-weight:800;">$199.99</span></span>
                 <span style="font-size:1.2rem; font-weight:700;">Buy Survival Node Now</span>
               </button>
@@ -1786,72 +1792,6 @@
     </div>
   </div>
 
-<div class="terms-overlay" id="terms-overlay" aria-hidden="true">
-    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-title">
-      <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
-        <span style="display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px; font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan); background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif;">SURVIVAL NODE</span>
-        <span style="font-size:.72rem; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">Terms of Sale</span>
-      </div>
-      <h3 id="terms-title" style="margin:0 0 .6rem; font-size:1.1rem; color:var(--cyan); letter-spacing:.01em;">Review &amp; Acknowledge Before Purchase</h3>
-      <div class="terms-scroll">
-        <p style="color:var(--cyan); font-size:.78rem; text-transform:uppercase; letter-spacing:.07em; font-weight:700; margin:0 0 .65rem; font-family:'Hanken Grotesk',sans-serif;">— Please read all terms carefully —</p>
-
-        <p><strong>1. Battery Maintenance &amp; Storage</strong></p>
-        <p><strong>Initial Charge Required:</strong> The included solar battery ships with a partial charge. I will charge it to 2–3 of the 4 blue LEDs (50–75%) via wall outlet upon receipt and store it at that level for long-term battery health. I understand that storing a lithium-ion battery at full charge (100%) for extended periods degrades capacity.</p>
-        <p><strong>Long-Term Storage:</strong> I acknowledge that lithium-ion batteries naturally self-discharge over time. I will recharge the power hub every 6–12 months to prevent permanent battery failure.</p>
-        <p><strong>Temperature &amp; Safety:</strong> I will not store this kit in extreme heat or cold (e.g., a hot car trunk or uninsulated garage). I understand extreme temperatures can permanently damage the battery and device. I will not puncture, crush, or expose the battery to moisture, and will dispose of any damaged battery per local regulations.</p>
-
-        <div style="background:rgba(255,80,80,0.08); border:2px solid rgba(255,100,100,0.5); border-radius:6px; padding:.75rem 1rem; margin:.1rem 0 .9rem;">
-          <p style="color:#ff8080; font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin:0 0 .4rem; font-family:'Hanken Grotesk',sans-serif;">⚠ No SIM Card — Not Designed for Cellular Service</p>
-          <p style="margin:0 0 .35rem; font-size:.9rem;"><strong>No SIM card is included</strong> and no activation code, carrier plan, or cellular service of any kind is provided with this purchase.</p>
-          <p style="margin:0 0 .35rem; font-size:.9rem;">This device has been <strong>deep-debloated and OS-modified</strong> specifically for offline, off-grid use. It is <strong>not designed to be used with a cellular carrier</strong>, and it is possible that it cannot be used with one. Eastern Shore AI, LLC makes no representation that this device is compatible with any carrier network, SIM card, or cellular service plan.</p>
-          <p style="margin:0; font-size:.9rem;">I acknowledge that I am purchasing this device for its <strong>offline capabilities only</strong>, and that the absence of cellular connectivity is not a defect.</p>
-        </div>
-
-        <p><strong>2. Device Condition Disclosure</strong></p>
-        <p><strong>Device Condition:</strong> I acknowledge the included device is a Motorola Moto G Power (2024) — brand new or open box — hand-vetted for battery life, memory performance, and overall suitability. Minor cosmetic wear on open box units is normal. The original manufacturer's warranty is void due to OS modification (deep Android debloat, optimized for performance and longevity).</p>
-        <p><strong>Software Responsibility:</strong> I understand every Survival Node ships with a deep-debloated Android OS, optimized for performance and longevity — all tracking and battery-draining software removed. Certain mainstream apps — including banking, DRM-restricted streaming, and Google-dependent services — may not function as on standard retail devices. All pre-installed software is provided "AS IS."</p>
-        <p><strong>Product Appearance:</strong> I acknowledge that the hard storage case included in this kit is sourced from multiple suppliers and may differ from those shown in product images — including color, latch style, interior layout, or dimensions. All units meet the same functional specifications.</p>
-        <p><strong>Packaging:</strong> I acknowledge that my Survival Node ships in a standard cardboard box which may display the logo or branding of another company. I understand this is standard supply chain practice and does not imply any partnership, sponsorship, endorsement, or affiliation between that company and Eastern Shore AI, LLC.</p>
-
-        <p><strong>3. Emergency Use &amp; Reliability</strong></p>
-        <p><strong>No Survival Guarantee:</strong> I acknowledge this kit is a preparedness tool and does not guarantee safety or survival in any emergency. AI-provided information is for educational reference only and must not replace professional medical, tactical, or legal advice.</p>
-        <p><strong>Solar Charging:</strong> I understand the solar panel cannot sustain all-day normal phone use. I understand that under emergency conditions — brief, task-focused use followed by powering the device off — solar alone can sustain the kit for an extended period. I will power the phone off when not actively in use to maximize solar reserve, and will use wall power whenever available to supplement.</p>
-
-        <p><strong>4. Shipping &amp; Return Policy</strong></p>
-        <p><strong>Continental U.S. Only:</strong> Orders are only accepted for continental United States shipping destinations (no Alaska, Hawaii, U.S. territories, or international shipping).</p>
-        <p><strong>Ground Shipping Only (USPS/UPS):</strong> Due to federal regulations governing lithium-ion batteries and cellular devices, this product ships via USPS or UPS ground transportation only. Air shipping is not available for this product. Please allow up to 7 business days for order processing, plus up to 10 additional business days for transit after shipment.</p>
-        <p><strong>Returns:</strong> Returns are accepted within 30 days of the confirmed delivery date. To initiate a return, I will contact Eastern Shore AI, LLC through the website contact form to receive a Return Merchandise Authorization (RMA) number before sending any item back — returns without a prior RMA will not be accepted. The device must be in original functional condition and the OS must not have been further modified by me. I am responsible for return shipping costs. Items with physical damage caused after receipt are not eligible for return. After the 30-day window, all sales are final and no repair or replacement service is offered.</p>
-        <p><strong>Order Cancellation:</strong> I acknowledge that Eastern Shore AI, LLC reserves the right to cancel my order prior to shipment for reasons including but not limited to fraud prevention, address verification concerns, or supply constraints. If my order is canceled, I will receive a full refund to my original payment method.</p>
-
-        <p><strong>5. Faraday Bag &amp; EMP Protection</strong></p>
-        <p><strong>Faraday Bag Integrity:</strong> Every Survival Node includes two Faraday bags (one for the phone, one for the solar battery). I understand protection is only effective when the bag is correctly folded and sealed. Any punctures, improper sealing, or material degradation will reduce or eliminate protection. Eastern Shore AI, LLC makes no guarantee of protection against any specific electromagnetic event.</p>
-
-        <p><strong>6. Liability &amp; User Responsibility</strong></p>
-        <p><strong>Limitation of Liability:</strong> I acknowledge that Eastern Shore AI, LLC disclaims all implied warranties and is not liable for incidental, consequential, special, or punitive damages — including loss of data, personal injury, property damage, or adverse emergency outcomes — to the maximum extent permitted by law.</p>
-        <p><strong>User Responsibility:</strong> I confirm I am 18 years of age or older and accept full responsibility for the lawful use, safe storage, maintenance, and updating of all included hardware and software.</p>
-        <p><strong>Right to Refuse:</strong> I acknowledge that Eastern Shore AI, LLC reserves the right to refuse service or cancel my order if there is reasonable belief that the device will be used for unlawful, harmful, or fraudulent purposes. Canceled orders will receive a full refund.</p>
-        <p><strong>Payment Processing:</strong> I understand that all payments are processed by Stripe, Inc. and that Eastern Shore AI, LLC does not collect, store, or access my payment card information. I agree to Stripe's Terms of Service and Privacy Policy as part of completing this purchase.</p>
-      </div>
-      <label style="display:block; margin-bottom:.55rem; color:#d8dce8; font-size:.9rem;">
-        Shipping State (continental U.S. only)
-        <select id="shipping-state" style="width:100%; margin-top:.35rem; background:#0c0f1b; color:var(--text); border:1px solid var(--line); border-radius:7px; padding:.65rem;">
-          <option value="">Select your shipping state</option>
-          <option value="AL">Alabama</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option><option value="DC">District of Columbia</option>
-        </select>
-      </label>
-      <label style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.35rem; color:#d8dce8; font-size:.9rem;">
-        <input type="checkbox" id="terms-check" style="margin-top:.25rem; accent-color:var(--cyan);" />
-        <span>I have read and agree to all terms of sale above.</span>
-      </label>
-      <div id="terms-error" style="display:none; margin:0 0 .8rem; color:#ffb4c7; font-size:.88rem;">Please select a shipping state and check the terms agreement box before continuing.</div>
-      <div class="terms-actions">
-        <button type="button" class="btn-outline" id="terms-cancel">Cancel</button>
-        <button type="button" class="btn" id="terms-accept" style="width:auto; min-width:220px;" disabled>Continue to Checkout →</button>
-      </div>
-    </div>
-  </div>
-
 <div class="terms-overlay" id="byog-terms-overlay" aria-hidden="true">
     <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="byog-terms-title">
       <div style="display:flex; align-items:center; gap:.6rem; margin-bottom:.35rem;">
@@ -2213,12 +2153,10 @@
     const checkoutStatusPill = document.getElementById('checkout-status-pill');
     const checkoutStatusClose = document.getElementById('checkout-status-close');
 
-    const termsOverlay = document.getElementById('terms-overlay');
-    const termsCheck = document.getElementById('terms-check');
-    const shippingState = document.getElementById('shipping-state');
-    const termsError = document.getElementById('terms-error');
-    const termsCancel = document.getElementById('terms-cancel');
-    const termsAccept = document.getElementById('terms-accept');
+    const agreeTermsCheck = document.getElementById('agree-terms-check');
+    let termsAcceptedAt = null;
+    const TERMS_VERSION = '2026-05-01';
+    const TERMS_URL = 'https://www.easternshore.ai/terms.html';
     const byogTermsOverlay = document.getElementById('byog-terms-overlay');
     const byogTermsCheck = document.getElementById('byog-terms-check');
     const byogTermsError = document.getElementById('byog-terms-error');
@@ -2234,7 +2172,6 @@
     const softwareModal = document.getElementById('software-modal');
     const softwareClose = document.getElementById('software-close');
     let pendingPayload = null;
-    let activeTermsType = 'product';
     let unavailableSlots = new Set();
     let blockedDates = new Set();
     const TIME_SLOTS = [
@@ -2358,6 +2295,13 @@
       try {
         const isByogBooking = (payload?.checkoutType || '').toLowerCase() === 'byog_setup' && payload?.setupDate && payload?.setupTime;
         const endpoint = isByogBooking ? CHECKOUT_API_URL : ZOMBIE_CHECKOUT_URL;
+        // Survival Node Terms of Sale acknowledgment — only relevant to the
+        // product (base_kit) checkout. BYOG has its own separate terms modal.
+        const productTermsFields = isByogBooking ? {} : {
+          termsVersion: TERMS_VERSION,
+          termsAcceptedAt: termsAcceptedAt || new Date().toISOString(),
+          termsUrl: TERMS_URL
+        };
         const requestBody = isByogBooking
           ? {
               setupDate: payload.setupDate,
@@ -2367,7 +2311,7 @@
               setupLocation: payload.setupLocation || '',
               termsAccepted: true
             }
-          : { ...payload, termsAccepted: true };
+          : { ...payload, termsAccepted: true, ...productTermsFields };
 
         const res = await fetch(endpoint, {
           method: 'POST',
@@ -2388,52 +2332,46 @@
       }
     }
 
-    function openTerms(payload) {
+    // BYOG-only terms modal flow (product Terms of Sale modal was removed —
+    // product flow now uses the inline checkbox above the Buy button).
+    function openByogTerms(payload) {
       pendingPayload = payload;
-      activeTermsType = ((payload?.checkoutType || '').toLowerCase() === 'byog_setup') ? 'byog' : 'product';
-
-      if (activeTermsType === 'byog') {
-        byogTermsCheck.checked = false;
-        byogTermsError.style.display = 'none';
-        byogTermsOverlay.style.display = 'flex';
-        byogTermsOverlay.setAttribute('aria-hidden', 'false');
-        return;
-      }
-
-      termsCheck.checked = false;
-      shippingState.value = '';
-      termsError.style.display = 'none';
-      termsAccept.disabled = false;
-      termsOverlay.style.display = 'flex';
-      termsOverlay.setAttribute('aria-hidden', 'false');
+      byogTermsCheck.checked = false;
+      byogTermsError.style.display = 'none';
+      byogTermsOverlay.style.display = 'flex';
+      byogTermsOverlay.setAttribute('aria-hidden', 'false');
     }
 
     function closeTerms() {
-      termsOverlay.style.display = 'none';
-      termsOverlay.setAttribute('aria-hidden', 'true');
       byogTermsOverlay.style.display = 'none';
       byogTermsOverlay.setAttribute('aria-hidden', 'true');
       pendingPayload = null;
-      activeTermsType = 'product';
     }
 
-    function updateTermsReady() {
-      if (termsCheck.checked && shippingState.value) {
-        termsError.style.display = 'none';
-      }
-      if (byogTermsCheck.checked) {
-        byogTermsError.style.display = 'none';
-      }
-    }
+    byogTermsCheck.addEventListener('change', () => {
+      if (byogTermsCheck.checked) byogTermsError.style.display = 'none';
+    });
 
-    termsCheck.addEventListener('change', updateTermsReady);
-    shippingState.addEventListener('change', updateTermsReady);
-    byogTermsCheck.addEventListener('change', updateTermsReady);
-
-    termsCancel.addEventListener('click', closeTerms);
-    termsOverlay.addEventListener('click', (e) => { if (e.target === termsOverlay) closeTerms(); });
     byogTermsCancel.addEventListener('click', closeTerms);
     byogTermsOverlay.addEventListener('click', (e) => { if (e.target === byogTermsOverlay) closeTerms(); });
+
+    // Inline product-terms agreement: gates the Buy button + captures
+    // the buyer-side acceptance timestamp for Stripe metadata.
+    // CONUS-only enforcement is post-payment in the webhook (refund +
+    // notify); we accept the Stripe processing fee on those edge cases
+    // in exchange for a frictionless flow.
+    function syncBuyButtonState() {
+      buyBtn.disabled = !agreeTermsCheck.checked;
+    }
+    agreeTermsCheck.addEventListener('change', () => {
+      if (agreeTermsCheck.checked && !termsAcceptedAt) {
+        termsAcceptedAt = new Date().toISOString();
+      } else if (!agreeTermsCheck.checked) {
+        termsAcceptedAt = null;
+      }
+      syncBuyButtonState();
+    });
+    syncBuyButtonState();
 
     faradayInfoLink?.addEventListener('click', (e) => {
       e.preventDefault();
@@ -2469,17 +2407,6 @@
       }
     });
 
-    termsAccept.addEventListener('click', () => {
-      if (!pendingPayload) return;
-      if (!termsCheck.checked || !shippingState.value) {
-        termsError.style.display = 'block';
-        return;
-      }
-      const payload = { ...pendingPayload, shippingState: shippingState.value };
-      closeTerms();
-      startCheckout(payload);
-    });
-
     byogTermsAccept.addEventListener('click', () => {
       if (!pendingPayload) return;
       if (!byogTermsCheck.checked) {
@@ -2507,11 +2434,16 @@
     });
 
     buyBtn.addEventListener('click', () => {
+      if (!agreeTermsCheck.checked) {
+        agreeTermsCheck.focus();
+        return;
+      }
+      if (!termsAcceptedAt) termsAcceptedAt = new Date().toISOString();
       const upgrades = [];
       document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
         upgrades.push({ label: cb.dataset.label, price: parseFloat(cb.value), priceId: cb.dataset.priceId });
       });
-      openTerms({ checkoutType: 'base_kit', upgrades });
+      startCheckout({ checkoutType: 'base_kit', upgrades });
     });
 
     byogModalLink?.addEventListener('click', async (e) => {
@@ -2577,7 +2509,7 @@
       byogModalEl.style.display = 'none';
       byogModalEl.setAttribute('aria-hidden', 'true');
       setByogError('');
-      openTerms({ checkoutType: 'byog_setup', setupDate, setupTime, service: 'byog_setup', setupLocation });
+      openByogTerms({ checkoutType: 'byog_setup', setupDate, setupTime, service: 'byog_setup', setupLocation });
     });
 
     const params = new URLSearchParams(window.location.search);

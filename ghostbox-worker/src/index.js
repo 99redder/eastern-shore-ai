@@ -54,13 +54,11 @@ export default {
       return json({ ok: false, error: 'You must read and accept the Terms of Sale before checkout.' }, 400, corsHeaders);
     }
 
-    const contiguousStates = new Set([
-      'AL','AZ','AR','CA','CO','CT','DE','FL','GA','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'
-    ]);
-    const requestedState = (data.shippingState || '').toString().trim().toUpperCase();
-    if (!contiguousStates.has(requestedState)) {
-      return json({ ok: false, error: 'Checkout is only available for shipping addresses in the continental United States.' }, 400, corsHeaders);
-    }
+    // Terms acknowledgment metadata (CONUS state enforcement is done at the webhook
+    // layer — Stripe Checkout doesn't natively filter shipping rates by state).
+    const termsVersion = (data.termsVersion || '').toString().trim().slice(0, 32);
+    const termsAcceptedAt = (data.termsAcceptedAt || '').toString().trim().slice(0, 64);
+    const termsUrl = (data.termsUrl || '').toString().trim().slice(0, 200);
 
     const siteOrigin = allowedOrigin || 'https://www.easternshore.ai';
     const successUrl = `${siteOrigin}/node.html?paid=1`;
@@ -86,9 +84,12 @@ export default {
       'metadata[product]': productCode,
       'metadata[unit_price_cents]': unitAmount,
       'metadata[checkout_type]': checkoutType,
-      'metadata[shipping_state_requested]': requestedState,
-      'custom_text[shipping_address][message]': 'Shipping is limited to the continental U.S. Free shipping included.'
+      'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, or international addresses will be canceled and refunded.'
     });
+
+    if (termsVersion)    body.set('metadata[terms_version]', termsVersion);
+    if (termsAcceptedAt) body.set('metadata[terms_accepted_at]', termsAcceptedAt);
+    if (termsUrl)        body.set('metadata[terms_url]', termsUrl);
 
     body.set('line_items[0][price_data][currency]', 'usd');
     body.set('line_items[0][price_data][unit_amount]', unitAmount);

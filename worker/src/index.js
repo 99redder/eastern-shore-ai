@@ -1050,6 +1050,12 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     return json({ ok: false, error: 'You must read and accept the Terms of Sale before checkout.' }, 400, corsHeaders);
   }
 
+  // Terms acknowledgment metadata. CONUS state enforcement happens at the
+  // webhook layer (Stripe Checkout shipping rates can't filter by state).
+  const termsVersion = (data.termsVersion || '').toString().trim().slice(0, 32);
+  const termsAcceptedAt = (data.termsAcceptedAt || '').toString().trim().slice(0, 64);
+  const termsUrl = (data.termsUrl || '').toString().trim().slice(0, 200);
+
   const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
   const successUrl = `${siteOrigin}/node.html?paid=1`;
   const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
@@ -1062,14 +1068,6 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     ? 'Bring your own gear setup-only service'
     : 'Motorola Moto G Power (2024) 8GB core unit + 50GB+ offline software suite (3 offline LLMs + Survival Node AI Agent) + 42,800mAh solar battery + weatherproof hard case + padlock + shockproof phone case + 2 Faraday bags';
   const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
-
-  const contiguousStates = new Set([
-    'AL','AZ','AR','CA','CO','CT','DE','FL','GA','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'
-  ]);
-  const requestedState = (data.shippingState || '').toString().trim().toUpperCase();
-  if (!contiguousStates.has(requestedState)) {
-    return json({ ok: false, error: 'Checkout is only available for shipping addresses in the continental United States.' }, 400, corsHeaders);
-  }
 
   const body = new URLSearchParams({
     mode: 'payment',
@@ -1086,9 +1084,12 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
     'metadata[product]': productCode,
     'metadata[unit_price_cents]': unitAmount,
     'metadata[checkout_type]': checkoutType,
-    'metadata[shipping_state_requested]': requestedState,
-    'custom_text[shipping_address][message]': 'Shipping is limited to the continental U.S. Free shipping included.'
+    'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, or international addresses will be canceled and refunded.'
   });
+
+  if (termsVersion)    body.set('metadata[terms_version]', termsVersion);
+  if (termsAcceptedAt) body.set('metadata[terms_accepted_at]', termsAcceptedAt);
+  if (termsUrl)        body.set('metadata[terms_url]', termsUrl);
 
   const ALLOWED_UPGRADE_PRICE_IDS = new Set([
     'price_1T9AXyCrQuKPknEPEDC39wfC', // Mission Essential Faraday Bags
@@ -1269,6 +1270,37 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const checkoutType = (session.metadata?.checkout_type || '').toString().trim().toLowerCase();
     const productCode = (session.metadata?.product || '').toString().trim().toLowerCase();
     const isSurvivalNodeSale = ['base_kit', 'pro_kit', 'byog_setup'].includes(checkoutType) || productCode.startsWith('survival_node_');
+    const isShippableNodeSale = isSurvivalNodeSale && checkoutType !== 'byog_setup';
+
+    // CONUS-only enforcement: Stripe Checkout's allowed_countries filters at the
+    // country level only — AK, HI, PR, etc. still pass. For shippable Survival
+    // Node sales, validate the captured shipping state here and refund any
+    // order that lands outside the 48 continental U.S. states.
+    if (isShippableNodeSale) {
+      const shipState = (session.shipping_details?.address?.state || session.customer_details?.address?.state || '').toString().trim().toUpperCase();
+      if (shipState && NON_CONUS_STATES.has(shipState)) {
+        const paymentIntentId = (session.payment_intent || '').toString().trim();
+        const buyerEmail = session.customer_details?.email || session.customer_email || null;
+        const buyerName = session.shipping_details?.name || session.customer_details?.name || null;
+        console.warn(`Non-CONUS Survival Node order rejected | session=${sessionId} | state=${shipState} | email=${buyerEmail || 'unknown'}`);
+        const refund = await refundStripePaymentIntent(env.STRIPE_SECRET_KEY, paymentIntentId, `Non-CONUS state: ${shipState}`);
+        if (!refund.ok) {
+          console.error('Non-CONUS auto-refund failed', refund.error);
+        }
+        if (buyerEmail) {
+          const emailRes = await sendNonConusRefundEmail(env, {
+            toEmail: buyerEmail,
+            customerName: buyerName,
+            state: shipState,
+            sessionId
+          });
+          if (!emailRes.ok) console.error('Non-CONUS refund email failed', emailRes.error);
+        }
+        // Ack the webhook so Stripe doesn't retry; do NOT write a booking or
+        // income row for a refunded non-CONUS order.
+        return json({ ok: true, refunded: refund.ok, reason: `non-CONUS state ${shipState}` }, 200, corsHeaders);
+      }
+    }
 
     const incomeCategory = isSurvivalNodeSale
       ? (checkoutType === 'byog_setup' ? 'Survival Node BYOG Setup' : 'Survival Node Sales')
@@ -4625,6 +4657,70 @@ async function fetchStripeFeeCents(stripeSecretKey, paymentIntentId) {
   }
 
   return 0;
+}
+
+const NON_CONUS_STATES = new Set(['AK','HI','PR','VI','GU','AS','MP','AE','AP','AA']);
+
+/**
+ * Refund a Stripe payment intent (for CONUS-only enforcement).
+ * Returns { ok, refundId, error }.
+ */
+async function refundStripePaymentIntent(stripeSecretKey, paymentIntentId, reason) {
+  if (!stripeSecretKey || !paymentIntentId) {
+    return { ok: false, error: 'missing stripe key or payment intent' };
+  }
+  const body = new URLSearchParams({
+    payment_intent: paymentIntentId,
+    reason: 'requested_by_customer',
+    'metadata[refund_reason]': (reason || 'CONUS-only shipping policy').slice(0, 200)
+  });
+  const res = await fetch('https://api.stripe.com/v1/refunds', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${stripeSecretKey}`,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: body.toString()
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { ok: false, error: data?.error?.message || 'refund failed', detail: data };
+  return { ok: true, refundId: data?.id || null };
+}
+
+/**
+ * Email the buyer that their non-CONUS order was refunded.
+ */
+async function sendNonConusRefundEmail(env, { toEmail, customerName, state, sessionId }) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !toEmail) return { ok: false, error: 'email not configured' };
+  const greeting = customerName ? `Hi ${customerName},` : 'Hi,';
+  const subject = 'Your Survival Node order has been refunded';
+  const html = `
+    <p>${greeting}</p>
+    <p>Thanks for your Survival Node order. Unfortunately we can only ship to the 48 continental U.S. states, and the shipping address on your order was in <strong>${state || 'a non-CONUS region'}</strong> (Alaska, Hawaii, U.S. territories, or international).</p>
+    <p>We've fully refunded your payment to the original payment method. The refund typically appears within 5&ndash;10 business days depending on your bank.</p>
+    <p>If you believe this was a mistake or you'd like to ship to a continental U.S. address, please reply to this email or use our <a href="https://www.easternshore.ai/contact.html">contact form</a> and we'll help work it out.</p>
+    <p>&mdash; Eastern Shore AI</p>
+    <hr />
+    <p style="color:#888; font-size:12px;">Reference: ${sessionId || 'n/a'}</p>
+  `;
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: env.FROM_EMAIL,
+      to: [toEmail],
+      subject,
+      html
+    })
+  });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    return { ok: false, error: `resend ${res.status}: ${errText}` };
+  }
+  return { ok: true };
 }
 
 /**
