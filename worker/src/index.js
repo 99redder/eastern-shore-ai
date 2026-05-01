@@ -1111,10 +1111,13 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   body.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', '0');
   body.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'usd');
   body.set('shipping_options[0][shipping_rate_data][display_name]', 'Free Shipping (Continental U.S.)');
+  // Estimate shown to buyer at Stripe Checkout = order-to-delivery business days.
+  // Standard policy: processing up to 7 (avg 1-2) + ground transit up to 10
+  // (avg 5-7). Min reflects the fast end (1 + 5), max reflects the worst case (7 + 10).
   body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
-  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', '7');
+  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', '6');
   body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
-  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '14');
+  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '17');
 
   const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
@@ -5034,8 +5037,9 @@ No — it's emergency trickle-charge capability. Use wall power when available; 
 
 ## Processing & Shipping
 
-- **Processing time:** 1–2 weeks before shipping
-- **Shipping:** Ground only (free to continental US)
+- **Processing time:** Up to 7 business days (average 1–2 days)
+- **Shipping time:** Up to 10 additional business days after shipment (average 5–7 days), USPS or UPS ground only — required by federal lithium-battery regulations
+- **Cost:** Free to all continental US states
 - **Tracking:** Provided after shipment
 
 ## Testing & Demo Page (testing.html)

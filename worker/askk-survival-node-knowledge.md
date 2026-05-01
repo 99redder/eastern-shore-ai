@@ -227,7 +227,9 @@ Laptops need 30–80W under load — hard to solar-charge. Tablets draw more pow
 No. Shipment is via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. Air shipping is not available. Continental US only. No Alaska, Hawaii, US territories, or international orders.
 
 ### How long does shipping take?
-Please allow up to **7 business days** for order processing, plus up to **10 additional business days** for transit after shipment. Tracking is provided after shipment.
+**Processing:** up to 7 business days (average 1–2 days).
+**Shipping:** up to 10 additional business days (average 5–7 days) because we ship via USPS or UPS ground transportation only.
+Tracking is provided after shipment.
 
 ### What's the warranty?
 Every kit includes a **30-day limited warranty** from Eastern Shore AI, LLC covering defects in hardware function and software configuration **as delivered**. This warranty does not cover physical damage caused after receipt, further OS modifications made by the buyer, or damage from misuse or environmental factors. Original manufacturer warranties on all included components are void due to OS modification. Eastern Shore AI, LLC is not an authorized reseller of any included component.
@@ -262,7 +264,7 @@ Probably not. Banking apps, DRM-restricted streaming services, and Google-depend
 
 **Battery Safety & Maintenance:** Lithium-ion battery ships with partial charge. Charge to 2–3 of the 4 blue LEDs (50–75%) via wall outlet before sealing for long-term storage. Recharge every 6–12 months. Do not store above 113°F (45°C) or below 14°F (−10°C), expose to moisture, puncture, or crush. Swollen batteries must be disposed of per local regulations.
 
-**Shipping Regulations:** Ships via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. No air shipping. Continental US only. Up to 7 business days processing, plus up to 10 additional business days transit after shipment.
+**Shipping Regulations:** Ships via USPS or UPS ground transportation only — required by federal regulations for high-capacity lithium-ion batteries. No air shipping. Continental US only. Processing: up to 7 business days (average 1–2 days). Shipping: up to 10 additional business days (average 5–7 days) because of the ground-only requirement.
 
 **Packaging & What to Expect on Arrival:** Here is exactly how the kit is packed when it ships:
 
@@ -314,9 +316,9 @@ After receiving, customers should complete the First Steps in the User Guide app
 
 ## Processing & Shipping
 
-- **Processing time:** Up to 7 business days
-- **Transit time:** Up to 10 additional business days after shipment
-- **Carrier:** USPS ground only (required by federal lithium battery regulations)
+- **Processing time:** Up to 7 business days (average 1–2 days)
+- **Transit time:** Up to 10 additional business days after shipment (average 5–7 days)
+- **Carrier:** USPS or UPS ground only (required by federal lithium battery regulations)
 - **Shipping cost:** Free to all continental US states
 - **Tracking:** Provided after shipment
 
@@ -344,7 +346,7 @@ Every kit includes a 30-day limited warranty. Free **technical support** is incl
 - "Veteran-owned, real-world tested"
 - "No SIM card included — not designed for cellular carrier use"
 - "42,800 mAh rated; 3–4 real-world phone charges"
-- "Up to 7 business days processing + 10 business days transit"
+- "Processing up to 7 business days (avg 1–2); shipping up to 10 additional business days (avg 5–7), ground-only"
 
 ---
 
