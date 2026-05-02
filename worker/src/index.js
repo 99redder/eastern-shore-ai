@@ -936,7 +936,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     allow_promotion_codes: 'true',
     billing_address_collection: 'required',
     'automatic_tax[enabled]': 'true',
-    success_url: `${siteOrigin}${serviceConfig.successPath}?paid=1`,
+    success_url: `${siteOrigin}${serviceConfig.successPath}?paid=1&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${siteOrigin}${serviceConfig.successPath}?canceled=1`,
     'line_items[0][price_data][currency]': 'usd',
     'line_items[0][price_data][unit_amount]': String(serviceConfig.amountCents),
@@ -1057,7 +1057,9 @@ async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed,
   const termsUrl = (data.termsUrl || '').toString().trim().slice(0, 200);
 
   const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
-  const successUrl = `${siteOrigin}/node.html?paid=1`;
+  // {CHECKOUT_SESSION_ID} is a Stripe Checkout placeholder substituted by Stripe
+  // before redirect; the client uses it as the Reddit Pixel transactionId.
+  const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
   const unitAmount = isByogSetup ? '6999' : '19999';

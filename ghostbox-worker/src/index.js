@@ -61,7 +61,9 @@ export default {
     const termsUrl = (data.termsUrl || '').toString().trim().slice(0, 200);
 
     const siteOrigin = allowedOrigin || 'https://www.easternshore.ai';
-    const successUrl = `${siteOrigin}/node.html?paid=1`;
+    // {CHECKOUT_SESSION_ID} is a Stripe Checkout placeholder substituted by Stripe
+    // before redirect; the client uses it as the Reddit Pixel transactionId.
+    const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
     const unitAmount = isByogSetup ? '6999' : '19999';

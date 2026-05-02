@@ -364,6 +364,22 @@
       .ship-callout p:last-child { font-size: .88rem; }
     }
   </style>
+  <!-- Reddit Pixel -->
+  <script>
+  !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+  rdt('init','a2_iv4aj6m8rlzq');
+  rdt('track', 'PageVisit');
+  rdt('track', 'ViewContent', {
+    itemCount: 1,
+    value: 199.99,
+    currency: 'USD',
+    products: [{
+      id: 'survival-node-core',
+      name: 'Survival Node',
+      category: 'Emergency Preparedness'
+    }]
+  });
+  </script>
 </head>
 <body>
 
@@ -541,6 +557,18 @@
         if (!res.ok || !data.ok || !data.checkoutUrl) {
           throw new Error(data.error || 'Could not create checkout session.');
         }
+        // Stash cart total for the Reddit Pixel Purchase event that fires on
+        // the ?paid=1 redirect back from Stripe.
+        try {
+          const totalDollars = parseFloat((priceDisplay?.textContent || '').replace(/[^0-9.]/g, ''));
+          if (Number.isFinite(totalDollars) && totalDollars > 0) {
+            localStorage.setItem('rdt_pending_purchase', JSON.stringify({
+              value: totalDollars,
+              checkoutType: payload?.checkoutType || 'base_kit',
+              ts: Date.now()
+            }));
+          }
+        } catch {}
         window.location.href = data.checkoutUrl;
       } catch (err) {
         statusMsg.textContent = err.message || 'Could not start checkout. Please try again.';
@@ -580,8 +608,24 @@
     // ===== Handle redirect-back params =====
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') === '1') {
+      // Fire Reddit Pixel Purchase event for completed Stripe checkout.
+      try {
+        const sessionId = params.get('session_id') || '';
+        const stash = JSON.parse(localStorage.getItem('rdt_pending_purchase') || 'null');
+        const fresh = stash && (Date.now() - Number(stash.ts || 0) < 60 * 60 * 1000);
+        if (window.rdt && fresh && Number(stash.value) > 0) {
+          rdt('track', 'Purchase', {
+            itemCount: 1,
+            value: Number(stash.value),
+            currency: 'USD',
+            transactionId: sessionId
+          });
+        }
+        localStorage.removeItem('rdt_pending_purchase');
+      } catch {}
       showStatusModal('success');
       params.delete('paid');
+      params.delete('session_id');
       const clean = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
       window.history.replaceState({}, '', clean);
     } else if (params.get('canceled') === '1') {
