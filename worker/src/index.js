@@ -428,6 +428,10 @@ async function handleContact(request, env, corsHeaders) {
     return json({ ok: false, error: 'Missing required fields' }, 400, corsHeaders);
   }
 
+  if (!env.RESEND_API_KEY) {
+    return json({ ok: false, error: 'Email provider not configured' }, 500, corsHeaders);
+  }
+
   const subject = mode === 'offer'
     ? `Domain Offer: easternshoreai.com (${offer || 'no amount'})`
     : 'General Inquiry: Eastern Shore AI';
@@ -1221,9 +1225,16 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
         // Auto-insert Stripe processing fee for invoice checkout (deduped by session id)
         const paymentIntentId = (session.payment_intent || '').toString().trim();
-        const feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
+        let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
+        let feeSource = 'actual';
+        if (!feeCents || feeCents <= 0) {
+          feeCents = estimateStripeFeeCents(amount);
+          feeSource = 'estimated';
+        }
         if (feeCents > 0 && sessionId) {
-          const feeNote = `Auto Stripe fee for invoice session ${sessionId}`;
+          const feeNote = feeSource === 'estimated'
+            ? `Auto Stripe fee for invoice session ${sessionId} (estimated)`
+            : `Auto Stripe fee for invoice session ${sessionId}`;
           const existingFee = await env.DB.prepare(
             `SELECT id FROM tax_expenses WHERE notes = ?1 LIMIT 1`
           ).bind(feeNote).first();
@@ -1321,7 +1332,24 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             refundCents,
             refundIssued: refund.ok
           });
-          if (!emailRes.ok) console.error('Non-CONUS refund email failed', emailRes.error);
+          if (!emailRes.ok) {
+            console.error('Non-CONUS refund email failed', emailRes.error);
+            if (env.RESEND_API_KEY && env.TO_EMAIL) {
+              await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  from: env.ORDERS_FROM_EMAIL || env.FROM_EMAIL,
+                  to: [env.TO_EMAIL],
+                  subject: '[ACTION NEEDED] Non-CONUS refund email failed to send',
+                  text: `The refund notification email to ${buyerEmail} failed to send. Please contact them manually. Order/session: ${sessionId}.`
+                })
+              }).catch(e => console.error('Staff escalation also failed', e));
+            }
+          }
         }
         // Ack the webhook so Stripe doesn't retry; do NOT write a booking or
         // income row for a refunded non-CONUS order.
