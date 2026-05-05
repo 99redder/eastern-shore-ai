@@ -4795,7 +4795,7 @@ async function sendNonConusRefundEmail(env, {
   refundCents,
   refundIssued
 }) {
-  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !toEmail) return { ok: false, error: 'email not configured' };
+  if (!env.RESEND_API_KEY || !env.ORDERS_FROM_EMAIL || !toEmail) return { ok: false, error: 'email not configured' };
   const greeting = customerName ? `Hi ${customerName},` : 'Hi,';
   const subject = 'Your Survival Node order has been refunded (CONUS-only shipping)';
   const fmt = (c) => `$${(Math.max(Number(c) || 0, 0) / 100).toFixed(2)}`;
@@ -4824,7 +4824,7 @@ async function sendNonConusRefundEmail(env, {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: env.FROM_EMAIL,
+      from: env.ORDERS_FROM_EMAIL,
       to: [toEmail],
       subject,
       html
@@ -4853,9 +4853,13 @@ async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
       .filter(pair => pair.length === 2)
   );
 
-  const timestamp = parts.t;
+  const timestamp = Number(parts.t);
   const expected = parts.v1;
-  if (!timestamp || !expected) return { ok: false };
+  if (!Number.isFinite(timestamp) || !expected) return { ok: false };
+
+  const toleranceSeconds = 300;
+  const ageSeconds = Math.abs(Math.floor(Date.now() / 1000) - timestamp);
+  if (ageSeconds > toleranceSeconds) return { ok: false };
 
   const signedPayload = `${timestamp}.${payload}`;
   const key = await crypto.subtle.importKey(

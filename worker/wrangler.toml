@@ -9,6 +9,8 @@ CC_EMAIL = "officerk@agentmail.to"
 FROM_EMAIL = "noreply@easternshore.ai"
 ORDERS_FROM_EMAIL = "orders@easternshore.ai"
 
+# Required secrets (set via `wrangler secret put`): RESEND_API_KEY, ADMIN_PASSWORD, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+
 [[d1_databases]]
 binding = "DB"
 database_name = "eastern-shore-ai-bookings"
