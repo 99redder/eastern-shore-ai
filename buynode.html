@@ -469,7 +469,7 @@
   </div>
 
   <script>
-    const GHOSTBOX_CHECKOUT_URL = 'https://ghostbox-checkout-api.99redder.workers.dev/api/ghostbox-checkout';
+    const SURVIVAL_NODE_CHECKOUT_URL = 'https://survival-node-checkout-api.99redder.workers.dev/api/survival-node-checkout';
 
     const buyBtn      = document.getElementById('buy-btn');
     const priceDisplay = document.getElementById('price-display');
@@ -542,7 +542,7 @@
       buyBtn.disabled = true;
 
       try {
-        const res  = await fetch(GHOSTBOX_CHECKOUT_URL, {
+        const res  = await fetch(SURVIVAL_NODE_CHECKOUT_URL, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({

@@ -27,10 +27,10 @@ export default {
     }
 
     if (request.method === 'GET' && url.pathname === '/health') {
-      return json({ ok: true, service: 'ghostbox-checkout-api' }, 200, corsHeaders);
+      return json({ ok: true, service: 'survival-node-checkout-api' }, 200, corsHeaders);
     }
 
-    const isCheckoutPath = (url.pathname === '/api/ghostbox-checkout' || url.pathname === '/api/zombie-bag-checkout');
+    const isCheckoutPath = url.pathname === '/api/survival-node-checkout';
     if (!isCheckoutPath || request.method !== 'POST') {
       return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
     }

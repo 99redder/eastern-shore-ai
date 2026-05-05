@@ -1029,120 +1029,6 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
 }
 
 /**
- * POST /api/zombie-bag-checkout — Create Stripe checkout for Zombie Bag ecommerce purchase
- * @param {Request} request - optional JSON body
- * @param {Object} env - Worker env (STRIPE_SECRET_KEY)
- * @returns {Response} {ok: true, checkoutUrl, id} or error
- */
-async function handleZombieBagCheckout(request, env, corsHeaders, originAllowed, allowedOrigins) {
-  if (!env.STRIPE_SECRET_KEY) {
-    return json({ ok: false, error: 'Stripe not configured' }, 500, corsHeaders);
-  }
-
-  let data = {};
-  try {
-    data = await request.json();
-  } catch {
-    data = {};
-  }
-
-  const checkoutType = (data.checkoutType || 'base_kit').toString().trim().toLowerCase();
-  const isByogSetup = checkoutType === 'byog_setup';
-  const termsAccepted = data.termsAccepted === true;
-
-  if (!termsAccepted) {
-    return json({ ok: false, error: 'You must read and accept the Terms of Sale before checkout.' }, 400, corsHeaders);
-  }
-
-  // Terms acknowledgment metadata. CONUS state enforcement happens at the
-  // webhook layer (Stripe Checkout shipping rates can't filter by state).
-  const termsVersion = (data.termsVersion || '').toString().trim().slice(0, 32);
-  const termsAcceptedAt = (data.termsAcceptedAt || '').toString().trim().slice(0, 64);
-  const termsUrl = (data.termsUrl || '').toString().trim().slice(0, 200);
-
-  const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
-  // {CHECKOUT_SESSION_ID} is a Stripe Checkout placeholder substituted by Stripe
-  // before redirect; the client uses it as the Reddit Pixel transactionId.
-  const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
-
-  const unitAmount = isByogSetup ? '6999' : '19999';
-  const productName = isByogSetup
-    ? 'Survival Node BYOG Setup-Only Service'
-    : 'Survival Node';
-  const productDescription = isByogSetup
-    ? 'Bring your own gear setup-only service'
-    : 'Motorola Moto G Power (2024) 8GB core unit + 50GB+ offline software suite (3 offline LLMs + Survival Node AI Agent) + 42,800mAh solar battery + weatherproof hard case + padlock + shockproof phone case + 2 Faraday bags';
-  const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
-
-  const body = new URLSearchParams({
-    mode: 'payment',
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    billing_address_collection: 'required',
-    'automatic_tax[enabled]': 'true',
-    'shipping_address_collection[allowed_countries][0]': 'US',
-    'line_items[0][price_data][currency]': 'usd',
-    'line_items[0][price_data][unit_amount]': unitAmount,
-    'line_items[0][price_data][product_data][name]': productName,
-    'line_items[0][price_data][product_data][description]': productDescription,
-    'line_items[0][quantity]': '1',
-    'metadata[product]': productCode,
-    'metadata[unit_price_cents]': unitAmount,
-    'metadata[checkout_type]': checkoutType,
-    'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, or international addresses will be canceled and refunded.'
-  });
-
-  if (termsVersion)    body.set('metadata[terms_version]', termsVersion);
-  if (termsAcceptedAt) body.set('metadata[terms_accepted_at]', termsAcceptedAt);
-  if (termsUrl)        body.set('metadata[terms_url]', termsUrl);
-
-  const ALLOWED_UPGRADE_PRICE_IDS = new Set([
-    'price_1T9AXyCrQuKPknEPEDC39wfC', // Mission Essential Faraday Bags
-    'price_1T9AYeCrQuKPknEPy37kFtwn', // Premium Backup Charging Cable
-    'price_1T9AZeCrQuKPknEP62dDoshW', // Backup Mini Solar Battery
-  ]);
-
-  const upgrades = Array.isArray(data.upgrades) ? data.upgrades : [];
-  let lineIdx = 1;
-  for (const upgrade of upgrades) {
-    const priceId = (upgrade.priceId || '').toString().trim();
-    if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId)) continue;
-    body.set(`line_items[${lineIdx}][price]`, priceId);
-    body.set(`line_items[${lineIdx}][quantity]`, '1');
-    lineIdx++;
-  }
-
-  body.set('shipping_options[0][shipping_rate_data][type]', 'fixed_amount');
-  body.set('shipping_options[0][shipping_rate_data][fixed_amount][amount]', '0');
-  body.set('shipping_options[0][shipping_rate_data][fixed_amount][currency]', 'usd');
-  body.set('shipping_options[0][shipping_rate_data][display_name]', 'Free Shipping (Continental U.S.)');
-  // Estimate shown to buyer at Stripe Checkout = order-to-delivery business days.
-  // Standard policy: processing up to 7 (avg 1-2) + ground transit up to 10
-  // (avg 5-7). Min reflects the fast end (1 + 5), max reflects the worst case (7 + 10).
-  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][unit]', 'business_day');
-  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][minimum][value]', '6');
-  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][unit]', 'business_day');
-  body.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '17');
-
-  const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: body.toString()
-  });
-
-  const stripeData = await stripeRes.json().catch(() => ({}));
-  if (!stripeRes.ok) {
-    return json({ ok: false, error: 'Stripe session failed', detail: stripeData }, 502, corsHeaders);
-  }
-
-  return json({ ok: true, checkoutUrl: stripeData.url, id: stripeData.id }, 200, corsHeaders);
-}
-
-/**
  * POST /api/stripe-webhook — Verify Stripe signature, upsert booking as paid, auto-insert tax income
  * @param {Request} request - Raw body with Stripe-Signature header
  * @param {Object} env - Worker env (STRIPE_WEBHOOK_SECRET, DB)
@@ -4595,7 +4481,6 @@ async function upsertTaxExpenseJournal(db, row) {
   const expenseAccountCodeByCategory = {
     'Payment Processing Fees': '5300',
     'Inventory - Survival Node Components': '5210',
-    'Inventory - Ghost Box Components': '5210',
     'Shipping - Survival Node Fulfillment': '5220',
     'Packaging - Survival Node Fulfillment': '5230',
     'AI Services': '5000',

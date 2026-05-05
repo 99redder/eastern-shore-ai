@@ -1,4 +1,4 @@
-name = "ghostbox-checkout-api"
+name = "survival-node-checkout-api"
 main = "src/index.js"
 compatibility_date = "2026-03-03"
 
