@@ -27,8 +27,8 @@
 // GET  /api/accounts/summary    → handleAccountsSummary() — Admin: account balances + trial balance status
 // GET  /api/accounts/journal    → handleAccountsJournal() — Admin: journal entries list
 // POST /api/accounts/journal    → handleAccountsJournalCreate() — Admin: manual journal entry
-// POST /api/ask-k               → handleAskK()            — Public: AI assistant for Survival Node questions
-// POST /api/ask-k/escalate      → handleAskKEscalate()    — Public: escalation webhook to staff
+// POST /api/admin/ask-k         → handleAskK()            — Admin: AI assistant for Survival Node questions
+// POST /api/admin/ask-k/escalate → handleAskKEscalate()    — Admin: escalation webhook to staff
 // POST /api/chat/session        → handleChatSessionCreate() — Public: create human-handoff chat session
 // GET  /api/chat/session        → handleChatSessionGet()  — Public: get session by token
 // GET  /api/chat/messages       → handleChatMessages()    — Public: list messages for session
@@ -38,11 +38,13 @@
 // POST /api/chat/session/close  → handleChatSessionClose() — Admin: close a chat session
 //
 // ===== UTILITY FUNCTIONS =====
-// requireAdmin(request, env)           — Validate X-Admin-Password header
+// requireAdmin(request, env)           — Validate X-Admin-Password header with throttling
 // toCents(v)                           — Convert dollar string to integer cents
 // csvEscape(s)                         — Escape string for CSV output
 // verifyStripeSignature(payload, sig, secret) — HMAC-SHA256 Stripe webhook verification
 // json(data, status, headers)          — Build JSON Response
+
+const _adminAuthFailures = new Map();
 
 export default {
   async fetch(request, env) {
@@ -358,11 +360,11 @@ export default {
     }
 
     if (url.pathname === '/api/admin/ask-k' && request.method === 'POST') {
-      return handleAskK(request, env, corsHeaders);
+      return handleAskK(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/admin/ask-k/escalate' && request.method === 'POST') {
-      return handleAskKEscalate(request, env, corsHeaders);
+      return handleAskKEscalate(request, env, corsHeaders, url);
     }
 
     // Human-handoff chat routes
@@ -1589,13 +1591,38 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
 // ===== Utility Functions =====
 
-/** Validate admin password from X-Admin-Password header or ?key query param */
+/** Validate admin password from X-Admin-Password header with per-IP failed-attempt throttling */
 function requireAdmin(request, env, corsHeaders, url) {
-  const provided = (request.headers.get('X-Admin-Password') || url.searchParams.get('key') || '').trim();
+  const provided = (request.headers.get('X-Admin-Password') || '').trim();
   const expected = (env.ADMIN_PASSWORD || '').trim();
   if (!expected) return { ok: false, res: json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders) };
-  if (!provided || provided !== expected) return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
-  return { ok: true };
+
+  const ip = (request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown')
+    .split(',')[0]
+    .trim() || 'unknown';
+  const now = Date.now();
+  const windowMs = 15 * 60 * 1000;
+  const existing = _adminAuthFailures.get(ip);
+  const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
+
+  if (provided && provided === expected) {
+    _adminAuthFailures.delete(ip);
+    return { ok: true };
+  }
+
+  const timestamp = new Date(now).toISOString();
+  console.log(`Failed admin authentication attempt at ${timestamp} from ${ip}`);
+
+  current.count += 1;
+  current.expiresAt = current.expiresAt || (now + windowMs);
+
+  if (current.count >= 5) {
+    _adminAuthFailures.delete(ip);
+    return { ok: false, res: json({ ok: false, error: 'Too many admin authentication attempts' }, 429, corsHeaders) };
+  }
+
+  _adminAuthFailures.set(ip, current);
+  return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
 }
 
 /** @param {string|number} amount - Dollar amount @returns {number|null} Integer cents */
@@ -2048,7 +2075,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+  if (!env.RESEND_API_KEY || !(env.ORDERS_FROM_EMAIL || env.FROM_EMAIL)) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -2081,10 +2108,11 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   });
 
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const bccEmail = (env.BCC_EMAIL || '').toString().trim();
   const emailPayload = {
     from: fromEmail,
     to: [customerEmail],
-    bcc: ['emailconfirm@easternshore.ai'],
+    ...(bccEmail ? { bcc: [bccEmail] } : {}),
     subject: content.subject,
     html: content.html,
     text: content.bodyText,
@@ -5216,7 +5244,10 @@ Every kit includes a 30-day warranty, and free technical support is included for
  * @param {Object} env - Worker env (ASKK_API_KEY, ASKK_BASE_URL, ASKK_MODEL)
  * @returns {Response} { ok: true, reply } or { ok: false, error }
  */
-async function handleAskK(request, env, corsHeaders) {
+async function handleAskK(request, env, corsHeaders, url) {
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
   let data;
   try {
     data = await request.json();
@@ -5435,7 +5466,10 @@ function fallbackAskKAnswer(question, context) {
  * @param {Object} env - Worker env (ASKK_STAFF_WEBHOOK_URL)
  * @returns {Response} { ok: true } or { ok: false, error }
  */
-async function handleAskKEscalate(request, env, corsHeaders) {
+async function handleAskKEscalate(request, env, corsHeaders, url) {
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
   const webhookUrl = env.ASKK_STAFF_WEBHOOK_URL;
   if (!webhookUrl) {
     return json({ ok: true, message: 'Escalation noted. Please call (302) 907-9162 or use the contact form.' }, 200, corsHeaders);
