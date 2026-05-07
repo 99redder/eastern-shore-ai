@@ -1087,7 +1087,7 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
     'metadata[product]': productCode,
     'metadata[unit_price_cents]': unitAmount,
     'metadata[checkout_type]': checkoutType,
-    'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, or international addresses will be canceled and refunded.'
+    'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, APO/FPO/DPO, or international addresses will be canceled and refunded.'
   });
 
   if (termsVersion)    body.set('metadata[terms_version]', termsVersion);
@@ -4997,7 +4997,7 @@ It works completely without internet, cell signal, or the power grid.
 
 **Free shipping** to all continental US states.
 
-**Cannot ship:** Alaska, Hawaii, US territories, international (lithium battery regulations).
+**Cannot ship:** Alaska, Hawaii, US territories, APO/FPO/DPO military addresses, or international addresses (lithium battery regulations).
 
 ## What's Included in the Survival Node
 
@@ -5109,7 +5109,7 @@ You're buying the configuration, vetting, and testing — not just parts. We sou
 Laptops need 30–80W; hard to solar-charge. Phones are the most power-efficient platform for this performance. 8GB RAM is minimum for capable local AI.
 
 ### Do you ship outside continental US?
-No. Ground shipping only due to lithium battery regulations. No Alaska, Hawaii, territories, or international.
+No. Ground shipping only due to lithium battery regulations. No Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, or international addresses.
 
 ### What's the warranty?
 30-day Eastern Shore AI warranty covering defects in hardware function and software configuration. Original manufacturer warranty is voided by OS modification.
@@ -5331,6 +5331,7 @@ async function generateAskKAnswer(env, question, context, history = []) {
     "Prioritize the user's actual question over the current page section. Use the visible page context only when it helps answer more accurately or tell the user what to click next.",
     'You will be given a grounded knowledge base for this exact project. When it directly answers the question, use it confidently instead of guessing.',
     'If the grounded knowledge includes exact figures, benchmark numbers, dimensions, timings, capacities, prices, or model names that answer the question, quote those exact details instead of saying you do not have them.',
+    'For any shipping question, always state that shipping is ground-only to continental U.S. destinations and that Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not supported.',
     'If the user asks for benchmark speeds or model performance from testing.html, answer by quoting the reported benchmark figures directly from the grounded knowledge.',
     'Assume many users are not technical. Use plain English, define jargon briefly, and explain step by step when useful.',
     'For how-to questions, prefer numbered steps.',
@@ -5477,7 +5478,7 @@ function fallbackAskKAnswer(question, context) {
     return 'Yes — the Survival Node is designed to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi‑Fi, and no cell signal required.';
   }
   if (q.includes('ship') || q.includes('shipping')) {
-    return 'Shipping is free to continental U.S. destinations, and orders ship by ground due to lithium battery rules. Alaska, Hawaii, U.S. territories, and international destinations are not currently supported.';
+    return 'Shipping is free to continental U.S. destinations, and orders ship by ground due to lithium battery rules. Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not currently supported.';
   }
   if (q.includes('return') || q.includes('refund') || q.includes('warranty')) {
     return 'Returns are accepted within 30 days of delivery if the device stays in original functional condition, the Faraday bag seals are unbroken, and the OS has not been further modified. The kit also includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration.';
