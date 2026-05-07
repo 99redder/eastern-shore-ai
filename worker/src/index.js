@@ -27,8 +27,8 @@
 // GET  /api/accounts/summary    → handleAccountsSummary() — Admin: account balances + trial balance status
 // GET  /api/accounts/journal    → handleAccountsJournal() — Admin: journal entries list
 // POST /api/accounts/journal    → handleAccountsJournalCreate() — Admin: manual journal entry
-// POST /api/admin/ask-k         → handleAskK()            — Admin: AI assistant for Survival Node questions
-// POST /api/admin/ask-k/escalate → handleAskKEscalate()    — Admin: escalation webhook to staff
+// POST /api/ask-k               → handleAskK()            — Public: AI assistant for Survival Node questions
+// POST /api/ask-k/escalate      → handleAskKEscalate()    — Public: escalation webhook to staff
 // POST /api/chat/session        → handleChatSessionCreate() — Public: create human-handoff chat session
 // GET  /api/chat/session        → handleChatSessionGet()  — Public: get session by token
 // GET  /api/chat/messages       → handleChatMessages()    — Public: list messages for session
@@ -45,6 +45,7 @@
 // json(data, status, headers)          — Build JSON Response
 
 const _adminAuthFailures = new Map();
+const _askKRateLimits = new Map();
 
 export default {
   async fetch(request, env) {
@@ -85,7 +86,7 @@ export default {
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
       const isBatteryImagePublic = url.pathname === '/api/orders/battery-image' && request.method === 'GET';
       const isTrackPublic = url.pathname === '/track' && request.method === 'GET';
-      const isAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
+      const isAskKRoute = ['/api/ask-k', '/api/ask-k/escalate', '/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/survival-node-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
@@ -359,11 +360,11 @@ export default {
       return handleInvoicePaymentCancelledPage(request, env, corsHeaders, url);
     }
 
-    if (url.pathname === '/api/admin/ask-k' && request.method === 'POST') {
+    if ((url.pathname === '/api/ask-k' || url.pathname === '/api/admin/ask-k') && request.method === 'POST') {
       return handleAskK(request, env, corsHeaders, url);
     }
 
-    if (url.pathname === '/api/admin/ask-k/escalate' && request.method === 'POST') {
+    if ((url.pathname === '/api/ask-k/escalate' || url.pathname === '/api/admin/ask-k/escalate') && request.method === 'POST') {
       return handleAskKEscalate(request, env, corsHeaders, url);
     }
 
@@ -1623,6 +1624,25 @@ function requireAdmin(request, env, corsHeaders, url) {
 
   _adminAuthFailures.set(ip, current);
   return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
+}
+
+/** Lightweight public Ask K throttling: 20 requests per IP per 15 minutes. */
+function checkAskKRateLimit(request, corsHeaders) {
+  const ip = (request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown')
+    .split(',')[0]
+    .trim() || 'unknown';
+  const now = Date.now();
+  const windowMs = 15 * 60 * 1000;
+  const existing = _askKRateLimits.get(ip);
+  const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
+  current.count += 1;
+  current.expiresAt = current.expiresAt || (now + windowMs);
+  _askKRateLimits.set(ip, current);
+
+  if (current.count > 20) {
+    return json({ ok: false, error: 'Too many Ask K requests. Please try again later.' }, 429, corsHeaders);
+  }
+  return null;
 }
 
 /** @param {string|number} amount - Dollar amount @returns {number|null} Integer cents */
@@ -5239,14 +5259,14 @@ Every kit includes a 30-day warranty, and free technical support is included for
 `;
 
 /**
- * POST /api/admin/ask-k — AI assistant for Survival Node product questions
+ * POST /api/ask-k — AI assistant for Survival Node product questions
  * @param {Request} request - JSON body: { message, history, context }
  * @param {Object} env - Worker env (ASKK_API_KEY, ASKK_BASE_URL, ASKK_MODEL)
  * @returns {Response} { ok: true, reply } or { ok: false, error }
  */
 async function handleAskK(request, env, corsHeaders, url) {
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
+  const limited = checkAskKRateLimit(request, corsHeaders);
+  if (limited) return limited;
 
   let data;
   try {
@@ -5461,14 +5481,14 @@ function fallbackAskKAnswer(question, context) {
 }
 
 /**
- * POST /api/admin/ask-k/escalate — Send escalation notification to staff webhook
+ * POST /api/ask-k/escalate — Send escalation notification to staff webhook
  * @param {Request} request - JSON body: { conversation, customerInfo }
  * @param {Object} env - Worker env (ASKK_STAFF_WEBHOOK_URL)
  * @returns {Response} { ok: true } or { ok: false, error }
  */
 async function handleAskKEscalate(request, env, corsHeaders, url) {
-  const auth = requireAdmin(request, env, corsHeaders, url);
-  if (!auth.ok) return auth.res;
+  const limited = checkAskKRateLimit(request, corsHeaders);
+  if (limited) return limited;
 
   const webhookUrl = env.ASKK_STAFF_WEBHOOK_URL;
   if (!webhookUrl) {
