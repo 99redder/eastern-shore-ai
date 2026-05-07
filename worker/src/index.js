@@ -2342,6 +2342,8 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
 
   let data;
   try {
@@ -2382,6 +2384,8 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
 
   let data;
   try {
@@ -2494,6 +2498,8 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
  */
 async function handleTaxExpense(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -2544,6 +2550,8 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
  */
 async function handleTaxIncome(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
