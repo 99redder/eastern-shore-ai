@@ -6,7 +6,7 @@ function json(data, status = 200, headers = {}) {
 }
 
 function buildCorsHeaders(origin, allowedOrigin) {
-  const allowOrigin = allowedOrigin === '*' ? '*' : (origin || allowedOrigin || '*');
+  const allowOrigin = allowedOrigin === '*' ? '*' : (allowedOrigin || '*');
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
@@ -46,7 +46,8 @@ export default {
       data = {};
     }
 
-    const checkoutType = (data.checkoutType || 'base_kit').toString().trim().toLowerCase();
+    const requestedCheckoutType = (data.checkoutType || 'base_kit').toString().trim().toLowerCase();
+    const checkoutType = ['base_kit', 'byog_setup'].includes(requestedCheckoutType) ? requestedCheckoutType : 'base_kit';
     const isByogSetup = checkoutType === 'byog_setup';
     const termsAccepted = data.termsAccepted === true;
 
@@ -105,10 +106,12 @@ export default {
       'price_1T9AZeCrQuKPknEP62dDoshW', // Backup Mini Solar Battery
     ]);
     const upgrades = Array.isArray(data.upgrades) ? data.upgrades : [];
+    const seenUpgradePriceIds = new Set();
     let lineIdx = 1;
     for (const upgrade of upgrades) {
       const priceId = (upgrade.priceId || '').toString().trim();
-      if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId)) continue;
+      if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId) || seenUpgradePriceIds.has(priceId)) continue;
+      seenUpgradePriceIds.add(priceId);
       body.set(`line_items[${lineIdx}][price]`, priceId);
       body.set(`line_items[${lineIdx}][quantity]`, '1');
       lineIdx++;

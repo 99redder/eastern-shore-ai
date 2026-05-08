@@ -941,7 +941,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     }
   }
 
-  const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
+  const siteOrigin = (originAllowed && request.headers.get('Origin')) || allowedOrigins[0] || 'https://easternshore.ai';
   const body = new URLSearchParams({
     mode: 'payment',
     allow_promotion_codes: 'true',
@@ -1063,7 +1063,7 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
   const termsAcceptedAt = (data.termsAcceptedAt || '').toString().trim().slice(0, 64);
   const termsUrl = (data.termsUrl || '').toString().trim().slice(0, 200);
 
-  const siteOrigin = originAllowed ? (request.headers.get('Origin') || '') : (allowedOrigins[0] || 'https://easternshore.ai');
+  const siteOrigin = (originAllowed && request.headers.get('Origin')) || allowedOrigins[0] || 'https://easternshore.ai';
   const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
@@ -1547,12 +1547,22 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
         // Auto-insert Stripe processing fee as expense for accurate net reporting
         const paymentIntentId = (session.payment_intent || '').toString().trim();
-        const feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
+        let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
+        let feeWasEstimated = false;
+        if (feeCents <= 0) {
+          feeCents = estimateStripeFeeCents(amount);
+          feeWasEstimated = feeCents > 0;
+        }
         if (feeCents > 0) {
-          const feeNote = `Auto Stripe fee for session ${sessionId}`;
+          const feeNote = feeWasEstimated
+            ? `Estimated Stripe fee for session ${sessionId}`
+            : `Auto Stripe fee for session ${sessionId}`;
           const existingFee = await env.DB.prepare(
-            `SELECT id FROM tax_expenses WHERE notes = ?1 LIMIT 1`
-          ).bind(feeNote).first();
+            `SELECT id FROM tax_expenses WHERE notes IN (?1, ?2) LIMIT 1`
+          ).bind(
+            `Auto Stripe fee for session ${sessionId}`,
+            `Estimated Stripe fee for session ${sessionId}`
+          ).first();
 
           if (!existingFee?.id) {
             const insFee = await env.DB.prepare(
@@ -2594,6 +2604,8 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
  */
 async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -2691,6 +2703,8 @@ async function handleTaxOwnerTransfer(request, env, corsHeaders, url) {
  */
 async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -2742,6 +2756,8 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
  */
 async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
   const id = Number(data.id || 0);
@@ -2764,6 +2780,8 @@ async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
  */
 async function handleTaxIncomeDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
   const id = Number(data.id || 0);
@@ -3526,6 +3544,8 @@ async function handleInvoiceDetail(request, env, corsHeaders, url) {
 
 async function handleInvoiceUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -4110,16 +4130,13 @@ async function handleQuoteConvert(request, env, corsHeaders, url) {
 // ===== Quotes Handlers =====
 
 function generateToken() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
+  return crypto.randomUUID().replace(/-/g, '');
 }
 
 async function handleQuoteCreate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -4202,6 +4219,8 @@ async function handleQuoteDetail(request, env, corsHeaders, url) {
 
 async function handleQuoteUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -4249,6 +4268,8 @@ async function handleQuoteUpdate(request, env, corsHeaders, url) {
 
 async function handleQuoteDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
