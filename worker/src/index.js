@@ -464,6 +464,9 @@ async function handleContact(request, env, corsHeaders) {
   if (env.CC_EMAIL) {
     emailPayload.cc = [env.CC_EMAIL];
   }
+  if (env.BCC_EMAIL) {
+    emailPayload.bcc = [env.BCC_EMAIL];
+  }
 
   const resendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -806,7 +809,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
         label: 'Tech Tutoring (2 hour session)',
         amountCents: 10000,
         quantity: uniqueSlots.length || 1,
-        successPath: '/book-lessons.html'
+        successPath: '/book-lessons.html',
+        cancelPath: '/book-lessons.html'
       }
     : requestedService === 'byog_setup'
       ? {
@@ -814,14 +818,16 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
           label: 'Survival Node BYOG Setup Service',
           amountCents: 6999,
           quantity: 1,
-          successPath: '/node.html'
+          successPath: '/node.html',
+          cancelPath: '/node-payment-cancelled.html'
         }
       : {
           key: 'openclaw_setup',
           label: 'OpenClaw Setup',
           amountCents: 10000,
           quantity: 1,
-          successPath: '/openclaw-setup.html'
+          successPath: '/openclaw-setup.html',
+          cancelPath: '/openclaw-setup.html'
         };
 
   const standaloneDeviceConfig = requestedService === 'openclaw_setup'
@@ -948,7 +954,7 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     billing_address_collection: 'required',
     'automatic_tax[enabled]': 'true',
     success_url: `${siteOrigin}${serviceConfig.successPath}?paid=1&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteOrigin}${serviceConfig.successPath}?canceled=1`,
+    cancel_url: `${siteOrigin}${serviceConfig.cancelPath}?canceled=1`,
     'line_items[0][price_data][currency]': 'usd',
     'line_items[0][price_data][unit_amount]': String(serviceConfig.amountCents),
     'line_items[0][price_data][product_data][name]': serviceConfig.label,
@@ -2088,7 +2094,8 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET tracking_provider = ?1,
+       SET fulfillment_status = 'delivered',
+           tracking_provider = ?1,
            tracking_number = ?2,
            tracking_url = ?3,
            internal_notes = ?4,
@@ -2180,7 +2187,8 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     } else if (kind === 'delivered') {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
-         SET tracking_provider = ?1,
+         SET fulfillment_status = 'delivered',
+             tracking_provider = ?1,
              tracking_number = ?2,
              tracking_url = ?3,
              delivered_email_sent_at = datetime('now'),
@@ -2227,7 +2235,8 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   } else if (kind === 'delivered') {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET tracking_provider = ?1,
+       SET fulfillment_status = 'delivered',
+           tracking_provider = ?1,
            tracking_number = ?2,
            tracking_url = ?3,
            delivered_email_sent_at = datetime('now'),
@@ -4066,6 +4075,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
     reply_to: replyToEmail || fromEmail
   };
   if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
+  if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
 
   const sendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -4352,6 +4362,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
     reply_to: env.CC_EMAIL || fromEmail
   };
   if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
+  if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
 
   const sendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -4542,7 +4553,7 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
       method: 'POST',
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(notifyPayload)
-    }).catch(() => {});
+    }).catch(e => console.error('Quote accept admin notification failed', e));
   }
 
   return new Response(htmlPage('Quote Accepted', 'Thank You!', "Your quote has been accepted. We'll be in touch shortly for scheduling and confirmation.", true), { status: 200, headers: { 'Content-Type': 'text/html' } });
@@ -4898,6 +4909,7 @@ async function sendNonConusRefundEmail(env, {
     body: JSON.stringify({
       from: env.ORDERS_FROM_EMAIL,
       to: [toEmail],
+      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
       subject,
       html
     })
