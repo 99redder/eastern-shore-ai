@@ -1100,6 +1100,7 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
     success_url: successUrl,
     cancel_url: cancelUrl,
     billing_address_collection: 'required',
+    allow_promotion_codes: 'true',
     'automatic_tax[enabled]': 'true',
     'shipping_address_collection[allowed_countries][0]': 'US',
     'line_items[0][quantity]': '1',
@@ -1235,8 +1236,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
                updated_at = datetime('now')
            WHERE id = ?6`
         ).bind(
-          Number(paymentResult?.amountPaidCents ?? null),
-          Number(paymentResult?.balanceDueCents ?? null),
+          paymentResult?.amountPaidCents == null ? null : Number(paymentResult.amountPaidCents),
+          paymentResult?.balanceDueCents == null ? null : Number(paymentResult.balanceDueCents),
           (paymentResult?.status || null),
           sessionId || null,
           session.url || null,
@@ -1844,7 +1845,6 @@ async function getOrderRowByBookingId(db, bookingId) {
        b.created_at,
        substr(COALESCE(ti.income_date, b.paid_at, b.created_at), 1, 10) AS payment_date,
        of.order_number,
-       of.order_number,
        of.fulfillment_status,
        of.tracking_provider,
        of.tracking_number,
@@ -1856,6 +1856,7 @@ async function getOrderRowByBookingId(db, bookingId) {
        of.shipping_email_sent_at,
        of.shipping_email_subject,
        of.shipping_email_body,
+       of.delivered_email_sent_at,
        of.shipped_at,
        of.battery_test_note,
        of.battery_test_image_key,
@@ -1878,7 +1879,7 @@ async function ensureOrderFulfillmentRow(db, row) {
        stripe_session_id = COALESCE(excluded.stripe_session_id, order_fulfillment.stripe_session_id),
        order_number = COALESCE(order_fulfillment.order_number, excluded.order_number),
        updated_at = datetime('now')`
-  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at)).run();
+  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at, row.review_email_sent_at)).run();
 }
 
 
@@ -2009,7 +2010,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
 
   const orders = [
     ...(stripeRows.results || []).map((row) => {
-      const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at);
+      const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at, row.review_email_sent_at);
       return {
         ...row,
         order_key: makeOrderKey('booking', row.id),
@@ -2024,7 +2025,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
       service_type: 'survival_node_manual',
       order_key: makeOrderKey('manual', row.id),
       order_source: 'manual',
-      fulfillment_status: normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at)
+      fulfillment_status: normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at, row.review_email_sent_at)
     }))
   ]
     .filter((row) => status === 'all' ? true : row.fulfillment_status === status)
@@ -2109,7 +2110,7 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET fulfillment_status = 'delivered',
+       SET fulfillment_status = 'shipped',
            tracking_provider = ?1,
            tracking_number = ?2,
            tracking_url = ?3,
@@ -4893,7 +4894,8 @@ async function sendNonConusRefundEmail(env, {
   refundCents,
   refundIssued
 }) {
-  if (!env.RESEND_API_KEY || !env.ORDERS_FROM_EMAIL || !toEmail) return { ok: false, error: 'email not configured' };
+  const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'email not configured' };
   const greeting = customerName ? `Hi ${customerName},` : 'Hi,';
   const subject = 'Your Survival Node order has been refunded (CONUS-only shipping)';
   const fmt = (c) => `$${(Math.max(Number(c) || 0, 0) / 100).toFixed(2)}`;
@@ -4922,7 +4924,7 @@ async function sendNonConusRefundEmail(env, {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: env.ORDERS_FROM_EMAIL,
+      from: fromEmail,
       to: [toEmail],
       ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
       subject,
