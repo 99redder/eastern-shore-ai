@@ -86,12 +86,13 @@ export default {
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
       const isBatteryImagePublic = url.pathname === '/api/orders/battery-image' && request.method === 'GET';
       const isTrackPublic = url.pathname === '/track' && request.method === 'GET';
-      const isAskKRoute = ['/api/ask-k', '/api/ask-k/escalate', '/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
+      const isAskKRoute = ['/api/ask-k', '/api/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
+      const isAdminAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/survival-node-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -360,11 +361,23 @@ export default {
       return handleInvoicePaymentCancelledPage(request, env, corsHeaders, url);
     }
 
-    if ((url.pathname === '/api/ask-k' || url.pathname === '/api/admin/ask-k') && request.method === 'POST') {
+    if (url.pathname === '/api/ask-k' && request.method === 'POST') {
       return handleAskK(request, env, corsHeaders, url);
     }
 
-    if ((url.pathname === '/api/ask-k/escalate' || url.pathname === '/api/admin/ask-k/escalate') && request.method === 'POST') {
+    if (url.pathname === '/api/admin/ask-k' && request.method === 'POST') {
+      const auth = requireAdmin(request, env, corsHeaders, url);
+      if (!auth.ok) return auth.res;
+      return handleAskK(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/ask-k/escalate' && request.method === 'POST') {
+      return handleAskKEscalate(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/admin/ask-k/escalate' && request.method === 'POST') {
+      const auth = requireAdmin(request, env, corsHeaders, url);
+      if (!auth.ok) return auth.res;
       return handleAskKEscalate(request, env, corsHeaders, url);
     }
 
@@ -1112,10 +1125,12 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
     'price_1T9AZeCrQuKPknEP62dDoshW',
   ]);
   const upgrades = Array.isArray(data.upgrades) ? data.upgrades : [];
+  const seenUpgradePriceIds = new Set();
   let lineIdx = 1;
   for (const upgrade of upgrades) {
     const priceId = (upgrade.priceId || '').toString().trim();
-    if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId)) continue;
+    if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId) || seenUpgradePriceIds.has(priceId)) continue;
+    seenUpgradePriceIds.add(priceId);
     body.set(`line_items[${lineIdx}][price]`, priceId);
     body.set(`line_items[${lineIdx}][quantity]`, '1');
     lineIdx++;
@@ -5965,8 +5980,8 @@ async function handleChatSessionClose(request, env, corsHeaders, url) {
     if (session) {
       await env.DB.prepare(
         `INSERT INTO chat_messages (session_id, role, content, sender_name, created_at)
-         VALUES (?1, 'system', ?3, 'System', ?2)`
-      ).bind(session.id, now, isAdminClose ? 'This chat session has been closed by support.' : 'This chat session has been closed by the customer.').run();
+         VALUES (?1, 'system', ?2, 'System', ?3)`
+      ).bind(session.id, isAdminClose ? 'This chat session has been closed by support.' : 'This chat session has been closed by the customer.', now).run();
     }
 
     return json({ ok: true }, 200, corsHeaders);

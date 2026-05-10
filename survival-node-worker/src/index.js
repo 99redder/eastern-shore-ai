@@ -19,11 +19,26 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') || '';
-    const allowedOrigin = (env.ALLOWED_ORIGIN || 'https://www.easternshore.ai').trim();
+    const configuredOrigins = (env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '')
+      .split(',')
+      .map(v => v.trim())
+      .filter(Boolean);
+    const allowedOrigins = [...new Set([
+      ...configuredOrigins,
+      'https://www.easternshore.ai',
+      'https://easternshore.ai'
+    ])];
+    const allowAll = allowedOrigins.includes('*');
+    const originAllowed = allowAll || !origin || allowedOrigins.includes(origin);
+    const allowedOrigin = allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || 'https://www.easternshore.ai');
     const corsHeaders = buildCorsHeaders(origin, allowedOrigin);
 
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: corsHeaders });
+      return new Response(null, { status: originAllowed ? 204 : 403, headers: corsHeaders });
+    }
+
+    if (!originAllowed) {
+      return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
     }
 
     if (request.method === 'GET' && url.pathname === '/health') {
