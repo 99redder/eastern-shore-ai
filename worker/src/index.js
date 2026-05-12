@@ -56,9 +56,9 @@ export default {
       .filter(Boolean);
     const allowAll = allowedOrigins.includes('*');
     const isLocalDashboardOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(origin);
-    const isNullOrigin = origin === 'null';
-    // No Origin header = direct browser navigation (new tab link), not a cross-origin fetch — always allow.
-    const originAllowed = allowAll || !origin || isNullOrigin || allowedOrigins.includes(origin) || isLocalDashboardOrigin;
+    // No Origin header = direct browser navigation/server-to-server request, not a cross-origin fetch — allow.
+    // Do not trust `Origin: null`; sandboxed iframes and local files can emit it.
+    const originAllowed = allowAll || !origin || allowedOrigins.includes(origin) || isLocalDashboardOrigin;
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
@@ -75,7 +75,7 @@ export default {
 
     // Stripe webhook comes from Stripe servers (no browser Origin), so skip origin check there.
     if (url.pathname !== '/api/stripe-webhook') {
-      const isBookingsRead = ['/api/bookings', '/api/orders', '/api/planner/items'].includes(url.pathname) && request.method === 'GET';
+      const isBookingsRead = ['/api/bookings', '/api/orders'].includes(url.pathname) && request.method === 'GET';
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual','/api/orders/delete','/api/orders/battery-test'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
@@ -92,12 +92,13 @@ export default {
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
-      // Public quote accept/deny + planner sync + chat session endpoints don't require strict origin check
-      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isPlannerRoute && !isChatPublic && !isBatteryImagePublic && !isTrackPublic) {
+      // Public quote accept/deny + chat session endpoints don't require strict origin check.
+      // Planner endpoints are admin-only and must pass normal origin enforcement.
+      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isChatPublic && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
@@ -183,19 +184,19 @@ export default {
     }
 
     if (url.pathname === '/api/planner/items' && request.method === 'POST') {
-      return handlePlannerItemUpsert(request, env, corsHeaders);
+      return handlePlannerItemUpsert(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/planner/items/toggle') {
-      return handlePlannerItemToggle(request, env, corsHeaders);
+      return handlePlannerItemToggle(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/planner/items/delete') {
-      return handlePlannerItemDelete(request, env, corsHeaders);
+      return handlePlannerItemDelete(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/planner/items/reschedule') {
-      return handlePlannerItemReschedule(request, env, corsHeaders);
+      return handlePlannerItemReschedule(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/admin/block-slot') {
@@ -571,6 +572,8 @@ async function ensurePlannerSchema(db) {
  */
 async function handlePlannerItemsList(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
 
   const userId = (url.searchParams.get('userId') || 'chris').toString().trim() || 'chris';
@@ -599,8 +602,10 @@ async function handlePlannerItemsList(request, env, corsHeaders, url) {
 /**
  * POST /api/planner/items (create/update)
  */
-async function handlePlannerItemUpsert(request, env, corsHeaders) {
+async function handlePlannerItemUpsert(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -640,8 +645,10 @@ async function handlePlannerItemUpsert(request, env, corsHeaders) {
 }
 
 /** POST /api/planner/items/toggle */
-async function handlePlannerItemToggle(request, env, corsHeaders) {
+async function handlePlannerItemToggle(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -656,8 +663,10 @@ async function handlePlannerItemToggle(request, env, corsHeaders) {
 }
 
 /** POST /api/planner/items/delete */
-async function handlePlannerItemDelete(request, env, corsHeaders) {
+async function handlePlannerItemDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -669,8 +678,10 @@ async function handlePlannerItemDelete(request, env, corsHeaders) {
 }
 
 /** POST /api/planner/items/reschedule */
-async function handlePlannerItemReschedule(request, env, corsHeaders) {
+async function handlePlannerItemReschedule(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -1612,6 +1623,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             }
           }
         }
+
+        await sendAutoBuyerConfirmationForSession(env, sessionId);
       } catch (e) {
         console.error('Stripe webhook DB write failed', e);
         return json({ ok: false, error: `Webhook DB write failed: ${e?.message || e}` }, 500, corsHeaders);
@@ -1626,7 +1639,11 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
 /** Validate admin password from X-Admin-Password header with per-IP failed-attempt throttling */
 function requireAdmin(request, env, corsHeaders, url) {
-  const provided = (request.headers.get('X-Admin-Password') || '').trim();
+  const provided = (
+    request.headers.get('X-Admin-Password')
+    || (url?.pathname === '/api/tax/receipt' ? url.searchParams.get('key2') : '')
+    || ''
+  ).trim();
   const expected = (env.ADMIN_PASSWORD || '').trim();
   if (!expected) return { ok: false, res: json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders) };
 
@@ -1637,6 +1654,11 @@ function requireAdmin(request, env, corsHeaders, url) {
   const windowMs = 15 * 60 * 1000;
   const existing = _adminAuthFailures.get(ip);
   const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
+
+  if (current.count >= 5 && current.expiresAt > now) {
+    _adminAuthFailures.set(ip, current);
+    return { ok: false, res: json({ ok: false, error: 'Too many admin authentication attempts' }, 429, corsHeaders) };
+  }
 
   if (provided && provided === expected) {
     _adminAuthFailures.delete(ip);
@@ -1650,7 +1672,8 @@ function requireAdmin(request, env, corsHeaders, url) {
   current.expiresAt = current.expiresAt || (now + windowMs);
 
   if (current.count >= 5) {
-    _adminAuthFailures.delete(ip);
+    current.expiresAt = now + windowMs;
+    _adminAuthFailures.set(ip, current);
     return { ok: false, res: json({ ok: false, error: 'Too many admin authentication attempts' }, 429, corsHeaders) };
   }
 
@@ -1963,6 +1986,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        of.ack_email_sent_at,
        of.shipping_email_sent_at,
        of.delivered_email_sent_at,
+       of.review_email_sent_at,
        of.shipped_at,
        of.battery_test_note,
        of.battery_test_image_key
@@ -1998,6 +2022,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
        ack_email_sent_at,
        shipping_email_sent_at,
        delivered_email_sent_at,
+       review_email_sent_at,
        shipped_at,
        battery_test_note,
        battery_test_image_key,
@@ -2123,6 +2148,59 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   return json({ ok: true, orderKey: row.order_key, trackingProvider, trackingNumber, trackingUrl }, 200, corsHeaders);
 }
 
+
+async function sendAutoBuyerConfirmationForSession(env, sessionId) {
+  if (!env.DB || !sessionId || !env.RESEND_API_KEY || !(env.ORDERS_FROM_EMAIL || env.FROM_EMAIL)) return;
+
+  const rows = await env.DB.prepare(
+    `SELECT id FROM bookings WHERE stripe_session_id = ?1 AND status IN ('paid','confirmed')`
+  ).bind(sessionId).all();
+
+  for (const baseRow of (rows?.results || [])) {
+    let row = await getOrderRowByBookingId(env.DB, Number(baseRow.id));
+    if (!row?.customer_email || row.ack_email_sent_at) continue;
+
+    await ensureOrderFulfillmentRow(env.DB, row);
+    row = await getOrderRowByBookingId(env.DB, Number(baseRow.id)) || row;
+
+    const content = buildOrderEmailContent('ack', row, {});
+    const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+    const emailPayload = {
+      from: fromEmail,
+      to: [row.customer_email.toString().trim()],
+      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+      subject: content.subject,
+      html: content.html,
+      text: content.bodyText,
+      reply_to: fromEmail
+    };
+
+    const sendRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(emailPayload)
+    });
+
+    if (!sendRes.ok) {
+      const sendJson = await sendRes.json().catch(() => ({}));
+      console.error('Auto buyer confirmation failed', { sessionId, bookingId: row.id, error: sendJson?.message || sendJson?.error || sendRes.status });
+      continue;
+    }
+
+    await env.DB.prepare(
+      `UPDATE order_fulfillment
+       SET fulfillment_status = CASE WHEN fulfillment_status = 'shipped' THEN fulfillment_status ELSE 'acknowledged' END,
+           ack_email_sent_at = datetime('now'),
+           ack_email_subject = ?1,
+           ack_email_body = ?2,
+           updated_at = datetime('now')
+       WHERE booking_id = ?3`
+    ).bind(content.subject, content.bodyText, row.id).run();
+  }
+}
 
 async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
@@ -2877,15 +2955,12 @@ async function handleTaxReceiptUpload(request, env, corsHeaders, url) {
  */
 async function handleTaxReceiptGet(request, env, corsHeaders, url) {
   if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
+  const auth = requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
 
-  // Support ?key2=<password> as alternate auth param since ?key is used for the R2 key
-  const adminPw = request.headers.get('X-Admin-Password') || url.searchParams.get('key2') || '';
-  if (!adminPw || adminPw !== env.ADMIN_PASSWORD) {
-    return new Response(JSON.stringify({ ok: false, error: 'Unauthorized' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-  }
-
-  const r2Key = url.searchParams.get('key') || '';
+  const r2Key = (url.searchParams.get('key') || '').toString().trim();
   if (!r2Key) return json({ ok: false, error: 'Missing key' }, 400, corsHeaders);
+  if (!r2Key.startsWith('receipts/')) return json({ ok: false, error: 'Invalid receipt key' }, 400, corsHeaders);
 
   const obj = await env.RECEIPTS.get(r2Key);
   if (!obj) return json({ ok: false, error: 'Receipt not found' }, 404, corsHeaders);
@@ -5369,7 +5444,7 @@ async function generateAskKAnswer(env, question, context, history = []) {
   const configuredBaseUrl = (env.ASKK_BASE_URL || 'https://api.openai.com/v1').trim();
   const baseUrl = normalizeAskKChatCompletionsUrl(configuredBaseUrl);
   const model = (env.ASKK_MODEL || 'gpt-4o-mini').trim();
-  if (!apiKey) throw new Error('AI assistant not configured');
+  if (!apiKey) return fallbackAskKAnswer(question, context);
 
   const systemPrompt = [
     'You are Ask K, the Survival Node product assistant for Eastern Shore AI.',
