@@ -47,8 +47,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip API calls - always go to network
-  if (url.pathname.startsWith('/api/')) {
+  // Skip API calls and non-GET requests - always go to network.
+  // Cache Storage only supports GET keys; POST cache.put() throws and can break login flows.
+  if (url.pathname.startsWith('/api/') || event.request.method !== 'GET') {
     return;
   }
 

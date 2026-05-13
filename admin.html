@@ -1582,13 +1582,13 @@
     ];
 
     function initAdminTimeDropdown() {
+      if (!adminTimeEl) return;
       const opts = ['<option value="">Select block…</option>'];
       for (const slot of TIME_SLOTS) {
         opts.push(`<option value="${slot.value}">${slot.label}</option>`);
       }
       adminTimeEl.innerHTML = opts.join('');
     }
-    initAdminTimeDropdown();
 
     // ===== Time Utilities =====
     function nowEtParts() {
@@ -2198,6 +2198,7 @@
       if (!template || !mount) throw new Error('Admin controls template missing');
       mount.appendChild(template.content.cloneNode(true));
       refreshDomRefs();
+      initAdminTimeDropdown();
       bindAdminControlListeners();
     }
 
