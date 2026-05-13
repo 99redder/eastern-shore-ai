@@ -251,6 +251,8 @@
         </div>
       </div>
 
+      <div id="admin-controls-mount"></div>
+      <template id="admin-controls-template">
       <div class="admin-controls" id="admin-controls" style="padding:0 1rem 1rem;">
         <div class="admin-section-tabs" id="admin-section-tabs">
           <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
@@ -639,6 +641,7 @@
           </section>
         </div>
       </div>
+      </template>
     </section>
 
   </div>
@@ -1072,250 +1075,485 @@
     const QUOTE_CONVERT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/convert');
 
     // ===== DOM Refs =====
-    const adminLock = document.getElementById('admin-lock');
-    const adminControls = document.getElementById('admin-controls');
-    const adminHeaderTools = document.getElementById('admin-header-tools');
-    const adminKeyEl = document.getElementById('admin-key');
-    const adminUnlockBtn = document.getElementById('admin-unlock-btn');
+    let adminLock;
+    let adminControls;
+    let adminHeaderTools;
+    let adminKeyEl;
+    let adminUnlockBtn;
 
-    const adminSectionTabsEl = document.getElementById('admin-section-tabs');
-    const adminSectionTabBtns = document.querySelectorAll('[data-admin-tab]');
+    let adminSectionTabsEl;
+    let adminSectionTabBtns;
 
-    const bookingCollapseBtn = document.getElementById('booking-collapse-btn');
-    const bookingControlsBody = document.getElementById('booking-controls-body');
-    const taxCollapseBtn = document.getElementById('tax-collapse-btn');
-    const taxLedgerBody = document.getElementById('tax-ledger-body');
-    const ordersCollapseBtn = document.getElementById('orders-collapse-btn');
-    const ordersBody = document.getElementById('orders-body');
-    const accountsCollapseBtn = document.getElementById('accounts-collapse-btn');
-    const accountsBody = document.getElementById('accounts-body');
-    const reconciliationCollapseBtn = document.getElementById('reconciliation-collapse-btn');
-    const reconciliationBody = document.getElementById('reconciliation-body');
-    const invoicesCollapseBtn = document.getElementById('invoices-collapse-btn');
-    const invoicesBody = document.getElementById('invoices-body');
-    const yearCloseCollapseBtn = document.getElementById('year-close-collapse-btn');
-    const yearCloseBody = document.getElementById('year-close-body');
-    const auditPackageCollapseBtn = document.getElementById('audit-package-collapse-btn');
-    const auditPackageBody = document.getElementById('audit-package-body');
+    let bookingCollapseBtn;
+    let bookingControlsBody;
+    let taxCollapseBtn;
+    let taxLedgerBody;
+    let ordersCollapseBtn;
+    let ordersBody;
+    let accountsCollapseBtn;
+    let accountsBody;
+    let reconciliationCollapseBtn;
+    let reconciliationBody;
+    let invoicesCollapseBtn;
+    let invoicesBody;
+    let yearCloseCollapseBtn;
+    let yearCloseBody;
+    let auditPackageCollapseBtn;
+    let auditPackageBody;
 
-    const taxYearEl = document.getElementById('tax-year');
-    const taxSummaryYearEl = document.getElementById('tax-summary-year');
-    const taxTypeEl = document.getElementById('tax-type');
-    const taxRefreshBtn = document.getElementById('tax-refresh-btn');
-    const taxExportBtn = document.getElementById('tax-export-btn');
-    const taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
-    const taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
-    const taxModeOwnerTransferBtn = document.getElementById('tax-mode-owner-transfer-btn');
-    const taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
-    const adminUserGuideBtn = document.getElementById('admin-user-guide-btn');
-    const adminBlurAmountsBtn = document.getElementById('admin-blur-amounts-btn');
-    const adminUserGuideTopBtn = document.getElementById('admin-user-guide-top-btn');
-    const taxExpensePanel = document.getElementById('tax-expense-panel');
-    const taxOwnerTransferPanel = document.getElementById('tax-owner-transfer-panel');
-    const taxIncomePanel = document.getElementById('tax-income-panel');
-    const taxExpenseFields = document.getElementById('tax-expense-fields');
-    const taxOwnerTransferFields = document.getElementById('tax-owner-transfer-fields');
-    const taxIncomeFields = document.getElementById('tax-income-fields');
-    const taxMinimizeExpenseBtn = document.getElementById('tax-minimize-expense-btn');
-    const taxMinimizeOwnerTransferBtn = document.getElementById('tax-minimize-owner-transfer-btn');
-    const taxMinimizeIncomeBtn = document.getElementById('tax-minimize-income-btn');
-    const taxCategoryModal = document.getElementById('tax-category-modal');
-    const taxCategoryCloseBtn = document.getElementById('tax-category-close-btn');
-    const taxCategoryXBtn = document.getElementById('tax-category-x-btn');
-    const expenseCategoriesListEl = document.getElementById('expense-categories-list');
-    const incomeCategoriesListEl = document.getElementById('income-categories-list');
-    const newExpenseCategoryEl = document.getElementById('new-expense-category');
-    const newIncomeCategoryEl = document.getElementById('new-income-category');
-    const addExpenseCategoryBtn = document.getElementById('add-expense-category-btn');
-    const addIncomeCategoryBtn = document.getElementById('add-income-category-btn');
-    const taxCategoryEditModal = document.getElementById('tax-category-edit-modal');
-    const ownerTransferModal = document.getElementById('owner-transfer-modal');
-    const ownerTransferCloseBtn = document.getElementById('owner-transfer-close-btn');
-    const yearCloseModal = document.getElementById('year-close-modal');
-    const yearCloseStepsEl = document.getElementById('year-close-steps');
-    const yearCloseCancelBtn = document.getElementById('year-close-cancel-btn');
-    const yearCloseApplyBtn = document.getElementById('year-close-apply-btn');
+    let taxYearEl;
+    let taxSummaryYearEl;
+    let taxTypeEl;
+    let taxRefreshBtn;
+    let taxExportBtn;
+    let taxModeExpenseBtn;
+    let taxModeIncomeBtn;
+    let taxModeOwnerTransferBtn;
+    let taxManageCategoriesBtn;
+    let adminUserGuideBtn;
+    let adminBlurAmountsBtn;
+    let adminUserGuideTopBtn;
+    let taxExpensePanel;
+    let taxOwnerTransferPanel;
+    let taxIncomePanel;
+    let taxExpenseFields;
+    let taxOwnerTransferFields;
+    let taxIncomeFields;
+    let taxMinimizeExpenseBtn;
+    let taxMinimizeOwnerTransferBtn;
+    let taxMinimizeIncomeBtn;
+    let taxCategoryModal;
+    let taxCategoryCloseBtn;
+    let taxCategoryXBtn;
+    let expenseCategoriesListEl;
+    let incomeCategoriesListEl;
+    let newExpenseCategoryEl;
+    let newIncomeCategoryEl;
+    let addExpenseCategoryBtn;
+    let addIncomeCategoryBtn;
+    let taxCategoryEditModal;
+    let ownerTransferModal;
+    let ownerTransferCloseBtn;
+    let yearCloseModal;
+    let yearCloseStepsEl;
+    let yearCloseCancelBtn;
+    let yearCloseApplyBtn;
 
-    const auditPackageModal = document.getElementById('audit-package-modal');
-    const auditYearEl = document.getElementById('audit-year');
-    const auditSelectAllBtn = document.getElementById('audit-select-all-btn');
-    const auditCancelBtn = document.getElementById('audit-cancel-btn');
-    const auditGenerateBtn = document.getElementById('audit-generate-btn');
+    let auditPackageModal;
+    let auditYearEl;
+    let auditSelectAllBtn;
+    let auditCancelBtn;
+    let auditGenerateBtn;
 
-    const userGuideModal = document.getElementById('user-guide-modal');
-    const userGuideCloseBtn = document.getElementById('user-guide-close-btn');
-    const userGuideTabBtns = document.querySelectorAll('[data-guide-tab]');
-    const userGuidePanels = document.querySelectorAll('[data-guide-panel]');
-    const taxCategoryEditInput = document.getElementById('tax-category-edit-input');
-    const taxCategoryEditSaveBtn = document.getElementById('tax-category-edit-save-btn');
-    const taxCategoryEditCancelBtn = document.getElementById('tax-category-edit-cancel-btn');
-    const taxSummaryListEl = document.getElementById('tax-summary-list');
-    const taxListEl = document.getElementById('tax-list');
-    const txCategoryFilterEl = document.getElementById('tx-category-filter');
-    const txFilterBtns = document.querySelectorAll('.tx-filter-btn');
-    const accountsTabBalancesBtn = document.getElementById('accounts-tab-balances');
-    const accountsTabBalanceSheetBtn = document.getElementById('accounts-tab-balance-sheet');
-    const accountsTabPnlBtn = document.getElementById('accounts-tab-pnl');
-    const accountsTabCashflowBtn = document.getElementById('accounts-tab-cashflow');
-    const accountsTabJournalBtn = document.getElementById('accounts-tab-journal');
-    const accountsYearEl = document.getElementById('accounts-year');
-    const accountsFromEl = document.getElementById('accounts-from');
-    const accountsToEl = document.getElementById('accounts-to');
-    const accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
-    const accountsRebuildAutoJournalBtn = document.getElementById('accounts-rebuild-auto-journal-btn');
-    const orderFilterEl = document.getElementById('order-filter');
-    const orderRefreshBtn = document.getElementById('order-refresh-btn');
-    const orderListEl = document.getElementById('order-list');
-    const orderAddManualBtn = document.getElementById('order-add-manual-btn');
-    const manualOrderModal = document.getElementById('manual-order-modal');
-    const manualOrderCustomerNameEl = document.getElementById('manual-order-customer-name');
-    const manualOrderCustomerEmailEl = document.getElementById('manual-order-customer-email');
-    const manualOrderCustomerPhoneEl = document.getElementById('manual-order-customer-phone');
-    const manualOrderPaymentMethodEl = document.getElementById('manual-order-payment-method');
-    const manualOrderPaymentDateEl = document.getElementById('manual-order-payment-date');
-    const manualOrderAmountEl = document.getElementById('manual-order-amount');
-    const manualOrderSummaryEl = document.getElementById('manual-order-summary');
-    const manualOrderNotesEl = document.getElementById('manual-order-notes');
-    const manualOrderCancelBtn = document.getElementById('manual-order-cancel-btn');
-    const manualOrderSaveBtn = document.getElementById('manual-order-save-btn');
-    const trackingModal = document.getElementById('tracking-modal');
-    const trackingTitleEl = document.getElementById('tracking-title');
-    const trackingProviderEl = document.getElementById('tracking-provider');
-    const trackingNumberEl = document.getElementById('tracking-number');
-    const trackingUrlEl = document.getElementById('tracking-url');
-    const trackingCancelBtn = document.getElementById('tracking-cancel-btn');
-    const trackingSaveBtn = document.getElementById('tracking-save-btn');
-    const orderEmailModal = document.getElementById('order-email-modal');
-    const orderEmailTitleEl = document.getElementById('order-email-title');
-    const orderEmailSubjectEl = document.getElementById('order-email-subject');
-    const orderEmailBodyEl = document.getElementById('order-email-body');
-    const orderEmailPreviewEl = document.getElementById('order-email-preview');
-    const orderEmailTrackingWrapEl = document.getElementById('order-email-tracking-wrap');
-    const orderEmailTrackingNumberEl = document.getElementById('order-email-tracking-number');
-    const orderEmailTrackingUrlEl = document.getElementById('order-email-tracking-url');
-    const orderEmailCancelBtn = document.getElementById('order-email-cancel-btn');
-    const orderEmailSendBtn = document.getElementById('order-email-send-btn');
-    const reconYearEl = document.getElementById('recon-year');
-    const reconMonthEl = document.getElementById('recon-month');
-    const reconCsvEl = document.getElementById('recon-csv');
-    const reconRunBtn = document.getElementById('recon-run-btn');
-    const reconSummaryEl = document.getElementById('recon-summary');
-    const invoiceModeViewBtn = document.getElementById('invoice-mode-view-btn');
-    const invoiceModeAddBtn = document.getElementById('invoice-mode-add-btn');
-    const invoiceFabBtn = document.getElementById('invoice-fab-btn');
-    const invoiceCreateModal = document.getElementById('invoice-create-modal');
-    const invoiceCreateTitleEl = document.getElementById('invoice-create-title');
-    const invoiceCreateCancelBtn = document.getElementById('invoice-create-cancel-btn');
-    const invoiceCustomerNameEl = document.getElementById('invoice-customer-name');
-    const invoiceCustomerEmailEl = document.getElementById('invoice-customer-email');
-    const invoiceCustomerPhoneEl = document.getElementById('invoice-customer-phone');
-    const invoiceDueDateEl = document.getElementById('invoice-due-date');
-    const invoiceDescriptionEl = document.getElementById('invoice-description');
-    const invoiceLineItemsEl = document.getElementById('invoice-line-items');
-    const invoiceAddLineItemBtn = document.getElementById('invoice-add-line-item-btn');
-    const invoiceTotalDisplayEl = document.getElementById('invoice-total-display');
-    const invoiceCreateBtn = document.getElementById('invoice-create-btn');
-    const invoiceFilterEl = document.getElementById('invoice-filter');
-    const invoiceSortEl = document.getElementById('invoice-sort');
-    const invoiceRefreshBtn = document.getElementById('invoice-refresh-btn');
-    const invoiceListEl = document.getElementById('invoice-list');
-    const invoicePaymentModal = document.getElementById('invoice-payment-modal');
-    const invoicePaymentAmountEl = document.getElementById('invoice-payment-amount');
-    const invoicePaymentCancelBtn = document.getElementById('invoice-payment-cancel-btn');
-    const invoicePaymentSaveBtn = document.getElementById('invoice-payment-save-btn');
-    const reconMatchesEl = document.getElementById('recon-matches');
+    let userGuideModal;
+    let userGuideCloseBtn;
+    let userGuideTabBtns;
+    let userGuidePanels;
+    let taxCategoryEditInput;
+    let taxCategoryEditSaveBtn;
+    let taxCategoryEditCancelBtn;
+    let taxSummaryListEl;
+    let taxListEl;
+    let txCategoryFilterEl;
+    let txFilterBtns;
+    let accountsTabBalancesBtn;
+    let accountsTabBalanceSheetBtn;
+    let accountsTabPnlBtn;
+    let accountsTabCashflowBtn;
+    let accountsTabJournalBtn;
+    let accountsYearEl;
+    let accountsFromEl;
+    let accountsToEl;
+    let accountsRefreshBtn;
+    let accountsRebuildAutoJournalBtn;
+    let orderFilterEl;
+    let orderRefreshBtn;
+    let orderListEl;
+    let orderAddManualBtn;
+    let manualOrderModal;
+    let manualOrderCustomerNameEl;
+    let manualOrderCustomerEmailEl;
+    let manualOrderCustomerPhoneEl;
+    let manualOrderPaymentMethodEl;
+    let manualOrderPaymentDateEl;
+    let manualOrderAmountEl;
+    let manualOrderSummaryEl;
+    let manualOrderNotesEl;
+    let manualOrderCancelBtn;
+    let manualOrderSaveBtn;
+    let trackingModal;
+    let trackingTitleEl;
+    let trackingProviderEl;
+    let trackingNumberEl;
+    let trackingUrlEl;
+    let trackingCancelBtn;
+    let trackingSaveBtn;
+    let orderEmailModal;
+    let orderEmailTitleEl;
+    let orderEmailSubjectEl;
+    let orderEmailBodyEl;
+    let orderEmailPreviewEl;
+    let orderEmailTrackingWrapEl;
+    let orderEmailTrackingNumberEl;
+    let orderEmailTrackingUrlEl;
+    let orderEmailCancelBtn;
+    let orderEmailSendBtn;
+    let reconYearEl;
+    let reconMonthEl;
+    let reconCsvEl;
+    let reconRunBtn;
+    let reconSummaryEl;
+    let invoiceModeViewBtn;
+    let invoiceModeAddBtn;
+    let invoiceFabBtn;
+    let invoiceCreateModal;
+    let invoiceCreateTitleEl;
+    let invoiceCreateCancelBtn;
+    let invoiceCustomerNameEl;
+    let invoiceCustomerEmailEl;
+    let invoiceCustomerPhoneEl;
+    let invoiceDueDateEl;
+    let invoiceDescriptionEl;
+    let invoiceLineItemsEl;
+    let invoiceAddLineItemBtn;
+    let invoiceTotalDisplayEl;
+    let invoiceCreateBtn;
+    let invoiceFilterEl;
+    let invoiceSortEl;
+    let invoiceRefreshBtn;
+    let invoiceListEl;
+    let invoicePaymentModal;
+    let invoicePaymentAmountEl;
+    let invoicePaymentCancelBtn;
+    let invoicePaymentSaveBtn;
+    let reconMatchesEl;
 
     // Quotes DOM refs
-    const quotesCollapseBtn = document.getElementById('quotes-collapse-btn');
-    const quotesBody = document.getElementById('quotes-body');
-    const quoteModeViewBtn = document.getElementById('quote-mode-view-btn');
-    const quoteModeAddBtn = document.getElementById('quote-mode-add-btn');
-    const quoteFabBtn = document.getElementById('quote-fab-btn');
-    const quoteCreateModal = document.getElementById('quote-create-modal');
-    const quoteCreateTitleEl = document.getElementById('quote-create-title');
-    const quoteCreateCancelBtn = document.getElementById('quote-create-cancel-btn');
-    const quoteCustomerNameEl = document.getElementById('quote-customer-name');
-    const quoteCustomerEmailEl = document.getElementById('quote-customer-email');
-    const quoteCustomerPhoneEl = document.getElementById('quote-customer-phone');
-    const quoteValidUntilEl = document.getElementById('quote-valid-until');
-    const quoteDescriptionEl = document.getElementById('quote-description');
-    const quoteLineItemsEl = document.getElementById('quote-line-items');
-    const quoteAddLineItemBtn = document.getElementById('quote-add-line-item-btn');
-    const quoteTotalDisplayEl = document.getElementById('quote-total-display');
-    const quoteCreateBtn = document.getElementById('quote-create-btn');
-    const quoteFilterEl = document.getElementById('quote-filter');
-    const quoteSortEl = document.getElementById('quote-sort');
-    const quoteRefreshBtn = document.getElementById('quote-refresh-btn');
-    const quoteListEl = document.getElementById('quote-list');
+    let quotesCollapseBtn;
+    let quotesBody;
+    let quoteModeViewBtn;
+    let quoteModeAddBtn;
+    let quoteFabBtn;
+    let quoteCreateModal;
+    let quoteCreateTitleEl;
+    let quoteCreateCancelBtn;
+    let quoteCustomerNameEl;
+    let quoteCustomerEmailEl;
+    let quoteCustomerPhoneEl;
+    let quoteValidUntilEl;
+    let quoteDescriptionEl;
+    let quoteLineItemsEl;
+    let quoteAddLineItemBtn;
+    let quoteTotalDisplayEl;
+    let quoteCreateBtn;
+    let quoteFilterEl;
+    let quoteSortEl;
+    let quoteRefreshBtn;
+    let quoteListEl;
 
-    const accountsYearCloseBtn = document.getElementById('accounts-year-close-btn');
-    const auditPackageBtn = document.getElementById('audit-package-btn');
-    const accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
-    const accountsListEl = document.getElementById('accounts-list');
-    const accountsStatementsListEl = document.getElementById('accounts-statements-list');
-    const accountsJournalListEl = document.getElementById('accounts-journal-list');
+    let accountsYearCloseBtn;
+    let auditPackageBtn;
+    let accountsBalanceStatusEl;
+    let accountsListEl;
+    let accountsStatementsListEl;
+    let accountsJournalListEl;
 
-    const taxExpenseDateEl = document.getElementById('tax-expense-date');
-    const taxExpenseVendorEl = document.getElementById('tax-expense-vendor');
-    const taxExpenseCategoryEl = document.getElementById('tax-expense-category');
-    const taxExpenseAmountEl = document.getElementById('tax-expense-amount');
-    const taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
-    const taxExpenseFundingSourceEl = document.getElementById('tax-expense-funding-source');
-    const taxExpenseNotesEl = document.getElementById('tax-expense-notes');
-    const taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
-    const taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
-    const taxCancelExpenseEditBtn = document.getElementById('tax-cancel-expense-edit-btn');
-    const taxClearExpenseBtn = document.getElementById('tax-clear-expense-btn');
+    let taxExpenseDateEl;
+    let taxExpenseVendorEl;
+    let taxExpenseCategoryEl;
+    let taxExpenseAmountEl;
+    let taxExpensePaidViaEl;
+    let taxExpenseFundingSourceEl;
+    let taxExpenseNotesEl;
+    let taxAddExpenseBtn;
+    let taxUpdateExpenseBtn;
+    let taxCancelExpenseEditBtn;
+    let taxClearExpenseBtn;
 
-    const taxOwnerTransferDateEl = document.getElementById('tax-owner-transfer-date');
-    const taxOwnerTransferTypeEl = document.getElementById('tax-owner-transfer-type');
-    const taxOwnerTransferAmountEl = document.getElementById('tax-owner-transfer-amount');
-    const taxOwnerTransferNotesEl = document.getElementById('tax-owner-transfer-notes');
-    const taxAddOwnerTransferBtn = document.getElementById('tax-add-owner-transfer-btn');
-    const taxClearOwnerTransferBtn = document.getElementById('tax-clear-owner-transfer-btn');
+    let taxOwnerTransferDateEl;
+    let taxOwnerTransferTypeEl;
+    let taxOwnerTransferAmountEl;
+    let taxOwnerTransferNotesEl;
+    let taxAddOwnerTransferBtn;
+    let taxClearOwnerTransferBtn;
 
-    const taxIncomeDateEl = document.getElementById('tax-income-date');
-    const taxIncomeSourceEl = document.getElementById('tax-income-source');
-    const taxIncomeCategoryEl = document.getElementById('tax-income-category');
-    const taxIncomeAmountEl = document.getElementById('tax-income-amount');
-    const taxIncomeStripeEl = document.getElementById('tax-income-stripe');
-    const taxIncomeNotesEl = document.getElementById('tax-income-notes');
-    const taxIncomeOwnerFundedEl = document.getElementById('tax-income-owner-funded');
-    const taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
-    const taxUpdateIncomeBtn = document.getElementById('tax-update-income-btn');
-    const taxCancelIncomeEditBtn = document.getElementById('tax-cancel-income-edit-btn');
-    const taxClearIncomeBtn = document.getElementById('tax-clear-income-btn');
+    let taxIncomeDateEl;
+    let taxIncomeSourceEl;
+    let taxIncomeCategoryEl;
+    let taxIncomeAmountEl;
+    let taxIncomeStripeEl;
+    let taxIncomeNotesEl;
+    let taxIncomeOwnerFundedEl;
+    let taxAddIncomeBtn;
+    let taxUpdateIncomeBtn;
+    let taxCancelIncomeEditBtn;
+    let taxClearIncomeBtn;
 
-    const adminDateEl = document.getElementById('admin-date');
-    const adminTimeEl = document.getElementById('admin-time');
-    const adminReasonEl = document.getElementById('admin-reason');
-    const adminListEl = document.getElementById('admin-list');
-    const adminCalendarGridEl = document.getElementById('admin-calendar-grid');
-    const adminCalendarTitleEl = document.getElementById('admin-calendar-title');
-    const adminCalPrevBtn = document.getElementById('admin-cal-prev-btn');
-    const adminCalNextBtn = document.getElementById('admin-cal-next-btn');
-    const adminBlockBtn = document.getElementById('admin-block-btn');
-    const adminUnblockBtn = document.getElementById('admin-unblock-btn');
-    const adminBlockDayBtn = document.getElementById('admin-block-day-btn');
-    const adminUnblockDayBtn = document.getElementById('admin-unblock-day-btn');
-    const adminRefreshBtn = document.getElementById('admin-refresh-btn');
-    const adminCleanupPendingBtn = document.getElementById('admin-cleanup-pending-btn');
+    let adminDateEl;
+    let adminTimeEl;
+    let adminReasonEl;
+    let adminListEl;
+    let adminCalendarGridEl;
+    let adminCalendarTitleEl;
+    let adminCalPrevBtn;
+    let adminCalNextBtn;
+    let adminBlockBtn;
+    let adminUnblockBtn;
+    let adminBlockDayBtn;
+    let adminUnblockDayBtn;
+    let adminRefreshBtn;
+    let adminCleanupPendingBtn;
 
-    const successModal = document.getElementById('success-modal');
-    const successTitle = document.getElementById('success-title');
-    const successDetails = document.getElementById('success-details');
-    const successCloseBtn = document.getElementById('success-close-btn');
-    const errorModal = document.getElementById('error-modal');
-    const errorDetails = document.getElementById('error-details');
-    const errorCloseBtn = document.getElementById('error-close-btn');
-    const confirmModal = document.getElementById('confirm-modal');
-    const confirmDetails = document.getElementById('confirm-details');
-    const confirmOkBtn = document.getElementById('confirm-ok-btn');
-    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+    let successModal;
+    let successTitle;
+    let successDetails;
+    let successCloseBtn;
+    let errorModal;
+    let errorDetails;
+    let errorCloseBtn;
+    let confirmModal;
+    let confirmDetails;
+    let confirmOkBtn;
+    let confirmCancelBtn;
+
+
+    function refreshDomRefs() {
+      adminLock = document.getElementById('admin-lock');
+      adminControls = document.getElementById('admin-controls');
+      adminHeaderTools = document.getElementById('admin-header-tools');
+      adminKeyEl = document.getElementById('admin-key');
+      adminUnlockBtn = document.getElementById('admin-unlock-btn');
+      adminSectionTabsEl = document.getElementById('admin-section-tabs');
+      adminSectionTabBtns = document.querySelectorAll('[data-admin-tab]');
+      bookingCollapseBtn = document.getElementById('booking-collapse-btn');
+      bookingControlsBody = document.getElementById('booking-controls-body');
+      taxCollapseBtn = document.getElementById('tax-collapse-btn');
+      taxLedgerBody = document.getElementById('tax-ledger-body');
+      ordersCollapseBtn = document.getElementById('orders-collapse-btn');
+      ordersBody = document.getElementById('orders-body');
+      accountsCollapseBtn = document.getElementById('accounts-collapse-btn');
+      accountsBody = document.getElementById('accounts-body');
+      reconciliationCollapseBtn = document.getElementById('reconciliation-collapse-btn');
+      reconciliationBody = document.getElementById('reconciliation-body');
+      invoicesCollapseBtn = document.getElementById('invoices-collapse-btn');
+      invoicesBody = document.getElementById('invoices-body');
+      yearCloseCollapseBtn = document.getElementById('year-close-collapse-btn');
+      yearCloseBody = document.getElementById('year-close-body');
+      auditPackageCollapseBtn = document.getElementById('audit-package-collapse-btn');
+      auditPackageBody = document.getElementById('audit-package-body');
+      taxYearEl = document.getElementById('tax-year');
+      taxSummaryYearEl = document.getElementById('tax-summary-year');
+      taxTypeEl = document.getElementById('tax-type');
+      taxRefreshBtn = document.getElementById('tax-refresh-btn');
+      taxExportBtn = document.getElementById('tax-export-btn');
+      taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
+      taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
+      taxModeOwnerTransferBtn = document.getElementById('tax-mode-owner-transfer-btn');
+      taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
+      adminUserGuideBtn = document.getElementById('admin-user-guide-btn');
+      adminBlurAmountsBtn = document.getElementById('admin-blur-amounts-btn');
+      adminUserGuideTopBtn = document.getElementById('admin-user-guide-top-btn');
+      taxExpensePanel = document.getElementById('tax-expense-panel');
+      taxOwnerTransferPanel = document.getElementById('tax-owner-transfer-panel');
+      taxIncomePanel = document.getElementById('tax-income-panel');
+      taxExpenseFields = document.getElementById('tax-expense-fields');
+      taxOwnerTransferFields = document.getElementById('tax-owner-transfer-fields');
+      taxIncomeFields = document.getElementById('tax-income-fields');
+      taxMinimizeExpenseBtn = document.getElementById('tax-minimize-expense-btn');
+      taxMinimizeOwnerTransferBtn = document.getElementById('tax-minimize-owner-transfer-btn');
+      taxMinimizeIncomeBtn = document.getElementById('tax-minimize-income-btn');
+      taxCategoryModal = document.getElementById('tax-category-modal');
+      taxCategoryCloseBtn = document.getElementById('tax-category-close-btn');
+      taxCategoryXBtn = document.getElementById('tax-category-x-btn');
+      expenseCategoriesListEl = document.getElementById('expense-categories-list');
+      incomeCategoriesListEl = document.getElementById('income-categories-list');
+      newExpenseCategoryEl = document.getElementById('new-expense-category');
+      newIncomeCategoryEl = document.getElementById('new-income-category');
+      addExpenseCategoryBtn = document.getElementById('add-expense-category-btn');
+      addIncomeCategoryBtn = document.getElementById('add-income-category-btn');
+      taxCategoryEditModal = document.getElementById('tax-category-edit-modal');
+      ownerTransferModal = document.getElementById('owner-transfer-modal');
+      ownerTransferCloseBtn = document.getElementById('owner-transfer-close-btn');
+      yearCloseModal = document.getElementById('year-close-modal');
+      yearCloseStepsEl = document.getElementById('year-close-steps');
+      yearCloseCancelBtn = document.getElementById('year-close-cancel-btn');
+      yearCloseApplyBtn = document.getElementById('year-close-apply-btn');
+      auditPackageModal = document.getElementById('audit-package-modal');
+      auditYearEl = document.getElementById('audit-year');
+      auditSelectAllBtn = document.getElementById('audit-select-all-btn');
+      auditCancelBtn = document.getElementById('audit-cancel-btn');
+      auditGenerateBtn = document.getElementById('audit-generate-btn');
+      userGuideModal = document.getElementById('user-guide-modal');
+      userGuideCloseBtn = document.getElementById('user-guide-close-btn');
+      userGuideTabBtns = document.querySelectorAll('[data-guide-tab]');
+      userGuidePanels = document.querySelectorAll('[data-guide-panel]');
+      taxCategoryEditInput = document.getElementById('tax-category-edit-input');
+      taxCategoryEditSaveBtn = document.getElementById('tax-category-edit-save-btn');
+      taxCategoryEditCancelBtn = document.getElementById('tax-category-edit-cancel-btn');
+      taxSummaryListEl = document.getElementById('tax-summary-list');
+      taxListEl = document.getElementById('tax-list');
+      txCategoryFilterEl = document.getElementById('tx-category-filter');
+      txFilterBtns = document.querySelectorAll('.tx-filter-btn');
+      accountsTabBalancesBtn = document.getElementById('accounts-tab-balances');
+      accountsTabBalanceSheetBtn = document.getElementById('accounts-tab-balance-sheet');
+      accountsTabPnlBtn = document.getElementById('accounts-tab-pnl');
+      accountsTabCashflowBtn = document.getElementById('accounts-tab-cashflow');
+      accountsTabJournalBtn = document.getElementById('accounts-tab-journal');
+      accountsYearEl = document.getElementById('accounts-year');
+      accountsFromEl = document.getElementById('accounts-from');
+      accountsToEl = document.getElementById('accounts-to');
+      accountsRefreshBtn = document.getElementById('accounts-refresh-btn');
+      accountsRebuildAutoJournalBtn = document.getElementById('accounts-rebuild-auto-journal-btn');
+      orderFilterEl = document.getElementById('order-filter');
+      orderRefreshBtn = document.getElementById('order-refresh-btn');
+      orderListEl = document.getElementById('order-list');
+      orderAddManualBtn = document.getElementById('order-add-manual-btn');
+      manualOrderModal = document.getElementById('manual-order-modal');
+      manualOrderCustomerNameEl = document.getElementById('manual-order-customer-name');
+      manualOrderCustomerEmailEl = document.getElementById('manual-order-customer-email');
+      manualOrderCustomerPhoneEl = document.getElementById('manual-order-customer-phone');
+      manualOrderPaymentMethodEl = document.getElementById('manual-order-payment-method');
+      manualOrderPaymentDateEl = document.getElementById('manual-order-payment-date');
+      manualOrderAmountEl = document.getElementById('manual-order-amount');
+      manualOrderSummaryEl = document.getElementById('manual-order-summary');
+      manualOrderNotesEl = document.getElementById('manual-order-notes');
+      manualOrderCancelBtn = document.getElementById('manual-order-cancel-btn');
+      manualOrderSaveBtn = document.getElementById('manual-order-save-btn');
+      trackingModal = document.getElementById('tracking-modal');
+      trackingTitleEl = document.getElementById('tracking-title');
+      trackingProviderEl = document.getElementById('tracking-provider');
+      trackingNumberEl = document.getElementById('tracking-number');
+      trackingUrlEl = document.getElementById('tracking-url');
+      trackingCancelBtn = document.getElementById('tracking-cancel-btn');
+      trackingSaveBtn = document.getElementById('tracking-save-btn');
+      orderEmailModal = document.getElementById('order-email-modal');
+      orderEmailTitleEl = document.getElementById('order-email-title');
+      orderEmailSubjectEl = document.getElementById('order-email-subject');
+      orderEmailBodyEl = document.getElementById('order-email-body');
+      orderEmailPreviewEl = document.getElementById('order-email-preview');
+      orderEmailTrackingWrapEl = document.getElementById('order-email-tracking-wrap');
+      orderEmailTrackingNumberEl = document.getElementById('order-email-tracking-number');
+      orderEmailTrackingUrlEl = document.getElementById('order-email-tracking-url');
+      orderEmailCancelBtn = document.getElementById('order-email-cancel-btn');
+      orderEmailSendBtn = document.getElementById('order-email-send-btn');
+      reconYearEl = document.getElementById('recon-year');
+      reconMonthEl = document.getElementById('recon-month');
+      reconCsvEl = document.getElementById('recon-csv');
+      reconRunBtn = document.getElementById('recon-run-btn');
+      reconSummaryEl = document.getElementById('recon-summary');
+      invoiceModeViewBtn = document.getElementById('invoice-mode-view-btn');
+      invoiceModeAddBtn = document.getElementById('invoice-mode-add-btn');
+      invoiceFabBtn = document.getElementById('invoice-fab-btn');
+      invoiceCreateModal = document.getElementById('invoice-create-modal');
+      invoiceCreateTitleEl = document.getElementById('invoice-create-title');
+      invoiceCreateCancelBtn = document.getElementById('invoice-create-cancel-btn');
+      invoiceCustomerNameEl = document.getElementById('invoice-customer-name');
+      invoiceCustomerEmailEl = document.getElementById('invoice-customer-email');
+      invoiceCustomerPhoneEl = document.getElementById('invoice-customer-phone');
+      invoiceDueDateEl = document.getElementById('invoice-due-date');
+      invoiceDescriptionEl = document.getElementById('invoice-description');
+      invoiceLineItemsEl = document.getElementById('invoice-line-items');
+      invoiceAddLineItemBtn = document.getElementById('invoice-add-line-item-btn');
+      invoiceTotalDisplayEl = document.getElementById('invoice-total-display');
+      invoiceCreateBtn = document.getElementById('invoice-create-btn');
+      invoiceFilterEl = document.getElementById('invoice-filter');
+      invoiceSortEl = document.getElementById('invoice-sort');
+      invoiceRefreshBtn = document.getElementById('invoice-refresh-btn');
+      invoiceListEl = document.getElementById('invoice-list');
+      invoicePaymentModal = document.getElementById('invoice-payment-modal');
+      invoicePaymentAmountEl = document.getElementById('invoice-payment-amount');
+      invoicePaymentCancelBtn = document.getElementById('invoice-payment-cancel-btn');
+      invoicePaymentSaveBtn = document.getElementById('invoice-payment-save-btn');
+      reconMatchesEl = document.getElementById('recon-matches');
+      quotesCollapseBtn = document.getElementById('quotes-collapse-btn');
+      quotesBody = document.getElementById('quotes-body');
+      quoteModeViewBtn = document.getElementById('quote-mode-view-btn');
+      quoteModeAddBtn = document.getElementById('quote-mode-add-btn');
+      quoteFabBtn = document.getElementById('quote-fab-btn');
+      quoteCreateModal = document.getElementById('quote-create-modal');
+      quoteCreateTitleEl = document.getElementById('quote-create-title');
+      quoteCreateCancelBtn = document.getElementById('quote-create-cancel-btn');
+      quoteCustomerNameEl = document.getElementById('quote-customer-name');
+      quoteCustomerEmailEl = document.getElementById('quote-customer-email');
+      quoteCustomerPhoneEl = document.getElementById('quote-customer-phone');
+      quoteValidUntilEl = document.getElementById('quote-valid-until');
+      quoteDescriptionEl = document.getElementById('quote-description');
+      quoteLineItemsEl = document.getElementById('quote-line-items');
+      quoteAddLineItemBtn = document.getElementById('quote-add-line-item-btn');
+      quoteTotalDisplayEl = document.getElementById('quote-total-display');
+      quoteCreateBtn = document.getElementById('quote-create-btn');
+      quoteFilterEl = document.getElementById('quote-filter');
+      quoteSortEl = document.getElementById('quote-sort');
+      quoteRefreshBtn = document.getElementById('quote-refresh-btn');
+      quoteListEl = document.getElementById('quote-list');
+      accountsYearCloseBtn = document.getElementById('accounts-year-close-btn');
+      auditPackageBtn = document.getElementById('audit-package-btn');
+      accountsBalanceStatusEl = document.getElementById('accounts-balance-status');
+      accountsListEl = document.getElementById('accounts-list');
+      accountsStatementsListEl = document.getElementById('accounts-statements-list');
+      accountsJournalListEl = document.getElementById('accounts-journal-list');
+      taxExpenseDateEl = document.getElementById('tax-expense-date');
+      taxExpenseVendorEl = document.getElementById('tax-expense-vendor');
+      taxExpenseCategoryEl = document.getElementById('tax-expense-category');
+      taxExpenseAmountEl = document.getElementById('tax-expense-amount');
+      taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
+      taxExpenseFundingSourceEl = document.getElementById('tax-expense-funding-source');
+      taxExpenseNotesEl = document.getElementById('tax-expense-notes');
+      taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
+      taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
+      taxCancelExpenseEditBtn = document.getElementById('tax-cancel-expense-edit-btn');
+      taxClearExpenseBtn = document.getElementById('tax-clear-expense-btn');
+      taxOwnerTransferDateEl = document.getElementById('tax-owner-transfer-date');
+      taxOwnerTransferTypeEl = document.getElementById('tax-owner-transfer-type');
+      taxOwnerTransferAmountEl = document.getElementById('tax-owner-transfer-amount');
+      taxOwnerTransferNotesEl = document.getElementById('tax-owner-transfer-notes');
+      taxAddOwnerTransferBtn = document.getElementById('tax-add-owner-transfer-btn');
+      taxClearOwnerTransferBtn = document.getElementById('tax-clear-owner-transfer-btn');
+      taxIncomeDateEl = document.getElementById('tax-income-date');
+      taxIncomeSourceEl = document.getElementById('tax-income-source');
+      taxIncomeCategoryEl = document.getElementById('tax-income-category');
+      taxIncomeAmountEl = document.getElementById('tax-income-amount');
+      taxIncomeStripeEl = document.getElementById('tax-income-stripe');
+      taxIncomeNotesEl = document.getElementById('tax-income-notes');
+      taxIncomeOwnerFundedEl = document.getElementById('tax-income-owner-funded');
+      taxAddIncomeBtn = document.getElementById('tax-add-income-btn');
+      taxUpdateIncomeBtn = document.getElementById('tax-update-income-btn');
+      taxCancelIncomeEditBtn = document.getElementById('tax-cancel-income-edit-btn');
+      taxClearIncomeBtn = document.getElementById('tax-clear-income-btn');
+      adminDateEl = document.getElementById('admin-date');
+      adminTimeEl = document.getElementById('admin-time');
+      adminReasonEl = document.getElementById('admin-reason');
+      adminListEl = document.getElementById('admin-list');
+      adminCalendarGridEl = document.getElementById('admin-calendar-grid');
+      adminCalendarTitleEl = document.getElementById('admin-calendar-title');
+      adminCalPrevBtn = document.getElementById('admin-cal-prev-btn');
+      adminCalNextBtn = document.getElementById('admin-cal-next-btn');
+      adminBlockBtn = document.getElementById('admin-block-btn');
+      adminUnblockBtn = document.getElementById('admin-unblock-btn');
+      adminBlockDayBtn = document.getElementById('admin-block-day-btn');
+      adminUnblockDayBtn = document.getElementById('admin-unblock-day-btn');
+      adminRefreshBtn = document.getElementById('admin-refresh-btn');
+      adminCleanupPendingBtn = document.getElementById('admin-cleanup-pending-btn');
+      successModal = document.getElementById('success-modal');
+      successTitle = document.getElementById('success-title');
+      successDetails = document.getElementById('success-details');
+      successCloseBtn = document.getElementById('success-close-btn');
+      errorModal = document.getElementById('error-modal');
+      errorDetails = document.getElementById('error-details');
+      errorCloseBtn = document.getElementById('error-close-btn');
+      confirmModal = document.getElementById('confirm-modal');
+      confirmDetails = document.getElementById('confirm-details');
+      confirmOkBtn = document.getElementById('confirm-ok-btn');
+      confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+    }
+
+    refreshDomRefs();
 
     // ===== State =====
-    let adminUnlocked = false;
+    let adminSessionActive = false;
     let adminPassword = '';
+    let adminInactivityTimer = null;
+    const ADMIN_PASSWORD_IDLE_MS = 30 * 60 * 1000;
     let adminCalendarCursor = null;
     let allTxItems = [];
     let loadedTaxData = { income: [], expenses: [] };
@@ -1949,15 +2187,37 @@
     // ===== Admin Controls =====
     function updateInvoiceFabVisibility() {
       if (!invoiceFabBtn) return;
-      const shouldShow = adminUnlocked && activeAdminSectionTab === 'invoices';
+      const shouldShow = adminSessionActive && activeAdminSectionTab === 'invoices';
       invoiceFabBtn.style.display = shouldShow ? 'inline-flex' : 'none';
     }
 
+    function injectAdminControls() {
+      if (document.getElementById('admin-controls')) return;
+      const template = document.getElementById('admin-controls-template');
+      const mount = document.getElementById('admin-controls-mount');
+      if (!template || !mount) throw new Error('Admin controls template missing');
+      mount.appendChild(template.content.cloneNode(true));
+      refreshDomRefs();
+      bindAdminControlListeners();
+    }
+
+    function removeAdminControls() {
+      const mount = document.getElementById('admin-controls-mount');
+      if (mount) mount.textContent = '';
+      adminPassword = '';
+      adminSessionActive = false;
+      adminControlListenersBound = false;
+      refreshDomRefs();
+      if (adminLock) adminLock.style.display = 'block';
+      if (adminHeaderTools) adminHeaderTools.style.display = 'none';
+      updateInvoiceFabVisibility();
+    }
+
     function setAdminUnlocked(on) {
-      adminUnlocked = !!on;
-      adminLock.style.display = adminUnlocked ? 'none' : 'block';
-      adminControls.classList.toggle('active', adminUnlocked);
-      if (adminHeaderTools) adminHeaderTools.style.display = adminUnlocked ? 'flex' : 'none';
+      adminSessionActive = !!on;
+      if (adminLock) adminLock.style.display = adminSessionActive ? 'none' : 'block';
+      if (adminControls) adminControls.classList.toggle('active', adminSessionActive);
+      if (adminHeaderTools) adminHeaderTools.style.display = adminSessionActive ? 'flex' : 'none';
       updateInvoiceFabVisibility();
     }
 
@@ -2032,7 +2292,7 @@
     }
 
     async function loadAdminData() {
-      if (!adminUnlocked) return;
+      if (!adminSessionActive) return;
       const key = adminKeyEl.value.trim();
       try {
         const res = await fetch(`${BOOKINGS_API_URL}?limit=200`, {
@@ -2534,7 +2794,7 @@
     }
 
     async function loadTaxTransactions() {
-      if (!adminUnlocked) return;
+      if (!adminSessionActive) return;
       const year = taxYearEl.value;
       const summaryYear = taxSummaryYearEl?.value || year;
       const type = taxTypeEl.value;
@@ -2920,7 +3180,7 @@
     }
 
     async function loadAccountsData() {
-      if (!adminUnlocked) return;
+      if (!adminSessionActive) return;
       const year = accountsYearEl?.value || '';
       const from = accountsFromEl?.value || '';
       const to = accountsToEl?.value || '';
@@ -3172,7 +3432,7 @@
     }
 
     async function refreshInvoiceList() {
-      if (!adminUnlocked) return;
+      if (!adminSessionActive) return;
       const prevTxt = invoiceRefreshBtn?.textContent || 'Refresh Invoices';
       if (invoiceRefreshBtn) { invoiceRefreshBtn.disabled = true; invoiceRefreshBtn.classList.add('working'); invoiceRefreshBtn.textContent = 'Refreshing…'; }
       if (invoiceListEl) invoiceListEl.innerHTML = '<div style="color:var(--muted);">Loading invoices…</div>';
@@ -3371,7 +3631,7 @@
     // ===== Quotes Functions =====
     function updateQuoteFabVisibility() {
       if (!quoteFabBtn) return;
-      quoteFabBtn.style.display = (activeAdminSectionTab === 'quotes' && adminUnlocked) ? 'flex' : 'none';
+      quoteFabBtn.style.display = (activeAdminSectionTab === 'quotes' && adminSessionActive) ? 'flex' : 'none';
     }
 
     function openQuoteCreateModal() {
@@ -3500,7 +3760,7 @@
     }
 
     async function refreshQuoteList() {
-      if (!adminUnlocked) return;
+      if (!adminSessionActive) return;
       const prevTxt = quoteRefreshBtn?.textContent || 'Refresh Quotes';
       if (quoteRefreshBtn) { quoteRefreshBtn.disabled = true; quoteRefreshBtn.classList.add('working'); quoteRefreshBtn.textContent = 'Refreshing…'; }
       if (quoteListEl) quoteListEl.innerHTML = '<div style="color:var(--muted);">Loading quotes…</div>';
@@ -3680,7 +3940,7 @@
       else if (tab === 'pnl') accountsBalanceStatusEl.textContent = 'Statement View — Profit & Loss';
       else if (tab === 'cashflow') accountsBalanceStatusEl.textContent = 'Statement View — Cash Flow';
       else if (tab === 'journal') accountsBalanceStatusEl.textContent = 'Statement View — Journal';
-      if (adminUnlocked) loadAccountsData();
+      if (adminSessionActive) loadAccountsData();
     }
 
     function orderStatusBadge(status) {
@@ -3690,7 +3950,7 @@
     }
 
     async function refreshOrderList() {
-      if (!adminUnlocked) return;
+      if (!adminSessionActive) return;
       const prevTxt = orderRefreshBtn?.textContent || 'Refresh Orders';
       if (orderRefreshBtn) { orderRefreshBtn.disabled = true; orderRefreshBtn.classList.add('working'); orderRefreshBtn.textContent = 'Refreshing…'; }
       if (orderListEl) orderListEl.innerHTML = '<div style="color:var(--muted);">Loading orders…</div>';
@@ -3838,9 +4098,9 @@
       show('quotes-card', tab === 'quotes');
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
-      if (tab === 'orders' && adminUnlocked) refreshOrderList();
-      if (tab === 'invoices' && adminUnlocked) refreshInvoiceList();
-      if (tab === 'quotes' && adminUnlocked) refreshQuoteList();
+      if (tab === 'orders' && adminSessionActive) refreshOrderList();
+      if (tab === 'invoices' && adminSessionActive) refreshInvoiceList();
+      if (tab === 'quotes' && adminSessionActive) refreshQuoteList();
       updateInvoiceFabVisibility();
       updateQuoteFabVisibility();
     }
@@ -3897,6 +4157,42 @@
       return next;
     }
 
+    function armAdminPasswordClearTimer() {
+      clearTimeout(adminInactivityTimer);
+      adminInactivityTimer = setTimeout(() => {
+        if (adminPassword) {
+          removeAdminControls();
+          openErrorModal('Admin session expired after 30 minutes away. Please log in again.');
+        }
+      }, ADMIN_PASSWORD_IDLE_MS);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (!adminPassword) return;
+      if (document.hidden) {
+        armAdminPasswordClearTimer();
+      } else {
+        clearTimeout(adminInactivityTimer);
+      }
+    });
+
+    function disableAdminLoginForRetryAfter(seconds) {
+      const delay = Math.max(1, Number(seconds || 900));
+      const unlockAt = Date.now() + delay * 1000;
+      adminUnlockBtn.disabled = true;
+      const tick = () => {
+        const remaining = Math.ceil((unlockAt - Date.now()) / 1000);
+        if (remaining <= 0) {
+          adminUnlockBtn.disabled = false;
+          adminUnlockBtn.textContent = 'Login';
+          return;
+        }
+        adminUnlockBtn.textContent = `Try again in ${Math.ceil(remaining / 60)}m`;
+        setTimeout(tick, Math.min(remaining * 1000, 30000));
+      };
+      tick();
+    }
+
     adminUnlockBtn.addEventListener('click', async () => {
       const key = adminKeyEl.value.trim();
       if (!key) return;
@@ -3915,6 +4211,12 @@
         });
         const data = await res.json();
         if (!res.ok) {
+          if (res.status === 429) {
+            const retryAfter = Number(res.headers.get('Retry-After') || 900);
+            disableAdminLoginForRetryAfter(retryAfter);
+            openErrorModal('Too many failed attempts. Please wait 15 minutes before trying again.');
+            return;
+          }
           const state = recordFailedAdminAttempt();
           const now2 = Date.now();
           if (Number(state.lockedUntil || 0) > now2) {
@@ -3928,6 +4230,7 @@
         }
         clearAdminLoginGuard();
         adminPassword = key;
+        injectAdminControls();
         setAdminUnlocked(true);
         const n = new Date();
         adminCalendarCursor = new Date(n.getFullYear(), n.getMonth(), 1);
@@ -3953,420 +4256,432 @@
       if (e.key === 'Enter') adminUnlockBtn.click();
     });
 
-    // ===== Booking Controls Event Listeners =====
-    adminBlockBtn.addEventListener('click', () => setBlockedSlot(true));
-    adminUnblockBtn.addEventListener('click', () => setBlockedSlot(false));
-    adminBlockDayBtn.addEventListener('click', () => setBlockedDay(true));
-    adminUnblockDayBtn.addEventListener('click', () => setBlockedDay(false));
-    adminRefreshBtn.addEventListener('click', loadAdminData);
-    adminCleanupPendingBtn?.addEventListener('click', cleanupOldPendingBookings);
-    adminCalPrevBtn?.addEventListener('click', () => {
-      const c = adminCalendarCursor || new Date();
-      adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() - 1, 1);
-      loadAdminData();
-    });
-    adminCalNextBtn?.addEventListener('click', () => {
-      const c = adminCalendarCursor || new Date();
-      adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() + 1, 1);
-      loadAdminData();
-    });
-
-    // ===== Tax Ledger Event Listeners =====
-    taxRefreshBtn.addEventListener('click', loadTaxTransactions);
-    taxYearEl.addEventListener('change', loadTaxTransactions);
-    taxSummaryYearEl?.addEventListener('change', loadTaxTransactions);
-    taxTypeEl.addEventListener('change', loadTaxTransactions);
-    taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
-    taxModeOwnerTransferBtn?.addEventListener('click', openOwnerTransferModal);
-    taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
-    adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
-    adminUserGuideTopBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
-    adminBlurAmountsBtn?.addEventListener('click', () => setBlurMoney(!blurMoneyEnabled));
-    userGuideTabBtns.forEach((btn) => {
-      btn.addEventListener('click', () => setUserGuideTab(btn.getAttribute('data-guide-tab')));
-    });
-
-    window.openTaxCategoryManager = () => {
-      if (!taxCategoryModal) {
-        openErrorModal('Category manager is unavailable on this page load. Please refresh and try again.');
-        return;
-      }
-      taxCategoryModal.classList.add('active');
-      taxCategoryModal.setAttribute('aria-hidden', 'false');
-      try {
-        renderCategoryManagerLists();
-      } catch (e) {
-        openErrorModal(`Could not load category manager: ${e.message || e}`);
-      }
-    };
-    taxManageCategoriesBtn?.addEventListener('click', window.openTaxCategoryManager);
-
-    const closeTaxCategoryModal = () => {
-      taxCategoryModal.classList.remove('active');
-      taxCategoryModal.setAttribute('aria-hidden', 'true');
-    };
-    taxCategoryCloseBtn?.addEventListener('click', closeTaxCategoryModal);
-    taxCategoryXBtn?.addEventListener('click', closeTaxCategoryModal);
-    taxCategoryModal?.addEventListener('click', (e) => {
-      if (e.target === taxCategoryModal) {
-        taxCategoryModal.classList.remove('active');
-        taxCategoryModal.setAttribute('aria-hidden', 'true');
-      }
-    });
-
-    addExpenseCategoryBtn?.addEventListener('click', () => {
-      const name = (newExpenseCategoryEl.value || '').trim();
-      if (!name) return;
-      if (TAX_EXPENSE_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
-        openErrorModal('Expense category already exists.');
-        return;
-      }
-      TAX_EXPENSE_CATEGORIES.push(name);
-      newExpenseCategoryEl.value = '';
-      saveCategoryPrefs();
-      renderCategoryOptions();
-      renderCategoryManagerLists();
-      openSuccessModal('Expense category added.', 'Category Added ✅');
-    });
-
-    addIncomeCategoryBtn?.addEventListener('click', () => {
-      const name = (newIncomeCategoryEl.value || '').trim();
-      if (!name) return;
-      if (TAX_INCOME_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
-        openErrorModal('Income category already exists.');
-        return;
-      }
-      TAX_INCOME_CATEGORIES.push(name);
-      newIncomeCategoryEl.value = '';
-      saveCategoryPrefs();
-      renderCategoryOptions();
-      renderCategoryManagerLists();
-      openSuccessModal('Income category added.', 'Category Added ✅');
-    });
-
-    taxMinimizeExpenseBtn?.addEventListener('click', () => {
-      setTaxEntryMode('none');
-    });
-
-    taxMinimizeOwnerTransferBtn?.addEventListener('click', () => {
-      const isHidden = taxOwnerTransferFields?.style.display === 'none';
-      if (taxOwnerTransferFields) taxOwnerTransferFields.style.display = isHidden ? '' : 'none';
-      taxMinimizeOwnerTransferBtn.textContent = isHidden ? 'Minimize' : 'Expand';
-    });
-
-    taxMinimizeIncomeBtn?.addEventListener('click', () => {
-      setTaxEntryMode('none');
-    });
-
-    taxExpensePanel?.addEventListener('click', (e) => {
-      if (e.target === taxExpensePanel) setTaxEntryMode('none');
-    });
-    taxIncomePanel?.addEventListener('click', (e) => {
-      if (e.target === taxIncomePanel) setTaxEntryMode('none');
-    });
-
-    txFilterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        activeTxFilter = btn.getAttribute('data-filter');
-        txFilterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        txCategoryFilterEl.style.display = activeTxFilter === 'expense' ? '' : 'none';
-        if (activeTxFilter !== 'expense') txCategoryFilterEl.value = '';
-        renderTxList();
-      });
-    });
-
-    txCategoryFilterEl.addEventListener('change', renderTxList);
-    taxAddExpenseBtn.addEventListener('click', addTaxExpense);
-    taxUpdateExpenseBtn.addEventListener('click', addTaxExpense);
-    taxCancelExpenseEditBtn.addEventListener('click', clearTaxExpenseForm);
-    taxClearExpenseBtn.addEventListener('click', clearTaxExpenseForm);
-    taxAddOwnerTransferBtn?.addEventListener('click', addTaxOwnerTransfer);
-    taxClearOwnerTransferBtn?.addEventListener('click', clearTaxOwnerTransferForm);
-    taxAddIncomeBtn.addEventListener('click', addTaxIncome);
-    taxUpdateIncomeBtn.addEventListener('click', addTaxIncome);
-    taxCancelIncomeEditBtn.addEventListener('click', clearTaxIncomeForm);
-    taxClearIncomeBtn.addEventListener('click', clearTaxIncomeForm);
-
-    document.getElementById('tax-expense-receipt').addEventListener('change', function() {
-      document.getElementById('tax-expense-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
-    });
-    document.getElementById('tax-income-receipt').addEventListener('change', function() {
-      document.getElementById('tax-income-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
-    });
-
-    taxExportBtn?.addEventListener('click', downloadTaxCsv);
-
-    accountsRefreshBtn?.addEventListener('click', loadAccountsData);
-    accountsRebuildAutoJournalBtn?.addEventListener('click', async () => {
-      if (!adminPassword) {
-        openErrorModal('Unlock admin first.');
-        return;
-      }
-      const proceed = await openConfirmModal(
-        'Rebuild all auto-generated journal entries from current Tax Income/Expense rows?',
-        'Rebuild Auto Journal?',
-        'Rebuild'
-      );
-      if (!proceed) return;
-
-      const originalText = accountsRebuildAutoJournalBtn.textContent;
-      const originalBg = accountsRebuildAutoJournalBtn.style.background;
-      const originalBorder = accountsRebuildAutoJournalBtn.style.borderColor;
-      const originalColor = accountsRebuildAutoJournalBtn.style.color;
-      accountsRebuildAutoJournalBtn.disabled = true;
-      accountsRebuildAutoJournalBtn.style.background = '#ff4fa3';
-      accountsRebuildAutoJournalBtn.style.borderColor = '#ff4fa3';
-      accountsRebuildAutoJournalBtn.style.color = '#fff';
-      accountsRebuildAutoJournalBtn.textContent = 'Rebuilding…';
-      let animTick = 0;
-      const anim = setInterval(() => {
-        animTick = (animTick + 1) % 4;
-        accountsRebuildAutoJournalBtn.textContent = `Rebuilding${'.'.repeat(animTick)}${' '.repeat(3 - animTick)}`;
-      }, 350);
-
-      try {
-        const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify({})
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Rebuild failed');
-        await Promise.all([loadTaxTransactions(), loadAccountsData()]);
-        openSuccessModal('Auto journal rebuilt successfully from current tax rows.', 'Rebuild Complete ✅');
-      } catch (e) {
-        openErrorModal(`Could not rebuild auto journal: ${e.message || e}`);
-      } finally {
-        clearInterval(anim);
-        accountsRebuildAutoJournalBtn.disabled = false;
-        accountsRebuildAutoJournalBtn.textContent = originalText;
-        accountsRebuildAutoJournalBtn.style.background = originalBg;
-        accountsRebuildAutoJournalBtn.style.borderColor = originalBorder;
-        accountsRebuildAutoJournalBtn.style.color = originalColor;
-      }
-    });
-    accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
-    auditPackageBtn?.addEventListener('click', openAuditPackageModal);
-    reconRunBtn?.addEventListener('click', runReconciliation);
-    invoiceModeViewBtn?.addEventListener('click', () => setInvoiceMode('view'));
-    invoiceModeAddBtn?.addEventListener('click', () => setInvoiceMode('add'));
-    invoiceFabBtn?.addEventListener('click', () => setInvoiceMode('add'));
-    invoiceCreateBtn?.addEventListener('click', saveQuickInvoice);
-    invoiceAddLineItemBtn?.addEventListener('click', () => {
-      captureInvoiceDraftItems();
-      invoiceDraftItems.push({ description: '', quantity: 1, unitAmount: '' });
-      renderInvoiceLineItems();
-    });
-    invoiceLineItemsEl?.addEventListener('click', (e) => {
-      const removeBtn = e.target.closest('[data-remove-line-item]');
-      if (!removeBtn) return;
-      captureInvoiceDraftItems();
-      const idx = Number(removeBtn.getAttribute('data-remove-line-item') || -1);
-      if (idx < 0) return;
-      invoiceDraftItems.splice(idx, 1);
-      if (!invoiceDraftItems.length) invoiceDraftItems = [{ description: '', quantity: 1, unitAmount: '' }];
-      renderInvoiceLineItems();
-    });
-    invoiceLineItemsEl?.addEventListener('input', updateInvoiceTotalDisplay);
-    setInvoiceMode('view');
-    renderInvoiceLineItems();
-    orderAddManualBtn?.addEventListener('click', openManualOrderModal);
-    manualOrderCancelBtn?.addEventListener('click', closeManualOrderModal);
-    manualOrderSaveBtn?.addEventListener('click', async () => {
-      const payload = {
-        customerName: manualOrderCustomerNameEl?.value || '',
-        customerEmail: manualOrderCustomerEmailEl?.value || '',
-        customerPhone: manualOrderCustomerPhoneEl?.value || '',
-        paymentMethod: manualOrderPaymentMethodEl?.value || '',
-        paymentDate: manualOrderPaymentDateEl?.value || '',
-        amount: manualOrderAmountEl?.value || '',
-        orderSummary: manualOrderSummaryEl?.value || 'Survival Node',
-        notes: manualOrderNotesEl?.value || ''
-      };
-      const email = String(payload.customerEmail || '').trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        openErrorModal('Enter a valid customer email address.');
-        manualOrderCustomerEmailEl?.focus();
-        return;
-      }
-      const prevTxt = manualOrderSaveBtn.textContent || 'Create Manual Order';
-      manualOrderSaveBtn.disabled = true;
-      manualOrderSaveBtn.textContent = 'Creating…';
-      try {
-        const res = await fetch(ORDER_MANUAL_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { openErrorModal(data.error || 'Failed to create manual order'); return; }
-        closeManualOrderModal();
-        openSuccessModal('Manual Survival Node order created.', 'Manual Order Added ✅');
-        if (manualOrderCustomerNameEl) manualOrderCustomerNameEl.value = '';
-        if (manualOrderCustomerEmailEl) manualOrderCustomerEmailEl.value = '';
-        if (manualOrderCustomerPhoneEl) manualOrderCustomerPhoneEl.value = '';
-        if (manualOrderPaymentMethodEl) manualOrderPaymentMethodEl.value = '';
-        if (manualOrderAmountEl) manualOrderAmountEl.value = '';
-        if (manualOrderSummaryEl) manualOrderSummaryEl.value = 'Survival Node';
-        if (manualOrderNotesEl) manualOrderNotesEl.value = '';
-        await refreshOrderList();
-      } finally {
-        manualOrderSaveBtn.disabled = false;
-        manualOrderSaveBtn.textContent = prevTxt;
-      }
-    });
-    trackingCancelBtn?.addEventListener('click', closeTrackingModal);
-    trackingSaveBtn?.addEventListener('click', async () => {
-      if (!activeTrackingDraft) return;
-      const payload = {
-        bookingId: activeTrackingDraft.bookingId,
-        orderKey: activeTrackingDraft.orderKey || '',
-        trackingProvider: trackingProviderEl?.value || '',
-        trackingNumber: trackingNumberEl?.value || ''
-      };
-      if (!(payload.trackingNumber || '').trim() && !confirm('Clear the saved tracking number for this order?')) return;
-      const prevTxt = trackingSaveBtn.textContent || 'Save Tracking';
-      const draft = { ...activeTrackingDraft };
-      trackingSaveBtn.disabled = true;
-      trackingSaveBtn.textContent = draft.forShippingEmail ? 'Continuing…' : 'Saving…';
-      try {
-        const res = await fetch(ORDER_TRACKING_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { openErrorModal(data.error || 'Failed to save tracking'); return; }
-        closeTrackingModal();
-        await refreshOrderList();
-        if (draft.forShippingEmail) {
-          await openOrderEmailDraft(draft.bookingId, 'shipping', draft.orderKey || '', {
-            orderSummary: draft.orderSummary || '',
-            amountDisplay: draft.amountDisplay || '',
-            paymentDate: draft.paymentDate || ''
+    let adminControlListenersBound = false;
+    function bindAdminControlListeners() {
+      if (adminControlListenersBound) return;
+      adminControlListenersBound = true;
+      adminSectionTabBtns.forEach((btn) => btn.addEventListener('click', () => setAdminSectionTab(btn.getAttribute('data-admin-tab'))));
+      quoteModeAddBtn?.addEventListener('click', () => { resetQuoteForm(); openQuoteCreateModal(); });
+      quoteModeViewBtn?.addEventListener('click', refreshQuoteList);
+      quoteRefreshBtn?.addEventListener('click', refreshQuoteList);
+      quoteFilterEl?.addEventListener('change', refreshQuoteList);
+      quoteListEl?.addEventListener('click', handleQuoteActionClick);
+          // ===== Booking Controls Event Listeners =====
+          adminBlockBtn.addEventListener('click', () => setBlockedSlot(true));
+          adminUnblockBtn.addEventListener('click', () => setBlockedSlot(false));
+          adminBlockDayBtn.addEventListener('click', () => setBlockedDay(true));
+          adminUnblockDayBtn.addEventListener('click', () => setBlockedDay(false));
+          adminRefreshBtn.addEventListener('click', loadAdminData);
+          adminCleanupPendingBtn?.addEventListener('click', cleanupOldPendingBookings);
+          adminCalPrevBtn?.addEventListener('click', () => {
+            const c = adminCalendarCursor || new Date();
+            adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() - 1, 1);
+            loadAdminData();
           });
-        } else {
-          openSuccessModal('Tracking saved for this order.', 'Tracking Updated ✅');
-        }
-      } finally {
-        trackingSaveBtn.disabled = false;
-        trackingSaveBtn.textContent = prevTxt;
-      }
-    });
-    orderRefreshBtn?.addEventListener('click', refreshOrderList);
-    orderFilterEl?.addEventListener('change', refreshOrderList);
-    orderListEl?.addEventListener('click', handleOrderActionClick);
-    orderEmailCancelBtn?.addEventListener('click', closeOrderEmailModal);
-    orderEmailSubjectEl?.addEventListener('input', renderOrderEmailPreview);
-    orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
-    orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);
-    orderEmailSendBtn?.addEventListener('click', async () => {
-      if (!activeOrderEmailDraft) return;
-      const payload = {
-        bookingId: activeOrderEmailDraft.bookingId,
-        orderKey: activeOrderEmailDraft.orderKey || '',
-        kind: activeOrderEmailDraft.kind,
-        subject: orderEmailSubjectEl?.value || '',
-        bodyText: orderEmailBodyEl?.value || '',
-        trackingProvider: activeOrderEmailDraft.trackingProvider || '',
-        trackingNumber: orderEmailTrackingNumberEl?.value || ''
-      };
-      const prevTxt = orderEmailSendBtn.textContent || 'Send Email';
-      const draft = { ...activeOrderEmailDraft };
-      orderEmailSendBtn.disabled = true;
-      orderEmailSendBtn.textContent = 'Sending…';
-      try {
-        const res = await fetch(ORDER_SEND_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { openErrorModal(data.error || 'Failed to send order email'); return; }
-        const successText = draft.kind === 'shipping'
-          ? 'Shipping email sent and order marked shipped.'
-          : draft.kind === 'delivered'
-            ? 'Delivered email sent and order marked delivered.'
-            : draft.kind === 'review'
-              ? 'Review request email sent to customer.'
-              : 'Acknowledgment email sent.';
-        const successTitle = draft.kind === 'shipping'
-          ? 'Shipment Email Sent ✅'
-          : draft.kind === 'delivered'
-            ? 'Delivered Email Sent ✅'
-            : draft.kind === 'review'
-              ? 'Review Email Sent ✅'
-              : 'Acknowledgment Sent ✅';
-        try { closeOrderEmailModal(); } catch {}
-        try { openSuccessModal(successText, successTitle); } catch (err) { alert(successTitle + '\n\n' + successText); }
-        try { await refreshOrderList(); } catch {}
-      } catch (err) {
-        openErrorModal(err?.message || 'Failed to send order email');
-      } finally {
-        orderEmailSendBtn.disabled = false;
-        orderEmailSendBtn.textContent = prevTxt;
-      }
-    });
-    invoiceRefreshBtn?.addEventListener('click', refreshInvoiceList);
-    invoiceFilterEl?.addEventListener('change', refreshInvoiceList);
-    invoiceSortEl?.addEventListener('change', refreshInvoiceList);
-    invoiceListEl?.addEventListener('click', handleInvoiceActionClick);
-    invoicePaymentCancelBtn?.addEventListener('click', closeInvoicePaymentModal);
-    invoicePaymentSaveBtn?.addEventListener('click', submitInvoicePaymentModal);
-    invoicePaymentModal?.addEventListener('click', (e) => { if (e.target === invoicePaymentModal) closeInvoicePaymentModal(); });
-    accountsYearEl?.addEventListener('change', loadAccountsData);
-    accountsFromEl?.addEventListener('change', loadAccountsData);
-    accountsToEl?.addEventListener('change', loadAccountsData);
-    accountsTabBalancesBtn?.addEventListener('click', () => setAccountsTab('balances'));
-    accountsTabBalanceSheetBtn?.addEventListener('click', () => setAccountsTab('balance_sheet'));
-    accountsTabPnlBtn?.addEventListener('click', () => setAccountsTab('pnl'));
-    accountsTabCashflowBtn?.addEventListener('click', () => setAccountsTab('cashflow'));
-    accountsTabJournalBtn?.addEventListener('click', () => setAccountsTab('journal'));
-
-    const taxZipBtn = document.getElementById('tax-zip-btn');
-    if (taxZipBtn) {
-      taxZipBtn.addEventListener('click', async () => {
-        if (typeof JSZip === 'undefined') { openErrorModal('JSZip not loaded — try refreshing the page.'); return; }
-        const year = taxYearEl.value;
-        taxZipBtn.textContent = 'Building…';
-        taxZipBtn.disabled = true;
-        try {
-          const zip = new JSZip();
-          const folder = zip.folder(`eastern-shore-ai-tax-${year}`);
-
-          const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, {
-            headers: { 'X-Admin-Password': adminPassword }
+          adminCalNextBtn?.addEventListener('click', () => {
+            const c = adminCalendarCursor || new Date();
+            adminCalendarCursor = new Date(c.getFullYear(), c.getMonth() + 1, 1);
+            loadAdminData();
           });
-          if (!csvRes.ok) throw new Error('CSV fetch failed');
-          folder.file(`eastern-shore-ai-tax-${year}.csv`, await csvRes.blob());
 
-          const txRes = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
-            headers: { 'X-Admin-Password': adminPassword }
+          // ===== Tax Ledger Event Listeners =====
+          taxRefreshBtn.addEventListener('click', loadTaxTransactions);
+          taxYearEl.addEventListener('change', loadTaxTransactions);
+          taxSummaryYearEl?.addEventListener('change', loadTaxTransactions);
+          taxTypeEl.addEventListener('change', loadTaxTransactions);
+          taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
+          taxModeOwnerTransferBtn?.addEventListener('click', openOwnerTransferModal);
+          taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
+          adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
+          adminUserGuideTopBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
+          adminBlurAmountsBtn?.addEventListener('click', () => setBlurMoney(!blurMoneyEnabled));
+          userGuideTabBtns.forEach((btn) => {
+            btn.addEventListener('click', () => setUserGuideTab(btn.getAttribute('data-guide-tab')));
           });
-          const txData = await txRes.json();
-          const allRecords = [
-            ...(txData.expenses || []).map(r => ({ ...r, recType: 'expense' })),
-            ...(txData.income || []).map(r => ({ ...r, recType: 'income' }))
-          ];
 
-          const receiptsFolder = folder.folder('receipts');
-          for (const r of allRecords) {
-            if (!r.receipt_key) continue;
-            const ext = r.receipt_key.split('.').pop();
-            const filename = `${r.recType}-${r.id}-${r.date || ''}.${ext}`;
-            const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}`);
-            if (rRes.ok) receiptsFolder.file(filename, await rRes.blob());
+          window.openTaxCategoryManager = () => {
+            if (!taxCategoryModal) {
+              openErrorModal('Category manager is unavailable on this page load. Please refresh and try again.');
+              return;
+            }
+            taxCategoryModal.classList.add('active');
+            taxCategoryModal.setAttribute('aria-hidden', 'false');
+            try {
+              renderCategoryManagerLists();
+            } catch (e) {
+              openErrorModal(`Could not load category manager: ${e.message || e}`);
+            }
+          };
+          taxManageCategoriesBtn?.addEventListener('click', window.openTaxCategoryManager);
+
+          const closeTaxCategoryModal = () => {
+            taxCategoryModal.classList.remove('active');
+            taxCategoryModal.setAttribute('aria-hidden', 'true');
+          };
+          taxCategoryCloseBtn?.addEventListener('click', closeTaxCategoryModal);
+          taxCategoryXBtn?.addEventListener('click', closeTaxCategoryModal);
+          taxCategoryModal?.addEventListener('click', (e) => {
+            if (e.target === taxCategoryModal) {
+              taxCategoryModal.classList.remove('active');
+              taxCategoryModal.setAttribute('aria-hidden', 'true');
+            }
+          });
+
+          addExpenseCategoryBtn?.addEventListener('click', () => {
+            const name = (newExpenseCategoryEl.value || '').trim();
+            if (!name) return;
+            if (TAX_EXPENSE_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
+              openErrorModal('Expense category already exists.');
+              return;
+            }
+            TAX_EXPENSE_CATEGORIES.push(name);
+            newExpenseCategoryEl.value = '';
+            saveCategoryPrefs();
+            renderCategoryOptions();
+            renderCategoryManagerLists();
+            openSuccessModal('Expense category added.', 'Category Added ✅');
+          });
+
+          addIncomeCategoryBtn?.addEventListener('click', () => {
+            const name = (newIncomeCategoryEl.value || '').trim();
+            if (!name) return;
+            if (TAX_INCOME_CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) {
+              openErrorModal('Income category already exists.');
+              return;
+            }
+            TAX_INCOME_CATEGORIES.push(name);
+            newIncomeCategoryEl.value = '';
+            saveCategoryPrefs();
+            renderCategoryOptions();
+            renderCategoryManagerLists();
+            openSuccessModal('Income category added.', 'Category Added ✅');
+          });
+
+          taxMinimizeExpenseBtn?.addEventListener('click', () => {
+            setTaxEntryMode('none');
+          });
+
+          taxMinimizeOwnerTransferBtn?.addEventListener('click', () => {
+            const isHidden = taxOwnerTransferFields?.style.display === 'none';
+            if (taxOwnerTransferFields) taxOwnerTransferFields.style.display = isHidden ? '' : 'none';
+            taxMinimizeOwnerTransferBtn.textContent = isHidden ? 'Minimize' : 'Expand';
+          });
+
+          taxMinimizeIncomeBtn?.addEventListener('click', () => {
+            setTaxEntryMode('none');
+          });
+
+          taxExpensePanel?.addEventListener('click', (e) => {
+            if (e.target === taxExpensePanel) setTaxEntryMode('none');
+          });
+          taxIncomePanel?.addEventListener('click', (e) => {
+            if (e.target === taxIncomePanel) setTaxEntryMode('none');
+          });
+
+          txFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              activeTxFilter = btn.getAttribute('data-filter');
+              txFilterBtns.forEach(b => b.classList.remove('active'));
+              btn.classList.add('active');
+              txCategoryFilterEl.style.display = activeTxFilter === 'expense' ? '' : 'none';
+              if (activeTxFilter !== 'expense') txCategoryFilterEl.value = '';
+              renderTxList();
+            });
+          });
+
+          txCategoryFilterEl.addEventListener('change', renderTxList);
+          taxAddExpenseBtn.addEventListener('click', addTaxExpense);
+          taxUpdateExpenseBtn.addEventListener('click', addTaxExpense);
+          taxCancelExpenseEditBtn.addEventListener('click', clearTaxExpenseForm);
+          taxClearExpenseBtn.addEventListener('click', clearTaxExpenseForm);
+          taxAddOwnerTransferBtn?.addEventListener('click', addTaxOwnerTransfer);
+          taxClearOwnerTransferBtn?.addEventListener('click', clearTaxOwnerTransferForm);
+          taxAddIncomeBtn.addEventListener('click', addTaxIncome);
+          taxUpdateIncomeBtn.addEventListener('click', addTaxIncome);
+          taxCancelIncomeEditBtn.addEventListener('click', clearTaxIncomeForm);
+          taxClearIncomeBtn.addEventListener('click', clearTaxIncomeForm);
+
+          document.getElementById('tax-expense-receipt').addEventListener('change', function() {
+            document.getElementById('tax-expense-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+          });
+          document.getElementById('tax-income-receipt').addEventListener('change', function() {
+            document.getElementById('tax-income-receipt-name').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+          });
+
+          taxExportBtn?.addEventListener('click', downloadTaxCsv);
+
+          accountsRefreshBtn?.addEventListener('click', loadAccountsData);
+          accountsRebuildAutoJournalBtn?.addEventListener('click', async () => {
+            if (!adminPassword) {
+              openErrorModal('Unlock admin first.');
+              return;
+            }
+            const proceed = await openConfirmModal(
+              'Rebuild all auto-generated journal entries from current Tax Income/Expense rows?',
+              'Rebuild Auto Journal?',
+              'Rebuild'
+            );
+            if (!proceed) return;
+
+            const originalText = accountsRebuildAutoJournalBtn.textContent;
+            const originalBg = accountsRebuildAutoJournalBtn.style.background;
+            const originalBorder = accountsRebuildAutoJournalBtn.style.borderColor;
+            const originalColor = accountsRebuildAutoJournalBtn.style.color;
+            accountsRebuildAutoJournalBtn.disabled = true;
+            accountsRebuildAutoJournalBtn.style.background = '#ff4fa3';
+            accountsRebuildAutoJournalBtn.style.borderColor = '#ff4fa3';
+            accountsRebuildAutoJournalBtn.style.color = '#fff';
+            accountsRebuildAutoJournalBtn.textContent = 'Rebuilding…';
+            let animTick = 0;
+            const anim = setInterval(() => {
+              animTick = (animTick + 1) % 4;
+              accountsRebuildAutoJournalBtn.textContent = `Rebuilding${'.'.repeat(animTick)}${' '.repeat(3 - animTick)}`;
+            }, 350);
+
+            try {
+              const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+                body: JSON.stringify({})
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok || !data.ok) throw new Error(data.error || 'Rebuild failed');
+              await Promise.all([loadTaxTransactions(), loadAccountsData()]);
+              openSuccessModal('Auto journal rebuilt successfully from current tax rows.', 'Rebuild Complete ✅');
+            } catch (e) {
+              openErrorModal(`Could not rebuild auto journal: ${e.message || e}`);
+            } finally {
+              clearInterval(anim);
+              accountsRebuildAutoJournalBtn.disabled = false;
+              accountsRebuildAutoJournalBtn.textContent = originalText;
+              accountsRebuildAutoJournalBtn.style.background = originalBg;
+              accountsRebuildAutoJournalBtn.style.borderColor = originalBorder;
+              accountsRebuildAutoJournalBtn.style.color = originalColor;
+            }
+          });
+          accountsYearCloseBtn?.addEventListener('click', openYearCloseWizard);
+          auditPackageBtn?.addEventListener('click', openAuditPackageModal);
+          reconRunBtn?.addEventListener('click', runReconciliation);
+          invoiceModeViewBtn?.addEventListener('click', () => setInvoiceMode('view'));
+          invoiceModeAddBtn?.addEventListener('click', () => setInvoiceMode('add'));
+          invoiceFabBtn?.addEventListener('click', () => setInvoiceMode('add'));
+          invoiceCreateBtn?.addEventListener('click', saveQuickInvoice);
+          invoiceAddLineItemBtn?.addEventListener('click', () => {
+            captureInvoiceDraftItems();
+            invoiceDraftItems.push({ description: '', quantity: 1, unitAmount: '' });
+            renderInvoiceLineItems();
+          });
+          invoiceLineItemsEl?.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('[data-remove-line-item]');
+            if (!removeBtn) return;
+            captureInvoiceDraftItems();
+            const idx = Number(removeBtn.getAttribute('data-remove-line-item') || -1);
+            if (idx < 0) return;
+            invoiceDraftItems.splice(idx, 1);
+            if (!invoiceDraftItems.length) invoiceDraftItems = [{ description: '', quantity: 1, unitAmount: '' }];
+            renderInvoiceLineItems();
+          });
+          invoiceLineItemsEl?.addEventListener('input', updateInvoiceTotalDisplay);
+          setInvoiceMode('view');
+          renderInvoiceLineItems();
+          orderAddManualBtn?.addEventListener('click', openManualOrderModal);
+          manualOrderCancelBtn?.addEventListener('click', closeManualOrderModal);
+          manualOrderSaveBtn?.addEventListener('click', async () => {
+            const payload = {
+              customerName: manualOrderCustomerNameEl?.value || '',
+              customerEmail: manualOrderCustomerEmailEl?.value || '',
+              customerPhone: manualOrderCustomerPhoneEl?.value || '',
+              paymentMethod: manualOrderPaymentMethodEl?.value || '',
+              paymentDate: manualOrderPaymentDateEl?.value || '',
+              amount: manualOrderAmountEl?.value || '',
+              orderSummary: manualOrderSummaryEl?.value || 'Survival Node',
+              notes: manualOrderNotesEl?.value || ''
+            };
+            const email = String(payload.customerEmail || '').trim();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+              openErrorModal('Enter a valid customer email address.');
+              manualOrderCustomerEmailEl?.focus();
+              return;
+            }
+            const prevTxt = manualOrderSaveBtn.textContent || 'Create Manual Order';
+            manualOrderSaveBtn.disabled = true;
+            manualOrderSaveBtn.textContent = 'Creating…';
+            try {
+              const res = await fetch(ORDER_MANUAL_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) { openErrorModal(data.error || 'Failed to create manual order'); return; }
+              closeManualOrderModal();
+              openSuccessModal('Manual Survival Node order created.', 'Manual Order Added ✅');
+              if (manualOrderCustomerNameEl) manualOrderCustomerNameEl.value = '';
+              if (manualOrderCustomerEmailEl) manualOrderCustomerEmailEl.value = '';
+              if (manualOrderCustomerPhoneEl) manualOrderCustomerPhoneEl.value = '';
+              if (manualOrderPaymentMethodEl) manualOrderPaymentMethodEl.value = '';
+              if (manualOrderAmountEl) manualOrderAmountEl.value = '';
+              if (manualOrderSummaryEl) manualOrderSummaryEl.value = 'Survival Node';
+              if (manualOrderNotesEl) manualOrderNotesEl.value = '';
+              await refreshOrderList();
+            } finally {
+              manualOrderSaveBtn.disabled = false;
+              manualOrderSaveBtn.textContent = prevTxt;
+            }
+          });
+          trackingCancelBtn?.addEventListener('click', closeTrackingModal);
+          trackingSaveBtn?.addEventListener('click', async () => {
+            if (!activeTrackingDraft) return;
+            const payload = {
+              bookingId: activeTrackingDraft.bookingId,
+              orderKey: activeTrackingDraft.orderKey || '',
+              trackingProvider: trackingProviderEl?.value || '',
+              trackingNumber: trackingNumberEl?.value || ''
+            };
+            if (!(payload.trackingNumber || '').trim() && !confirm('Clear the saved tracking number for this order?')) return;
+            const prevTxt = trackingSaveBtn.textContent || 'Save Tracking';
+            const draft = { ...activeTrackingDraft };
+            trackingSaveBtn.disabled = true;
+            trackingSaveBtn.textContent = draft.forShippingEmail ? 'Continuing…' : 'Saving…';
+            try {
+              const res = await fetch(ORDER_TRACKING_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) { openErrorModal(data.error || 'Failed to save tracking'); return; }
+              closeTrackingModal();
+              await refreshOrderList();
+              if (draft.forShippingEmail) {
+                await openOrderEmailDraft(draft.bookingId, 'shipping', draft.orderKey || '', {
+                  orderSummary: draft.orderSummary || '',
+                  amountDisplay: draft.amountDisplay || '',
+                  paymentDate: draft.paymentDate || ''
+                });
+              } else {
+                openSuccessModal('Tracking saved for this order.', 'Tracking Updated ✅');
+              }
+            } finally {
+              trackingSaveBtn.disabled = false;
+              trackingSaveBtn.textContent = prevTxt;
+            }
+          });
+          orderRefreshBtn?.addEventListener('click', refreshOrderList);
+          orderFilterEl?.addEventListener('change', refreshOrderList);
+          orderListEl?.addEventListener('click', handleOrderActionClick);
+          orderEmailCancelBtn?.addEventListener('click', closeOrderEmailModal);
+          orderEmailSubjectEl?.addEventListener('input', renderOrderEmailPreview);
+          orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
+          orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);
+          orderEmailSendBtn?.addEventListener('click', async () => {
+            if (!activeOrderEmailDraft) return;
+            const payload = {
+              bookingId: activeOrderEmailDraft.bookingId,
+              orderKey: activeOrderEmailDraft.orderKey || '',
+              kind: activeOrderEmailDraft.kind,
+              subject: orderEmailSubjectEl?.value || '',
+              bodyText: orderEmailBodyEl?.value || '',
+              trackingProvider: activeOrderEmailDraft.trackingProvider || '',
+              trackingNumber: orderEmailTrackingNumberEl?.value || ''
+            };
+            const prevTxt = orderEmailSendBtn.textContent || 'Send Email';
+            const draft = { ...activeOrderEmailDraft };
+            orderEmailSendBtn.disabled = true;
+            orderEmailSendBtn.textContent = 'Sending…';
+            try {
+              const res = await fetch(ORDER_SEND_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+                body: JSON.stringify(payload)
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) { openErrorModal(data.error || 'Failed to send order email'); return; }
+              const successText = draft.kind === 'shipping'
+                ? 'Shipping email sent and order marked shipped.'
+                : draft.kind === 'delivered'
+                  ? 'Delivered email sent and order marked delivered.'
+                  : draft.kind === 'review'
+                    ? 'Review request email sent to customer.'
+                    : 'Acknowledgment email sent.';
+              const successTitle = draft.kind === 'shipping'
+                ? 'Shipment Email Sent ✅'
+                : draft.kind === 'delivered'
+                  ? 'Delivered Email Sent ✅'
+                  : draft.kind === 'review'
+                    ? 'Review Email Sent ✅'
+                    : 'Acknowledgment Sent ✅';
+              try { closeOrderEmailModal(); } catch {}
+              try { openSuccessModal(successText, successTitle); } catch (err) { alert(successTitle + '\n\n' + successText); }
+              try { await refreshOrderList(); } catch {}
+            } catch (err) {
+              openErrorModal(err?.message || 'Failed to send order email');
+            } finally {
+              orderEmailSendBtn.disabled = false;
+              orderEmailSendBtn.textContent = prevTxt;
+            }
+          });
+          invoiceRefreshBtn?.addEventListener('click', refreshInvoiceList);
+          invoiceFilterEl?.addEventListener('change', refreshInvoiceList);
+          invoiceSortEl?.addEventListener('change', refreshInvoiceList);
+          invoiceListEl?.addEventListener('click', handleInvoiceActionClick);
+          invoicePaymentCancelBtn?.addEventListener('click', closeInvoicePaymentModal);
+          invoicePaymentSaveBtn?.addEventListener('click', submitInvoicePaymentModal);
+          invoicePaymentModal?.addEventListener('click', (e) => { if (e.target === invoicePaymentModal) closeInvoicePaymentModal(); });
+          accountsYearEl?.addEventListener('change', loadAccountsData);
+          accountsFromEl?.addEventListener('change', loadAccountsData);
+          accountsToEl?.addEventListener('change', loadAccountsData);
+          accountsTabBalancesBtn?.addEventListener('click', () => setAccountsTab('balances'));
+          accountsTabBalanceSheetBtn?.addEventListener('click', () => setAccountsTab('balance_sheet'));
+          accountsTabPnlBtn?.addEventListener('click', () => setAccountsTab('pnl'));
+          accountsTabCashflowBtn?.addEventListener('click', () => setAccountsTab('cashflow'));
+          accountsTabJournalBtn?.addEventListener('click', () => setAccountsTab('journal'));
+
+          const taxZipBtn = document.getElementById('tax-zip-btn');
+          if (taxZipBtn) {
+            taxZipBtn.addEventListener('click', async () => {
+              if (typeof JSZip === 'undefined') { openErrorModal('JSZip not loaded — try refreshing the page.'); return; }
+              const year = taxYearEl.value;
+              taxZipBtn.textContent = 'Building…';
+              taxZipBtn.disabled = true;
+              try {
+                const zip = new JSZip();
+                const folder = zip.folder(`eastern-shore-ai-tax-${year}`);
+
+                const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, {
+                  headers: { 'X-Admin-Password': adminPassword }
+                });
+                if (!csvRes.ok) throw new Error('CSV fetch failed');
+                folder.file(`eastern-shore-ai-tax-${year}.csv`, await csvRes.blob());
+
+                const txRes = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
+                  headers: { 'X-Admin-Password': adminPassword }
+                });
+                const txData = await txRes.json();
+                const allRecords = [
+                  ...(txData.expenses || []).map(r => ({ ...r, recType: 'expense' })),
+                  ...(txData.income || []).map(r => ({ ...r, recType: 'income' }))
+                ];
+
+                const receiptsFolder = folder.folder('receipts');
+                for (const r of allRecords) {
+                  if (!r.receipt_key) continue;
+                  const ext = r.receipt_key.split('.').pop();
+                  const filename = `${r.recType}-${r.id}-${r.date || ''}.${ext}`;
+                  const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}`);
+                  if (rRes.ok) receiptsFolder.file(filename, await rRes.blob());
+                }
+
+                const blob = await zip.generateAsync({ type: 'blob' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `eastern-shore-ai-tax-${year}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+              } catch (e) {
+                openErrorModal(`ZIP build failed: ${e.message || e}`);
+              } finally {
+                taxZipBtn.textContent = '⬇ Year Package (.zip)';
+                taxZipBtn.disabled = false;
+              }
+            });
           }
-
-          const blob = await zip.generateAsync({ type: 'blob' });
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = `eastern-shore-ai-tax-${year}.zip`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-        } catch (e) {
-          openErrorModal(`ZIP build failed: ${e.message || e}`);
-        } finally {
-          taxZipBtn.textContent = '⬇ Year Package (.zip)';
-          taxZipBtn.disabled = false;
-        }
-      });
     }
+
 
   </script>
 </body>

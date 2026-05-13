@@ -1652,17 +1652,26 @@ function requireAdmin(request, env, corsHeaders, url) {
     .trim() || 'unknown';
   const now = Date.now();
   const windowMs = 15 * 60 * 1000;
+  const retryHeaders = { ...corsHeaders, 'Retry-After': '900' };
+  const tooManyAttempts = () => json({ error: 'Too many attempts. Try again in 15 minutes.' }, 429, retryHeaders);
+
+  if (provided && provided === expected) {
+    _adminAuthFailures.delete(ip);
+    return { ok: true };
+  }
+
+  // Only failed attempts that actually submit an admin credential are counted.
+  // Missing credentials should remain a plain 401 and must not lock out public/no-header traffic.
+  if (!provided) {
+    return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
+  }
+
   const existing = _adminAuthFailures.get(ip);
   const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
 
   if (current.count >= 5 && current.expiresAt > now) {
     _adminAuthFailures.set(ip, current);
-    return { ok: false, res: json({ ok: false, error: 'Too many admin authentication attempts' }, 429, corsHeaders) };
-  }
-
-  if (provided && provided === expected) {
-    _adminAuthFailures.delete(ip);
-    return { ok: true };
+    return { ok: false, res: tooManyAttempts() };
   }
 
   const timestamp = new Date(now).toISOString();
@@ -1670,14 +1679,14 @@ function requireAdmin(request, env, corsHeaders, url) {
 
   current.count += 1;
   current.expiresAt = current.expiresAt || (now + windowMs);
+  _adminAuthFailures.set(ip, current);
 
-  if (current.count >= 5) {
+  if (current.count > 5) {
     current.expiresAt = now + windowMs;
     _adminAuthFailures.set(ip, current);
-    return { ok: false, res: json({ ok: false, error: 'Too many admin authentication attempts' }, 429, corsHeaders) };
+    return { ok: false, res: tooManyAttempts() };
   }
 
-  _adminAuthFailures.set(ip, current);
   return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
 }
 
