@@ -1031,8 +1031,8 @@ async function handleCheckoutSession(request, env, corsHeaders, originAllowed, a
     body: body.toString()
   });
 
-  const stripeData = await stripeRes.json();
-  if (!stripeRes.ok) {
+  const stripeData = await stripeRes.json().catch(() => ({}));
+  if (!stripeRes.ok || !stripeData?.url || !stripeData?.id) {
     return json({ ok: false, error: 'Stripe session failed', detail: stripeData }, 502, corsHeaders);
   }
 
@@ -1081,7 +1081,8 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
     data = {};
   }
 
-  const checkoutType = (data.checkoutType || 'base_kit').toString().trim().toLowerCase();
+  const requestedCheckoutType = (data.checkoutType || 'base_kit').toString().trim().toLowerCase();
+  const checkoutType = requestedCheckoutType === 'byog_setup' ? 'byog_setup' : 'base_kit';
   const isByogSetup = checkoutType === 'byog_setup';
   const termsAccepted = data.termsAccepted === true;
 
@@ -1697,6 +1698,7 @@ function checkAskKRateLimit(request, corsHeaders) {
     .trim() || 'unknown';
   const now = Date.now();
   const windowMs = 15 * 60 * 1000;
+  sweepExpiredRateLimitEntries(_askKRateLimits, now);
   const existing = _askKRateLimits.get(ip);
   const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
   current.count += 1;
@@ -1707,6 +1709,12 @@ function checkAskKRateLimit(request, corsHeaders) {
     return json({ ok: false, error: 'Too many Ask K requests. Please try again later.' }, 429, corsHeaders);
   }
   return null;
+}
+
+function sweepExpiredRateLimitEntries(map, now = Date.now()) {
+  for (const [key, entry] of map) {
+    if (!entry?.expiresAt || entry.expiresAt <= now) map.delete(key);
+  }
 }
 
 /** @param {string|number} amount - Dollar amount @returns {number|null} Integer cents */
@@ -1749,6 +1757,12 @@ async function generateNextOrderNumber(db) {
   const next = current + 1;
   await db.prepare(`UPDATE order_number_sequence SET last_value = ?1, updated_at = datetime('now') WHERE seq_key = ?2`).bind(next, seqKey).run();
   return String(next);
+}
+
+function isShippableOrderServiceType(serviceType) {
+  const s = (serviceType || '').toString().trim().toLowerCase();
+  if (s === 'survival_node_byog_setup' || s === 'byog_setup') return false;
+  return s === 'base_kit' || s === 'pro_kit' || s === 'survival_node_manual' || s.startsWith('survival_node_');
 }
 
 function orderSummaryFromRow(row) {
@@ -2168,6 +2182,7 @@ async function sendAutoBuyerConfirmationForSession(env, sessionId) {
   for (const baseRow of (rows?.results || [])) {
     let row = await getOrderRowByBookingId(env.DB, Number(baseRow.id));
     if (!row?.customer_email || row.ack_email_sent_at) continue;
+    if (!isShippableOrderServiceType(row.service_type)) continue;
 
     await ensureOrderFulfillmentRow(env.DB, row);
     row = await getOrderRowByBookingId(env.DB, Number(baseRow.id)) || row;
