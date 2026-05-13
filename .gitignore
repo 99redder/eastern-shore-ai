@@ -1,3 +1,10 @@
 .claude/worktrees/jolly-chatterjee/
 .vscode/settings.json
 .aider*
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
