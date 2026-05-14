@@ -49,6 +49,7 @@ const _askKRateLimits = new Map();
 
 export default {
   async fetch(request, env) {
+    try {
     const origin = request.headers.get('Origin') || '';
     const allowedOrigins = (env.ALLOWED_ORIGINS || '*')
       .split(',')
@@ -416,6 +417,10 @@ export default {
     }
 
     return json({ ok: false, error: 'Not found' }, 404, corsHeaders);
+    } catch (err) {
+      console.error('Unhandled worker error', err);
+      return json({ ok: false, error: 'Internal server error' }, 500, buildCorsHeaders(request, env));
+    }
   }
 };
 
@@ -449,7 +454,7 @@ async function handleContact(request, env, corsHeaders) {
     return json({ ok: false, error: 'Missing required fields' }, 400, corsHeaders);
   }
 
-  if (!env.RESEND_API_KEY) {
+  if (!env.RESEND_API_KEY || !env.TO_EMAIL || !env.FROM_EMAIL) {
     return json({ ok: false, error: 'Email provider not configured' }, 500, corsHeaders);
   }
 
@@ -1210,6 +1215,15 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     return json({ ok: true, warning: 'DB binding missing' }, 200, corsHeaders);
   }
 
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data?.object || {};
+    const sessionId = (session.id || '').toString().trim();
+    if (sessionId) {
+      await env.DB.prepare(`DELETE FROM bookings WHERE status = 'pending' AND stripe_session_id = ?1`).bind(sessionId).run();
+    }
+    return json({ ok: true }, 200, corsHeaders);
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data?.object || {};
     const sessionId = session.id || null;
@@ -1542,6 +1556,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           ? `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory}) for ${customerName}`
           : `Auto-imported from Stripe checkout (${serviceLabel || incomeCategory})`;
         let incomeId = Number(existingIncome?.id || 0) || null;
+        const isNewIncome = !incomeId;
         if (!incomeId) {
           const ins = await env.DB.prepare(
             `INSERT INTO tax_income (
@@ -1625,7 +1640,30 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           }
         }
 
-        await sendAutoBuyerConfirmationForSession(env, sessionId);
+        if (isSurvivalNodeSale) {
+          await sendAutoBuyerConfirmationForSession(env, sessionId);
+        } else if (isNewIncome) {
+          await sendServiceBuyerConfirmationForSession(env, {
+            sessionId,
+            customerEmail,
+            customerName,
+            serviceLabel: serviceLabel || incomeCategory,
+            serviceType,
+            amountCents: amount,
+            slots
+          });
+          await sendStaffPaidBookingNotification(env, {
+            sessionId,
+            customerEmail,
+            customerName,
+            customerPhone,
+            preferredContactMethod,
+            serviceLabel: serviceLabel || incomeCategory,
+            serviceType,
+            amountCents: amount,
+            slots
+          });
+        }
       } catch (e) {
         console.error('Stripe webhook DB write failed', e);
         return json({ ok: false, error: `Webhook DB write failed: ${e?.message || e}` }, 500, corsHeaders);
@@ -2171,6 +2209,100 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   return json({ ok: true, orderKey: row.order_key, trackingProvider, trackingNumber, trackingUrl }, 200, corsHeaders);
 }
 
+
+async function sendServiceBuyerConfirmationForSession(env, { sessionId, customerEmail, customerName, serviceLabel, serviceType, amountCents, slots }) {
+  const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const toEmail = (customerEmail || '').toString().trim();
+  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'email not configured' };
+
+  const safeName = escapeHtml(customerName || 'there');
+  const safeService = escapeHtml(serviceLabel || serviceType || 'your booking');
+  const slotLines = (Array.isArray(slots) ? slots : [])
+    .map((slot) => `${slot.setupDate || ''} ${slot.setupTime || ''}`.trim())
+    .filter(Boolean);
+  const slotHtml = slotLines.length
+    ? `<p><strong>Scheduled time${slotLines.length > 1 ? 's' : ''}:</strong><br>${slotLines.map(escapeHtml).join('<br>')}</p>`
+    : '';
+  const slotText = slotLines.length ? `\nScheduled time${slotLines.length > 1 ? 's' : ''}:\n${slotLines.join('\n')}` : '';
+  const subject = `Your Eastern Shore AI booking is confirmed`;
+  const text = `Hi ${customerName || 'there'},\n\nThanks for your payment. Your ${serviceLabel || serviceType || 'booking'} is confirmed.${slotText}\n\nTotal paid: ${formatUsd(amountCents)}\nReference: ${sessionId || 'n/a'}\n\nWe'll follow up with any next steps.\n\n— Eastern Shore AI`;
+  const html = `<p>Hi ${safeName},</p>
+<p>Thanks for your payment. Your <strong>${safeService}</strong> is confirmed.</p>
+${slotHtml}
+<p><strong>Total paid:</strong> ${formatUsd(amountCents)}</p>
+<p>We'll follow up with any next steps.</p>
+<p>&mdash; Eastern Shore AI</p>
+<hr><p style="color:#888;font-size:12px;">Reference: ${escapeHtml(sessionId || 'n/a')}</p>`;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [toEmail],
+      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+      subject,
+      html,
+      text,
+      reply_to: fromEmail
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    console.error('Service buyer confirmation failed', { sessionId, error: errText || res.status });
+    return { ok: false, error: errText || `resend ${res.status}` };
+  }
+  return { ok: true };
+}
+
+async function sendStaffPaidBookingNotification(env, { sessionId, customerEmail, customerName, customerPhone, preferredContactMethod, serviceLabel, serviceType, amountCents, slots }) {
+  const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const toEmail = (env.TO_EMAIL || '').toString().trim();
+  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
+
+  const slotLines = (Array.isArray(slots) ? slots : [])
+    .map((slot) => `${slot.setupDate || ''} ${slot.setupTime || ''}`.trim())
+    .filter(Boolean);
+  const text = [
+    'New paid Eastern Shore AI booking',
+    '',
+    `Service: ${serviceLabel || serviceType || '(unknown)'}`,
+    `Amount: ${formatUsd(amountCents)}`,
+    `Customer: ${customerName || '(not provided)'}`,
+    `Email: ${customerEmail || '(not provided)'}`,
+    `Phone: ${customerPhone || '(not provided)'}`,
+    `Preferred contact: ${preferredContactMethod || '(not provided)'}`,
+    slotLines.length ? `Slots:\n${slotLines.join('\n')}` : 'Slots: (none)',
+    `Stripe session: ${sessionId || 'n/a'}`
+  ].join('\n');
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [toEmail],
+      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+      subject: '[Eastern Shore AI] New paid booking',
+      text,
+      reply_to: fromEmail
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    console.error('Staff paid booking notification failed', { sessionId, error: errText || res.status });
+    return { ok: false, error: errText || `resend ${res.status}` };
+  }
+  return { ok: true };
+}
 
 async function sendAutoBuyerConfirmationForSession(env, sessionId) {
   if (!env.DB || !sessionId || !env.RESEND_API_KEY || !(env.ORDERS_FROM_EMAIL || env.FROM_EMAIL)) return;
@@ -5046,16 +5178,17 @@ async function sendNonConusRefundEmail(env, {
  */
 async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
   // Stripe-Signature header format: t=timestamp,v1=signature[,v1=signature2]
-  const parts = Object.fromEntries(
-    stripeSignature
-      .split(',')
-      .map(p => p.split('=').map(x => x.trim()))
-      .filter(pair => pair.length === 2)
-  );
+  const parts = stripeSignature
+    .split(',')
+    .map(p => p.split('=').map(x => x.trim()))
+    .filter(pair => pair.length === 2);
 
-  const timestamp = Number(parts.t);
-  const expected = parts.v1;
-  if (!Number.isFinite(timestamp) || !expected) return { ok: false };
+  const timestamp = Number(parts.find(([key]) => key === 't')?.[1]);
+  const expectedSignatures = parts
+    .filter(([key]) => key === 'v1')
+    .map(([, value]) => value)
+    .filter(Boolean);
+  if (!Number.isFinite(timestamp) || expectedSignatures.length === 0) return { ok: false };
 
   const toleranceSeconds = 300;
   const ageSeconds = Math.abs(Math.floor(Date.now() / 1000) - timestamp);
@@ -5073,11 +5206,31 @@ async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(signedPayload));
   const computed = [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
 
-  // timing-safe enough for this context with fixed length compare
-  if (computed.length !== expected.length) return { ok: false };
-  let mismatch = 0;
-  for (let i = 0; i < computed.length; i++) mismatch |= computed.charCodeAt(i) ^ expected.charCodeAt(i);
-  return { ok: mismatch === 0 };
+  // Accept any valid v1 signature so Stripe webhook-secret rotation works.
+  for (const expected of expectedSignatures) {
+    if (computed.length !== expected.length) continue;
+    let mismatch = 0;
+    for (let i = 0; i < computed.length; i++) mismatch |= computed.charCodeAt(i) ^ expected.charCodeAt(i);
+    if (mismatch === 0) return { ok: true };
+  }
+  return { ok: false };
+}
+
+function buildCorsHeaders(request, env) {
+  const origin = request.headers.get('Origin') || '';
+  const allowedOrigins = (env.ALLOWED_ORIGINS || '*')
+    .split(',')
+    .map(v => v.trim())
+    .filter(Boolean);
+  const allowAll = allowedOrigins.includes('*');
+  const isLocalDashboardOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(origin);
+  const originAllowed = allowAll || !origin || allowedOrigins.includes(origin) || isLocalDashboardOrigin;
+  return {
+    'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
+    'Vary': 'Origin'
+  };
 }
 
 /** @param {Object} payload @param {number} [status=200] @param {Object} [headers] @returns {Response} */
