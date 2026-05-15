@@ -2025,7 +2025,7 @@
             if (!r.receipt_key) continue;
             const ext = (r.receipt_key.split('.').pop() || 'bin').slice(0, 5);
             const fn = `${r.type}-${r.id}-${r.date}.${ext}`;
-            const rr = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}`);
+            const rr = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}`, { headers: { 'X-Admin-Password': adminPassword } });
             if (rr.ok) recFolder.file(fn, await rr.blob());
           }
         }
@@ -2731,7 +2731,7 @@
       }
       taxListEl.innerHTML = filtered.map((r) => {
         const receiptBtn = r.receipt_key
-          ? `<a href="${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}" target="_blank" class="btn" style="font-size:0.78rem; padding:0.2rem 0.5rem;">Receipt ↗</a>`
+          ? `<button type="button" class="btn" data-receipt-key="${escHtml(r.receipt_key)}" style="font-size:0.78rem; padding:0.2rem 0.5rem;">Receipt ↗</button>`
           : `<label class="btn" style="font-size:0.78rem; padding:0.2rem 0.5rem; cursor:pointer;" title="Upload receipt">+ Receipt<input type="file" accept=".pdf,.jpg,.jpeg,.png" class="inline-receipt-input" data-upload-type="${r.type}" data-upload-id="${r.id}" style="display:none;"></label>`;
         return `
         <div class="tax-row" data-type="${r.type}" data-id="${r.id}">
@@ -2741,6 +2741,16 @@
           <div style="display:flex; gap:.3rem; flex-wrap:wrap;">${receiptBtn}<button type="button" class="btn edit" data-tax-edit="1">Edit</button><button type="button" class="btn delete" data-tax-delete="1">Delete</button></div>
         </div>`;
       }).join('');
+
+      taxListEl.querySelectorAll('[data-receipt-key]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          try {
+            await openTaxReceipt(btn.getAttribute('data-receipt-key'));
+          } catch (e) {
+            openErrorModal(`Could not open receipt: ${e.message || e}`);
+          }
+        });
+      });
 
       taxListEl.querySelectorAll('[data-tax-edit="1"]').forEach((btn) => {
         btn.addEventListener('click', async () => {
@@ -3052,6 +3062,19 @@
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || 'Receipt upload failed');
+    }
+
+    async function openTaxReceipt(receiptKey) {
+      const res = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(receiptKey)}`, {
+        headers: { 'X-Admin-Password': adminPassword }
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Receipt download failed');
+      }
+      const blobUrl = URL.createObjectURL(await res.blob());
+      window.open(blobUrl, '_blank', 'noopener');
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60 * 1000);
     }
 
     async function downloadTaxCsv() {
@@ -4661,7 +4684,7 @@
                   if (!r.receipt_key) continue;
                   const ext = r.receipt_key.split('.').pop();
                   const filename = `${r.recType}-${r.id}-${r.date || ''}.${ext}`;
-                  const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}&key2=${encodeURIComponent(adminPassword)}`);
+                  const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}`, { headers: { 'X-Admin-Password': adminPassword } });
                   if (rRes.ok) receiptsFolder.file(filename, await rRes.blob());
                 }
 

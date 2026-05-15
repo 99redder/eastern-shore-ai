@@ -46,6 +46,7 @@
 
 const _adminAuthFailures = new Map();
 const _askKRateLimits = new Map();
+const _chatRateLimits = new Map();
 
 export default {
   async fetch(request, env) {
@@ -97,9 +98,10 @@ export default {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
-      // Public quote accept/deny + chat session endpoints don't require strict origin check.
+      // Public quote accept/deny, invoice landing, battery image, and tracking reads don't require strict origin check.
+      // Chat endpoints are public but still must come from an allowed site origin to avoid cross-origin D1 flooding.
       // Planner endpoints are admin-only and must pass normal origin enforcement.
-      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isChatPublic && !isBatteryImagePublic && !isTrackPublic) {
+      if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
     }
@@ -452,6 +454,10 @@ async function handleContact(request, env, corsHeaders) {
 
   if (!name || !email) {
     return json({ ok: false, error: 'Missing required fields' }, 400, corsHeaders);
+  }
+
+  if (!isValidEmail(email)) {
+    return json({ ok: false, error: 'Invalid email address' }, 400, corsHeaders);
   }
 
   if (!env.RESEND_API_KEY || !env.TO_EMAIL || !env.FROM_EMAIL) {
@@ -1678,11 +1684,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
 /** Validate admin password from X-Admin-Password header with per-IP failed-attempt throttling */
 function requireAdmin(request, env, corsHeaders, url) {
-  const provided = (
-    request.headers.get('X-Admin-Password')
-    || (url?.pathname === '/api/tax/receipt' ? url.searchParams.get('key2') : '')
-    || ''
-  ).trim();
+  const provided = (request.headers.get('X-Admin-Password') || '').trim();
   const expected = (env.ADMIN_PASSWORD || '').trim();
   if (!expected) return { ok: false, res: json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders) };
 
@@ -1731,20 +1733,37 @@ function requireAdmin(request, env, corsHeaders, url) {
 
 /** Lightweight public Ask K throttling: 20 requests per IP per 15 minutes. */
 function checkAskKRateLimit(request, corsHeaders) {
+  const limited = checkIpRateLimit(_askKRateLimits, request, {
+    limit: 20,
+    windowMs: 15 * 60 * 1000,
+    error: 'Too many Ask K requests. Please try again later.'
+  }, corsHeaders);
+  return limited;
+}
+
+/** Lightweight public chat throttling: 60 requests per IP per 15 minutes across session/message/typing writes. */
+function checkChatRateLimit(request, corsHeaders) {
+  return checkIpRateLimit(_chatRateLimits, request, {
+    limit: 60,
+    windowMs: 15 * 60 * 1000,
+    error: 'Too many chat requests. Please try again later.'
+  }, corsHeaders);
+}
+
+function checkIpRateLimit(map, request, { limit, windowMs, error }, corsHeaders) {
   const ip = (request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown')
     .split(',')[0]
     .trim() || 'unknown';
   const now = Date.now();
-  const windowMs = 15 * 60 * 1000;
-  sweepExpiredRateLimitEntries(_askKRateLimits, now);
-  const existing = _askKRateLimits.get(ip);
+  sweepExpiredRateLimitEntries(map, now);
+  const existing = map.get(ip);
   const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
   current.count += 1;
   current.expiresAt = current.expiresAt || (now + windowMs);
-  _askKRateLimits.set(ip, current);
+  map.set(ip, current);
 
-  if (current.count > 20) {
-    return json({ ok: false, error: 'Too many Ask K requests. Please try again later.' }, 429, corsHeaders);
+  if (current.count > limit) {
+    return json({ ok: false, error }, 429, { ...corsHeaders, 'Retry-After': String(Math.ceil((current.expiresAt - now) / 1000)) });
   }
   return null;
 }
@@ -1753,6 +1772,10 @@ function sweepExpiredRateLimitEntries(map, now = Date.now()) {
   for (const [key, entry] of map) {
     if (!entry?.expiresAt || entry.expiresAt <= now) map.delete(key);
   }
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
 }
 
 /** @param {string|number} amount - Dollar amount @returns {number|null} Integer cents */
@@ -3107,7 +3130,7 @@ async function handleTaxReceiptUpload(request, env, corsHeaders, url) {
 
 /**
  * GET /api/tax/receipt — Admin: retrieve a receipt from R2
- * Query params: key (R2 object key), key2 (admin password — alternative auth since ?key is taken)
+ * Query params: key (R2 object key). Admin password must be sent via X-Admin-Password header.
  */
 async function handleTaxReceiptGet(request, env, corsHeaders, url) {
   if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
@@ -5879,6 +5902,9 @@ function generateSessionToken() {
  * @returns {Response} { ok: true, sessionToken, sessionId } or { ok: false, error }
  */
 async function handleChatSessionCreate(request, env, corsHeaders) {
+  const limited = checkChatRateLimit(request, corsHeaders);
+  if (limited) return limited;
+
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
@@ -6061,6 +6087,9 @@ async function handleChatMessages(request, env, corsHeaders, url) {
  * @returns {Response} { ok: true, messageId } or { ok: false, error }
  */
 async function handleChatMessageSend(request, env, corsHeaders) {
+  const limited = checkChatRateLimit(request, corsHeaders);
+  if (limited) return limited;
+
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
@@ -6276,6 +6305,9 @@ async function handleChatSessionsPurgeOld(request, env, corsHeaders, url) {
  * @returns {Response} { ok: true } or { ok: false, error }
  */
 async function handleChatTyping(request, env, corsHeaders) {
+  const limited = checkChatRateLimit(request, corsHeaders);
+  if (limited) return limited;
+
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }

@@ -96,6 +96,7 @@ export default {
       success_url: successUrl,
       cancel_url: cancelUrl,
       billing_address_collection: 'required',
+      allow_promotion_codes: 'true',
       'automatic_tax[enabled]': 'true',
       'shipping_address_collection[allowed_countries][0]': 'US',
       'line_items[0][quantity]': '1',
