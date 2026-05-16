@@ -1289,8 +1289,11 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             ? `Auto Stripe fee for invoice session ${sessionId} (estimated)`
             : `Auto Stripe fee for invoice session ${sessionId}`;
           const existingFee = await env.DB.prepare(
-            `SELECT id FROM tax_expenses WHERE notes = ?1 LIMIT 1`
-          ).bind(feeNote).first();
+            `SELECT id FROM tax_expenses WHERE notes IN (?1, ?2) LIMIT 1`
+          ).bind(
+            `Auto Stripe fee for invoice session ${sessionId}`,
+            `Auto Stripe fee for invoice session ${sessionId} (estimated)`
+          ).first();
 
           if (!existingFee?.id) {
             const feeDate = event.created ? new Date(event.created * 1000).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
@@ -1339,7 +1342,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const checkoutType = (session.metadata?.checkout_type || '').toString().trim().toLowerCase();
     const productCode = (session.metadata?.product || '').toString().trim().toLowerCase();
     const isSurvivalNodeSale = ['base_kit', 'pro_kit', 'byog_setup'].includes(checkoutType) || productCode.startsWith('survival_node_');
-    const isShippableNodeSale = isSurvivalNodeSale && checkoutType !== 'byog_setup';
+    const isByogSetupSale = checkoutType === 'byog_setup' || productCode === 'survival_node_byog_setup' || serviceType === 'byog_setup' || serviceType === 'survival_node_byog_setup';
+    const isShippableNodeSale = isSurvivalNodeSale && !isByogSetupSale;
 
     // CONUS-only enforcement: Stripe Checkout's allowed_countries filters at the
     // country level only — AK, HI, PR, etc. still pass. For shippable Survival
@@ -1646,7 +1650,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           }
         }
 
-        if (isSurvivalNodeSale) {
+        if (isSurvivalNodeSale && !isByogSetupSale) {
           await sendAutoBuyerConfirmationForSession(env, sessionId);
         } else if (isNewIncome) {
           await sendServiceBuyerConfirmationForSession(env, {
@@ -4360,7 +4364,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send invoice email' }, 502, corsHeaders);
   }
 
-  await env.DB.prepare(`UPDATE invoices SET status = 'sent', sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
+  await env.DB.prepare(`UPDATE invoices SET status = CASE WHEN status IN ('paid', 'void') THEN status ELSE 'sent' END, sent_at = COALESCE(sent_at, datetime('now')), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
   return json({ ok: true, id, emailId: sendJson?.id || null }, 200, corsHeaders);
 }
 
@@ -4647,7 +4651,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send quote email' }, 502, corsHeaders);
   }
 
-  await env.DB.prepare(`UPDATE quotes SET status = 'sent', sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
+  await env.DB.prepare(`UPDATE quotes SET status = CASE WHEN status IN ('accepted', 'denied') THEN status ELSE 'sent' END, sent_at = COALESCE(sent_at, datetime('now')), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
   return json({ ok: true, id, emailId: sendJson?.id || null }, 200, corsHeaders);
 }
 
