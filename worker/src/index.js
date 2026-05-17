@@ -47,15 +47,26 @@
 const _adminAuthFailures = new Map();
 const _askKRateLimits = new Map();
 const _chatRateLimits = new Map();
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://easternshore.ai',
+  'https://www.easternshore.ai',
+  'https://99redder.github.io',
+  'https://lookahead.easternshore.ai'
+];
+
+function parseAllowedOrigins(env) {
+  const configured = (env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(v => v.trim())
+    .filter(Boolean);
+  return [...new Set([...configured, ...DEFAULT_ALLOWED_ORIGINS])];
+}
 
 export default {
   async fetch(request, env) {
     try {
     const origin = request.headers.get('Origin') || '';
-    const allowedOrigins = (env.ALLOWED_ORIGINS || '*')
-      .split(',')
-      .map(v => v.trim())
-      .filter(Boolean);
+    const allowedOrigins = parseAllowedOrigins(env);
     const allowAll = allowedOrigins.includes('*');
     const isLocalDashboardOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(origin);
     // No Origin header = direct browser navigation/server-to-server request, not a cross-origin fetch — allow.
@@ -370,7 +381,7 @@ export default {
     }
 
     if (url.pathname === '/api/admin/ask-k' && request.method === 'POST') {
-      const auth = requireAdmin(request, env, corsHeaders, url);
+      const auth = await requireAdmin(request, env, corsHeaders, url);
       if (!auth.ok) return auth.res;
       return handleAskK(request, env, corsHeaders, url);
     }
@@ -380,7 +391,7 @@ export default {
     }
 
     if (url.pathname === '/api/admin/ask-k/escalate' && request.method === 'POST') {
-      const auth = requireAdmin(request, env, corsHeaders, url);
+      const auth = await requireAdmin(request, env, corsHeaders, url);
       if (!auth.ok) return auth.res;
       return handleAskKEscalate(request, env, corsHeaders, url);
     }
@@ -452,7 +463,7 @@ async function handleContact(request, env, corsHeaders) {
     return json({ ok: true }, 200, corsHeaders);
   }
 
-  if (!name || !email) {
+  if (!name || !email || !message) {
     return json({ ok: false, error: 'Missing required fields' }, 400, corsHeaders);
   }
 
@@ -583,7 +594,7 @@ async function ensurePlannerSchema(db) {
  */
 async function handlePlannerItemsList(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
 
@@ -615,7 +626,7 @@ async function handlePlannerItemsList(request, env, corsHeaders, url) {
  */
 async function handlePlannerItemUpsert(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
@@ -658,7 +669,7 @@ async function handlePlannerItemUpsert(request, env, corsHeaders, url) {
 /** POST /api/planner/items/toggle */
 async function handlePlannerItemToggle(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
@@ -676,7 +687,7 @@ async function handlePlannerItemToggle(request, env, corsHeaders, url) {
 /** POST /api/planner/items/delete */
 async function handlePlannerItemDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
@@ -691,7 +702,7 @@ async function handlePlannerItemDelete(request, env, corsHeaders, url) {
 /** POST /api/planner/items/reschedule */
 async function handlePlannerItemReschedule(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   await ensurePlannerSchema(env.DB);
   let data;
@@ -1427,7 +1438,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
       ? 'Stripe - Survival Node'
       : (serviceType === 'lessons' ? 'Stripe - Lessons' : 'Stripe');
 
-    const amount = Number(session.amount_total || 10000);
+    const amount = Number(session.amount_total || 0);
 
     if (sessionId) {
       try {
@@ -1676,7 +1687,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         }
       } catch (e) {
         console.error('Stripe webhook DB write failed', e);
-        return json({ ok: false, error: `Webhook DB write failed: ${e?.message || e}` }, 500, corsHeaders);
+        // Ack Stripe so D1 outages don't trigger 72h retry storms and duplicate side effects.
+        return json({ ok: true, warning: `Webhook DB write failed: ${e?.message || e}` }, 200, corsHeaders);
       }
     }
   }
@@ -1687,14 +1699,12 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 // ===== Utility Functions =====
 
 /** Validate admin password from X-Admin-Password header with per-IP failed-attempt throttling */
-function requireAdmin(request, env, corsHeaders, url) {
+async function requireAdmin(request, env, corsHeaders, url) {
   const provided = (request.headers.get('X-Admin-Password') || '').trim();
   const expected = (env.ADMIN_PASSWORD || '').trim();
   if (!expected) return { ok: false, res: json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders) };
 
-  const ip = (request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown')
-    .split(',')[0]
-    .trim() || 'unknown';
+  const ip = getClientIp(request);
   const now = Date.now();
   const windowMs = 15 * 60 * 1000;
   const retryHeaders = { ...corsHeaders, 'Retry-After': '900' };
@@ -1702,6 +1712,9 @@ function requireAdmin(request, env, corsHeaders, url) {
 
   if (provided && provided === expected) {
     _adminAuthFailures.delete(ip);
+    if (env.DB) {
+      await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_fail', ip).run().catch(e => console.error('Admin auth rate limit reset failed', e));
+    }
     return { ok: true };
   }
 
@@ -1711,33 +1724,21 @@ function requireAdmin(request, env, corsHeaders, url) {
     return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
   }
 
-  const existing = _adminAuthFailures.get(ip);
-  const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
-
-  if (current.count >= 5 && current.expiresAt > now) {
-    _adminAuthFailures.set(ip, current);
-    return { ok: false, res: tooManyAttempts() };
-  }
+  const persistentLimit = await checkPersistentIpRateLimit(env, _adminAuthFailures, request, 'admin_auth_fail', {
+    limit: 5,
+    windowMs,
+    error: 'Too many attempts. Try again in 15 minutes.'
+  }, corsHeaders);
+  if (persistentLimit) return { ok: false, res: tooManyAttempts() };
 
   const timestamp = new Date(now).toISOString();
   console.log(`Failed admin authentication attempt at ${timestamp} from ${ip}`);
-
-  current.count += 1;
-  current.expiresAt = current.expiresAt || (now + windowMs);
-  _adminAuthFailures.set(ip, current);
-
-  if (current.count > 5) {
-    current.expiresAt = now + windowMs;
-    _adminAuthFailures.set(ip, current);
-    return { ok: false, res: tooManyAttempts() };
-  }
-
   return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
 }
 
 /** Lightweight public Ask K throttling: 20 requests per IP per 15 minutes. */
-function checkAskKRateLimit(request, corsHeaders) {
-  const limited = checkIpRateLimit(_askKRateLimits, request, {
+async function checkAskKRateLimit(request, env, corsHeaders) {
+  const limited = await checkPersistentIpRateLimit(env, _askKRateLimits, request, 'ask_k', {
     limit: 20,
     windowMs: 15 * 60 * 1000,
     error: 'Too many Ask K requests. Please try again later.'
@@ -1746,18 +1747,53 @@ function checkAskKRateLimit(request, corsHeaders) {
 }
 
 /** Lightweight public chat throttling: 60 requests per IP per 15 minutes across session/message/typing writes. */
-function checkChatRateLimit(request, corsHeaders) {
-  return checkIpRateLimit(_chatRateLimits, request, {
+async function checkChatRateLimit(request, env, corsHeaders) {
+  return checkPersistentIpRateLimit(env, _chatRateLimits, request, 'chat', {
     limit: 60,
     windowMs: 15 * 60 * 1000,
     error: 'Too many chat requests. Please try again later.'
   }, corsHeaders);
 }
 
-function checkIpRateLimit(map, request, { limit, windowMs, error }, corsHeaders) {
-  const ip = (request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown')
+async function checkPersistentIpRateLimit(env, map, request, bucket, { limit, windowMs, error }, corsHeaders) {
+  const ip = getClientIp(request);
+  const now = Date.now();
+  const resetAt = now + windowMs;
+  const retryHeaders = (retryMs) => ({ ...corsHeaders, 'Retry-After': String(Math.ceil(retryMs / 1000)) });
+
+  if (env.DB) {
+    try {
+      await env.DB.prepare(`DELETE FROM rate_limits WHERE reset_at <= ?1`).bind(now).run();
+      const existing = await env.DB.prepare(`SELECT count, reset_at FROM rate_limits WHERE bucket = ?1 AND ip = ?2 LIMIT 1`).bind(bucket, ip).first();
+      const currentCount = existing && Number(existing.reset_at || 0) > now ? Number(existing.count || 0) : 0;
+      const currentResetAt = existing && Number(existing.reset_at || 0) > now ? Number(existing.reset_at || 0) : resetAt;
+
+      if (currentCount >= limit) {
+        return json({ ok: false, error }, 429, retryHeaders(currentResetAt - now));
+      }
+
+      await env.DB.prepare(
+        `INSERT INTO rate_limits (bucket, ip, count, reset_at, updated_at)
+         VALUES (?1, ?2, ?3, ?4, datetime('now'))
+         ON CONFLICT(bucket, ip) DO UPDATE SET count = ?3, reset_at = ?4, updated_at = datetime('now')`
+      ).bind(bucket, ip, currentCount + 1, currentResetAt).run();
+      return null;
+    } catch (e) {
+      console.error('Persistent rate limit check failed; falling back to isolate memory', e);
+    }
+  }
+
+  return checkIpRateLimit(map, request, { limit, windowMs, error }, corsHeaders);
+}
+
+function getClientIp(request) {
+  return (request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown')
     .split(',')[0]
     .trim() || 'unknown';
+}
+
+function checkIpRateLimit(map, request, { limit, windowMs, error }, corsHeaders) {
+  const ip = getClientIp(request);
   const now = Date.now();
   sweepExpiredRateLimitEntries(map, now);
   const existing = map.get(ip);
@@ -2047,7 +2083,7 @@ async function getOrderRowByKey(db, orderKey, bookingId = 0) {
 
 async function handleOrdersList(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const status = (url.searchParams.get('status') || 'all').toString().trim().toLowerCase();
@@ -2149,7 +2185,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
 
 async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -2193,7 +2229,7 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
 
 async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -2387,7 +2423,7 @@ async function sendAutoBuyerConfirmationForSession(env, sessionId) {
 
 async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   if (!env.RESEND_API_KEY || !(env.ORDERS_FROM_EMAIL || env.FROM_EMAIL)) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
   let data;
@@ -2556,7 +2592,7 @@ async function handleBookings(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 20)));
@@ -2638,7 +2674,7 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   let data;
@@ -2680,7 +2716,7 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
   if (!env.DB) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   let data;
@@ -2720,7 +2756,7 @@ async function handleAdminCleanupPendingBookings(request, env, corsHeaders, url)
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   let data = {};
@@ -2748,7 +2784,7 @@ async function handleAdminCleanupPendingBookings(request, env, corsHeaders, url)
  */
 async function handleTaxTransactions(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const year = (url.searchParams.get('year') || '').trim();
@@ -2794,7 +2830,7 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
  */
 async function handleTaxExpense(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -2846,7 +2882,7 @@ async function handleTaxExpense(request, env, corsHeaders, url) {
  */
 async function handleTaxIncome(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -2890,7 +2926,7 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
  */
 async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -2946,7 +2982,7 @@ async function handleTaxExpenseUpdate(request, env, corsHeaders, url) {
 
 async function handleTaxOwnerTransfer(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const accountingReady = await ensureAccountingSetup(env.DB);
@@ -2989,7 +3025,7 @@ async function handleTaxOwnerTransfer(request, env, corsHeaders, url) {
  */
 async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -3042,7 +3078,7 @@ async function handleTaxIncomeUpdate(request, env, corsHeaders, url) {
  */
 async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -3066,7 +3102,7 @@ async function handleTaxExpenseDelete(request, env, corsHeaders, url) {
  */
 async function handleTaxIncomeDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -3092,7 +3128,7 @@ async function handleTaxIncomeDelete(request, env, corsHeaders, url) {
 async function handleTaxReceiptUpload(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   let formData;
@@ -3138,7 +3174,7 @@ async function handleTaxReceiptUpload(request, env, corsHeaders, url) {
  */
 async function handleTaxReceiptGet(request, env, corsHeaders, url) {
   if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const r2Key = (url.searchParams.get('key') || '').toString().trim();
@@ -3167,7 +3203,7 @@ async function handleTaxReceiptGet(request, env, corsHeaders, url) {
 async function handleOrderBatteryTestSave(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   if (!env.RECEIPTS) return json({ ok: false, error: 'RECEIPTS binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   let formData;
@@ -3304,7 +3340,7 @@ async function handleOrderBatteryImageGet(request, env, corsHeaders, url) {
  */
 async function handleTaxExportCsv(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const year = (url.searchParams.get('year') || '').trim();
@@ -3375,7 +3411,7 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
 
 async function handleAccountsList(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const accountingReady = await ensureAccountingSetup(env.DB);
@@ -3392,7 +3428,7 @@ async function handleAccountsList(request, env, corsHeaders, url) {
 
 async function handleAccountsSummary(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const accountingReady = await ensureAccountingSetup(env.DB);
@@ -3448,7 +3484,7 @@ async function handleAccountsSummary(request, env, corsHeaders, url) {
 
 async function handleAccountsJournal(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const accountingReady = await ensureAccountingSetup(env.DB);
@@ -3517,7 +3553,7 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
 
 async function handleAccountsStatements(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const accountingReady = await ensureAccountingSetup(env.DB);
@@ -3591,7 +3627,7 @@ async function handleAccountsStatements(request, env, corsHeaders, url) {
 
 async function handleAccountsJournalCreate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   const accountingReady = await ensureAccountingSetup(env.DB);
   if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
@@ -3619,7 +3655,7 @@ async function handleAccountsJournalCreate(request, env, corsHeaders, url) {
 
 async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   const accountingReady = await ensureAccountingSetup(env.DB);
   if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
@@ -3654,7 +3690,7 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
 
 async function handleAccountsYearClose(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   const accountingReady = await ensureAccountingSetup(env.DB);
   if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
@@ -3745,7 +3781,7 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
 
 async function handleInvoiceCreate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -3801,7 +3837,7 @@ async function handleInvoiceCreate(request, env, corsHeaders, url) {
 
 async function handleInvoicesList(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   const status = (url.searchParams.get('status') || '').trim();
   const rows = status
@@ -3812,7 +3848,7 @@ async function handleInvoicesList(request, env, corsHeaders, url) {
 
 async function handleInvoiceDetail(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const id = Number(url.searchParams.get('id') || 0);
@@ -3827,7 +3863,7 @@ async function handleInvoiceDetail(request, env, corsHeaders, url) {
 
 async function handleInvoiceUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -3888,7 +3924,7 @@ async function handleInvoiceUpdate(request, env, corsHeaders, url) {
 
 async function handleInvoiceStatus(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4065,7 +4101,7 @@ async function applyInvoicePayment(db, {
 async function handleInvoicePaymentLink(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   if (!env.STRIPE_SECRET_KEY) return json({ ok: false, error: 'Stripe secret not configured' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4176,7 +4212,7 @@ async function handleInvoicePaymentLink(request, env, corsHeaders, url) {
 
 async function handleManualOrderDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4194,7 +4230,7 @@ async function handleManualOrderDelete(request, env, corsHeaders, url) {
 
 async function handleManualOrderCreate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4225,7 +4261,7 @@ async function handleManualOrderCreate(request, env, corsHeaders, url) {
 
 async function handleInvoicePayment(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4260,7 +4296,7 @@ async function handleInvoicePayment(request, env, corsHeaders, url) {
 
 async function handleInvoiceDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4273,7 +4309,7 @@ async function handleInvoiceDelete(request, env, corsHeaders, url) {
 
 async function handleInvoiceSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
 
@@ -4397,7 +4433,7 @@ async function convertQuoteToInvoice(db, quote) {
 
 async function handleQuoteConvert(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4419,7 +4455,7 @@ function generateToken() {
 
 async function handleQuoteCreate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4476,7 +4512,7 @@ async function handleQuoteCreate(request, env, corsHeaders, url) {
 
 async function handleQuotesList(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const status = url.searchParams.get('status') || '';
@@ -4488,7 +4524,7 @@ async function handleQuotesList(request, env, corsHeaders, url) {
 
 async function handleQuoteDetail(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const id = Number(url.searchParams.get('id') || 0);
@@ -4503,7 +4539,7 @@ async function handleQuoteDetail(request, env, corsHeaders, url) {
 
 async function handleQuoteUpdate(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4552,7 +4588,7 @@ async function handleQuoteUpdate(request, env, corsHeaders, url) {
 
 async function handleQuoteDelete(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -4568,7 +4604,7 @@ async function handleQuoteDelete(request, env, corsHeaders, url) {
 
 async function handleQuoteSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
   if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
 
@@ -5245,10 +5281,7 @@ async function verifyStripeSignature(payload, stripeSignature, webhookSecret) {
 
 function buildCorsHeaders(request, env) {
   const origin = request.headers.get('Origin') || '';
-  const allowedOrigins = (env.ALLOWED_ORIGINS || '*')
-    .split(',')
-    .map(v => v.trim())
-    .filter(Boolean);
+  const allowedOrigins = parseAllowedOrigins(env);
   const allowAll = allowedOrigins.includes('*');
   const isLocalDashboardOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(origin);
   const originAllowed = allowAll || !origin || allowedOrigins.includes(origin) || isLocalDashboardOrigin;
@@ -5602,7 +5635,7 @@ Every kit includes a 30-day warranty, and free technical support is included for
  * @returns {Response} { ok: true, reply } or { ok: false, error }
  */
 async function handleAskK(request, env, corsHeaders, url) {
-  const limited = checkAskKRateLimit(request, corsHeaders);
+  const limited = await checkAskKRateLimit(request, env, corsHeaders);
   if (limited) return limited;
 
   let data;
@@ -5825,7 +5858,7 @@ function fallbackAskKAnswer(question, context) {
  * @returns {Response} { ok: true } or { ok: false, error }
  */
 async function handleAskKEscalate(request, env, corsHeaders, url) {
-  const limited = checkAskKRateLimit(request, corsHeaders);
+  const limited = await checkAskKRateLimit(request, env, corsHeaders);
   if (limited) return limited;
 
   const webhookUrl = env.ASKK_STAFF_WEBHOOK_URL;
@@ -5906,7 +5939,7 @@ function generateSessionToken() {
  * @returns {Response} { ok: true, sessionToken, sessionId } or { ok: false, error }
  */
 async function handleChatSessionCreate(request, env, corsHeaders) {
-  const limited = checkChatRateLimit(request, corsHeaders);
+  const limited = await checkChatRateLimit(request, env, corsHeaders);
   if (limited) return limited;
 
   if (!env.DB) {
@@ -6091,7 +6124,7 @@ async function handleChatMessages(request, env, corsHeaders, url) {
  * @returns {Response} { ok: true, messageId } or { ok: false, error }
  */
 async function handleChatMessageSend(request, env, corsHeaders) {
-  const limited = checkChatRateLimit(request, corsHeaders);
+  const limited = await checkChatRateLimit(request, env, corsHeaders);
   if (limited) return limited;
 
   if (!env.DB) {
@@ -6123,7 +6156,7 @@ async function handleChatMessageSend(request, env, corsHeaders) {
   // Staff role requires admin password
   if (role === 'staff') {
     const url = new URL(request.url);
-    const auth = requireAdmin(request, env, corsHeaders, url);
+    const auth = await requireAdmin(request, env, corsHeaders, url);
     if (!auth.ok) return auth.res;
   }
 
@@ -6172,7 +6205,7 @@ async function handleChatSessionsList(request, env, corsHeaders, url) {
     return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   const status = (url.searchParams.get('status') || 'active').trim();
@@ -6233,7 +6266,7 @@ async function handleChatSessionClose(request, env, corsHeaders, url) {
   const isAdminClose = !!sessionId;
 
   if (isAdminClose) {
-    const auth = requireAdmin(request, env, corsHeaders, url);
+    const auth = await requireAdmin(request, env, corsHeaders, url);
     if (!auth.ok) return auth.res;
   }
 
@@ -6279,7 +6312,7 @@ async function handleChatSessionClose(request, env, corsHeaders, url) {
 
 async function handleChatSessionsPurgeOld(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
-  const auth = requireAdmin(request, env, corsHeaders, url);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
 
   let data = {};
@@ -6309,7 +6342,7 @@ async function handleChatSessionsPurgeOld(request, env, corsHeaders, url) {
  * @returns {Response} { ok: true } or { ok: false, error }
  */
 async function handleChatTyping(request, env, corsHeaders) {
-  const limited = checkChatRateLimit(request, corsHeaders);
+  const limited = await checkChatRateLimit(request, env, corsHeaders);
   if (limited) return limited;
 
   if (!env.DB) {
@@ -6338,7 +6371,7 @@ async function handleChatTyping(request, env, corsHeaders) {
   // Staff role requires admin password
   if (role === 'staff') {
     const url = new URL(request.url);
-    const auth = requireAdmin(request, env, corsHeaders, url);
+    const auth = await requireAdmin(request, env, corsHeaders, url);
     if (!auth.ok) return auth.res;
   }
 
