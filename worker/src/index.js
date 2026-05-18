@@ -45,6 +45,7 @@
 // json(data, status, headers)          — Build JSON Response
 
 const _adminAuthFailures = new Map();
+const _adminAuthKeyFailures = new Map();
 const _askKRateLimits = new Map();
 const _chatRateLimits = new Map();
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -1698,7 +1699,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
 // ===== Utility Functions =====
 
-/** Validate admin password from X-Admin-Password header with per-IP failed-attempt throttling */
+/** Validate admin password from X-Admin-Password header with per-IP and per-key failed-attempt throttling */
 async function requireAdmin(request, env, corsHeaders, url) {
   const provided = (request.headers.get('X-Admin-Password') || '').trim();
   const expected = (env.ADMIN_PASSWORD || '').trim();
@@ -1709,11 +1710,16 @@ async function requireAdmin(request, env, corsHeaders, url) {
   const windowMs = 15 * 60 * 1000;
   const retryHeaders = { ...corsHeaders, 'Retry-After': '900' };
   const tooManyAttempts = () => json({ error: 'Too many attempts. Try again in 15 minutes.' }, 429, retryHeaders);
+  const providedKeyHash = provided ? await hashRateLimitKey(provided) : '';
 
   if (provided && provided === expected) {
     _adminAuthFailures.delete(ip);
+    if (providedKeyHash) _adminAuthKeyFailures.delete(providedKeyHash);
     if (env.DB) {
-      await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_fail', ip).run().catch(e => console.error('Admin auth rate limit reset failed', e));
+      await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_fail', ip).run().catch(e => console.error('Admin auth IP rate limit reset failed', e));
+      if (providedKeyHash) {
+        await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_key_fail', providedKeyHash).run().catch(e => console.error('Admin auth key rate limit reset failed', e));
+      }
     }
     return { ok: true };
   }
@@ -1724,12 +1730,17 @@ async function requireAdmin(request, env, corsHeaders, url) {
     return { ok: false, res: json({ ok: false, error: 'Unauthorized' }, 401, corsHeaders) };
   }
 
-  const persistentLimit = await checkPersistentIpRateLimit(env, _adminAuthFailures, request, 'admin_auth_fail', {
+  const ipLimit = await checkPersistentIpRateLimit(env, _adminAuthFailures, request, 'admin_auth_fail', {
     limit: 5,
     windowMs,
     error: 'Too many attempts. Try again in 15 minutes.'
   }, corsHeaders);
-  if (persistentLimit) return { ok: false, res: tooManyAttempts() };
+  const keyLimit = await checkPersistentRateLimit(env, _adminAuthKeyFailures, providedKeyHash, 'admin_auth_key_fail', {
+    limit: 5,
+    windowMs,
+    error: 'Too many attempts. Try again in 15 minutes.'
+  }, corsHeaders);
+  if (ipLimit || keyLimit) return { ok: false, res: tooManyAttempts() };
 
   const timestamp = new Date(now).toISOString();
   console.log(`Failed admin authentication attempt at ${timestamp} from ${ip}`);
@@ -1756,7 +1767,10 @@ async function checkChatRateLimit(request, env, corsHeaders) {
 }
 
 async function checkPersistentIpRateLimit(env, map, request, bucket, { limit, windowMs, error }, corsHeaders) {
-  const ip = getClientIp(request);
+  return checkPersistentRateLimit(env, map, getClientIp(request), bucket, { limit, windowMs, error }, corsHeaders);
+}
+
+async function checkPersistentRateLimit(env, map, key, bucket, { limit, windowMs, error }, corsHeaders) {
   const now = Date.now();
   const resetAt = now + windowMs;
   const retryHeaders = (retryMs) => ({ ...corsHeaders, 'Retry-After': String(Math.ceil(retryMs / 1000)) });
@@ -1764,7 +1778,7 @@ async function checkPersistentIpRateLimit(env, map, request, bucket, { limit, wi
   if (env.DB) {
     try {
       await env.DB.prepare(`DELETE FROM rate_limits WHERE reset_at <= ?1`).bind(now).run();
-      const existing = await env.DB.prepare(`SELECT count, reset_at FROM rate_limits WHERE bucket = ?1 AND ip = ?2 LIMIT 1`).bind(bucket, ip).first();
+      const existing = await env.DB.prepare(`SELECT count, reset_at FROM rate_limits WHERE bucket = ?1 AND ip = ?2 LIMIT 1`).bind(bucket, key).first();
       const currentCount = existing && Number(existing.reset_at || 0) > now ? Number(existing.count || 0) : 0;
       const currentResetAt = existing && Number(existing.reset_at || 0) > now ? Number(existing.reset_at || 0) : resetAt;
 
@@ -1776,14 +1790,14 @@ async function checkPersistentIpRateLimit(env, map, request, bucket, { limit, wi
         `INSERT INTO rate_limits (bucket, ip, count, reset_at, updated_at)
          VALUES (?1, ?2, ?3, ?4, datetime('now'))
          ON CONFLICT(bucket, ip) DO UPDATE SET count = ?3, reset_at = ?4, updated_at = datetime('now')`
-      ).bind(bucket, ip, currentCount + 1, currentResetAt).run();
+      ).bind(bucket, key, currentCount + 1, currentResetAt).run();
       return null;
     } catch (e) {
       console.error('Persistent rate limit check failed; falling back to isolate memory', e);
     }
   }
 
-  return checkIpRateLimit(map, request, { limit, windowMs, error }, corsHeaders);
+  return checkKeyRateLimit(map, key, { limit, windowMs, error }, corsHeaders);
 }
 
 function getClientIp(request) {
@@ -1793,19 +1807,36 @@ function getClientIp(request) {
 }
 
 function checkIpRateLimit(map, request, { limit, windowMs, error }, corsHeaders) {
-  const ip = getClientIp(request);
+  return checkKeyRateLimit(map, getClientIp(request), { limit, windowMs, error }, corsHeaders);
+}
+
+function checkKeyRateLimit(map, key, { limit, windowMs, error }, corsHeaders) {
   const now = Date.now();
   sweepExpiredRateLimitEntries(map, now);
-  const existing = map.get(ip);
+  const existing = map.get(key);
   const current = existing && existing.expiresAt > now ? existing : { count: 0, expiresAt: now + windowMs };
   current.count += 1;
   current.expiresAt = current.expiresAt || (now + windowMs);
-  map.set(ip, current);
+  map.set(key, current);
 
   if (current.count > limit) {
     return json({ ok: false, error }, 429, { ...corsHeaders, 'Retry-After': String(Math.ceil((current.expiresAt - now) / 1000)) });
   }
   return null;
+}
+
+async function hashRateLimitKey(value) {
+  const text = String(value || '');
+  try {
+    const data = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    // Non-cryptographic fallback for local/test runtimes without Web Crypto.
+    let hash = 5381;
+    for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash) ^ text.charCodeAt(i);
+    return `fallback:${(hash >>> 0).toString(16)}:${text.length}`;
+  }
 }
 
 function sweepExpiredRateLimitEntries(map, now = Date.now()) {

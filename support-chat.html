@@ -415,7 +415,7 @@
 
   // Try to restore saved session on page load
   async function tryRestoreSession() {
-    const savedKey = localStorage.getItem('supportChatAdminKey');
+    const savedKey = sessionStorage.getItem('supportChatAdminKey');
     if (!savedKey) return false;
 
     try {
@@ -424,7 +424,7 @@
       });
       if (!res.ok) {
         // Invalid saved key - clear it
-        localStorage.removeItem('supportChatAdminKey');
+        sessionStorage.removeItem('supportChatAdminKey');
         return false;
       }
       // Key is valid - restore session
@@ -434,7 +434,7 @@
       loadSessions();
       return true;
     } catch (e) {
-      localStorage.removeItem('supportChatAdminKey');
+      sessionStorage.removeItem('supportChatAdminKey');
       return false;
     }
   }
@@ -456,8 +456,8 @@
         return;
       }
       adminPassword = key;
-      // Persist password to localStorage
-      localStorage.setItem('supportChatAdminKey', key);
+      // Persist password to sessionStorage
+      sessionStorage.setItem('supportChatAdminKey', key);
       adminLock.style.display = 'none';
       adminControls.classList.add('active');
       loadSessions();
