@@ -351,6 +351,10 @@ export default {
       return handleQuoteSend(request, env, corsHeaders, url);
     }
 
+    if (url.pathname === '/api/accounts/quotes/convert' && request.method === 'POST') {
+      return handleQuoteConvert(request, env, corsHeaders, url);
+    }
+
     // Public quote accept/deny endpoints (no admin auth required, token-based)
     if (url.pathname === '/api/quote/accept' && request.method === 'GET') {
       return handleQuoteAccept(request, env, corsHeaders, url);
@@ -801,6 +805,10 @@ async function handleValidateByogLocation(request, env, corsHeaders) {
  * @returns {Response} {ok: true, checkoutUrl, id} or error
  */
 async function handleCheckoutSession(request, env, corsHeaders, originAllowed, allowedOrigins) {
+  if (!env.DB) {
+    return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+  }
+
   let data;
   try {
     data = await request.json();
@@ -1229,6 +1237,19 @@ async function handleStripeWebhook(request, env, corsHeaders) {
   }
 
   if (!env.DB) {
+    const session = event?.data?.object || {};
+    await sendStaffOperationalAlert(env, {
+      subject: '[ACTION NEEDED] Stripe webhook DB binding missing',
+      text: [
+        'A Stripe webhook arrived, but the worker has no D1 DB binding. Stripe was acknowledged to avoid retry storms, but this order/event must be checked manually.',
+        '',
+        `Event type: ${event?.type || 'unknown'}`,
+        `Stripe session: ${session?.id || 'n/a'}`,
+        `Payment intent: ${session?.payment_intent || 'n/a'}`,
+        `Customer email: ${session?.customer_details?.email || session?.customer_email || '(not provided)'}`,
+        `Amount: ${formatUsd(Number(session?.amount_total || 0) || 0)}`
+      ].join('\n')
+    });
     // Still ack so Stripe doesn't keep retrying if DB isn't bound yet.
     return json({ ok: true, warning: 'DB binding missing' }, 200, corsHeaders);
   }
@@ -1389,6 +1410,23 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         );
         if (!refund.ok) {
           console.error('Non-CONUS auto-refund failed', refund.error);
+          await sendStaffOperationalAlert(env, {
+            subject: '[ACTION NEEDED] Non-CONUS Survival Node auto-refund failed',
+            text: [
+              'A non-CONUS Survival Node order was rejected, but the automatic Stripe refund failed.',
+              '',
+              `Stripe session: ${sessionId || 'n/a'}`,
+              `Payment intent: ${paymentIntentId || 'n/a'}`,
+              `Customer: ${buyerName || customerName || '(not provided)'}`,
+              `Email: ${buyerEmail || customerEmail || '(not provided)'}`,
+              `State: ${shipState}`,
+              `Order total: ${formatUsd(orderTotalCents)}`,
+              `Refund target: ${formatUsd(refundCents)} (minus ${formatUsd(feeCents)} Stripe fee; ${feeSource})`,
+              `Error: ${refund.error || 'unknown'}`,
+              '',
+              'Issue the refund manually and contact the buyer if needed.'
+            ].join('\n')
+          });
         }
         if (buyerEmail) {
           const emailRes = await sendNonConusRefundEmail(env, {
@@ -1664,6 +1702,19 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
         if (isSurvivalNodeSale && !isByogSetupSale) {
           await sendAutoBuyerConfirmationForSession(env, sessionId);
+          if (isNewIncome) {
+            await sendStaffPaidBookingNotification(env, {
+              sessionId,
+              customerEmail,
+              customerName,
+              customerPhone,
+              preferredContactMethod,
+              serviceLabel: serviceLabel || 'Survival Node kit order',
+              serviceType: productCode || checkoutType || serviceType,
+              amountCents: amount,
+              slots: []
+            });
+          }
         } else if (isNewIncome) {
           await sendServiceBuyerConfirmationForSession(env, {
             sessionId,
@@ -1688,6 +1739,21 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         }
       } catch (e) {
         console.error('Stripe webhook DB write failed', e);
+        await sendStaffOperationalAlert(env, {
+          subject: '[ACTION NEEDED] Stripe webhook DB write failed',
+          text: [
+            'A paid Stripe checkout could not be written to D1. Stripe was acknowledged to avoid duplicate retry side effects, but this order may exist only in Stripe until handled manually.',
+            '',
+            `Stripe session: ${sessionId || 'n/a'}`,
+            `Payment intent: ${(session.payment_intent || '').toString().trim() || 'n/a'}`,
+            `Customer: ${customerName || '(not provided)'}`,
+            `Email: ${customerEmail || '(not provided)'}`,
+            `Phone: ${customerPhone || '(not provided)'}`,
+            `Service: ${serviceLabel || serviceType || productCode || checkoutType || '(unknown)'}`,
+            `Amount: ${formatUsd(amount)}`,
+            `Error: ${e?.message || e}`
+          ].join('\n')
+        });
         // Ack Stripe so D1 outages don't trigger 72h retry storms and duplicate side effects.
         return json({ ok: true, warning: `Webhook DB write failed: ${e?.message || e}` }, 200, corsHeaders);
       }
@@ -2353,6 +2419,34 @@ ${slotHtml}
   return { ok: true };
 }
 
+async function sendStaffOperationalAlert(env, { subject, text }) {
+  const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const toEmail = (env.TO_EMAIL || '').toString().trim();
+  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [toEmail],
+      subject: subject || '[ACTION NEEDED] Eastern Shore AI worker alert',
+      text: text || 'Eastern Shore AI worker alert',
+      reply_to: fromEmail
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    console.error('Staff operational alert failed', { error: errText || res.status });
+    return { ok: false, error: errText || `resend ${res.status}` };
+  }
+  return { ok: true };
+}
+
 async function sendStaffPaidBookingNotification(env, { sessionId, customerEmail, customerName, customerPhone, preferredContactMethod, serviceLabel, serviceType, amountCents, slots }) {
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const toEmail = (env.TO_EMAIL || '').toString().trim();
@@ -2630,7 +2724,7 @@ async function handleBookings(request, env, corsHeaders, url) {
   const rows = await env.DB.prepare(
     `SELECT id, stripe_session_id, stripe_payment_intent_id, status, setup_date, setup_time, setup_at, customer_name, customer_email, customer_phone, preferred_contact_method, amount_cents, service_type, paid_at, created_at, updated_at
      FROM bookings
-     WHERE (service_type IS NULL OR service_type = '' OR service_type IN ('openclaw_setup', 'lessons'))
+     WHERE (service_type IS NULL OR service_type = '' OR service_type IN ('openclaw_setup', 'lessons', 'byog_setup', 'survival_node_byog_setup'))
      ORDER BY created_at DESC
      LIMIT ?1`
   ).bind(limit).all();
@@ -2658,7 +2752,7 @@ async function handleBookings(request, env, corsHeaders, url) {
  */
 async function handleAvailability(request, env, corsHeaders, url) {
   if (!env.DB) {
-    return json({ ok: true, unavailable: [] }, 200, corsHeaders);
+    return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   }
 
   const from = (url.searchParams.get('from') || '').trim();
