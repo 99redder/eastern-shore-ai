@@ -46,6 +46,7 @@
 
 const _adminAuthFailures = new Map();
 const _adminAuthKeyFailures = new Map();
+const _contactRateLimits = new Map();
 const _askKRateLimits = new Map();
 const _chatRateLimits = new Map();
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -467,6 +468,9 @@ async function handleContact(request, env, corsHeaders) {
   if (website) {
     return json({ ok: true }, 200, corsHeaders);
   }
+
+  const limited = await checkContactRateLimit(request, env, corsHeaders);
+  if (limited) return limited;
 
   if (!name || !email || !message) {
     return json({ ok: false, error: 'Missing required fields' }, 400, corsHeaders);
@@ -1778,7 +1782,7 @@ async function requireAdmin(request, env, corsHeaders, url) {
   const tooManyAttempts = () => json({ error: 'Too many attempts. Try again in 15 minutes.' }, 429, retryHeaders);
   const providedKeyHash = provided ? await hashRateLimitKey(provided) : '';
 
-  if (provided && provided === expected) {
+  if (provided && await timingSafeEqual(provided, expected)) {
     _adminAuthFailures.delete(ip);
     if (providedKeyHash) _adminAuthKeyFailures.delete(providedKeyHash);
     if (env.DB) {
@@ -1821,6 +1825,15 @@ async function checkAskKRateLimit(request, env, corsHeaders) {
     error: 'Too many Ask K requests. Please try again later.'
   }, corsHeaders);
   return limited;
+}
+
+/** Public contact form throttling: 10 requests per IP per 15 minutes. */
+async function checkContactRateLimit(request, env, corsHeaders) {
+  return checkPersistentIpRateLimit(env, _contactRateLimits, request, 'contact_form', {
+    limit: 10,
+    windowMs: 15 * 60 * 1000,
+    error: 'Too many contact requests. Please try again later.'
+  }, corsHeaders);
 }
 
 /** Lightweight public chat throttling: 60 requests per IP per 15 minutes across session/message/typing writes. */
@@ -1903,6 +1916,19 @@ async function hashRateLimitKey(value) {
     for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash) ^ text.charCodeAt(i);
     return `fallback:${(hash >>> 0).toString(16)}:${text.length}`;
   }
+}
+
+async function timingSafeEqual(a, b) {
+  const encoder = new TextEncoder();
+  const [aHash, bHash] = await Promise.all([
+    crypto.subtle.digest('SHA-256', encoder.encode(String(a ?? ''))),
+    crypto.subtle.digest('SHA-256', encoder.encode(String(b ?? '')))
+  ]);
+  const aBytes = new Uint8Array(aHash);
+  const bBytes = new Uint8Array(bHash);
+  let out = 0;
+  for (let i = 0; i < aBytes.length; i++) out |= aBytes[i] ^ bBytes[i];
+  return out === 0;
 }
 
 function sweepExpiredRateLimitEntries(map, now = Date.now()) {
@@ -2519,18 +2545,55 @@ async function sendAutoBuyerConfirmationForSession(env, sessionId) {
       reply_to: fromEmail
     };
 
-    const sendRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(emailPayload)
-    });
+    let sendRes;
+    try {
+      sendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(emailPayload)
+      });
+    } catch (e) {
+      console.error('Auto buyer confirmation failed', { sessionId, bookingId: row.id, error: e?.message || e });
+      await sendStaffOperationalAlert(env, {
+        subject: '[ACTION NEEDED] Survival Node buyer confirmation failed',
+        text: [
+          'The automatic buyer acknowledgment email failed to send after a paid Survival Node order.',
+          '',
+          `Stripe session: ${sessionId || 'n/a'}`,
+          `Booking ID: ${row.id || 'n/a'}`,
+          `Customer: ${row.customer_name || '(not provided)'}`,
+          `Email: ${row.customer_email || '(not provided)'}`,
+          `Order number: ${row.order_number || '(not assigned)'}`,
+          `Error: ${e?.message || e}`,
+          '',
+          'Send the buyer acknowledgment manually from the admin Orders panel.'
+        ].join('\n')
+      });
+      continue;
+    }
 
     if (!sendRes.ok) {
       const sendJson = await sendRes.json().catch(() => ({}));
-      console.error('Auto buyer confirmation failed', { sessionId, bookingId: row.id, error: sendJson?.message || sendJson?.error || sendRes.status });
+      const errorDetail = sendJson?.message || sendJson?.error || sendRes.status;
+      console.error('Auto buyer confirmation failed', { sessionId, bookingId: row.id, error: errorDetail });
+      await sendStaffOperationalAlert(env, {
+        subject: '[ACTION NEEDED] Survival Node buyer confirmation failed',
+        text: [
+          'The automatic buyer acknowledgment email failed to send after a paid Survival Node order.',
+          '',
+          `Stripe session: ${sessionId || 'n/a'}`,
+          `Booking ID: ${row.id || 'n/a'}`,
+          `Customer: ${row.customer_name || '(not provided)'}`,
+          `Email: ${row.customer_email || '(not provided)'}`,
+          `Order number: ${row.order_number || '(not assigned)'}`,
+          `Error: ${errorDetail}`,
+          '',
+          'Send the buyer acknowledgment manually from the admin Orders panel.'
+        ].join('\n')
+      });
       continue;
     }
 
@@ -6535,4 +6598,3 @@ async function handleChatTyping(request, env, corsHeaders) {
     return json({ ok: false, error: 'Failed to update typing state' }, 500, corsHeaders);
   }
 }
-
