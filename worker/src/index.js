@@ -56,6 +56,32 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'https://lookahead.easternshore.ai'
 ];
 
+const SURVIVAL_NODE_UPGRADES = [
+  {
+    id: 'mission-darkness-faraday',
+    label: 'Mission Darkness Faraday Bags',
+    amountCents: 5000,
+    priceId: 'price_1T9AXyCrQuKPknEPEDC39wfC'
+  },
+  {
+    id: 'usb-c-cable',
+    label: 'Backup USB-C Charging Cable',
+    amountCents: 2000,
+    priceId: 'price_1T9AYeCrQuKPknEPy37kFtwn'
+  },
+  {
+    id: 'mini-solar-battery',
+    label: 'Backup Mini Solar Battery',
+    amountCents: 2000,
+    priceId: 'price_1T9AZeCrQuKPknEP62dDoshW'
+  }
+];
+const SURVIVAL_NODE_UPGRADES_BY_ID = new Map(SURVIVAL_NODE_UPGRADES.map(product => [product.id, product]));
+
+function publicSurvivalNodeProducts() {
+  return SURVIVAL_NODE_UPGRADES.map(({ id, label, amountCents }) => ({ id, label, amountCents }));
+}
+
 function parseAllowedOrigins(env) {
   const configured = (env.ALLOWED_ORIGINS || '')
     .split(',')
@@ -101,13 +127,14 @@ export default {
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
       const isBatteryImagePublic = url.pathname === '/api/orders/battery-image' && request.method === 'GET';
       const isTrackPublic = url.pathname === '/track' && request.method === 'GET';
+      const isProductsRead = url.pathname === '/api/products' && request.method === 'GET';
       const isAskKRoute = ['/api/ask-k', '/api/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isAdminAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/survival-node-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -117,6 +144,10 @@ export default {
       if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
+    }
+
+    if (url.pathname === '/api/products' && request.method === 'GET') {
+      return json({ ok: true, products: publicSurvivalNodeProducts() }, 200, corsHeaders);
     }
 
     if (url.pathname === '/api/contact') {
@@ -1167,19 +1198,18 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
   body.set('line_items[0][price_data][product_data][description]', productDescription);
   body.set('line_items[0][price_data][product_data][tax_code]', 'txcd_99999999');
 
-  const ALLOWED_UPGRADE_PRICE_IDS = new Set([
-    'price_1T9AXyCrQuKPknEPEDC39wfC',
-    'price_1T9AYeCrQuKPknEPy37kFtwn',
-    'price_1T9AZeCrQuKPknEP62dDoshW',
-  ]);
   const upgrades = Array.isArray(data.upgrades) ? data.upgrades : [];
-  const seenUpgradePriceIds = new Set();
+  const seenUpgradeIds = new Set();
   let lineIdx = 1;
   for (const upgrade of upgrades) {
-    const priceId = (upgrade.priceId || '').toString().trim();
-    if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId) || seenUpgradePriceIds.has(priceId)) continue;
-    seenUpgradePriceIds.add(priceId);
-    body.set(`line_items[${lineIdx}][price]`, priceId);
+    const upgradeId = (upgrade.id || '').toString().trim();
+    const product = SURVIVAL_NODE_UPGRADES_BY_ID.get(upgradeId);
+    if (!product) {
+      return json({ ok: false, error: 'Invalid upgrade selected.' }, 400, corsHeaders);
+    }
+    if (seenUpgradeIds.has(upgradeId)) continue;
+    seenUpgradeIds.add(upgradeId);
+    body.set(`line_items[${lineIdx}][price]`, product.priceId);
     body.set(`line_items[${lineIdx}][quantity]`, '1');
     lineIdx++;
   }

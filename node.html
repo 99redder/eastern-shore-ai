@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VDFQV9B1J"></script>
   <script>
@@ -1165,7 +1166,7 @@
 </head>
 <body>
 <a href="/index.html" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
-  <a href="#choose-kit" class="buy-now-float" onclick="event.preventDefault(); document.getElementById('choose-kit').scrollIntoView({behavior:'smooth',block:'end'});">
+  <a href="#choose-kit" class="buy-now-float" id="buy-now-float">
     <span>Buy Now ↓</span>
     <span style="font-size: 1.15rem; font-weight: 900; letter-spacing: 0.03em;"><del style="opacity:.45; font-weight:400; font-size:.75rem;">$299.99</del> $199.99</span>
     <span style="font-size: 0.68rem; font-weight: 500; letter-spacing: 0.03em; opacity: 0.65; text-transform: none;">for a limited time</span>
@@ -1429,7 +1430,7 @@
             <div class="upgrade-section">
               <p class="upgrade-title">Optional Upgrades</p>
               <label class="upgrade-item">
-                <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Darkness Faraday Bags" data-price-id="price_1T9AXyCrQuKPknEPEDC39wfC" />
+                <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Darkness Faraday Bags" data-product-id="mission-darkness-faraday" />
                 <span class="upgrade-info">
                   <span class="upgrade-name">Upgrade to Mission Darkness Faraday Bags</span>
                   <span class="upgrade-desc">Premium EMP-rated protection for worst-case electromagnetic scenarios</span>
@@ -1437,7 +1438,7 @@
                 <span class="upgrade-price">+$50.00</span>
               </label>
               <label class="upgrade-item">
-                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" data-price-id="price_1T9AYeCrQuKPknEPy37kFtwn" />
+                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" data-product-id="usb-c-cable" />
                 <span class="upgrade-info">
                   <span class="upgrade-name">Add backup premium USB-C charging cable</span>
                   <span class="upgrade-desc">Heavy-duty redundant cable for field conditions</span>
@@ -1445,7 +1446,7 @@
                 <span class="upgrade-price">+$20.00</span>
               </label>
               <label class="upgrade-item">
-                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" data-price-id="price_1T9AZeCrQuKPknEP62dDoshW" />
+                <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" data-product-id="mini-solar-battery" />
                 <span class="upgrade-info">
                   <span class="upgrade-name">Add backup mini solar battery</span>
                   <span class="upgrade-desc">Extra power reserve for extended grid-down scenarios</span>
@@ -1578,7 +1579,7 @@
               <li><strong>Support:</strong> If something doesn't work after a DIY build, you're on your own. Every Survival Node comes with 30 days of direct support from us.</li>
             </ul>
             <p style="border-left:3px solid var(--cyan); padding-left:.75rem; margin:.6rem 0; color:var(--ok);">We've tested every component in the Survival Node working together for over a year — specifically asking the question: <em>will this actually work after sitting in storage, with no power, no internet, and no cell coverage for an extended period?</em> The answer is yes, and that answer took real time and iteration to earn.</p>
-            <p>If you're comfortable flashing custom firmware and enjoy building things from scratch, the DIY path is absolutely viable — and we even offer a <strong><a href="#" onclick="event.preventDefault();document.getElementById('byog-modal-link').click();" style="color:var(--cyan);">BYOG (Bring Your Own Gear)</a></strong> option where we do the OS and software setup on your existing compatible device for $69.99. But if you want a tested, ready-to-go system you can store and trust, the Survival Node is the faster and lower-risk path.</p>
+            <p>If you're comfortable flashing custom firmware and enjoy building things from scratch, the DIY path is absolutely viable — and we even offer a <strong><a href="#" class="byog-inline-link" style="color:var(--cyan);">BYOG (Bring Your Own Gear)</a></strong> option where we do the OS and software setup on your existing compatible device for $69.99. But if you want a tested, ready-to-go system you can store and trust, the Survival Node is the faster and lower-risk path.</p>
           </div>
         </details>
 
@@ -1629,7 +1630,7 @@
 
         <details>
           <summary>I already have a compatible Android phone — do I have to buy a whole kit?</summary>
-          <p class="answer">No. The BYOG (Bring Your Own Gear) option lets us wipe your existing compatible Android device, perform a deep Android debloat optimized for performance and longevity, and load the full Survival Node Software Suite — 50GB+ of survival apps and 3 offline LLMs — onto your hardware for $69.99. You skip the hardware cost and still get the same hardened OS and software stack. <a href="#" onclick="event.preventDefault();document.getElementById('byog-modal-link').click();" style="color:var(--cyan); font-weight:700;">Book the BYOG Setup →</a> Available only to residents of the Eastern Shore of Maryland.</p>
+          <p class="answer">No. The BYOG (Bring Your Own Gear) option lets us wipe your existing compatible Android device, perform a deep Android debloat optimized for performance and longevity, and load the full Survival Node Software Suite — 50GB+ of survival apps and 3 offline LLMs — onto your hardware for $69.99. You skip the hardware cost and still get the same hardened OS and software stack. <a href="#" class="byog-inline-link" style="color:var(--cyan); font-weight:700;">Book the BYOG Setup →</a> Available only to residents of the Eastern Shore of Maryland.</p>
         </details>
 
         <details>
@@ -2216,6 +2217,7 @@
 
     const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
     const SURVIVAL_NODE_CHECKOUT_URL = window.SURVIVAL_NODE_CHECKOUT_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/survival-node-checkout';
+    const PRODUCTS_API_URL = SURVIVAL_NODE_CHECKOUT_URL.replace('/api/survival-node-checkout', '/api/products');
     const CHECKOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/checkout-session');
     const AVAILABILITY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/availability');
 
@@ -2254,6 +2256,7 @@
     let pendingPayload = null;
     let unavailableSlots = new Set();
     let blockedDates = new Set();
+    const upgradeCatalog = new Map();
     const TIME_SLOTS = [
       { value: '08:00-10:00', label: '8:00 AM – 10:00 AM' },
       { value: '10:00-12:00', label: '10:00 AM – 12:00 PM' },
@@ -2366,6 +2369,29 @@
     checkoutStatusModal?.addEventListener('click', (e) => {
       if (e.target === checkoutStatusModal) hideCheckoutStatusModal();
     });
+
+    async function loadUpgradeCatalog() {
+      try {
+        const res = await fetch(PRODUCTS_API_URL, { headers: { 'Accept': 'application/json' } });
+        const data = await res.json();
+        if (!res.ok || !data.ok || !Array.isArray(data.products)) return;
+        data.products.forEach(product => {
+          if (!product?.id) return;
+          upgradeCatalog.set(product.id, product);
+        });
+        document.querySelectorAll('.upgrade-check').forEach(cb => {
+          const product = upgradeCatalog.get(cb.dataset.productId);
+          if (!product) return;
+          cb.dataset.label = product.label || cb.dataset.label || '';
+          if (Number.isFinite(Number(product.amountCents))) {
+            cb.value = (Number(product.amountCents) / 100).toFixed(2);
+            const priceEl = cb.closest('.upgrade-item')?.querySelector('.upgrade-price');
+            if (priceEl) priceEl.textContent = '+$' + (Number(product.amountCents) / 100).toFixed(2);
+          }
+        });
+        updateUpgradePrice();
+      } catch {}
+    }
 
     async function startCheckout(payload) {
       status.textContent = 'Redirecting to secure checkout...';
@@ -2544,6 +2570,7 @@
     document.querySelectorAll('.upgrade-check').forEach(cb => {
       cb.addEventListener('change', updateUpgradePrice);
     });
+    loadUpgradeCatalog();
 
     buyBtn.addEventListener('click', () => {
       if (!agreeTermsCheck.checked) {
@@ -2553,9 +2580,21 @@
       if (!termsAcceptedAt) termsAcceptedAt = new Date().toISOString();
       const upgrades = [];
       document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
-        upgrades.push({ label: cb.dataset.label, price: parseFloat(cb.value), priceId: cb.dataset.priceId });
+        upgrades.push({ id: cb.dataset.productId, label: cb.dataset.label, price: parseFloat(cb.value) });
       });
       startCheckout({ checkoutType: 'base_kit', upgrades });
+    });
+
+    document.getElementById('buy-now-float')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      document.getElementById('choose-kit')?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    });
+
+    document.querySelectorAll('.byog-inline-link').forEach(link => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        document.getElementById('byog-modal-link')?.click();
+      });
     });
 
     byogModalLink?.addEventListener('click', async (e) => {

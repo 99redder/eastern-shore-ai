@@ -15,6 +15,32 @@ function buildCorsHeaders(origin, allowedOrigin) {
   };
 }
 
+const SURVIVAL_NODE_UPGRADES = [
+  {
+    id: 'mission-darkness-faraday',
+    label: 'Mission Darkness Faraday Bags',
+    amountCents: 5000,
+    priceId: 'price_1T9AXyCrQuKPknEPEDC39wfC'
+  },
+  {
+    id: 'usb-c-cable',
+    label: 'Backup USB-C Charging Cable',
+    amountCents: 2000,
+    priceId: 'price_1T9AYeCrQuKPknEPy37kFtwn'
+  },
+  {
+    id: 'mini-solar-battery',
+    label: 'Backup Mini Solar Battery',
+    amountCents: 2000,
+    priceId: 'price_1T9AZeCrQuKPknEP62dDoshW'
+  }
+];
+const SURVIVAL_NODE_UPGRADES_BY_ID = new Map(SURVIVAL_NODE_UPGRADES.map(product => [product.id, product]));
+
+function publicSurvivalNodeProducts() {
+  return SURVIVAL_NODE_UPGRADES.map(({ id, label, amountCents }) => ({ id, label, amountCents }));
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -43,6 +69,10 @@ export default {
 
     if (request.method === 'GET' && url.pathname === '/health') {
       return json({ ok: true, service: 'survival-node-checkout-api' }, 200, corsHeaders);
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/products') {
+      return json({ ok: true, products: publicSurvivalNodeProducts() }, 200, corsHeaders);
     }
 
     const isCheckoutPath = url.pathname === '/api/survival-node-checkout';
@@ -116,19 +146,18 @@ export default {
     body.set('line_items[0][price_data][product_data][description]', productDescription);
     body.set('line_items[0][price_data][product_data][tax_code]', 'txcd_99999999');
 
-    const ALLOWED_UPGRADE_PRICE_IDS = new Set([
-      'price_1T9AXyCrQuKPknEPEDC39wfC', // Mission Darkness Faraday Bags
-      'price_1T9AYeCrQuKPknEPy37kFtwn', // Premium Backup Charging Cable
-      'price_1T9AZeCrQuKPknEP62dDoshW', // Backup Mini Solar Battery
-    ]);
     const upgrades = Array.isArray(data.upgrades) ? data.upgrades : [];
-    const seenUpgradePriceIds = new Set();
+    const seenUpgradeIds = new Set();
     let lineIdx = 1;
     for (const upgrade of upgrades) {
-      const priceId = (upgrade.priceId || '').toString().trim();
-      if (!ALLOWED_UPGRADE_PRICE_IDS.has(priceId) || seenUpgradePriceIds.has(priceId)) continue;
-      seenUpgradePriceIds.add(priceId);
-      body.set(`line_items[${lineIdx}][price]`, priceId);
+      const upgradeId = (upgrade.id || '').toString().trim();
+      const product = SURVIVAL_NODE_UPGRADES_BY_ID.get(upgradeId);
+      if (!product) {
+        return json({ ok: false, error: 'Invalid upgrade selected.' }, 400, corsHeaders);
+      }
+      if (seenUpgradeIds.has(upgradeId)) continue;
+      seenUpgradeIds.add(upgradeId);
+      body.set(`line_items[${lineIdx}][price]`, product.priceId);
       body.set(`line_items[${lineIdx}][quantity]`, '1');
       lineIdx++;
     }

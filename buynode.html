@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
@@ -403,7 +404,7 @@
     <div class="upgrade-section">
       <p class="upgrade-title">Optional Upgrades</p>
       <label class="upgrade-item">
-        <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Darkness Faraday Bags" data-price-id="price_1T9AXyCrQuKPknEPEDC39wfC" />
+        <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Darkness Faraday Bags" data-product-id="mission-darkness-faraday" />
         <span class="upgrade-info">
           <span class="upgrade-name">Upgrade to Mission Darkness Faraday Bags</span>
           <span class="upgrade-desc">Premium EMP-rated protection for worst-case electromagnetic scenarios</span>
@@ -411,7 +412,7 @@
         <span class="upgrade-price">+$50.00</span>
       </label>
       <label class="upgrade-item">
-        <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" data-price-id="price_1T9AYeCrQuKPknEPy37kFtwn" />
+        <input type="checkbox" class="upgrade-check" value="20" data-label="Backup USB-C Charging Cable" data-product-id="usb-c-cable" />
         <span class="upgrade-info">
           <span class="upgrade-name">Add backup premium USB-C charging cable</span>
           <span class="upgrade-desc">Heavy-duty redundant cable for field conditions</span>
@@ -419,7 +420,7 @@
         <span class="upgrade-price">+$20.00</span>
       </label>
       <label class="upgrade-item">
-        <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" data-price-id="price_1T9AZeCrQuKPknEP62dDoshW" />
+        <input type="checkbox" class="upgrade-check" value="20" data-label="Backup Mini Solar Battery" data-product-id="mini-solar-battery" />
         <span class="upgrade-info">
           <span class="upgrade-name">Add backup mini solar battery</span>
           <span class="upgrade-desc">Extra power reserve for extended grid-down scenarios</span>
@@ -470,11 +471,13 @@
 
   <script>
     const SURVIVAL_NODE_CHECKOUT_URL = 'https://eastern-shore-ai-contact.99redder.workers.dev/api/survival-node-checkout';
+    const PRODUCTS_API_URL = SURVIVAL_NODE_CHECKOUT_URL.replace('/api/survival-node-checkout', '/api/products');
 
     const buyBtn      = document.getElementById('buy-btn');
     const priceDisplay = document.getElementById('price-display');
     const statusMsg   = document.getElementById('status-msg');
     const BASE_PRICE  = 199.99;
+    const upgradeCatalog = new Map();
 
     // ===== Upgrade price =====
     function updatePrice() {
@@ -485,6 +488,30 @@
       priceDisplay.textContent = '$' + total.toFixed(2);
     }
     document.querySelectorAll('.upgrade-check').forEach(cb => cb.addEventListener('change', updatePrice));
+
+    async function loadUpgradeCatalog() {
+      try {
+        const res = await fetch(PRODUCTS_API_URL, { headers: { 'Accept': 'application/json' } });
+        const data = await res.json();
+        if (!res.ok || !data.ok || !Array.isArray(data.products)) return;
+        data.products.forEach(product => {
+          if (!product?.id) return;
+          upgradeCatalog.set(product.id, product);
+        });
+        document.querySelectorAll('.upgrade-check').forEach(cb => {
+          const product = upgradeCatalog.get(cb.dataset.productId);
+          if (!product) return;
+          cb.dataset.label = product.label || cb.dataset.label || '';
+          if (Number.isFinite(Number(product.amountCents))) {
+            cb.value = (Number(product.amountCents) / 100).toFixed(2);
+            const priceEl = cb.closest('.upgrade-item')?.querySelector('.upgrade-price');
+            if (priceEl) priceEl.textContent = '+$' + (Number(product.amountCents) / 100).toFixed(2);
+          }
+        });
+        updatePrice();
+      } catch {}
+    }
+    loadUpgradeCatalog();
 
     // ===== Inline terms agreement =====
     // Button stays clickable (no `disabled` attr) so a click without
@@ -530,7 +557,7 @@
       if (!termsAcceptedAt) termsAcceptedAt = new Date().toISOString();
       const upgrades = [];
       document.querySelectorAll('.upgrade-check:checked').forEach(cb => {
-        upgrades.push({ label: cb.dataset.label, price: parseFloat(cb.value), priceId: cb.dataset.priceId });
+        upgrades.push({ id: cb.dataset.productId, label: cb.dataset.label, price: parseFloat(cb.value) });
       });
       startCheckout({ checkoutType: 'base_kit', upgrades });
     });
