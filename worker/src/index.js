@@ -1995,6 +1995,13 @@ function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '', deliveredS
   return 'new';
 }
 
+function normalizeStoredOrderStatus(status, ackSentAt = '', shippedAt = '') {
+  const s = (status || '').toString().trim().toLowerCase();
+  if (s === 'shipped' || s === 'delivered' || s === 'reviewed' || shippedAt) return 'shipped';
+  if (s === 'acknowledged' || ackSentAt) return 'acknowledged';
+  return 'new';
+}
+
 async function generateNextOrderNumber(db) {
   const yy = new Date().getFullYear().toString().slice(-2);
   const yearBase = Number(`${yy}000`);
@@ -2179,7 +2186,7 @@ async function ensureOrderFulfillmentRow(db, row) {
        stripe_session_id = COALESCE(excluded.stripe_session_id, order_fulfillment.stripe_session_id),
        order_number = COALESCE(order_fulfillment.order_number, excluded.order_number),
        updated_at = datetime('now')`
-  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at, row.review_email_sent_at)).run();
+  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeStoredOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)).run();
 }
 
 
@@ -2718,8 +2725,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     } else if (kind === 'delivered') {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
-         SET fulfillment_status = 'delivered',
-             tracking_provider = ?1,
+         SET tracking_provider = ?1,
              tracking_number = ?2,
              tracking_url = ?3,
              delivered_email_sent_at = datetime('now'),
@@ -2731,8 +2737,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     } else if (kind === 'review') {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
-         SET fulfillment_status = 'reviewed',
-             review_email_sent_at = datetime('now'),
+         SET review_email_sent_at = datetime('now'),
              review_email_subject = ?1,
              review_email_body = ?2,
              updated_at = datetime('now')
@@ -2766,8 +2771,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   } else if (kind === 'delivered') {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET fulfillment_status = 'delivered',
-           tracking_provider = ?1,
+       SET tracking_provider = ?1,
            tracking_number = ?2,
            tracking_url = ?3,
            delivered_email_sent_at = datetime('now'),
@@ -2779,8 +2783,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   } else if (kind === 'review') {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET fulfillment_status = 'reviewed',
-           review_email_sent_at = datetime('now'),
+       SET review_email_sent_at = datetime('now'),
            review_email_subject = ?1,
            review_email_body = ?2,
            updated_at = datetime('now')
