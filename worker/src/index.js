@@ -1995,13 +1995,6 @@ function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '', deliveredS
   return 'new';
 }
 
-function normalizeStoredOrderStatus(status, ackSentAt = '', shippedAt = '') {
-  const s = (status || '').toString().trim().toLowerCase();
-  if (s === 'shipped' || s === 'delivered' || s === 'reviewed' || shippedAt) return 'shipped';
-  if (s === 'acknowledged' || ackSentAt) return 'acknowledged';
-  return 'new';
-}
-
 async function generateNextOrderNumber(db) {
   const yy = new Date().getFullYear().toString().slice(-2);
   const yearBase = Number(`${yy}000`);
@@ -2180,13 +2173,13 @@ async function ensureOrderFulfillmentRow(db, row) {
   if (!row?.id) return;
   const orderNumber = row.order_number || await generateNextOrderNumber(db);
   await db.prepare(
-    `INSERT INTO order_fulfillment (booking_id, stripe_session_id, order_number, fulfillment_status)
-     VALUES (?1, ?2, ?3, ?4)
+    `INSERT INTO order_fulfillment (booking_id, stripe_session_id, order_number)
+     VALUES (?1, ?2, ?3)
      ON CONFLICT(booking_id) DO UPDATE SET
        stripe_session_id = COALESCE(excluded.stripe_session_id, order_fulfillment.stripe_session_id),
        order_number = COALESCE(order_fulfillment.order_number, excluded.order_number),
        updated_at = datetime('now')`
-  ).bind(row.id, row.stripe_session_id || null, orderNumber, normalizeStoredOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at)).run();
+  ).bind(row.id, row.stripe_session_id || null, orderNumber).run();
 }
 
 
@@ -2358,8 +2351,7 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
-  let hydratedRow = row;
-  if (row.order_source !== 'manual') { await ensureOrderFulfillmentRow(env.DB, row); hydratedRow = await getOrderRowByBookingId(env.DB, row.id) || row; hydratedRow = { ...hydratedRow, order_source: 'stripe', order_key: row.order_key }; }
+  const hydratedRow = row;
   const trackingProvider = (data.trackingProvider ?? hydratedRow.tracking_provider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
