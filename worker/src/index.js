@@ -1420,6 +1420,27 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     // does not return it to the seller, so the buyer absorbs it).
     if (isShippableNodeSale) {
       const shipState = (session.shipping_details?.address?.state || session.customer_details?.address?.state || '').toString().trim().toUpperCase();
+      if (!shipState) {
+        await sendStaffOperationalAlert(env, {
+          subject: '[ACTION NEEDED] Survival Node order missing shipping state',
+          text: [
+            'A paid shippable Survival Node order did not include a shipping state in Stripe Checkout.',
+            '',
+            `Stripe session: ${sessionId || 'n/a'}`,
+            `Payment intent: ${(session.payment_intent || '').toString() || 'n/a'}`,
+            `Customer: ${customerName || session.shipping_details?.name || '(not provided)'}`,
+            `Email: ${customerEmail || session.customer_details?.email || session.customer_email || '(not provided)'}`,
+            `Amount: ${formatUsd(Number(session.amount_total || 0))}`,
+            '',
+            'Fulfillment was held. Review the Stripe shipping address manually before shipping.'
+          ].join('\n')
+        });
+        return json({
+          ok: true,
+          fulfillmentHeld: true,
+          reason: 'missing shipping state'
+        }, 200, corsHeaders);
+      }
       if (shipState && NON_CONUS_STATES.has(shipState)) {
         const paymentIntentId = (session.payment_intent || '').toString().trim();
         const buyerEmail = session.customer_details?.email || session.customer_email || null;
@@ -1750,7 +1771,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             });
           }
         } else if (isNewIncome) {
-          await sendServiceBuyerConfirmationForSession(env, {
+          const serviceEmail = await sendServiceBuyerConfirmationForSession(env, {
             sessionId,
             customerEmail,
             customerName,
@@ -1759,6 +1780,23 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             amountCents: amount,
             slots
           });
+          if (!serviceEmail?.ok) {
+            await sendStaffOperationalAlert(env, {
+              subject: '[ACTION NEEDED] Service booking buyer confirmation failed',
+              text: [
+                'The automatic buyer confirmation email failed to send after a paid service booking.',
+                '',
+                `Stripe session: ${sessionId || 'n/a'}`,
+                `Customer: ${customerName || '(not provided)'}`,
+                `Email: ${customerEmail || '(not provided)'}`,
+                `Service: ${serviceLabel || incomeCategory || serviceType || '(unknown)'}`,
+                `Amount: ${formatUsd(amount)}`,
+                `Error: ${serviceEmail?.error || 'unknown'}`,
+                '',
+                'Contact the buyer manually if needed.'
+              ].join('\n')
+            });
+          }
           await sendStaffPaidBookingNotification(env, {
             sessionId,
             customerEmail,
@@ -2005,11 +2043,19 @@ async function generateNextOrderNumber(db) {
      ON CONFLICT(seq_key) DO NOTHING`
   ).bind(seqKey, yearBase).run();
 
-  const row = await db.prepare(`SELECT last_value FROM order_number_sequence WHERE seq_key = ?1 LIMIT 1`).bind(seqKey).first();
-  let current = Number(row?.last_value || 0);
-  if (!Number.isFinite(current) || current < yearBase) current = yearBase;
-  const next = current + 1;
-  await db.prepare(`UPDATE order_number_sequence SET last_value = ?1, updated_at = datetime('now') WHERE seq_key = ?2`).bind(next, seqKey).run();
+  const row = await db.prepare(
+    `UPDATE order_number_sequence
+     SET last_value = CASE
+       WHEN last_value < ?2 THEN ?2 + 1
+       ELSE last_value + 1
+     END,
+     updated_at = datetime('now')
+     WHERE seq_key = ?1
+     RETURNING last_value`
+  ).bind(seqKey, yearBase).first();
+
+  const next = Number(row?.last_value || 0);
+  if (!Number.isFinite(next) || next <= yearBase) throw new Error('Could not generate order number');
   return String(next);
 }
 
@@ -4946,6 +4992,22 @@ function invoicePaymentPage(title, heading, message, success = true, invoiceId =
 
 async function handleInvoicePaymentSuccessPage(request, env, corsHeaders, url) {
   const invoiceId = url.searchParams.get('invoice_id') || '';
+  const id = Number(invoiceId || 0);
+  if (!env.DB) {
+    return new Response(invoicePaymentPage('Payment Status Unavailable', 'Payment Status Unavailable', 'We could not verify this invoice payment automatically. Please contact Eastern Shore AI if you need confirmation.', false, invoiceId), { status: 503, headers: { 'Content-Type': 'text/html' } });
+  }
+  if (!id) {
+    return new Response(invoicePaymentPage('Invalid Invoice Link', 'Invalid Invoice Link', 'This payment confirmation link is missing an invoice ID.', false, invoiceId), { status: 400, headers: { 'Content-Type': 'text/html' } });
+  }
+  const invoice = await env.DB.prepare(
+    `SELECT id, status, balance_due_cents, amount_paid_cents FROM invoices WHERE id = ?1 LIMIT 1`
+  ).bind(id).first();
+  const status = (invoice?.status || '').toString().trim().toLowerCase();
+  const balanceDueCents = Number(invoice?.balance_due_cents || 0);
+  const amountPaidCents = Number(invoice?.amount_paid_cents || 0);
+  if (!invoice || status !== 'paid' || balanceDueCents > 0 || amountPaidCents <= 0) {
+    return new Response(invoicePaymentPage('Payment Not Verified', 'Payment Not Verified', 'We could not verify this invoice as paid yet. If you just completed checkout, refresh this page in a moment or contact Eastern Shore AI.', false, invoiceId), { status: 409, headers: { 'Content-Type': 'text/html' } });
+  }
   return new Response(invoicePaymentPage('Payment Successful', 'Payment Successful', 'Thank you — your invoice payment was successful.', true, invoiceId), { status: 200, headers: { 'Content-Type': 'text/html' } });
 }
 
@@ -5299,44 +5361,35 @@ async function upsertTaxIncomeJournal(db, row) {
 async function fetchStripeFeeCents(stripeSecretKey, paymentIntentId) {
   if (!stripeSecretKey || !paymentIntentId) return 0;
 
-  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const url = `https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}?expand[]=latest_charge.balance_transaction`;
+  const piRes = await fetch(url, {
+    headers: { Authorization: `Bearer ${stripeSecretKey}` }
+  });
+  const pi = await piRes.json().catch(() => ({}));
+  if (!piRes.ok) return 0;
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    const url = `https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}?expand[]=latest_charge.balance_transaction`;
-    const piRes = await fetch(url, {
+  const latestCharge = pi?.latest_charge;
+  const bt = (latestCharge && typeof latestCharge === 'object') ? latestCharge.balance_transaction : null;
+  const feeExpanded = Number(bt?.fee || 0);
+  if (Number.isFinite(feeExpanded) && feeExpanded > 0) return feeExpanded;
+
+  const chargeId = typeof latestCharge === 'string' ? latestCharge : latestCharge?.id;
+  if (chargeId) {
+    const chRes = await fetch(`https://api.stripe.com/v1/charges/${encodeURIComponent(chargeId)}`, {
       headers: { Authorization: `Bearer ${stripeSecretKey}` }
     });
-    const pi = await piRes.json().catch(() => ({}));
-    if (!piRes.ok) {
-      if (attempt < 2) await wait(1200);
-      continue;
-    }
-
-    const latestCharge = pi?.latest_charge;
-    const bt = (latestCharge && typeof latestCharge === 'object') ? latestCharge.balance_transaction : null;
-    const feeExpanded = Number(bt?.fee || 0);
-    if (Number.isFinite(feeExpanded) && feeExpanded > 0) return feeExpanded;
-
-    const chargeId = typeof latestCharge === 'string' ? latestCharge : latestCharge?.id;
-    if (chargeId) {
-      const chRes = await fetch(`https://api.stripe.com/v1/charges/${encodeURIComponent(chargeId)}`, {
-        headers: { Authorization: `Bearer ${stripeSecretKey}` }
-      });
-      const ch = await chRes.json().catch(() => ({}));
-      if (chRes.ok) {
-        const btId = ch?.balance_transaction;
-        if (btId) {
-          const btRes = await fetch(`https://api.stripe.com/v1/balance_transactions/${encodeURIComponent(btId)}`, {
-            headers: { Authorization: `Bearer ${stripeSecretKey}` }
-          });
-          const btObj = await btRes.json().catch(() => ({}));
-          const fee = Number(btObj?.fee || 0);
-          if (btRes.ok && Number.isFinite(fee) && fee > 0) return fee;
-        }
+    const ch = await chRes.json().catch(() => ({}));
+    if (chRes.ok) {
+      const btId = ch?.balance_transaction;
+      if (btId) {
+        const btRes = await fetch(`https://api.stripe.com/v1/balance_transactions/${encodeURIComponent(btId)}`, {
+          headers: { Authorization: `Bearer ${stripeSecretKey}` }
+        });
+        const btObj = await btRes.json().catch(() => ({}));
+        const fee = Number(btObj?.fee || 0);
+        if (btRes.ok && Number.isFinite(fee) && fee > 0) return fee;
       }
     }
-
-    if (attempt < 2) await wait(1200);
   }
 
   return 0;
@@ -5586,7 +5639,8 @@ It works completely without internet, cell signal, or the power grid.
    - Full Users Guide pre-loaded on device
 
 2. **Solar Battery with Attached Cables**
-   - High-capacity (20,000+ mAh usable)
+   - Rated capacity: 42,800 mAh (manufacturer specification)
+   - Tested usable capacity example: about 18,600 mAh average
    - 4 attached cables: 2× USB-C, 1× iOS, 1× USB-A
    - Built-in flashlight, emergency strobe, laser pointer
    - Solar trickle-charge capability for grid-down scenarios
@@ -5753,7 +5807,7 @@ There is a dedicated **Test Results & Demo Videos** page for Survival Node at te
 - Foam interior is described as custom-cut to keep components from shifting
 
 ### Solar battery test results
-- Rated capacity shown: **20,000 mAh**
+- Rated capacity shown: **42,800 mAh**
 - Measured usable capacity example shown: **18,600 mAh average**
 - Claimed to provide about **3.7 full phone charges**
 - Solar input example shown: **420–580 mA in direct sun**
@@ -5881,6 +5935,10 @@ async function handleAskK(request, env, corsHeaders, url) {
     return json({ ok: true, reply: cannedTestingReply }, 200, corsHeaders);
   }
 
+  if (!(env.ASKK_API_KEY || env.OPENAI_API_KEY || '').trim()) {
+    return json({ ok: false, error: 'AI not configured' }, 503, corsHeaders);
+  }
+
   try {
     const reply = await generateAskKAnswer(env, question, context, history);
     return json({ ok: true, reply }, 200, corsHeaders);
@@ -5894,7 +5952,6 @@ async function generateAskKAnswer(env, question, context, history = []) {
   const configuredBaseUrl = (env.ASKK_BASE_URL || 'https://api.openai.com/v1').trim();
   const baseUrl = normalizeAskKChatCompletionsUrl(configuredBaseUrl);
   const model = (env.ASKK_MODEL || 'gpt-4o-mini').trim();
-  if (!apiKey) return fallbackAskKAnswer(question, context);
 
   const systemPrompt = [
     'You are Ask K, the Survival Node product assistant for Eastern Shore AI.',
@@ -6124,10 +6181,33 @@ async function handleAskKEscalate(request, env, corsHeaders, url) {
     });
     if (!resp.ok) {
       const txt = await resp.text().catch(() => '');
+      await sendStaffOperationalAlert(env, {
+        subject: '[ACTION NEEDED] Ask K Discord escalation webhook failed',
+        text: [
+          'Ask K could not notify the Discord escalation webhook.',
+          '',
+          `Webhook status: ${resp.status}`,
+          `Error: ${txt || 'unknown error'}`,
+          '',
+          'Recent conversation:',
+          conversationText || '(none provided)'
+        ].join('\n')
+      });
       return json({ ok: false, error: `Webhook notify failed (${resp.status}): ${txt || 'unknown error'}` }, 500, corsHeaders);
     }
     return json({ ok: true, message: "I sent your request to the Eastern Shore AI team." }, 200, corsHeaders);
   } catch (err) {
+    await sendStaffOperationalAlert(env, {
+      subject: '[ACTION NEEDED] Ask K Discord escalation webhook exception',
+      text: [
+        'Ask K could not notify the Discord escalation webhook because the webhook request threw an exception.',
+        '',
+        `Error: ${err?.message || err || 'unknown error'}`,
+        '',
+        'Recent conversation:',
+        conversationText || '(none provided)'
+      ].join('\n')
+    });
     return json({ ok: true, message: 'Please call (302) 907-9162 or use the contact form on our homepage.' }, 200, corsHeaders);
   }
 }
