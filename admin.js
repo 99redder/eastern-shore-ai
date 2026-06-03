@@ -574,6 +574,23 @@
       };
     }
 
+    function formatEtTimestamp(value) {
+      const raw = (value || '').toString().trim();
+      if (!raw) return 'Not sent';
+      const iso = raw.includes('T') ? raw : raw.replace(' ', 'T');
+      const date = new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(iso) ? iso : `${iso}Z`);
+      if (Number.isNaN(date.getTime())) return raw;
+      return new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZoneName: 'short'
+      }).format(date);
+    }
+
     // ===== Modals =====
     function openSuccessModal(text, title) {
       if (title) successTitle.textContent = title;
@@ -2976,7 +2993,7 @@
               <span>${escHtml(order.payment_date || '')} • ${amount}</span>
             </div>
             <div style="margin-top:.2rem; color:var(--muted);">${order.order_source === 'manual' ? `Payment Method: ${escHtml(order.payment_method || 'Not entered')}` : `Stripe: ${escHtml(order.stripe_session_id || '—')}`}</div>
-            <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(order.ack_email_sent_at || 'Not sent')} • Shipped: ${escHtml(order.shipping_email_sent_at || 'Not sent')} • Delivered: ${escHtml(order.delivered_email_sent_at || 'Not sent')} • Review: ${escHtml(order.review_email_sent_at || 'Not sent')}</div>
+            <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(formatEtTimestamp(order.ack_email_sent_at))} • Shipped: ${escHtml(formatEtTimestamp(order.shipping_email_sent_at))} • Delivered: ${escHtml(formatEtTimestamp(order.delivered_email_sent_at))} • Review: ${escHtml(formatEtTimestamp(order.review_email_sent_at))}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? `${trackingProvider ? `${escHtml(trackingProvider)} • ` : ''}${escHtml(tracking)}` : 'Not added yet'}</div>
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
               <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}">Preview Acknowledgment</button>
