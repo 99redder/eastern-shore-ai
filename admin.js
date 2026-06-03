@@ -3265,7 +3265,14 @@
 
     // Also allow Enter key on password input
     adminKeyEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') adminUnlockBtn.click();
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        adminUnlockBtn.click();
+      }
+    });
+    document.getElementById('admin-login-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      adminUnlockBtn.click();
     });
 
     let adminControlListenersBound = false;
