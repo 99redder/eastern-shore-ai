@@ -2702,17 +2702,27 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     text: content.bodyText,
     reply_to: fromEmail
   };
+  const rawIdempotencyKey = (data.idempotencyKey || '').toString().trim();
+  const idempotencyKey = rawIdempotencyKey
+    ? rawIdempotencyKey.replace(/[^a-zA-Z0-9._:-]/g, '').slice(0, 256)
+    : '';
+  const resendHeaders = {
+    Authorization: `Bearer ${env.RESEND_API_KEY}`,
+    'Content-Type': 'application/json',
+    ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {})
+  };
 
   const sendRes = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
+    headers: resendHeaders,
     body: JSON.stringify(emailPayload)
   });
   const sendJson = await sendRes.json().catch(() => ({}));
   if (!sendRes.ok) {
+    const resendError = (sendJson?.name || sendJson?.error || sendJson?.message || '').toString();
+    if (sendRes.status === 409 && /concurrent_idempotent_requests|same idempotency key/i.test(resendError)) {
+      return json({ ok: true, orderKey: row.order_key, kind, duplicateSuppressed: true }, 200, corsHeaders);
+    }
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send order email' }, 502, corsHeaders);
   }
 

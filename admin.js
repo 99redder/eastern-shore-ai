@@ -532,6 +532,7 @@
     let activeAccountsTab = 'balances';
     let activeAdminSectionTab = 'booking';
     let activeOrderEmailDraft = null;
+    let orderEmailSendInFlight = false;
     let activeTrackingDraft = null;
     let blurMoneyEnabled = false;
     let activeInvoiceMode = 'view';
@@ -712,7 +713,10 @@
     });
 
     function openOrderEmailModal(draft) {
-      activeOrderEmailDraft = draft;
+      const draftId = (globalThis.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `order-email-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      activeOrderEmailDraft = { ...draft, idempotencyKey: draft.idempotencyKey || draftId };
       if (orderEmailTitleEl) orderEmailTitleEl.textContent = draft.kind === 'shipping' ? 'Preview Shipping Email' : draft.kind === 'delivered' ? 'Preview Delivered Email' : draft.kind === 'review' ? 'Preview Review Email' : 'Preview Order Acknowledgment';
       if (orderEmailSubjectEl) orderEmailSubjectEl.value = draft.subject || '';
       if (orderEmailBodyEl) orderEmailBodyEl.value = draft.bodyText || '';
@@ -3586,7 +3590,7 @@
           orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailSendBtn?.addEventListener('click', async () => {
-            if (!activeOrderEmailDraft) return;
+            if (!activeOrderEmailDraft || orderEmailSendInFlight) return;
             const payload = {
               bookingId: activeOrderEmailDraft.bookingId,
               orderKey: activeOrderEmailDraft.orderKey || '',
@@ -3594,10 +3598,12 @@
               subject: orderEmailSubjectEl?.value || '',
               bodyText: orderEmailBodyEl?.value || '',
               trackingProvider: activeOrderEmailDraft.trackingProvider || '',
-              trackingNumber: orderEmailTrackingNumberEl?.value || ''
+              trackingNumber: orderEmailTrackingNumberEl?.value || '',
+              idempotencyKey: activeOrderEmailDraft.idempotencyKey || ''
             };
             const prevTxt = orderEmailSendBtn.textContent || 'Send Email';
             const draft = { ...activeOrderEmailDraft };
+            orderEmailSendInFlight = true;
             orderEmailSendBtn.disabled = true;
             orderEmailSendBtn.textContent = 'Sending…';
             try {
@@ -3628,6 +3634,7 @@
             } catch (err) {
               openErrorModal(err?.message || 'Failed to send order email');
             } finally {
+              orderEmailSendInFlight = false;
               orderEmailSendBtn.disabled = false;
               orderEmailSendBtn.textContent = prevTxt;
             }
