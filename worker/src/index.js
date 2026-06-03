@@ -1756,7 +1756,15 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         }
 
         if (isSurvivalNodeSale && !isByogSetupSale) {
-          await sendAutoBuyerConfirmationForSession(env, sessionId);
+          const orderRows = await env.DB.prepare(
+            `SELECT id FROM bookings WHERE stripe_session_id = ?1 AND status IN ('paid','confirmed')`
+          ).bind(sessionId).all();
+          for (const baseRow of (orderRows?.results || [])) {
+            const row = await getOrderRowByBookingId(env.DB, Number(baseRow.id));
+            if (row && isShippableOrderServiceType(row.service_type)) {
+              await ensureOrderFulfillmentRow(env.DB, row);
+            }
+          }
           if (isNewIncome) {
             await sendStaffSurvivalNodeOrderNotification(env, {
               sessionId,
@@ -2645,97 +2653,6 @@ async function sendStaffSurvivalNodeOrderNotification(env, { sessionId, paymentI
     return { ok: false, error: errText || `resend ${res.status}` };
   }
   return { ok: true };
-}
-
-async function sendAutoBuyerConfirmationForSession(env, sessionId) {
-  if (!env.DB || !sessionId || !env.RESEND_API_KEY || !(env.ORDERS_FROM_EMAIL || env.FROM_EMAIL)) return;
-
-  const rows = await env.DB.prepare(
-    `SELECT id FROM bookings WHERE stripe_session_id = ?1 AND status IN ('paid','confirmed')`
-  ).bind(sessionId).all();
-
-  for (const baseRow of (rows?.results || [])) {
-    let row = await getOrderRowByBookingId(env.DB, Number(baseRow.id));
-    if (!row?.customer_email || row.ack_email_sent_at) continue;
-    if (!isShippableOrderServiceType(row.service_type)) continue;
-
-    await ensureOrderFulfillmentRow(env.DB, row);
-    row = await getOrderRowByBookingId(env.DB, Number(baseRow.id)) || row;
-
-    const content = buildOrderEmailContent('ack', row, {});
-    const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
-    const emailPayload = {
-      from: fromEmail,
-      to: [row.customer_email.toString().trim()],
-      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
-      subject: content.subject,
-      html: content.html,
-      text: content.bodyText,
-      reply_to: fromEmail
-    };
-
-    let sendRes;
-    try {
-      sendRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(emailPayload)
-      });
-    } catch (e) {
-      console.error('Auto buyer confirmation failed', { sessionId, bookingId: row.id, error: e?.message || e });
-      await sendStaffOperationalAlert(env, {
-        subject: '[ACTION NEEDED] Survival Node buyer confirmation failed',
-        text: [
-          'The automatic buyer acknowledgment email failed to send after a paid Survival Node order.',
-          '',
-          `Stripe session: ${sessionId || 'n/a'}`,
-          `Booking ID: ${row.id || 'n/a'}`,
-          `Customer: ${row.customer_name || '(not provided)'}`,
-          `Email: ${row.customer_email || '(not provided)'}`,
-          `Order number: ${row.order_number || '(not assigned)'}`,
-          `Error: ${e?.message || e}`,
-          '',
-          'Send the buyer acknowledgment manually from the admin Orders panel.'
-        ].join('\n')
-      });
-      continue;
-    }
-
-    if (!sendRes.ok) {
-      const sendJson = await sendRes.json().catch(() => ({}));
-      const errorDetail = sendJson?.message || sendJson?.error || sendRes.status;
-      console.error('Auto buyer confirmation failed', { sessionId, bookingId: row.id, error: errorDetail });
-      await sendStaffOperationalAlert(env, {
-        subject: '[ACTION NEEDED] Survival Node buyer confirmation failed',
-        text: [
-          'The automatic buyer acknowledgment email failed to send after a paid Survival Node order.',
-          '',
-          `Stripe session: ${sessionId || 'n/a'}`,
-          `Booking ID: ${row.id || 'n/a'}`,
-          `Customer: ${row.customer_name || '(not provided)'}`,
-          `Email: ${row.customer_email || '(not provided)'}`,
-          `Order number: ${row.order_number || '(not assigned)'}`,
-          `Error: ${errorDetail}`,
-          '',
-          'Send the buyer acknowledgment manually from the admin Orders panel.'
-        ].join('\n')
-      });
-      continue;
-    }
-
-    await env.DB.prepare(
-      `UPDATE order_fulfillment
-       SET fulfillment_status = CASE WHEN fulfillment_status = 'shipped' THEN fulfillment_status ELSE 'acknowledged' END,
-           ack_email_sent_at = datetime('now'),
-           ack_email_subject = ?1,
-           ack_email_body = ?2,
-           updated_at = datetime('now')
-       WHERE booking_id = ?3`
-    ).bind(content.subject, content.bodyText, row.id).run();
-  }
 }
 
 async function handleOrderEmailSend(request, env, corsHeaders, url) {
