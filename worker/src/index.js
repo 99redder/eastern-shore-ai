@@ -2,7 +2,7 @@
 // POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
 // POST /api/checkout-session    → handleCheckoutSession() — Create Stripe checkout with conflict + past-time checks
 // POST /api/survival-node-checkout → handleSurvivalNodeCheckout() — Create Stripe checkout for Survival Node product
-// POST /api/stripe-webhook      → handleStripeWebhook()   — Stripe payment confirmation, records booking in D1, auto-inserts tax income
+// POST /api/stripe-webhook      → handleStripeWebhook()   — Stripe payment confirmation, records service bookings/orders in D1, auto-inserts tax income
 // GET  /api/availability        → handleAvailability()    — Public unavailable slots + blocked dates
 // GET  /api/bookings            → handleBookings()        — Admin: read bookings + blocked slots + blocked days
 // GET  /api/orders              → handleOrdersList()      — Admin: list paid Stripe orders + fulfillment state
@@ -1758,16 +1758,16 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         if (isSurvivalNodeSale && !isByogSetupSale) {
           await sendAutoBuyerConfirmationForSession(env, sessionId);
           if (isNewIncome) {
-            await sendStaffPaidBookingNotification(env, {
+            await sendStaffSurvivalNodeOrderNotification(env, {
               sessionId,
+              paymentIntentId,
               customerEmail,
               customerName,
               customerPhone,
-              preferredContactMethod,
-              serviceLabel: serviceLabel || 'Survival Node kit order',
-              serviceType: productCode || checkoutType || serviceType,
+              productLabel: serviceLabel || 'Survival Node kit order',
+              productCode: productCode || checkoutType || serviceType,
               amountCents: amount,
-              slots: []
+              shippingDetails: session.shipping_details || null
             });
           }
         } else if (isNewIncome) {
@@ -2588,6 +2588,60 @@ async function sendStaffPaidBookingNotification(env, { sessionId, customerEmail,
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
     console.error('Staff paid booking notification failed', { sessionId, error: errText || res.status });
+    return { ok: false, error: errText || `resend ${res.status}` };
+  }
+  return { ok: true };
+}
+
+async function sendStaffSurvivalNodeOrderNotification(env, { sessionId, paymentIntentId, customerEmail, customerName, customerPhone, productLabel, productCode, amountCents, shippingDetails }) {
+  const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const toEmail = (env.TO_EMAIL || '').toString().trim();
+  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
+
+  const address = shippingDetails?.address || {};
+  const shipTo = [
+    shippingDetails?.name || customerName || '',
+    address.line1 || '',
+    address.line2 || '',
+    [address.city, address.state, address.postal_code].filter(Boolean).join(', '),
+    address.country || ''
+  ].map((line) => (line || '').toString().trim()).filter(Boolean);
+
+  const text = [
+    'New paid Survival Node order',
+    '',
+    `Product: ${productLabel || productCode || 'Survival Node'}`,
+    `Amount: ${formatUsd(amountCents)}`,
+    `Customer: ${customerName || shippingDetails?.name || '(not provided)'}`,
+    `Email: ${customerEmail || '(not provided)'}`,
+    `Phone: ${customerPhone || shippingDetails?.phone || '(not provided)'}`,
+    shipTo.length ? `Ship to:\n${shipTo.join('\n')}` : 'Ship to: (not provided)',
+    '',
+    `Stripe session: ${sessionId || 'n/a'}`,
+    `Payment intent: ${paymentIntentId || 'n/a'}`,
+    '',
+    'Next step: review the order in Admin → Survival Node Orders and prepare fulfillment.'
+  ].join('\n');
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [toEmail],
+      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+      subject: '[Eastern Shore AI] New Survival Node order',
+      text,
+      reply_to: fromEmail
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    console.error('Staff Survival Node order notification failed', { sessionId, error: errText || res.status });
     return { ok: false, error: errText || `resend ${res.status}` };
   }
   return { ok: true };
