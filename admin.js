@@ -1267,10 +1267,9 @@
 
     async function loadAdminData() {
       if (!adminSessionActive) return;
-      const key = adminKeyEl.value.trim();
       try {
         const res = await fetch(`${BOOKINGS_API_URL}?limit=200`, {
-          headers: { 'X-Admin-Password': key }
+          headers: { 'X-Admin-Password': adminPassword }
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
@@ -1302,7 +1301,7 @@
             try {
               await fetch(`${BLOCK_SLOT_API_URL}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
                 body: JSON.stringify({ setupDate, setupTime, reason: '', active: false })
               });
               await loadAdminData();
@@ -1322,7 +1321,7 @@
             try {
               await fetch(`${BLOCK_DAY_API_URL}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
                 body: JSON.stringify({ setupDate, reason: '', active: false })
               });
               await loadAdminData();
@@ -1341,10 +1340,9 @@
     }
 
     async function setBlockedSlot(active) {
-      const key = adminKeyEl.value.trim();
       const setupDate = adminDateEl.value;
       const setupTime = adminTimeEl.value;
-      if (!key || !setupDate || !setupTime) {
+      if (!adminPassword || !setupDate || !setupTime) {
         openErrorModal('Admin password + date + time are required.');
         return;
       }
@@ -1357,7 +1355,7 @@
       try {
         const res = await fetch(`${BLOCK_SLOT_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
           body: JSON.stringify({
             setupDate,
             setupTime,
@@ -1375,9 +1373,8 @@
     }
 
     async function setBlockedDay(active) {
-      const key = adminKeyEl.value.trim();
       const setupDate = adminDateEl.value;
-      if (!key || !setupDate) {
+      if (!adminPassword || !setupDate) {
         openErrorModal('Admin password + date are required.');
         return;
       }
@@ -1390,7 +1387,7 @@
       try {
         const res = await fetch(`${BLOCK_DAY_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
           body: JSON.stringify({
             setupDate,
             reason: adminReasonEl.value.trim(),
@@ -1407,9 +1404,8 @@
     }
 
     async function cleanupOldPendingBookings() {
-      const key = adminKeyEl.value.trim();
-      if (!key) {
-        openErrorModal('Admin password is required.');
+      if (!adminPassword) {
+        openErrorModal('Unlock admin first.');
         return;
       }
       const proceed = await openConfirmModal(
@@ -1421,7 +1417,7 @@
       try {
         const res = await fetch(`${CLEANUP_PENDING_BOOKINGS_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': key },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
           body: JSON.stringify({ days: 5 })
         });
         const data = await res.json().catch(() => ({}));
