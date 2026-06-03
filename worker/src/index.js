@@ -2183,6 +2183,13 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   return { subject, bodyText, html };
 }
 
+function orderEmailSentAt(row, kind) {
+  if (kind === 'shipping') return (row?.shipping_email_sent_at || '').toString().trim();
+  if (kind === 'delivered') return (row?.delivered_email_sent_at || '').toString().trim();
+  if (kind === 'review') return (row?.review_email_sent_at || '').toString().trim();
+  return (row?.ack_email_sent_at || '').toString().trim();
+}
+
 async function getOrderRowByBookingId(db, bookingId) {
   return db.prepare(
     `SELECT
@@ -2675,6 +2682,14 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!customerEmail) return json({ ok: false, error: 'Order has no customer email' }, 400, corsHeaders);
   let hydratedRow = row;
   if (row.order_source !== 'manual') { await ensureOrderFulfillmentRow(env.DB, row); hydratedRow = await getOrderRowByBookingId(env.DB, row.id) || row; hydratedRow = { ...hydratedRow, order_source: 'stripe', order_key: row.order_key }; }
+
+  const alreadySentAt = orderEmailSentAt(hydratedRow, kind);
+  if (alreadySentAt) {
+    return json({ ok: false, error: `${defaultOrderEmailSubject(kind, hydratedRow)} was already sent at ${alreadySentAt}` }, 409, corsHeaders);
+  }
+  if (kind === 'review' && !orderEmailSentAt(hydratedRow, 'delivered')) {
+    return json({ ok: false, error: 'Send the delivered email before sending the review request' }, 400, corsHeaders);
+  }
 
   const trackingProvider = (data.trackingProvider ?? hydratedRow.tracking_provider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
