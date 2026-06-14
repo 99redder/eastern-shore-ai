@@ -62,12 +62,6 @@ const SURVIVAL_NODE_UPGRADES = [
     label: 'Mission Darkness Faraday Bags',
     amountCents: 5000,
     priceId: 'price_1T9AXyCrQuKPknEPEDC39wfC'
-  },
-  {
-    id: 'usb-c-cable',
-    label: 'Backup USB-C Charging Cable',
-    amountCents: 2000,
-    priceId: 'price_1T9AYeCrQuKPknEPy37kFtwn'
   }
 ];
 const SURVIVAL_NODE_UPGRADES_BY_ID = new Map(SURVIVAL_NODE_UPGRADES.map(product => [product.id, product]));
@@ -5648,7 +5642,6 @@ It works completely without internet, cell signal, or the power grid.
 | Upgrade | Price | Description |
 |---------|-------|-------------|
 | Mission Darkness Faraday Bags | +$50 | Premium EMP-rated shielding (TitanRF-grade) |
-| Backup USB-C Charging Cable | +$20 | Heavy-duty braided backup cable |
 
 ## BYOG (Bring Your Own Gear) Setup Service
 
