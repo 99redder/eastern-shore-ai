@@ -27,12 +27,6 @@ const SURVIVAL_NODE_UPGRADES = [
     label: 'Backup USB-C Charging Cable',
     amountCents: 2000,
     priceId: 'price_1T9AYeCrQuKPknEPy37kFtwn'
-  },
-  {
-    id: 'mini-solar-battery',
-    label: 'Backup Mini Solar Battery',
-    amountCents: 2000,
-    priceId: 'price_1T9AZeCrQuKPknEP62dDoshW'
   }
 ];
 const SURVIVAL_NODE_UPGRADES_BY_ID = new Map(SURVIVAL_NODE_UPGRADES.map(product => [product.id, product]));
