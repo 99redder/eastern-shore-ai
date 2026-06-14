@@ -1,4 +1,5 @@
-.claude/worktrees/jolly-chatterjee/
+.claude/worktrees/
+.claude/launch.json
 .vscode/settings.json
 .aider*
 
