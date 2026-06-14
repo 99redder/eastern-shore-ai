@@ -452,6 +452,34 @@
       white-space: nowrap;
     }
     .buy-now-float:hover { filter: brightness(1.08); }
+    .veteran-float {
+      position: fixed;
+      top: 16.25rem;
+      right: 1rem;
+      left: auto;
+      z-index: 5990;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.85rem;
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.72rem;
+      color: var(--cyan);
+      background: rgba(11, 13, 19, 0.92);
+      border: 1px solid rgba(158, 208, 255, 0.4);
+      box-shadow: 0 0 14px rgba(158, 208, 255, 0.22);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+      white-space: nowrap;
+    }
+    .veteran-float .vf-flag {
+      flex-shrink: 0;
+      border-radius: 2px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+    }
     .checkout-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0,1fr));
@@ -951,7 +979,7 @@
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
       .buy-now-float { padding: 0.75rem 1.4rem; font-size: 1.05rem; }
-      #global-back-btn, #users-guide-btn, .buy-now-float { display: none !important; }
+      #global-back-btn, #users-guide-btn, .buy-now-float, .veteran-float { display: none !important; }
       .askk-fab { width: 52px; height: 52px; font-size: 1.4rem; bottom: 1rem; right: 1rem; }
       .askk-fab-label { display: none; }
       .askk-drawer { width: 100vw; right: -100vw; }
@@ -1171,6 +1199,11 @@
     <span style="font-size: 1.15rem; font-weight: 900; letter-spacing: 0.03em;"><del style="opacity:.45; font-weight:400; font-size:.75rem;">$299.99</del> $199.99</span>
     <span style="font-size: 0.68rem; font-weight: 500; letter-spacing: 0.03em; opacity: 0.65; text-transform: none;">for a limited time</span>
   </a>
+  <div class="veteran-float" id="veteran-float">
+    <svg class="vf-flag" width="22" height="15" viewBox="0 0 26 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="26" height="18" fill="#fff"/><g fill="#B22234"><rect width="26" height="1.385"/><rect width="26" height="1.385" y="2.77"/><rect width="26" height="1.385" y="5.54"/><rect width="26" height="1.385" y="8.31"/><rect width="26" height="1.385" y="11.08"/><rect width="26" height="1.385" y="13.85"/><rect width="26" height="1.385" y="16.62"/></g><rect width="11" height="9.69" fill="#3C3B6E"/><g fill="#fff"><circle cx="1.5" cy="1.4" r=".6"/><circle cx="3.4" cy="1.4" r=".6"/><circle cx="5.3" cy="1.4" r=".6"/><circle cx="7.2" cy="1.4" r=".6"/><circle cx="9.1" cy="1.4" r=".6"/><circle cx="1.5" cy="3.5" r=".6"/><circle cx="3.4" cy="3.5" r=".6"/><circle cx="5.3" cy="3.5" r=".6"/><circle cx="7.2" cy="3.5" r=".6"/><circle cx="9.1" cy="3.5" r=".6"/><circle cx="1.5" cy="5.6" r=".6"/><circle cx="3.4" cy="5.6" r=".6"/><circle cx="5.3" cy="5.6" r=".6"/><circle cx="7.2" cy="5.6" r=".6"/><circle cx="9.1" cy="5.6" r=".6"/><circle cx="1.5" cy="7.7" r=".6"/><circle cx="3.4" cy="7.7" r=".6"/><circle cx="5.3" cy="7.7" r=".6"/><circle cx="7.2" cy="7.7" r=".6"/><circle cx="9.1" cy="7.7" r=".6"/></g></svg>
+    <span>Veteran Owned Business</span>
+    <svg class="vf-flag" width="22" height="15" viewBox="0 0 26 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="26" height="18" fill="#fff"/><g fill="#B22234"><rect width="26" height="1.385"/><rect width="26" height="1.385" y="2.77"/><rect width="26" height="1.385" y="5.54"/><rect width="26" height="1.385" y="8.31"/><rect width="26" height="1.385" y="11.08"/><rect width="26" height="1.385" y="13.85"/><rect width="26" height="1.385" y="16.62"/></g><rect width="11" height="9.69" fill="#3C3B6E"/><g fill="#fff"><circle cx="1.5" cy="1.4" r=".6"/><circle cx="3.4" cy="1.4" r=".6"/><circle cx="5.3" cy="1.4" r=".6"/><circle cx="7.2" cy="1.4" r=".6"/><circle cx="9.1" cy="1.4" r=".6"/><circle cx="1.5" cy="3.5" r=".6"/><circle cx="3.4" cy="3.5" r=".6"/><circle cx="5.3" cy="3.5" r=".6"/><circle cx="7.2" cy="3.5" r=".6"/><circle cx="9.1" cy="3.5" r=".6"/><circle cx="1.5" cy="5.6" r=".6"/><circle cx="3.4" cy="5.6" r=".6"/><circle cx="5.3" cy="5.6" r=".6"/><circle cx="7.2" cy="5.6" r=".6"/><circle cx="9.1" cy="5.6" r=".6"/><circle cx="1.5" cy="7.7" r=".6"/><circle cx="3.4" cy="7.7" r=".6"/><circle cx="5.3" cy="7.7" r=".6"/><circle cx="7.2" cy="7.7" r=".6"/><circle cx="9.1" cy="7.7" r=".6"/></g></svg>
+  </div>
   <a href="/node-setup.html" id="users-guide-btn" class="back-btn" style="left:auto; right:1rem;">User Guide</a>
 
   <div style="width:100%; border-bottom:1px solid rgba(0,0,0,.15); background:#9ed0ff; padding:.6rem max(1rem, calc(50% - 580px + 1rem));">
@@ -1206,11 +1239,6 @@
           <div class="slide1-inner">
             <div class="slide1-banner">
               <img src="images/banner.png" alt="Survival Node" loading="lazy" />
-            </div>
-            <div class="slide1-banner" style="padding:.45rem 1rem; display:flex; align-items:center; justify-content:center; gap:.5rem;">
-              <svg width="22" height="14" viewBox="0 0 22 14" style="flex-shrink:0; border-radius:1px;" aria-label="US Flag" xmlns="http://www.w3.org/2000/svg"><rect width="22" height="14" fill="#B22234"/><rect y="1.077" height="1.077" fill="#fff"/><rect y="3.231" height="1.077" fill="#fff"/><rect y="5.385" height="1.077" fill="#fff"/><rect y="7.538" height="1.077" fill="#fff"/><rect y="9.692" height="1.077" fill="#fff"/><rect y="11.846" height="1.077" fill="#fff"/><rect width="9.5" height="7.692" fill="#3C3B6E"/><g fill="#fff"><circle cx="1.2" cy="1" r=".55"/><circle cx="3.2" cy="1" r=".55"/><circle cx="5.2" cy="1" r=".55"/><circle cx="7.2" cy="1" r=".55"/><circle cx="1.2" cy="2.85" r=".55"/><circle cx="3.2" cy="2.85" r=".55"/><circle cx="5.2" cy="2.85" r=".55"/><circle cx="7.2" cy="2.85" r=".55"/><circle cx="1.2" cy="4.69" r=".55"/><circle cx="3.2" cy="4.69" r=".55"/><circle cx="5.2" cy="4.69" r=".55"/><circle cx="7.2" cy="4.69" r=".55"/><circle cx="1.2" cy="6.54" r=".55"/><circle cx="3.2" cy="6.54" r=".55"/><circle cx="5.2" cy="6.54" r=".55"/><circle cx="7.2" cy="6.54" r=".55"/></g></svg>
-              <span style="font-size:.82rem; font-weight:700; color:var(--cyan); letter-spacing:.03em;">Veteran Owned Business</span>
-              <svg width="22" height="14" viewBox="0 0 22 14" style="flex-shrink:0; border-radius:1px;" aria-label="US Flag" xmlns="http://www.w3.org/2000/svg"><rect width="22" height="14" fill="#B22234"/><rect y="1.077" height="1.077" fill="#fff"/><rect y="3.231" height="1.077" fill="#fff"/><rect y="5.385" height="1.077" fill="#fff"/><rect y="7.538" height="1.077" fill="#fff"/><rect y="9.692" height="1.077" fill="#fff"/><rect y="11.846" height="1.077" fill="#fff"/><rect width="9.5" height="7.692" fill="#3C3B6E"/><g fill="#fff"><circle cx="1.2" cy="1" r=".55"/><circle cx="3.2" cy="1" r=".55"/><circle cx="5.2" cy="1" r=".55"/><circle cx="7.2" cy="1" r=".55"/><circle cx="1.2" cy="2.85" r=".55"/><circle cx="3.2" cy="2.85" r=".55"/><circle cx="5.2" cy="2.85" r=".55"/><circle cx="7.2" cy="2.85" r=".55"/><circle cx="1.2" cy="4.69" r=".55"/><circle cx="3.2" cy="4.69" r=".55"/><circle cx="5.2" cy="4.69" r=".55"/><circle cx="7.2" cy="4.69" r=".55"/><circle cx="1.2" cy="6.54" r=".55"/><circle cx="3.2" cy="6.54" r=".55"/><circle cx="5.2" cy="6.54" r=".55"/><circle cx="7.2" cy="6.54" r=".55"/></g></svg>
             </div>
             <div class="slide1-img-col">
               <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
