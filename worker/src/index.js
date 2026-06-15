@@ -52,6 +52,7 @@ const _chatRateLimits = new Map();
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://easternshore.ai',
   'https://www.easternshore.ai',
+  'https://eastern-shore-ai.99redder.workers.dev',
   'https://99redder.github.io',
   'https://lookahead.easternshore.ai'
 ];
