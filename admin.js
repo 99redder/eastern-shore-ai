@@ -3135,13 +3135,20 @@
     adminSectionTabBtns.forEach((btn) => btn.addEventListener('click', () => setAdminSectionTab(btn.getAttribute('data-admin-tab'))));
 
     // ===== Admin Unlock =====
-    const ADMIN_LOGIN_GUARD_KEY = 'eastern_admin_login_guard_v2';
+    const ADMIN_LOGIN_GUARD_KEY = 'eastern_admin_login_guard_v3';
+    const ADMIN_LOGIN_LEGACY_GUARD_KEYS = ['eastern_admin_login_guard_v1', 'eastern_admin_login_guard_v2'];
     const ADMIN_AUTH_SESSION_KEY = 'eastern_admin_auth_session_v1';
     const ADMIN_MAX_TRIES = 3;
     const ADMIN_TRY_WINDOW_MS = 5 * 60 * 1000;
     const ADMIN_LOCK_MS = 60 * 60 * 1000;
 
-    try { localStorage.removeItem(ADMIN_LOGIN_GUARD_KEY); } catch {}
+    try {
+      for (const key of ADMIN_LOGIN_LEGACY_GUARD_KEYS) sessionStorage.removeItem(key);
+      localStorage.removeItem(ADMIN_LOGIN_GUARD_KEY);
+      if (new URLSearchParams(window.location.search).has('reset-admin-login')) {
+        sessionStorage.removeItem(ADMIN_LOGIN_GUARD_KEY);
+      }
+    } catch {}
 
     function getAdminLoginGuard() {
       try {
