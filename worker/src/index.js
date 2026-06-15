@@ -2403,6 +2403,9 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
   const hydratedRow = row;
+  if (kind === 'review' && !orderEmailSentAt(hydratedRow, 'delivered')) {
+    return json({ ok: false, error: 'Send the delivered email before previewing the review request' }, 400, corsHeaders);
+  }
   const trackingProvider = (data.trackingProvider ?? hydratedRow.tracking_provider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
