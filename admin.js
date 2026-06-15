@@ -3135,7 +3135,7 @@
     adminSectionTabBtns.forEach((btn) => btn.addEventListener('click', () => setAdminSectionTab(btn.getAttribute('data-admin-tab'))));
 
     // ===== Admin Unlock =====
-    const ADMIN_LOGIN_GUARD_KEY = 'eastern_admin_login_guard_v1';
+    const ADMIN_LOGIN_GUARD_KEY = 'eastern_admin_login_guard_v2';
     const ADMIN_AUTH_SESSION_KEY = 'eastern_admin_auth_session_v1';
     const ADMIN_MAX_TRIES = 3;
     const ADMIN_TRY_WINDOW_MS = 5 * 60 * 1000;
