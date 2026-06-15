@@ -18,6 +18,18 @@ This worker receives contact/domain-offer form submissions and emails them to `e
 - `wrangler secret put STRIPE_WEBHOOK_SECRET`
 - `wrangler secret put ADMIN_PASSWORD`
 
+Check currently configured secret names without exposing values:
+
+- `wrangler secret list`
+
+If admin login says the backend is not configured, reset the admin password secret:
+
+- `wrangler secret put ADMIN_PASSWORD`
+
+If login is throttled after wrong attempts, clear only the admin auth rate-limit rows:
+
+- `wrangler d1 execute eastern-shore-ai-bookings --remote --command "DELETE FROM rate_limits WHERE bucket IN ('admin_auth_fail','admin_auth_key_fail');"`
+
 ## 4) Deploy
 
 - `cd worker`

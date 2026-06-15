@@ -3244,12 +3244,16 @@
         const res = await fetch(`${BOOKINGS_API_URL}?limit=1`, {
           headers: { 'X-Admin-Password': key }
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
           if (res.status === 429) {
             const retryAfter = Number(res.headers.get('Retry-After') || 900);
             disableAdminLoginForRetryAfter(retryAfter);
             openErrorModal('Too many failed attempts. Please wait 15 minutes before trying again.');
+            return;
+          }
+          if (res.status >= 500) {
+            openErrorModal(data.error || 'Admin unlock failed because the backend is not configured correctly.');
             return;
           }
           const state = recordFailedAdminAttempt();
