@@ -11,6 +11,7 @@ wrangler.jsonc
 .wrangler
 .wrangler/**
 .DS_Store
+AGENTS.md
 .aider*
 .claude
 .claude/**
