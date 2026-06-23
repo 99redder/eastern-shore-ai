@@ -292,19 +292,19 @@ export default {
     }
 
     if (url.pathname === '/api/accounts/list') {
-      return handleAccountsList(request, env, corsHeaders, url);
+      return handleAccountsRequest('accounts list', () => handleAccountsList(request, env, corsHeaders, url), corsHeaders);
     }
 
     if (url.pathname === '/api/accounts/summary') {
-      return handleAccountsSummary(request, env, corsHeaders, url);
+      return handleAccountsRequest('accounts summary', () => handleAccountsSummary(request, env, corsHeaders, url), corsHeaders);
     }
 
     if (url.pathname === '/api/accounts/journal' && request.method === 'GET') {
-      return handleAccountsJournal(request, env, corsHeaders, url);
+      return handleAccountsRequest('accounts journal', () => handleAccountsJournal(request, env, corsHeaders, url), corsHeaders);
     }
 
     if (url.pathname === '/api/accounts/statements' && request.method === 'GET') {
-      return handleAccountsStatements(request, env, corsHeaders, url);
+      return handleAccountsRequest('accounts statements', () => handleAccountsStatements(request, env, corsHeaders, url), corsHeaders);
     }
 
     if (url.pathname === '/api/accounts/invoices' && request.method === 'GET') {
@@ -5554,6 +5554,15 @@ function json(payload, status = 200, headers = {}) {
     status,
     headers: { 'Content-Type': 'application/json', ...headers }
   });
+}
+
+async function handleAccountsRequest(label, handler, corsHeaders) {
+  try {
+    return await handler();
+  } catch (err) {
+    console.error(`Unhandled ${label} error`, err);
+    return json({ ok: false, error: `Failed to load ${label}` }, 500, corsHeaders);
+  }
 }
 
 function formatUsd(cents) {
