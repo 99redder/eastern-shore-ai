@@ -386,7 +386,7 @@ export default {
     }
 
     if (url.pathname === '/api/accounts/rebuild-auto-journal' && request.method === 'POST') {
-      return handleAccountsRebuildAutoJournal(request, env, corsHeaders, url);
+      return handleAccountsRequest('accounts auto journal rebuild', () => handleAccountsRebuildAutoJournal(request, env, corsHeaders, url), corsHeaders);
     }
 
     if (url.pathname === '/api/accounts/year-close' && request.method === 'POST') {
@@ -3931,13 +3931,12 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
   const accountingReady = await ensureAccountingSetup(env.DB);
   if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
 
-  const autoRows = await env.DB.prepare(
-    `SELECT id FROM journal_entries WHERE source_type IN ('tax_expense','tax_income')`
-  ).all();
-
-  for (const r of (autoRows.results || [])) {
-    await env.DB.prepare(`DELETE FROM journal_lines WHERE entry_id = ?1`).bind(r.id).run();
-  }
+  await env.DB.prepare(
+    `DELETE FROM journal_lines
+     WHERE entry_id IN (
+       SELECT id FROM journal_entries WHERE source_type IN ('tax_expense','tax_income')
+     )`
+  ).run();
   await env.DB.prepare(`DELETE FROM journal_entries WHERE source_type IN ('tax_expense','tax_income')`).run();
 
   const expenses = await env.DB.prepare(
@@ -3947,8 +3946,8 @@ async function handleAccountsRebuildAutoJournal(request, env, corsHeaders, url) 
     `SELECT id, income_date, source, category, amount_cents, notes, is_owner_funded FROM tax_income ORDER BY id ASC`
   ).all();
 
-  for (const e of (expenses.results || [])) await upsertTaxExpenseJournal(env.DB, e);
-  for (const i of (income.results || [])) await upsertTaxIncomeJournal(env.DB, i);
+  for (const e of (expenses.results || [])) await upsertTaxExpenseJournal(env.DB, e, { skipSetup: true, skipDelete: true });
+  for (const i of (income.results || [])) await upsertTaxIncomeJournal(env.DB, i, { skipSetup: true, skipDelete: true });
 
   return json({
     ok: true,
@@ -5263,10 +5262,12 @@ async function deleteAutoJournalBySource(db, sourceType, sourceId) {
   }
 }
 
-async function upsertTaxExpenseJournal(db, row) {
-  const accountingReady = await ensureAccountingSetup(db);
-  if (!accountingReady) return;
-  await deleteAutoJournalBySource(db, 'tax_expense', row.id);
+async function upsertTaxExpenseJournal(db, row, options = {}) {
+  if (!options.skipSetup) {
+    const accountingReady = await ensureAccountingSetup(db);
+    if (!accountingReady) return;
+  }
+  if (!options.skipDelete) await deleteAutoJournalBySource(db, 'tax_expense', row.id);
 
   const amount = Number(row.amount_cents || 0);
   if (!Number.isFinite(amount) || amount === 0) return;
@@ -5336,10 +5337,12 @@ async function upsertTaxExpenseJournal(db, row) {
   }
 }
 
-async function upsertTaxIncomeJournal(db, row) {
-  const accountingReady = await ensureAccountingSetup(db);
-  if (!accountingReady) return;
-  await deleteAutoJournalBySource(db, 'tax_income', row.id);
+async function upsertTaxIncomeJournal(db, row, options = {}) {
+  if (!options.skipSetup) {
+    const accountingReady = await ensureAccountingSetup(db);
+    if (!accountingReady) return;
+  }
+  if (!options.skipDelete) await deleteAutoJournalBySource(db, 'tax_income', row.id);
 
   const amount = Number(row.amount_cents || 0);
   if (!Number.isFinite(amount) || amount <= 0) return;
