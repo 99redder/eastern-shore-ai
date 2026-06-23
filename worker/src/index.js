@@ -3753,47 +3753,71 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
   const entryIds = (entries.results || []).map(e => Number(e.id)).filter(Boolean);
   if (!entryIds.length) return json({ ok: true, entries: [] }, 200, corsHeaders);
 
-  const lines = await queryRowsByIdChunks(env.DB, entryIds, (placeholders) => (
-    `SELECT jl.id, jl.entry_id, jl.account_id, jl.debit_cents, jl.credit_cents, a.code, a.name
-     FROM journal_lines jl JOIN accounts a ON a.id = jl.account_id
-     WHERE jl.entry_id IN (${placeholders})
-     ORDER BY jl.entry_id ASC, jl.id ASC`
-  ));
+  const joinedQ = env.DB.prepare(`
+    WITH selected_entries AS (
+      SELECT id, entry_date, memo, source_type, source_id, created_at
+      FROM journal_entries
+      ${where}
+      ORDER BY entry_date DESC, id DESC
+      LIMIT ?${binds.length + 1}
+    )
+    SELECT
+      se.id,
+      se.entry_date,
+      se.memo,
+      se.source_type,
+      se.source_id,
+      se.created_at,
+      CASE
+        WHEN se.source_type = 'tax_expense' THEN te.notes
+        WHEN se.source_type = 'tax_income' THEN ti.notes
+        ELSE ''
+      END AS source_notes,
+      jl.id AS line_id,
+      jl.account_id,
+      jl.debit_cents,
+      jl.credit_cents,
+      a.code,
+      a.name
+    FROM selected_entries se
+    LEFT JOIN journal_lines jl ON jl.entry_id = se.id
+    LEFT JOIN accounts a ON a.id = jl.account_id
+    LEFT JOIN tax_expenses te ON se.source_type = 'tax_expense' AND te.id = se.source_id
+    LEFT JOIN tax_income ti ON se.source_type = 'tax_income' AND ti.id = se.source_id
+    ORDER BY se.entry_date DESC, se.id DESC, jl.id ASC
+  `);
+  const joinedRows = await joinedQ.bind(...binds, limit).all();
 
-  const linesByEntry = new Map();
-  for (const l of lines) {
-    const key = Number(l.entry_id);
-    if (!linesByEntry.has(key)) linesByEntry.set(key, []);
-    linesByEntry.get(key).push(l);
+  const byEntry = new Map();
+  for (const row of (joinedRows.results || [])) {
+    const id = Number(row.id);
+    if (!byEntry.has(id)) {
+      const sourceNotes = String(row.source_notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim();
+      byEntry.set(id, {
+        id,
+        entry_date: row.entry_date,
+        memo: row.memo,
+        source_type: row.source_type,
+        source_id: row.source_id,
+        created_at: row.created_at,
+        source_notes: sourceNotes,
+        lines: []
+      });
+    }
+    if (row.line_id) {
+      byEntry.get(id).lines.push({
+        id: row.line_id,
+        entry_id: id,
+        account_id: row.account_id,
+        debit_cents: row.debit_cents,
+        credit_cents: row.credit_cents,
+        code: row.code,
+        name: row.name
+      });
+    }
   }
 
-  const results = entries.results || [];
-
-  const taxExpenseIds = results.filter(e => e.source_type === 'tax_expense').map(e => Number(e.source_id)).filter(Boolean);
-  const taxIncomeIds = results.filter(e => e.source_type === 'tax_income').map(e => Number(e.source_id)).filter(Boolean);
-  const expenseNotes = new Map();
-  const incomeNotes = new Map();
-
-  if (taxExpenseIds.length) {
-    const rows = await queryRowsByIdChunks(env.DB, taxExpenseIds, (placeholders) => (
-      `SELECT id, notes FROM tax_expenses WHERE id IN (${placeholders})`
-    ));
-    for (const r of rows) expenseNotes.set(Number(r.id), String(r.notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim());
-  }
-  if (taxIncomeIds.length) {
-    const rows = await queryRowsByIdChunks(env.DB, taxIncomeIds, (placeholders) => (
-      `SELECT id, notes FROM tax_income WHERE id IN (${placeholders})`
-    ));
-    for (const r of rows) incomeNotes.set(Number(r.id), String(r.notes || '').trim());
-  }
-
-  const out = results.map((e) => {
-    let source_notes = '';
-    if (e.source_type === 'tax_expense') source_notes = expenseNotes.get(Number(e.source_id)) || '';
-    else if (e.source_type === 'tax_income') source_notes = incomeNotes.get(Number(e.source_id)) || '';
-    else if (e.source_type === 'owner_transfer') source_notes = '';
-    return { ...e, source_notes, lines: linesByEntry.get(Number(e.id)) || [] };
-  });
+  const out = entryIds.map(id => byEntry.get(id)).filter(Boolean);
 
   return json({ ok: true, entries: out }, 200, corsHeaders);
 }
@@ -5562,18 +5586,6 @@ async function handleAccountsRequest(label, handler, corsHeaders) {
     console.error(`Unhandled ${label} error`, err);
     return json({ ok: false, error: `Failed to load ${label}` }, 500, corsHeaders);
   }
-}
-
-async function queryRowsByIdChunks(db, ids, buildSql, chunkSize = 50) {
-  const rows = [];
-  const uniqueIds = [...new Set(ids.map(id => Number(id)).filter(Boolean))];
-  for (let i = 0; i < uniqueIds.length; i += chunkSize) {
-    const chunk = uniqueIds.slice(i, i + chunkSize);
-    const placeholders = chunk.map(() => '?').join(',');
-    const result = await db.prepare(buildSql(placeholders)).bind(...chunk).all();
-    rows.push(...(result.results || []));
-  }
-  return rows;
 }
 
 function formatUsd(cents) {
