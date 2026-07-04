@@ -3596,7 +3596,8 @@
                 processedTotal += (data.processed || 0);
                 if (Array.isArray(data.errors) && data.errors.length) allErrors.push(...data.errors);
                 progressText = total ? ` ${Math.min(processedTotal, total)}/${total}` : '';
-                if (data.done) break;
+                // Old (non-chunked) worker responses omit these fields — stop after one call.
+                if (data.done || typeof data.nextStart !== 'number') break;
                 start = data.nextStart;
               }
               await Promise.all([loadTaxTransactions(), loadAccountsData()]);
