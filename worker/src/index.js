@@ -5250,7 +5250,8 @@ async function ensureAccountingSetup(db) {
       ['5300','Payment Processing Fees','expense','debit'],
       ['5400','Contractor Expense','expense','debit'],
       ['5500','Travel Expense','expense','debit'],
-      ['5600','Utilities Expense','expense','debit']
+      ['5600','Utilities Expense','expense','debit'],
+      ['5700','Taxes & Licenses','expense','debit']
     ];
     for (const s of seed) {
       await db.prepare(`INSERT INTO accounts (code, name, account_type, normal_side, is_system, active) VALUES (?1, ?2, ?3, ?4, 1, 1)`).bind(...s).run();
@@ -5262,6 +5263,7 @@ async function ensureAccountingSetup(db) {
   // seed so prod chart-of-accounts stays current (each ensureAccountByCode
   // call is a single cheap SELECT, with INSERT only when missing).
   await ensureAccountByCode(db, '4100', 'Interest Income', 'income', 'credit');
+  await ensureAccountByCode(db, '5700', 'Taxes & Licenses', 'expense', 'debit');
   return true;
 }
 
@@ -5305,7 +5307,10 @@ async function upsertTaxExpenseJournal(db, row, options = {}) {
     'Shipping - Survival Node Fulfillment': '5220',
     'Packaging - Survival Node Fulfillment': '5230',
     'AI Services': '5000',
-    'Web Services': '5600'
+    'Web Services': '5600',
+    'Taxes - Sales & Use': '5700',
+    'Business License Fees': '5700',
+    'LLC Fees': '5700'
   };
   const expenseAccountCode = expenseAccountCodeByCategory[category] || '5200';
   const paidVia = (row.paid_via || '').toLowerCase();
@@ -5336,7 +5341,8 @@ async function upsertTaxExpenseJournal(db, row, options = {}) {
     '5300': ['Payment Processing Fees', 'expense', 'debit'],
     '5400': ['Contractor Expense', 'expense', 'debit'],
     '5500': ['Travel Expense', 'expense', 'debit'],
-    '5600': ['Web Services Expense', 'expense', 'debit']
+    '5600': ['Web Services Expense', 'expense', 'debit'],
+    '5700': ['Taxes & Licenses', 'expense', 'debit']
   };
   const debitDef = accountLabels[expenseAccountCode] || ['Office Expense', 'expense', 'debit'];
   const creditDef = offsetCode === '1000'

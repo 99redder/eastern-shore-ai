@@ -1455,7 +1455,7 @@
       'Hardware', 'Research & Development', 'Product Testing', 'Office Supplies', 'Travel', 'Meals', 'Education',
       'Professional Services', 'Payment Processing Fees',
       'Inventory - Survival Node Components', 'Shipping - Survival Node Fulfillment', 'Packaging - Survival Node Fulfillment',
-      'LLC Fees', 'Business License Fees', 'Shipping Insurance Reimbursement',
+      'LLC Fees', 'Business License Fees', 'Taxes - Sales & Use', 'Shipping Insurance Reimbursement',
       'Other'
     ];
 
