@@ -52,8 +52,6 @@
 
     let adminSectionTabsEl;
     let adminSectionTabBtns;
-    let taxTabActionsEl;
-
     let bookingCollapseBtn;
     let bookingControlsBody;
     let taxCollapseBtn;
@@ -295,7 +293,6 @@
       adminUnlockBtn = document.getElementById('admin-unlock-btn');
       adminSectionTabsEl = document.getElementById('admin-section-tabs');
       adminSectionTabBtns = document.querySelectorAll('[data-admin-tab]');
-      taxTabActionsEl = document.getElementById('tax-tab-actions');
       bookingCollapseBtn = document.getElementById('booking-collapse-btn');
       bookingControlsBody = document.getElementById('booking-controls-body');
       taxCollapseBtn = document.getElementById('tax-collapse-btn');
@@ -3129,7 +3126,6 @@
       show('quotes-card', tab === 'quotes');
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
-      if (taxTabActionsEl) taxTabActionsEl.hidden = tab !== 'tax';
       if (tab === 'orders' && adminSessionActive) refreshOrderList();
       if (tab === 'invoices' && adminSessionActive) refreshInvoiceList();
       if (tab === 'quotes' && adminSessionActive) refreshQuoteList();

@@ -177,29 +177,41 @@
       border-color:#3d7bc6;
     }
     .admin-section-tabs .btn.active { border-color:#7bb6ff; box-shadow:0 0 12px rgba(123,182,255,.45); }
-    .admin-tab-actions {
+    .tax-ledger-action-row {
+      display:flex;
+      align-items:center;
+      gap:.4rem;
+      flex-wrap:wrap;
+      margin-top:.4rem;
+    }
+    .tax-ledger-primary-actions {
+      display:flex;
+      align-items:center;
+      gap:.4rem;
+      flex-wrap:wrap;
+    }
+    .tax-ledger-actions {
       display:flex;
       align-items:center;
       gap:.35rem;
       flex-wrap:wrap;
       margin-left:auto;
     }
-    .admin-tab-actions[hidden] { display:none !important; }
-    .admin-tab-actions label {
+    .tax-ledger-actions label {
       margin:0;
       min-width:auto;
       font-size:.82rem;
       color:var(--muted);
       letter-spacing:.04em;
     }
-    .admin-tab-actions select {
+    .tax-ledger-actions select {
       max-width:none;
       min-width:86px;
       width:auto;
       padding:.38rem .5rem;
       font-size:.88rem;
     }
-    .admin-tab-actions .btn {
+    .tax-ledger-actions .btn {
       padding:.42rem .62rem;
       font-size:.84rem;
       white-space:nowrap;
@@ -238,7 +250,7 @@
       .tax-summary-grid { grid-template-columns:1fr; }
       .bs-grid { grid-template-columns:1fr; }
       .admin-section-tabs { gap:.3rem; }
-      .admin-tab-actions {
+      .tax-ledger-actions {
         width:100%;
         margin-left:0;
         justify-content:flex-start;
@@ -295,26 +307,6 @@
           <button type="button" class="btn" data-admin-tab="quotes">Quotes</button>
           <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
           <button type="button" class="btn" data-admin-tab="audit-package">Audit Package</button>
-          <div class="admin-tab-actions" id="tax-tab-actions" hidden>
-            <label for="tax-year">Year</label>
-            <select id="tax-year"></select>
-            <label for="tax-type">Type</label>
-            <select id="tax-type">
-              <option value="all">All</option>
-              <option value="income">Income</option>
-              <option value="expense">Expenses</option>
-            </select>
-            <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
-            <label for="tax-export-quarter">Export</label>
-            <select id="tax-export-quarter">
-              <option value="all">Full year</option>
-              <option value="1">Q1</option>
-              <option value="2">Q2</option>
-              <option value="3">Q3</option>
-              <option value="4">Q4</option>
-            </select>
-            <button type="button" class="btn btn-primary" id="tax-export-btn">CSV</button>
-          </div>
         </div>
 
         <div class="admin-collapsible-card" id="booking-controls-card">
@@ -393,11 +385,33 @@
                   <div class="tax-summary-grid" id="tax-summary-list">No data yet.</div>
                 </div>
 
-                <div class="admin-row" style="gap:.4rem; flex-wrap:wrap; margin-top:.4rem;">
-                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
-                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
-                  <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-owner-transfer-btn">Add Owner Transfer</button>
-                  <button type="button" class="btn btn-primary" id="tax-manage-categories-btn">Manage Categories</button>
+                <div class="tax-ledger-action-row">
+                  <div class="tax-ledger-primary-actions">
+                    <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
+                    <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                    <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-owner-transfer-btn">Add Owner Transfer</button>
+                    <button type="button" class="btn btn-primary" id="tax-manage-categories-btn">Manage Categories</button>
+                  </div>
+                  <div class="tax-ledger-actions" id="tax-ledger-actions">
+                    <label for="tax-year">Year</label>
+                    <select id="tax-year"></select>
+                    <label for="tax-type">Type</label>
+                    <select id="tax-type">
+                      <option value="all">All</option>
+                      <option value="income">Income</option>
+                      <option value="expense">Expenses</option>
+                    </select>
+                    <button type="button" class="btn" id="tax-refresh-btn">Refresh</button>
+                    <label for="tax-export-quarter">Export</label>
+                    <select id="tax-export-quarter">
+                      <option value="all">Full year</option>
+                      <option value="1">Q1</option>
+                      <option value="2">Q2</option>
+                      <option value="3">Q3</option>
+                      <option value="4">Q4</option>
+                    </select>
+                    <button type="button" class="btn btn-primary" id="tax-export-btn">CSV</button>
+                  </div>
                 </div>
 
                 <div class="tax-entry-wrap tax-entry-modal" id="tax-expense-panel" style="display:none;" aria-hidden="true">
@@ -1067,6 +1081,6 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=tax-toolbar-tabs"></script>
+  <script src="/admin.js?v=tax-toolbar-action-row"></script>
 </body>
 </html>
