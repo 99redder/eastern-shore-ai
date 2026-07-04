@@ -236,6 +236,20 @@
       padding:.34rem .5rem;
       font-size:.88rem;
     }
+    .tax-ledger-actions input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(65%) sepia(90%) saturate(5000%) hue-rotate(290deg) brightness(105%) contrast(105%);
+      opacity: 1;
+      cursor: pointer;
+    }
+    /* Compact Accounts controls pill */
+    .tax-ledger-actions.accounts-controls { gap:.3rem; }
+    .tax-ledger-actions.accounts-controls label { font-size:.75rem; }
+    .tax-ledger-actions.accounts-controls select { min-width:68px; padding:.28rem .38rem; font-size:.82rem; }
+    .tax-ledger-actions.accounts-controls input[type="date"] { min-width:102px; padding:.26rem .32rem; font-size:.8rem; }
+    .tax-ledger-actions.accounts-controls .btn { padding:.32rem .5rem; font-size:.8rem; }
+    /* Rebuild button — stands out */
+    #accounts-rebuild-auto-journal-btn { background:linear-gradient(145deg,#ffb020,#e88a00); border-color:#ffb020; color:#1a1205; box-shadow:0 0 12px rgba(255,176,32,.32); }
+    #accounts-rebuild-auto-journal-btn:hover { filter:brightness(1.08); }
     #tax-type { min-width:112px; }
     #tax-export-quarter { min-width:128px; }
 
@@ -544,7 +558,7 @@
                 <button type="button" class="btn" id="accounts-tab-journal">Journal</button>
                 <button type="button" class="btn" id="accounts-rebuild-auto-journal-btn">Rebuild Auto Journal</button>
               </div>
-              <div class="tax-ledger-actions">
+              <div class="tax-ledger-actions accounts-controls">
                 <label for="accounts-year">Year</label>
                 <select id="accounts-year"></select>
                 <label for="accounts-from">From</label>
