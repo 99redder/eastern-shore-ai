@@ -197,6 +197,18 @@
       flex-wrap:wrap;
       margin-left:auto;
     }
+    .tax-export-label {
+      flex-basis:100%;
+      font-size:.74rem;
+      color:var(--muted);
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      line-height:1.2;
+    }
+    .tax-export-label strong {
+      color:var(--cyan);
+      font-weight:700;
+    }
     .tax-ledger-actions label {
       margin:0;
       min-width:auto;
@@ -393,6 +405,7 @@
                     <button type="button" class="btn btn-primary" id="tax-manage-categories-btn">Manage Categories</button>
                   </div>
                   <div class="tax-ledger-actions" id="tax-ledger-actions">
+                    <div class="tax-export-label"><strong>CSV Export</strong> — choose what goes into the downloaded file</div>
                     <label for="tax-year">Year</label>
                     <select id="tax-year"></select>
                     <label for="tax-type">Type</label>
@@ -1080,6 +1093,6 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=remove-tax-export-refresh"></script>
+  <script src="/admin.js?v=tax-csv-export-label"></script>
 </body>
 </html>
