@@ -3577,6 +3577,7 @@
               let processedTotal = 0;
               const allErrors = [];
               let guard = 0;
+              let lastData = {};
               while (true) {
                 if (++guard > 1000) throw new Error('Rebuild did not finish (too many chunks)');
                 const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
@@ -3586,6 +3587,7 @@
                 });
                 const data = await res.json().catch(() => ({}));
                 if (!res.ok || !data.ok) throw new Error(data.error || 'Rebuild failed');
+                lastData = data;
                 total = data.total || 0;
                 processedTotal += (data.processed || 0);
                 if (Array.isArray(data.errors) && data.errors.length) allErrors.push(...data.errors);
@@ -3593,6 +3595,11 @@
                 // Old (non-chunked) worker responses omit these fields — stop after one call.
                 if (data.done || typeof data.nextStart !== 'number') break;
                 start = data.nextStart;
+              }
+              // Fallback for the old (non-chunked) worker, which returns { rebuilt: {...} }
+              if (!total && lastData && lastData.rebuilt) {
+                processedTotal = (lastData.rebuilt.expenseEntries || 0) + (lastData.rebuilt.incomeEntries || 0);
+                total = processedTotal;
               }
               await Promise.all([loadTaxTransactions(), loadAccountsData()]);
               const errNote = allErrors.length ? ` (${allErrors.length} rows skipped with errors)` : '';
