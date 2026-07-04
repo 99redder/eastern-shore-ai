@@ -3596,24 +3596,45 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
 
   const year = (url.searchParams.get('year') || '').trim();
   const type = (url.searchParams.get('type') || 'all').trim();
+  const quarter = (url.searchParams.get('quarter') || 'all').trim();
   if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Missing/invalid year' }, 400, corsHeaders);
 
+  // Optional quarter filter: 1=Jan-Mar, 2=Apr-Jun, 3=Jul-Sep, 4=Oct-Dec
+  const quarterMonths = { '1': ['01', '03'], '2': ['04', '06'], '3': ['07', '09'], '4': ['10', '12'] };
+  if (quarter !== 'all' && !quarterMonths[quarter]) {
+    return json({ ok: false, error: 'Invalid quarter (use 1-4 or all)' }, 400, corsHeaders);
+  }
+
+  // Build a WHERE clause + bind list for a given date column, keeping bind counts exact.
+  const buildDateFilter = (dateCol) => {
+    if (quarter === 'all') {
+      return { where: `substr(${dateCol},1,4) = ?1`, binds: [year] };
+    }
+    const [startMonth, endMonth] = quarterMonths[quarter];
+    return {
+      where: `substr(${dateCol},1,4) = ?1 AND substr(${dateCol},6,2) BETWEEN ?2 AND ?3`,
+      binds: [year, startMonth, endMonth]
+    };
+  };
+
+  const expenseFilter = buildDateFilter('expense_date');
   const expenses = (type === 'all' || type === 'expense')
     ? await env.DB.prepare(
         `SELECT expense_date AS date, vendor, category, amount_cents, paid_via, notes, created_at
          FROM tax_expenses
-         WHERE substr(expense_date,1,4) = ?1
+         WHERE ${expenseFilter.where}
          ORDER BY expense_date ASC, id ASC`
-      ).bind(year).all()
+      ).bind(...expenseFilter.binds).all()
     : { results: [] };
 
+  const incomeFilter = buildDateFilter('income_date');
   const income = (type === 'all' || type === 'income')
     ? await env.DB.prepare(
         `SELECT income_date AS date, source, category, amount_cents, stripe_session_id, notes, is_owner_funded, created_at
          FROM tax_income
-         WHERE substr(income_date,1,4) = ?1
+         WHERE ${incomeFilter.where}
          ORDER BY income_date ASC, id ASC`
-      ).bind(year).all()
+      ).bind(...incomeFilter.binds).all()
     : { results: [] };
 
   const lines = [];
@@ -3648,7 +3669,7 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
   }
 
   const csv = lines.join('\n');
-  const filename = `eastern-shore-ai-tax-${year}-${type}.csv`;
+  const filename = `eastern-shore-ai-tax-${year}-${type}${quarter !== 'all' ? `-Q${quarter}` : ''}.csv`;
 
   return new Response(csv, {
     status: 200,

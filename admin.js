@@ -2070,8 +2070,11 @@
     async function downloadTaxCsv() {
       const year = taxYearEl.value;
       const type = taxTypeEl.value;
+      const quarter = document.getElementById('tax-export-quarter')?.value || 'all';
+      const quarterParam = quarter && quarter !== 'all' ? `&quarter=${encodeURIComponent(quarter)}` : '';
+      const quarterSuffix = quarter && quarter !== 'all' ? `-Q${quarter}` : '';
       try {
-        const res = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}`, {
+        const res = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}${quarterParam}`, {
           headers: { 'X-Admin-Password': adminPassword }
         });
         if (!res.ok) {
@@ -2082,7 +2085,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `eastern-shore-ai-tax-${year}-${type}.csv`;
+        a.download = `eastern-shore-ai-tax-${year}-${type}${quarterSuffix}.csv`;
         document.body.appendChild(a);
         a.click();
         a.remove();
