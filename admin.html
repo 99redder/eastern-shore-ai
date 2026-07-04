@@ -193,9 +193,11 @@
     .tax-ledger-actions {
       display:flex;
       align-items:center;
+      justify-content:flex-end;
       gap:.35rem;
       flex-wrap:wrap;
       margin-left:auto;
+      max-width:520px;
     }
     .tax-export-label {
       flex-basis:100%;
@@ -264,6 +266,7 @@
       .admin-section-tabs { gap:.3rem; }
       .tax-ledger-actions {
         width:100%;
+        max-width:none;
         margin-left:0;
         justify-content:flex-start;
       }
@@ -1093,6 +1096,6 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=tax-csv-export-label"></script>
+  <script src="/admin.js?v=tax-csv-export-right-align"></script>
 </body>
 </html>
