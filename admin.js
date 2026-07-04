@@ -1797,10 +1797,9 @@
       if (!adminSessionActive) return;
       const year = taxYearEl.value;
       const summaryYear = taxSummaryYearEl?.value || year;
-      const type = taxTypeEl.value;
       try {
         const [res, summaryRes] = await Promise.all([
-          fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}&limit=5000`, {
+          fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
             headers: { 'X-Admin-Password': adminPassword }
           }),
           fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(summaryYear)}&type=all&limit=5000`, {
@@ -3353,7 +3352,6 @@
           taxRefreshBtn.addEventListener('click', loadTaxTransactions);
           taxYearEl.addEventListener('change', loadTaxTransactions);
           taxSummaryYearEl?.addEventListener('change', loadTaxTransactions);
-          taxTypeEl.addEventListener('change', loadTaxTransactions);
           taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
           taxModeOwnerTransferBtn?.addEventListener('click', openOwnerTransferModal);
           taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
