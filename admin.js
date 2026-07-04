@@ -3567,22 +3567,41 @@
             accountsRebuildAutoJournalBtn.style.borderColor = '#ff4fa3';
             accountsRebuildAutoJournalBtn.style.color = '#fff';
             accountsRebuildAutoJournalBtn.textContent = 'Rebuilding…';
+            let progressText = '';
             let animTick = 0;
             const anim = setInterval(() => {
               animTick = (animTick + 1) % 4;
-              accountsRebuildAutoJournalBtn.textContent = `Rebuilding${'.'.repeat(animTick)}${' '.repeat(3 - animTick)}`;
+              accountsRebuildAutoJournalBtn.textContent = `Rebuilding${'.'.repeat(animTick)}${' '.repeat(3 - animTick)}${progressText}`;
             }, 350);
 
             try {
-              const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
-                body: JSON.stringify({})
-              });
-              const data = await res.json().catch(() => ({}));
-              if (!res.ok || !data.ok) throw new Error(data.error || 'Rebuild failed');
+              // Chunked rebuild: the worker processes a slice per call and returns
+              // the next start index. Loop until done so we never exceed Cloudflare's
+              // per-request DB-call limit on large ledgers.
+              let start = 0;
+              let total = 0;
+              let processedTotal = 0;
+              const allErrors = [];
+              let guard = 0;
+              while (true) {
+                if (++guard > 1000) throw new Error('Rebuild did not finish (too many chunks)');
+                const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+                  body: JSON.stringify({ start })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.ok) throw new Error(data.error || 'Rebuild failed');
+                total = data.total || 0;
+                processedTotal += (data.processed || 0);
+                if (Array.isArray(data.errors) && data.errors.length) allErrors.push(...data.errors);
+                progressText = total ? ` ${Math.min(processedTotal, total)}/${total}` : '';
+                if (data.done) break;
+                start = data.nextStart;
+              }
               await Promise.all([loadTaxTransactions(), loadAccountsData()]);
-              openSuccessModal('Auto journal rebuilt successfully from current tax rows.', 'Rebuild Complete ✅');
+              const errNote = allErrors.length ? ` (${allErrors.length} rows skipped with errors)` : '';
+              openSuccessModal(`Auto journal rebuilt successfully from current tax rows. ${processedTotal} of ${total} entries posted.${errNote}`, 'Rebuild Complete ✅');
             } catch (e) {
               openErrorModal(`Could not rebuild auto journal: ${e.message || e}`);
             } finally {
