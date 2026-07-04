@@ -3567,12 +3567,6 @@
             accountsRebuildAutoJournalBtn.style.borderColor = '#ff4fa3';
             accountsRebuildAutoJournalBtn.style.color = '#fff';
             accountsRebuildAutoJournalBtn.textContent = 'Rebuilding…';
-            let progressText = '';
-            let animTick = 0;
-            const anim = setInterval(() => {
-              animTick = (animTick + 1) % 4;
-              accountsRebuildAutoJournalBtn.textContent = `Rebuilding${'.'.repeat(animTick)}${' '.repeat(3 - animTick)}${progressText}`;
-            }, 350);
 
             try {
               // Chunked rebuild: the worker processes a slice per call and returns
@@ -3595,7 +3589,7 @@
                 total = data.total || 0;
                 processedTotal += (data.processed || 0);
                 if (Array.isArray(data.errors) && data.errors.length) allErrors.push(...data.errors);
-                progressText = total ? ` ${Math.min(processedTotal, total)}/${total}` : '';
+                accountsRebuildAutoJournalBtn.textContent = total ? `Rebuilding… ${Math.min(processedTotal, total)}/${total}` : 'Rebuilding…';
                 // Old (non-chunked) worker responses omit these fields — stop after one call.
                 if (data.done || typeof data.nextStart !== 'number') break;
                 start = data.nextStart;
@@ -3606,7 +3600,6 @@
             } catch (e) {
               openErrorModal(`Could not rebuild auto journal: ${e.message || e}`);
             } finally {
-              clearInterval(anim);
               accountsRebuildAutoJournalBtn.disabled = false;
               accountsRebuildAutoJournalBtn.textContent = originalText;
               accountsRebuildAutoJournalBtn.style.background = originalBg;
