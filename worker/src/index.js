@@ -3042,7 +3042,7 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
   const type = (url.searchParams.get('type') || 'all').trim();
   if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Missing/invalid year' }, 400, corsHeaders);
 
-  const limit = Math.max(1, Math.min(500, Number(url.searchParams.get('limit') || 200)));
+  const limit = Math.max(1, Math.min(10000, Number(url.searchParams.get('limit') || 200)));
 
   const expensesP = (type === 'all' || type === 'expense')
     ? env.DB.prepare(

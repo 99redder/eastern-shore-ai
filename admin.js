@@ -2065,21 +2065,93 @@
       setTimeout(() => URL.revokeObjectURL(blobUrl), 60 * 1000);
     }
 
+    function adminCsvEscape(value) {
+      const s = String(value ?? '');
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    }
+
+    function getQuarterRange(year, quarter) {
+      const ranges = {
+        '1': [`${year}-01-01`, `${year}-03-31`],
+        '2': [`${year}-04-01`, `${year}-06-30`],
+        '3': [`${year}-07-01`, `${year}-09-30`],
+        '4': [`${year}-10-01`, `${year}-12-31`]
+      };
+      return ranges[quarter] || [`${year}-01-01`, `${year}-12-31`];
+    }
+
+    function inDateRange(dateValue, startDate, endDate) {
+      const d = String(dateValue || '').slice(0, 10);
+      return d >= startDate && d <= endDate;
+    }
+
+    function buildTaxCsv(rows) {
+      const lines = [];
+      lines.push(['date','type','category','vendor_or_source','amount','paid_via','stripe_session_id','notes','created_at'].join(','));
+      for (const r of rows) {
+        lines.push([
+          adminCsvEscape(r.date),
+          adminCsvEscape(r.type),
+          adminCsvEscape(r.category),
+          adminCsvEscape(r.vendor_or_source),
+          (Number(r.amount_cents || 0) / 100).toFixed(2),
+          adminCsvEscape(r.paid_via || ''),
+          adminCsvEscape(r.stripe_session_id || ''),
+          adminCsvEscape(r.notes || ''),
+          adminCsvEscape(r.created_at || '')
+        ].join(','));
+      }
+      return lines.join('\n');
+    }
+
     async function downloadTaxCsv() {
       const year = taxYearEl.value;
       const type = taxTypeEl.value;
       const quarter = document.getElementById('tax-export-quarter')?.value || 'all';
-      const quarterParam = `&quarter=${encodeURIComponent(quarter || 'all')}`;
       const quarterSuffix = quarter && quarter !== 'all' ? `-Q${quarter}` : '';
       try {
-        const res = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}${quarterParam}`, {
+        const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=10000`, {
           headers: { 'X-Admin-Password': adminPassword }
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error || 'Export failed');
         }
-        const blob = await res.blob();
+        const data = await res.json();
+        const [startDate, endDate] = getQuarterRange(year, quarter);
+        const rows = [
+          ...(data.income || []).map(r => ({
+            type: 'income',
+            date: r.date,
+            category: r.category,
+            vendor_or_source: r.source || '',
+            amount_cents: r.amount_cents,
+            paid_via: '',
+            stripe_session_id: r.stripe_session_id || '',
+            notes: r.notes || '',
+            created_at: r.created_at || ''
+          })),
+          ...(data.expenses || []).map(r => ({
+            type: 'expense',
+            date: r.date,
+            category: r.category,
+            vendor_or_source: r.vendor || '',
+            amount_cents: r.amount_cents,
+            paid_via: r.paid_via || '',
+            stripe_session_id: '',
+            notes: r.notes || '',
+            created_at: r.created_at || ''
+          }))
+        ]
+          .filter(r => type === 'all' || r.type === type)
+          .filter(r => inDateRange(r.date, startDate, endDate))
+          .sort((a, b) => {
+            const ad = String(a.date || '');
+            const bd = String(b.date || '');
+            if (ad !== bd) return ad.localeCompare(bd);
+            return a.type.localeCompare(b.type);
+          });
+        const blob = new Blob([buildTaxCsv(rows)], { type: 'text/csv;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
