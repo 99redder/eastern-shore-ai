@@ -3608,12 +3608,13 @@ async function handleTaxExportCsv(request, env, corsHeaders, url) {
   // Build a WHERE clause + bind list for a given date column, keeping bind counts exact.
   const buildDateFilter = (dateCol) => {
     if (quarter === 'all') {
-      return { where: `substr(${dateCol},1,4) = ?1`, binds: [year] };
+      return { where: `${dateCol} >= ?1 AND ${dateCol} <= ?2`, binds: [`${year}-01-01`, `${year}-12-31`] };
     }
     const [startMonth, endMonth] = quarterMonths[quarter];
+    const endDay = { '03': '31', '06': '30', '09': '30', '12': '31' }[endMonth];
     return {
-      where: `substr(${dateCol},1,4) = ?1 AND substr(${dateCol},6,2) BETWEEN ?2 AND ?3`,
-      binds: [year, startMonth, endMonth]
+      where: `${dateCol} >= ?1 AND ${dateCol} <= ?2`,
+      binds: [`${year}-${startMonth}-01`, `${year}-${endMonth}-${endDay}`]
     };
   };
 

@@ -2070,7 +2070,7 @@
       const year = taxYearEl.value;
       const type = taxTypeEl.value;
       const quarter = document.getElementById('tax-export-quarter')?.value || 'all';
-      const quarterParam = quarter && quarter !== 'all' ? `&quarter=${encodeURIComponent(quarter)}` : '';
+      const quarterParam = `&quarter=${encodeURIComponent(quarter || 'all')}`;
       const quarterSuffix = quarter && quarter !== 'all' ? `-Q${quarter}` : '';
       try {
         const res = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=${encodeURIComponent(type)}${quarterParam}`, {
