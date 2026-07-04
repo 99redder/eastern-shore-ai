@@ -3349,7 +3349,7 @@
           });
 
           // ===== Tax Ledger Event Listeners =====
-          taxRefreshBtn.addEventListener('click', loadTaxTransactions);
+          taxRefreshBtn?.addEventListener('click', loadTaxTransactions);
           taxYearEl.addEventListener('change', loadTaxTransactions);
           taxSummaryYearEl?.addEventListener('change', loadTaxTransactions);
           taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
