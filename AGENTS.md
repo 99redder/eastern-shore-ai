@@ -1,0 +1,955 @@
+# AGENTS.md — Eastern Shore AI
+
+## General Instructions
+
+- **Auto-push**: After committing changes, always push to `origin/main` automatically. No need to ask for confirmation before pushing.
+
+## Project Overview
+
+Marketing and booking website for Eastern Shore AI, a local AI consulting business selling OpenClaw setup services. Static frontend hosted on GitHub Pages, serverless API on Cloudflare Workers.
+
+**Domain**: www.easternshore.ai
+
+## Tech Stack
+
+- **Frontend**: Vanilla HTML, CSS, JavaScript (no framework, no build step)
+- **Fonts**: Google Fonts — Hanken Grotesk (headings, nav, buttons), Titillium Web (body text), Orbitron (header logo), Rajdhani (brand tagline only)
+- **Backend**: Cloudflare Workers (`worker/src/index.js`)
+- **Database**: Cloudflare D1 (SQLite)
+- **Payments**: Stripe (checkout sessions + webhooks)
+- **Email**: Resend API
+- **Hosting**: GitHub Pages (frontend), Cloudflare Workers (API)
+
+## Project Structure
+
+```
+├── index.html                 # Main homepage (self-contained HTML/CSS/JS)
+├── openclaw-setup.html        # Setup booking page with Stripe checkout
+├── admin.html                 # Admin dashboard (noindex, password-protected)
+├── favicon.svg
+├── CNAME                      # GitHub Pages domain config
+├── robots.txt / sitemap.xml   # SEO files
+└── worker/
+    ├── wrangler.toml          # Cloudflare Workers config
+    ├── src/index.js           # All API routes (contact, checkout, webhook)
+    └── migrations/            # D1 database schema
+```
+
+## Deployment
+
+**Frontend**: Push to `main` branch — GitHub Pages auto-deploys. No build step.
+
+**Worker**:
+```bash
+cd worker && wrangler deploy
+```
+
+Worker secrets (configured in Cloudflare dashboard): `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_PASSWORD`
+
+## API Endpoints
+
+All routes in `worker/src/index.js`:
+- `POST /api/contact` — Form submissions (domain offers, questions)
+- `POST /api/checkout-session` — Creates Stripe checkout with booking conflict + past-time checks
+- `POST /api/stripe-webhook` — Stripe payment confirmation, records bookings in D1, auto-inserts tax income row
+- `GET /api/availability` — Public unavailable slots + blocked dates
+- `GET /api/bookings` — Admin read: bookings + blocked slots + blocked days
+- `POST /api/admin/block-slot` — Admin block/unblock a specific 2-hour slot
+- `POST /api/admin/block-day` — Admin block/unblock an entire day
+- `GET /api/tax/transactions` — Admin tax transactions by year/type
+- `POST /api/tax/expense` — Admin add expense entry
+- `POST /api/tax/income` — Admin add income entry
+- `GET /api/tax/export.csv` — Admin CSV export for selected year/type
+- `POST /api/admin/ask-k` — Survival Node Ask K assistant endpoint
+- `POST /api/admin/ask-k/escalate` — Survival Node Ask K Discord/webhook escalation
+- `POST /api/chat/session` — Create a live human support chat session from the site
+- `GET /api/chat/session` — Fetch chat session metadata by token
+- `GET /api/chat/messages` — Poll chat messages + typing state by token
+- `POST /api/chat/message` — Send a chat message (user or staff)
+- `POST /api/chat/typing` — Update typing indicator state
+- `GET /api/chat/sessions` — Admin list of support chat sessions
+- `POST /api/chat/session/close` — Close a support chat session (admin or customer token flow)
+- `POST /api/chat/sessions/purge-old` — Admin delete closed chats older than N days
+
+Response shape: `{ ok: boolean, error?: string }`
+
+## Survival Node Ask K + Live Support (added 2026-03-11)
+
+### Overview
+
+The Survival Node page (`node.html`) now includes a reusable **Ask K** assistant patterned after the FlorenceMaeGifts implementation, but grounded to the Survival Node product/site instead of FMG admin workflows.
+
+Ask K is:
+- explain-only
+- prompt-injection hardened
+- page-aware
+- beginner-friendly and detailed
+- backed by the Eastern Shore AI Cloudflare Worker, not the FMG worker
+
+### Ask K frontend (`node.html`)
+
+Features added to the Survival Node page:
+- floating **Ask K** button + right-side drawer
+- K avatar in header and assistant responses
+- Survival-Node-specific quick actions / canned FAQ replies
+- freeform AI Q&A for custom questions
+- **Talk to a human** escalation button (pink/black styling so it stands out)
+- customer-side human support mode with:
+  - live human join state
+  - inline typing indicator in chat stream
+  - customer-side **Close chat** action with branded confirmation modal
+
+Important UX behavior:
+- human support status stays hidden until **Talk to a human** is pressed
+- "X has joined the chat" shows in the message stream
+- "X is typing…" shows in the chat area, not just in the header
+
+### Ask K backend (`worker/src/index.js`)
+
+The worker now supports the same Ask K provider pattern used on FMG:
+- `ASKK_API_KEY`
+- `ASKK_BASE_URL`
+- `ASKK_MODEL`
+- base URL normalization to `/chat/completions`
+- `<think>...</think>` stripping from model replies
+- intent-first behavior (question > page context)
+- explain-only role constraints
+
+Grounding file:
+- `worker/askk-survival-node-knowledge.md`
+
+That file is the project-specific read-only knowledge base for Survival Node Ask K and should be updated when the product/support/FAQ behavior changes.
+
+### Provider configuration
+
+If using MiniMax (same pattern as FMG):
+```bash
+wrangler secret put ASKK_API_KEY
+wrangler secret put ASKK_BASE_URL   # https://api.minimax.io/v1
+wrangler secret put ASKK_MODEL      # MiniMax-M2.5
+```
+
+Optional staff escalation secret:
+```bash
+wrangler secret put ASKK_STAFF_WEBHOOK_URL
+```
+
+### Survival Node support chat system
+
+A full live human-handoff support chat was added for the Survival Node page.
+
+Frontend pieces:
+- `node.html` — customer-side Ask K + live support chat UI
+- `support-chat.html` — operator/admin chat console
+- `support-chat-manifest.json` — PWA manifest
+- `support-chat-sw.js` — service worker for install/update behavior
+
+Backend pieces:
+- chat session/message/typing endpoints in `worker/src/index.js`
+- D1-backed chat persistence using `chat_sessions`, `chat_messages`, and `chat_typing`
+
+### Support chat behavior
+
+Customer-side:
+- user can escalate from Ask K to a live human support session
+- customer sees staff join + staff typing in the chat stream
+- customer can close the chat with branded confirmation modal
+
+Operator-side (`support-chat.html`):
+- persistent login via localStorage restore of admin password
+- editable operator display name (stored locally)
+- mobile/PWA-optimized support panel
+- mobile uses a two-screen pattern:
+  - sessions list first
+  - full-screen chat after selecting a session
+  - back button to return to sessions list
+- branded modal for close-session confirmation
+- **Clear 30+ Day Chats** maintenance action
+- closed customer chats automatically drop out of the **Active** view and belong under **Closed**
+
+### Required D1 migrations for support chat
+
+Relevant migration files now include:
+- `0017_create_chat_tables.sql`
+- `0018_add_chat_typing_state.sql`
+
+Apply to production with:
+```bash
+cd worker
+wrangler d1 migrations apply eastern-shore-ai-bookings --remote
+```
+Then deploy:
+```bash
+wrangler deploy
+```
+
+### Important implementation notes
+
+- Website chat is the source of truth; Discord is only the notification layer.
+- Do **not** try to make Discord the canonical chat backend.
+- The support chat operator surface should remain usable on phone/PWA.
+- For future sites, if Red says to “port Ask K,” treat the Survival Node/FM G pattern as reusable architecture:
+  - floating assistant drawer
+  - grounded project knowledge file
+  - own worker/env/API key setup
+  - optional live human handoff
+
+## Code Conventions
+
+- **No frameworks or build tools** — pages are self-contained HTML with inline CSS/JS
+- **CSS**: Custom properties for theming (`--bg`, `--cyan`, `--violet`, `--text`), cyberpunk scheme with cyan (`#00e5ff`) + purple (`#c850ff`) neon accents on dark blue-tinted backgrounds (`#0a0b10`); light theme uses neutral grays with `--cyan: #0099bb` and `--violet: #8a2ec0`. Battle-damaged hull edges via `clip-path: polygon()` on cards and buttons. Mobile-responsive with breakpoints at 820px, 760px, and 480px
+- **JS**: Vanilla, async/await, camelCase functions and variables
+- **HTML classes/IDs**: kebab-case (`.btn-primary`, `#setup-modal`)
+- **Accessibility**: ARIA attributes (`aria-hidden`, `aria-labelledby`, `aria-modal`)
+- **Security**: CORS origin validation, honeypot spam fields, Stripe HMAC-SHA256 signature verification
+- **API status codes**: 200, 400, 403, 404, 409, 500, 502
+
+## Key Patterns
+
+- Modals use overlay click and Escape key to close
+- Forms validate client-side before API calls, show inline status feedback
+- Stripe checkout redirects back to the setup page with success/cancel query params
+- Worker checks D1 for booking slot conflicts before creating checkout sessions
+
+## Responsive / Mobile Design
+
+Both pages use inline `<style>` media queries for mobile optimization. The booking flow on `openclaw-setup.html` is prioritized for mobile usability.
+
+### Breakpoints
+
+| Breakpoint | Scope | Purpose |
+|---|---|---|
+| `820px` | `index.html` | Stacks offer grid, modal content, form grids; centers topbar/nav; full-width Book Now button; repositions hero lobster emoji |
+| `760px` | `openclaw-setup.html` | Stacks booking/admin/form grids |
+| `480px` | Both pages | Further reduces font sizes, card/container padding for small phones (iPhone SE) |
+
+### Key mobile patterns
+
+- **iOS zoom prevention**: All `input`, `textarea`, `select` elements set to `font-size:16px` at mobile breakpoints to prevent Safari auto-zoom on focus
+- **Safe area insets**: Footer uses `env(safe-area-inset-bottom)` for notched devices
+- **Single-column forms**: `.form-grid` switches from 2-column to 1-column at mobile breakpoints for touch-friendly input sizing
+- **iOS `input[type="date"]` overflow fix**: On iOS Safari, the native date-picker widget (a replaced element) renders at a fixed intrinsic width that ignores `width:100%` on the input itself, causing it to visually overflow its grid cell. Fix: `.form-grid > * { overflow:hidden; }` on the parent div creates a BFC that clips the replaced element's rendering to the cell boundary. The native date picker still activates on tap — `overflow:hidden` on the parent only clips visual rendering, not interaction.
+
+## Testing
+
+No automated tests. Manual testing via browser and API tools (curl/Postman). Use Stripe test mode for payment flows.
+
+---
+
+## Stripe Setup Details (Current Production Design)
+
+### Stripe product/pricing model
+
+Current implementation creates checkout sessions dynamically in the worker using inline `price_data`:
+- Product name: `OpenClaw Setup`
+- Currency: `usd`
+- Amount: `10000` cents ($100.00)
+- Quantity: `1`
+
+This means no pre-created Stripe Price ID is required today.
+
+### Frontend payment flow (`openclaw-setup.html`)
+
+1. User selects:
+   - `setup-date` (date)
+   - `setup-time` (2-hour block)
+2. User clicks `Book + Pay Now`
+3. Frontend calls:
+   - `POST /api/checkout-session`
+4. Worker responds with `checkoutUrl`
+5. Browser redirects to Stripe Checkout
+6. Stripe redirects back to:
+   - Success: `/openclaw-setup.html?paid=1`
+   - Cancel: `/openclaw-setup.html?canceled=1`
+7. Success modal appears on return and displays saved date/time.
+
+### Worker Stripe routes
+
+#### `POST /api/checkout-session`
+
+- Validates required fields (`setupDate`, `setupTime`)
+- Composes `setup_at` as `${setupDate}T${setupTime}`
+- Checks D1 for conflicts before creating session:
+  - Existing `bookings` with status in `('paid','confirmed')`
+  - Existing active rows in `blocked_slots`
+- Creates Stripe Checkout Session via `https://api.stripe.com/v1/checkout/sessions`
+- Stores a `pending` booking row in D1 keyed by `stripe_session_id`
+- Returns:
+  - `{ ok: true, checkoutUrl, id }`
+
+#### `POST /api/stripe-webhook`
+
+- Verifies Stripe signature using HMAC SHA-256 against `STRIPE_WEBHOOK_SECRET`
+- Handles event type:
+  - `checkout.session.completed`
+- Upserts booking row in D1 and marks status `paid`
+- Stores/updates:
+  - `stripe_session_id`
+  - `stripe_payment_intent_id`
+  - `setup_date`, `setup_time`, `setup_at`
+  - `customer_name`, `customer_email`
+  - `amount_cents`
+  - `paid_at`
+
+### Stripe metadata strategy
+
+Checkout session metadata includes:
+- `setup_date`
+- `setup_time`
+- `setup_at`
+- `customer_name`
+
+These are mirrored onto `payment_intent_data.metadata` for downstream reconciliation.
+
+### Required Stripe events
+
+Minimum required webhook event:
+- `checkout.session.completed`
+
+Configured webhook endpoint:
+- `https://eastern-shore-ai-contact.99redder.workers.dev/api/stripe-webhook`
+
+### Worker secrets and config
+
+Required secrets:
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `ADMIN_PASSWORD` (shared admin password for dashboard APIs)
+- `RESEND_API_KEY`
+
+Set via:
+```bash
+wrangler secret put STRIPE_SECRET_KEY
+wrangler secret put STRIPE_WEBHOOK_SECRET
+wrangler secret put ADMIN_PASSWORD
+wrangler secret put RESEND_API_KEY
+```
+
+### D1 persistence (booking + admin + tax)
+
+Database: `eastern-shore-ai-bookings`
+
+Tables:
+- `bookings` — pending/paid setup bookings
+- `blocked_slots` — blocked 2-hour setup blocks
+- `blocked_days` — full-day blocks
+- `tax_expenses` — manual expense entries (USD)
+- `tax_income` — manual + Stripe-imported income entries (USD)
+
+Migrations:
+- `0001_create_bookings.sql`
+- `0002_create_blocked_slots.sql`
+- `0003_create_blocked_days.sql`
+- `0004_create_tax_tables.sql`
+- `0005_tax_income_unique_stripe_session.sql`
+
+### Public/admin availability behavior
+
+- Public endpoint: `GET /api/availability`
+  - returns unavailable `setup_at` values from:
+    - paid/confirmed bookings
+    - active blocked slots
+  - returns `blockedDates` from active `blocked_days`
+- Frontend disables unavailable blocks and blocked days in dropdown
+- Checkout route re-validates conflicts server-side (authoritative)
+- Checkout also rejects past date/time blocks using `America/New_York`
+
+### Admin operations (booking + tax)
+
+Admin panel lives at `/admin.html` (dedicated page, `noindex`). Previously was at `openclaw-setup.html?admin=1` — that no longer activates anything.
+
+Auth:
+- Admin requests use `X-Admin-Password` header (value must match Worker secret `ADMIN_PASSWORD`)
+
+#### Changing the admin password
+
+**Via CLI:**
+```bash
+cd worker && wrangler secret put ADMIN_PASSWORD
+```
+No redeploy needed — Worker picks it up immediately.
+
+**Via Cloudflare dashboard:**
+dash.cloudflare.com → Workers & Pages → `eastern-shore-ai-contact` → Settings → Variables and Secrets → Edit `ADMIN_PASSWORD` → Deploy.
+
+Admin APIs:
+- `GET /api/bookings`
+- `POST /api/admin/block-slot`
+- `POST /api/admin/block-day`
+- `GET /api/tax/transactions`
+- `POST /api/tax/expense`
+- `POST /api/tax/income`
+- `GET /api/tax/export.csv`
+
+Blocking a slot/day prevents new Stripe checkout sessions for those times.
+
+### Troubleshooting checklist
+
+If Stripe payment succeeds but slot not marked paid:
+1. Check Stripe webhook delivery logs (expect HTTP 200)
+2. Confirm `STRIPE_WEBHOOK_SECRET` matches configured endpoint secret
+3. Confirm event type `checkout.session.completed` is enabled
+4. Confirm Worker deployment includes latest webhook code
+5. Query `/api/bookings?key=...` to inspect status (`pending` vs `paid`)
+
+### Invoice/Quote Stripe webhook gotchas (critical)
+
+- **Do not use explicit SQL transaction statements (`BEGIN`, `COMMIT`, `ROLLBACK`) in this worker path with D1** for invoice webhook payment posting. It can fail with:
+  - `D1_ERROR: To execute a transaction, please use the state.storage.transaction()...`
+- **Double-check SQL bind counts** any time invoice payment sync logic is changed.
+  - A common failure seen here was: `Wrong number of parameter bindings for SQL query`.
+  - This happened in invoice update/sync statements where placeholders and `.bind(...)` values got out of sync.
+- For invoice Stripe flows, webhook should update **both**:
+  1. Stripe tracking fields (`stripe_payment_status`, session info), and
+  2. invoice monetary fields (`amount_paid_cents`, `balance_due_cents`, `status`).
+- If a webhook partially succeeds (books posted but invoice row not updated), replaying the same event should be safe and should reconcile invoice paid/balance from posted income (idempotent behavior).
+- Always verify post-fix with:
+  1. Stripe webhook event replay = 200
+  2. `tax_income` row exists for `invoice-payment:<invoiceId>:<eventId>`
+  3. invoice row reflects paid/balance/status correctly.
+
+If checkout creation fails:
+1. Verify `STRIPE_SECRET_KEY` exists in worker secrets
+2. Check worker logs for `Stripe session failed`
+3. Confirm selected slot is not blocked/booked (`409` indicates conflict)
+
+### Go-live notes
+
+When moving from test to live:
+- Rotate all test keys to live keys
+- Recreate/verify webhook endpoint in live Stripe mode
+- Set live `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`
+- Set/rotate `ADMIN_PASSWORD`
+- Run one full end-to-end live verification payment
+
+## Admin Dashboard (`admin.html`) — Current UX
+
+- Lives at `/admin.html` — dedicated standalone page, no public booking content.
+- Password lock on page load; unlock reveals all admin controls.
+- No header bar — goes straight to the admin lock/content.
+- Booking admin includes:
+  - block/unblock individual 2-hour slots
+  - block/unblock entire day
+  - availability calendar with day markers (booked vs blocked)
+- Tax Ledger is a separate admin section/card with:
+  - year selector (defaults to current year)
+  - type filter (`all`, `income`, `expense`)
+  - side-by-side yearly totals snapshot (income vs expenses, bold totals)
+  - category totals
+  - manual Add Expense / Add Income forms (USD)
+  - CSV download export for selected year/type
+
+## Stripe → Tax Auto-Import
+
+On `checkout.session.completed`, webhook now:
+1. Upserts booking to `bookings` as `paid` (existing behavior)
+2. Inserts tax income row in `tax_income` with:
+   - source: `Stripe`
+   - category: `OpenClaw Setup`
+   - amount from Stripe `amount_total`
+   - `stripe_session_id` for dedupe
+
+Deduplication is enforced by unique index:
+- `ux_tax_income_stripe_session_id` on `tax_income(stripe_session_id)` where non-null.
+
+
+## Session Update — 2026-02-19 (Major Booking/Admin/Stripe hardening)
+
+### High-impact fixes shipped
+- Booking + lessons pages now collect booking contact info in the booking card itself (not hidden in questions form):
+  - Name (required)
+  - Email (required)
+  - Phone (optional)
+  - Preferred contact method (Email/Phone)
+- Booking card layout compacted to 2-column field rows; CTA spans full width.
+- OpenClaw booking card moved to top; "What You Should Expect" moved to separate card below.
+- OpenClaw floating top-right CTA removed; in-card CTA now uses that visual style/glow.
+
+### Admin UX changes
+- Admin Booking Controls and Tax Ledger are now separate collapsible cards.
+- Both cards default to minimized.
+- Availability calendar now supports month navigation (Prev/Next).
+- Blocked slot/day rows now include delete buttons.
+- Tax transaction list now renders one row per item (readable, with Edit/Delete actions).
+- Tax edits now use full inline forms (all fields), not prompt dialogs.
+
+### Stripe webhook + tax ledger behavior (important)
+- Auto income insert on `checkout.session.completed` remains enabled.
+- Added automatic Stripe fee accounting:
+  - webhook fetches Stripe balance transaction fee
+  - inserts `tax_expenses` row with category `Payment Processing Fees`
+  - dedupes fee rows per session via note key (`Auto Stripe fee for session <id>`)
+- Critical schema/logic lesson:
+  - Do **not** assume `ON CONFLICT(stripe_session_id)` works unless an actual UNIQUE constraint exists in that table.
+  - `bookings` table currently lacks UNIQUE on `stripe_session_id` in production DB, so webhook logic now uses explicit select-then-update/insert.
+  - `tax_income` webhook insert also switched off `ON CONFLICT` dependency to explicit existence check.
+
+### Cloudflare Wrangler deployment gotcha (very important)
+- `wrangler deploy` targets Worker deployment (no `--remote` needed).
+- D1 migration commands must use `--remote` for production database changes.
+- If migration output says `Resource location: local`, production schema did not change.
+
+### Current migration set
+- Added: `worker/migrations/0007_add_booking_contact_fields.sql`
+  - `bookings.customer_phone`
+  - `bookings.preferred_contact_method` (default `email`)
+
+### Operational notes
+- Stripe 500 webhook errors were traced to SQL upsert assumptions, then fixed in worker.
+- Once webhook event is retried and returns 200, income/fees appear in tax ledger after refresh.
+- Weekly OpenClaw cron backup job exists to auto-export D1 + tax CSV snapshots to local workspace backups.
+
+## Session Update — 2026-02-19 (UX polish: modals, validation, card order)
+
+### openclaw-setup.html
+- **Cancel modal fix**: Stripe cancel redirect (`?canceled=1`) now shows title "Checkout Canceled" instead of the payment success title. Cancel message body is just "Checkout canceled — no charge was made." (slot time removed — unnecessary on cancel).
+- **Dynamic modal title**: `openSuccessModal(text, title)` now accepts an optional title param and sets `#success-title` text. Both the paid and canceled call sites pass explicit titles.
+- **Branded error modal**: All booking-flow `alert()` calls replaced with a styled `#error-modal` (same overlay/card pattern as success modal, violet `--violet` title "Heads Up", OK button). Covers: missing name/email, invalid email format, no date/time selected, past slot, unavailable slot, checkout API failure.
+- **Email format validation**: Added regex check (`/^[^\s@]+@[^\s@]+\.[^\s@]+$/`) before the API call; shows error modal instead of the generic checkout failure message.
+
+### book-lessons.html
+- **Card order** now matches `openclaw-setup.html`: booking card (with Home back-button and h1) first, "What You Should Expect" flow card second, questions form third.
+- **Floating top-right button removed**: `<header>` with `.top-book-btn` link deleted. Associated sticky-bottom mobile CSS and `body { padding-bottom:80px }` and `padding-right: 220px` first-card rule all removed.
+- **In-card CTA restyled**: "Book Lessons Now" button now uses `.top-book-btn` class (pink gradient, neon glow shadow, uppercase, 1.15rem) with `.book-pay-panel .top-book-btn { position:static }` override. Not full-width — sized naturally.
+- **Branded error modal**: Same `#error-modal` pattern added (CSS, HTML, JS open/close functions, event listeners). All booking-flow alerts replaced with `openErrorModal()`.
+- **Email format validation**: Same regex check added before checkout API call.
+- **Cancel modal fix**: Same title/body fix as openclaw — "Checkout Canceled" title, no slot time in body.
+- **Dynamic modal title**: `openSuccessModal` updated to accept title param; paid/canceled call sites pass explicit titles.
+
+### Modal pattern (both pages)
+Both booking pages now share the same modal architecture:
+- `#success-modal` — payment confirmation (cyan title, dynamic via `openSuccessModal(text, title)`)
+- `#error-modal` — booking validation errors (violet title "Heads Up", via `openErrorModal(text)`)
+- Both close on button click or overlay click
+
+## Session Update — 2026-02-20 (Footer newsletter, homepage polish)
+
+### Brevo newsletter embed — all 4 pages (`index.html`, `book-lessons.html`, `openclaw-setup.html`, `ai-agent-repair.html`)
+- Replaced placeholder footer content with Brevo (Sendinblue) HTML form embed
+- Form styled to match site branding:
+  - Container background `#141620`, border `#222438`, no default Brevo padding (`padding: 0.7rem !important`)
+  - "Newsletter" label in `var(--cyan)` / Hanken Grotesk
+  - Subtext in muted `#7a7e96`
+  - Email input: `background:#0a0b10; border:1px solid #222438; color:#d8dce8; font-family:Titillium Web; font-size:18px; height:3.5rem`
+  - Subscribe button: inline with input (flex row, `gap:0.4rem`), `background:linear-gradient(145deg,#ff4fd8,#c850ff); box-shadow:0 0 12px rgba(255,79,216,0.6); height:3.5rem; font-family:Hanken Grotesk`
+- Brevo CSS linked in `<head>`: `https://sibforms.com/forms/end-form/build/sib-styles.css`
+- Brevo JS deferred before `</body>`: `https://sibforms.com/forms/end-form/build/main.js` with required config globals (`REQUIRED_CODE_ERROR_MESSAGE`, `LOCALE`, etc.)
+- Honeypot spam field included: `<input type="text" name="email_address_check" value="" class="input--hidden">`
+
+### Footer layout — all 4 pages
+- Footer restructured to 2-column flex layout: `.footer-inner { display:flex; align-items:flex-start; gap:2.5rem; }`
+  - Left: `.footer-newsletter` — Brevo signup form
+  - Right: `.footer-info` — copyright, phone, X/Twitter, nav links
+- Both columns equal width: `flex:1` on each (50/50 split)
+- Mobile (`max-width:820px`): stacks to single column, newsletter full-width
+
+### `index.html` — AI Agents Topics Covered card
+- Removed "Emails, and" from the Topics Covered description so it now reads "…Newsletters, Workflows, and more…"
+
+### General Instructions added to AGENTS.md
+- Auto-push after every commit — no confirmation needed
+
+## Session Update — 2026-02-22 (Admin panel migration)
+
+### Admin panel moved to `admin.html`
+- Created `admin.html`: dedicated standalone admin page at `/admin.html`
+  - `<meta name="robots" content="noindex">` — kept out of search indexes
+  - No header bar — page goes straight to the password lock then admin controls
+  - Password lock/unlock works identically to before; all admin functions preserved
+  - Includes JSZip CDN script for year-package ZIP export
+- Stripped all admin HTML, CSS, and JS from `openclaw-setup.html` (~1,400 lines removed)
+  - `openclaw-setup.html?admin=1` no longer activates anything
+  - Public booking page is now a clean standalone file focused on the booking flow
+- Admin-only modals (`#confirm-modal`, `#tax-category-modal`, `#tax-category-edit-modal`) now live only in `admin.html`; `#success-modal` and `#error-modal` remain in `openclaw-setup.html` for the booking flow
+
+### Add Expense bug fix (prior session, documented here)
+- Root cause: `body.admin-mode .success-modal-overlay { display:none !important; }` was hiding `#confirm-modal` even after `.active` was added, so the Promise-based confirm dialog never resolved
+- Fix: added `:not(#confirm-modal):not(#error-modal)` to that CSS selector so only the booking success overlay is hidden in admin mode
+
+## Session Update — 2026-02-22 (Visual effects on index.html)
+
+### Effects added to `index.html`
+- **Logo glitch** — every 10s, kanji scramble + CSS `::before`/`::after` RGB-split animation on `.header-logo`
+  - `data-text="Eastern Shore AI"` attribute on `.header-logo` anchor
+  - `@keyframes glitch-top` / `glitch-bot` with `clip-path` + `translateX`
+  - Kanji pool: `'脳電機知能時刻数網影光速算力波形'`
+  - `setInterval(triggerGlitch, 10000)` in an IIFE after theme toggle JS
+- **Neural network canvas** — 28-node 3D rotating graph, positioned `absolute right: 24px` relative to `.hero`, `430×430px`
+  - Canvas 2D, no external deps; perspective projection; drag + auto-rotate
+  - On hover: `hoverIntensity` ramp increases `shadowBlur` on nodes (+20) and connections (+14)
+  - Hidden on mobile (`max-width: 820px`)
+
+### Neon pink rain effect (currently removed, restore if needed)
+Rain was removed 2026-02-22. All code is preserved below for easy re-addition.
+
+**HTML** — first child of `<body>`:
+```html
+<canvas id="rain-canvas"></canvas>
+```
+
+**CSS** — add after the `:root` light-theme block:
+```css
+/* ===== Rain Canvas ===== */
+#rain-canvas {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1; pointer-events: none; opacity: 0.18;
+}
+body[data-theme="light"] #rain-canvas { display: none; }
+```
+
+**JS** — first IIFE inside `<script>` block (before `const CONTACT_API_URL`):
+```js
+// ===== Neon Rain =====
+(function() {
+  const canvas = document.getElementById('rain-canvas');
+  const ctx = canvas.getContext('2d');
+  let drops = [], W = 0, H = 0;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    const count = Math.floor(W / 18);
+    drops = Array.from({length: count}, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      len: 28 + Math.random() * 65,
+      speed: 14 + Math.random() * 22,
+      alpha: 0.35 + Math.random() * 0.55,
+      width: 0.8 + Math.random() * 0.8
+    }));
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drops.forEach(d => {
+      const grad = ctx.createLinearGradient(d.x, d.y - d.len, d.x, d.y);
+      grad.addColorStop(0, 'rgba(255,79,216,0)');
+      grad.addColorStop(0.65, `rgba(255,79,216,${d.alpha * 0.45})`);
+      grad.addColorStop(1, `rgba(255,200,240,${d.alpha})`);
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y - d.len);
+      ctx.lineTo(d.x, d.y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = d.width;
+      ctx.stroke();
+      d.y += d.speed;
+      if (d.y - d.len > H) { d.y = -d.len; d.x = Math.random() * W; }
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+```
+
+**Notes:** Rain is hidden in light mode (`body[data-theme="light"] #rain-canvas { display: none; }`). Speed `14 + Math.random() * 22` gives fast realistic rain. Opacity `0.18` keeps it subtle. All other content already has `z-index` above 1.
+
+## Circuit Board Canvas (removed 2026-02-24, restore if needed)
+
+A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to the right of the hero text. Drag to rotate (CSS 3D perspective transform). Glows on hover.
+
+### How to restore
+
+**1. CSS** — add inside `<style>` after the `.hero-content` block:
+```css
+.hero-neural-wrap {
+  position: absolute; right: max(16px, calc(50% - 620px)); top: 50%; transform: translateY(-50%);
+  width: 240px; height: 240px; z-index: 1; opacity: 0.92; pointer-events: auto;
+}
+#neural-canvas { width: 100%; height: 100%; cursor: grab; display: block; }
+#neural-canvas:active { cursor: grabbing; }
+```
+
+**2. Mobile hide** — add inside the `@media (max-width: 820px)` block:
+```css
+.hero-neural-wrap { display: none; }
+```
+
+**3. HTML** — add after the closing `</div>` of `.hero-inner`, still inside `.hero`:
+```html
+<div class="hero-neural-wrap">
+  <canvas id="neural-canvas"></canvas>
+</div>
+```
+
+**4. JS** — add as an IIFE inside `<script>`, before `window.showStatusModal`:
+```js
+// ===== Circuit Board =====
+(function() {
+  const canvas = document.getElementById('neural-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const PINK = '#ff4fd8', CYAN = '#00e5ff';
+
+  // Canonical design space: 430x430
+  const CW = 430, CH = 430;
+  const chipX = 155, chipY = 155, chipW = 120, chipH = 120;
+
+  // 5 pin positions per side (as offsets along chip edge)
+  const PO = [0.2, 0.35, 0.5, 0.65, 0.8];
+  const tPins = PO.map(t => chipX + t * chipW);
+  const lPins = PO.map(t => chipY + t * chipH);
+
+  // Trace definitions: arrays of [x,y] waypoints (90° turns only)
+  const traceData = [
+    { pts: [[tPins[0],chipY],[tPins[0],108],[78,108],[78,52]],   color: CYAN },
+    { pts: [[tPins[1],chipY],[tPins[1],88],[133,88],[133,43]],   color: PINK },
+    { pts: [[tPins[2],chipY],[tPins[2],52]],                     color: CYAN },
+    { pts: [[tPins[3],chipY],[tPins[3],73],[297,73],[297,43]],   color: PINK },
+    { pts: [[tPins[4],chipY],[tPins[4],98],[352,98],[352,52]],   color: CYAN },
+    { pts: [[tPins[0],chipY+chipH],[tPins[0],322],[78,322],[78,377]],   color: PINK },
+    { pts: [[tPins[1],chipY+chipH],[tPins[1],342],[133,342],[133,387]], color: CYAN },
+    { pts: [[tPins[2],chipY+chipH],[tPins[2],377]],                     color: PINK },
+    { pts: [[tPins[3],chipY+chipH],[tPins[3],327],[297,327],[297,387]], color: CYAN },
+    { pts: [[tPins[4],chipY+chipH],[tPins[4],312],[352,312],[352,377]], color: PINK },
+    { pts: [[chipX,lPins[0]],[108,lPins[0]],[108,78],[52,78]],   color: PINK },
+    { pts: [[chipX,lPins[1]],[88,lPins[1]],[88,133],[43,133]],   color: CYAN },
+    { pts: [[chipX,lPins[2]],[52,lPins[2]]],                     color: PINK },
+    { pts: [[chipX,lPins[3]],[98,lPins[3]],[98,307],[52,307]],   color: CYAN },
+    { pts: [[chipX,lPins[4]],[113,lPins[4]],[113,357],[52,357]], color: PINK },
+    { pts: [[chipX+chipW,lPins[0]],[322,lPins[0]],[322,78],[377,78]],   color: CYAN },
+    { pts: [[chipX+chipW,lPins[1]],[342,lPins[1]],[342,133],[387,133]], color: PINK },
+    { pts: [[chipX+chipW,lPins[2]],[377,lPins[2]]],                     color: CYAN },
+    { pts: [[chipX+chipW,lPins[3]],[327,lPins[3]],[327,307],[377,307]], color: PINK },
+    { pts: [[chipX+chipW,lPins[4]],[313,lPins[4]],[313,357],[377,357]], color: CYAN },
+  ];
+
+  function buildMeta(pts) {
+    let total = 0;
+    const segs = pts.slice(1).map((p, i) => {
+      const from = pts[i], d = Math.abs(p[0]-from[0]) + Math.abs(p[1]-from[1]);
+      const seg = { from, to: p, d, start: total };
+      total += d; return seg;
+    });
+    return { segs, total };
+  }
+  function posAt(meta, t) {
+    const target = Math.min(t, 1) * meta.total;
+    for (const s of meta.segs) {
+      if (target <= s.start + s.d) {
+        const r = s.d > 0 ? (target - s.start) / s.d : 0;
+        return [s.from[0] + (s.to[0]-s.from[0])*r, s.from[1] + (s.to[1]-s.from[1])*r];
+      }
+    }
+    return meta.segs[meta.segs.length-1].to;
+  }
+
+  const metas = traceData.map(t => buildMeta(t.pts));
+  const pulses = traceData.map((_, i) => ({
+    t: i / traceData.length,
+    speed: 0.0038 + (i % 3) * 0.0012
+  }));
+
+  // 3D rotation state (degrees)
+  let rotX = 22, rotY = -14;
+  let velX = 0, velY = 0;
+  let drag = false, lastMX = 0, lastMY = 0;
+  let hovered = false, hoverIntensity = 0, frame = 0;
+
+  canvas.addEventListener('mousedown', e => {
+    drag = true; velX = 0; velY = 0;
+    lastMX = e.clientX; lastMY = e.clientY;
+    canvas.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', () => { drag = false; canvas.style.cursor = 'grab'; });
+  window.addEventListener('mousemove', e => {
+    if (!drag) return;
+    const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
+    velY = dx * 0.45; velX = dy * 0.45;
+    rotY += velY; rotX = Math.max(-60, Math.min(60, rotX + velX));
+    lastMX = e.clientX; lastMY = e.clientY;
+  });
+  canvas.addEventListener('touchstart', e => {
+    const t = e.touches[0]; drag = true; velX = 0; velY = 0;
+    lastMX = t.clientX; lastMY = t.clientY;
+  }, {passive: true});
+  window.addEventListener('touchend', () => { drag = false; });
+  window.addEventListener('touchmove', e => {
+    if (!drag) return;
+    const t = e.touches[0];
+    const dx = t.clientX - lastMX, dy = t.clientY - lastMY;
+    velY = dx * 0.45; velX = dy * 0.45;
+    rotY += velY; rotX = Math.max(-60, Math.min(60, rotX + velX));
+    lastMX = t.clientX; lastMY = t.clientY;
+  }, {passive: true});
+
+  canvas.addEventListener('mouseenter', () => { hovered = true; });
+  canvas.addEventListener('mouseleave', () => { hovered = false; });
+
+  function draw() {
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.width / dpr, H = canvas.height / dpr;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    const sc = Math.min(W / CW, H / CH);
+    ctx.translate((W - CW*sc)/2, (H - CH*sc)/2);
+    ctx.scale(sc, sc);
+
+    frame++;
+    hoverIntensity += ((hovered ? 1 : 0) - hoverIntensity) * 0.07;
+    const hi = hoverIntensity;
+    const breathe = 0.72 + 0.28 * Math.sin(frame * 0.022);
+
+    if (!drag) {
+      velY *= 0.92;
+      velX = velX * 0.92 + (20 - rotX) * 0.006;
+      rotY += velY;
+      rotX = Math.max(-60, Math.min(60, rotX + velX));
+    }
+
+    canvas.style.transform = `perspective(700px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+
+    // Traces
+    traceData.forEach((trace, i) => {
+      const pts = trace.pts;
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
+      ctx.strokeStyle = trace.color; ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.5 + hi * 0.35;
+      ctx.shadowBlur = (4 + hi * 16) * breathe; ctx.shadowColor = trace.color;
+      ctx.stroke(); ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+      const last = pts[pts.length-1];
+      ctx.beginPath(); ctx.arc(last[0], last[1], 4, 0, Math.PI*2);
+      ctx.fillStyle = trace.color;
+      ctx.shadowBlur = (8 + hi * 22) * breathe; ctx.shadowColor = trace.color;
+      ctx.fill(); ctx.shadowBlur = 0;
+      for (let j = 1; j < pts.length-1; j++) {
+        ctx.beginPath(); ctx.arc(pts[j][0], pts[j][1], 2.5, 0, Math.PI*2);
+        ctx.fillStyle = trace.color + 'aa'; ctx.fill();
+      }
+    });
+
+    // Chip body
+    ctx.fillStyle = '#04060e';
+    ctx.shadowBlur = (14 + hi * 32) * breathe; ctx.shadowColor = CYAN;
+    ctx.fillRect(chipX, chipY, chipW, chipH); ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#2a7090'; ctx.lineWidth = 2;
+    ctx.shadowBlur = (8 + hi * 18) * breathe; ctx.shadowColor = CYAN;
+    ctx.strokeRect(chipX, chipY, chipW, chipH); ctx.shadowBlur = 0;
+
+    // Inner etching
+    ctx.strokeStyle = CYAN + '2a'; ctx.lineWidth = 0.8;
+    [
+      [[chipX+18,chipY+18],[chipX+52,chipY+18],[chipX+52,chipY+38],[chipX+102,chipY+38]],
+      [[chipX+18,chipY+52],[chipX+40,chipY+52],[chipX+40,chipY+70],[chipX+18,chipY+70]],
+      [[chipX+18,chipY+102],[chipX+52,chipY+102],[chipX+52,chipY+82]],
+      [[chipX+72,chipY+18],[chipX+72,chipY+62],[chipX+102,chipY+62]],
+      [[chipX+82,chipY+82],[chipX+102,chipY+82]],
+      [[chipX+52,chipY+52],[chipX+68,chipY+52]],
+    ].forEach(pts => {
+      ctx.beginPath();
+      pts.forEach(([x,y], j) => j===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+      ctx.stroke();
+    });
+    [[chipX+52,chipY+38],[chipX+72,chipY+62],[chipX+40,chipY+70],[chipX+82,chipY+82]].forEach(([x,y]) => {
+      ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = CYAN + '55'; ctx.fill();
+    });
+
+    ctx.fillStyle = CYAN + (Math.round((0.5 + hi*0.35) * 255).toString(16).padStart(2,'0'));
+    ctx.font = `bold 8px 'Orbitron', monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillText('AI-1', chipX + chipW/2, chipY + chipH/2 + 3);
+
+    // Pin connectors
+    const PL = 8, PW = 3.5;
+    ctx.fillStyle = '#7aaabb';
+    tPins.forEach(px => {
+      ctx.fillRect(px-PW/2, chipY-PL, PW, PL);
+      ctx.fillRect(px-PW/2, chipY+chipH, PW, PL);
+    });
+    lPins.forEach(py => {
+      ctx.fillRect(chipX-PL, py-PW/2, PL, PW);
+      ctx.fillRect(chipX+chipW, py-PW/2, PL, PW);
+    });
+
+    // Traveling pulses
+    pulses.forEach((pulse, i) => {
+      pulse.t += pulse.speed * (1 + hi * 0.5);
+      if (pulse.t > 1.1) pulse.t = 0;
+      if (pulse.t > 1) return;
+      const pos = posAt(metas[i], pulse.t);
+      const col = traceData[i].color;
+      ctx.beginPath(); ctx.arc(pos[0], pos[1], 3.5, 0, Math.PI*2);
+      ctx.fillStyle = col;
+      ctx.shadowBlur = 24 + hi * 14; ctx.shadowColor = col;
+      ctx.fill(); ctx.shadowBlur = 0;
+      if (pulse.t > 0.04) {
+        const tp = posAt(metas[i], Math.max(0, pulse.t - 0.05));
+        ctx.beginPath(); ctx.arc(tp[0], tp[1], 2, 0, Math.PI*2);
+        ctx.fillStyle = col + '66'; ctx.fill();
+      }
+    });
+
+    ctx.restore();
+    requestAnimationFrame(draw);
+  }
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+  }
+  window.addEventListener('resize', resize);
+  resize(); draw();
+})();
+```
+
+### Design notes
+- Canonical drawing space is 430×430; uniform-scaled to fit the canvas element
+- 20 traces total (5 per chip edge): L-shaped PCB routes in alternating pink/cyan
+- Pin stubs: 5 per side, 8×3.5px metallic rectangles along chip edges
+- `hoverIntensity` ramp: `shadowBlur` increases on traces/chip/pads on hover
+- CSS `perspective(700px) rotateX rotateY` applied to the canvas element each frame for 3D tilt
+- Drag inertia: `velX`/`velY` decay at 0.92 per frame; `rotX` gently returns to 20° default tilt
+- Hidden on mobile via `@media (max-width: 820px) { .hero-neural-wrap { display: none; } }`
+
+## Session Update — 2026-02-27 (Quotes/Invoices/Stripe stabilization)
+
+### Major additions shipped
+- Full **Invoices** and **Quotes** systems in `admin.html` with view/add modal flows, edit/delete, send email actions, and quote accept/deny links.
+- Quote accept flow converts accepted quote into draft invoice; deny flow keeps quote with `denied` status.
+- Stripe invoice checkout links integrated into invoice records and invoice emails.
+- Stripe invoice webhook now updates invoice status/balance and auto-posts books entries.
+- Public response pages (quote accepted/declined, payment success/cancelled) are branded.
+
+### Critical implementation lessons (must preserve when porting)
+1. **D1 transaction caveat**
+   - Do not use raw SQL `BEGIN/COMMIT/ROLLBACK` in this worker path for invoice webhook posting.
+   - It can throw D1 runtime errors in this environment.
+
+2. **SQL placeholder/bind count must match exactly**
+   - Several 1101/500 failures were caused by mismatch between SQL placeholders and `.bind(...)` values.
+   - Always validate insert/update statements after schema changes (especially invoice/quote convert paths).
+
+3. **Stripe invoice payment consistency**
+   - Webhook path must update both:
+     - Stripe tracking fields (`stripe_payment_status`, session ids)
+     - invoice money fields (`amount_paid_cents`, `balance_due_cents`, `status`).
+   - If income posted but invoice balance lags, replaying webhook should be idempotent and reconcile correctly.
+
+4. **Stripe fee auto-expense reliability**
+   - Invoice checkout webhook now inserts `Payment Processing Fees` expense using Stripe fee lookup.
+   - Fee lookup should use expanded payment intent/charge balance transaction data and retries.
+
+### Current migrations relevant to this feature set
+- `0011_add_invoices_tables.sql`
+- `0012_add_invoice_sent_at.sql`
+- `0013_add_quotes_tables.sql`
+- `0014_add_invoice_stripe_checkout_fields.sql`
+- `0015_add_customer_phone_to_invoices_quotes.sql`
+
+### Ops checklist after porting/changes
+1. Apply all pending migrations remotely.
+2. Deploy worker.
+3. End-to-end test:
+   - create invoice -> send email -> pay via Stripe -> webhook 200
+   - verify invoice paid/balance update
+   - verify tax income + payment processing fee expense entries
+   - verify quote accept/deny links and branded response pages.
