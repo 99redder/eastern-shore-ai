@@ -2661,22 +2661,34 @@
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('paid') === '1') {
-      // Fire Reddit Pixel Purchase event for completed Stripe checkout.
+      const sessionId = params.get('session_id') || '';
+      let purchaseValue = 199.99;
+
+      // Fire Reddit Pixel and Google Ads Purchase events for completed Stripe checkout.
       // Value comes from the cart total stashed before redirect; transactionId
       // is the Stripe session_id appended by the worker's success_url.
       try {
-        const sessionId = params.get('session_id') || '';
         const stash = JSON.parse(localStorage.getItem('rdt_pending_purchase') || 'null');
         const fresh = stash && (Date.now() - Number(stash.ts || 0) < 60 * 60 * 1000);
+        if (fresh && Number(stash.value) > 0) purchaseValue = Number(stash.value);
         if (window.rdt && fresh && Number(stash.value) > 0) {
           rdt('track', 'Purchase', {
             itemCount: 1,
-            value: Number(stash.value),
+            value: purchaseValue,
             currency: 'USD',
             transactionId: sessionId
           });
         }
         localStorage.removeItem('rdt_pending_purchase');
+      } catch {}
+      try {
+        if (typeof gtag === 'function') {
+          gtag('event', 'conversion_event_purchase_1', {
+            value: purchaseValue,
+            currency: 'USD',
+            transaction_id: sessionId
+          });
+        }
       } catch {}
       status.textContent = 'Payment complete — thank you for your order!';
       showCheckoutStatusModal('success');
