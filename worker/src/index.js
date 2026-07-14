@@ -2087,6 +2087,8 @@ function defaultOrderEmailSubject(kind, row) {
   return 'We received your order';
 }
 
+const GOOGLE_REVIEW_URL = 'https://www.easternshore.ai/review';
+
 function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber = '', trackingUrl = '') {
   const customerName = (row?.customer_name || 'there').toString().trim() || 'there';
   const summary = orderSummaryFromRow(row);
@@ -2114,7 +2116,7 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
       '',
       'We hope you\'re loving your Survival Node!',
       '',
-      'If you have a moment, we\'d really appreciate it if you could leave us a review on Trustpilot. Your feedback helps other preppers find us and helps us keep improving.',
+      'If you have a moment, we\'d really appreciate it if you could leave us a review on Google. Your feedback helps other preppers find us and helps us keep improving.',
       '',
       'It only takes a minute — thank you so much for your support!'
     ].filter(Boolean).join('\n');
@@ -2170,11 +2172,11 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const shippingGuideHtml = kind === 'delivered'
     ? `<div style="margin:28px 0 28px;padding:16px;border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;color:#1e3a8a;"><div style="font-weight:700;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is an app on the main screen of the phone — just tap it to open anytime.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#2563eb;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
     : '';
-  const trustPilotHtml = kind === 'review'
-    ? `<div style="margin:24px 0;text-align:center;"><a href="https://www.easternshore.ai/review" style="display:inline-block;background:#00b67a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:700;font-size:16px;">Leave a Review on Trustpilot &#9733;</a></div>`
+  const googleReviewHtml = kind === 'review'
+    ? `<div style="margin:24px 0;text-align:center;"><a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background:#1a73e8;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:700;font-size:16px;">Leave a Google Review &#9733;</a></div>`
     : '';
   const trackProxyUrl = trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><div style="padding:22px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${(kind === 'delivered' || kind === 'review') ? '' : batteryHtml}${trackProxyUrl && kind !== 'delivered' && kind !== 'review' ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}${trustPilotHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><div style="padding:22px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">${escapeHtml(subject)}</h1><div style="margin-top:8px;font-size:13px;color:#cbd5e1;">${escapeHtml(preheader)}</div></div><div style="padding:24px;"><div style="margin:0 0 16px;color:#111827;">${detailLines}</div>${textToEmailHtml(bodyText)}${(kind === 'delivered' || kind === 'review') ? '' : batteryHtml}${trackProxyUrl && kind !== 'delivered' && kind !== 'review' ? `<div style="margin:18px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}${googleReviewHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#2563eb;">(302) 907-9162</a></div><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div>`;
   return { subject, bodyText, html };
 }
 
