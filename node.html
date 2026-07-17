@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VDFQV9B1J"></script>
   <script>
@@ -2664,6 +2664,13 @@
       const sessionId = params.get('session_id') || '';
       let purchaseValue = 199.99;
 
+      // replaceState below strips ?paid=1 so a refresh can't re-fire, but a
+      // back-navigation can restore this URL from bfcache. Key the guard to the
+      // Stripe session id so each order reports at most once per browser.
+      const firedKey = `purchase_fired:${sessionId || 'no_session'}`;
+      let alreadyFired = false;
+      try { alreadyFired = localStorage.getItem(firedKey) === '1'; } catch {}
+
       // Fire Reddit Pixel and Google Ads Purchase events for completed Stripe checkout.
       // Value comes from the cart total stashed before redirect; transactionId
       // is the Stripe session_id appended by the worker's success_url.
@@ -2671,7 +2678,7 @@
         const stash = JSON.parse(localStorage.getItem('rdt_pending_purchase') || 'null');
         const fresh = stash && (Date.now() - Number(stash.ts || 0) < 60 * 60 * 1000);
         if (fresh && Number(stash.value) > 0) purchaseValue = Number(stash.value);
-        if (window.rdt && fresh && Number(stash.value) > 0) {
+        if (!alreadyFired && window.rdt && fresh && Number(stash.value) > 0) {
           rdt('track', 'Purchase', {
             itemCount: 1,
             value: purchaseValue,
@@ -2682,12 +2689,15 @@
         localStorage.removeItem('rdt_pending_purchase');
       } catch {}
       try {
-        if (typeof gtag === 'function') {
+        // gtag() is defined by the synchronous stub in <head>, so this queues
+        // onto dataLayer and flushes even if gtag.js hasn't finished loading.
+        if (!alreadyFired && typeof gtag === 'function') {
           gtag('event', 'conversion_event_purchase_3', {
             value: purchaseValue,
             currency: 'USD',
             transaction_id: sessionId
           });
+          try { localStorage.setItem(firedKey, '1'); } catch {}
         }
       } catch {}
       status.textContent = 'Payment complete — thank you for your order!';
