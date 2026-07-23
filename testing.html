@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
@@ -622,6 +622,7 @@
         <a href="https://x.com/SurvivalNode99" target="_blank" rel="noopener noreferrer" class="footer-link">Survival Node on X</a> &nbsp;·&nbsp;
         <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" class="footer-link">Discord</a> &nbsp;·&nbsp;
         <a href="https://www.youtube.com/@easternshoreai" target="_blank" rel="noopener noreferrer" class="footer-link">YouTube</a><br>
+        <a href="#" class="footer-link sn-contact-trigger">Contact Us</a>
         <p style="margin:.45rem 0 0; font-size:.8rem; color:var(--muted); letter-spacing:.04em;">🇺🇸 Veteran-Owned Business</p>
       </div>
     </div>
@@ -696,6 +697,233 @@
         document.getElementById(panelId).classList.add('active');
       });
     });
+  </script>
+
+  <!-- ===== Survival Node Contact Modal ===== -->
+  <style>
+    .sn-contact-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9500;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(3px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .sn-contact-overlay.open { display: flex; }
+    .sn-contact-card {
+      background: var(--card, #131926); border: 1px solid var(--line, #2a3348);
+      box-shadow: 0 0 34px rgba(0, 229, 255, 0.16);
+      max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto;
+      color: var(--text, #eaf1ff);
+    }
+    .sn-contact-head {
+      padding: 1.1rem 1.35rem; border-bottom: 1px solid var(--line, #2a3348);
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .sn-contact-head h2 {
+      margin: 0; font-size: 1.15rem; letter-spacing: .04em;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif; color: var(--cyan, #9ed0ff);
+    }
+    .sn-contact-head .sn-contact-eyebrow {
+      display: block; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted, #a5b1c8); margin-bottom: .25rem;
+    }
+    .sn-contact-close {
+      background: none; border: none; color: var(--muted, #a5b1c8);
+      font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 0;
+    }
+    .sn-contact-close:hover { color: var(--text, #eaf1ff); }
+    .sn-contact-body { padding: 1.35rem; }
+    .sn-contact-intro { margin: 0 0 1rem; color: var(--muted, #a5b1c8); font-size: .92rem; }
+    .sn-contact-form { display: flex; flex-direction: column; gap: .9rem; }
+    .sn-contact-form label {
+      display: block; margin-bottom: .4rem; font-size: .85rem; color: var(--muted, #a5b1c8);
+      font-family: 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: .03em;
+    }
+    .sn-contact-form input,
+    .sn-contact-form select,
+    .sn-contact-form textarea {
+      width: 100%; padding: .7rem; background: var(--bg, #0b0d13);
+      border: 1px solid var(--line, #2a3348); border-radius: 6px;
+      color: var(--text, #eaf1ff); font-size: 1rem;
+      font-family: 'Titillium Web', system-ui, sans-serif;
+    }
+    .sn-contact-form textarea { resize: vertical; }
+    .sn-contact-form input:focus,
+    .sn-contact-form select:focus,
+    .sn-contact-form textarea:focus {
+      outline: none; border-color: var(--cyan, #9ed0ff);
+      box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.15);
+    }
+    .sn-contact-submit {
+      width: 100%; padding: .85rem 1rem; border: none; cursor: pointer;
+      background: linear-gradient(145deg, #ff4fd8, #c850ff); color: #fff;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 1rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      border-radius: 6px; box-shadow: 0 0 14px rgba(255, 79, 216, 0.45);
+    }
+    .sn-contact-submit:disabled { opacity: .6; cursor: default; }
+    .sn-contact-status { margin: 0; font-size: .9rem; min-height: 1.2em; }
+    .sn-contact-status.ok { color: var(--cyan, #9ed0ff); }
+    .sn-contact-status.err { color: #ff8ab5; }
+    .sn-contact-alt {
+      margin: 1rem 0 0; padding-top: .9rem; border-top: 1px solid var(--line, #2a3348);
+      font-size: .85rem; color: var(--muted, #a5b1c8);
+    }
+    .sn-contact-alt a { color: var(--cyan, #9ed0ff); }
+    @media (max-width: 480px) {
+      .sn-contact-form input,
+      .sn-contact-form select,
+      .sn-contact-form textarea { font-size: 16px; }
+    }
+  </style>
+
+  <div class="sn-contact-overlay" id="sn-contact-modal" role="dialog" aria-modal="true" aria-labelledby="sn-contact-title" aria-hidden="true">
+    <div class="sn-contact-card">
+      <div class="sn-contact-head">
+        <div>
+          <span class="sn-contact-eyebrow">Survival Node</span>
+          <h2 id="sn-contact-title">Contact Us</h2>
+        </div>
+        <button type="button" class="sn-contact-close" id="sn-contact-close" aria-label="Close contact form">&times;</button>
+      </div>
+      <div class="sn-contact-body">
+        <p class="sn-contact-intro">Questions about your Survival Node order, warranty, or setup? Send us a message and we'll get back to you within 24 hours.</p>
+        <form class="sn-contact-form" id="sn-contact-form" novalidate>
+          <div>
+            <label for="sn-contact-name">Name *</label>
+            <input type="text" id="sn-contact-name" name="name" required autocomplete="name">
+          </div>
+          <div>
+            <label for="sn-contact-email">Email *</label>
+            <input type="email" id="sn-contact-email" name="email" required autocomplete="email">
+          </div>
+          <div>
+            <label for="sn-contact-phone">Phone Number (optional)</label>
+            <input type="tel" id="sn-contact-phone" name="phone" autocomplete="tel">
+          </div>
+          <div>
+            <label for="sn-contact-topic">What's this about?</label>
+            <select id="sn-contact-topic" name="topic">
+              <option value="General Question">General Question</option>
+              <option value="Order Status">Order Status</option>
+              <option value="Shipping">Shipping</option>
+              <option value="Return / Warranty (RMA)">Return / Warranty (RMA)</option>
+              <option value="Technical Support">Technical Support</option>
+              <option value="Bulk / Reseller Inquiry">Bulk / Reseller Inquiry</option>
+            </select>
+          </div>
+          <div>
+            <label for="sn-contact-order">Order Number (if you have one)</label>
+            <input type="text" id="sn-contact-order" name="order-number">
+          </div>
+          <div>
+            <label for="sn-contact-message">Message *</label>
+            <textarea id="sn-contact-message" name="message" rows="4" required placeholder="Tell us what you need help with"></textarea>
+          </div>
+          <div>
+            <label for="sn-contact-method">Preferred Contact Method</label>
+            <select id="sn-contact-method" name="contact-method">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
+          </div>
+          <!-- honeypot -->
+          <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" aria-hidden="true">
+          <p class="sn-contact-status" id="sn-contact-status" role="status" aria-live="polite"></p>
+          <button type="submit" class="sn-contact-submit" id="sn-contact-submit">Send Message</button>
+        </form>
+        <p class="sn-contact-alt">Prefer direct? <a href="mailto:support@easternshore.ai">support@easternshore.ai</a> &nbsp;·&nbsp; <a href="tel:+13029079162">(302) 907-9162</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const SN_CONTACT_API = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+      const overlay = document.getElementById('sn-contact-modal');
+      if (!overlay) return;
+      const form = document.getElementById('sn-contact-form');
+      const statusEl = document.getElementById('sn-contact-status');
+      const submitBtn = document.getElementById('sn-contact-submit');
+
+      function openModal() {
+        statusEl.textContent = '';
+        statusEl.className = 'sn-contact-status';
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        setTimeout(() => document.getElementById('sn-contact-name').focus(), 40);
+      }
+      function closeModal() {
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+      window.openSurvivalNodeContact = openModal;
+
+      document.getElementById('sn-contact-close').addEventListener('click', closeModal);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+      });
+
+      document.querySelectorAll('.sn-contact-trigger').forEach(el => {
+        el.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = new FormData(form);
+        if (data.get('company')) return; // honeypot tripped
+
+        const name = (data.get('name') || '').trim();
+        const email = (data.get('email') || '').trim();
+        const body = (data.get('message') || '').trim();
+
+        if (!name || !email || !body) {
+          statusEl.textContent = 'Please fill in your name, email, and message.';
+          statusEl.className = 'sn-contact-status err';
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          statusEl.textContent = 'Please enter a valid email address.';
+          statusEl.className = 'sn-contact-status err';
+          return;
+        }
+
+        const message =
+          'Request Type: Survival Node Inquiry\n' +
+          'Topic: ' + (data.get('topic') || 'General Question') + '\n' +
+          'Name: ' + name + '\n' +
+          'Email: ' + email + '\n' +
+          'Phone: ' + ((data.get('phone') || '').trim() || 'Not provided') + '\n' +
+          'Order Number: ' + ((data.get('order-number') || '').trim() || 'Not provided') + '\n' +
+          'Preferred Contact: ' + (data.get('contact-method') || 'email') + '\n' +
+          'Page: ' + window.location.pathname + '\n' +
+          '\nMessage:\n' + body;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+        statusEl.textContent = '';
+        statusEl.className = 'sn-contact-status';
+
+        try {
+          const res = await fetch(SN_CONTACT_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'contact', name, email, message })
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok || !json.ok) throw new Error(json.error || 'Submit failed');
+          statusEl.textContent = 'Message sent ✅ — we\'ll get back to you within 24 hours.';
+          statusEl.className = 'sn-contact-status ok';
+          form.reset();
+          setTimeout(closeModal, 2200);
+        } catch (err) {
+          statusEl.textContent = 'Could not send right now. Please email support@easternshore.ai or try again.';
+          statusEl.className = 'sn-contact-status err';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      });
+    })();
   </script>
 
 </body>
