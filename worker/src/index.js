@@ -4109,21 +4109,39 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
 
   const closeDate = `${year}-12-31`;
 
-  if (incomeTotal !== 0) {
+  if (income.length) {
     const e1 = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'year_close', ?3)`).bind(closeDate, `Year-end close ${year} - revenues`, Number(year)).run();
     const entryId = Number(e1.meta?.last_row_id || 0);
     for (const a of income) {
-      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, a.id, Number(a.balance_cents)).run();
+      const balance = Number(a.balance_cents);
+      if (balance > 0) {
+        await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, a.id, balance).run();
+      } else {
+        await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, a.id, Math.abs(balance)).run();
+      }
     }
-    await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, incomeSummaryId, incomeTotal).run();
+    if (incomeTotal > 0) {
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, incomeSummaryId, incomeTotal).run();
+    } else if (incomeTotal < 0) {
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, incomeSummaryId, Math.abs(incomeTotal)).run();
+    }
   }
 
-  if (expenseTotal !== 0) {
+  if (expenses.length) {
     const e2 = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'year_close', ?3)`).bind(closeDate, `Year-end close ${year} - expenses`, Number(year)).run();
     const entryId = Number(e2.meta?.last_row_id || 0);
-    await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, incomeSummaryId, expenseTotal).run();
+    if (expenseTotal > 0) {
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, incomeSummaryId, expenseTotal).run();
+    } else if (expenseTotal < 0) {
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, incomeSummaryId, Math.abs(expenseTotal)).run();
+    }
     for (const a of expenses) {
-      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, a.id, Number(a.balance_cents)).run();
+      const balance = Number(a.balance_cents);
+      if (balance > 0) {
+        await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, 0, ?3)`).bind(entryId, a.id, balance).run();
+      } else {
+        await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0)`).bind(entryId, a.id, Math.abs(balance)).run();
+      }
     }
   }
 
@@ -5296,7 +5314,7 @@ async function ensureAccountingSetup(db) {
 
   if (isFresh) {
     const seed = [
-      ['1000','Cash on Hand','asset','debit'],
+      ['1000','Business Cash / Bank (Bluevine)','asset','debit'],
       ['1010','Owner Personal Card Clearing','liability','credit'],
       ['1100','Accounts Receivable','asset','debit'],
       ['2000','Accounts Payable','liability','credit'],
@@ -5306,6 +5324,7 @@ async function ensureAccountingSetup(db) {
       ['3100','Owner Contributions','equity','credit'],
       ['3200','Owner Draw','equity','debit'],
       ['4000','Service Revenue','income','credit'],
+      ['4050','Sales Returns & Allowances','income','credit'],
       ['4100','Interest Income','income','credit'],
       ['4900','Other Income','income','credit'],
       ['5000','Software Expense','expense','debit'],
@@ -5329,7 +5348,9 @@ async function ensureAccountingSetup(db) {
   // Existing DB — idempotently upsert any accounts added after the original
   // seed so prod chart-of-accounts stays current (each ensureAccountByCode
   // call is a single cheap SELECT, with INSERT only when missing).
+  await db.prepare(`UPDATE accounts SET name = 'Business Cash / Bank (Bluevine)' WHERE code = '1000' AND name = 'Cash on Hand'`).run();
   await ensureAccountByCode(db, '4100', 'Interest Income', 'income', 'credit');
+  await ensureAccountByCode(db, '4050', 'Sales Returns & Allowances', 'income', 'credit');
   await ensureAccountByCode(db, '5700', 'Taxes & Licenses', 'expense', 'debit');
   return true;
 }
@@ -5443,7 +5464,21 @@ async function upsertTaxIncomeJournal(db, row, options = {}) {
   if (!options.skipDelete) await deleteAutoJournalBySource(db, 'tax_income', row.id);
 
   const amount = Number(row.amount_cents || 0);
-  if (!Number.isFinite(amount) || amount <= 0) return;
+  if (!Number.isFinite(amount) || amount === 0) return;
+
+  if (amount < 0) {
+    const refundAmount = Math.abs(amount);
+    await ensureAccountByCode(db, '4050', 'Sales Returns & Allowances', 'income', 'credit');
+    const returnsAccountId = await getAccountIdByCode(db, '4050');
+    const cashAccountId = await getAccountIdByCode(db, '1000');
+    if (!returnsAccountId || !cashAccountId) return;
+
+    const memo = `${row.category || 'Customer Refund'}${row.source ? ` - ${row.source}` : ''}`;
+    const ins = await db.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'tax_income', ?3)`).bind(row.income_date, memo, row.id).run();
+    const entryId = Number(ins.meta?.last_row_id || 0);
+    await db.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, returnsAccountId, refundAmount, cashAccountId).run();
+    return;
+  }
 
   const debitAccountId = await getAccountIdByCode(db, '1000');
   const categoryRaw = (row.category || '').toString().trim().toLowerCase();

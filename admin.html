@@ -432,6 +432,7 @@
                   <div class="tax-ledger-primary-actions">
                     <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
                     <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                    <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-refund-btn">Add Customer Refund</button>
                     <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-owner-transfer-btn">Add Owner Transfer</button>
                     <button type="button" class="btn btn-primary" id="tax-manage-categories-btn">Manage Categories</button>
                   </div>
@@ -497,15 +498,18 @@
 
                 <div class="tax-entry-wrap tax-entry-modal" id="tax-income-panel" style="display:none;" aria-hidden="true">
                   <div class="admin-calendar-wrap tax-entry-modal-card">
-                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title">Add Income</div><button type="button" class="btn" id="tax-minimize-income-btn">Close</button></div>
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;"><div class="admin-calendar-title" id="tax-income-panel-title">Add Income</div><button type="button" class="btn" id="tax-minimize-income-btn">Close</button></div>
                     <div class="admin-row" id="tax-income-fields" style="flex-direction:column; align-items:stretch;">
+                      <div id="tax-refund-help" style="display:none; padding:.55rem .65rem; border:1px solid var(--line); border-radius:8px; color:var(--muted); font-size:.88rem;">
+                        Enter the positive amount returned to the customer. It will be stored as Returns &amp; Allowances (reducing revenue) and credited against Bluevine Business Checking—not recorded as an expense.
+                      </div>
                       <label>Date</label>
                       <input id="tax-income-date" type="date" />
-                      <label>Source</label>
+                      <label id="tax-income-source-label">Source</label>
                       <input id="tax-income-source" placeholder="e.g. Stripe, Client" />
                       <label>Category</label>
                       <select id="tax-income-category"></select>
-                      <label>Amount (USD)</label>
+                      <label id="tax-income-amount-label">Amount (USD)</label>
                       <input id="tax-income-amount" type="number" step="0.01" placeholder="0.00" />
                       <label>Stripe session id (optional)</label>
                       <input id="tax-income-stripe" placeholder="cs_test_..." />
@@ -1130,6 +1134,6 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=rebuild-progress-2"></script>
+  <script src="/admin.js?v=customer-refunds-1"></script>
 </body>
 </html>

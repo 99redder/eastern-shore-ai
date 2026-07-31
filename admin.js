@@ -76,6 +76,7 @@
     let taxExportBtn;
     let taxModeExpenseBtn;
     let taxModeIncomeBtn;
+    let taxModeRefundBtn;
     let taxModeOwnerTransferBtn;
     let taxManageCategoriesBtn;
     let adminUserGuideBtn;
@@ -84,6 +85,10 @@
     let taxExpensePanel;
     let taxOwnerTransferPanel;
     let taxIncomePanel;
+    let taxIncomePanelTitleEl;
+    let taxRefundHelpEl;
+    let taxIncomeSourceLabelEl;
+    let taxIncomeAmountLabelEl;
     let taxExpenseFields;
     let taxOwnerTransferFields;
     let taxIncomeFields;
@@ -316,6 +321,7 @@
       taxExportBtn = document.getElementById('tax-export-btn');
       taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
       taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
+      taxModeRefundBtn = document.getElementById('tax-mode-refund-btn');
       taxModeOwnerTransferBtn = document.getElementById('tax-mode-owner-transfer-btn');
       taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
       adminUserGuideBtn = document.getElementById('admin-user-guide-btn');
@@ -324,6 +330,10 @@
       taxExpensePanel = document.getElementById('tax-expense-panel');
       taxOwnerTransferPanel = document.getElementById('tax-owner-transfer-panel');
       taxIncomePanel = document.getElementById('tax-income-panel');
+      taxIncomePanelTitleEl = document.getElementById('tax-income-panel-title');
+      taxRefundHelpEl = document.getElementById('tax-refund-help');
+      taxIncomeSourceLabelEl = document.getElementById('tax-income-source-label');
+      taxIncomeAmountLabelEl = document.getElementById('tax-income-amount-label');
       taxExpenseFields = document.getElementById('tax-expense-fields');
       taxOwnerTransferFields = document.getElementById('tax-owner-transfer-fields');
       taxIncomeFields = document.getElementById('tax-income-fields');
@@ -528,6 +538,7 @@
     let activeTxFilter = 'all';
     let editingExpenseId = null;
     let editingIncomeId = null;
+    let activeIncomeEntryKind = 'income';
     let activeAccountsTab = 'balances';
     let activeAdminSectionTab = 'booking';
     let activeOrderEmailDraft = null;
@@ -1462,6 +1473,7 @@
     const DEFAULT_TAX_INCOME_CATEGORIES = [
       'OpenClaw Setup', 'Consulting', 'Website Design', 'AI Lessons', 'Domain Sale',
       'Survival Node Sales', 'Survival Node BYOG Setup',
+      'Customer Refunds / Returns & Allowances',
       'Bank Interest',
       'Shipping Insurance Reimbursement', 'Owner Funded (Non-Revenue)', 'Other'
     ];
@@ -1609,12 +1621,13 @@
         taxCancelExpenseEditBtn.style.display = '';
         taxExpenseAmountEl.focus();
       } else {
-        setTaxEntryMode('income');
+        const isRefund = Number(r.amount_cents || 0) < 0 || r.category === 'Customer Refunds / Returns & Allowances';
+        setTaxEntryMode(isRefund ? 'refund' : 'income');
         editingIncomeId = Number(r.id || 0);
         taxIncomeDateEl.value = r.date || '';
         taxIncomeSourceEl.value = r.source || '';
         taxIncomeCategoryEl.value = r.category || TAX_INCOME_CATEGORIES[0];
-        taxIncomeAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
+        taxIncomeAmountEl.value = (Math.abs(Number(r.amount_cents || 0))/100).toFixed(2);
         taxIncomeStripeEl.value = r.stripe_session_id || '';
         taxIncomeNotesEl.value = r.notes || '';
         if (taxIncomeOwnerFundedEl) taxIncomeOwnerFundedEl.checked = Number(r.is_owner_funded || 0) === 1;
@@ -1662,7 +1675,9 @@
     function setTaxEntryMode(mode) {
       const showExpense = mode === 'expense';
       const showOwnerTransfer = mode === 'owner_transfer';
-      const showIncome = mode === 'income';
+      const showRefund = mode === 'refund';
+      const showIncome = mode === 'income' || showRefund;
+      activeIncomeEntryKind = showRefund ? 'refund' : 'income';
 
       if (taxExpensePanel) {
         taxExpensePanel.style.display = showExpense ? 'flex' : 'none';
@@ -1684,7 +1699,32 @@
       if (taxMinimizeIncomeBtn) taxMinimizeIncomeBtn.textContent = 'Close';
       if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
       if (taxModeOwnerTransferBtn) taxModeOwnerTransferBtn.classList.toggle('active', showOwnerTransfer);
-      if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome);
+      if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome && !showRefund);
+      if (taxModeRefundBtn) taxModeRefundBtn.classList.toggle('active', showRefund);
+      if (taxIncomePanelTitleEl) taxIncomePanelTitleEl.textContent = showRefund ? 'Add Customer Refund' : 'Add Income';
+      if (taxRefundHelpEl) taxRefundHelpEl.style.display = showRefund ? '' : 'none';
+      if (taxIncomeSourceLabelEl) taxIncomeSourceLabelEl.textContent = showRefund ? 'Customer / Original Sale' : 'Source';
+      if (taxIncomeAmountLabelEl) taxIncomeAmountLabelEl.textContent = showRefund ? 'Refund amount (USD)' : 'Amount (USD)';
+      if (taxIncomeSourceEl) taxIncomeSourceEl.placeholder = showRefund ? 'e.g. Customer name or invoice number' : 'e.g. Stripe, Client';
+      if (taxIncomeAmountEl) taxIncomeAmountEl.min = showRefund ? '0.01' : '';
+      if (taxIncomeCategoryEl) taxIncomeCategoryEl.disabled = showRefund;
+      const ownerFundedLabel = taxIncomeOwnerFundedEl?.closest('label');
+      if (ownerFundedLabel) ownerFundedLabel.style.display = showRefund ? 'none' : 'inline-flex';
+    }
+
+    function openCustomerRefundEntry() {
+      clearTaxIncomeForm();
+      setTaxEntryMode('refund');
+      taxIncomeCategoryEl.value = 'Customer Refunds / Returns & Allowances';
+      taxIncomeCategoryEl.disabled = true;
+      taxIncomeNotesEl.value = 'Full customer refund paid from Bluevine Business Checking';
+      taxIncomeSourceEl.focus();
+    }
+
+    function openIncomeEntry() {
+      clearTaxIncomeForm();
+      setTaxEntryMode('income');
+      taxIncomeSourceEl.focus();
     }
 
     function initTaxUiDefaults() {
@@ -1992,23 +2032,34 @@
     }
 
     async function addTaxIncome() {
+      const isRefund = activeIncomeEntryKind === 'refund';
+      const enteredAmount = Number(taxIncomeAmountEl.value);
       const payload = {
         date: taxIncomeDateEl.value,
         source: taxIncomeSourceEl.value.trim(),
         category: taxIncomeCategoryEl.value,
-        amount: taxIncomeAmountEl.value,
+        amount: isRefund && Number.isFinite(enteredAmount) ? -Math.abs(enteredAmount) : taxIncomeAmountEl.value,
         stripeSessionId: taxIncomeStripeEl.value.trim(),
         notes: taxIncomeNotesEl.value.trim(),
-        isOwnerFunded: !!taxIncomeOwnerFundedEl?.checked
+        isOwnerFunded: isRefund ? false : !!taxIncomeOwnerFundedEl?.checked
       };
+      if (isRefund) payload.category = 'Customer Refunds / Returns & Allowances';
       if (!payload.date || !payload.category || !payload.amount) {
-        openErrorModal('Income date, category, and amount are required.');
+        openErrorModal(`${isRefund ? 'Refund' : 'Income'} date, category, and amount are required.`);
+        return;
+      }
+      if (isRefund && (!Number.isFinite(enteredAmount) || enteredAmount <= 0)) {
+        openErrorModal('Enter the positive dollar amount returned to the customer.');
+        return;
+      }
+      if (isRefund && !payload.source) {
+        openErrorModal('Enter the customer name, invoice number, or original sale reference for this refund.');
         return;
       }
       const isEdit = !!editingIncomeId;
       const proceed = await openConfirmModal(
-        isEdit ? 'Save changes to this income record?' : 'Add this new income record?',
-        isEdit ? 'Update Income?' : 'Add Income?',
+        isEdit ? `Save changes to this ${isRefund ? 'customer refund' : 'income'} record?` : `Add this new ${isRefund ? 'customer refund' : 'income'} record?`,
+        isEdit ? `Update ${isRefund ? 'Refund' : 'Income'}?` : `Add ${isRefund ? 'Refund' : 'Income'}?`,
         isEdit ? 'Update' : 'Add'
       );
       if (!proceed) return;
@@ -2028,10 +2079,14 @@
           receiptInput.value = '';
         }
         clearTaxIncomeForm();
+        taxIncomeCategoryEl.disabled = false;
         setTaxEntryMode('none');
         await loadTaxTransactions();
         await loadAccountsData();
-        openSuccessModal(isEdit ? 'Income record updated successfully.' : 'Income record added successfully.', isEdit ? 'Income Updated ✅' : 'Income Added ✅');
+        openSuccessModal(
+          isEdit ? `${isRefund ? 'Customer refund' : 'Income'} record updated successfully.` : `${isRefund ? 'Customer refund' : 'Income'} record added successfully.`,
+          isEdit ? `${isRefund ? 'Refund' : 'Income'} Updated ✅` : `${isRefund ? 'Refund' : 'Income'} Added ✅`
+        );
       } catch (e) {
         openErrorModal(`Could not save income: ${e.message || e}`);
       }
@@ -3426,7 +3481,8 @@
           taxSummaryYearEl?.addEventListener('change', loadTaxTransactions);
           taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
           taxModeOwnerTransferBtn?.addEventListener('click', openOwnerTransferModal);
-          taxModeIncomeBtn?.addEventListener('click', () => setTaxEntryMode('income'));
+          taxModeIncomeBtn?.addEventListener('click', openIncomeEntry);
+          taxModeRefundBtn?.addEventListener('click', openCustomerRefundEntry);
           adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
           adminUserGuideTopBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
           adminBlurAmountsBtn?.addEventListener('click', () => setBlurMoney(!blurMoneyEnabled));
