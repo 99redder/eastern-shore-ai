@@ -87,6 +87,8 @@
     let taxIncomePanel;
     let taxIncomePanelTitleEl;
     let taxRefundHelpEl;
+    let taxRefundOrderWrapEl;
+    let taxRefundOrderEl;
     let taxIncomeSourceLabelEl;
     let taxIncomeAmountLabelEl;
     let taxExpenseFields;
@@ -332,6 +334,8 @@
       taxIncomePanel = document.getElementById('tax-income-panel');
       taxIncomePanelTitleEl = document.getElementById('tax-income-panel-title');
       taxRefundHelpEl = document.getElementById('tax-refund-help');
+      taxRefundOrderWrapEl = document.getElementById('tax-refund-order-wrap');
+      taxRefundOrderEl = document.getElementById('tax-refund-order');
       taxIncomeSourceLabelEl = document.getElementById('tax-income-source-label');
       taxIncomeAmountLabelEl = document.getElementById('tax-income-amount-label');
       taxExpenseFields = document.getElementById('tax-expense-fields');
@@ -544,6 +548,7 @@
     let activeOrderEmailDraft = null;
     let orderEmailSendInFlight = false;
     let activeTrackingDraft = null;
+    let survivalNodeOrders = [];
     let blurMoneyEnabled = false;
     let activeInvoiceMode = 'view';
     let invoiceDraftItems = [{ description: 'Services', quantity: 1, unitAmount: '' }];
@@ -1631,6 +1636,17 @@
         taxIncomeStripeEl.value = r.stripe_session_id || '';
         taxIncomeNotesEl.value = r.notes || '';
         if (taxIncomeOwnerFundedEl) taxIncomeOwnerFundedEl.checked = Number(r.is_owner_funded || 0) === 1;
+        if (isRefund) {
+          try {
+            await loadSurvivalNodeOrdersForRefund();
+            const matchedOrder = survivalNodeOrders.find((order) =>
+              (r.stripe_session_id && order.stripe_session_id === r.stripe_session_id)
+              || (order.order_number && String(r.source || '').includes(`Order #${order.order_number}`))
+              || (order.order_key && String(r.source || '').includes(order.order_key))
+            );
+            renderRefundOrderOptions(matchedOrder?.order_key || '');
+          } catch {}
+        }
         taxAddIncomeBtn.style.display = 'none';
         taxUpdateIncomeBtn.style.display = '';
         taxCancelIncomeEditBtn.style.display = '';
@@ -1703,6 +1719,8 @@
       if (taxModeRefundBtn) taxModeRefundBtn.classList.toggle('active', showRefund);
       if (taxIncomePanelTitleEl) taxIncomePanelTitleEl.textContent = showRefund ? 'Add Customer Refund' : 'Add Income';
       if (taxRefundHelpEl) taxRefundHelpEl.style.display = showRefund ? '' : 'none';
+      if (taxRefundOrderWrapEl) taxRefundOrderWrapEl.style.display = showRefund ? '' : 'none';
+      if (taxRefundOrderEl) taxRefundOrderEl.disabled = !showRefund;
       if (taxIncomeSourceLabelEl) taxIncomeSourceLabelEl.textContent = showRefund ? 'Customer / Original Sale' : 'Source';
       if (taxIncomeAmountLabelEl) taxIncomeAmountLabelEl.textContent = showRefund ? 'Refund amount (USD)' : 'Amount (USD)';
       if (taxIncomeSourceEl) taxIncomeSourceEl.placeholder = showRefund ? 'e.g. Customer name or invoice number' : 'e.g. Stripe, Client';
@@ -1712,13 +1730,78 @@
       if (ownerFundedLabel) ownerFundedLabel.style.display = showRefund ? 'none' : 'inline-flex';
     }
 
-    function openCustomerRefundEntry() {
+    function refundOrderLabel(order) {
+      const orderRef = order.order_number ? `Order #${order.order_number}` : (order.order_key || `Order ${order.id || ''}`);
+      const orderName = (order.order_summary || 'Survival Node').toString().trim();
+      const customerName = (order.customer_name || 'Customer name unavailable').toString().trim();
+      const amount = `$${(Number(order.amount_cents || 0) / 100).toFixed(2)}`;
+      const date = (order.payment_date || '').toString().trim();
+      return `${orderRef} — ${orderName} — ${customerName} — ${amount}${date ? ` — ${date}` : ''}`;
+    }
+
+    function renderRefundOrderOptions(selectedOrderKey = '') {
+      if (!taxRefundOrderEl) return;
+      const options = [
+        '<option value="">Select a Survival Node order…</option>',
+        ...survivalNodeOrders.map((order) => `<option value="${escHtml(order.order_key || '')}">${escHtml(refundOrderLabel(order))}</option>`),
+        '<option value="manual">Manual / non–Survival Node refund</option>'
+      ];
+      taxRefundOrderEl.innerHTML = options.join('');
+      taxRefundOrderEl.value = selectedOrderKey && survivalNodeOrders.some((order) => order.order_key === selectedOrderKey)
+        ? selectedOrderKey
+        : '';
+    }
+
+    async function loadSurvivalNodeOrdersForRefund({ force = false } = {}) {
+      if (survivalNodeOrders.length && !force) {
+        renderRefundOrderOptions();
+        return;
+      }
+      if (taxRefundOrderEl) taxRefundOrderEl.innerHTML = '<option value="">Loading Survival Node orders…</option>';
+      const res = await fetch(ORDERS_API_URL, { headers: { 'X-Admin-Password': adminPassword } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to load Survival Node orders');
+      survivalNodeOrders = Array.isArray(data.orders) ? data.orders : [];
+      renderRefundOrderOptions();
+    }
+
+    function applyRefundOrderSelection() {
+      if (!taxRefundOrderEl) return;
+      const orderKey = taxRefundOrderEl.value;
+      if (!orderKey) return;
+      if (orderKey === 'manual') {
+        taxIncomeSourceEl.value = '';
+        taxIncomeAmountEl.value = '';
+        taxIncomeStripeEl.value = '';
+        taxIncomeNotesEl.value = 'Full customer refund paid from Bluevine Business Checking';
+        taxIncomeSourceEl.focus();
+        return;
+      }
+
+      const order = survivalNodeOrders.find((row) => row.order_key === orderKey);
+      if (!order) return;
+      const orderRef = order.order_number ? `Order #${order.order_number}` : order.order_key;
+      taxIncomeSourceEl.value = `${orderRef} — ${order.order_summary || 'Survival Node'} — ${order.customer_name || 'Customer'}`;
+      taxIncomeAmountEl.value = (Number(order.amount_cents || 0) / 100).toFixed(2);
+      taxIncomeStripeEl.value = order.stripe_session_id || '';
+      taxIncomeNotesEl.value = `Full refund for ${orderRef} paid from Bluevine Business Checking`;
+      taxIncomeAmountEl.focus();
+      taxIncomeAmountEl.select();
+    }
+
+    async function openCustomerRefundEntry() {
       clearTaxIncomeForm();
       setTaxEntryMode('refund');
       taxIncomeCategoryEl.value = 'Customer Refunds / Returns & Allowances';
       taxIncomeCategoryEl.disabled = true;
       taxIncomeNotesEl.value = 'Full customer refund paid from Bluevine Business Checking';
-      taxIncomeSourceEl.focus();
+      try {
+        await loadSurvivalNodeOrdersForRefund({ force: true });
+        taxRefundOrderEl?.focus();
+      } catch (e) {
+        renderRefundOrderOptions();
+        openErrorModal(`Could not load Survival Node orders: ${e.message || e}. You can still choose manual entry.`);
+      }
     }
 
     function openIncomeEntry() {
@@ -1938,6 +2021,7 @@
       taxIncomeAmountEl.value = '';
       taxIncomeStripeEl.value = '';
       taxIncomeNotesEl.value = '';
+      if (taxRefundOrderEl) taxRefundOrderEl.value = '';
       if (taxIncomeOwnerFundedEl) taxIncomeOwnerFundedEl.checked = false;
       const incReceiptEl = document.getElementById('tax-income-receipt');
       if (incReceiptEl) incReceiptEl.value = '';
@@ -3098,11 +3182,14 @@
       if (orderListEl) orderListEl.innerHTML = '<div style="color:var(--muted);">Loading orders…</div>';
       try {
         const status = (orderFilterEl?.value || 'all').trim();
-        const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
-        const res = await fetch(`${ORDERS_API_URL}${query}`, { headers: { 'X-Admin-Password': adminPassword } });
+        const res = await fetch(ORDERS_API_URL, { headers: { 'X-Admin-Password': adminPassword } });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { orderListEl.textContent = data.error || 'Failed to load orders.'; return; }
-        const rows = Array.isArray(data.orders) ? data.orders : [];
+        survivalNodeOrders = Array.isArray(data.orders) ? data.orders : [];
+        renderRefundOrderOptions(taxRefundOrderEl?.value || '');
+        const rows = status === 'all'
+          ? survivalNodeOrders
+          : survivalNodeOrders.filter((order) => order.fulfillment_status === status);
         if (!rows.length) { orderListEl.innerHTML = '<div style="color:var(--muted);">No orders found for this filter.</div>'; return; }
         orderListEl.innerHTML = rows.map((order) => {
           const id = Number(order.id || 0);
@@ -3483,6 +3570,7 @@
           taxModeOwnerTransferBtn?.addEventListener('click', openOwnerTransferModal);
           taxModeIncomeBtn?.addEventListener('click', openIncomeEntry);
           taxModeRefundBtn?.addEventListener('click', openCustomerRefundEntry);
+          taxRefundOrderEl?.addEventListener('change', applyRefundOrderSelection);
           adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
           adminUserGuideTopBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
           adminBlurAmountsBtn?.addEventListener('click', () => setBlurMoney(!blurMoneyEnabled));

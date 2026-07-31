@@ -503,6 +503,13 @@
                       <div id="tax-refund-help" style="display:none; padding:.55rem .65rem; border:1px solid var(--line); border-radius:8px; color:var(--muted); font-size:.88rem;">
                         Enter the positive amount returned to the customer. It will be stored as Returns &amp; Allowances (reducing revenue) and credited against Bluevine Business Checking—not recorded as an expense.
                       </div>
+                      <div id="tax-refund-order-wrap" style="display:none;">
+                        <label for="tax-refund-order">Survival Node order</label>
+                        <select id="tax-refund-order" style="width:100%; margin-top:.25rem;">
+                          <option value="">Loading Survival Node orders…</option>
+                        </select>
+                        <div style="margin-top:.3rem; color:var(--muted); font-size:.8rem;">Selecting an order fills in the customer, order reference, original amount, and Stripe session. Choose manual entry for any other refund.</div>
+                      </div>
                       <label>Date</label>
                       <input id="tax-income-date" type="date" />
                       <label id="tax-income-source-label">Source</label>
@@ -1134,6 +1141,6 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=customer-refunds-1"></script>
+  <script src="/admin.js?v=customer-refund-orders-1"></script>
 </body>
 </html>
