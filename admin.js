@@ -7,6 +7,7 @@
     const TAX_TX_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/transactions');
     const TAX_EXPENSE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense');
     const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
+    const TAX_REFUND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/refund');
     const TAX_OWNER_TRANSFER_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/owner-transfer');
     const TAX_EXPENSE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/update');
     const TAX_INCOME_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income/update');
@@ -91,6 +92,7 @@
     let taxRefundOrderEl;
     let taxIncomeSourceLabelEl;
     let taxIncomeAmountLabelEl;
+    let taxIncomeStripeLabelEl;
     let taxExpenseFields;
     let taxOwnerTransferFields;
     let taxIncomeFields;
@@ -338,6 +340,7 @@
       taxRefundOrderEl = document.getElementById('tax-refund-order');
       taxIncomeSourceLabelEl = document.getElementById('tax-income-source-label');
       taxIncomeAmountLabelEl = document.getElementById('tax-income-amount-label');
+      taxIncomeStripeLabelEl = document.getElementById('tax-income-stripe-label');
       taxExpenseFields = document.getElementById('tax-expense-fields');
       taxOwnerTransferFields = document.getElementById('tax-owner-transfer-fields');
       taxIncomeFields = document.getElementById('tax-income-fields');
@@ -1633,14 +1636,16 @@
         taxIncomeSourceEl.value = r.source || '';
         taxIncomeCategoryEl.value = r.category || TAX_INCOME_CATEGORIES[0];
         taxIncomeAmountEl.value = (Math.abs(Number(r.amount_cents || 0))/100).toFixed(2);
-        taxIncomeStripeEl.value = r.stripe_session_id || '';
+        const originalStripeMatch = String(r.notes || '').match(/Original Stripe session:\s*([^|\s]+)/i);
+        taxIncomeStripeEl.value = r.stripe_session_id || originalStripeMatch?.[1] || '';
         taxIncomeNotesEl.value = r.notes || '';
         if (taxIncomeOwnerFundedEl) taxIncomeOwnerFundedEl.checked = Number(r.is_owner_funded || 0) === 1;
         if (isRefund) {
           try {
             await loadSurvivalNodeOrdersForRefund();
             const matchedOrder = survivalNodeOrders.find((order) =>
-              (r.stripe_session_id && order.stripe_session_id === r.stripe_session_id)
+              (r.refund_order_key && order.order_key === r.refund_order_key)
+              || (r.stripe_session_id && order.stripe_session_id === r.stripe_session_id)
               || (order.order_number && String(r.source || '').includes(`Order #${order.order_number}`))
               || (order.order_key && String(r.source || '').includes(order.order_key))
             );
@@ -1723,6 +1728,7 @@
       if (taxRefundOrderEl) taxRefundOrderEl.disabled = !showRefund;
       if (taxIncomeSourceLabelEl) taxIncomeSourceLabelEl.textContent = showRefund ? 'Customer / Original Sale' : 'Source';
       if (taxIncomeAmountLabelEl) taxIncomeAmountLabelEl.textContent = showRefund ? 'Refund amount (USD)' : 'Amount (USD)';
+      if (taxIncomeStripeLabelEl) taxIncomeStripeLabelEl.textContent = showRefund ? 'Original Stripe session (reference only)' : 'Stripe session id (optional)';
       if (taxIncomeSourceEl) taxIncomeSourceEl.placeholder = showRefund ? 'e.g. Customer name or invoice number' : 'e.g. Stripe, Client';
       if (taxIncomeAmountEl) taxIncomeAmountEl.min = showRefund ? '0.01' : '';
       if (taxIncomeCategoryEl) taxIncomeCategoryEl.disabled = showRefund;
@@ -1844,12 +1850,15 @@
         return;
       }
       taxListEl.innerHTML = filtered.map((r) => {
+        const isCustomerRefund = r.type === 'income'
+          && (Number(r.amount_cents || 0) < 0 || r.category === 'Customer Refunds / Returns & Allowances');
+        const displayType = isCustomerRefund ? 'REFUND' : r.type.toUpperCase();
         const receiptBtn = r.receipt_key
           ? `<button type="button" class="btn" data-receipt-key="${escHtml(r.receipt_key)}" style="font-size:0.78rem; padding:0.2rem 0.5rem;">Receipt ↗</button>`
           : `<label class="btn" style="font-size:0.78rem; padding:0.2rem 0.5rem; cursor:pointer;" title="Upload receipt">+ Receipt<input type="file" accept=".pdf,.jpg,.jpeg,.png" class="inline-receipt-input" data-upload-type="${r.type}" data-upload-id="${r.id}" style="display:none;"></label>`;
         return `
         <div class="tax-row" data-type="${r.type}" data-id="${r.id}">
-          <span class="type">${r.type.toUpperCase()}</span>
+          <span class="type">${displayType}</span>
           <span class="desc" title="${escHtml(formatTaxRowLabel(r.type, r))}">${escHtml(formatTaxRowLabel(r.type, r))}</span>
           <span class="amt">$${(Number(r.amount_cents || 0)/100).toFixed(2)}</span>
           <div style="display:flex; gap:.3rem; flex-wrap:wrap;">${receiptBtn}<button type="button" class="btn edit" data-tax-edit="1">Edit</button><button type="button" class="btn delete" data-tax-delete="1">Delete</button></div>
@@ -2120,6 +2129,7 @@
     async function addTaxIncome() {
       const isRefund = activeIncomeEntryKind === 'refund';
       const enteredAmount = Number(taxIncomeAmountEl.value);
+      const selectedOrderKey = taxRefundOrderEl?.value || '';
       const payload = {
         date: taxIncomeDateEl.value,
         source: taxIncomeSourceEl.value.trim(),
@@ -2149,16 +2159,37 @@
         isEdit ? 'Update' : 'Add'
       );
       if (!proceed) return;
+      const originalButtonText = isEdit ? taxUpdateIncomeBtn?.textContent : taxAddIncomeBtn?.textContent;
+      const activeButton = isEdit ? taxUpdateIncomeBtn : taxAddIncomeBtn;
+      if (activeButton) {
+        activeButton.disabled = true;
+        activeButton.textContent = isRefund ? 'Saving Customer Refund…' : 'Saving Income…';
+      }
       try {
-        const targetUrl = isEdit ? TAX_INCOME_UPDATE_API_URL : TAX_INCOME_API_URL;
+        const isNewRefund = isRefund && !isEdit;
+        const targetUrl = isEdit ? TAX_INCOME_UPDATE_API_URL : (isNewRefund ? TAX_REFUND_API_URL : TAX_INCOME_API_URL);
+        if (isNewRefund) {
+          payload.amount = enteredAmount;
+          payload.orderKey = selectedOrderKey === 'manual' ? '' : selectedOrderKey;
+          payload.originalStripeSessionId = taxIncomeStripeEl.value.trim();
+          payload.stripeSessionId = '';
+        } else if (isRefund) {
+          payload.stripeSessionId = '';
+          const originalStripeSessionId = taxIncomeStripeEl.value.trim();
+          if (originalStripeSessionId && !payload.notes.includes('Original Stripe session:')) {
+            payload.notes = `${payload.notes}${payload.notes ? ' | ' : ''}Original Stripe session: ${originalStripeSessionId}`;
+          }
+        }
         if (editingIncomeId) payload.id = editingIncomeId;
         const res = await fetch(targetUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
           body: JSON.stringify(payload)
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed');
+        const responseText = await res.text();
+        let data = {};
+        try { data = responseText ? JSON.parse(responseText) : {}; } catch {}
+        if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
         const receiptInput = document.getElementById('tax-income-receipt');
         if (data.id && receiptInput) {
           await uploadReceipt('income', data.id, receiptInput).catch(() => {});
@@ -2174,7 +2205,13 @@
           isEdit ? `${isRefund ? 'Refund' : 'Income'} Updated ✅` : `${isRefund ? 'Refund' : 'Income'} Added ✅`
         );
       } catch (e) {
-        openErrorModal(`Could not save income: ${e.message || e}`);
+        const operationName = isRefund ? 'customer refund' : 'income';
+        openErrorModal(`Could not save ${operationName}: ${e.message || e}`);
+      } finally {
+        if (activeButton) {
+          activeButton.disabled = false;
+          activeButton.textContent = originalButtonText || (isRefund ? (isEdit ? 'Save Refund Update' : 'Add Customer Refund') : (isEdit ? 'Save Income Update' : 'Add Income'));
+        }
       }
     }
 

@@ -14,6 +14,7 @@
 // POST /api/admin/block-slot    → handleAdminBlockSlot()  — Admin: block/unblock a specific 2-hour slot
 // POST /api/admin/block-day     → handleAdminBlockDay()   — Admin: block/unblock an entire day
 // GET  /api/tax/transactions    → handleTaxTransactions() — Admin: tax entries by year/type
+// POST /api/tax/refund          → handleTaxRefund()       — Admin: customer refund / returns & allowances
 // GET  /api/tax/summary         → handleTaxSummary()      — Read-only service token: annual totals only
 // POST /api/tax/expense         → handleTaxExpense()      — Admin: add expense entry
 // POST /api/tax/income          → handleTaxIncome()       — Admin: add income entry
@@ -110,7 +111,7 @@ export default {
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual','/api/orders/delete','/api/orders/battery-test'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/summary','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
-      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
+      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/refund','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
@@ -270,6 +271,10 @@ export default {
 
     if (url.pathname === '/api/tax/income') {
       return handleTaxIncome(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/refund') {
+      return await handleTaxRefund(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/tax/owner-transfer') {
@@ -3094,7 +3099,7 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
 
   const incomeP = (type === 'all' || type === 'income')
     ? env.DB.prepare(
-        `SELECT id, income_date AS date, source, category, amount_cents, stripe_session_id, notes, receipt_key, is_owner_funded, created_at
+        `SELECT id, income_date AS date, source, category, amount_cents, stripe_session_id, refund_order_key, notes, receipt_key, is_owner_funded, created_at
          FROM tax_income
          WHERE substr(income_date,1,4) = ?1
          ORDER BY income_date DESC, id DESC
@@ -3207,6 +3212,88 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
   }
 
   return json({ ok: true, id }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/tax/refund — Admin: record a customer refund as returns & allowances.
+ * The original Stripe session is retained only in notes because stripe_session_id
+ * uniquely belongs to the original sale's income row.
+ */
+async function handleTaxRefund(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const refundDate = (data.date || '').toString().trim();
+  const source = (data.source || '').toString().trim().slice(0, 500);
+  const notes = (data.notes || '').toString().trim().slice(0, 2000);
+  const orderKey = (data.orderKey || '').toString().trim();
+  const originalStripeSessionId = (data.originalStripeSessionId || '').toString().trim().slice(0, 255);
+  const cents = toCents(data.amount);
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(refundDate)) return json({ ok: false, error: 'Invalid refund date' }, 400, corsHeaders);
+  if (!source) return json({ ok: false, error: 'Missing customer or original sale reference' }, 400, corsHeaders);
+  if (!Number.isFinite(cents) || cents <= 0) return json({ ok: false, error: 'Refund amount must be greater than zero' }, 400, corsHeaders);
+  if (orderKey && !/^(booking|manual):\d+$/.test(orderKey)) return json({ ok: false, error: 'Invalid Survival Node order reference' }, 400, corsHeaders);
+
+  const category = 'Customer Refunds / Returns & Allowances';
+  const refundMarker = orderKey ? `[refund-order:${orderKey}]` : '';
+  let refundId = null;
+
+  try {
+    if (refundMarker) {
+      const existing = await env.DB.prepare(
+        `SELECT id FROM tax_income WHERE refund_order_key = ?1 LIMIT 1`
+      ).bind(orderKey).first();
+      if (existing?.id) {
+        return json({ ok: false, error: 'A customer refund is already recorded for this Survival Node order' }, 409, corsHeaders);
+      }
+    }
+
+    const auditNotes = [
+      notes,
+      refundMarker,
+      originalStripeSessionId ? `Original Stripe session: ${originalStripeSessionId}` : ''
+    ].filter(Boolean).join(' | ');
+
+    const inserted = await env.DB.prepare(
+      `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, refund_order_key, notes, is_owner_funded)
+       VALUES (?1, ?2, ?3, ?4, NULL, ?5, ?6, 0)`
+    ).bind(refundDate, source, category, -cents, orderKey || null, auditNotes || null).run();
+
+    refundId = Number(inserted.meta?.last_row_id || 0) || null;
+    if (!refundId) throw new Error('Refund insert did not return an id');
+
+    await upsertTaxIncomeJournal(env.DB, {
+      id: refundId,
+      income_date: refundDate,
+      source,
+      category,
+      amount_cents: -cents,
+      notes: auditNotes || null,
+      is_owner_funded: 0
+    });
+
+    return json({ ok: true, id: refundId, type: 'customer_refund' }, 200, corsHeaders);
+  } catch (err) {
+    const errorText = String(err?.message || err);
+    if (refundId) {
+      try {
+        await deleteAutoJournalBySource(env.DB, 'tax_income', refundId);
+        await env.DB.prepare(`DELETE FROM tax_income WHERE id = ?1`).bind(refundId).run();
+      } catch (cleanupErr) {
+        console.error('Customer refund cleanup failed', { refundId, error: String(cleanupErr?.message || cleanupErr) });
+      }
+    }
+    if (errorText.includes('tax_income.refund_order_key') || errorText.includes('ux_tax_income_refund_order_key')) {
+      return json({ ok: false, error: 'A customer refund is already recorded for this Survival Node order' }, 409, corsHeaders);
+    }
+    console.error('Customer refund save failed', { orderKey: orderKey || null, error: errorText });
+    return json({ ok: false, error: 'Could not save customer refund' }, 500, corsHeaders);
+  }
 }
 
 
