@@ -1728,6 +1728,8 @@
       if (taxIncomeCategoryEl) taxIncomeCategoryEl.disabled = showRefund;
       const ownerFundedLabel = taxIncomeOwnerFundedEl?.closest('label');
       if (ownerFundedLabel) ownerFundedLabel.style.display = showRefund ? 'none' : 'inline-flex';
+      if (taxAddIncomeBtn) taxAddIncomeBtn.textContent = showRefund ? 'Add Customer Refund' : 'Add Income';
+      if (taxUpdateIncomeBtn) taxUpdateIncomeBtn.textContent = showRefund ? 'Save Refund Update' : 'Save Income Update';
     }
 
     function refundOrderLabel(order) {
