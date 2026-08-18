@@ -18,6 +18,7 @@
 // GET  /api/tax/summary         → handleTaxSummary()      — Read-only service token: annual totals only
 // POST /api/tax/expense         → handleTaxExpense()      — Admin: add expense entry
 // POST /api/tax/income          → handleTaxIncome()       — Admin: add income entry
+// POST /api/tax/ebay-sale       → handleTaxEbaySale()     — Admin: add an eBay sale with itemized fees
 // POST /api/tax/expense/update  → handleTaxExpenseUpdate() — Admin: edit expense entry
 // POST /api/tax/income/update   → handleTaxIncomeUpdate()  — Admin: edit income entry
 // POST /api/tax/expense/delete  → handleTaxExpenseDelete() — Admin: delete expense entry
@@ -111,7 +112,7 @@ export default {
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/manual','/api/orders/delete','/api/orders/battery-test'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/summary','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
-      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/refund','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
+      const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/ebay-sale','/api/tax/refund','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
       const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
@@ -271,6 +272,10 @@ export default {
 
     if (url.pathname === '/api/tax/income') {
       return handleTaxIncome(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/tax/ebay-sale') {
+      return handleTaxEbaySale(request, env, corsHeaders, url);
     }
 
     if (url.pathname === '/api/tax/refund') {
@@ -3215,6 +3220,128 @@ async function handleTaxIncome(request, env, corsHeaders, url) {
 }
 
 /**
+ * POST /api/tax/ebay-sale — Admin: record eBay revenue and its itemized costs.
+ * Marketplace-collected sales tax is retained in the audit notes only because
+ * eBay collects and remits it; merchandise plus buyer-paid shipping is income.
+ */
+async function handleTaxEbaySale(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const saleDate = (data.date || '').toString().trim();
+  const orderNumber = (data.orderNumber || '').toString().trim().slice(0, 100);
+  const notes = (data.notes || '').toString().trim().slice(0, 1000);
+  const subtotalCents = toCents(data.subtotal);
+  const shippingCollectedCents = toCents(data.shippingCollected);
+  const salesTaxCents = toCents(data.salesTax);
+  const transactionFeeCents = toCents(data.transactionFee);
+  const shippingLabelCents = toCents(data.shippingLabel);
+  const adFeeCents = toCents(data.adFee);
+  const otherFeeCents = toCents(data.otherFee);
+  const amounts = [subtotalCents, shippingCollectedCents, salesTaxCents, transactionFeeCents, shippingLabelCents, adFeeCents, otherFeeCents];
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(saleDate)) return json({ ok: false, error: 'Invalid sale date' }, 400, corsHeaders);
+  if (!orderNumber) return json({ ok: false, error: 'Missing eBay order number' }, 400, corsHeaders);
+  if (amounts.some((amount) => amount === null || amount < 0)) return json({ ok: false, error: 'eBay amounts must be zero or greater' }, 400, corsHeaders);
+  if (subtotalCents <= 0) return json({ ok: false, error: 'Item subtotal must be greater than zero' }, 400, corsHeaders);
+
+  const revenueCents = subtotalCents + shippingCollectedCents;
+  const referenceId = `ebay:${orderNumber}`;
+  const existing = await env.DB.prepare('SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1').bind(referenceId).first();
+  if (existing?.id) return json({ ok: false, error: `eBay order ${orderNumber} is already in the tax ledger` }, 409, corsHeaders);
+
+  const auditNotes = [
+    `eBay order ${orderNumber}`,
+    `Item subtotal ${formatUsd(subtotalCents)}`,
+    `Buyer shipping ${formatUsd(shippingCollectedCents)}`,
+    `eBay-collected sales tax ${formatUsd(salesTaxCents)} (excluded from income)`,
+    notes
+  ].filter(Boolean).join(' | ');
+
+  const expenseRows = [
+    { amount: transactionFeeCents, category: 'Payment Processing Fees', label: 'Transaction fees' },
+    { amount: shippingLabelCents, category: 'Shipping - Survival Node Fulfillment', label: 'Shipping label' },
+    { amount: adFeeCents, category: 'Advertising/Marketing', label: 'Promoted listing / ad fee' },
+    { amount: otherFeeCents, category: 'Payment Processing Fees', label: 'Other eBay fees' }
+  ].filter((row) => row.amount > 0);
+
+  const statements = [
+    env.DB.prepare(
+      `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes, is_owner_funded)
+       VALUES (?1, 'eBay', 'Survival Node Sales', ?2, ?3, ?4, 0)`
+    ).bind(saleDate, revenueCents, referenceId, auditNotes)
+  ];
+  for (const row of expenseRows) {
+    statements.push(env.DB.prepare(
+      `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes, funding_source)
+       VALUES (?1, 'eBay', ?2, ?3, 'eBay payout deduction', ?4, 'cash_bank')`
+    ).bind(saleDate, row.category, row.amount, `${row.label} | eBay order ${orderNumber}${notes ? ` | ${notes}` : ''}`));
+  }
+
+  let results;
+  try {
+    results = await env.DB.batch(statements);
+  } catch (error) {
+    if (/unique|constraint/i.test(error?.message || '')) {
+      return json({ ok: false, error: `eBay order ${orderNumber} is already in the tax ledger` }, 409, corsHeaders);
+    }
+    console.error('eBay tax ledger batch failed', { orderNumber, error: error?.message || String(error) });
+    return json({ ok: false, error: 'Could not save the eBay sale' }, 500, corsHeaders);
+  }
+
+  const incomeId = Number(results[0]?.meta?.last_row_id || 0) || null;
+  let journalSynced = true;
+  try {
+    const accountingReady = await ensureAccountingSetup(env.DB);
+    if (accountingReady && incomeId) {
+      await upsertTaxIncomeJournal(env.DB, {
+        id: incomeId,
+        income_date: saleDate,
+        source: 'eBay',
+        category: 'Survival Node Sales',
+        amount_cents: revenueCents,
+        notes: auditNotes,
+        is_owner_funded: 0
+      }, { skipSetup: true, skipDelete: true });
+
+      for (let index = 0; index < expenseRows.length; index += 1) {
+        const expenseId = Number(results[index + 1]?.meta?.last_row_id || 0) || null;
+        if (!expenseId) continue;
+        const row = expenseRows[index];
+        await upsertTaxExpenseJournal(env.DB, {
+          id: expenseId,
+          expense_date: saleDate,
+          vendor: 'eBay',
+          category: row.category,
+          amount_cents: row.amount,
+          paid_via: 'eBay payout deduction',
+          notes: `${row.label} | eBay order ${orderNumber}`,
+          funding_source: 'cash_bank',
+          is_owner_funded: 0
+        }, { skipSetup: true, skipDelete: true });
+      }
+    }
+  } catch (error) {
+    journalSynced = false;
+    console.error('eBay accounting journal sync failed', { orderNumber, error: error?.message || String(error) });
+  }
+
+  return json({
+    ok: true,
+    incomeId,
+    expenseCount: expenseRows.length,
+    revenueCents,
+    feeCents: expenseRows.reduce((sum, row) => sum + row.amount, 0),
+    salesTaxCents,
+    journalSynced
+  }, 200, corsHeaders);
+}
+
+/**
  * POST /api/tax/refund — Admin: record a customer refund as returns & allowances.
  * The original Stripe session is retained only in notes because stripe_session_id
  * uniquely belongs to the original sale's income row.
@@ -5478,6 +5605,7 @@ async function upsertTaxExpenseJournal(db, row, options = {}) {
   const category = (row.category || '').toString().trim();
   const expenseAccountCodeByCategory = {
     'Payment Processing Fees': '5300',
+    'Advertising/Marketing': '5100',
     'Inventory - Survival Node Components': '5210',
     'Shipping - Survival Node Fulfillment': '5220',
     'Packaging - Survival Node Fulfillment': '5230',

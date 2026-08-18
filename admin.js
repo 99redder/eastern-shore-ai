@@ -9,6 +9,7 @@
     const TAX_INCOME_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income');
     const TAX_REFUND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/refund');
     const TAX_OWNER_TRANSFER_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/owner-transfer');
+    const TAX_EBAY_SALE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/ebay-sale');
     const TAX_EXPENSE_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/update');
     const TAX_INCOME_UPDATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/income/update');
     const TAX_EXPENSE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/expense/delete');
@@ -77,6 +78,7 @@
     let taxExportBtn;
     let taxModeExpenseBtn;
     let taxModeIncomeBtn;
+    let taxModeEbayBtn;
     let taxModeRefundBtn;
     let taxModeOwnerTransferBtn;
     let taxManageCategoriesBtn;
@@ -86,6 +88,7 @@
     let taxExpensePanel;
     let taxOwnerTransferPanel;
     let taxIncomePanel;
+    let ebaySalePanel;
     let taxIncomePanelTitleEl;
     let taxRefundHelpEl;
     let taxRefundOrderWrapEl;
@@ -266,6 +269,19 @@
     let taxCancelIncomeEditBtn;
     let taxClearIncomeBtn;
 
+    let ebaySaleDateEl;
+    let ebaySaleOrderNumberEl;
+    let ebaySaleSubtotalEl;
+    let ebaySaleShippingCollectedEl;
+    let ebaySaleSalesTaxEl;
+    let ebaySaleTransactionFeeEl;
+    let ebaySaleShippingLabelEl;
+    let ebaySaleAdFeeEl;
+    let ebaySaleOtherFeeEl;
+    let ebaySaleNotesEl;
+    let ebaySaleReceiptEl;
+    let ebaySaleSaveBtn;
+
     let adminDateEl;
     let adminTimeEl;
     let adminReasonEl;
@@ -325,6 +341,7 @@
       taxExportBtn = document.getElementById('tax-export-btn');
       taxModeExpenseBtn = document.getElementById('tax-mode-expense-btn');
       taxModeIncomeBtn = document.getElementById('tax-mode-income-btn');
+      taxModeEbayBtn = document.getElementById('tax-mode-ebay-btn');
       taxModeRefundBtn = document.getElementById('tax-mode-refund-btn');
       taxModeOwnerTransferBtn = document.getElementById('tax-mode-owner-transfer-btn');
       taxManageCategoriesBtn = document.getElementById('tax-manage-categories-btn');
@@ -334,6 +351,7 @@
       taxExpensePanel = document.getElementById('tax-expense-panel');
       taxOwnerTransferPanel = document.getElementById('tax-owner-transfer-panel');
       taxIncomePanel = document.getElementById('tax-income-panel');
+      ebaySalePanel = document.getElementById('ebay-sale-panel');
       taxIncomePanelTitleEl = document.getElementById('tax-income-panel-title');
       taxRefundHelpEl = document.getElementById('tax-refund-help');
       taxRefundOrderWrapEl = document.getElementById('tax-refund-order-wrap');
@@ -505,6 +523,18 @@
       taxUpdateIncomeBtn = document.getElementById('tax-update-income-btn');
       taxCancelIncomeEditBtn = document.getElementById('tax-cancel-income-edit-btn');
       taxClearIncomeBtn = document.getElementById('tax-clear-income-btn');
+      ebaySaleDateEl = document.getElementById('ebay-sale-date');
+      ebaySaleOrderNumberEl = document.getElementById('ebay-sale-order-number');
+      ebaySaleSubtotalEl = document.getElementById('ebay-sale-subtotal');
+      ebaySaleShippingCollectedEl = document.getElementById('ebay-sale-shipping-collected');
+      ebaySaleSalesTaxEl = document.getElementById('ebay-sale-sales-tax');
+      ebaySaleTransactionFeeEl = document.getElementById('ebay-sale-transaction-fee');
+      ebaySaleShippingLabelEl = document.getElementById('ebay-sale-shipping-label');
+      ebaySaleAdFeeEl = document.getElementById('ebay-sale-ad-fee');
+      ebaySaleOtherFeeEl = document.getElementById('ebay-sale-other-fee');
+      ebaySaleNotesEl = document.getElementById('ebay-sale-notes');
+      ebaySaleReceiptEl = document.getElementById('ebay-sale-receipt');
+      ebaySaleSaveBtn = document.getElementById('ebay-sale-save-btn');
       adminDateEl = document.getElementById('admin-date');
       adminTimeEl = document.getElementById('admin-time');
       adminReasonEl = document.getElementById('admin-reason');
@@ -1695,6 +1725,7 @@
 
     function setTaxEntryMode(mode) {
       const showExpense = mode === 'expense';
+      const showEbay = mode === 'ebay';
       const showOwnerTransfer = mode === 'owner_transfer';
       const showRefund = mode === 'refund';
       const showIncome = mode === 'income' || showRefund;
@@ -1710,6 +1741,11 @@
         taxIncomePanel.classList.toggle('active', showIncome);
         taxIncomePanel.setAttribute('aria-hidden', showIncome ? 'false' : 'true');
       }
+      if (ebaySalePanel) {
+        ebaySalePanel.style.display = showEbay ? 'flex' : 'none';
+        ebaySalePanel.classList.toggle('active', showEbay);
+        ebaySalePanel.setAttribute('aria-hidden', showEbay ? 'false' : 'true');
+      }
 
       if (taxOwnerTransferPanel) taxOwnerTransferPanel.style.display = showOwnerTransfer ? '' : 'none';
       if (taxExpenseFields) taxExpenseFields.style.display = showExpense ? '' : 'none';
@@ -1721,6 +1757,7 @@
       if (taxModeExpenseBtn) taxModeExpenseBtn.classList.toggle('active', showExpense);
       if (taxModeOwnerTransferBtn) taxModeOwnerTransferBtn.classList.toggle('active', showOwnerTransfer);
       if (taxModeIncomeBtn) taxModeIncomeBtn.classList.toggle('active', showIncome && !showRefund);
+      if (taxModeEbayBtn) taxModeEbayBtn.classList.toggle('active', showEbay);
       if (taxModeRefundBtn) taxModeRefundBtn.classList.toggle('active', showRefund);
       if (taxIncomePanelTitleEl) taxIncomePanelTitleEl.textContent = showRefund ? 'Add Customer Refund' : 'Add Income';
       if (taxRefundHelpEl) taxRefundHelpEl.style.display = showRefund ? '' : 'none';
@@ -1818,6 +1855,102 @@
       taxIncomeSourceEl.focus();
     }
 
+    function ebayAmount(el) {
+      const value = Number(el?.value || 0);
+      return Number.isFinite(value) && value >= 0 ? value : 0;
+    }
+
+    function updateEbaySalePreview() {
+      const revenue = ebayAmount(ebaySaleSubtotalEl) + ebayAmount(ebaySaleShippingCollectedEl);
+      const salesTax = ebayAmount(ebaySaleSalesTaxEl);
+      const fees = ebayAmount(ebaySaleTransactionFeeEl) + ebayAmount(ebaySaleShippingLabelEl) + ebayAmount(ebaySaleAdFeeEl) + ebayAmount(ebaySaleOtherFeeEl);
+      const setMoney = (id, amount) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = `$${amount.toFixed(2)}`;
+      };
+      setMoney('ebay-sale-revenue-preview', revenue);
+      setMoney('ebay-sale-tax-preview', salesTax);
+      setMoney('ebay-sale-fees-preview', fees);
+      setMoney('ebay-sale-net-preview', revenue - fees);
+    }
+
+    function clearEbaySaleForm() {
+      if (!ebaySaleDateEl) return;
+      ebaySaleDateEl.value = nowEtParts().date;
+      ebaySaleOrderNumberEl.value = '';
+      ebaySaleSubtotalEl.value = '';
+      ebaySaleShippingCollectedEl.value = '';
+      ebaySaleSalesTaxEl.value = '';
+      ebaySaleTransactionFeeEl.value = '';
+      ebaySaleShippingLabelEl.value = '';
+      ebaySaleAdFeeEl.value = '';
+      ebaySaleOtherFeeEl.value = '';
+      ebaySaleNotesEl.value = '';
+      ebaySaleReceiptEl.value = '';
+      const receiptName = document.getElementById('ebay-sale-receipt-name');
+      if (receiptName) receiptName.textContent = 'No file chosen';
+      updateEbaySalePreview();
+    }
+
+    function openEbaySaleEntry() {
+      clearEbaySaleForm();
+      setTaxEntryMode('ebay');
+      ebaySaleOrderNumberEl?.focus();
+    }
+
+    async function addEbaySale() {
+      const payload = {
+        date: ebaySaleDateEl.value,
+        orderNumber: ebaySaleOrderNumberEl.value.trim(),
+        subtotal: ebaySaleSubtotalEl.value,
+        shippingCollected: ebaySaleShippingCollectedEl.value || '0',
+        salesTax: ebaySaleSalesTaxEl.value || '0',
+        transactionFee: ebaySaleTransactionFeeEl.value || '0',
+        shippingLabel: ebaySaleShippingLabelEl.value || '0',
+        adFee: ebaySaleAdFeeEl.value || '0',
+        otherFee: ebaySaleOtherFeeEl.value || '0',
+        notes: ebaySaleNotesEl.value.trim()
+      };
+      if (!payload.date || !payload.orderNumber || !payload.subtotal) {
+        openErrorModal('Sale date, eBay order number, and item subtotal are required.');
+        return;
+      }
+      const revenue = ebayAmount(ebaySaleSubtotalEl) + ebayAmount(ebaySaleShippingCollectedEl);
+      const fees = ebayAmount(ebaySaleTransactionFeeEl) + ebayAmount(ebaySaleShippingLabelEl) + ebayAmount(ebaySaleAdFeeEl) + ebayAmount(ebaySaleOtherFeeEl);
+      const proceed = await openConfirmModal(
+        `Record $${revenue.toFixed(2)} of Survival Node sales income and $${fees.toFixed(2)} of itemized eBay costs for order ${payload.orderNumber}?`,
+        'Add eBay Sale?',
+        'Add Sale'
+      );
+      if (!proceed) return;
+      const originalText = ebaySaleSaveBtn.textContent;
+      ebaySaleSaveBtn.disabled = true;
+      ebaySaleSaveBtn.textContent = 'Saving eBay Sale…';
+      try {
+        const res = await fetch(TAX_EBAY_SALE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Failed to add eBay sale');
+        if (data.incomeId && ebaySaleReceiptEl?.files[0]) {
+          await uploadReceipt('income', data.incomeId, ebaySaleReceiptEl);
+        }
+        clearEbaySaleForm();
+        setTaxEntryMode('none');
+        await loadTaxTransactions();
+        await loadAccountsData();
+        const journalNote = data.journalSynced === false ? ' The tax-ledger rows were saved, but the accounting journal needs to be rebuilt.' : '';
+        openSuccessModal(`eBay order ${payload.orderNumber} was added with its revenue and ${Number(data.expenseCount || 0)} fee entries.${journalNote}`, 'eBay Sale Added ✅');
+      } catch (e) {
+        openErrorModal(`Could not save eBay sale: ${e.message || e}`);
+      } finally {
+        ebaySaleSaveBtn.disabled = false;
+        ebaySaleSaveBtn.textContent = originalText;
+      }
+    }
+
     function initTaxUiDefaults() {
       const now = nowEtParts();
       const thisYear = Number(now.date.split('-')[0] || new Date().getFullYear());
@@ -1833,6 +1966,7 @@
       taxExpenseDateEl.value = now.date;
       if (taxOwnerTransferDateEl) taxOwnerTransferDateEl.value = now.date;
       taxIncomeDateEl.value = now.date;
+      clearEbaySaleForm();
       setTaxEntryMode('none');
     }
 
@@ -3608,6 +3742,7 @@
           taxModeExpenseBtn?.addEventListener('click', () => setTaxEntryMode('expense'));
           taxModeOwnerTransferBtn?.addEventListener('click', openOwnerTransferModal);
           taxModeIncomeBtn?.addEventListener('click', openIncomeEntry);
+          taxModeEbayBtn?.addEventListener('click', openEbaySaleEntry);
           taxModeRefundBtn?.addEventListener('click', openCustomerRefundEntry);
           taxRefundOrderEl?.addEventListener('change', applyRefundOrderSelection);
           adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
@@ -3694,6 +3829,18 @@
           });
           taxIncomePanel?.addEventListener('click', (e) => {
             if (e.target === taxIncomePanel) setTaxEntryMode('none');
+          });
+          ebaySalePanel?.addEventListener('click', (e) => {
+            if (e.target === ebaySalePanel) setTaxEntryMode('none');
+          });
+          document.getElementById('ebay-sale-close-btn')?.addEventListener('click', () => setTaxEntryMode('none'));
+          document.getElementById('ebay-sale-clear-btn')?.addEventListener('click', clearEbaySaleForm);
+          ebaySaleSaveBtn?.addEventListener('click', addEbaySale);
+          [ebaySaleSubtotalEl, ebaySaleShippingCollectedEl, ebaySaleSalesTaxEl, ebaySaleTransactionFeeEl, ebaySaleShippingLabelEl, ebaySaleAdFeeEl, ebaySaleOtherFeeEl]
+            .forEach((el) => el?.addEventListener('input', updateEbaySalePreview));
+          ebaySaleReceiptEl?.addEventListener('change', () => {
+            const receiptName = document.getElementById('ebay-sale-receipt-name');
+            if (receiptName) receiptName.textContent = ebaySaleReceiptEl.files[0]?.name || 'No file chosen';
           });
 
           txFilterBtns.forEach(btn => {

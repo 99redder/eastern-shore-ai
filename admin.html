@@ -74,6 +74,7 @@
     input, textarea, select { width:100%; min-width:0; max-width:100%; border:1px solid var(--line); border-radius:2px; background:#10121a; color:var(--text); padding:.65rem .7rem; font:inherit; }
     #manual-order-payment-date::-webkit-calendar-picker-indicator { filter: invert(73%) sepia(94%) saturate(2897%) hue-rotate(154deg) brightness(102%) contrast(103%); opacity: 1; cursor: pointer; }
     #tax-expense-date::-webkit-calendar-picker-indicator { filter: invert(65%) sepia(90%) saturate(5000%) hue-rotate(290deg) brightness(105%) contrast(105%); opacity: 1; cursor: pointer; }
+    #ebay-sale-date::-webkit-calendar-picker-indicator { filter: invert(73%) sepia(94%) saturate(2897%) hue-rotate(154deg) brightness(102%) contrast(103%); opacity: 1; cursor: pointer; }
     #manual-order-payment-date::-webkit-datetime-edit { color: var(--text); }
     textarea { min-height:120px; resize:vertical; }
     .form-actions { display:flex; justify-content:flex-end; margin-top:.9rem; }
@@ -432,6 +433,7 @@
                   <div class="tax-ledger-primary-actions">
                     <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-expense-btn">Add Expense</button>
                     <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-income-btn">Add Income</button>
+                    <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-ebay-btn">Add eBay Sale</button>
                     <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-refund-btn">Add Customer Refund</button>
                     <button type="button" class="btn btn-primary tx-entry-mode-btn" id="tax-mode-owner-transfer-btn">Add Owner Transfer</button>
                     <button type="button" class="btn btn-primary" id="tax-manage-categories-btn">Manage Categories</button>
@@ -538,6 +540,76 @@
                         <button type="button" class="btn btn-primary" id="tax-update-income-btn" style="display:none;">Save Income Update</button>
                         <button type="button" class="btn" id="tax-cancel-income-edit-btn" style="display:none;">Cancel Edit</button>
                         <button type="button" class="btn" id="tax-clear-income-btn" style="padding:.85rem 1.35rem; font-size:1.05rem;">Clear</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tax-entry-wrap tax-entry-modal" id="ebay-sale-panel" style="display:none;" aria-hidden="true">
+                  <div class="admin-calendar-wrap tax-entry-modal-card">
+                    <div class="admin-calendar-head" style="display:flex; justify-content:space-between; align-items:center;">
+                      <div class="admin-calendar-title">Add eBay Survival Node Sale</div>
+                      <button type="button" class="btn" id="ebay-sale-close-btn">Close</button>
+                    </div>
+                    <p style="margin:.2rem 0 .75rem;">Enter the amounts from eBay’s order earnings screen. Buyer sales tax is tracked for reconciliation but excluded from income because eBay collects and remits it.</p>
+                    <div class="form-grid" id="ebay-sale-fields">
+                      <div>
+                        <label for="ebay-sale-date">Sale date</label>
+                        <input id="ebay-sale-date" type="date" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-order-number">eBay order number</label>
+                        <input id="ebay-sale-order-number" placeholder="e.g. 12-34567-89012" autocomplete="off" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-subtotal">Item subtotal (USD)</label>
+                        <input id="ebay-sale-subtotal" type="number" min="0" step="0.01" inputmode="decimal" placeholder="199.99" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-shipping-collected">Shipping paid by buyer (USD)</label>
+                        <input id="ebay-sale-shipping-collected" type="number" min="0" step="0.01" inputmode="decimal" placeholder="19.99" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-sales-tax">Sales tax collected by eBay (USD)</label>
+                        <input id="ebay-sale-sales-tax" type="number" min="0" step="0.01" inputmode="decimal" placeholder="12.00" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-transaction-fee">Transaction fees (USD)</label>
+                        <input id="ebay-sale-transaction-fee" type="number" min="0" step="0.01" inputmode="decimal" placeholder="31.95" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-shipping-label">Shipping label (USD)</label>
+                        <input id="ebay-sale-shipping-label" type="number" min="0" step="0.01" inputmode="decimal" placeholder="16.43" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-ad-fee">Promoted listing / ad fee (USD)</label>
+                        <input id="ebay-sale-ad-fee" type="number" min="0" step="0.01" inputmode="decimal" placeholder="37.12" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-other-fee">Other eBay fees (USD)</label>
+                        <input id="ebay-sale-other-fee" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" />
+                      </div>
+                      <div>
+                        <label for="ebay-sale-notes">Notes</label>
+                        <input id="ebay-sale-notes" placeholder="optional" />
+                      </div>
+                      <div class="full">
+                        <label>eBay order details screenshot <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional — PDF, JPG, PNG)</span></label>
+                        <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;">
+                          <label for="ebay-sale-receipt" class="btn" style="cursor:pointer; white-space:nowrap; margin:0;">Browse…</label>
+                          <input id="ebay-sale-receipt" type="file" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />
+                          <span id="ebay-sale-receipt-name" style="font-size:.8rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">No file chosen</span>
+                        </div>
+                      </div>
+                      <div class="full admin-list" style="padding:.75rem;">
+                        <div class="tax-summary-line"><span>Revenue recorded (item + buyer shipping)</span><strong id="ebay-sale-revenue-preview">$0.00</strong></div>
+                        <div class="tax-summary-line"><span>Sales tax excluded from income</span><strong id="ebay-sale-tax-preview">$0.00</strong></div>
+                        <div class="tax-summary-line"><span>Total eBay costs</span><strong id="ebay-sale-fees-preview">$0.00</strong></div>
+                        <div class="tax-summary-line" style="margin-top:.4rem; border-top:1px solid var(--line); padding-top:.4rem;"><span>Expected order earnings</span><strong id="ebay-sale-net-preview">$0.00</strong></div>
+                      </div>
+                      <div class="full form-actions" style="justify-content:flex-start; gap:.5rem; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-primary" id="ebay-sale-save-btn">Add eBay Sale</button>
+                        <button type="button" class="btn" id="ebay-sale-clear-btn">Clear</button>
                       </div>
                     </div>
                   </div>
@@ -1141,6 +1213,6 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=customer-refund-api-1"></script>
+  <script src="/admin.js?v=ebay-sale-ledger-1"></script>
 </body>
 </html>
