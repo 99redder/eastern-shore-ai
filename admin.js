@@ -44,12 +44,15 @@
     const QUOTE_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/delete');
     const QUOTE_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/send');
     const QUOTE_CONVERT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/convert');
+    const ADMIN_LOGIN_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/login');
+    const ADMIN_SESSION_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/session');
 
     // ===== DOM Refs =====
     let adminLock;
     let adminControls;
     let adminHeaderTools;
     let adminKeyEl;
+    let adminTotpEl;
     let adminUnlockBtn;
 
     let adminSectionTabsEl;
@@ -315,6 +318,7 @@
       adminControls = document.getElementById('admin-controls');
       adminHeaderTools = document.getElementById('admin-header-tools');
       adminKeyEl = document.getElementById('admin-key');
+      adminTotpEl = document.getElementById('admin-totp');
       adminUnlockBtn = document.getElementById('admin-unlock-btn');
       adminSectionTabsEl = document.getElementById('admin-section-tabs');
       adminSectionTabBtns = document.querySelectorAll('[data-admin-tab]');
@@ -566,9 +570,9 @@
 
     // ===== State =====
     let adminSessionActive = false;
-    let adminPassword = '';
+    let adminSessionToken = '';
     let adminInactivityTimer = null;
-    const ADMIN_PASSWORD_IDLE_MS = 30 * 60 * 1000;
+    const ADMIN_SESSION_IDLE_MS = 30 * 60 * 1000;
     let adminCalendarCursor = null;
     let allTxItems = [];
     let loadedTaxData = { income: [], expenses: [] };
@@ -767,7 +771,7 @@
       try {
         const res = await fetch(ORDER_BATTERY_TEST_API_URL, {
           method: 'POST',
-          headers: { 'X-Admin-Password': adminPassword },
+          headers: { 'X-Admin-Session': adminSessionToken },
           body: fd
         });
         const data = await res.json().catch(() => ({}));
@@ -909,7 +913,7 @@
       try {
         const res = await fetch(ACCOUNTS_YEAR_CLOSE_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ year, apply: false })
         });
         const data = await res.json();
@@ -970,10 +974,10 @@
         const root = zip.folder(`audit-package-${year}`);
 
         const [txRes, summaryRes, statementsRes, journalRes] = await Promise.all([
-          fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, { headers: { 'X-Admin-Password': adminPassword } }),
-          fetch(`${ACCOUNTS_SUMMARY_API_URL}?year=${encodeURIComponent(year)}`, { headers: { 'X-Admin-Password': adminPassword } }),
-          fetch(`${ACCOUNTS_STATEMENTS_API_URL}?year=${encodeURIComponent(year)}`, { headers: { 'X-Admin-Password': adminPassword } }),
-          fetch(`${ACCOUNTS_JOURNAL_API_URL}?year=${encodeURIComponent(year)}&limit=5000`, { headers: { 'X-Admin-Password': adminPassword } })
+          fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, { headers: { 'X-Admin-Session': adminSessionToken } }),
+          fetch(`${ACCOUNTS_SUMMARY_API_URL}?year=${encodeURIComponent(year)}`, { headers: { 'X-Admin-Session': adminSessionToken } }),
+          fetch(`${ACCOUNTS_STATEMENTS_API_URL}?year=${encodeURIComponent(year)}`, { headers: { 'X-Admin-Session': adminSessionToken } }),
+          fetch(`${ACCOUNTS_JOURNAL_API_URL}?year=${encodeURIComponent(year)}&limit=5000`, { headers: { 'X-Admin-Session': adminSessionToken } })
         ]);
         const txData = await txRes.json();
         const summaryData = await summaryRes.json();
@@ -983,7 +987,7 @@
         const money = (c) => `$${(Number(c || 0)/100).toFixed(2)}`;
 
         if (selected.includes('tax_csv')) {
-          const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, { headers: { 'X-Admin-Password': adminPassword } });
+          const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, { headers: { 'X-Admin-Session': adminSessionToken } });
           if (csvRes.ok) root.file(`tax-transactions-${year}.csv`, await csvRes.blob());
         }
 
@@ -1063,7 +1067,7 @@
             if (!r.receipt_key) continue;
             const ext = (r.receipt_key.split('.').pop() || 'bin').slice(0, 5);
             const fn = `${r.type}-${r.id}-${r.date}.${ext}`;
-            const rr = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}`, { headers: { 'X-Admin-Password': adminPassword } });
+            const rr = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}`, { headers: { 'X-Admin-Session': adminSessionToken } });
             if (rr.ok) recFolder.file(fn, await rr.blob());
           }
         }
@@ -1100,7 +1104,7 @@
       try {
         const res = await fetch(ACCOUNTS_YEAR_CLOSE_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ year, apply: true })
         });
         const data = await res.json();
@@ -1173,7 +1177,7 @@
       const eventId = (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : `pay-${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const res = await fetch(INVOICE_PAYMENT_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
         body: JSON.stringify({ id, paymentCents: Math.round(amt * 100), paymentEventId: eventId })
       });
       const data = await res.json().catch(() => ({}));
@@ -1243,8 +1247,9 @@
     function removeAdminControls() {
       const mount = document.getElementById('admin-controls-mount');
       if (mount) mount.textContent = '';
-      adminPassword = '';
+      adminSessionToken = '';
       if (adminKeyEl) adminKeyEl.value = '';
+      if (adminTotpEl) adminTotpEl.value = '';
       clearTimeout(adminInactivityTimer);
       adminInactivityTimer = null;
       adminSessionActive = false;
@@ -1338,7 +1343,7 @@
       if (!adminSessionActive) return;
       try {
         const res = await fetch(`${BOOKINGS_API_URL}?limit=200`, {
-          headers: { 'X-Admin-Password': adminPassword }
+          headers: { 'X-Admin-Session': adminSessionToken }
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
@@ -1370,7 +1375,7 @@
             try {
               await fetch(`${BLOCK_SLOT_API_URL}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
                 body: JSON.stringify({ setupDate, setupTime, reason: '', active: false })
               });
               await loadAdminData();
@@ -1390,7 +1395,7 @@
             try {
               await fetch(`${BLOCK_DAY_API_URL}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
                 body: JSON.stringify({ setupDate, reason: '', active: false })
               });
               await loadAdminData();
@@ -1411,8 +1416,8 @@
     async function setBlockedSlot(active) {
       const setupDate = adminDateEl.value;
       const setupTime = adminTimeEl.value;
-      if (!adminPassword || !setupDate || !setupTime) {
-        openErrorModal('Admin password + date + time are required.');
+      if (!adminSessionToken || !setupDate || !setupTime) {
+        openErrorModal('An active admin session, date, and time are required.');
         return;
       }
       const proceed = await openConfirmModal(
@@ -1424,7 +1429,7 @@
       try {
         const res = await fetch(`${BLOCK_SLOT_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({
             setupDate,
             setupTime,
@@ -1443,8 +1448,8 @@
 
     async function setBlockedDay(active) {
       const setupDate = adminDateEl.value;
-      if (!adminPassword || !setupDate) {
-        openErrorModal('Admin password + date are required.');
+      if (!adminSessionToken || !setupDate) {
+        openErrorModal('An active admin session and date are required.');
         return;
       }
       const proceed = await openConfirmModal(
@@ -1456,7 +1461,7 @@
       try {
         const res = await fetch(`${BLOCK_DAY_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({
             setupDate,
             reason: adminReasonEl.value.trim(),
@@ -1473,7 +1478,7 @@
     }
 
     async function cleanupOldPendingBookings() {
-      if (!adminPassword) {
+      if (!adminSessionToken) {
         openErrorModal('Unlock admin first.');
         return;
       }
@@ -1486,7 +1491,7 @@
       try {
         const res = await fetch(`${CLEANUP_PENDING_BOOKINGS_API_URL}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ days: 5 })
         });
         const data = await res.json().catch(() => ({}));
@@ -1715,7 +1720,7 @@
       const url = type === 'income' ? TAX_INCOME_DELETE_API_URL : TAX_EXPENSE_DELETE_API_URL;
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
         body: JSON.stringify({ id: r.id })
       });
       const data = await res.json().catch(() => ({}));
@@ -1803,7 +1808,7 @@
         return;
       }
       if (taxRefundOrderEl) taxRefundOrderEl.innerHTML = '<option value="">Loading Survival Node orders…</option>';
-      const res = await fetch(ORDERS_API_URL, { headers: { 'X-Admin-Password': adminPassword } });
+      const res = await fetch(ORDERS_API_URL, { headers: { 'X-Admin-Session': adminSessionToken } });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Failed to load Survival Node orders');
       survivalNodeOrders = Array.isArray(data.orders) ? data.orders : [];
@@ -1929,7 +1934,7 @@
       try {
         const res = await fetch(TAX_EBAY_SALE_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify(payload)
         });
         const data = await res.json().catch(() => ({}));
@@ -2068,10 +2073,10 @@
       try {
         const [res, summaryRes] = await Promise.all([
           fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
-            headers: { 'X-Admin-Password': adminPassword }
+            headers: { 'X-Admin-Session': adminSessionToken }
           }),
           fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(summaryYear)}&type=all&limit=5000`, {
-            headers: { 'X-Admin-Password': adminPassword }
+            headers: { 'X-Admin-Session': adminSessionToken }
           })
         ]);
         const data = await res.json();
@@ -2202,7 +2207,7 @@
         if (editingExpenseId) payload.id = editingExpenseId;
         const res = await fetch(targetUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify(payload)
         });
         const data = await res.json();
@@ -2246,7 +2251,7 @@
       try {
         const res = await fetch(TAX_OWNER_TRANSFER_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify(payload)
         });
         const data = await res.json();
@@ -2317,7 +2322,7 @@
         if (editingIncomeId) payload.id = editingIncomeId;
         const res = await fetch(targetUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify(payload)
         });
         const responseText = await res.text();
@@ -2357,7 +2362,7 @@
       fd.append('file', fileInput.files[0]);
       const res = await fetch(TAX_RECEIPT_UPLOAD_URL, {
         method: 'POST',
-        headers: { 'X-Admin-Password': adminPassword },
+        headers: { 'X-Admin-Session': adminSessionToken },
         body: fd
       });
       const data = await res.json();
@@ -2366,7 +2371,7 @@
 
     async function openTaxReceipt(receiptKey) {
       const res = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(receiptKey)}`, {
-        headers: { 'X-Admin-Password': adminPassword }
+        headers: { 'X-Admin-Session': adminSessionToken }
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -2423,7 +2428,7 @@
       const quarterSuffix = quarter && quarter !== 'all' ? `-Q${quarter}` : '';
       try {
         const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=10000`, {
-          headers: { 'X-Admin-Password': adminPassword }
+          headers: { 'X-Admin-Session': adminSessionToken }
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -2539,7 +2544,7 @@
       if (!statementRows.length) { openErrorModal('No statement rows found for the selected period.'); return; }
 
       const res = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
-        headers: { 'X-Admin-Password': adminPassword }
+        headers: { 'X-Admin-Session': adminSessionToken }
       });
       const data = await res.json();
       if (!res.ok) { openErrorModal(data.error || 'Failed to load ledger data.'); return; }
@@ -2589,9 +2594,9 @@
 
       try {
         const [summaryRes, statementsRes, journalRes] = await Promise.all([
-          fetch(`${ACCOUNTS_SUMMARY_API_URL}?${periodQuery}`, { headers: { 'X-Admin-Password': adminPassword } }),
-          fetch(`${ACCOUNTS_STATEMENTS_API_URL}?${periodQuery}`, { headers: { 'X-Admin-Password': adminPassword } }),
-          fetch(`${ACCOUNTS_JOURNAL_API_URL}?${periodQuery}&limit=200`, { headers: { 'X-Admin-Password': adminPassword } })
+          fetch(`${ACCOUNTS_SUMMARY_API_URL}?${periodQuery}`, { headers: { 'X-Admin-Session': adminSessionToken } }),
+          fetch(`${ACCOUNTS_STATEMENTS_API_URL}?${periodQuery}`, { headers: { 'X-Admin-Session': adminSessionToken } }),
+          fetch(`${ACCOUNTS_JOURNAL_API_URL}?${periodQuery}&limit=200`, { headers: { 'X-Admin-Session': adminSessionToken } })
         ]);
         const summary = await summaryRes.json();
         const statements = await statementsRes.json();
@@ -2782,7 +2787,7 @@
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
         body: JSON.stringify(payload)
       });
       const data = await res.json().catch(() => ({}));
@@ -2799,7 +2804,7 @@
       const invoiceId = Number(id || 0);
       if (!invoiceId) return;
       const res = await fetch(`${INVOICE_DETAIL_API_URL}?id=${encodeURIComponent(invoiceId)}`, {
-        headers: { 'X-Admin-Password': adminPassword }
+        headers: { 'X-Admin-Session': adminSessionToken }
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data?.invoice) {
@@ -2839,7 +2844,7 @@
       let status = (invoiceFilterEl?.value || 'all').trim();
       if (status === 'open') status = 'sent';
       const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
-      const res = await fetch(`${INVOICES_API_URL}${query}`, { headers: { 'X-Admin-Password': adminPassword } });
+      const res = await fetch(`${INVOICES_API_URL}${query}`, { headers: { 'X-Admin-Session': adminSessionToken } });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { invoiceListEl.textContent = data.error || 'Failed to load invoices.'; return; }
 
@@ -2946,7 +2951,7 @@
         const regenerate = btn.getAttribute('data-regenerate') === '1';
         const res = await fetch(INVOICE_PAYMENT_LINK_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ id, regenerate })
         });
         const data = await res.json().catch(() => ({}));
@@ -2971,7 +2976,7 @@
         if (!yes) return;
         const res = await fetch(INVOICE_DELETE_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ id })
         });
         const data = await res.json().catch(() => ({}));
@@ -2989,7 +2994,7 @@
           // Auto-generate payment link before sending so email includes Pay button when balance is due.
           const linkRes = await fetch(INVOICE_PAYMENT_LINK_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
             body: JSON.stringify({ id, regenerate: false })
           });
           const linkData = await linkRes.json().catch(() => ({}));
@@ -3001,7 +3006,7 @@
 
           const res = await fetch(INVOICE_SEND_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+            headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
             body: JSON.stringify({ id })
           });
           const data = await res.json().catch(() => ({}));
@@ -3019,7 +3024,7 @@
       const targetStatus = action === 'paid' ? 'paid' : 'sent';
       const res = await fetch(INVOICE_STATUS_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
         body: JSON.stringify({ id, status: targetStatus })
       });
       const data = await res.json().catch(() => ({}));
@@ -3120,7 +3125,7 @@
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
         body: JSON.stringify(payload)
       });
       const data = await res.json().catch(() => ({}));
@@ -3132,7 +3137,7 @@
     }
 
     async function startQuoteEdit(quoteId) {
-      const res = await fetch(`${QUOTE_DETAIL_API_URL}?id=${quoteId}`, { headers: { 'X-Admin-Password': adminPassword } });
+      const res = await fetch(`${QUOTE_DETAIL_API_URL}?id=${quoteId}`, { headers: { 'X-Admin-Session': adminSessionToken } });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.quote) { openErrorModal(data.error || 'Failed to load quote'); return; }
       const q = data.quote;
@@ -3166,7 +3171,7 @@
       try {
       let status = (quoteFilterEl?.value || 'all').trim();
       const query = status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : '';
-      const res = await fetch(`${QUOTES_API_URL}${query}`, { headers: { 'X-Admin-Password': adminPassword } });
+      const res = await fetch(`${QUOTES_API_URL}${query}`, { headers: { 'X-Admin-Session': adminSessionToken } });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { quoteListEl.textContent = data.error || 'Failed to load quotes.'; return; }
 
@@ -3249,7 +3254,7 @@
       if (action === 'send') {
         const res = await fetch(QUOTE_SEND_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ id })
         });
         const data = await res.json().catch(() => ({}));
@@ -3264,7 +3269,7 @@
         if (!ok) return;
         const res = await fetch(QUOTE_DELETE_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ id })
         });
         const data = await res.json().catch(() => ({}));
@@ -3355,7 +3360,7 @@
       if (orderListEl) orderListEl.innerHTML = '<div style="color:var(--muted);">Loading orders…</div>';
       try {
         const status = (orderFilterEl?.value || 'all').trim();
-        const res = await fetch(ORDERS_API_URL, { headers: { 'X-Admin-Password': adminPassword } });
+        const res = await fetch(ORDERS_API_URL, { headers: { 'X-Admin-Session': adminSessionToken } });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { orderListEl.textContent = data.error || 'Failed to load orders.'; return; }
         survivalNodeOrders = Array.isArray(data.orders) ? data.orders : [];
@@ -3407,7 +3412,7 @@
       try {
         const res = await fetch(ORDER_PREVIEW_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({
             bookingId: id,
             orderKey,
@@ -3446,7 +3451,7 @@
         if (!ok) return;
         const res = await fetch(ORDER_DELETE_API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
           body: JSON.stringify({ orderKey, id })
         });
         const data = await res.json().catch(() => ({}));
@@ -3533,7 +3538,8 @@
     // ===== Admin Unlock =====
     const ADMIN_LOGIN_GUARD_KEY = 'eastern_admin_login_guard_v3';
     const ADMIN_LOGIN_LEGACY_GUARD_KEYS = ['eastern_admin_login_guard_v1', 'eastern_admin_login_guard_v2'];
-    const ADMIN_AUTH_SESSION_KEY = 'eastern_admin_auth_session_v1';
+    const ADMIN_AUTH_SESSION_KEY = 'eastern_admin_auth_session_v2';
+    const ADMIN_SESSION_TOKEN_KEY = 'eastern_admin_session_token_v1';
     const ADMIN_MAX_TRIES = 3;
     const ADMIN_TRY_WINDOW_MS = 5 * 60 * 1000;
     const ADMIN_LOCK_MS = 60 * 60 * 1000;
@@ -3574,6 +3580,7 @@
           sessionStorage.setItem(ADMIN_AUTH_SESSION_KEY, JSON.stringify({ isAuthenticated: true }));
         } else {
           sessionStorage.removeItem(ADMIN_AUTH_SESSION_KEY);
+          sessionStorage.removeItem(ADMIN_SESSION_TOKEN_KEY);
         }
       } catch {}
     }
@@ -3595,20 +3602,20 @@
       return next;
     }
 
-    function armAdminPasswordClearTimer() {
+    function armAdminSessionClearTimer() {
       clearTimeout(adminInactivityTimer);
       adminInactivityTimer = setTimeout(() => {
-        if (adminPassword) {
+        if (adminSessionToken) {
           removeAdminControls();
           openErrorModal('Admin session expired after 30 minutes away. Please log in again.');
         }
-      }, ADMIN_PASSWORD_IDLE_MS);
+      }, ADMIN_SESSION_IDLE_MS);
     }
 
     document.addEventListener('visibilitychange', () => {
-      if (!adminPassword) return;
+      if (!adminSessionToken) return;
       if (document.hidden) {
-        armAdminPasswordClearTimer();
+        armAdminSessionClearTimer();
       } else {
         clearTimeout(adminInactivityTimer);
       }
@@ -3631,9 +3638,34 @@
       tick();
     }
 
+    async function enterAdminDashboard() {
+      setAdminAuthenticatedSession(true);
+      injectAdminControls();
+      setAdminUnlocked(true);
+      const n = new Date();
+      adminCalendarCursor = new Date(n.getFullYear(), n.getMonth(), 1);
+      loadCategoryPrefs();
+      initTaxUiDefaults();
+      initAccountsUiDefaults();
+      setAccountsTab('balances');
+      disableLegacyCollapse();
+      setAdminSectionTab('booking');
+      loadBlurMoneyPref();
+      markMoneyBlurTargets();
+      await loadAdminData();
+      await loadTaxTransactions();
+      await loadAccountsData();
+      await refreshInvoiceList();
+    }
+
     adminUnlockBtn.addEventListener('click', async () => {
       const key = adminKeyEl.value.trim();
-      if (!key) return;
+      const code = (adminTotpEl?.value || '').replace(/\D/g, '');
+      if (!key || !/^\d{6}$/.test(code)) {
+        openErrorModal('Enter your admin password and the 6-digit code from Microsoft Authenticator.');
+        (!key ? adminKeyEl : adminTotpEl)?.focus();
+        return;
+      }
 
       const pre = getAdminLoginGuard();
       const now = Date.now();
@@ -3644,8 +3676,12 @@
       }
 
       try {
-        const res = await fetch(`${BOOKINGS_API_URL}?limit=1`, {
-          headers: { 'X-Admin-Password': key }
+        adminUnlockBtn.disabled = true;
+        adminUnlockBtn.textContent = 'Verifying…';
+        const res = await fetch(ADMIN_LOGIN_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: key, code })
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -3667,41 +3703,38 @@
           }
           const recentAttempts = state.attempts.filter((ts) => now2 - Number(ts || 0) <= ADMIN_TRY_WINDOW_MS).length;
           const triesLeft = Math.max(0, (ADMIN_MAX_TRIES + 1) - recentAttempts);
-          openErrorModal(`Admin unlock failed: Wrong password entered, ${triesLeft} more tries available`);
+          const reason = data.totpRequired ? 'Invalid authenticator code' : 'Wrong password entered';
+          openErrorModal(`Admin unlock failed: ${reason}, ${triesLeft} more tries available`);
+          if (data.totpRequired && adminTotpEl) {
+            adminTotpEl.value = '';
+            adminTotpEl.focus();
+          }
           return;
         }
+        if (!data.sessionToken) throw new Error('The server did not return an admin session');
         clearAdminLoginGuard();
-        adminPassword = key;
+        adminSessionToken = data.sessionToken;
+        try { sessionStorage.setItem(ADMIN_SESSION_TOKEN_KEY, adminSessionToken); } catch {}
         adminKeyEl.value = '';
-        setAdminAuthenticatedSession(true);
-        injectAdminControls();
-        setAdminUnlocked(true);
-        const n = new Date();
-        adminCalendarCursor = new Date(n.getFullYear(), n.getMonth(), 1);
-        loadCategoryPrefs();
-        initTaxUiDefaults();
-        initAccountsUiDefaults();
-        setAccountsTab('balances');
-        disableLegacyCollapse();
-        setAdminSectionTab('booking');
-        loadBlurMoneyPref();
-        markMoneyBlurTargets();
-        await loadAdminData();
-        await loadTaxTransactions();
-        await loadAccountsData();
-        await refreshInvoiceList();
+        if (adminTotpEl) adminTotpEl.value = '';
+        await enterAdminDashboard();
       } catch (e) {
         openErrorModal(`Admin unlock failed: ${e.message || e}`);
+      } finally {
+        if (!adminUnlockBtn.disabled || adminUnlockBtn.textContent === 'Verifying…') {
+          adminUnlockBtn.disabled = false;
+          adminUnlockBtn.textContent = 'Login';
+        }
       }
     });
 
-    // Also allow Enter key on password input
-    adminKeyEl.addEventListener('keydown', (e) => {
+    // Also allow Enter from either login field.
+    [adminKeyEl, adminTotpEl].forEach((el) => el?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
         adminUnlockBtn.click();
       }
-    });
+    }));
     document.getElementById('admin-login-form')?.addEventListener('submit', (e) => {
       e.preventDefault();
       adminUnlockBtn.click();
@@ -3877,7 +3910,7 @@
 
           accountsRefreshBtn?.addEventListener('click', loadAccountsData);
           accountsRebuildAutoJournalBtn?.addEventListener('click', async () => {
-            if (!adminPassword) {
+            if (!adminSessionToken) {
               openErrorModal('Unlock admin first.');
               return;
             }
@@ -3912,7 +3945,7 @@
                 if (++guard > 1000) throw new Error('Rebuild did not finish (too many chunks)');
                 const res = await fetch(ACCOUNTS_REBUILD_AUTO_JOURNAL_API_URL, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+                  headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
                   body: JSON.stringify({ start })
                 });
                 const data = await res.json().catch(() => ({}));
@@ -3992,7 +4025,7 @@
             manualOrderSaveBtn.disabled = true;
             manualOrderSaveBtn.textContent = 'Creating…';
             try {
-              const res = await fetch(ORDER_MANUAL_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
+              const res = await fetch(ORDER_MANUAL_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken }, body: JSON.stringify(payload) });
               const data = await res.json().catch(() => ({}));
               if (!res.ok) { openErrorModal(data.error || 'Failed to create manual order'); return; }
               closeManualOrderModal();
@@ -4025,7 +4058,7 @@
             trackingSaveBtn.disabled = true;
             trackingSaveBtn.textContent = draft.forShippingEmail ? 'Continuing…' : 'Saving…';
             try {
-              const res = await fetch(ORDER_TRACKING_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword }, body: JSON.stringify(payload) });
+              const res = await fetch(ORDER_TRACKING_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken }, body: JSON.stringify(payload) });
               const data = await res.json().catch(() => ({}));
               if (!res.ok) { openErrorModal(data.error || 'Failed to save tracking'); return; }
               closeTrackingModal();
@@ -4071,7 +4104,7 @@
             try {
               const res = await fetch(ORDER_SEND_API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Password': adminPassword },
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
                 body: JSON.stringify(payload)
               });
               const data = await res.json().catch(() => ({}));
@@ -4129,13 +4162,13 @@
                 const folder = zip.folder(`eastern-shore-ai-tax-${year}`);
 
                 const csvRes = await fetch(`${TAX_EXPORT_API_URL}?year=${encodeURIComponent(year)}&type=all`, {
-                  headers: { 'X-Admin-Password': adminPassword }
+                  headers: { 'X-Admin-Session': adminSessionToken }
                 });
                 if (!csvRes.ok) throw new Error('CSV fetch failed');
                 folder.file(`eastern-shore-ai-tax-${year}.csv`, await csvRes.blob());
 
                 const txRes = await fetch(`${TAX_TX_API_URL}?year=${encodeURIComponent(year)}&type=all&limit=5000`, {
-                  headers: { 'X-Admin-Password': adminPassword }
+                  headers: { 'X-Admin-Session': adminSessionToken }
                 });
                 const txData = await txRes.json();
                 const allRecords = [
@@ -4148,7 +4181,7 @@
                   if (!r.receipt_key) continue;
                   const ext = r.receipt_key.split('.').pop();
                   const filename = `${r.recType}-${r.id}-${r.date || ''}.${ext}`;
-                  const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}`, { headers: { 'X-Admin-Password': adminPassword } });
+                  const rRes = await fetch(`${TAX_RECEIPT_URL}?key=${encodeURIComponent(r.receipt_key)}`, { headers: { 'X-Admin-Session': adminSessionToken } });
                   if (rRes.ok) receiptsFolder.file(filename, await rRes.blob());
                 }
 
@@ -4169,3 +4202,22 @@
             });
           }
     }
+
+    async function restoreAdminSession() {
+      let savedToken = '';
+      try { savedToken = sessionStorage.getItem(ADMIN_SESSION_TOKEN_KEY) || ''; } catch {}
+      if (!savedToken) return;
+      adminSessionToken = savedToken;
+      try {
+        const res = await fetch(ADMIN_SESSION_API_URL, {
+          headers: { 'X-Admin-Session': adminSessionToken }
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error('Session expired');
+        await enterAdminDashboard();
+      } catch {
+        removeAdminControls();
+      }
+    }
+
+    restoreAdminSession();

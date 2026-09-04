@@ -44,7 +44,7 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 cd worker && wrangler deploy
 ```
 
-Worker secrets (configured in Cloudflare dashboard): `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_PASSWORD`
+Worker secrets (configured in Cloudflare dashboard): `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_PASSWORD`, `TOTP_SECRET`
 
 ## API Endpoints
 
@@ -359,7 +359,10 @@ Migrations:
 Admin panel lives at `/admin.html` (dedicated page, `noindex`). Previously was at `openclaw-setup.html?admin=1` — that no longer activates anything.
 
 Auth:
-- Admin requests use `X-Admin-Password` header (value must match Worker secret `ADMIN_PASSWORD`)
+- `admin.html` login requires the admin password plus a 6-digit Microsoft Authenticator TOTP code.
+- Successful login returns a 12-hour D1-backed session token. The dashboard stores it in `sessionStorage` and sends it in `X-Admin-Session`; the raw password is cleared after login.
+- `TOTP_SECRET` is the base32 secret enrolled in Microsoft Authenticator. It uses the same RFC 6238 settings as the rentals repo: 6 digits, HMAC-SHA1, 30-second period, and a ±1-step clock-skew window.
+- Legacy admin clients currently continue to use `X-Admin-Password`; do not use that header in `admin.html`.
 
 #### Changing the admin password
 
@@ -371,6 +374,14 @@ No redeploy needed — Worker picks it up immediately.
 
 **Via Cloudflare dashboard:**
 dash.cloudflare.com → Workers & Pages → `eastern-shore-ai-contact` → Settings → Variables and Secrets → Edit `ADMIN_PASSWORD` → Deploy.
+
+#### Configuring Microsoft Authenticator
+
+Use the same base32 secret already enrolled for the rentals dashboard if both dashboards should show the same 6-digit code:
+```bash
+cd worker && wrangler secret put TOTP_SECRET
+```
+Paste the secret at Wrangler's hidden prompt. Secret values cannot be read back from Cloudflare after they are stored.
 
 Admin APIs:
 - `GET /api/bookings`

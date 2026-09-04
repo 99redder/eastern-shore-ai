@@ -10,7 +10,7 @@ FROM_EMAIL = "noreply@easternshore.ai"
 ORDERS_FROM_EMAIL = "orders@easternshore.ai"
 BCC_EMAIL = "emailconfirm@easternshore.ai"
 
-# Required secrets (set via `wrangler secret put`): RESEND_API_KEY, ADMIN_PASSWORD, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
+# Required secrets (set via `wrangler secret put`): RESEND_API_KEY, ADMIN_PASSWORD, TOTP_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
 
 [[d1_databases]]
 binding = "DB"

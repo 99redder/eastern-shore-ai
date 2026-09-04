@@ -41,7 +41,7 @@
 // POST /api/chat/session/close  → handleChatSessionClose() — Admin: close a chat session
 //
 // ===== UTILITY FUNCTIONS =====
-// requireAdmin(request, env)           — Validate X-Admin-Password header with throttling
+// requireAdmin(request, env)           — Validate an admin session (or legacy password) with throttling
 // toCents(v)                           — Convert dollar string to integer cents
 // csvEscape(s)                         — Escape string for CSV output
 // verifyStripeSignature(payload, sig, secret) — HMAC-SHA256 Stripe webhook verification
@@ -52,6 +52,7 @@ const _adminAuthKeyFailures = new Map();
 const _contactRateLimits = new Map();
 const _askKRateLimits = new Map();
 const _chatRateLimits = new Map();
+const ADMIN_SESSION_TTL_SECONDS = 60 * 60 * 12;
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://easternshore.ai',
   'https://www.easternshore.ai',
@@ -96,7 +97,7 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Tax-Read-Token',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Admin-Session, X-Tax-Read-Token',
       'Vary': 'Origin'
     };
 
@@ -126,7 +127,8 @@ export default {
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isBatteryImagePublic && !isTrackPublic) {
+      const isAdminAuthRoute = (url.pathname === '/api/admin/login' && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -136,6 +138,17 @@ export default {
       if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
+    }
+
+    if (url.pathname === '/api/admin/login' && request.method === 'POST') {
+      return handleAdminLogin(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/admin/session' && request.method === 'GET') {
+      const auth = await requireAdmin(request, env, corsHeaders, url);
+      return auth.ok
+        ? json({ ok: true }, 200, corsHeaders)
+        : auth.res;
     }
 
     if (url.pathname === '/api/products' && request.method === 'GET') {
@@ -1850,8 +1863,103 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
 // ===== Utility Functions =====
 
-/** Validate admin password from X-Admin-Password header with per-IP and per-key failed-attempt throttling */
+async function ensureAdminSessionsSchema(db) {
+  await db.prepare(`CREATE TABLE IF NOT EXISTS admin_sessions (
+    token_hash TEXT PRIMARY KEY,
+    password_version TEXT NOT NULL,
+    user_agent_hash TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at INTEGER NOT NULL
+  )`).run();
+  await db.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_sessions_expires_at ON admin_sessions(expires_at)`).run();
+}
+
+async function clearAdminAuthFailures(env, ip, credentialHash = '') {
+  _adminAuthFailures.delete(ip);
+  if (credentialHash) _adminAuthKeyFailures.delete(credentialHash);
+  if (!env.DB) return;
+  await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_fail', ip).run().catch(e => console.error('Admin auth IP rate limit reset failed', e));
+  if (credentialHash) {
+    await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_key_fail', credentialHash).run().catch(e => console.error('Admin auth key rate limit reset failed', e));
+  }
+}
+
+async function recordAdminAuthFailure(request, env, corsHeaders, credentialHash) {
+  const windowMs = 15 * 60 * 1000;
+  const options = { limit: 5, windowMs, error: 'Too many attempts. Try again in 15 minutes.' };
+  const ipLimit = await checkPersistentIpRateLimit(env, _adminAuthFailures, request, 'admin_auth_fail', options, corsHeaders);
+  const keyLimit = await checkPersistentRateLimit(env, _adminAuthKeyFailures, credentialHash, 'admin_auth_key_fail', options, corsHeaders);
+  return ipLimit || keyLimit;
+}
+
+async function handleAdminLogin(request, env, corsHeaders) {
+  const expected = String(env.ADMIN_PASSWORD || '').trim();
+  const totpSecret = String(env.TOTP_SECRET || '').trim();
+  if (!expected) return json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders);
+  if (!totpSecret) return json({ ok: false, error: 'Authenticator is not configured on the server' }, 500, corsHeaders);
+  if (!env.DB) return json({ ok: false, error: 'Database not configured' }, 500, corsHeaders);
+
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const password = String(body?.password || '');
+  const code = String(body?.code || '').replace(/\s+/g, '');
+  const ip = getClientIp(request);
+  const credentialHash = await hashRateLimitKey(password);
+  const passwordMatches = await timingSafeEqual(password, expected);
+  const codeMatches = passwordMatches ? await verifyTotp(totpSecret, code) : false;
+
+  if (!passwordMatches || !codeMatches) {
+    const limited = await recordAdminAuthFailure(request, env, corsHeaders, credentialHash);
+    if (limited) return limited;
+    console.log(`Failed admin 2FA attempt at ${new Date().toISOString()} from ${ip}`);
+    return json({
+      ok: false,
+      ...(passwordMatches ? { totpRequired: true, error: 'Invalid authenticator code' } : { error: 'Unauthorized' })
+    }, 401, corsHeaders);
+  }
+
+  await clearAdminAuthFailures(env, ip, credentialHash);
+  await ensureAdminSessionsSchema(env.DB);
+  const token = `${crypto.randomUUID()}-${crypto.randomUUID()}`;
+  const tokenHash = await hashRateLimitKey(token);
+  const passwordVersion = await hashRateLimitKey(expected);
+  const userAgentHash = await hashRateLimitKey(request.headers.get('User-Agent') || '');
+  const expiresAt = Date.now() + (ADMIN_SESSION_TTL_SECONDS * 1000);
+  await env.DB.prepare(`DELETE FROM admin_sessions WHERE expires_at <= ?1`).bind(Date.now()).run();
+  await env.DB.prepare(
+    `INSERT INTO admin_sessions (token_hash, password_version, user_agent_hash, created_at, expires_at)
+     VALUES (?1, ?2, ?3, datetime('now'), ?4)`
+  ).bind(tokenHash, passwordVersion, userAgentHash, expiresAt).run();
+
+  return json({ ok: true, sessionToken: token, expiresIn: ADMIN_SESSION_TTL_SECONDS }, 200, corsHeaders);
+}
+
+async function hasValidAdminSession(request, env) {
+  const token = String(request.headers.get('X-Admin-Session') || '').trim();
+  if (!token || !env.DB || !env.ADMIN_PASSWORD) return false;
+  const tokenHash = await hashRateLimitKey(token);
+  const session = await env.DB.prepare(
+    `SELECT password_version, user_agent_hash, expires_at FROM admin_sessions WHERE token_hash = ?1 LIMIT 1`
+  ).bind(tokenHash).first();
+  if (!session || Number(session.expires_at || 0) <= Date.now()) return false;
+  const [passwordVersion, userAgentHash] = await Promise.all([
+    hashRateLimitKey(String(env.ADMIN_PASSWORD || '').trim()),
+    hashRateLimitKey(request.headers.get('User-Agent') || '')
+  ]);
+  return await timingSafeEqual(session.password_version, passwordVersion)
+    && await timingSafeEqual(session.user_agent_hash || '', userAgentHash);
+}
+
+/** Validate an admin session, with X-Admin-Password retained for legacy admin clients. */
 async function requireAdmin(request, env, corsHeaders, url) {
+  const sessionToken = String(request.headers.get('X-Admin-Session') || '').trim();
+  if (sessionToken) {
+    return await hasValidAdminSession(request, env)
+      ? { ok: true }
+      : { ok: false, res: json({ ok: false, error: 'Admin session expired' }, 401, corsHeaders) };
+  }
   const provided = (request.headers.get('X-Admin-Password') || '').trim();
   const expected = (env.ADMIN_PASSWORD || '').trim();
   if (!expected) return { ok: false, res: json({ ok: false, error: 'Admin password not configured' }, 500, corsHeaders) };
@@ -1864,14 +1972,7 @@ async function requireAdmin(request, env, corsHeaders, url) {
   const providedKeyHash = provided ? await hashRateLimitKey(provided) : '';
 
   if (provided && await timingSafeEqual(provided, expected)) {
-    _adminAuthFailures.delete(ip);
-    if (providedKeyHash) _adminAuthKeyFailures.delete(providedKeyHash);
-    if (env.DB) {
-      await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_fail', ip).run().catch(e => console.error('Admin auth IP rate limit reset failed', e));
-      if (providedKeyHash) {
-        await env.DB.prepare(`DELETE FROM rate_limits WHERE bucket = ?1 AND ip = ?2`).bind('admin_auth_key_fail', providedKeyHash).run().catch(e => console.error('Admin auth key rate limit reset failed', e));
-      }
-    }
+    await clearAdminAuthFailures(env, ip, providedKeyHash);
     return { ok: true };
   }
 
@@ -2010,6 +2111,61 @@ async function timingSafeEqual(a, b) {
   let out = 0;
   for (let i = 0; i < aBytes.length; i++) out |= aBytes[i] ^ bBytes[i];
   return out === 0;
+}
+
+// RFC 6238 TOTP: 6 digits, 30-second period, HMAC-SHA1, with one adjacent
+// window on either side for minor device clock drift. These are the standard
+// settings used by Microsoft Authenticator and the rentals dashboard.
+const TOTP_DIGITS = 6;
+const TOTP_PERIOD_SECONDS = 30;
+const TOTP_SKEW_STEPS = 1;
+
+function base32Decode(input) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const clean = String(input || '').toUpperCase().replace(/=+$/, '').replace(/\s+/g, '');
+  let bits = 0;
+  let value = 0;
+  const out = [];
+  for (const ch of clean) {
+    const idx = alphabet.indexOf(ch);
+    if (idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      bits -= 8;
+      out.push((value >>> bits) & 0xff);
+    }
+  }
+  return new Uint8Array(out);
+}
+
+async function totpCodeForStep(secretBytes, step) {
+  const counter = new ArrayBuffer(8);
+  const view = new DataView(counter);
+  view.setUint32(0, Math.floor(step / 0x1_0000_0000));
+  view.setUint32(4, step >>> 0);
+  const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+  const signature = new Uint8Array(await crypto.subtle.sign('HMAC', key, counter));
+  const offset = signature[signature.length - 1] & 0x0f;
+  const binary = ((signature[offset] & 0x7f) << 24)
+    | ((signature[offset + 1] & 0xff) << 16)
+    | ((signature[offset + 2] & 0xff) << 8)
+    | (signature[offset + 3] & 0xff);
+  return String(binary % (10 ** TOTP_DIGITS)).padStart(TOTP_DIGITS, '0');
+}
+
+async function verifyTotp(secret, code, now = Date.now()) {
+  const cleanCode = String(code || '').replace(/\s+/g, '');
+  if (!/^\d{6}$/.test(cleanCode)) return false;
+  const secretBytes = base32Decode(secret);
+  if (secretBytes.length === 0) return false;
+  const currentStep = Math.floor(now / 1000 / TOTP_PERIOD_SECONDS);
+  let match = false;
+  for (let offset = -TOTP_SKEW_STEPS; offset <= TOTP_SKEW_STEPS; offset++) {
+    const expected = await totpCodeForStep(secretBytes, currentStep + offset);
+    if (await timingSafeEqual(expected, cleanCode)) match = true;
+  }
+  return match;
 }
 
 function sweepExpiredRateLimitEntries(map, now = Date.now()) {
@@ -5917,7 +6073,7 @@ function buildCorsHeaders(request, env) {
   return {
     'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Admin-Session',
     'Vary': 'Origin'
   };
 }

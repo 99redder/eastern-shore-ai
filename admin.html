@@ -333,7 +333,10 @@
         <form id="admin-login-form" style="display:flex; flex-direction:column; gap:1rem; width:320px; margin:0 auto;">
           <label for="admin-key" style="font-size:1.1rem; color:var(--cyan); letter-spacing:.08em; text-align:center;">Admin Password</label>
           <input type="text" name="username" autocomplete="username" value="admin" hidden />
-          <input id="admin-key" type="password" autocomplete="new-password" placeholder="Enter admin password" style="font-size:1rem; padding:.6rem .9rem;" />
+          <input id="admin-key" type="password" autocomplete="current-password" placeholder="Enter admin password" style="font-size:1rem; padding:.6rem .9rem;" />
+          <label for="admin-totp" style="font-size:1.1rem; color:var(--cyan); letter-spacing:.08em; text-align:center;">Authenticator Code</label>
+          <input id="admin-totp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" placeholder="123456" aria-describedby="admin-totp-help" style="font-size:1rem; padding:.6rem .9rem; text-align:center; letter-spacing:.25em;" />
+          <div id="admin-totp-help" style="color:var(--muted); font-size:.82rem; text-align:center; margin-top:-.55rem;">Enter the 6-digit code from Microsoft Authenticator.</div>
           <button type="button" class="btn btn-primary" id="admin-unlock-btn" style="font-size:1.15rem; padding:.85rem 2rem; letter-spacing:.06em;">Login</button>
         </form>
       </div>
@@ -1213,6 +1216,6 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=ebay-sale-ledger-1"></script>
+  <script src="/admin.js?v=admin-2fa-1"></script>
 </body>
 </html>
