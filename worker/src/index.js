@@ -2317,8 +2317,8 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const summary = orderSummaryFromRow(row);
   const orderNumber = (row?.order_number || '').toString().trim();
   const transactionContext = orderNumber
-    ? `This is an order-related message for Survival Node order #${orderNumber}, placed with Eastern Shore AI.`
-    : 'This is an order-related message about your purchase from Eastern Shore AI.';
+    ? `This is an order-related message for your Survival Node order #${orderNumber}. Eastern Shore AI, LLC builds and fulfills Survival Node orders.`
+    : 'This is an order-related message for your Survival Node purchase. Eastern Shore AI, LLC builds and fulfills Survival Node orders.';
   const securityReminder = 'We’ll never ask you to send credit card details, banking information, or verification codes by email. If something seems unusual, contact us directly at contact@easternshore.ai.';
   const preheader = kind === 'delivered'
     ? 'Your order has arrived — you\'re all set.'
