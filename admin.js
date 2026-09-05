@@ -673,7 +673,7 @@
       const amount = (activeOrderEmailDraft?.amountDisplay || '').trim();
       const paymentDate = (activeOrderEmailDraft?.paymentDate || '').trim();
       const transactionContext = orderNumber
-        ? `This is an order-related message for order #${orderNumber}, placed with Eastern Shore AI.`
+        ? `This is an order-related message for Survival Node order #${orderNumber}, placed with Eastern Shore AI.`
         : 'This is an order-related message about your purchase from Eastern Shore AI.';
       const securityReminder = 'We’ll never ask you to send credit card details, banking information, or verification codes by email. If something seems unusual, contact us directly at contact@easternshore.ai.';
       const preheader = activeOrderEmailDraft?.kind === 'delivered'
