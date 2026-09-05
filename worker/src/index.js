@@ -2315,6 +2315,11 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const subject = (overrides.subject || '').toString().trim() || defaultOrderEmailSubject(kind, row);
   const bodyText = (overrides.bodyText || '').toString().trim() || defaultOrderEmailBody(kind, row, trackingProvider, trackingNumber, trackingUrl);
   const summary = orderSummaryFromRow(row);
+  const orderNumber = (row?.order_number || '').toString().trim();
+  const transactionContext = orderNumber
+    ? `This is an order-related message for order #${orderNumber}, placed with Eastern Shore AI.`
+    : 'This is an order-related message about your purchase from Eastern Shore AI.';
+  const securityReminder = 'Eastern Shore AI will never ask for your password, verification code, or additional payment by email.';
   const preheader = kind === 'delivered'
     ? 'Your order has arrived — you\'re all set.'
     : kind === 'shipping'
@@ -2323,7 +2328,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
         ? 'We\'d love to hear what you think!'
         : 'Your items are currently being quality checked';
   const detailLines = [
-    row?.order_number ? `<strong>Order Number:</strong> ${escapeHtml(String(row.order_number))}` : '',
+    orderNumber ? `<strong>Order Number:</strong> ${escapeHtml(orderNumber)}` : '',
     `<strong>Order:</strong> ${escapeHtml(summary)}`,
     `<strong>Amount:</strong> ${escapeHtml(formatUsd(Number(row?.amount_cents || 0)))}`,
     row?.payment_date ? `<strong>Payment Date:</strong> ${escapeHtml(String(row.payment_date).slice(0, 10))}` : '',
@@ -2342,8 +2347,10 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
     ? `<div style="margin:24px 0;text-align:center;"><a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-weight:700;font-size:16px;">Leave a Google Review &#9733;</a></div>`
     : '';
   const trackProxyUrl = trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
-  const html = `<!doctype html><html><head><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#0a0b10;color:#d8dce8;"><div style="font-family:Arial,sans-serif;background:#0a0b10;padding:24px 12px;color:#d8dce8;color-scheme:dark;"><div style="max-width:700px;margin:0 auto;background:#141620;border:1px solid #2a2d42;border-radius:12px;overflow:hidden;"><div style="height:4px;background:#00e5ff;background-image:linear-gradient(90deg,#00e5ff,#c850ff,#ff4fd8);font-size:0;line-height:0;">&nbsp;</div><div style="padding:24px;background:#0c0d14;border-bottom:1px solid #222438;color:#eaf1ff;"><div style="font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:#00e5ff;font-weight:700;">Eastern Shore AI</div><h1 style="margin:8px 0 0;font-size:25px;line-height:1.25;color:#eaf1ff;">${escapeHtml(subject)}</h1><div style="margin-top:9px;font-size:14px;color:#a5b1c8;">${escapeHtml(preheader)}</div></div><div style="padding:24px;background:#141620;"><div style="margin:0 0 22px;padding:16px 18px;background:#10121a;border:1px solid #222438;border-left:4px solid #c850ff;border-radius:6px;color:#d8dce8;line-height:1.55;">${detailLines}</div>${textToEmailHtml(bodyText)}${(kind === 'delivered' || kind === 'review') ? '' : batteryHtml}${trackProxyUrl && kind !== 'delivered' && kind !== 'review' ? `<div style="margin:24px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:700;">Track Your Shipment</a></div>` : ''}${shippingGuideHtml}${googleReviewHtml}</div><div style="padding:18px 24px;border-top:1px solid #222438;background:#0c0d14;color:#a5b1c8;font-size:13px;line-height:1.5;text-align:center;"><strong style="color:#d8dce8;">Eastern Shore AI, LLC</strong><span style="color:#7a7e96;"> &bull; </span><a href="https://www.easternshore.ai" style="color:#00e5ff;">www.easternshore.ai</a><div style="margin-top:6px;">Phone: <a href="tel:+13029079162" style="color:#00e5ff;">(302) 907-9162</a></div><p style="margin:8px 0 0;font-size:11px;line-height:1.45;color:#7a7e96;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div></body></html>`;
-  return { subject, bodyText, html };
+  const trackButtonLabel = trackingProvider ? `Track on ${trackingProvider.toUpperCase()}` : 'Track Your Shipment';
+  const text = `${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — Fruitland, Maryland\nhttps://www.easternshore.ai`;
+  const html = `<!doctype html><html><head><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#0a0b10;color:#d8dce8;"><div style="font-family:Arial,sans-serif;background:#0a0b10;padding:24px 12px;color:#d8dce8;color-scheme:dark;"><div style="max-width:700px;margin:0 auto;background:#141620;border:1px solid #2a2d42;border-radius:12px;overflow:hidden;"><div style="height:4px;background:#00e5ff;background-image:linear-gradient(90deg,#00e5ff,#c850ff,#ff4fd8);font-size:0;line-height:0;">&nbsp;</div><div style="padding:24px;background:#0c0d14;border-bottom:1px solid #222438;color:#eaf1ff;"><div style="font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:#00e5ff;font-weight:700;">Eastern Shore AI</div><h1 style="margin:8px 0 0;font-size:25px;line-height:1.25;color:#eaf1ff;">${escapeHtml(subject)}</h1><div style="margin-top:9px;font-size:14px;color:#a5b1c8;">${escapeHtml(preheader)}</div></div><div style="padding:24px;background:#141620;"><div style="margin:0 0 22px;padding:16px 18px;background:#10121a;border:1px solid #222438;border-left:4px solid #c850ff;border-radius:6px;color:#d8dce8;line-height:1.55;">${detailLines}</div>${textToEmailHtml(bodyText)}${(kind === 'delivered' || kind === 'review') ? '' : batteryHtml}${trackProxyUrl && kind !== 'delivered' && kind !== 'review' ? `<div style="margin:24px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:700;">${escapeHtml(trackButtonLabel)}</a><div style="margin-top:9px;font-size:11px;color:#7a7e96;">Tracking opens the official carrier website.</div></div>` : ''}${shippingGuideHtml}${googleReviewHtml}</div><div style="padding:18px 24px;border-top:1px solid #222438;background:#0c0d14;color:#a5b1c8;font-size:13px;line-height:1.5;text-align:center;"><div style="margin-bottom:10px;color:#a5b1c8;"><strong style="color:#d8dce8;">Why you received this:</strong> ${escapeHtml(transactionContext)}</div><div style="margin-bottom:14px;padding:10px 12px;background:#10121a;border:1px solid #222438;border-radius:5px;color:#a5b1c8;font-size:12px;"><strong style="color:#d8c2ff;">Security reminder:</strong> ${escapeHtml(securityReminder)}</div><strong style="color:#d8dce8;">Eastern Shore AI, LLC</strong><span style="color:#7a7e96;"> &bull; </span>Fruitland, Maryland<div style="margin-top:6px;"><a href="mailto:contact@easternshore.ai" style="color:#00e5ff;">contact@easternshore.ai</a><span style="color:#7a7e96;"> &bull; </span><a href="tel:+13029079162" style="color:#00e5ff;">(302) 907-9162</a></div><div style="margin-top:6px;"><a href="https://www.easternshore.ai" style="color:#00e5ff;">www.easternshore.ai</a></div><p style="margin:8px 0 0;font-size:11px;line-height:1.45;color:#7a7e96;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div></body></html>`;
+  return { subject, bodyText, html, text };
 }
 
 function orderEmailSentAt(row, kind) {
@@ -2873,18 +2880,17 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   });
 
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const fromIdentity = fromEmail.includes('<') ? fromEmail : `Eastern Shore AI Orders <${fromEmail}>`;
   const bccEmail = (env.BCC_EMAIL || '').toString().trim();
   const emailPayload = {
-    from: fromEmail,
+    from: fromIdentity,
     to: [customerEmail],
     ...(bccEmail ? { bcc: [bccEmail] } : {}),
     subject: content.subject,
     html: content.html,
-    text: content.bodyText,
-    reply_to: fromEmail,
-    headers: {
-      'List-Unsubscribe': `<mailto:${fromEmail}?subject=Unsubscribe>`
-    }
+    text: content.text,
+    reply_to: 'contact@easternshore.ai',
+    ...(kind === 'review' ? { headers: { 'List-Unsubscribe': '<mailto:contact@easternshore.ai?subject=Unsubscribe%20from%20review%20requests>' } } : {})
   };
   const rawIdempotencyKey = (data.idempotencyKey || '').toString().trim();
   const idempotencyKey = rawIdempotencyKey
