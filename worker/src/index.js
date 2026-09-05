@@ -2193,12 +2193,11 @@ function csvEscape(v) {
 }
 
 
-function normalizeOrderStatus(status, ackSentAt = '', shippedAt = '', deliveredSentAt = '', reviewSentAt = '') {
-  const s = (status || '').toString().trim().toLowerCase();
-  if (s === 'reviewed' || reviewSentAt) return 'reviewed';
-  if (s === 'delivered' || deliveredSentAt) return 'delivered';
-  if (s === 'shipped' || shippedAt) return 'shipped';
-  if (s === 'acknowledged' || ackSentAt) return 'acknowledged';
+function normalizeOrderStatus(ackSentAt = '', shippingSentAt = '', deliveredSentAt = '', reviewSentAt = '') {
+  if (reviewSentAt) return 'review_requested';
+  if (deliveredSentAt) return 'delivered';
+  if (shippingSentAt) return 'shipped';
+  if (ackSentAt) return 'acknowledged';
   return 'new';
 }
 
@@ -2437,6 +2436,12 @@ async function getManualOrderRowById(db, manualOrderId) {
        shipping_email_sent_at,
        shipping_email_subject,
        shipping_email_body,
+       delivered_email_sent_at,
+       delivered_email_subject,
+       delivered_email_body,
+       review_email_sent_at,
+       review_email_subject,
+       review_email_body,
        shipped_at,
        battery_test_note,
        battery_test_image_key,
@@ -2543,7 +2548,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
 
   const orders = [
     ...(stripeRows.results || []).map((row) => {
-      const fulfillmentStatus = normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at, row.review_email_sent_at);
+      const fulfillmentStatus = normalizeOrderStatus(row.ack_email_sent_at, row.shipping_email_sent_at, row.delivered_email_sent_at, row.review_email_sent_at);
       return {
         ...row,
         order_key: makeOrderKey('booking', row.id),
@@ -2558,7 +2563,7 @@ async function handleOrdersList(request, env, corsHeaders, url) {
       service_type: 'survival_node_manual',
       order_key: makeOrderKey('manual', row.id),
       order_source: 'manual',
-      fulfillment_status: normalizeOrderStatus(row.fulfillment_status, row.ack_email_sent_at, row.shipped_at, row.delivered_email_sent_at, row.review_email_sent_at)
+      fulfillment_status: normalizeOrderStatus(row.ack_email_sent_at, row.shipping_email_sent_at, row.delivered_email_sent_at, row.review_email_sent_at)
     }))
   ]
     .filter((row) => status === 'all' ? true : row.fulfillment_status === status)
@@ -2583,6 +2588,12 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
   const hydratedRow = row;
+  if (kind === 'shipping' && !orderEmailSentAt(hydratedRow, 'ack')) {
+    return json({ ok: false, error: 'Send the acknowledgment email before previewing the shipping email' }, 400, corsHeaders);
+  }
+  if (kind === 'delivered' && !orderEmailSentAt(hydratedRow, 'shipping')) {
+    return json({ ok: false, error: 'Send the shipping email before previewing the delivered email' }, 400, corsHeaders);
+  }
   if (kind === 'review' && !orderEmailSentAt(hydratedRow, 'delivered')) {
     return json({ ok: false, error: 'Send the delivered email before previewing the review request' }, 400, corsHeaders);
   }
@@ -2635,7 +2646,12 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   if (row.order_source === 'manual') {
     await env.DB.prepare(
       `UPDATE manual_survival_node_orders
-       SET tracking_provider = ?1,
+       SET fulfillment_status = CASE
+             WHEN shipping_email_sent_at IS NOT NULL AND shipping_email_sent_at != '' THEN 'shipped'
+             WHEN ack_email_sent_at IS NOT NULL AND ack_email_sent_at != '' THEN 'acknowledged'
+             ELSE 'new'
+           END,
+           tracking_provider = ?1,
            tracking_number = ?2,
            tracking_url = ?3,
            internal_notes = COALESCE(?4, internal_notes),
@@ -2645,7 +2661,11 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET fulfillment_status = 'shipped',
+       SET fulfillment_status = CASE
+             WHEN shipping_email_sent_at IS NOT NULL AND shipping_email_sent_at != '' THEN 'shipped'
+             WHEN ack_email_sent_at IS NOT NULL AND ack_email_sent_at != '' THEN 'acknowledged'
+           ELSE 'new'
+           END,
            tracking_provider = ?1,
            tracking_number = ?2,
            tracking_url = ?3,
@@ -2860,6 +2880,12 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (alreadySentAt) {
     return json({ ok: false, error: `${defaultOrderEmailSubject(kind, hydratedRow)} was already sent at ${alreadySentAt}` }, 409, corsHeaders);
   }
+  if (kind === 'shipping' && !orderEmailSentAt(hydratedRow, 'ack')) {
+    return json({ ok: false, error: 'Send the acknowledgment email before sending the shipping email' }, 400, corsHeaders);
+  }
+  if (kind === 'delivered' && !orderEmailSentAt(hydratedRow, 'shipping')) {
+    return json({ ok: false, error: 'Send the shipping email before sending the delivered email' }, 400, corsHeaders);
+  }
   if (kind === 'review' && !orderEmailSentAt(hydratedRow, 'delivered')) {
     return json({ ok: false, error: 'Send the delivered email before sending the review request' }, 400, corsHeaders);
   }
@@ -2955,7 +2981,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     } else {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
-         SET fulfillment_status = CASE WHEN fulfillment_status = 'shipped' THEN fulfillment_status ELSE 'acknowledged' END,
+         SET fulfillment_status = 'acknowledged',
              ack_email_sent_at = datetime('now'),
              ack_email_subject = ?1,
              ack_email_body = ?2,
@@ -3001,7 +3027,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   } else {
     await env.DB.prepare(
       `UPDATE order_fulfillment
-       SET fulfillment_status = CASE WHEN fulfillment_status = 'shipped' THEN fulfillment_status ELSE 'acknowledged' END,
+       SET fulfillment_status = 'acknowledged',
            ack_email_sent_at = datetime('now'),
            ack_email_subject = ?1,
            ack_email_body = ?2,

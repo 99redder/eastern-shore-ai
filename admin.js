@@ -3354,8 +3354,9 @@
 
     function orderStatusBadge(status) {
       const s = String(status || 'new').toLowerCase();
-      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e', delivered: '#6366f1', reviewed: '#f59e0b' };
-      return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${colors[s] || '#475569'}; color:#fff; text-transform:uppercase;">${escHtml(s)}</span>`;
+      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e', delivered: '#6366f1', review_requested: '#f59e0b' };
+      const labels = { new: 'New', acknowledged: 'Acknowledged', shipped: 'Shipped', delivered: 'Delivered', review_requested: 'Review Requested' };
+      return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${colors[s] || '#475569'}; color:#fff;">${escHtml(labels[s] || s)}</span>`;
     }
 
     async function refreshOrderList() {
@@ -3385,6 +3386,7 @@
           const shippingSent = !!(order.shipping_email_sent_at || '').toString().trim();
           const deliveredSent = !!(order.delivered_email_sent_at || '').toString().trim();
           const reviewSent = !!(order.review_email_sent_at || '').toString().trim();
+          const laterEmailSent = shippingSent || deliveredSent || reviewSent;
           return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
             <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
               <strong>${escHtml(order.order_summary || 'Order')}</strong>
@@ -3395,15 +3397,15 @@
               <span>${escHtml(order.payment_date || '')} • ${amount}</span>
             </div>
             <div style="margin-top:.2rem; color:var(--muted);">${order.order_source === 'manual' ? `Payment Method: ${escHtml(order.payment_method || 'Not entered')}` : `Stripe: ${escHtml(order.stripe_session_id || '—')}`}</div>
-            <div style="margin-top:.2rem; color:var(--muted);">Ack: ${escHtml(formatEtTimestamp(order.ack_email_sent_at))} • Shipped: ${escHtml(formatEtTimestamp(order.shipping_email_sent_at))} • Delivered: ${escHtml(formatEtTimestamp(order.delivered_email_sent_at))} • Review: ${escHtml(formatEtTimestamp(order.review_email_sent_at))}</div>
+            <div style="margin-top:.2rem; color:var(--muted);">Emails — Acknowledgment: ${escHtml(formatEtTimestamp(order.ack_email_sent_at))} • Shipping: ${escHtml(formatEtTimestamp(order.shipping_email_sent_at))} • Delivered: ${escHtml(formatEtTimestamp(order.delivered_email_sent_at))} • Review request: ${escHtml(formatEtTimestamp(order.review_email_sent_at))}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? `${trackingProvider ? `${escHtml(trackingProvider)} • ` : ''}${escHtml(tracking)}` : 'Not added yet'}</div>
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" ${ackSent ? 'disabled title="Acknowledgment email already sent"' : ''}>${ackSent ? 'Acknowledgment Sent' : 'Preview Acknowledgment'}</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" ${ackSent || laterEmailSent ? `disabled title="${ackSent ? 'Acknowledgment email already sent' : 'A later email has already been sent'}"` : ''}>${ackSent ? 'Acknowledgment Sent' : laterEmailSent ? 'Acknowledgment Skipped' : 'Preview Acknowledgment'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="battery-test" data-order-id="${id}" data-order-key="${orderKey}" data-battery-note="${escHtml(order.battery_test_note || '')}" data-battery-has-image="${order.battery_test_image_key ? '1' : ''}">${order.battery_test_note || order.battery_test_image_key ? 'Battery Test ✓' : 'Add Battery Test'}</button>
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${shippingSent ? 'disabled title="Shipping email already sent"' : `title="${tracking ? 'Preview shipping email' : 'Add tracking first'}"`}>${shippingSent ? 'Shipping Sent' : 'Preview Shipping Email'}</button>
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="delivered" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${deliveredSent ? 'disabled title="Delivered email already sent"' : `title="${tracking ? 'Preview delivered email' : 'Add tracking first'}"`}>${deliveredSent ? 'Delivered Sent' : 'Preview Delivered Email'}</button>
-              <button type="button" class="btn action-pop order-action-btn" data-order-action="review" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-shipping-sent="${shippingSent ? '1' : ''}" data-delivered-sent="${deliveredSent ? '1' : ''}" ${reviewSent ? 'disabled title="Review email already sent"' : deliveredSent ? 'title="Preview review email"' : 'aria-disabled="true" title="Send shipping and delivered emails first"'}>${reviewSent ? 'Review Sent' : 'Preview Review Email'}</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="battery-test" data-order-id="${id}" data-order-key="${orderKey}" data-battery-note="${escHtml(order.battery_test_note || '')}" data-battery-has-image="${order.battery_test_image_key ? '1' : ''}">${order.battery_test_note || order.battery_test_image_key ? 'Battery Test Saved ✓' : 'Add Battery Test'}</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}" data-ack-sent="${ackSent ? '1' : ''}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${shippingSent ? 'disabled title="Shipping email already sent"' : !ackSent ? 'disabled title="Send acknowledgment email first"' : `title="${tracking ? 'Preview shipping email' : 'Add tracking first'}"`}>${shippingSent ? 'Shipping Sent' : 'Preview Shipping Email'}</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="delivered" data-order-id="${id}" data-order-key="${orderKey}" data-shipping-sent="${shippingSent ? '1' : ''}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${deliveredSent ? 'disabled title="Delivered email already sent"' : !shippingSent ? 'disabled title="Send shipping email first"' : `title="${tracking ? 'Preview delivered email' : 'Add tracking first'}"`}>${deliveredSent ? 'Delivered Sent' : 'Preview Delivered Email'}</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="review" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-shipping-sent="${shippingSent ? '1' : ''}" data-delivered-sent="${deliveredSent ? '1' : ''}" ${reviewSent ? 'disabled title="Review email already sent"' : !deliveredSent ? 'disabled title="Send delivered email first"' : 'title="Preview review email"'}>${reviewSent ? 'Review Sent' : 'Preview Review Email'}</button>
               ${order.order_source === 'manual' ? `<button type="button" class="btn delete order-action-btn" data-order-action="delete" data-order-id="${id}" data-order-key="${orderKey}">Delete</button>` : '<span style="font-size:.82rem; color:var(--muted); padding:.45rem .2rem;">Stripe order — cannot delete</span>'}
             </div>
           </div>`;
@@ -3486,6 +3488,11 @@
         return;
       }
       if (action === 'shipping' || action === 'delivered') {
+        const prerequisiteSent = btn.getAttribute(action === 'shipping' ? 'data-ack-sent' : 'data-shipping-sent') === '1';
+        if (!prerequisiteSent) {
+          openErrorModal(`Send the ${action === 'shipping' ? 'acknowledgment' : 'shipping'} email first.`);
+          return;
+        }
         const trackingNumber = btn.getAttribute('data-tracking-number') || '';
         if (!(trackingNumber || '').trim()) {
           openErrorModal(`Add tracking first, then preview the ${action === 'delivered' ? 'delivered' : 'shipping'} email.`);
