@@ -2319,7 +2319,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const transactionContext = orderNumber
     ? `This is an order-related message for order #${orderNumber}, placed with Eastern Shore AI.`
     : 'This is an order-related message about your purchase from Eastern Shore AI.';
-  const securityReminder = 'Eastern Shore AI will never ask for your password, verification code, or additional payment by email.';
+  const securityReminder = 'We’ll never ask you to send credit card details, banking information, or verification codes by email. If something seems unusual, contact us directly at contact@easternshore.ai.';
   const preheader = kind === 'delivered'
     ? 'Your order has arrived — you\'re all set.'
     : kind === 'shipping'
