@@ -568,14 +568,13 @@
     }
     .slide1-img-col { position: relative; container-type: inline-size; overflow: hidden; border-radius: 6px; }
     .slide1-img-col img { width: 100%; display: block; border-radius: 6px; border: 1px solid var(--line); }
-    .md-faraday-label { position: absolute; left: 5.6%; top: 41.2%; color: #fff; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.85cqw; letter-spacing: .11em; text-transform: uppercase; line-height: 1; text-shadow: 0 1px 3px rgba(0,0,0,.9); white-space: nowrap; z-index: 4; pointer-events: none; }
-    .md-seal { position: absolute; bottom: 4cqw; right: 4cqw; width: 24cqw; height: 24cqw; max-width: 132px; max-height: 132px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #16121c, #0a0b12 72%); border: 2px solid #ff4fd8; box-shadow: 0 0 18px rgba(255,79,216,.45), 0 2px 10px rgba(0,0,0,.6), inset 0 0 0 4px #0a0b12, inset 0 0 0 5px rgba(255,79,216,.6); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; z-index: 5; }
-    .md-seal .s-ico { font-size: 3.2cqw; line-height: 1; margin-bottom: 1%; }
-    .md-seal .s-top { color: #ffd9f4; font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; font-size: 1.5cqw; letter-spacing: .02em; text-transform: uppercase; line-height: 1.05; }
-    .md-seal .s-mid { color: #ffd9f4; font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; font-size: 1.5cqw; letter-spacing: .14em; text-transform: uppercase; line-height: 1.1; }
-    .md-seal .s-rule { width: 40%; height: 1px; background: rgba(255,79,216,.6); margin: 5.5% 0; }
-    .md-seal .s-bot { color: #ff9fe6; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.2cqw; letter-spacing: .06em; text-transform: uppercase; line-height: 1.1; }
-    @media (max-width: 820px) { .md-faraday-label, .md-seal { display: none; } }
+    .md-seal { position: absolute; bottom: 4cqw; right: 4cqw; width: 24cqw; height: 24cqw; max-width: 132px; max-height: 132px; border-radius: 50%; container-type: inline-size; background: radial-gradient(circle at 50% 38%, #0d1622, #06090f 72%); border: 2px solid #00e5ff; box-shadow: 0 0 18px rgba(0,229,255,.4), 0 2px 10px rgba(0,0,0,.6), inset 0 0 0 4px #06090f, inset 0 0 0 5px rgba(0,229,255,.55); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; z-index: 5; }
+    .md-seal .s-ico { font-size: 15cqw; line-height: 1; margin-bottom: 2%; }
+    .md-seal .s-top { color: #dff6ff; font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; font-size: 7cqw; letter-spacing: .01em; text-transform: uppercase; line-height: 1.05; white-space: nowrap; }
+    .md-seal .s-mid { color: #dff6ff; font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; font-size: 8.5cqw; letter-spacing: .12em; text-transform: uppercase; line-height: 1.1; }
+    .md-seal .s-rule { width: 44%; height: 1px; background: rgba(0,229,255,.6); margin: 6% 0; }
+    .md-seal .s-bot { color: #7fdcf0; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 6.6cqw; letter-spacing: .03em; text-transform: uppercase; line-height: 1.1; white-space: nowrap; }
+    @media (max-width: 820px) { .md-seal { display: none; } }
     .slide1-qa-col { padding: .15rem 0; }
     .slide1-title { margin: 0 0 .5rem; color: var(--cyan); font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; font-family: 'Hanken Grotesk', sans-serif; }
     .slide1-q { border-bottom: 1px solid var(--line); padding: .45rem 0; }
@@ -1269,7 +1268,6 @@
             </div>
             <div class="slide1-img-col">
               <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
-              <span class="md-faraday-label" aria-hidden="true">Mission Darkness</span>
               <div class="md-seal" aria-label="Mission Darkness Faraday bags included standard">
                 <span class="s-ico" aria-hidden="true">🛡️</span>
                 <span class="s-top">Mission Darkness®</span>
@@ -1289,7 +1287,7 @@
 
               <details class="slide1-q">
                 <summary>What's inside the box?</summary>
-                <p class="slide1-answer">Every Survival Node includes a vetted 8GB smart phone with de-bloated OS optimized for performance and longevity, 50GB+ survival software suite with 3 offline LLMs and a pre-configured Survival AI Agent (no setup required), solar battery with 4 attached cables, (2) Mission Darkness Faraday bags, shockproof phone case, weatherproof hard case with padlock, wall charger, and (2) USB-C charging cables.</p>
+                <p class="slide1-answer">Every Survival Node includes a vetted 8GB smart phone with de-bloated OS optimized for performance and longevity, 50GB+ survival software suite with 3 offline LLMs and a pre-configured Survival AI Agent (no setup required), solar battery with 4 attached cables, (2) Mission Darkness Faraday bags, shockproof phone case, weatherproof hard case with padlock, wall charger, and USB-C charging cable.</p>
               </details>
 
               <details class="slide1-q">
@@ -1461,7 +1459,7 @@
                     <li>De-bloated Android OS, optimized for performance and longevity — all unnecessary tracking and battery-draining software removed</li>
                     <li>50GB+ survival software suite with 3 offline Large Language Models (LLMs) — includes a custom pre-configured "Survival Node" AI Agent optimized for survival advice and safety-first responses<br><a href="#" class="preloaded-software-link" style="color:var(--cyan); font-size:.82rem;">What software comes preloaded?</a></li>
                     <li>Shockproof protective phone case</li>
-                    <li>Phone wall charger and (2) USB-C charging cables included</li>
+                    <li>Phone wall charger and USB-C charging cable included</li>
                     <li>Full Survival Node User Guide — available as an app on the home screen; PDF version also pre-loaded in Files under Downloads</li>
                   </ul>
                 </div>
@@ -2023,7 +2021,7 @@
           ],
           label: 'Everything in the box',
           title: 'The Complete Survival Node Kit',
-          body: `<p>Everything included in every Survival Node — laid out and ready to go. One kit, built as a complete system: Core Unit phone with pre-loaded software, solar battery with 4 attached cables, (2) Mission Darkness Faraday bags, shockproof phone case, weatherproof hard case with padlock and rechargable silica gel packets, wall charger, and (2) USB-C cables.</p>
+          body: `<p>Everything included in every Survival Node — laid out and ready to go. One kit, built as a complete system: Core Unit phone with pre-loaded software, solar battery with 4 attached cables, (2) Mission Darkness Faraday bags, shockproof phone case, weatherproof hard case with padlock and rechargable silica gel packets, wall charger, and USB-C cable.</p>
                  <p>Nothing to configure. Nothing to source separately. Every component has been tested together as a system — not just individually. Open the case and it's ready to deploy.</p>`
         },
         case: {
@@ -2116,7 +2114,7 @@
           ],
           label: 'Wall power charging when available',
           title: 'USB Cables &amp; Charging Adapter',
-          body: `<p>Every Survival Node includes the cables and adapter needed to charge the Core Unit from the solar battery and from a wall outlet — (2) USB-C cables, wall charging adapter, plus the 4 attached cables on the solar battery (1× USB-C, 1× iOS, 1× micro/mini USB, 1× USB-A).</p>
+          body: `<p>Every Survival Node includes the cables and adapter needed to charge the Core Unit from the solar battery and from a wall outlet — USB-C cable, wall charging adapter, plus the 4 attached cables on the solar battery (1× USB-C, 1× iOS, 1× micro/mini USB, 1× USB-A).</p>
                  <p>Having the right cables is the kind of thing that seems obvious until you're in the field without them. Every Survival Node ships with the charging chain fully covered — wall to battery, battery to phone — so you're not sourcing adapters separately.</p>`
         },
         phonecase: {
@@ -2798,7 +2796,7 @@
       let isUserTypingLocally = false;
       let staffJoinedName = null;
       const cannedQuickReplies = {
-        "What's included?": "The Survival Node includes a Motorola Moto G Power (2024) core unit (brand new or open box, hand-vetted), a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI Agent, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, two USB-C cables, and charging accessories. The complete kit is $299.99 with free shipping to the continental U.S.",
+        "What's included?": "The Survival Node includes a Motorola Moto G Power (2024) core unit (brand new or open box, hand-vetted), a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI Agent, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. The complete kit is $299.99 with free shipping to the continental U.S.",
         "Does it work offline?": "Yes — the Survival Node is built to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required.",
         "How does shipping work?": "Shipping is free to continental U.S. destinations, and orders ship by ground because of lithium battery rules. Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not currently supported.",
         "What's the warranty?": "The kit includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration. Returns are accepted within 30 days of delivery if the device stays in original functional condition and the OS has not been further modified. RMA number required — contact us first. Buyer pays return shipping."

@@ -26,7 +26,7 @@ If asked something outside your knowledge, say: "I don't have that information, 
 
 ## Product Overview
 
-**Survival Node Gen 2** (the current kit) is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Mission Darkness Faraday bags included for EMP protection. Gen 2 includes premium Mission Darkness Faraday bags and a second USB-C cable as standard. (An earlier version, Gen 1, is no longer sold on this site.)
+**Survival Node Gen 2** (the current kit) is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Mission Darkness Faraday bags included for EMP protection. Gen 2 includes premium Mission Darkness Faraday bags as standard. (An earlier version, Gen 1, is no longer sold on this site.)
 
 It works completely without internet, cell signal, or the power grid.
 
@@ -59,7 +59,7 @@ It works completely without internet, cell signal, or the power grid.
 - 51.8GB survival software suite with 3 offline LLMs pre-loaded
 - Pre-configured "Survival Node" AI persona in PocketPal (no setup required)
 - Shockproof protective phone case
-- Wall charger + 2 USB-C cables
+- Wall charger + USB-C cable
 - **Eastern Shore AI Users Guide App** — installed as a dedicated app on the home screen (tap to open); covers setup, storage, maintenance, battery care, solar charging, Faraday bag use, and every preloaded app
 - PDF version of the Users Guide also pre-loaded in Files → Downloads via Fossify File Manager
 
