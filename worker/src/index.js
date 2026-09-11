@@ -6365,7 +6365,7 @@ There is a dedicated **Test Results & Demo Videos** page for Survival Node at te
 - Overcast solar input example shown: **80–140 mA**
 - Full recharge via solar-only is shown as about **38 hours of direct sun**
 - Wall recharge time shown: about **4.5 hours**
-- The page says the founder has run a test unit on solar-only for **6+ months** under emergency-style use patterns
+- The page says the founder has run a test unit on solar-only for **over a year** under emergency-style use patterns
 
 ### Faraday bag test results
 - Standard bag RF attenuation examples shown:

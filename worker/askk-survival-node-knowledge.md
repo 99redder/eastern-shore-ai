@@ -193,7 +193,7 @@ Keep the phone and solar battery sealed in their Faraday bags, stored in a cool 
 The solar battery is rated at 42,800 mAh by the manufacturer. In real-world testing, it delivers approximately 3–4 full charges of the Moto G Power (which has a 5,000 mAh battery). Optimal storage practice is to keep the battery at 2–3 blue LEDs (roughly 50–75%) rather than 100%, which may affect total available charge per cycle. The solar panel is for trickle-charging in emergencies — it is not a fast charger.
 
 ### Can the solar panel keep the kit charged indefinitely?
-Not for all-day normal use. Under emergency conditions — where you use the phone for a specific task and then power it off — solar can sustain the kit for an extended period. Eastern Shore AI founder Chris Gorham has run a test unit exclusively on solar for 6+ months. The key habit: use it, then shut it off. Solar accumulates while the phone is off. Use wall power whenever available to top off the reserve.
+Not for all-day normal use. Under emergency conditions — where you use the phone for a specific task and then power it off — solar can sustain the kit for an extended period. Eastern Shore AI founder Chris Gorham has run a test unit exclusively on solar for over a year. The key habit: use it, then shut it off. Solar accumulates while the phone is off. Use wall power whenever available to top off the reserve.
 
 ### Can I trust the AI for emergency info?
 Use it as a reference tool, not a replacement for professionals. Cross-reference with the device's WikiMed encyclopedia, survival guides, and iFixit library. Never substitute AI output for professional medical, tactical, legal, or emergency response guidance when a professional is available.
