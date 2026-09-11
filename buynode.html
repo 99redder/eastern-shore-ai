@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
@@ -372,7 +372,7 @@
   rdt('track', 'PageVisit');
   rdt('track', 'ViewContent', {
     itemCount: 1,
-    value: 199.99,
+    value: 299.99,
     currency: 'USD',
     products: [{
       id: 'survival-node-core',
@@ -401,23 +401,10 @@
 
     <hr class="divider" />
 
-    <div class="upgrade-section">
-      <p class="upgrade-title">Optional Upgrades</p>
-      <label class="upgrade-item">
-        <input type="checkbox" class="upgrade-check" value="50" data-label="Mission Darkness Faraday Bags" data-product-id="mission-darkness-faraday" />
-        <span class="upgrade-info">
-          <span class="upgrade-name">Upgrade to Mission Darkness Faraday Bags</span>
-          <span class="upgrade-desc">Premium EMP-rated protection for worst-case electromagnetic scenarios</span>
-        </span>
-        <span class="upgrade-price">+$50.00</span>
-      </label>
-    </div>
-
     <div class="order-total">
       <span class="order-total-label">Order Total</span>
       <span class="order-total-amount">
-        <del class="price-strike">$299.99</del>
-        <span id="price-display" class="price-current">$199.99</span>
+        <span id="price-display" class="price-current">$299.99</span>
       </span>
     </div>
 
@@ -460,7 +447,7 @@
     const buyBtn      = document.getElementById('buy-btn');
     const priceDisplay = document.getElementById('price-display');
     const statusMsg   = document.getElementById('status-msg');
-    const BASE_PRICE  = 199.99;
+    const BASE_PRICE  = 299.99;
     const upgradeCatalog = new Map();
 
     // ===== Upgrade price =====

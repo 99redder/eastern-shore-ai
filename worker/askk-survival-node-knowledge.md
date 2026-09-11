@@ -26,7 +26,7 @@ If asked something outside your knowledge, say: "I don't have that information, 
 
 ## Product Overview
 
-**Survival Node** is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Faraday bags included for EMP protection.
+**Survival Node** is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Mission Darkness Faraday bags included for EMP protection.
 
 It works completely without internet, cell signal, or the power grid.
 
@@ -36,12 +36,12 @@ It works completely without internet, cell signal, or the power grid.
 
 ---
 
-## Current Pricing (Father's Day Sale)
+## Current Pricing
 
-| Product | Regular Price | Sale Price | Savings |
-|---------|---------------|------------|---------|
-| Survival Node | $299.99 | $199.99 | $100 |
-| BYOG Setup Service | — | $69.99 | — |
+| Product | Price |
+|---------|-------|
+| Survival Node | $299.99 |
+| BYOG Setup Service | $69.99 |
 
 **Free shipping** to all continental US states.
 
@@ -59,7 +59,7 @@ It works completely without internet, cell signal, or the power grid.
 - 51.8GB survival software suite with 3 offline LLMs pre-loaded
 - Pre-configured "Survival Node" AI persona in PocketPal (no setup required)
 - Shockproof protective phone case
-- Wall charger + USB-C cable
+- Wall charger + 2 USB-C cables
 - **Eastern Shore AI Users Guide App** — installed as a dedicated app on the home screen (tap to open); covers setup, storage, maintenance, battery care, solar charging, Faraday bag use, and every preloaded app
 - PDF version of the Users Guide also pre-loaded in Files → Downloads via Fossify File Manager
 
@@ -73,9 +73,9 @@ It works completely without internet, cell signal, or the power grid.
 - Solar trickle-charge capability for grid-down scenarios
 - **Important:** Do NOT charge and discharge simultaneously — input and output ports should not be connected at the same time per manufacturer specifications
 
-### 3. (2) Faraday Bags
-- One for phone, one for solar battery
-- Signal-blocking protection (RF, electromagnetic)
+### 3. (2) Mission Darkness Faraday Bags
+- Included standard on every kit — one for phone, one for solar battery
+- Premium EMP-rated, TitanRF-grade signal-blocking protection (RF, electromagnetic)
 - Protection only effective when fully sealed per instructions
 
 ### 4. Weatherproof Hard Case with Padlock
@@ -86,14 +86,6 @@ It works completely without internet, cell signal, or the power grid.
 - PU foam lining, 2 latches, 1 padlock slot
 - Pressure-relief valve
 - Includes reusable silica gel packs
-
----
-
-## Optional Upgrades (add at checkout)
-
-| Upgrade | Price | Description |
-|---------|-------|-------------|
-| Mission Darkness Faraday Bags | +$50 | Premium EMP-rated shielding (TitanRF-grade) |
 
 ---
 
@@ -186,7 +178,7 @@ Yes — entirely. Every AI model, map, app, and reference library runs locally o
 Yes. Ships with hardened OS, full software suite, and custom "Survival Node" AI persona already configured in PocketPal. No setup required. The Eastern Shore AI Users Guide app is on the home screen — tap it to get started. The PDF version is also pre-loaded in Files → Downloads.
 
 ### What does EMP-hardened mean?
-An EMP (electromagnetic pulse) from a nuclear detonation or solar flare can fry unshielded electronics. The included Faraday bags block electromagnetic interference when properly sealed. Protection is only effective with correct sealing — full enclosure, folded 3 times minimum, sealed tightly. Eastern Shore AI makes no guarantee of protection against any specific electromagnetic event.
+An EMP (electromagnetic pulse) from a nuclear detonation or solar flare can fry unshielded electronics. The included Mission Darkness Faraday bags block electromagnetic interference when properly sealed. Protection is only effective with correct sealing — full enclosure, folded 3 times minimum, sealed tightly. Eastern Shore AI makes no guarantee of protection against any specific electromagnetic event.
 
 ### What model of phone is it?
 The Survival Node is built on a Motorola Moto G Power (2024), 8GB RAM, 128GB storage. Approximately 57GB is available to the user after the OS and 51.8GB software suite are installed.
@@ -207,7 +199,7 @@ Not for all-day normal use. Under emergency conditions — where you use the pho
 Use it as a reference tool, not a replacement for professionals. Cross-reference with the device's WikiMed encyclopedia, survival guides, and iFixit library. Never substitute AI output for professional medical, tactical, legal, or emergency response guidance when a professional is available.
 
 ### Why not install AI on my everyday phone?
-Your daily phone has battery wear from constant use. Survival Node is purpose-built: battery preserved at the right charge level, 51.8GB dedicated software suite, OS hardened with all bloatware removed, two Faraday bags for RF/EMP protection, and a pre-configured "Survival Node" persona tuned for survival, field engineering, and emergency response. It's a purpose-built survival brain — not an afterthought on an overloaded device.
+Your daily phone has battery wear from constant use. Survival Node is purpose-built: battery preserved at the right charge level, 51.8GB dedicated software suite, OS hardened with all bloatware removed, two Mission Darkness Faraday bags for RF/EMP protection, and a pre-configured "Survival Node" persona tuned for survival, field engineering, and emergency response. It's a purpose-built survival brain — not an afterthought on an overloaded device.
 
 ### Why not buy parts on Amazon myself?
 You're buying configuration, vetting, and time — not just parts. Every phone is tested with AccuBattery at intake, after OS install, and before shipment. The OS debloat requires bootloader unlock, which can hard-brick the phone if done wrong, and voids the manufacturer warranty. We've done it dozens of times and know what we're doing. The 51.8GB software suite is pre-loaded, tested, and configured to work as a system, with the custom AI persona set up with a field-optimized system prompt. Every kit includes a 30-day warranty and free lifetime technical support.

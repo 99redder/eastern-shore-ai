@@ -15,14 +15,9 @@ function buildCorsHeaders(origin, allowedOrigin) {
   };
 }
 
-const SURVIVAL_NODE_UPGRADES = [
-  {
-    id: 'mission-darkness-faraday',
-    label: 'Mission Darkness Faraday Bags',
-    amountCents: 5000,
-    priceId: 'price_1T9AXyCrQuKPknEPEDC39wfC'
-  }
-];
+// Mission Darkness Faraday bags are now included standard in the Survival Node
+// kit (as of the $299.99 redesign), so there are no paid upgrades.
+const SURVIVAL_NODE_UPGRADES = [];
 const SURVIVAL_NODE_UPGRADES_BY_ID = new Map(SURVIVAL_NODE_UPGRADES.map(product => [product.id, product]));
 
 function publicSurvivalNodeProducts() {
@@ -100,13 +95,13 @@ export default {
     const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
-    const unitAmount = isByogSetup ? '6999' : '19999';
+    const unitAmount = isByogSetup ? '6999' : '29999';
     const productName = isByogSetup
       ? 'Survival Node BYOG Setup-Only Service'
       : 'Survival Node';
     const productDescription = isByogSetup
       ? 'Bring your own gear setup-only service'
-      : 'Motorola Moto G Power (2024) + 42,800mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Faraday bags + 50GB Offline Brain Software';
+      : 'Motorola Moto G Power (2024) + 42,800mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Mission Darkness Faraday bags + 2 USB-C cables + 50GB Offline Brain Software';
     const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
 
     const body = new URLSearchParams({
@@ -141,8 +136,10 @@ export default {
     for (const upgrade of upgrades) {
       const upgradeId = (upgrade.id || '').toString().trim();
       const product = SURVIVAL_NODE_UPGRADES_BY_ID.get(upgradeId);
+      // No paid upgrades are offered anymore (Mission Darkness Faraday bags are
+      // standard). Silently ignore any upgrade id rather than failing checkout.
       if (!product) {
-        return json({ ok: false, error: 'Invalid upgrade selected.' }, 400, corsHeaders);
+        continue;
       }
       if (seenUpgradeIds.has(upgradeId)) continue;
       seenUpgradeIds.add(upgradeId);
