@@ -566,7 +566,14 @@
       .hero-solar-track > span { white-space: normal; padding: 6px 12px; }
       .hero-solar-track > span::after { content: ""; padding: 0; }
     }
+    .slide1-img-col { position: relative; container-type: inline-size; overflow: hidden; border-radius: 6px; }
     .slide1-img-col img { width: 100%; display: block; border-radius: 6px; border: 1px solid var(--line); }
+    .md-faraday-label { position: absolute; left: 5.8%; top: 41.4%; color: #fff; font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; font-size: 2.5cqw; letter-spacing: .05em; text-transform: uppercase; line-height: 1; text-shadow: 0 1px 3px rgba(0,0,0,.9); white-space: nowrap; z-index: 4; pointer-events: none; }
+    .md-seal { position: absolute; bottom: 3.5cqw; right: 3.5cqw; width: 23cqw; max-width: 122px; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #12141c, #0a0b12); border: 2px solid #ff4fd8; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 3%; box-shadow: 0 0 16px rgba(255,79,216,.5), 0 2px 10px rgba(0,0,0,.6); z-index: 5; }
+    .md-seal .s1 { font-size: 3cqw; line-height: 1; }
+    .md-seal .s2 { color: #ffd9f4; font-weight: 800; font-size: 1.35cqw; line-height: 1.15; margin-top: 4%; text-transform: uppercase; letter-spacing: .03em; }
+    .md-seal .s3 { color: #ff9fe6; font-weight: 700; font-size: 1.15cqw; margin-top: 3%; text-transform: uppercase; letter-spacing: .05em; }
+    @media (max-width: 820px) { .md-faraday-label, .md-seal { display: none; } }
     .slide1-qa-col { padding: .15rem 0; }
     .slide1-title { margin: 0 0 .5rem; color: var(--cyan); font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; font-family: 'Hanken Grotesk', sans-serif; }
     .slide1-q { border-bottom: 1px solid var(--line); padding: .45rem 0; }
@@ -1242,10 +1249,6 @@
   </div>
 
   <main class="wrap">
-    <div class="md-standard-bar" style="display:flex; align-items:center; gap:.7rem; margin:0 0 1rem; padding:.75rem 1rem; border-radius:8px; background:linear-gradient(90deg, rgba(255,79,216,.16), rgba(200,80,255,.07)); border:1px solid rgba(255,79,216,.55); box-shadow:0 0 14px rgba(255,79,216,.18);">
-      <span aria-hidden="true" style="font-size:1.25rem; flex-shrink:0; filter:drop-shadow(0 0 6px rgba(255,79,216,.6));">⚡</span>
-      <p style="margin:0; font-family:'Hanken Grotesk',sans-serif; font-size:.92rem; line-height:1.4; color:#ffd9f4;"><strong style="color:#fff;">Now includes 2 premium Mission Darkness® Faraday bags</strong> — standard on every kit, no upgrade needed. Premium EMP-rated TitanRF shielding.</p>
-    </div>
     <div class="carousel-wrap">
     <div class="carousel" id="hero-carousel">
       <div class="car-track" id="car-track">
@@ -1264,6 +1267,12 @@
             </div>
             <div class="slide1-img-col">
               <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
+              <span class="md-faraday-label" aria-hidden="true">Mission Darkness</span>
+              <div class="md-seal" aria-label="Mission Darkness Faraday bags included standard">
+                <span class="s1" aria-hidden="true">🛡️</span>
+                <span class="s2">Mission Darkness®<br>Faraday</span>
+                <span class="s3">Included Standard</span>
+              </div>
             </div>
             <div class="slide1-qa-col">
 
