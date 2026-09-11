@@ -554,6 +554,18 @@
     }
     .slide1-banner { grid-column: 1 / -1; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
     .slide1-banner img { width: 100%; display: block; }
+    .hero-solar-ticker { grid-column: 1 / -1; margin: .1rem 0 .35rem; border-radius: 6px; overflow: hidden; background: linear-gradient(90deg, rgba(0,40,52,.92), rgba(0,60,75,.82)); border: 1px solid rgba(0,229,255,.5); box-shadow: 0 0 12px rgba(0,229,255,.14); }
+    .hero-solar-track { display: flex; width: max-content; will-change: transform; animation: solar-marquee 34s linear infinite; }
+    .hero-solar-track > span { padding: 6px 0; color: #d6f2fb; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: .84rem; white-space: nowrap; }
+    .hero-solar-track > span::after { content: "\2022"; padding: 0 2.4rem; color: #00e5ff; }
+    .hero-solar-ticker:hover .hero-solar-track, .hero-solar-ticker:focus-within .hero-solar-track { animation-play-state: paused; }
+    @keyframes solar-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-solar-track { animation: none; width: 100%; }
+      .hero-solar-track > span:nth-child(2) { display: none; }
+      .hero-solar-track > span { white-space: normal; padding: 6px 12px; }
+      .hero-solar-track > span::after { content: ""; padding: 0; }
+    }
     .slide1-img-col img { width: 100%; display: block; border-radius: 6px; border: 1px solid var(--line); }
     .slide1-qa-col { padding: .15rem 0; }
     .slide1-title { margin: 0 0 .5rem; color: var(--cyan); font-size: 1rem; letter-spacing: .05em; text-transform: uppercase; font-family: 'Hanken Grotesk', sans-serif; }
@@ -1098,14 +1110,14 @@
     {
       "@context": "https://schema.org",
       "@type": "Product",
-      "name": "Survival Node",
+      "name": "Survival Node Gen 2",
       "description": "A hardened smartphone pre-loaded with offline AI, 50 GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Mission Darkness Faraday bags for EMP protection. Works completely without internet, cell signal, or the power grid.",
       "brand": { "@type": "Brand", "name": "Eastern Shore AI, LLC" },
       "url": "https://www.easternshore.ai/node.html",
       "offers": [
         {
           "@type": "Offer",
-          "name": "Survival Node",
+          "name": "Survival Node Gen 2",
           "price": "299.99",
           "priceCurrency": "USD",
           "availability": "https://schema.org/InStock",
@@ -1186,7 +1198,7 @@
     currency: 'USD',
     products: [{
       id: 'survival-node-core',
-      name: 'Survival Node',
+      name: 'Survival Node Gen 2',
       category: 'Emergency Preparedness'
     }]
   });
@@ -1230,6 +1242,10 @@
   </div>
 
   <main class="wrap">
+    <div class="md-standard-bar" style="display:flex; align-items:center; gap:.7rem; margin:0 0 1rem; padding:.75rem 1rem; border-radius:8px; background:linear-gradient(90deg, rgba(255,79,216,.16), rgba(200,80,255,.07)); border:1px solid rgba(255,79,216,.55); box-shadow:0 0 14px rgba(255,79,216,.18);">
+      <span aria-hidden="true" style="font-size:1.25rem; flex-shrink:0; filter:drop-shadow(0 0 6px rgba(255,79,216,.6));">⚡</span>
+      <p style="margin:0; font-family:'Hanken Grotesk',sans-serif; font-size:.92rem; line-height:1.4; color:#ffd9f4;"><strong style="color:#fff;">Now includes 2 premium Mission Darkness® Faraday bags</strong> — standard on every kit, no upgrade needed. Premium EMP-rated TitanRF shielding.</p>
+    </div>
     <div class="carousel-wrap">
     <div class="carousel" id="hero-carousel">
       <div class="car-track" id="car-track">
@@ -1239,6 +1255,12 @@
           <div class="slide1-inner">
             <div class="slide1-banner">
               <img src="images/banner.png" alt="Survival Node" loading="lazy" />
+            </div>
+            <div class="hero-solar-ticker" aria-label="Powered by solar alone for over a year with zero grid charging">
+              <div class="hero-solar-track">
+                <span>⚡ Powered by solar alone for over a year — our founder's test Survival Node has run on the solar battery with zero grid charging through real off-grid testing</span>
+                <span aria-hidden="true">⚡ Powered by solar alone for over a year — our founder's test Survival Node has run on the solar battery with zero grid charging through real off-grid testing</span>
+              </div>
             </div>
             <div class="slide1-img-col">
               <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
@@ -1326,20 +1348,6 @@
     -->
     </div>
 
-    <div class="md-standard-bar" style="display:flex; align-items:center; gap:.7rem; margin:.15rem 0 1rem; padding:.75rem 1rem; border-radius:8px; background:linear-gradient(90deg, rgba(255,79,216,.16), rgba(200,80,255,.07)); border:1px solid rgba(255,79,216,.55); box-shadow:0 0 14px rgba(255,79,216,.18);">
-      <span aria-hidden="true" style="font-size:1.25rem; flex-shrink:0; filter:drop-shadow(0 0 6px rgba(255,79,216,.6));">⚡</span>
-      <p style="margin:0; font-family:'Hanken Grotesk',sans-serif; font-size:.92rem; line-height:1.4; color:#ffd9f4;"><strong style="color:#fff;">Now includes 2 premium Mission Darkness® Faraday bags</strong> — standard on every kit, no upgrade needed. Premium EMP-rated TitanRF shielding.</p>
-    </div>
-
-    <div class="solar-stat-bar" style="display:flex; align-items:center; gap:14px; margin:.15rem 0 1rem; padding:.75rem 1.1rem; border-radius:8px; background:linear-gradient(90deg, rgba(0,229,255,.14), rgba(0,229,255,.04)); border:1px solid rgba(0,229,255,.5); box-shadow:0 0 14px rgba(0,229,255,.16);">
-      <div style="display:flex; flex-direction:column; align-items:center; line-height:1; flex-shrink:0;">
-        <span style="font-size:1.9rem; font-weight:900; color:#00e5ff; font-family:'Hanken Grotesk',sans-serif; filter:drop-shadow(0 0 8px rgba(0,229,255,.5));">1+</span>
-        <span style="font-size:.7rem; letter-spacing:.1em; color:#7fb8cc; text-transform:uppercase; font-family:'Hanken Grotesk',sans-serif;">year</span>
-      </div>
-      <div style="width:1px; align-self:stretch; background:rgba(0,229,255,.25); flex-shrink:0;"></div>
-      <p style="margin:0; font-family:'Hanken Grotesk',sans-serif; font-size:.92rem; line-height:1.4; color:#cfe8f5;"><strong style="color:#fff;">Powered by solar alone for over a year</strong> — our founder's test unit has run with zero grid charging in real off-grid testing.</p>
-    </div>
-
     <article class="card" style="padding:1rem 1.1rem;">
       <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.85rem;">
         <span style="font-size:1.1rem;">▶️</span>
@@ -1421,7 +1429,7 @@
           <!-- Kit card column -->
           <section class="kit-card" style="display:flex; flex-direction:column;">
             <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.1rem;">
-              <h3 style="margin:0;">Survival Node — <span style="color:var(--ok);">$299.99</span></h3>
+              <h3 style="margin:0;">Survival Node <span style="color:var(--violet); font-weight:800;">Gen 2</span> — <span style="color:var(--ok);">$299.99</span></h3>
               <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
             </div>
             <div style="display:inline-flex; align-self:flex-start; align-items:center; gap:.4rem; margin:.3rem 0 .6rem; padding:.42rem .75rem; border-radius:999px; background:linear-gradient(90deg,#ff4fd8,#c850ff); color:#2a0820; font-family:'Hanken Grotesk',sans-serif; font-weight:700; font-size:.8rem; letter-spacing:.01em; box-shadow:0 0 12px rgba(255,79,216,.45);">
@@ -1488,7 +1496,7 @@
               <div id="agree-terms-error" class="terms-agree-error" role="alert" aria-live="polite">&#9888; Please check the agreement box above to continue.</div>
               <button id="buy-btn" class="btn is-locked" type="button" aria-disabled="true" style="display:flex; align-items:center; justify-content:flex-start; gap:.75rem;">
                 <span style="white-space:nowrap; line-height:1.2;"><span id="buy-price-display" style="font-size:1.05rem; font-weight:800;">$299.99</span></span>
-                <span style="font-size:1.2rem; font-weight:700;">Buy Survival Node Now</span>
+                <span style="font-size:1.2rem; font-weight:700;">Buy Survival Node Gen 2 Now</span>
               </button>
             </div>
           </section>
@@ -3285,7 +3293,7 @@
   </script>
 
   <!-- Mobile Buy FAB -->
-  <button class="mobile-buy-fab" id="mobile-buy-fab" aria-label="Buy Survival Node Now">
+  <button class="mobile-buy-fab" id="mobile-buy-fab" aria-label="Buy Survival Node Gen 2 Now">
     <span class="mobile-buy-fab-icon">🛒</span>
     <span>Buy Now — $299.99</span>
   </button>

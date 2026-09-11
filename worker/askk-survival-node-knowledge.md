@@ -26,7 +26,7 @@ If asked something outside your knowledge, say: "I don't have that information, 
 
 ## Product Overview
 
-**Survival Node** is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Mission Darkness Faraday bags included for EMP protection.
+**Survival Node Gen 2** (the current kit) is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Mission Darkness Faraday bags included for EMP protection. Gen 2 includes premium Mission Darkness Faraday bags and a second USB-C cable as standard. (An earlier version, Gen 1, is no longer sold on this site.)
 
 It works completely without internet, cell signal, or the power grid.
 
@@ -40,7 +40,7 @@ It works completely without internet, cell signal, or the power grid.
 
 | Product | Price |
 |---------|-------|
-| Survival Node | $299.99 |
+| Survival Node Gen 2 | $299.99 |
 | BYOG Setup Service | $69.99 |
 
 **Free shipping** to all continental US states.
