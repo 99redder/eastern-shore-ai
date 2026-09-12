@@ -6520,7 +6520,7 @@ async function generateAskKAnswer(env, question, context, history = []) {
     'Be clear, practical, and easy to follow.'
   ].join(' ');
 
-  const groundedKnowledge = clipAskKKnowledge(ASKK_SURVIVAL_NODE_KNOWLEDGE, 12000);
+  const groundedKnowledge = clipAskKKnowledge(ASKK_SURVIVAL_NODE_KNOWLEDGE, 20000);
   const trimmedHistory = history
     .filter((msg) => msg && (msg.role === 'user' || msg.role === 'assistant'))
     .map((msg) => ({ role: msg.role, content: String(msg.content || '').slice(0, 1200) }))
@@ -6622,7 +6622,7 @@ function getAskKCannedTestingReply(question, context = {}) {
   return '';
 }
 
-function clipAskKKnowledge(text, max = 12000) {
+function clipAskKKnowledge(text, max = 20000) {
   const s = String(text || '').trim();
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
 }
