@@ -134,7 +134,7 @@ final class Notifier: NSObject, ObservableObject, NSApplicationDelegate {
         addItem("Show Waiting Customer", #selector(showWaiting), to: menu)
         addItem("Open Support Dashboard", #selector(openDashboard), to: menu)
         menu.addItem(.separator())
-        addItem("Test Alert and Sound", #selector(testAlert), to: menu)
+        addItem("Test Alert and Alarm", #selector(testAlert), to: menu)
         addItem("Pause for 15 Minutes / Resume", #selector(togglePause), to: menu)
         menu.addItem(.separator())
         addItem("Quit Ask K Alerts", #selector(quitApp), to: menu)
@@ -388,7 +388,7 @@ private struct AlertView: View {
                 Button("Acknowledge", action: model.acknowledge).buttonStyle(AlertButtonStyle(primary: false))
             }
             Text(model.isDemo ? "Preview only • closes automatically after 12 seconds" :
-                 (model.connectionWarning ? "Connection interrupted • the customer status may be out of date" : "Chimes every 20 seconds until you take action"))
+                 (model.connectionWarning ? "Connection interrupted • the customer status may be out of date" : "Alarm repeats every 20 seconds until you take action"))
                 .font(.system(size: 11)).foregroundStyle(.white.opacity(0.5))
         }
         .padding(28)
@@ -433,11 +433,11 @@ private struct SettingsView: View {
                 Button("Connect") { model.saveKey(key); key = "" }.buttonStyle(AlertButtonStyle(primary: true))
             }
             if !model.setupError.isEmpty { Text(model.setupError).font(.system(size: 12)).foregroundStyle(.white.opacity(0.7)) }
-            Toggle("Play a repeating chime", isOn: Binding(get: { model.soundEnabled }, set: model.setSound))
-            Text("Checks every 10 seconds. Chimes every 20 seconds.\nStarts when you log into this Mac. Your browser can be closed.")
+            Toggle("Play a repeating warning alarm", isOn: Binding(get: { model.soundEnabled }, set: model.setSound))
+            Text("Checks every 10 seconds. The warning alarm repeats every 20 seconds.\nStarts when you log into this Mac. Your browser can be closed.")
                 .font(.system(size: 13)).foregroundStyle(.white.opacity(0.72)).lineSpacing(4)
             HStack(spacing: 10) {
-                Button("Test Alert & Sound", action: model.testAlert).buttonStyle(AlertButtonStyle(primary: true))
+                Button("Test Alert & Alarm", action: model.testAlert).buttonStyle(AlertButtonStyle(primary: true))
                 Button("Open Dashboard", action: model.openDashboard).buttonStyle(AlertButtonStyle(primary: false))
             }
             Button((model.pausedUntil ?? .distantPast) > Date() ? "Resume alerts" : "Pause alerts for 15 minutes", action: model.togglePause)

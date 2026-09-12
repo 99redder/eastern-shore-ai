@@ -1,6 +1,6 @@
 # Ask K Alerts for macOS
 
-This small menu-bar app watches the Eastern Shore AI human-support queue independently of the browser. It polls the read-only Worker endpoint every 10 seconds, brings a floating window above normal windows, plays a three-note chime every 20 seconds, and links directly to the selected support chat.
+This small menu-bar app watches the Eastern Shore AI human-support queue independently of the browser. It polls the read-only Worker endpoint every 10 seconds, brings a floating window above normal windows, plays an original clipped two-tone bunker alarm every 20 seconds, and links directly to the selected support chat.
 
 The app keeps the notifier credential in macOS Keychain. It never stores the admin password, customer email, conversation text, or chat session token. The Worker endpoint returns only active sessions that have not received a staff reply.
 
