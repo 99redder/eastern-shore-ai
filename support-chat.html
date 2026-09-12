@@ -171,8 +171,29 @@
       #close-session-btn { position: relative; z-index: 2; }
       .operator-name-wrap { flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
       .operator-name-wrap input { max-width: 140px; padding: 0.35rem 0.5rem; }
-      .phone-alerts { align-items:flex-start; padding:.55rem; gap:.35rem; }
-      .phone-alerts .btn { min-height:42px; }
+      .phone-alerts {
+        display:grid;
+        grid-template-columns:minmax(0, 1fr) auto;
+        align-items:center;
+        gap:.55rem .75rem;
+        padding:.7rem;
+      }
+      .phone-alerts strong { grid-column:1; }
+      .phone-alerts-status {
+        grid-column:2;
+        justify-self:end;
+        padding:.2rem .5rem;
+        border:1px solid rgba(255,79,216,.3);
+        border-radius:999px;
+        white-space:nowrap;
+      }
+      .phone-alerts .btn {
+        grid-column:1 / -1;
+        width:100%;
+        min-height:44px;
+        margin-top:.05rem;
+      }
+      .phone-alerts-message { grid-column:1 / -1; }
       .ack-push-btn { margin-left:0; }
       .filter-tabs { flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.4rem; }
       .filter-tabs .btn { padding: 0.35rem 0.6rem; font-size: 0.8rem; }
