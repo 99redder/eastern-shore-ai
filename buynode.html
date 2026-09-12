@@ -75,6 +75,7 @@
     .card-badges {
       display: flex;
       justify-content: space-between;
+      flex-wrap: wrap;
       gap: .5rem;
     }
     .card-badge {
@@ -155,10 +156,12 @@
 
     .order-total {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: .65rem .5rem;
-      border-top: 1px solid var(--line);
+      flex-direction: column;
+      gap: .45rem;
+      padding: 1rem;
+      border: 1px solid rgba(255,79,216,.5);
+      border-radius: 8px;
+      background: linear-gradient(120deg, rgba(255,79,216,.12), rgba(158,208,255,.07));
     }
     .order-total-label {
       font-family: 'Hanken Grotesk', sans-serif;
@@ -166,13 +169,18 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: .08em;
-      color: var(--muted);
+      color: var(--cyan);
     }
     .order-total-amount {
       display: flex;
       align-items: baseline;
-      gap: .45rem;
+      flex-wrap: wrap;
+      gap: .65rem;
     }
+    .offer-regular { color: #a5b1c8; font-size: .95rem; }
+    .offer-save { padding: .25rem .5rem; border-radius: 4px; background: #ffc7f1; color: #2a0820; font: 800 .8rem 'Hanken Grotesk', sans-serif; text-transform: uppercase; }
+    .offer-urgency { color: #ffc7f1; font-size: .95rem; font-weight: 600; line-height: 1.4; }
+    .checkout-offer-note { color: #ffc7f1; font-size: .88rem; text-align: center; line-height: 1.4; }
 
     .buy-cta {
       display: flex;
@@ -247,16 +255,13 @@
     .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); }
 
     .price-strike {
-      opacity: .45;
-      font-size: .85rem;
       font-weight: 400;
       text-decoration: line-through;
-      color: var(--muted);
     }
     .price-current {
-      font-size: 1.4rem;
+      font-size: 2rem;
       font-weight: 800;
-      color: var(--text);
+      color: var(--cyan);
       font-family: 'Hanken Grotesk', sans-serif;
     }
 
@@ -403,9 +408,12 @@
 
     <div class="order-total">
       <span class="order-total-label">Order Total</span>
+      <p class="offer-regular">Regularly <s class="price-strike">$349.99</s></p>
       <span class="order-total-amount">
-        <span id="price-display" class="price-current">$299.99</span>
+        <span class="price-current">Now <span id="price-display">$299.99</span></span>
+        <span class="offer-save">Save $50</span>
       </span>
+      <p class="offer-urgency">Limited-time offer — while supplies last.</p>
     </div>
 
     <div class="buy-cta">
@@ -421,6 +429,7 @@
       </label>
       <div id="agree-terms-error" class="terms-agree-error" role="alert" aria-live="polite">&#9888; Please check the agreement box above to continue.</div>
       <button id="buy-btn" class="btn is-locked" type="button" aria-disabled="true">BUY SURVIVAL NODE GEN 2 NOW</button>
+      <p class="checkout-offer-note">Save $50 for a limited time — while supplies last.</p>
       <div id="status-msg" class="status-msg" aria-live="polite"></div>
     </div>
 
