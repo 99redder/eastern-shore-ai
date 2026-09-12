@@ -1,7 +1,7 @@
 // Support Chat Service Worker
 // Network-first strategy with skipWaiting/clients.claim for immediate updates
 
-const CACHE_NAME = 'support-chat-v3';
+const CACHE_NAME = 'support-chat-v4';
 const ASSETS_TO_CACHE = [
   '/support-chat.html',
   '/fonts.css',
@@ -81,6 +81,57 @@ self.addEventListener('fetch', (event) => {
           return new Response('Offline', { status: 503 });
         });
       })
+  );
+});
+
+// Push notifications must always show a visible notification. This is
+// required for iPhone Home Screen web apps and keeps an alert on screen until
+// the operator opens the PWA and acknowledges it there.
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch {
+    payload = { body: event.data ? event.data.text() : '' };
+  }
+
+  const sessionId = Number(payload.sessionId);
+  if (!Number.isSafeInteger(sessionId) || sessionId <= 0) return;
+
+  const url = payload.url || `/support-chat.html#session=${sessionId}`;
+  event.waitUntil(self.registration.showNotification(payload.title || 'Customer needs help', {
+    body: payload.body || 'A Survival Node customer is waiting for support. Tap to open the chat.',
+    icon: '/icons/support-chat/icon-192.png',
+    badge: '/icons/support-chat/icon-192.png',
+    tag: `support-session-${sessionId}`,
+    renotify: true,
+    requireInteraction: true,
+    vibrate: [500, 180, 500, 180, 900],
+    data: { sessionId, url }
+  }));
+});
+
+// Opening a notification takes the operator to the exact session. The page's
+// explicit Acknowledge Phone Alert button records acknowledgement in D1.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const data = event.notification.data || {};
+  const sessionId = Number(data.sessionId);
+  const url = data.url || (Number.isSafeInteger(sessionId) && sessionId > 0
+    ? `/support-chat.html#session=${sessionId}`
+    : '/support-chat.html');
+  const target = new URL(url, self.location.origin).href;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+          if ('navigate' in client) client.navigate(target);
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(target);
+    })
   );
 });
 

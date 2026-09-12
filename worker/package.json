@@ -1,0 +1,19 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "description": "This worker receives contact/domain-offer form submissions and emails them to `easternshoreai@outlook.com`.",
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node --test tests/*.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@block65/webcrypto-web-push": "^2.0.0"
+  }
+}

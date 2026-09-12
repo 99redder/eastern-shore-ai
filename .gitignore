@@ -12,3 +12,6 @@
 
 # Local macOS notifier build artifacts (credentials live in Keychain)
 mac-support-notifier/build/
+
+# Worker dependencies are installed locally for Wrangler builds.
+/worker/node_modules/

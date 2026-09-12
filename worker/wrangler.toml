@@ -9,8 +9,10 @@ CC_EMAIL = "officerk@agentmail.to"
 FROM_EMAIL = "noreply@easternshore.ai"
 ORDERS_FROM_EMAIL = "orders@easternshore.ai"
 BCC_EMAIL = "emailconfirm@easternshore.ai"
+VAPID_SUBJECT = "mailto:contact@easternshore.ai"
 
 # Required secrets (set via `wrangler secret put`): RESEND_API_KEY, ADMIN_PASSWORD, TOTP_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
+# Web Push secrets (set via `wrangler secret put`): VAPID_SERVER_PUBLIC_KEY, VAPID_SERVER_PRIVATE_KEY
 
 [[d1_databases]]
 binding = "DB"
@@ -20,6 +22,16 @@ database_id = "59d029fc-5f2b-42af-bdff-c5814a717879"
 [[r2_buckets]]
 binding = "RECEIPTS"
 bucket_name = "eastern-shore-ai-receipts"
+
+[[queues.producers]]
+binding = "SUPPORT_PUSH_QUEUE"
+queue = "eastern-shore-ai-support-push"
+
+[[queues.consumers]]
+queue = "eastern-shore-ai-support-push"
+max_batch_size = 10
+max_batch_timeout = 5
+max_retries = 100
 
 # Ask K Assistant secrets (set via `wrangler secret put`):
 # - ASKK_API_KEY: API key for the LLM provider (required)

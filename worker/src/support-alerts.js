@@ -27,7 +27,9 @@ export async function handleSupportAlerts(request, env, corsHeaders) {
     const { results } = await env.DB.prepare(`
       SELECT s.id, s.page, s.customer_name, s.escalated_at
       FROM chat_sessions s
+      LEFT JOIN support_push_state ps ON ps.session_id = s.id
       WHERE s.status = 'active'
+        AND ps.acknowledged_at IS NULL
         AND NOT EXISTS (
           SELECT 1 FROM chat_messages m WHERE m.session_id = s.id AND m.role = 'staff'
         )

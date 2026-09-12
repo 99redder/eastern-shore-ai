@@ -17,6 +17,8 @@ This worker receives contact/domain-offer form submissions and emails them to `e
 - `wrangler secret put STRIPE_SECRET_KEY`
 - `wrangler secret put STRIPE_WEBHOOK_SECRET`
 - `wrangler secret put ADMIN_PASSWORD`
+- `wrangler secret put VAPID_SERVER_PUBLIC_KEY`
+- `wrangler secret put VAPID_SERVER_PRIVATE_KEY`
 
 Check currently configured secret names without exposing values:
 
@@ -49,6 +51,12 @@ Default endpoints used by the site:
 - Admin invoice payment (updates invoice + books): `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/payment`
 - Admin invoice Stripe checkout link (create/reuse/refresh): `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/payment-link`
 - Admin invoice send email: `POST https://eastern-shore-ai-contact.99redder.workers.dev/api/accounts/invoices/send`
+
+### Support Chat phone alerts
+
+The installed `ESAISupportChat` PWA can receive high-urgency Web Push alerts when a customer clicks **Talk to a human**. The Worker stores encrypted push subscriptions in D1 and sends a first alert immediately, then re-queues reminders about once a minute until a staff reply, session close, or the operator taps **Acknowledge Phone Alert**. The queue consumer is used for reminders so this does not depend on another account-wide cron trigger.
+
+Generate one P-256 VAPID key pair and store the base64url public key and private scalar as the two secrets above. The public key is returned only by `GET /api/chat/push-config`; the private key never leaves the Worker. Operators enable a device from the **Phone alerts** panel after logging into `/support-chat.html`.
 
 ### Quotes Endpoints
 

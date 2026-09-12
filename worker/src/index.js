@@ -1,4 +1,11 @@
 import { handleSupportAlerts } from './support-alerts.js';
+import {
+  hasPushConfig,
+  enqueueSupportPushReminder,
+  notifySupportPushes,
+  processSupportPushQueueMessage,
+  validatePushSubscription
+} from './support-push.js';
 
 // ===== ROUTE HANDLER INDEX =====
 // POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
@@ -41,6 +48,11 @@ import { handleSupportAlerts } from './support-alerts.js';
 // POST /api/chat/typing         → handleChatTyping()      — Public: update typing indicator state
 // GET  /api/chat/sessions       → handleChatSessionsList() — Admin: list open chat sessions
 // GET  /api/chat/alerts         → handleSupportAlerts() — Read-only Mac support notifier
+// GET  /api/chat/push-config    → handleChatPushConfig() — Public VAPID key for PWA enrollment
+// GET  /api/chat/push-status    → handleChatPushStatus() — Admin push enrollment status
+// POST /api/chat/push-subscribe → handleChatPushSubscribe() — Admin PWA push enrollment
+// POST /api/chat/push-unsubscribe → handleChatPushUnsubscribe() — Admin PWA push removal
+// POST /api/chat/push-ack      → handleChatPushAck() — Acknowledge a phone alert
 // POST /api/chat/session/close  → handleChatSessionClose() — Admin: close a chat session
 //
 // ===== UTILITY FUNCTIONS =====
@@ -83,7 +95,7 @@ function parseAllowedOrigins(env) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     try {
     const origin = request.headers.get('Origin') || '';
     const allowedOrigins = parseAllowedOrigins(env);
@@ -124,8 +136,8 @@ export default {
       const isAdminAskKRoute = ['/api/admin/ask-k', '/api/admin/ask-k/escalate'].includes(url.pathname) && request.method === 'POST';
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/survival-node-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
-      const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
-      const isChatAdmin = (['/api/chat/sessions', '/api/chat/alerts'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
+      const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages', '/api/chat/push-config'].includes(url.pathname) && request.method === 'GET');
+      const isChatAdmin = (['/api/chat/sessions', '/api/chat/alerts', '/api/chat/push-status'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old','/api/chat/push-subscribe','/api/chat/push-unsubscribe','/api/chat/push-ack'].includes(url.pathname) && request.method === 'POST');
       const isAdminAuthRoute = (url.pathname === '/api/admin/login' && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -455,7 +467,7 @@ export default {
     }
 
     if (url.pathname === '/api/chat/session' && request.method === 'POST') {
-      return handleChatSessionCreate(request, env, corsHeaders);
+      return handleChatSessionCreate(request, env, corsHeaders, ctx);
     }
 
     if (url.pathname === '/api/chat/session' && request.method === 'GET') {
@@ -478,6 +490,26 @@ export default {
       return handleChatSessionsList(request, env, corsHeaders, url);
     }
 
+    if (url.pathname === '/api/chat/push-config' && request.method === 'GET') {
+      return handleChatPushConfig(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/chat/push-status' && request.method === 'GET') {
+      return handleChatPushStatus(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/chat/push-subscribe' && request.method === 'POST') {
+      return handleChatPushSubscribe(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/chat/push-unsubscribe' && request.method === 'POST') {
+      return handleChatPushUnsubscribe(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/chat/push-ack' && request.method === 'POST') {
+      return handleChatPushAck(request, env, corsHeaders, url);
+    }
+
     if (url.pathname === '/api/chat/session/close' && request.method === 'POST') {
       return handleChatSessionClose(request, env, corsHeaders, url);
     }
@@ -490,6 +522,19 @@ export default {
     } catch (err) {
       console.error('Unhandled worker error', err);
       return json({ ok: false, error: 'Internal server error' }, 500, buildCorsHeaders(request, env));
+    }
+  },
+
+  async queue(batch, env) {
+    for (const message of batch.messages) {
+      try {
+        const outcome = await processSupportPushQueueMessage(env, message.body);
+        if (outcome.retry) message.retry({ delaySeconds: 60 });
+        else message.ack();
+      } catch (err) {
+        console.error('Queued support push reminder failed', err);
+        message.retry({ delaySeconds: 60 });
+      }
     }
   }
 };
@@ -6111,7 +6156,7 @@ function buildCorsHeaders(request, env) {
   return {
     'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Admin-Session',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Admin-Session, X-Tax-Read-Token, X-Support-Notify-Token',
     'Vary': 'Origin'
   };
 }
@@ -6772,6 +6817,114 @@ async function handleAskKEscalate(request, env, corsHeaders, url) {
 
 // ===== Human-Handoff Chat System =====
 
+async function handleChatPushConfig(request, env, corsHeaders) {
+  return json({
+    ok: true,
+    configured: hasPushConfig(env),
+    publicKey: hasPushConfig(env) ? String(env.VAPID_SERVER_PUBLIC_KEY).trim() : null
+  }, 200, corsHeaders);
+}
+
+async function handleChatPushStatus(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  try {
+    const row = await env.DB.prepare(
+      `SELECT COUNT(*) AS count FROM support_push_subscriptions WHERE active = 1`
+    ).first();
+    return json({ ok: true, configured: hasPushConfig(env), activeSubscriptions: Number(row?.count || 0) }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Unable to read push status' }, 500, corsHeaders);
+  }
+}
+
+async function handleChatPushSubscribe(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  if (!hasPushConfig(env)) return json({ ok: false, error: 'Phone alerts are not configured' }, 503, corsHeaders);
+
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+  const parsed = validatePushSubscription(data);
+  if (!parsed.ok) return json({ ok: false, error: parsed.error }, 400, corsHeaders);
+  const { endpoint, p256dh, auth: authKey, expirationTime, label } = parsed.subscription;
+  try {
+    await env.DB.prepare(
+      `INSERT INTO support_push_subscriptions
+         (endpoint, p256dh, auth, expiration_time, label, active, updated_at)
+       VALUES (?1, ?2, ?3, ?4, ?5, 1, datetime('now'))
+       ON CONFLICT(endpoint) DO UPDATE SET
+         p256dh = excluded.p256dh,
+         auth = excluded.auth,
+         expiration_time = excluded.expiration_time,
+         label = excluded.label,
+         active = 1,
+         updated_at = datetime('now')`
+    ).bind(endpoint, p256dh, authKey, expirationTime, label).run();
+    return json({ ok: true }, 200, corsHeaders);
+  } catch (err) {
+    console.error('Unable to save support push subscription', err);
+    return json({ ok: false, error: 'Unable to save phone alert subscription' }, 500, corsHeaders);
+  }
+}
+
+async function handleChatPushUnsubscribe(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+  const endpoint = String(data.endpoint || '').trim();
+  if (!endpoint || endpoint.length > 2048 || !/^https:\/\//i.test(endpoint)) {
+    return json({ ok: false, error: 'Invalid push endpoint' }, 400, corsHeaders);
+  }
+  try {
+    await env.DB.prepare(`DELETE FROM support_push_subscriptions WHERE endpoint = ?1`).bind(endpoint).run();
+    return json({ ok: true }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Unable to disable phone alerts' }, 500, corsHeaders);
+  }
+}
+
+async function handleChatPushAck(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+  const sessionId = Number.parseInt(data.sessionId, 10);
+  if (!Number.isSafeInteger(sessionId) || sessionId <= 0) {
+    return json({ ok: false, error: 'Invalid session ID' }, 400, corsHeaders);
+  }
+  const now = Math.floor(Date.now() / 1000);
+  try {
+    const session = await env.DB.prepare(`SELECT id FROM chat_sessions WHERE id = ?1`).bind(sessionId).first();
+    if (!session) return json({ ok: false, error: 'Session not found' }, 404, corsHeaders);
+    await env.DB.prepare(
+      `INSERT INTO support_push_state (session_id, acknowledged_at, updated_at)
+       VALUES (?1, ?2, datetime('now'))
+       ON CONFLICT(session_id) DO UPDATE SET acknowledged_at = excluded.acknowledged_at, updated_at = datetime('now')`
+    ).bind(sessionId, now).run();
+    return json({ ok: true, acknowledgedAt: now }, 200, corsHeaders);
+  } catch (err) {
+    return json({ ok: false, error: 'Unable to acknowledge phone alert' }, 500, corsHeaders);
+  }
+}
+
 /**
  * Generate a random session token
  * @returns {string} 32-character hex token
@@ -6788,7 +6941,7 @@ function generateSessionToken() {
  * @param {Object} env - Worker env (DB, ASKK_STAFF_WEBHOOK_URL)
  * @returns {Response} { ok: true, sessionToken, sessionId } or { ok: false, error }
  */
-async function handleChatSessionCreate(request, env, corsHeaders) {
+async function handleChatSessionCreate(request, env, corsHeaders, ctx) {
   const limited = await checkChatRateLimit(request, env, corsHeaders);
   if (limited) return limited;
 
@@ -6873,6 +7026,16 @@ async function handleChatSessionCreate(request, env, corsHeaders) {
       } catch {
         // Webhook failure is non-fatal
       }
+    }
+
+    // Push is a notification layer only. The support chat in D1 remains the
+    // source of truth, and the push work can finish after the response.
+    const pushWork = notifySupportPushes(env, { id: sessionId, page, customerName }, 0);
+    const reminderWork = enqueueSupportPushReminder(env, sessionId, 60);
+    if (ctx?.waitUntil) {
+      ctx.waitUntil(Promise.all([pushWork, reminderWork]));
+    } else {
+      await Promise.all([pushWork, reminderWork]);
     }
 
     return json({ ok: true, sessionToken, sessionId }, 200, corsHeaders);
@@ -7036,6 +7199,19 @@ async function handleChatMessageSend(request, env, corsHeaders) {
     await env.DB.prepare(
       `UPDATE chat_sessions SET last_activity_at = ?1 WHERE id = ?2`
     ).bind(now, session.id).run();
+
+    // A staff reply resolves the request, so scheduled push reminders stop.
+    if (role === 'staff') {
+      try {
+        await env.DB.prepare(
+          `INSERT INTO support_push_state (session_id, acknowledged_at, updated_at)
+           VALUES (?1, ?2, datetime('now'))
+           ON CONFLICT(session_id) DO UPDATE SET acknowledged_at = excluded.acknowledged_at, updated_at = datetime('now')`
+        ).bind(session.id, Math.floor(Date.now() / 1000)).run();
+      } catch (error) {
+        console.error('Unable to resolve support push state after staff reply', error);
+      }
+    }
 
     return json({ ok: true, messageId: result.meta.last_row_id }, 200, corsHeaders);
   } catch (err) {
