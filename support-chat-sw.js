@@ -1,11 +1,10 @@
 // Support Chat Service Worker
 // Network-first strategy with skipWaiting/clients.claim for immediate updates
 
-const CACHE_NAME = 'support-chat-v5';
+const CACHE_NAME = 'support-chat-v6';
 const ASSETS_TO_CACHE = [
   '/support-chat.html',
   '/fonts.css',
-  '/support-alert.wav',
   '/icons/support-chat/favicon-32.png',
   '/icons/support-chat/apple-touch-icon.png',
   '/icons/support-chat/icon-192.png',

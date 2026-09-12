@@ -279,8 +279,6 @@
 </head>
 <body>
 
-<audio id="support-alert-audio" src="/support-alert.wav" preload="auto" loop></audio>
-
 <main>
   <div class="container">
 
@@ -442,8 +440,6 @@
 
   let phonePushConfigured = false;
   let phonePushSubscription = null;
-  let alarmSessionId = requestedSessionId;
-  const supportAlertAudio = document.getElementById('support-alert-audio');
 
 
   function isMobileLayout() {
@@ -470,22 +466,6 @@
   // Get current operator name (default to Red)
   function getOperatorName() {
     return operatorNameEl.value.trim() || 'Red';
-  }
-
-  function startSupportAlertAlarm() {
-    if (!supportAlertAudio) return;
-    supportAlertAudio.loop = true;
-    supportAlertAudio.currentTime = 0;
-    supportAlertAudio.play().catch(() => {
-      // iOS may require another gesture after a notification opens the PWA.
-      // The Acknowledge button remains available when autoplay is blocked.
-    });
-  }
-
-  function stopSupportAlertAlarm() {
-    if (!supportAlertAudio) return;
-    supportAlertAudio.pause();
-    supportAlertAudio.currentTime = 0;
   }
 
   function setPhoneAlertMessage(message, isError = false) {
@@ -658,7 +638,6 @@
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || 'Unable to acknowledge alert.');
       ackPushBtn.hidden = true;
-      stopSupportAlertAlarm();
       setPhoneAlertMessage('Phone alert acknowledged for this session.');
     } catch (error) {
       setPhoneAlertMessage(error.message || 'Unable to acknowledge alert.', true);
@@ -793,7 +772,6 @@
     currentSessionToken = token;
     currentSessionId = id;
     lastMessageId = 0;
-    if (alarmSessionId && String(id) === String(alarmSessionId)) startSupportAlertAlarm();
 
     // Hide typing indicator for new session
     typingIndicatorEl.classList.remove('active');
@@ -866,7 +844,6 @@
 
       // Check if closed
       if (data.sessionStatus === 'closed') {
-        stopSupportAlertAlarm();
         chatInputArea.style.display = 'none';
         closeSessionBtn.style.display = 'none';
         ackPushBtn.hidden = true;
@@ -1036,7 +1013,6 @@
       });
       const data = await res.json();
       if (data.ok) {
-        stopSupportAlertAlarm();
         chatInputArea.style.display = 'none';
         closeSessionBtn.style.display = 'none';
         closeModal(closeConfirmOverlay);
@@ -1109,7 +1085,6 @@
   window.addEventListener('hashchange', () => {
     const id = new URLSearchParams(location.hash.slice(1)).get('session');
     requestedSessionId = /^[1-9]\d*$/.test(id || '') ? id : null;
-    alarmSessionId = requestedSessionId;
     if (adminPassword && requestedSessionId) loadSessions();
   });
 
