@@ -1,0 +1,38 @@
+Generated with the built-in image generation tool.
+Source: images/logo4.png
+Output: images/logo4-gen2.png
+
+Use case: precise-object-edit.
+Asset type: Survival Node Gen 2 launch marketing graphic.
+Input image 1 is the EDIT TARGET. Create one polished new version of this image. Preserve its 3:2 landscape composition, realistic open rugged case, equipment, main Survival Node skull/shield logo, and product placement.
+
+Make these specific changes:
+1. Replace the existing FARADAY BAGS equipment callout with exactly "MISSION DARKNESS FARADAY BAGS". Use readable clean white uppercase type consistent with the other callouts. A compact two-line arrangement is acceptable. Keep its gold leader pointing at the Faraday bags.
+2. Replace the existing CHARGER callout with exactly "CHARGER + CABLE". Keep its leader pointing at the white charger and cable; ensure the complete label fits without collision.
+3. Directly beneath "SURVIVAL NODE" within the shield emblem, add exactly "Gen 2". Use a clearly different font and format from the large distressed SURVIVAL NODE lettering: clean, condensed technical sans-serif in a small elegant gold-outlined dark plaque, centered, with sufficient contrast. Do not obscure the skull or change the original SURVIVAL NODE title.
+4. Re-render the surrounding background to be much cleaner and more deliberate. Retain a restrained electric-grid theme with a few fine cyan/amber circuit paths and distant power-line silhouettes, blended with a cinematic wilderness landscape of layered dark mountains and a subtle evergreen tree line. Deep charcoal and midnight blue with soft amber horizon lighting. Reduce random sparks, scattered particles, muddy grunge, and chaotic network clutter. Keep the background behind the right-side copy smooth and dark for outstanding legibility. Preserve the realistic textured case and original equipment.
+5. Preserve ALL of the text on the right EXACTLY as it appears in the original: same spelling, capitalization, punctuation, words, list order, emphasis, cream/white and pale gold colors, aligned bullet layout, and header divider lines. Preserve existing line wrapping where possible. Do not add launch slogans, new claims, extra text, or icons.
+
+Locked right-side copy (transcribe verbatim; bullets are seven separate items):
+Header:
+PRELOADED SOFTWARE
+ON THE PHONE
+
+• Survival AI Agent. Ask it any question:
+  “How do I catch rainwater and treat it
+  so I can drink it?”
+• Maps and directions for the entire United States
+• Translation app for all major languages
+• Over 10GB of medical references
+• Over 10GB of survival references
+• Downloaded copy of all of Wikipedia
+• Over 60,000 literary works
+
+Other unchanged product callouts:
+AI READY
+SMART PHONE
+SOLAR BATTERY
+PADLOCK
+WEATHERPROOF CASE
+
+Constraints: keep the product complete and uncropped including lid clips, case edges, handle and padlock; preserve the black/orange solar battery, dark phone, white charger with cable, and gray Faraday bags. No new products. Crisp legible typography, no typo substitutions. Keep right-side copy exactly unchanged. Deliver one finished high-quality image.
