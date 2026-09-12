@@ -26,7 +26,7 @@ If asked something outside your knowledge, say: "I don't have that information, 
 
 ## Product Overview
 
-**Survival Node Gen 2** (the current kit) is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a high-capacity solar battery and two Mission Darkness Faraday bags included for EMP protection. Gen 2 includes premium Mission Darkness Faraday bags as standard. (An earlier version, Gen 1, is no longer sold on this site.)
+**Survival Node Gen 2** (the current kit) is a hardened smartphone kit pre-loaded with offline AI, 51.8GB of survival apps, offline maps of the entire United States, and critical reference libraries — packed inside a weatherproof hard case with a premium high-capacity solar battery and two Mission Darkness Faraday bags included for EMP protection. Gen 2 includes premium Mission Darkness Faraday bags as standard. (An earlier version, Gen 1, is no longer sold on this site.)
 
 It works completely without internet, cell signal, or the power grid.
 
@@ -63,8 +63,9 @@ It works completely without internet, cell signal, or the power grid.
 - **Eastern Shore AI Users Guide App** — installed as a dedicated app on the home screen (tap to open); covers setup, storage, maintenance, battery care, solar charging, Faraday bag use, and every preloaded app
 - PDF version of the Users Guide also pre-loaded in Files → Downloads via Fossify File Manager
 
-### 2. Solar Battery with Attached Cables
+### 2. Premium Solar Battery with Attached Cables
 - **Rated capacity:** 24,000 mAh (manufacturer specification)
+- **Premium, rugged build:** impact-resistant ABS shell with silicone corner bumpers; drop-, dust-, and splash-resistant. Tested noticeably more durable than the battery used in the Gen 1 kit.
 - **Real-world phone charges:** about 3 full charges of the Moto G Power (5,000 mAh phone battery)
 - **Attached cables:** 2× USB-C, 1× iOS; plus a USB-A output on the side
 - Built-in dual LED flashlight (steady / strobe / SOS), physical thermometer, and carabiner clip
