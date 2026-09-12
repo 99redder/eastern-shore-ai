@@ -7,11 +7,13 @@ This folder holds the source for the **Survival Node User Guide** Android app.
 - [`icon-512-app.png`](icon-512-app.png) — the app launcher icon (512×512, ~124 KB, under
   WebIntoApp's 256 KB limit). ESAI neon logo, same as the support-chat PWA. Upload this in the
   WebIntoApp icon field. Master source: `/icons/support-chat/icon-source.png` (1254×1254).
-- `Survival-Node-Users-Guide-v1.2.pdf` / `-phone.pdf` — the printable Users Guide PDF (standard and
-  phone-friendly). This PDF ships pre-loaded on each phone (Files → Downloads). **It is generated
-  from `/node-setup.html`**, not authored separately — use its "🖨️ Print PDF" / "📱 Print Phone
-  Friendly Version" buttons and Save as PDF, or headless Chrome against node-setup.html. Regenerate
-  whenever the guide content changes.
+- `Survival-Node-Users-Guide-v1.2.pdf` — the printable Users Guide PDF (standard letter format).
+  Ships pre-loaded on each phone (Files → Downloads) and serves as the offline-shareable / printable
+  full copy (e.g. LocalSend to another device in an emergency). **It is generated from
+  `/node-setup.html`**, not authored separately — use its "🖨️ Print PDF" button and Save as PDF, or
+  headless Chrome against node-setup.html. Regenerate whenever the guide content changes.
+  (The phone-friendly PDF variant was dropped — the on-phone Users Guide app already covers
+  phone-optimized reading.)
 
 ## How the app is built
 
