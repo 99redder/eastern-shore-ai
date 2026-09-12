@@ -106,6 +106,7 @@ self.addEventListener('push', (event) => {
     badge: '/icons/support-chat/icon-192.png',
     tag: `support-session-${sessionId}`,
     renotify: true,
+    silent: false,
     requireInteraction: true,
     vibrate: [500, 180, 500, 180, 900],
     data: { sessionId, url }
