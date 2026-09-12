@@ -56,7 +56,7 @@ It works completely without internet, cell signal, or the power grid.
 - **RAM:** 8GB
 - **Storage:** 128GB total; ~57GB available to user after OS and pre-installed software
 - Deep-debloated Android OS, optimized for performance and longevity
-- 51.8GB survival software suite with 4 offline LLMs pre-loaded
+- 51.8GB survival software suite with 2 offline LLMs pre-loaded
 - Pre-configured "Survival Node" AI persona in PocketPal (no setup required)
 - Shockproof protective phone case
 - Wall charger + USB-C cable
@@ -97,7 +97,7 @@ For customers on **Maryland's Eastern Shore only** who already have a compatible
 - Full device wipe
 - Deep Android debloat
 - 51.8GB Survival Node software suite installation
-- 4 offline LLMs
+- 2 offline LLMs
 - Pre-configured "Survival Node" AI persona
 
 **Requirements:**
@@ -116,7 +116,7 @@ For customers on **Maryland's Eastern Shore only** who already have a compatible
 **Standalone Apps:**
 - **Fennec Browser** — Privacy-focused Firefox, no telemetry, supports uBlock Origin
 - **Organic Maps** — Full United States offline navigation (14.2 GB, all 50 states, street-level zoom); GPS works with airplane mode on
-- **PocketPal** — Offline AI chat app; hosts all 3 LLMs and the "Survival Node" AI persona
+- **PocketPal** — Offline AI chat app; hosts both included LLMs and the "Survival Node" AI persona
 - **F-Droid** — Open-source app marketplace for side-loading additional Android apps
 - **Survival Manual** — US Army FM 3-05.70 field manual content
 - **Seamless** — On-device voice translation using Meta's Seamless Unity model; no internet required
@@ -144,18 +144,16 @@ For customers on **Maryland's Eastern Shore only** who already have a compatible
 
 ## AI Models (Pre-loaded in PocketPal)
 
-Four offline LLMs are pre-loaded. Qwen3.5 is the current primary because this product prioritizes answer depth over typing speed; Qwen2.5 remains the faster backup. Qwen3.5 was benchmarked on 9/12/2026 on the Moto G Power (2024) using PocketPal's benchmark tool (PP:512, TG:128, 3 reps, 99 GPU layers). The other model figures below were measured on 3/26/2026 with the same profile:
+Two offline LLMs are pre-loaded. Qwen3.5 is the current primary because this product prioritizes answer depth over typing speed; Qwen2.5 remains the faster backup. Qwen3.5 was benchmarked on 9/12/2026 on the Moto G Power (2024) using PocketPal's benchmark tool (PP:512, TG:128, 3 reps, 99 GPU layers). Qwen2.5 was measured on 3/26/2026 with the same profile:
 
 | Model | Role | Token Gen | Prompt Processing | Peak RAM |
 |-------|------|-----------|-------------------|----------|
 | Qwen3.5-4B-Q4_K_M | **Current primary — powers Survival Node AI Agent** | 1.41 t/s | 10.78 t/s | 5 GB (59.6%) |
 | Qwen2.5-3B-Instruct Q5_K_M | **Fast backup** | 3.50 t/s | 16.10 t/s | 5 GB (58.9%) |
-| Llama-3.2-3B-Instruct Q6_K | Additional backup | 2.75 t/s | 14.32 t/s | 6 GB (72.4%) |
-| SmolVLM2-500M-Instruct Q8_0 | Quickest/lightest | 19.31 t/s | 101.13 t/s | 1 GB (15.7%) |
 
 The Qwen3.5 benchmark result also reported a 2.73 GB model file, 4.21B parameters, 7m 3s total test time, and 5 GB peak memory out of 8 GB. Long answers can take several minutes; that slower generation rate is expected for the current depth-first primary model.
 
-All four standard models were verified offline (airplane mode) before shipment or update testing. Speeds vary with ambient temperature, background processes, and battery charge level. Additional models can be downloaded via PocketPal when Wi-Fi is available.
+Both included models were verified offline (airplane mode) before shipment or update testing. Speeds vary with ambient temperature, background processes, and battery charge level. Additional models can be downloaded via PocketPal when Wi-Fi is available, but they are not included with the standard kit.
 
 ---
 
@@ -164,7 +162,7 @@ All four standard models were verified offline (airplane mode) before shipment o
 - **Battery health (AccuBattery):** One discharge cycle run per unit pre-shipment. Units below 80% battery health are rejected.
 - **Battery Bot Pro:** Checked at intake, after OS installation, and again before shipment (3 checks per unit). Must show "GOOD" status.
 - **OS hardening:** Bloatware confirmed removed, 0 carrier apps, background data processes disabled.
-- **AI models:** All four standard models tested in airplane mode — confirmed loading and responding offline.
+- **AI models:** Both included models tested in airplane mode — confirmed loading and responding offline.
 - **Survival Node persona:** Loaded and verified active in PocketPal before shipment.
 - **GPS:** Lock confirmed, turn-by-turn routing tested offline.
 - **Maps:** All 50 US states confirmed downloaded at street-level zoom.

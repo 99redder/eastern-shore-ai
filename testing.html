@@ -513,11 +513,9 @@
             <h4>Model Inventory</h4>
             <div class="tr-row"><span class="tr-label">Model 1 — current primary</span><span class="tr-value">Qwen3.5-4B-Q4_K_M</span></div>
             <div class="tr-row"><span class="tr-label">Model 2 — fast backup</span><span class="tr-value">Qwen2.5-3B-Instruct (Q5_K_M)</span></div>
-            <div class="tr-row"><span class="tr-label">Model 3 — additional backup</span><span class="tr-value">Llama-3.2-3B-Instruct (Q6_K)</span></div>
-            <div class="tr-row"><span class="tr-label">Model 4 — quick lookup</span><span class="tr-value">SmolVLM2-500M-Instruct (Q8_0)</span></div>
           </div>
           <div class="tr-section">
-            <h4>Inference Performance — PocketPal Benchmark <span style="font-size:.7rem; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0;">Qwen3.5: 9/12/2026 · PP:512 TG:128 Rep:3 · GPU Layers:99; other models: 3/26/2026</span></h4>
+            <h4>Inference Performance — PocketPal Benchmark <span style="font-size:.7rem; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0;">Qwen3.5: 9/12/2026 · Qwen2.5: 3/26/2026 · PP:512 TG:128 Rep:3 · GPU Layers:99</span></h4>
             <div class="tr-row"><span class="tr-label">Qwen3.5-4B (Q4_K_M) — token gen</span><span class="tr-value tr-pass">1.41 t/s &nbsp;<button class="bench-btn" data-model="qwen35">View Result ↗</button></span></div>
             <div class="tr-row"><span class="tr-label">Qwen3.5-4B — prompt processing</span><span class="tr-value">10.78 t/s</span></div>
             <div class="tr-row"><span class="tr-label">Qwen3.5-4B — peak memory</span><span class="tr-value">5 GB / 8 GB (59.6%)</span></div>
@@ -525,21 +523,15 @@
             <div class="tr-row"><span class="tr-label">Qwen2.5-3B (Q5_K_M) — token gen</span><span class="tr-value tr-pass">3.50 t/s &nbsp;<button class="bench-btn" data-model="qwen">View Result ↗</button></span></div>
             <div class="tr-row"><span class="tr-label">Qwen2.5-3B — prompt processing</span><span class="tr-value">16.10 t/s</span></div>
             <div class="tr-row"><span class="tr-label">Qwen2.5-3B — peak memory</span><span class="tr-value">5 GB / 8 GB (58.9%)</span></div>
-            <div class="tr-row"><span class="tr-label">Llama-3.2-3B (Q6_K) — token gen</span><span class="tr-value tr-pass">2.75 t/s &nbsp;<button class="bench-btn" data-model="llama">View Result ↗</button></span></div>
-            <div class="tr-row"><span class="tr-label">Llama-3.2-3B — prompt processing</span><span class="tr-value">14.32 t/s</span></div>
-            <div class="tr-row"><span class="tr-label">Llama-3.2-3B — peak memory</span><span class="tr-value">6 GB / 8 GB (72.4%)</span></div>
-            <div class="tr-row"><span class="tr-label">SmolVLM2-500M (Q8_0) — token gen</span><span class="tr-value tr-pass">19.31 t/s &nbsp;<button class="bench-btn" data-model="smol">View Result ↗</button></span></div>
-            <div class="tr-row"><span class="tr-label">SmolVLM2-500M — prompt processing</span><span class="tr-value">101.13 t/s</span></div>
-            <div class="tr-row"><span class="tr-label">SmolVLM2-500M — peak memory</span><span class="tr-value">1 GB / 8 GB (15.7%)</span></div>
           </div>
           <div class="tr-section">
             <h4>Offline &amp; Persona Verification</h4>
-            <div class="tr-row"><span class="tr-label">Tested with airplane mode + data off</span><span class="tr-value tr-pass">All four standard models load and respond ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Tested with airplane mode + data off</span><span class="tr-value tr-pass">Both included models load and respond ✓</span></div>
             <div class="tr-row"><span class="tr-label">Survival Node persona loaded</span><span class="tr-value tr-pass">Confirmed in PocketPal ✓</span></div>
             <div class="tr-row"><span class="tr-label">Persona system prompt active</span><span class="tr-value tr-pass">Verified via test queries ✓</span></div>
             <div class="tr-row"><span class="tr-label">Voice input (mic) functional</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
           </div>
-          <p class="tr-note">Qwen3.5 was benchmarked on 9/12/2026; the other model results were benchmarked on 3/26/2026. Tests used the same PocketPal benchmark profile where noted. Inference speeds may vary with ambient temperature, background processes, and battery charge level. Qwen3.5 is the current primary for deeper answers; Qwen2.5 remains the faster backup.</p>
+          <p class="tr-note">Qwen3.5 was benchmarked on 9/12/2026 and Qwen2.5 was benchmarked on 3/26/2026 using the same PocketPal benchmark profile. Inference speeds may vary with ambient temperature, background processes, and battery charge level. Qwen3.5 is the current primary for deeper answers; Qwen2.5 remains the faster backup.</p>
         </div>
 
         <!-- Software Suite -->
@@ -547,7 +539,7 @@
           <div class="tr-section">
             <h4>Storage Audit</h4>
             <div class="tr-row"><span class="tr-label">Total software suite</span><span class="tr-value">51.8 GB</span></div>
-            <div class="tr-row"><span class="tr-label">AI models</span><span class="tr-value">4 model files (storage varies by model and quantization)</span></div>
+            <div class="tr-row"><span class="tr-label">AI models</span><span class="tr-value">2 model files (storage varies by model and quantization)</span></div>
             <div class="tr-row"><span class="tr-label">Offline maps (all 50 states)</span><span class="tr-value">14.2 GB</span></div>
             <div class="tr-row"><span class="tr-label">Medical wiki + reference apps</span><span class="tr-value">3.8 GB</span></div>
             <div class="tr-row"><span class="tr-label">Survival apps + first aid</span><span class="tr-value">2.3 GB</span></div>
@@ -668,8 +660,6 @@
     const benchImages = {
       qwen35: { title: 'Qwen3.5-4B-Q4_K_M — Benchmark Result', src: 'images/benchmarks/bench-qwen35-4b.jpeg' },
       qwen:  { title: 'Qwen2.5-3B-Instruct (Q5_K_M) — Benchmark Result', src: 'images/benchmarks/bench-qwen25-3b.jpeg' },
-      llama: { title: 'Llama-3.2-3B-Instruct (Q6_K) — Benchmark Result',  src: 'images/benchmarks/bench-llama32-3b.jpeg' },
-      smol:  { title: 'SmolVLM2-500M-Instruct (Q8_0) — Benchmark Result', src: 'images/benchmarks/bench-smolvlm2-500m.jpeg' }
     };
     const benchOverlay = document.getElementById('bench-modal');
     const benchImg     = document.getElementById('bench-modal-img');
