@@ -6243,7 +6243,7 @@ It works completely without internet, cell signal, or the power grid.
 1. **Survival Node 8GB Core Unit**
    - Motorola Moto G Power (2024) — brand new or open box, hand-vetted for battery life, memory performance, and overall suitability (8GB RAM, 128GB storage)
    - De-bloated OS optimized for performance and longevity
-   - 50GB+ survival software suite with 3 offline LLMs
+   - 50GB+ survival software suite with 4 offline LLMs
    - Pre-configured "Survival Node" AI persona (no setup required)
    - Shockproof protective phone case
    - Wall charger + USB-C cable
@@ -6272,7 +6272,7 @@ For customers on **Maryland's Eastern Shore only** who already have a compatible
 - Full device wipe
 - Deep Android debloat
 - 50GB+ Survival Node software suite installation
-- 3 offline LLMs
+- 4 offline LLMs
 - Pre-configured "Survival Node" AI persona
 
 **Requirements:**
@@ -6437,18 +6437,21 @@ There is a dedicated **Test Results & Demo Videos** page for Survival Node at te
 - The page explains GPS works in airplane mode because it uses satellites, not internet connectivity
 
 ### AI model and benchmark information
-The testing page lists three preloaded offline models:
+The testing page lists four preloaded offline models. Qwen3.5 is the current primary because the product prioritizes answer depth over typing speed; Qwen2.5 remains the faster backup:
+- **Qwen3.5-4B-Q4_K_M**
 - **Qwen2.5-3B-Instruct (Q5_K_M)**
 - **Llama-3.2-3B-Instruct (Q6_K)**
 - **SmolVLM2-500M-Instruct (Q8_0)**
 
-Example benchmark figures shown on the page:
+Example benchmark figures shown on the page (Qwen3.5 tested 9/12/2026; the other model results tested 3/26/2026):
+- **Qwen3.5-4B:** 1.41 tokens/sec generation, 10.78 tokens/sec prompt processing, peak memory about 5 GB (59.6%; 2.73 GB model file, 4.21B parameters)
 - **Qwen2.5-3B:** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory about 5 GB
 - **Llama-3.2-3B:** 2.75 tokens/sec generation, 14.32 tokens/sec prompt processing, peak memory about 6 GB
 - **SmolVLM2-500M:** 19.31 tokens/sec generation, 101.13 tokens/sec prompt processing, peak memory about 1 GB
 
 ### Quoted benchmark answer block
 If a user asks for the benchmark speeds, benchmark numbers, model performance, tokens/sec, prompt processing speed, or memory usage from testing.html, answer with these reported figures directly:
+- **Qwen3.5-4B-Q4_K_M:** 1.41 tokens/sec generation, 10.78 tokens/sec prompt processing, peak memory about 5 GB (59.6%; 2.73 GB model file, 4.21B parameters)
 - **Qwen2.5-3B-Instruct (Q5_K_M):** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory about 5 GB
 - **Llama-3.2-3B-Instruct (Q6_K):** 2.75 tokens/sec generation, 14.32 tokens/sec prompt processing, peak memory about 6 GB
 - **SmolVLM2-500M-Instruct (Q8_0):** 19.31 tokens/sec generation, 101.13 tokens/sec prompt processing, peak memory about 1 GB
@@ -6462,7 +6465,7 @@ The page also says:
 
 ### Software suite testing
 - Total software suite size shown: **51.8 GB**
-- AI models shown as using **12.4 GB**
+- AI models shown as **4 model files; storage varies by model and quantization**
 - Offline maps shown as using **14.2 GB**
 - Medical wiki and reference apps shown as using **3.8 GB**
 - Survival apps and first-aid content shown as using **2.3 GB**
@@ -6664,11 +6667,12 @@ function getAskKCannedTestingReply(question, context = {}) {
     return [
       'The testing page reports these benchmark figures for the offline AI models:',
       '',
+      '- **Qwen3.5-4B-Q4_K_M:** 1.41 tokens/sec generation, 10.78 tokens/sec prompt processing, peak memory about 5 GB (59.6%; 2.73 GB model file, 4.21B parameters)',
       '- **Qwen2.5-3B-Instruct (Q5_K_M):** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory about 5 GB',
       '- **Llama-3.2-3B-Instruct (Q6_K):** 2.75 tokens/sec generation, 14.32 tokens/sec prompt processing, peak memory about 6 GB',
       '- **SmolVLM2-500M-Instruct (Q8_0):** 19.31 tokens/sec generation, 101.13 tokens/sec prompt processing, peak memory about 1 GB',
       '',
-      'Those are the figures reported on testing.html, and real-world speeds can vary a bit with temperature, battery level, and background load.'
+      'Qwen3.5 is the current primary for deeper answers; Qwen2.5 remains the faster backup. Those are the figures reported on testing.html, and real-world speeds can vary a bit with temperature, battery level, and background load.'
     ].join('\n');
   }
 

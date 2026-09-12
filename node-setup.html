@@ -254,7 +254,7 @@
                <p style="color:var(--muted); font-size:.9rem;"><strong>What you'll find inside the hard case:</strong> The phone arrives wrapped in protective bubble wrap packaging. The solar battery arrives in its original manufacturer packaging (opened, inspected, tested, and repacked before shipment). The two Mission Darkness Faraday bags will be in their original packaging and placed under the hard case inside the shipping box — not inside the case itself. Complete the First Steps below, then place the phone and solar battery into their Faraday bags before sealing the case for storage.</p>
                <p><strong>What's in the Box</strong></p>
                <ul>
-                 <li>Survival Node phone — debloated Android OS, optimized for performance and longevity, pre-loaded with 50GB+ survival apps and 3 offline LLMs — wall charger, USB-C cable, and shockproof phone case included</li>
+                 <li>Survival Node phone — debloated Android OS, optimized for performance and longevity, pre-loaded with 50GB+ survival apps and 4 offline LLMs — wall charger, USB-C cable, and shockproof phone case included</li>
                  <li>Premium 24,000 mAh Solar Battery — rugged, drop- and splash-resistant — with 3 attached cables (2× USB-C, 1× iOS) plus a USB-A output on the side, built-in flashlight, and emergency strobe</li>
                  <li>(2) Mission Darkness Faraday Bags — premium EMP-rated signal-blocking, one for phone, one for solar battery</li>
                  <li>Weatherproof hard storage case with padlock and silica gel packs</li>
@@ -289,7 +289,7 @@
                </ul>
                <p><strong>Update Your PocketPal AI Models</strong></p>
                <p>AI models improve regularly. Your 6-month check is a good time to see if newer, more capable models are available. Updating takes about 5–10 minutes on Wi-Fi and keeps your offline AI current.</p>
-               <p>Your Survival Node shipped pre-loaded with one model. You can add additional models at any time through PocketPal — just be mindful of available storage. When updating, you can swap in newer, more capable models as they become available.</p>
+               <p>Your Survival Node ships pre-loaded with four offline models: Qwen3.5-4B as the current primary, Qwen2.5-3B as a faster backup, Llama-3.2-3B for another perspective, and SmolVLM2-500M for quick lookups. You can add additional models at any time through PocketPal — just be mindful of available storage. When updating, you can swap in newer, more capable models as they become available.</p>
                <ol>
                  <li>Connect the phone to Wi-Fi.</li>
                  <li>Open the <strong>PocketPal</strong> app.</li>
@@ -457,13 +457,14 @@
       },
       {
         title: 'PocketPal',
-        html: `<p><em>Included in: Every Survival Node (3 offline LLMs)</em></p>
+        html: `<p><em>Included in: Every Survival Node (4 offline LLMs)</em></p>
                <p><strong>What it is:</strong> PocketPal is an offline AI chat app that runs Large Language Models directly on your device — no internet, no cloud, and no data leaving your phone. It is your Survival Node's core AI tool for survival, medical, and engineering questions.</p>
-               <p><strong>Model selection as of March 13, 2026:</strong></p>
+               <p><strong>Model selection as of September 12, 2026:</strong></p>
                <ul>
-                 <li><strong>Primary Go To Model and the one that powers the Survival AI Agent: Qwen 2.5-3B-Instruct (Q5_K_M)</strong> — fastest responses, most battery-efficient. Best for thoughtful responses and reasoning. </li>
-                 <li><strong>Secondary Model: Llama-3.2-3B-Instruct (Q6_K)</strong> - a good backup to Qwen 2.5 but a little chatty and more prone to hallucinations. Useful for second opinions or when you want a more verbose answer, but not recommended as a primary model.</li>
-                 <li><strong>Tertiary Model : SmolVLM2-500M-Instruct (Q8_0)</strong> - A smaller model for quicker responses but with less parameters and less depth. Useful for very quick lookups or when battery is low, but not recommended as a primary model due to limited capabilities.</li>
+                 <li><strong>Primary model and the one that powers the Survival Node AI Agent: Qwen3.5-4B-Q4_K_M</strong> — selected for deeper, more capable emergency answers on the 8GB phone. It is slower while generating, so a long response may take several minutes.</li>
+                 <li><strong>Fast backup: Qwen2.5-3B-Instruct (Q5_K_M)</strong> — the previous primary and the faster option when time or battery matters. Keep it available for quick answers and as a second model to compare against.</li>
+                 <li><strong>Additional backup: Llama-3.2-3B-Instruct (Q6_K)</strong> — useful for a second opinion or a more verbose response, but it can be chattier and more prone to hallucinations than the Qwen models.</li>
+                 <li><strong>Quick-lookup model: SmolVLM2-500M-Instruct (Q8_0)</strong> — the smallest and fastest option with lower memory use, but less depth. Useful when battery is low or you need a short lookup.</li>
                </ul>
                <p><strong>Your Pre-Configured Survival Node AI Agent</strong></p>
                <p>Every Survival Node ships with a custom Pal named <strong>"Survival Node"</strong> already configured in PocketPal. It is tuned specifically for survival, field engineering, and emergency response — direct answers first, critical safety warnings in bold, and every response formatted in numbered steps and bullet points. No setup required.</p>
@@ -475,13 +476,14 @@
                  <li>Select <strong>"Survival Node"</strong></li>
                  <li>Start chatting — the system prompt is applied automatically</li>
                </ol>
-               <p><strong>Benchmark Performance (PocketPal, tested on-device 3/26/2026)</strong></p>
+               <p><strong>Benchmark Performance (PocketPal, tested on-device)</strong></p>
                <ul>
-                 <li><strong>Qwen2.5-3B (Q5_K_M):</strong> 3.50 t/s token generation · 16.10 t/s prompt processing · Peak memory: 5 GB / 8 GB (58.9%) — primary model, best balance of speed and quality</li>
-                 <li><strong>Llama-3.2-3B (Q6_K):</strong> 2.75 t/s token generation · 14.32 t/s prompt processing · Peak memory: 6 GB / 8 GB (72.4%) — slightly slower, higher memory use, good backup</li>
-                 <li><strong>SmolVLM2-500M (Q8_0):</strong> 19.31 t/s token generation · 101.13 t/s prompt processing · Peak memory: 1 GB / 8 GB (15.7%) — very fast, very low memory, limited depth</li>
+                 <li><strong>Qwen3.5-4B-Q4_K_M (9/12/2026):</strong> 1.41 t/s token generation · 10.78 t/s prompt processing · Peak memory: 5 GB / 8 GB (59.6%) · 2.73 GB model / 4.21B parameters — current primary, selected for answer depth</li>
+                 <li><strong>Qwen2.5-3B (Q5_K_M, 3/26/2026):</strong> 3.50 t/s token generation · 16.10 t/s prompt processing · Peak memory: 5 GB / 8 GB (58.9%) — faster backup</li>
+                 <li><strong>Llama-3.2-3B (Q6_K, 3/26/2026):</strong> 2.75 t/s token generation · 14.32 t/s prompt processing · Peak memory: 6 GB / 8 GB (72.4%) — additional backup</li>
+                 <li><strong>SmolVLM2-500M (Q8_0, 3/26/2026):</strong> 19.31 t/s token generation · 101.13 t/s prompt processing · Peak memory: 1 GB / 8 GB (15.7%) — very fast, very low memory, limited depth</li>
                </ul>
-               <p style="color:var(--muted); font-size:.85rem;">Tip: token generation speed is what you feel while the model is typing its response. Prompt processing speed affects how fast it starts. SmolVLM2 is the fastest but least capable — use Qwen2.5 for most survival queries.</p>
+               <p style="color:var(--muted); font-size:.85rem;">Tip: token generation speed is what you feel while the model is typing its response. Prompt processing speed affects how fast it starts. Qwen3.5 is the current primary because this kit prioritizes answer depth over typing speed; use Qwen2.5 when you need a faster response. Verify critical information against WikiMed or the Survival Manual before acting.</p>
                <p style="color:var(--muted); font-size:.9rem;">Tip: smaller model = faster and more battery-efficient. Larger model = deeper answers. Switch models from the same Pal picker.</p>
                <p>The full system prompt is saved to the <strong>Documents</strong> folder on the device, and a copy is also pinned to the home screen alongside the other pre-loaded apps for quick access. It reads:</p>
                <pre style="background:#070910; border:1px solid rgba(158,208,255,.2); border-left:3px solid var(--cyan); border-radius:0 6px 6px 0; padding:.85rem 1rem; margin:.5rem 0 .9rem; font-size:.78rem; color:var(--ok); white-space:pre-wrap; line-height:1.65; font-family:'Courier New',monospace;">You are a high-level technical survival and field engineering advisor. Your goal is to provide objective, concise, and actionable information for off-grid survival, emergency medical care, and mechanical repair.
