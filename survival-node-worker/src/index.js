@@ -101,7 +101,7 @@ export default {
       : 'Survival Node';
     const productDescription = isByogSetup
       ? 'Bring your own gear setup-only service'
-      : 'Motorola Moto G Power (2024) + 42,800mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Mission Darkness Faraday bags + USB-C cable + 50GB Offline Brain Software';
+      : 'Motorola Moto G Power (2024) + 24,000mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Mission Darkness Faraday bags + USB-C cable + 50GB Offline Brain Software';
     const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
 
     const body = new URLSearchParams({

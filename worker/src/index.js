@@ -1183,7 +1183,7 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
     : 'Survival Node Gen 2';
   const productDescription = isByogSetup
     ? 'Bring your own gear setup-only service'
-    : 'Motorola Moto G Power (2024) + 42,800mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Mission Darkness Faraday bags + USB-C cable + 50GB Offline Brain Software';
+    : 'Motorola Moto G Power (2024) + 24,000mAh Solar Power Hub + weatherproof hard case + padlock + phone case + 2 Mission Darkness Faraday bags + USB-C cable + 50GB Offline Brain Software';
   const productCode = isByogSetup ? 'survival_node_byog_setup' : 'survival_node_kit';
 
   const body = new URLSearchParams({
@@ -6198,10 +6198,9 @@ It works completely without internet, cell signal, or the power grid.
    - Full Users Guide pre-loaded on device
 
 2. **Solar Battery with Attached Cables**
-   - Rated capacity: 42,800 mAh (manufacturer specification)
-   - Tested usable capacity example: about 18,600 mAh average
-   - 4 attached cables: 2× USB-C, 1× iOS, 1× USB-A
-   - Built-in flashlight, emergency strobe, laser pointer
+   - Rated capacity: 24,000 mAh (manufacturer specification)
+   - 3 attached cables: 2× USB-C, 1× iOS; plus a USB-A output on the side
+   - Built-in dual LED flashlight (steady/strobe/SOS), thermometer, carabiner clip
    - Solar trickle-charge capability for grid-down scenarios
 
 3. **(2) Mission Darkness Faraday Bags**
@@ -6358,9 +6357,8 @@ There is a dedicated **Test Results & Demo Videos** page for Survival Node at te
 - Foam interior is described as custom-cut to keep components from shifting
 
 ### Solar battery test results
-- Rated capacity shown: **42,800 mAh**
-- Measured usable capacity example shown: **18,600 mAh average**
-- Claimed to provide about **3.7 full phone charges**
+- Rated capacity shown: **24,000 mAh**
+- Expected to provide about **3 full phone charges** (accounting for conversion losses)
 - Solar input example shown: **420–580 mA in direct sun**
 - Overcast solar input example shown: **80–140 mA**
 - Full recharge via solar-only is shown as about **38 hours of direct sun**

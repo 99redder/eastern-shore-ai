@@ -64,11 +64,10 @@ It works completely without internet, cell signal, or the power grid.
 - PDF version of the Users Guide also pre-loaded in Files → Downloads via Fossify File Manager
 
 ### 2. Solar Battery with Attached Cables
-- **Rated capacity:** 42,800 mAh (manufacturer specification)
-- **Real-world phone charges:** 3–4 full charges of the Moto G Power (5,000 mAh phone battery)
-- **Attached cables:** 1× USB-C, 1× iOS, 1× Micro-USB, 1× USB-A
-- Wireless charging pad (built-in)
-- Built-in LED flashlight and emergency strobe
+- **Rated capacity:** 24,000 mAh (manufacturer specification)
+- **Real-world phone charges:** about 3 full charges of the Moto G Power (5,000 mAh phone battery)
+- **Attached cables:** 2× USB-C, 1× iOS; plus a USB-A output on the side
+- Built-in dual LED flashlight (steady / strobe / SOS), physical thermometer, and carabiner clip
 - 4-LED battery level indicator
 - Solar trickle-charge capability for grid-down scenarios
 - **Important:** Do NOT charge and discharge simultaneously — input and output ports should not be connected at the same time per manufacturer specifications
@@ -190,7 +189,7 @@ No SIM card is included. The device is not designed to be used with a cellular c
 Keep the phone and solar battery sealed in their Faraday bags, stored in a cool dry location (60°F–75°F / 15°C–24°C). Recharge the solar battery every 6–12 months to prevent permanent capacity loss. Keep the phone at roughly 50% charge during storage. Recharge silica gel packs when the blue indicator dot turns light pink (microwave 3–5 minutes, dot-side up, do not exceed 210°F).
 
 ### What is the solar battery's capacity? How many phone charges does it give?
-The solar battery is rated at 42,800 mAh by the manufacturer. In real-world testing, it delivers approximately 3–4 full charges of the Moto G Power (which has a 5,000 mAh battery). Optimal storage practice is to keep the battery at 2–3 blue LEDs (roughly 50–75%) rather than 100%, which may affect total available charge per cycle. The solar panel is for trickle-charging in emergencies — it is not a fast charger.
+The solar battery is rated at 24,000 mAh by the manufacturer. In real-world use, expect roughly 3 full charges of the Moto G Power (which has a 5,000 mAh battery) after conversion losses. Optimal storage practice is to keep the battery at 2–3 blue LEDs (roughly 50–75%) rather than 100%, which may affect total available charge per cycle. The solar panel is for trickle-charging in emergencies — it is not a fast charger.
 
 ### Can the solar panel keep the kit charged indefinitely?
 Not for all-day normal use. Under emergency conditions — where you use the phone for a specific task and then power it off — solar can sustain the kit for an extended period. Eastern Shore AI founder Chris Gorham has run a test unit exclusively on solar for over a year. The key habit: use it, then shut it off. Solar accumulates while the phone is off. Use wall power whenever available to top off the reserve.
@@ -335,7 +334,7 @@ Every kit includes a 30-day limited warranty. Free **technical support** is incl
 - "Purpose-built survival tool, not an afterthought"
 - "Veteran-owned, real-world tested"
 - "No SIM card included — not designed for cellular carrier use"
-- "42,800 mAh rated; 3–4 real-world phone charges"
+- "24,000 mAh rated; about 3 real-world phone charges"
 - "Processing up to 7 business days (avg 1–2); shipping up to 10 additional business days (avg 5–7), ground-only"
 
 ---
