@@ -1,0 +1,6 @@
+# Never commit signing keys or WebIntoApp credentials to this public repo
+*.jks
+*.keystore
+certification.txt
+readme.txt
+*.aab
