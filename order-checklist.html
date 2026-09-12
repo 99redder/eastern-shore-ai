@@ -294,63 +294,27 @@
         </div>
       </div>
 
-      <!-- PHASE 1: Intake -->
+      <!-- PHASE 1: Battery test -->
       <div class="section">
-        <h2><span class="phase-badge">Phase 1</span> Phone Intake &amp; Inspection</h2>
+        <h2><span class="phase-badge">Phase 1</span> Pull Unit &amp; Battery Test</h2>
         <ul class="checklist">
-          <li id="li-1"><input type="checkbox" id="c1" onchange="toggle('li-1')"><label for="c1" class="item-text"><strong>Confirm device model and condition.</strong> Must be Motorola Moto G Power (2024) — brand new or open box. Check for physical defects, screen damage, or deformation.<span class="item-note">Open box units: minor cosmetic wear is acceptable. Document any surface marks if present.</span></label></li>
-          <li id="li-2"><input type="checkbox" id="c2" onchange="toggle('li-2')"><label for="c2" class="item-text"><strong>Power on the device and confirm it boots normally.</strong> No bootloop, no recovery mode, no unusual errors.</label></li>
-          <li id="li-3"><input type="checkbox" id="c3" onchange="toggle('li-3')"><label for="c3" class="item-text"><strong>Run AccuBattery intake test.</strong> Measure actual battery capacity against the rated spec. Log the result — this is the first of three tests.<span class="item-note">Reject any unit with significantly degraded capacity. Expected: 5000 mAh for the G Power 2024.</span></label></li>
-          <li id="li-4"><input type="checkbox" id="c4" onchange="toggle('li-4')"><label for="c4" class="item-text"><strong>Check all physical ports and hardware.</strong> USB-C port charges correctly; power and volume buttons function; speaker, mic, and camera are operational.</label></li>
+          <li id="li-3"><input type="checkbox" id="c3" onchange="toggle('li-3')"><label for="c3" class="item-text"><strong>Run AccuBattery test.</strong> Pull a pre-built unit for this order and measure actual battery capacity against the rated spec. Log the result.<span class="item-note">Reject any unit with significantly degraded capacity. Expected: 5000 mAh for the G Power 2024.</span></label></li>
         </ul>
       </div>
 
-      <!-- PHASE 2: OS Build -->
+      <!-- PHASE 2: Final testing -->
       <div class="section">
-        <h2><span class="phase-badge">Phase 2</span> OS Build &amp; Debloat</h2>
+        <h2><span class="phase-badge">Phase 2</span> Final Testing &amp; Pre-Ship Checks</h2>
         <ul class="checklist">
-          <li id="li-5"><input type="checkbox" id="c5" onchange="toggle('li-5')"><label for="c5" class="item-text"><strong>Unlock the bootloader.</strong><span class="item-note">This is a destructive step — back out now if anything from Phase 1 was a concern. Unlocking voids the original manufacturer warranty. This is expected and disclosed to the customer.</span></label></li>
-          <li id="li-6"><input type="checkbox" id="c6" onchange="toggle('li-6')"><label for="c6" class="item-text"><strong>Perform deep Android debloat.</strong> Remove all tracking software, carrier apps, and unnecessary battery-draining background services. Optimize OS for performance and longevity.</label></li>
-          <li id="li-7"><input type="checkbox" id="c7" onchange="toggle('li-7')"><label for="c7" class="item-text"><strong>Confirm device reboots cleanly after debloat.</strong> No bootloop, no missing system components, no unexpected error screens.</label></li>
-          <li id="li-8"><input type="checkbox" id="c8" onchange="toggle('li-8')"><label for="c8" class="item-text"><strong>Run AccuBattery test after OS install.</strong> Confirm battery performance is consistent with or better than the intake reading. This is the second of three tests.<span class="item-note">A debloated OS typically improves effective battery endurance. Flag any significant capacity drop compared to intake.</span></label></li>
-        </ul>
-      </div>
-
-      <!-- PHASE 3: Software Suite -->
-      <div class="section">
-        <h2><span class="phase-badge">Phase 3</span> Software Suite Installation &amp; Configuration</h2>
-        <ul class="checklist">
-          <li id="li-9"><input type="checkbox" id="c9" onchange="toggle('li-9')"><label for="c9" class="item-text"><strong>Install PocketPal.</strong> Confirm the app opens and the AI chat interface functions.</label></li>
-          <li id="li-10"><input type="checkbox" id="c10" onchange="toggle('li-10')"><label for="c10" class="item-text"><strong>Load the two standard offline LLMs into PocketPal.</strong> Confirm <strong>Qwen3.5-4B-Q4_K_M</strong> is the primary model and <strong>Qwen2.5-3B-Instruct (Q5_K_M)</strong> is available as the faster backup. Confirm both models load without error and respond to a test prompt.</label></li>
-          <li id="li-11"><input type="checkbox" id="c11" onchange="toggle('li-11')"><label for="c11" class="item-text"><strong>Pre-configure the "Survival Node" AI Agent in PocketPal.</strong> Survival Node persona must be selected and ready — no setup required by the customer on first open.<span class="item-note">Test it: open PocketPal, select "Survival Node" persona, send a test question, confirm it responds correctly with survival-focused framing.</span></label></li>
-          <li id="li-12"><input type="checkbox" id="c12" onchange="toggle('li-12')"><label for="c12" class="item-text"><strong>Install Organic Maps and pre-download the entire United States offline.</strong> Confirm the US maps are fully downloaded and the map loads without internet.<span class="item-note">GPS navigation must work in Airplane Mode. Test with a quick route.</span></label></li>
-          <li id="li-13"><input type="checkbox" id="c13" onchange="toggle('li-13')"><label for="c13" class="item-text"><strong>Install Kiwix and load WikiMed Medical Encyclopedia offline.</strong> Confirm the encyclopedia is searchable without internet.</label></li>
-          <li id="li-14"><input type="checkbox" id="c14" onchange="toggle('li-14')"><label for="c14" class="item-text"><strong>Install Survival Manual app.</strong> Confirm it opens and content is accessible offline.</label></li>
-          <li id="li-15"><input type="checkbox" id="c15" onchange="toggle('li-15')"><label for="c15" class="item-text"><strong>Install Briar.</strong> Confirm it opens and the Bluetooth/Wi-Fi mesh messaging interface is accessible.</label></li>
-          <li id="li-16"><input type="checkbox" id="c16" onchange="toggle('li-16')"><label for="c16" class="item-text"><strong>Install SOS Flashlight.</strong> Confirm SOS mode activates the flashlight correctly.</label></li>
-          <li id="li-17"><input type="checkbox" id="c17" onchange="toggle('li-17')"><label for="c17" class="item-text"><strong>Install Morse app.</strong> Confirm it encodes/decodes and functions offline.</label></li>
-          <li id="li-18"><input type="checkbox" id="c18" onchange="toggle('li-18')"><label for="c18" class="item-text"><strong>Install AccuBattery.</strong> Confirm it opens and battery stats are visible.</label></li>
-          <li id="li-19"><input type="checkbox" id="c19" onchange="toggle('li-19')"><label for="c19" class="item-text"><strong>Install Eastern Shore AI Users Guide app on the home screen.</strong> Must be the first visible app — tap to confirm it opens the full guide without internet.<span class="item-note">PDF version of the Users Guide must also be pre-loaded in Files &gt; Downloads on the device.</span></label></li>
-          <li id="li-20"><input type="checkbox" id="c20" onchange="toggle('li-20')"><label for="c20" class="item-text"><strong>Confirm full Airplane Mode test.</strong> Enable Airplane Mode and verify all offline functions work: AI chat, Organic Maps navigation, Kiwix search, Survival Manual, Users Guide app.</label></li>
-        </ul>
-      </div>
-
-      <!-- PHASE 4: Final testing -->
-      <div class="section">
-        <h2><span class="phase-badge">Phase 4</span> Final Testing &amp; Pre-Ship Checks</h2>
-        <ul class="checklist">
-          <li id="li-21"><input type="checkbox" id="c21" onchange="toggle('li-21')"><label for="c21" class="item-text"><strong>Run final AccuBattery pre-ship test.</strong> This is the third and final battery test. Log result and screenshot.<span class="item-note">Upload the battery test note and screenshot to the admin panel for this order (Orders → Battery Test).</span></label></li>
           <li id="li-22"><input type="checkbox" id="c22" onchange="toggle('li-22')"><label for="c22" class="item-text"><strong>Charge phone down to below 30%.</strong> Federal lithium-ion battery shipping regulations require devices to be shipped below 30% charge. Do not ship at or above 30%.</label></li>
           <li id="li-23"><input type="checkbox" id="c23" onchange="toggle('li-23')"><label for="c23" class="item-text"><strong>Inspect and test the solar battery.</strong> Press the power button to confirm charge indicator LEDs are working. Verify it outputs power through the attached cables by briefly connecting to a test device.</label></li>
           <li id="li-24"><input type="checkbox" id="c24" onchange="toggle('li-24')"><label for="c24" class="item-text"><strong>Charge solar battery to 50–75% (2–3 of 4 LEDs).</strong> This is the ideal long-term storage level for lithium-ion. Do not ship at 100%.<span class="item-note">Per the terms: "Do not store at full charge for extended periods — degrades capacity."</span></label></li>
-          <li id="li-25"><input type="checkbox" id="c25" onchange="toggle('li-25')"><label for="c25" class="item-text"><strong>Install the shockproof phone case on the Core Unit.</strong> Confirm it is fully seated and the screen, ports, and buttons are accessible.</label></li>
-          <li id="li-u1"><input type="checkbox" id="cu1" onchange="toggle('li-u1')"><label for="cu1" class="item-text"><strong>Confirm (2) Mission Darkness Faraday bags are present.</strong> Included standard on every kit — one for the phone, one for the solar battery.</label></li>
         </ul>
       </div>
 
-      <!-- PHASE 5: Kit assembly -->
+      <!-- PHASE 3: Kit assembly -->
       <div class="section">
-        <h2><span class="phase-badge">Phase 5</span> Kit Assembly &amp; Packing</h2>
+        <h2><span class="phase-badge">Phase 3</span> Kit Assembly &amp; Packing</h2>
         <ul class="checklist">
           <li id="li-26"><input type="checkbox" id="c26" onchange="toggle('li-26')"><label for="c26" class="item-text"><strong>Place the temporary white desiccant bag inside the hard case.</strong> This is the small shipping buffer desiccant — the customer will remove it upon receipt. It is not the long-term storage pack.</label></li>
           <li id="li-27"><input type="checkbox" id="c27" onchange="toggle('li-27')"><label for="c27" class="item-text"><strong>Wrap phone in bubble wrap and place inside the hard case.</strong></label></li>
@@ -360,21 +324,21 @@
           <li id="li-31"><input type="checkbox" id="c31" onchange="toggle('li-31')"><label for="c31" class="item-text"><strong>Place solar battery in its original manufacturer packaging</strong> (opened, inspected, tested, and repacked).</label></li>
           <li id="li-32"><input type="checkbox" id="c32" onchange="toggle('li-32')"><label for="c32" class="item-text"><strong>Place both Mission Darkness Faraday bags in their original packaging.</strong></label></li>
           <li id="li-33"><input type="checkbox" id="c33" onchange="toggle('li-33')"><label for="c33" class="item-text"><strong>Place the premium long-term desiccant pouch in its sealed plastic bag.</strong> Customer will open it and move it inside the case upon receipt.</label></li>
-          <li id="li-35"><input type="checkbox" id="c35" onchange="toggle('li-35')"><label for="c35" class="item-text"><strong>Place the hard case, solar battery (in packaging), Mission Darkness Faraday bags (in packaging), premium desiccant pouch, and inserts into the outer shipping box.</strong><span class="item-note">Faraday bags and desiccant go under/around the hard case — NOT inside it. Phone is inside the hard case.</span></label></li>
+          <li id="li-35"><input type="checkbox" id="c35" onchange="toggle('li-35')"><label for="c35" class="item-text"><strong>Place the hard case, solar battery (in packaging), Mission Darkness Faraday bags (in packaging), premium desiccant pouch, and inserts into the outer shipping box.</strong><span class="item-note">The Mission Darkness Faraday bags (in their original packaging) and the desiccant pouch go UNDER the hard case in the shipping box — NOT inside the case. The phone stays inside the hard case.</span></label></li>
           <li id="li-36"><input type="checkbox" id="c36" onchange="toggle('li-36')"><label for="c36" class="item-text"><strong>Verify the outer shipping box is sealed and ready.</strong> No rattling, no open flaps, correct contents confirmed.</label></li>
         </ul>
 
         <div class="warn-box">
-          <strong>Shipping rules:</strong> Ships via USPS or UPS <strong>ground only</strong> — no air shipping. Continental U.S. destinations only. Do not accept or ship orders to Alaska, Hawaii, U.S. territories, or international addresses.
+          <strong>Shipping rules:</strong> Ships via USPS <strong>ground only</strong> — no air shipping. Continental U.S. destinations only. Do not accept or ship orders to Alaska, Hawaii, U.S. territories, or international addresses.
         </div>
       </div>
 
-      <!-- PHASE 6: Fulfillment -->
+      <!-- PHASE 4: Fulfillment -->
       <div class="section">
-        <h2><span class="phase-badge">Phase 6</span> Fulfillment &amp; Customer Communications</h2>
+        <h2><span class="phase-badge">Phase 4</span> Fulfillment &amp; Customer Communications</h2>
         <ul class="checklist">
           <li id="li-37"><input type="checkbox" id="c37" onchange="toggle('li-37')"><label for="c37" class="item-text"><strong>Send order acknowledgment email within 24 hours of order placement.</strong><span class="item-note">Promised on the product page: "We will send you an order confirmation that gives you an exact ship date within 24 hours of your order being placed." Use the admin Orders panel → Send Email (type: ack).</span></label></li>
-          <li id="li-38"><input type="checkbox" id="c38" onchange="toggle('li-38')"><label for="c38" class="item-text"><strong>Generate shipping label (USPS or UPS ground).</strong></label></li>
+          <li id="li-38"><input type="checkbox" id="c38" onchange="toggle('li-38')"><label for="c38" class="item-text"><strong>Generate shipping label (USPS ground).</strong></label></li>
           <li id="li-39"><input type="checkbox" id="c39" onchange="toggle('li-39')"><label for="c39" class="item-text"><strong>Enter tracking number in the admin Orders panel.</strong></label></li>
           <li id="li-40"><input type="checkbox" id="c40" onchange="toggle('li-40')"><label for="c40" class="item-text"><strong>Send shipping confirmation email with tracking info to customer.</strong><span class="item-note">Admin Orders panel → Send Email (type: shipping).</span></label></li>
           <li id="li-41"><input type="checkbox" id="c41" onchange="toggle('li-41')"><label for="c41" class="item-text"><strong>Drop off or hand off to carrier.</strong></label></li>
