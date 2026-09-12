@@ -4,6 +4,9 @@ This folder holds the source for the **Survival Node User Guide** Android app.
 
 - [`index.html`](index.html) — the complete, self-contained app (inline CSS/JS, no external
   dependencies). This single file **is** the app. Edit it here, then rebuild the Android app.
+- [`icon-512-app.png`](icon-512-app.png) — the app launcher icon (512×512, ~124 KB, under
+  WebIntoApp's 256 KB limit). ESAI neon logo, same as the support-chat PWA. Upload this in the
+  WebIntoApp icon field. Master source: `/icons/support-chat/icon-source.png` (1254×1254).
 
 ## How the app is built
 
