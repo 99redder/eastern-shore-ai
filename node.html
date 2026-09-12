@@ -227,6 +227,37 @@
       box-shadow:0 0 0 1px rgba(0,0,0,.2) inset;
       pointer-events:none;
     }
+    .gen2-upgrade-strip {
+      margin: -.45rem 0 .8rem;
+      padding: .55rem .6rem .6rem;
+      border: 1px solid rgba(158,208,255,.4);
+      border-radius: 8px;
+      background: linear-gradient(120deg, rgba(158,208,255,.1), rgba(199,166,255,.08));
+    }
+    .gen2-upgrade-label {
+      margin: 0 0 .35rem;
+      color: var(--cyan);
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .gen2-upgrade-items { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .gen2-upgrade-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .28rem .45rem;
+      border: 1px solid rgba(199,166,255,.35);
+      border-radius: 999px;
+      background: rgba(199,166,255,.08);
+      color: var(--text);
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .74rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
     .kit-card h3 { margin:.1rem 0 .25rem; color: var(--cyan); font-size:1.22rem; }
     .img-grid {
       margin-top: 1rem;
@@ -1468,6 +1499,14 @@
           </div>
           <!-- Kit card column -->
           <section class="kit-card" style="display:flex; flex-direction:column;">
+            <div class="gen2-upgrade-strip" aria-label="Gen 2 upgrades">
+              <p class="gen2-upgrade-label">What’s better in Gen 2</p>
+              <div class="gen2-upgrade-items">
+                <span class="gen2-upgrade-chip"><span aria-hidden="true">🛡️</span> Faraday bags included</span>
+                <span class="gen2-upgrade-chip"><span aria-hidden="true">☀️</span> Upgraded solar battery + 2 USB-C cables</span>
+                <span class="gen2-upgrade-chip"><span aria-hidden="true">🧠</span> More capable offline AI</span>
+              </div>
+            </div>
             <div style="display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.1rem;">
               <h3 style="margin:0;">Survival Node <span style="color:var(--violet); font-weight:800;">Gen 2</span></h3>
               <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08); flex-shrink:0;">🚚 FREE SHIPPING</span>
