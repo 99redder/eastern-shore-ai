@@ -9,3 +9,6 @@
 !.dev.vars.example
 .env*
 !.env.example
+
+# Local macOS notifier build artifacts (credentials live in Keychain)
+mac-support-notifier/build/

@@ -1,3 +1,5 @@
+import { handleSupportAlerts } from './support-alerts.js';
+
 // ===== ROUTE HANDLER INDEX =====
 // POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
 // POST /api/checkout-session    → handleCheckoutSession() — Create Stripe checkout with conflict + past-time checks
@@ -38,6 +40,7 @@
 // POST /api/chat/message        → handleChatMessageSend() — Public: send message to session
 // POST /api/chat/typing         → handleChatTyping()      — Public: update typing indicator state
 // GET  /api/chat/sessions       → handleChatSessionsList() — Admin: list open chat sessions
+// GET  /api/chat/alerts         → handleSupportAlerts() — Read-only Mac support notifier
 // POST /api/chat/session/close  → handleChatSessionClose() — Admin: close a chat session
 //
 // ===== UTILITY FUNCTIONS =====
@@ -93,7 +96,7 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowAll ? '*' : (originAllowed ? origin : allowedOrigins[0] || ''),
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Admin-Session, X-Tax-Read-Token',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password, X-Admin-Session, X-Tax-Read-Token, X-Support-Notify-Token',
       'Vary': 'Origin'
     };
 
@@ -122,7 +125,7 @@ export default {
       const isPostRoute = ['/api/contact', '/api/checkout-session', '/api/survival-node-checkout', '/api/validate-byog-location', '/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname) && request.method === 'POST';
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages'].includes(url.pathname) && request.method === 'GET');
-      const isChatAdmin = (['/api/chat/sessions'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
+      const isChatAdmin = (['/api/chat/sessions', '/api/chat/alerts'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old'].includes(url.pathname) && request.method === 'POST');
       const isAdminAuthRoute = (url.pathname === '/api/admin/login' && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -447,6 +450,10 @@ export default {
     }
 
     // Human-handoff chat routes
+    if (url.pathname === '/api/chat/alerts' && request.method === 'GET') {
+      return handleSupportAlerts(request, env, corsHeaders);
+    }
+
     if (url.pathname === '/api/chat/session' && request.method === 'POST') {
       return handleChatSessionCreate(request, env, corsHeaders);
     }

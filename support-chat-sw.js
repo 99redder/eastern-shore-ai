@@ -1,7 +1,7 @@
 // Support Chat Service Worker
 // Network-first strategy with skipWaiting/clients.claim for immediate updates
 
-const CACHE_NAME = 'support-chat-v2';
+const CACHE_NAME = 'support-chat-v3';
 const ASSETS_TO_CACHE = [
   '/support-chat.html',
   '/fonts.css',

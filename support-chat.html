@@ -355,6 +355,9 @@
   let statusFilter = 'active';
   let typingTimeout = null;
   let isTypingLocally = false;
+  // Desktop notifier links contain only a numeric ID, never a chat/admin token.
+  let requestedSessionId = new URLSearchParams(location.hash.slice(1)).get('session');
+  if (!/^[1-9]\d*$/.test(requestedSessionId || '')) requestedSessionId = null;
 
   // DOM refs
   const adminLock = document.getElementById('admin-lock');
@@ -515,6 +518,14 @@
           selectSession(token, id);
         });
       });
+
+      if (requestedSessionId) {
+        const requested = sessions.find(s => String(s.id) === requestedSessionId);
+        if (requested) {
+          requestedSessionId = null;
+          await selectSession(requested.session_token, requested.id);
+        }
+      }
     } catch (e) {
       sessionsListEl.innerHTML = `<div class="no-sessions">Error loading sessions</div>`;
     }
@@ -833,6 +844,12 @@
   });
 
   // Refresh
+  window.addEventListener('hashchange', () => {
+    const id = new URLSearchParams(location.hash.slice(1)).get('session');
+    requestedSessionId = /^[1-9]\d*$/.test(id || '') ? id : null;
+    if (adminPassword && requestedSessionId) loadSessions();
+  });
+
   refreshBtn.addEventListener('click', () => {
     loadSessions();
     if (currentSessionToken) loadMessages();

@@ -26,3 +26,4 @@ bucket_name = "eastern-shore-ai-receipts"
 # - ASKK_BASE_URL: provider base URL (optional, defaults to https://api.openai.com/v1)
 # - ASKK_MODEL: model identifier (optional, defaults to gpt-4o-mini)
 # - ASKK_STAFF_WEBHOOK_URL: webhook URL for escalation notifications (optional)
+# - SUPPORT_NOTIFY_TOKEN: dedicated read-only Mac notifier credential
