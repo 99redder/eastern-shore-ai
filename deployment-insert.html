@@ -4,7 +4,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Survival Node Deployment Guide</title>
+  <title>Survival Node Deployment Insert</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,12 +16,12 @@
       --panel: #ffffff;
       --text: #111111;
       --muted: #5f6b7a;
-      --line: rgba(0,0,0,.12);
+      --line: rgba(0,0,0,.14);
       --cyan: #173b63;
       --lime: #4f6f1f;
       --warn: #7a3a00;
       --warn-bg: #fff8f0;
-      --warn-border: #e8b87a;
+      --warn-border: #e0a86a;
     }
     * { box-sizing: border-box; }
     body {
@@ -29,19 +29,11 @@
       background: var(--bg);
       color: var(--text);
       font-family: 'Titillium Web', sans-serif;
-      line-height: 1.6;
+      line-height: 1.5;
       padding: 1.2rem;
     }
-    .shell {
-      max-width: 850px;
-      margin: 0 auto;
-    }
-    .toolbar {
-      display: flex;
-      justify-content: flex-end;
-      gap: .65rem;
-      margin-bottom: 1rem;
-    }
+    .shell { max-width: 850px; margin: 0 auto; }
+    .toolbar { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
     .btn {
       appearance: none;
       border: 1px solid var(--line);
@@ -52,174 +44,132 @@
       font: 700 .96rem 'Hanken Grotesk', sans-serif;
       cursor: pointer;
     }
-    .card {
+    .side {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: 16px;
       box-shadow: 0 8px 24px rgba(0,0,0,.08);
-      overflow: hidden;
-    }
-    .header {
-      padding: 1.3rem 1.3rem 1rem;
-      border-bottom: 1px solid var(--line);
+      padding: 1.5rem 1.7rem 1.5rem;
+      margin-bottom: 1.1rem;
     }
     .eyebrow {
       color: var(--lime);
       text-transform: uppercase;
-      letter-spacing: .12em;
-      font: 800 .8rem 'Hanken Grotesk', sans-serif;
-      margin: 0 0 .35rem;
+      letter-spacing: .14em;
+      font: 800 .74rem 'Hanken Grotesk', sans-serif;
+      margin: 0 0 .3rem;
     }
     h1 {
-      margin: 0 0 .35rem;
+      margin: 0 0 .2rem;
       color: var(--cyan);
-      font: 800 2rem 'Hanken Grotesk', sans-serif;
-      line-height: 1.1;
+      font: 800 1.9rem 'Hanken Grotesk', sans-serif;
+      line-height: 1.05;
     }
-    .sub {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1rem;
+    .headline-sub { margin: 0; color: var(--muted); font-size: .96rem; }
+    .side-label {
+      display: inline-block;
+      margin: 0 0 .2rem;
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font: 800 .74rem 'Hanken Grotesk', sans-serif;
     }
-    .content {
-      padding: 1.2rem 1.3rem 1.35rem;
+    .keep-strip {
+      margin: .9rem 0 0;
+      padding: .55rem .85rem;
+      background: #fff0d6;
+      border: 1px solid #e0a86a;
+      border-radius: 10px;
+      color: #8a4a00;
+      font-weight: 700;
+      font-size: .9rem;
+      text-align: center;
     }
+
     h2 {
-      margin: 0 0 .55rem;
+      margin: 1.1rem 0 .55rem;
       color: var(--cyan);
-      font: 800 1.1rem 'Hanken Grotesk', sans-serif;
+      font: 800 1.15rem 'Hanken Grotesk', sans-serif;
+    }
+    .side-title {
+      margin: .1rem 0 .3rem;
+      color: var(--cyan);
+      font: 800 1.55rem 'Hanken Grotesk', sans-serif;
     }
     h3 {
-      margin: .9rem 0 .3rem;
+      margin: .9rem 0 .25rem;
       color: var(--cyan);
-      font: 700 .98rem 'Hanken Grotesk', sans-serif;
+      font: 700 1rem 'Hanken Grotesk', sans-serif;
     }
-    p { margin: 0 0 .85rem; }
-    ol, ul { margin: .25rem 0 1rem 1.25rem; padding: 0; }
-    li { margin: .45rem 0; }
-    .note {
-      margin-top: 1rem;
-      padding: .95rem 1rem;
+    ol, ul { margin: .3rem 0 .7rem 1.3rem; padding: 0; }
+    li { margin: .34rem 0; }
+    p { margin: 0 0 .6rem; }
+    .steps-lg { counter-reset: dstep; list-style: none; margin: .4rem 0 .3rem; padding: 0; }
+    .steps-lg > li {
+      counter-increment: dstep;
+      position: relative;
+      padding-left: 2.4rem;
+      margin: 0 0 .7rem;
+    }
+    .steps-lg > li::before {
+      content: counter(dstep);
+      position: absolute; left: 0; top: -.05rem;
+      width: 1.7rem; height: 1.7rem;
+      background: var(--cyan); color: #fff;
+      border-radius: 50%;
+      font: 800 .95rem 'Hanken Grotesk', sans-serif;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps-lg strong { color: #111; }
+    .quickcheck {
+      margin: .5rem 0 0;
+      padding: .6rem .8rem;
       border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(158,208,255,.06);
+      border-radius: 10px;
+      background: #f7f9fc;
+      font-size: .9rem;
     }
+    .quickcheck strong { color: var(--cyan); }
     .warn-box {
-      margin: .75rem 0 1rem;
-      padding: .85rem 1rem;
+      margin: .7rem 0 0;
+      padding: .65rem .85rem;
       border: 1px solid var(--warn-border);
-      border-radius: 12px;
+      border-radius: 10px;
       background: var(--warn-bg);
       color: var(--warn);
-      font-size: .95rem;
+      font-size: .88rem;
     }
     .warn-box strong { color: var(--warn); }
-    .step-block {
-      margin-bottom: 1.1rem;
-    }
-    .step-num {
-      display: inline-block;
-      background: var(--cyan);
-      color: #fff;
-      font: 800 .78rem 'Hanken Grotesk', sans-serif;
-      letter-spacing: .05em;
-      border-radius: 50%;
-      width: 1.55rem;
-      height: 1.55rem;
-      line-height: 1.55rem;
-      text-align: center;
-      margin-right: .45rem;
-      flex-shrink: 0;
-    }
-    .step-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: .3rem;
-    }
-    .step-header h3 {
-      margin: 0;
-    }
-    .tip {
-      font-size: .88rem;
+    .contact { color: var(--cyan); font-weight: 700; }
+    .app-block { margin-bottom: .5rem; }
+    .foot {
+      margin-top: 1rem;
+      padding-top: .7rem;
+      border-top: 1px solid var(--line);
+      font-size: .9rem;
       color: var(--muted);
       font-style: italic;
-      margin: .2rem 0 0;
-      padding-left: 2rem;
     }
-    .divider {
-      border: none;
-      border-top: 1px solid var(--line);
-      margin: 1.2rem 0;
-    }
-    .footer {
-      margin-top: 1rem;
-      color: var(--muted);
-      font-size: .92rem;
-    }
-    .alert-box {
-      margin: 1rem 0 1.5rem;
-      padding: 1.2rem 1.4rem;
-      background: #fff0d6;
-      border: 2px solid #ff9900;
-      border-radius: 14px;
-      text-align: center;
-    }
-    .alert-box strong {
-      display: block;
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #b34700;
-      margin-bottom: .4rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-    .alert-box p {
-      margin: 0;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #803300;
-    }
+
     @media print {
-      @page { size: letter; margin: 0.65in; }
-      body {
-        background: #fff;
-        color: #111;
-        padding: 0;
-      }
+      @page { size: letter; margin: 0.55in; }
+      body { background: #fff; color: #111; padding: 0; font-size: 11.5px; }
       .toolbar { display: none !important; }
-      .card {
-        border: 0;
-        box-shadow: none;
-        background: #fff;
+      .shell { max-width: 100%; }
+      .side {
+        border: 0; box-shadow: none; border-radius: 0; padding: 0; margin: 0;
       }
-      .header {
-        border-bottom: 1px solid #bbb;
-        padding: 0.08in 0 0.28in;
-      }
-      .content {
-        padding: .2in 0 0;
-      }
-      .eyebrow { color: #5a5a5a; }
-      h1, h2, h3 { color: #000; }
-      .sub, .footer, .tip { color: #444; }
-      .note {
-        background: #f5f7fa;
-        border: 1px solid #cfd8e3;
-      }
-      .warn-box {
-        background: #fff8f0;
-        border: 1px solid #c89050;
-        color: #5a2a00;
-      }
-      .step-num { background: #173b63; }
-      .alert-box {
-        background: #fff8e6;
-        border: 2px solid #b34700;
-      }
-      .alert-box strong { color: #7a3a00; }
-      .alert-box p { color: #5a2a00; }
-      .page-break-avoid { break-inside: avoid; }
-      .page-break-before { break-before: page; }
+      .side + .side { break-before: page; }
+      h1 { color: #000; font-size: 25px; }
+      .side-title { color: #000; font-size: 21px; }
+      .eyebrow, .side-label { color: #4a4a4a; }
+      .headline-sub { color: #333; }
+      h2, h3 { color: #000; }
+      .keep-strip { background: #fff4e2; border: 1px solid #c8965a; color: #6e3a00; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .steps-lg > li::before { background: #173b63; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .quickcheck { background: #f5f7fa; border: 1px solid #cfd8e3; }
+      .warn-box { background: #fff8f0; border: 1px solid #c89050; color: #5a2a00; }
+      .foot { color: #333; }
     }
   </style>
   <!-- Reddit Pixel -->
@@ -235,278 +185,65 @@
       <button class="btn" data-print-button>Save / Print PDF</button>
     </div>
 
-    <div class="card">
-      <div class="header">
-        <p class="eyebrow">Survival Node</p>
+    <!-- ═══════════ FRONT ═══════════ -->
+    <div class="side">
+      <header>
+        <p class="eyebrow">Survival Node &middot; Emergency Deployment &middot; Front</p>
         <h1>How to Deploy Your Kit</h1>
-        <p class="sub">Step-by-step instructions for getting your Survival Node up and running when you need it — written for anyone, no tech experience required.</p>
+        <p class="headline-sub">Getting your Survival Node running when you need it. No tech experience required — just follow the steps in order.</p>
+        <p class="keep-strip">KEEP THIS CARD WITH YOUR CASE — it works even when the phone is dead or you're under stress.</p>
+      </header>
+
+      <h2>Get it running</h2>
+      <ol class="steps-lg">
+        <li><strong>Open the case and remove the gear.</strong> Unlock the padlock if you used one, flip the two latches, and lift the lid. Take the phone and the solar battery out of their Faraday bags — unfold the sealed top and slide each one out.</li>
+        <li><strong>Power on the phone.</strong> Press and hold the power button on the <strong>right side</strong> for 2–3 seconds until it vibrates and the screen lights up. Startup takes about 30–60 seconds. <em>If it won't turn on,</em> the battery is likely too low — do step 4 to charge it first, then come back and power it on.</li>
+        <li><strong>Turn on Airplane Mode immediately, and lower the brightness.</strong> Swipe down from the very top of the screen, tap the <strong>airplane icon</strong> (it highlights when on), then drag the brightness slider down. Keep Airplane Mode <strong>ON</strong> whenever you're not actively making a call or text — it's the single biggest battery saver, and every offline app still works.</li>
+        <li><strong>Connect power if you need it.</strong> Find the solar battery's attached <strong>USB-C cable</strong> (small oval connector) and plug it into the port on the <strong>bottom of the phone</strong>. It charges automatically — you can use the phone while it charges. Set the solar battery panel-side up in direct overhead sunlight and re-angle it as the sun moves. Don't set it on hot surfaces (asphalt, metal, car hoods).</li>
+        <li><strong>Golden rule — use it, then power it OFF.</strong> Do your task (look something up, check your location, ask the AI), then press and hold the power button and tap <strong>Power off</strong>. A fully powered-off phone uses zero battery. Brief, task-focused use followed by powering off is what lets the solar battery sustain the kit for weeks.</li>
+      </ol>
+
+      <p class="quickcheck"><strong>Battery quick-check.</strong> The phone's charge % is in the top-right corner of the screen. For the solar battery, press its side button: <strong>4 blue LEDs</strong> = full, <strong>2</strong> = moderate (use conservatively), <strong>1</strong> = low, <strong>0 / no lights</strong> = critically low — put the panel in direct sun immediately.</p>
+
+      <div class="warn-box">
+        <strong>⚠ Hot-weather safety.</strong> While the solar battery charges in the sun, check it every 20–30 minutes — it should feel <strong>warm, not hot</strong>. If it's uncomfortably hot, move it to shade to cool before resuming. Never charge above 113°F (45°C). Also: do <strong>not</strong> charge the solar battery from a wall outlet and use it to charge the phone at the same time.
+      </div>
+    </div>
+
+    <!-- ═══════════ BACK ═══════════ -->
+    <div class="side">
+      <p class="side-label">Survival Node &middot; Emergency Deployment &middot; Back</p>
+      <h1 class="side-title">Using Your Kit</h1>
+      <p class="headline-sub">Everything works with no internet, Wi-Fi, or cell signal. The apps are already installed and ready.</p>
+
+      <h2>The apps</h2>
+      <div class="app-block">
+        <h3>Ask the AI (PocketPal)</h3>
+        <p>Tap <strong>PocketPal</strong> on the home screen. Select <strong>Qwen 3.5-4B</strong> as the primary model (or <strong>Qwen 2.5-3B</strong> for faster answers). Tap the <strong>↑</strong> beside the message box → <strong>Pals</strong> tab → <strong>"Survival Node"</strong> to load the survival assistant. Type or speak your question. A long Qwen 3.5 answer can take 2–3 minutes — that's normal. Ask about first aid, water purification, shelter, navigation, or repairs. <strong>Always verify medical or safety-critical answers</strong> against WikiMed or the Survival Manual before acting.</p>
+      </div>
+      <div class="app-block">
+        <h3>Navigate (Organic Maps)</h3>
+        <p>The entire US is pre-loaded for offline GPS. Open <strong>Organic Maps</strong>; your location is the blue dot (wait 30–60 sec for GPS lock). Tap the search bar, enter a place, then <strong>Directions</strong> → <strong>Start</strong>. GPS works in Airplane Mode and in a full blackout.</p>
+      </div>
+      <div class="app-block">
+        <h3>Medical &amp; survival references (Kiwix, Survival Manual)</h3>
+        <p>Open <strong>Kiwix</strong> → <strong>WikiMed</strong> for the full offline medical encyclopedia — search a symptom, injury, or medication. The <strong>Survival Manual</strong> app covers shelter, fire, water, food, first aid, and navigation (US Army field manual), fully offline.</p>
       </div>
 
-      <div class="content">
-        <div class="alert-box">
-          <strong>Keep This Document With Your Case</strong>
-          <p>Do not throw this guide away — keep it with your Survival Node case for easy reference when deploying your kit.</p>
-        </div>
+      <h2>Communications (if needed)</h2>
+      <p><strong>Briar</strong> sends text messages to another Briar user over a direct Bluetooth/Wi-Fi link — no signal, internet, or server. Both people must be nearby; use <strong>Add Contact</strong> to pair the first time. <strong>SOS Flashlight</strong>: tap SOS and the flashlight flashes the international distress signal automatically. <strong>Morse</strong>: type a message to flash or play it in Morse code for a mirror, light, or radio.</p>
 
-        <!-- PHASE 1: Open the Case -->
-        <div class="page-break-avoid">
-          <h2>Phase 1 — Open the Case and Get the Phone</h2>
+      <h2>Manage power &amp; put it away</h2>
+      <ul>
+        <li><strong>Low phone battery (under 15%):</strong> connect it to the solar battery and keep the screen off until it reaches at least 30–40% before using again. Never drain repeatedly to 0%.</li>
+        <li><strong>Low solar battery:</strong> place it panel-up in the brightest direct sun and give it several hours before charging the phone — solar charging is slow.</li>
+        <li><strong>Between uses:</strong> power the phone fully off, slide the phone and solar battery into their Faraday bags, fold each top over <strong>at least twice</strong> and seal flat with no gaps, then return both to the case, latch it, and re-apply the padlock. A loose Faraday bag gives little EMP protection.</li>
+      </ul>
 
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">1</span><h3>Unlock and open the hard case</h3></div>
-            <p>If you used the padlock, use your key to remove it. Flip the two latches on the front of the case outward, then lift the lid. The case opens like a suitcase.</p>
-          </div>
+      <h3>Full guide &amp; help</h3>
+      <p>Detailed instructions for every app, plus battery care, maintenance, and troubleshooting, are in the <strong>Survival Node Users Guide app</strong> on the home screen — or online at <span class="contact">www.easternshore.ai/node-setup.html</span>. Questions? <span class="contact">support@easternshore.ai</span> &middot; <span class="contact">(302) 907-9162</span></p>
 
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">2</span><h3>Retrieve the phone from its Faraday bag</h3></div>
-            <p>The phone is stored inside a dark, metallic-looking pouch — this is the Faraday bag. It may be folded over and sealed at the top. Unfold the top of the bag, open it, and slide the phone out.</p>
-            <p class="tip">The Faraday bag is what protects the phone from electromagnetic pulses (EMPs). You only open it when you're ready to use the phone.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">3</span><h3>Retrieve the solar battery from its Faraday bag</h3></div>
-            <p>The solar battery is also stored in a Faraday bag. Open it the same way and remove the battery. Set it nearby — you'll use it in Phase 2.</p>
-          </div>
-        </div>
-
-        <hr class="divider" />
-
-        <!-- PHASE 2: Power On -->
-        <div class="page-break-avoid">
-          <h2>Phase 2 — Power On the Phone</h2>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">4</span><h3>Press and hold the power button</h3></div>
-            <p>The power button is on the right side of the phone. Press and hold it for 2–3 seconds until you feel a vibration and see the screen light up. Release the button and wait for the phone to finish starting up — this usually takes about 30–60 seconds.</p>
-            <p class="tip">If the phone does not turn on, the battery may be too low. Skip to Step 6 to charge it first, then come back and power it on.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">5</span><h3>Turn on Airplane Mode immediately</h3></div>
-            <p>Once the phone is on, turn on Airplane Mode right away. This stops the phone from constantly searching for a cell tower signal, which drains the battery very fast — even when no signal is available.</p>
-            <p><strong>How to turn on Airplane Mode:</strong></p>
-            <ol>
-              <li>Swipe down from the very top of the screen to pull down the notification bar.</li>
-              <li>Look for an icon that looks like an airplane. Tap it once. It will turn blue or highlighted when active.</li>
-              <li>That's it — Airplane Mode is on. All offline features (AI, maps, reference libraries) still work normally.</li>
-            </ol>
-            <div class="warn-box">
-              <strong>Important:</strong> Keep Airplane Mode ON whenever you are not actively making a phone call or sending a text. It is the single most important thing you can do to preserve battery life.
-            </div>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">6</span><h3>Lower the screen brightness</h3></div>
-            <p>A bright screen is one of the biggest battery drains. Lower it as much as you comfortably can.</p>
-            <p><strong>How to lower brightness:</strong></p>
-            <ol>
-              <li>Swipe down from the top of the screen.</li>
-              <li>You will see a slider (usually a sun icon with a horizontal bar). Slide it to the left to lower brightness.</li>
-              <li>Aim for the lowest level you can comfortably read.</li>
-            </ol>
-          </div>
-        </div>
-
-        <hr class="divider" />
-
-        <!-- PHASE 3: Check and Connect Power -->
-        <div class="page-break-avoid">
-          <h2>Phase 3 — Check Battery Levels and Connect Solar Power</h2>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">7</span><h3>Check the phone's battery level</h3></div>
-            <p>Look at the top-right corner of the phone screen. You'll see a small battery icon showing how much charge is remaining. A percentage number may also be visible.</p>
-            <ul>
-              <li><strong>50% or above</strong> — you have plenty of power. Proceed normally.</li>
-              <li><strong>20–49%</strong> — connect to the solar battery soon to keep the level up.</li>
-              <li><strong>Below 20%</strong> — connect to the solar battery now before doing anything else.</li>
-            </ul>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">8</span><h3>Check the solar battery's charge level</h3></div>
-            <p>Press the power button on the solar battery (it's a small button, usually on the side or top). Four small blue LED lights will briefly appear, showing how much charge remains:</p>
-            <ul>
-              <li><strong>4 LEDs lit</strong> — fully charged, ready for extended use</li>
-              <li><strong>3 LEDs lit</strong> — good charge remaining</li>
-              <li><strong>2 LEDs lit</strong> — moderate charge, use conservatively</li>
-              <li><strong>1 LED lit</strong> — low, prioritize charging over the phone first when possible</li>
-              <li><strong>0 LEDs / no lights</strong> — critically low; place solar panel in direct sunlight immediately</li>
-            </ul>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">9</span><h3>Connect the phone to the solar battery</h3></div>
-            <p>The solar battery has cables permanently attached to it. Find the <strong>USB-C cable</strong> (it's the small oval-shaped connector — not the flat one, not the round one). Plug the USB-C end into the charging port on the bottom of the phone.</p>
-            <p>The phone will begin charging automatically. You do not need to press anything. You can use the phone while it charges.</p>
-            <p class="tip">The charging port on the phone is at the very bottom center of the device. If the cable doesn't fit easily, flip it over — USB-C connectors work both ways.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">10</span><h3>Place the solar panel in direct sunlight</h3></div>
-            <p>The solar battery has a dark panel on its back side. This panel converts sunlight into power that slowly recharges the battery. To get the most out of it:</p>
-            <ul>
-              <li>Place the solar battery with the panel face-up in direct overhead sunlight — not shade, not indirect light.</li>
-              <li>Angle it toward the sun and re-adjust as the sun moves throughout the day.</li>
-              <li>Do not place it on hot surfaces such as asphalt, metal, or car hoods — surface heat compounds battery heat and can cause damage.</li>
-              <li>Solar charging is slow. It is not meant to replace fast charging — it is meant to keep your battery from running out during extended emergencies.</li>
-            </ul>
-            <div class="warn-box">
-              <strong>⚠ Hot weather safety — check on it regularly.</strong> In warm or hot weather, a lithium battery charging in direct sunlight can overheat. Check the solar battery every 20–30 minutes by picking it up and feeling it. It should feel warm, not hot. If it feels uncomfortably hot to the touch, move it to a shaded area and let it cool down before resuming solar charging. Never leave it unattended for long periods in extreme heat. Do not charge above 113°F (45°C).
-            </div>
-            <div class="warn-box">
-              <strong>Do not connect the solar battery's input charger port and an output cable at the same time.</strong> Only charge the solar battery from a wall outlet OR use it to charge the phone — not both simultaneously.
-            </div>
-          </div>
-        </div>
-
-        <hr class="divider" />
-
-        <!-- PHASE 4: Using the Phone -->
-        <div class="page-break-avoid page-break-before">
-          <h2>Phase 4 — Using the Phone</h2>
-          <p>Everything on your Survival Node works without internet, Wi-Fi, or cell signal. The apps are already installed and ready. Here is how to use the most important ones.</p>
-
-          <h3>Ask the AI a Question (PocketPal)</h3>
-          <p>PocketPal is the AI chat app on your phone. Your Survival Node comes with a pre-configured AI assistant called <strong>"Survival Node"</strong> that is tuned specifically for survival, medical questions, and emergency response.</p>
-          <ol>
-            <li>Find the <strong>PocketPal</strong> app on the home screen (it looks like a chat bubble icon) and tap it to open.</li>
-            <li>At the top of the screen, tap the name of the currently selected AI model — it will show a dropdown. Select <strong>Qwen3.5-4B-Q4_K_M</strong> as the primary model. Use <strong>Qwen2.5-3B-Instruct (Q5_K_M)</strong> when you need a faster backup.</li>
-            <li>Tap the <strong>upward-pointing arrow (↑)</strong> beside the message box, open the <strong>Pals</strong> tab, and select <strong>"Survival Node"</strong> to apply the pre-configured survival system prompt.</li>
-            <li>Type your question in the box at the bottom of the screen and tap the send button (arrow icon). Or tap the microphone icon to speak your question out loud.</li>
-            <li>Wait for the AI to respond — with Qwen3.5, a long, detailed answer may take 2–3 minutes on this 8GB phone. This is normal. If you need a quicker response, switch to the Qwen2.5 backup.</li>
-          </ol>
-          <p><strong>What to ask it:</strong> first aid procedures, how to treat an injury, water purification methods, shelter building, navigation, equipment repair, emergency signals, food foraging — anything you would ask a knowledgeable person in an emergency.</p>
-          <div class="warn-box">
-            <strong>Always verify critical information</strong> against a second source on the device (WikiMed, the Survival Manual app, etc.) before acting on it, especially for medical decisions. The AI is a powerful reference tool — not a replacement for professional help when it's available.
-          </div>
-
-          <h3>Navigate with Offline Maps (Organic Maps)</h3>
-          <p>Your phone has the entire United States pre-loaded as offline maps. GPS navigation works even with no cell signal or internet.</p>
-          <ol>
-            <li>Find the <strong>Organic Maps</strong> app on the home screen (green map icon) and tap it to open.</li>
-            <li>The map will show your current location as a blue dot. If you don't see it right away, wait 30–60 seconds for the phone to lock onto GPS satellites — this is normal, especially if you haven't used GPS recently.</li>
-            <li>To navigate somewhere, tap the search bar at the top, type in a location or address, and tap the result. Then tap <strong>"Directions"</strong> and choose your travel mode (car, walking, etc.).</li>
-            <li>Tap <strong>Start</strong> to begin turn-by-turn navigation.</li>
-          </ol>
-          <p class="tip">GPS does not require internet or cell signal — it uses satellites. Airplane Mode does not affect GPS. Navigation will work even in a complete blackout.</p>
-
-          <h3>Look Up Medical Information (Kiwix — WikiMed)</h3>
-          <p>Your phone has the complete offline Wikipedia Medical Encyclopedia — thousands of articles covering symptoms, injuries, medications, and emergency care procedures.</p>
-          <ol>
-            <li>Find the <strong>Kiwix</strong> app on the home screen and tap it to open.</li>
-            <li>You will see a list of offline libraries. Tap <strong>WikiMed Medical Encyclopedia</strong>.</li>
-            <li>Use the search bar at the top to search for any medical topic — a condition, symptom, medication name, or procedure.</li>
-            <li>Read the article. Medical articles include symptoms, causes, treatment options, and when to seek professional care.</li>
-          </ol>
-
-          <h3>Look Up Survival Skills (Survival Manual App)</h3>
-          <p>The Survival Manual app is based on the US Army Field Manual and covers shelter, fire, water, food, first aid, and navigation — completely offline.</p>
-          <ol>
-            <li>Find the <strong>Survival Manual</strong> app on the home screen and tap it.</li>
-            <li>Browse the categories (Shelter, Fire, Water, Food, First Aid, Navigation, etc.) or use search to find a specific topic.</li>
-          </ol>
-        </div>
-
-        <hr class="divider" />
-
-        <!-- PHASE 5: Power Management -->
-        <div class="page-break-avoid">
-          <h2>Phase 5 — Managing Power During Extended Use</h2>
-          <p>Your solar battery can keep the phone running for days or weeks under emergency use conditions. The key is discipline about how you use the phone.</p>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">11</span><h3>The golden rule: use it, then shut it off</h3></div>
-            <p>Every minute the screen is on drains the battery. In an emergency, you will use the phone for a specific task — look something up, check your location, ask the AI a question — and then <strong>power it completely off</strong> until you need it again.</p>
-            <p><strong>How to power the phone off:</strong></p>
-            <ol>
-              <li>Press and hold the power button on the right side of the phone for 2–3 seconds.</li>
-              <li>A menu will appear on the screen with options like "Power off," "Restart," and "Emergency."</li>
-              <li>Tap <strong>Power off</strong> and confirm if asked.</li>
-              <li>The phone will shut down completely. This is what you want — a fully powered-off phone uses zero battery.</li>
-            </ol>
-            <p class="tip">The solar battery recharges fastest when the phone is off and not drawing power. Brief, task-focused use followed by powering off is what allows solar alone to sustain the kit indefinitely.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">12</span><h3>If the phone battery gets very low</h3></div>
-            <p>If the phone drops below 15%, connect it to the solar battery and keep the screen off (or turn the phone off entirely while charging) until it reaches at least 30–40% before using it again. Repeatedly draining a phone battery to 0% causes permanent damage.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">13</span><h3>If the solar battery gets very low</h3></div>
-            <p>Place the solar battery panel-side up in the brightest direct sunlight available and leave it for as long as possible before connecting the phone. Solar charging is slow — give it several hours of direct sun to make meaningful progress.</p>
-          </div>
-        </div>
-
-        <hr class="divider" />
-
-        <!-- PHASE 6: Communications -->
-        <div class="page-break-avoid">
-          <h2>Phase 6 — Communications (If Needed)</h2>
-
-          <h3>Off-grid messaging without a cell signal (Briar)</h3>
-          <p>Briar is a messaging app pre-installed on your Survival Node that lets two people exchange text messages over a direct Bluetooth or Wi-Fi connection — no cell signal, no internet, no server required. Both people must have Briar installed and be within range of each other.</p>
-          <ol>
-            <li>Open <strong>Briar</strong> from the app drawer.</li>
-            <li>If you have already added a contact, tap their name and send a message.</li>
-            <li>If you need to add a new contact, both devices must be nearby — tap <strong>Add Contact</strong> and follow the on-screen instructions to exchange contact codes.</li>
-          </ol>
-
-          <h3>Emergency signaling (SOS Flashlight + Morse)</h3>
-          <p>Your phone has two signaling tools for situations where audio or visual distress signals are needed:</p>
-          <ul>
-            <li><strong>SOS Flashlight</strong> — open the app and tap SOS. The phone's flashlight will automatically flash the international SOS signal (three short, three long, three short). This is recognized by emergency responders worldwide.</li>
-            <li><strong>Morse</strong> — open the Morse app, type any message, and it will display or play the Morse code. Useful for signaling with a mirror, flashlight, or radio when voice communication is not possible.</li>
-          </ul>
-        </div>
-
-        <hr class="divider" />
-
-        <!-- PHASE 7: Resealing -->
-        <div class="page-break-avoid">
-          <h2>Phase 7 — Putting It Away Between Uses</h2>
-          <p>After each use session, follow these steps to reseal the kit properly so it is ready for the next time.</p>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">14</span><h3>Power the phone completely off</h3></div>
-            <p>Press and hold the power button, tap <strong>Power off</strong>, and confirm. Wait until the screen goes completely black and the phone is fully shut down before proceeding.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">15</span><h3>Place the phone back in its Faraday bag</h3></div>
-            <p>Slide the phone into the Faraday bag. Fold the top of the bag over at least twice — fold it toward the back of the bag — and press the seal or roll it tight. A properly sealed Faraday bag should have no gaps or openings at the top.</p>
-            <p class="tip">The Faraday bag only protects the phone when it is fully sealed. A loose or partially open bag provides little to no protection against an EMP.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">16</span><h3>Place the solar battery back in its Faraday bag</h3></div>
-            <p>Same process — slide it in, fold the top over at least twice, and seal it tightly.</p>
-          </div>
-
-          <div class="step-block">
-            <div class="step-header"><span class="step-num">17</span><h3>Place both back in the hard case</h3></div>
-            <p>Set the sealed Faraday bags and all other components back into the case. Close the lid firmly until both latches click into the locked position. Re-apply the padlock if you use one.</p>
-          </div>
-        </div>
-
-        <!-- Notes -->
-        <div class="note page-break-avoid">
-          <h2 style="margin-top:0;">Full Users Guide</h2>
-          <p>This insert covers the essentials for deployment. For detailed guidance on every app, battery care, maintenance, troubleshooting, and more — open the <strong>Survival Node Users Guide app</strong> on the phone's home screen.</p>
-          <p>You can also view it online (when internet is available) at:<br><strong>www.easternshore.ai/node-setup.html</strong></p>
-        </div>
-
-        <div class="note page-break-avoid">
-          <h2 style="margin-top:0;">Need help?</h2>
-          <p>If you have questions or run into an issue, contact Eastern Shore AI any time:</p>
-          <p><strong>Email:</strong> support@easternshore.ai<br>
-          <strong>Phone:</strong> (302) 907-9162</p>
-        </div>
-
-        <p class="footer">Remember: use it for what you need, then power it off and reseal it. That habit alone will keep your kit operational for weeks on solar power alone.</p>
-
-      </div>
+      <p class="foot">Use it for what you need, then power off and reseal. That habit alone keeps your kit operational for weeks on solar power alone.</p>
     </div>
   </div>
   <script>
