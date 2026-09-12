@@ -6179,7 +6179,7 @@ It works completely without internet, cell signal, or the power grid.
 
 | Product | Price |
 |---------|-------|
-| Survival Node Gen 2 | $299.99 |
+| Survival Node Gen 2 | Regularly $349.99; now $299.99 for a limited time while supplies last (save $50) |
 | BYOG Setup Service | $69.99 |
 
 **Free shipping** to all continental US states.
@@ -6654,7 +6654,7 @@ function fallbackAskKAnswer(question, context) {
   if (selectedUpgrades.length) contextBits.push(`Selected upgrades: ${selectedUpgrades.join(', ')}.`);
 
   if (q.includes('what') && q.includes('included')) {
-    return `The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. It's $299.99 with free shipping to the continental U.S. ${contextBits.join(' ')}`.trim();
+    return `The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. Survival Node Gen 2 is regularly $349.99, now $299.99 for a limited time while supplies last — a $50 saving, with free shipping to the continental U.S. ${contextBits.join(' ')}`.trim();
   }
   if (q.includes('offline') || q.includes('internet') || q.includes('cell')) {
     return 'Yes — the Survival Node is designed to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi‑Fi, and no cell signal required.';

@@ -40,7 +40,7 @@ It works completely without internet, cell signal, or the power grid.
 
 | Product | Price |
 |---------|-------|
-| Survival Node Gen 2 | $299.99 |
+| Survival Node Gen 2 | Regularly $349.99; now $299.99 for a limited time while supplies last (save $50) |
 | BYOG Setup Service | $69.99 |
 
 **Free shipping** to all continental US states.
