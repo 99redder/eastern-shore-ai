@@ -16,7 +16,8 @@ and produces the signed APK/AAB.
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current version | 1.1 (versionCode 101) |
+| Current source version | 1.2 (set versionCode 102 at next build) |
+| Last built version | 1.1 (versionCode 101) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -35,8 +36,8 @@ and produces the signed APK/AAB.
 
 ## Version history
 
-- **1.1** — original build (Gen 1).
-- **Pending next build** — Gen 2 content update: Mission Darkness Faraday bags, 24,000 mAh solar
-  battery (3 attached cables + side USB-A), 2 offline LLMs with Qwen 3.5-4B as primary (Qwen 2.5-3B
-  fast backup), and warranty section aligned to the site (buyer pays return shipping, return
-  eligibility, support phone number).
+- **1.1** (versionCode 101) — original build (Gen 1).
+- **1.2** (versionCode 102 — source ready, not yet built) — Gen 2 content update: Mission Darkness
+  Faraday bags, 24,000 mAh solar battery (3 attached cables + side USB-A), 2 offline LLMs with
+  Qwen 3.5-4B as primary (Qwen 2.5-3B fast backup), and warranty section aligned to the site (buyer
+  pays return shipping, return eligibility, support phone number). Footer stamped `v1.2`.
