@@ -76,6 +76,7 @@ final class Notifier: NSObject, ObservableObject, NSApplicationDelegate {
         if let path = Bundle.main.path(forResource: "support-chime", ofType: "wav") {
             sound = NSSound(contentsOfFile: path, byReference: false)
             sound?.volume = 0.9
+            sound?.loops = true
         }
         // Keep checks timely while awake without preventing display/system sleep.
         activity = ProcessInfo.processInfo.beginActivity(options: [.userInitiatedAllowingIdleSystemSleep], reason: "Monitor incoming human support requests")
@@ -204,7 +205,15 @@ final class Notifier: NSObject, ObservableObject, NSApplicationDelegate {
             && (firstFailure.map { now.timeIntervalSince($0) >= 60 } ?? false)
         if current != nil || connectionWarning {
             if changed || !alertPanel.isVisible { alertPanel.orderFrontRegardless() }
-            if current != nil && (changed || now.timeIntervalSince(lastRing) >= 20) { ring() }
+            if current != nil {
+                // The warning alarm loops continuously while a request waits.
+                // Keep a slower fallback cadence only if the bundled sound is
+                // unavailable and macOS must use its one-shot system beep.
+                let shouldRing = sound == nil
+                    ? now.timeIntervalSince(lastRing) >= 2
+                    : sound?.isPlaying != true
+                if changed || shouldRing { ring() }
+            }
         } else {
             alertPanel.orderOut(nil)
             sound?.stop()
@@ -215,8 +224,9 @@ final class Notifier: NSObject, ObservableObject, NSApplicationDelegate {
     private func ring() {
         lastRing = Date()
         guard soundEnabled else { return }
-        sound?.stop()
-        if sound?.play() != true { NSSound.beep() }
+        if sound?.isPlaying != true {
+            if sound?.play() != true { NSSound.beep() }
+        }
     }
 
     private func updateMenu() {
@@ -388,7 +398,7 @@ private struct AlertView: View {
                 Button("Acknowledge", action: model.acknowledge).buttonStyle(AlertButtonStyle(primary: false))
             }
             Text(model.isDemo ? "Preview only • closes automatically after 12 seconds" :
-                 (model.connectionWarning ? "Connection interrupted • the customer status may be out of date" : "Alarm repeats every 20 seconds until you take action"))
+                 (model.connectionWarning ? "Connection interrupted • the customer status may be out of date" : "Warning alarm stays on until you take action"))
                 .font(.system(size: 11)).foregroundStyle(.white.opacity(0.5))
         }
         .padding(28)
@@ -434,7 +444,7 @@ private struct SettingsView: View {
             }
             if !model.setupError.isEmpty { Text(model.setupError).font(.system(size: 12)).foregroundStyle(.white.opacity(0.7)) }
             Toggle("Play a repeating warning alarm", isOn: Binding(get: { model.soundEnabled }, set: model.setSound))
-            Text("Checks every 10 seconds. The warning alarm repeats every 20 seconds.\nStarts when you log into this Mac. Your browser can be closed.")
+            Text("Checks every 10 seconds. The warning alarm stays on until you take action.\nStarts when you log into this Mac. Your browser can be closed.")
                 .font(.system(size: 13)).foregroundStyle(.white.opacity(0.72)).lineSpacing(4)
             HStack(spacing: 10) {
                 Button("Test Alert & Alarm", action: model.testAlert).buttonStyle(AlertButtonStyle(primary: true))

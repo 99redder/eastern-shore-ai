@@ -1,6 +1,6 @@
 # Ask K Alerts for macOS
 
-This small menu-bar app watches the Eastern Shore AI human-support queue independently of the browser. It polls the read-only Worker endpoint every 10 seconds, brings a floating window above normal windows, plays an original clipped two-tone bunker alarm every 20 seconds, and links directly to the selected support chat.
+This small menu-bar app watches the Eastern Shore AI human-support queue independently of the browser. It polls the read-only Worker endpoint every 10 seconds, brings a floating window above normal windows, plays an original clipped two-tone bunker alarm continuously while a request is waiting, and links directly to the selected support chat.
 
 The app keeps the notifier credential in macOS Keychain. It never stores the admin password, customer email, conversation text, or chat session token. The Worker endpoint returns only active sessions that have not received a staff reply.
 
@@ -23,4 +23,4 @@ The first run needs the dedicated support key. It is provisioned with the Worker
 ./build/Ask\ K\ Alerts.app/Contents/MacOS/AskKAlerts --preview /tmp/ask-k-alerts.png
 ```
 
-The app must have internet access and the Mac must be awake and audible for a chime to be heard. If the Worker connection is unavailable for 60 seconds, the app shows a visible connection-warning alert instead of silently treating the queue as empty.
+The app must have internet access and the Mac must be awake and audible for the warning alarm to be heard. If the Worker connection is unavailable for 60 seconds, the app shows a visible connection-warning alert instead of silently treating the queue as empty.
