@@ -16,7 +16,7 @@
       --panel: #ffffff;
       --text: #111111;
       --muted: #5f6b7a;
-      --line: rgba(0,0,0,.12);
+      --line: rgba(0,0,0,.14);
       --cyan: #173b63;
       --lime: #4f6f1f;
     }
@@ -26,19 +26,11 @@
       background: var(--bg);
       color: var(--text);
       font-family: 'Titillium Web', sans-serif;
-      line-height: 1.6;
+      line-height: 1.5;
       padding: 1.2rem;
     }
-    .shell {
-      max-width: 850px;
-      margin: 0 auto;
-    }
-    .toolbar {
-      display: flex;
-      justify-content: flex-end;
-      gap: .65rem;
-      margin-bottom: 1rem;
-    }
+    .shell { max-width: 900px; margin: 0 auto; }
+    .toolbar { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
     .btn {
       appearance: none;
       border: 1px solid var(--line);
@@ -49,86 +41,94 @@
       font: 700 .96rem 'Hanken Grotesk', sans-serif;
       cursor: pointer;
     }
-    .card {
+    .sheet {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: 16px;
       box-shadow: 0 8px 24px rgba(0,0,0,.08);
-      overflow: hidden;
-    }
-    .header {
-      padding: 1.3rem 1.3rem 1rem;
-      border-bottom: 1px solid var(--line);
+      padding: 1.5rem 1.6rem 1.4rem;
     }
     .eyebrow {
       color: var(--lime);
       text-transform: uppercase;
-      letter-spacing: .12em;
-      font: 800 .8rem 'Hanken Grotesk', sans-serif;
-      margin: 0 0 .35rem;
+      letter-spacing: .14em;
+      font: 800 .72rem 'Hanken Grotesk', sans-serif;
+      margin: 0 0 .3rem;
     }
     h1 {
-      margin: 0 0 .35rem;
+      margin: 0 0 .2rem;
       color: var(--cyan);
-      font: 800 2rem 'Hanken Grotesk', sans-serif;
-      line-height: 1.1;
+      font: 800 1.85rem 'Hanken Grotesk', sans-serif;
+      line-height: 1.05;
     }
-    .sub {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1rem;
-    }
-    .content {
-      padding: 1.2rem 1.3rem 1.35rem;
-    }
-    h2 {
+    .headline-sub { margin: 0; color: var(--muted); font-size: .95rem; }
+    .lead { margin: .9rem 0 0; font-size: .92rem; color: #333; }
+
+    /* ── Primary: the 4 steps (readable) ── */
+    .primary { margin: 1rem 0 1.1rem; }
+    .primary h2 {
       margin: 0 0 .55rem;
       color: var(--cyan);
       font: 800 1.1rem 'Hanken Grotesk', sans-serif;
     }
-    p { margin: 0 0 .85rem; }
-    ol, ul { margin: .25rem 0 1rem 1.25rem; padding: 0; }
-    li { margin: .45rem 0; }
-    .note {
-      margin-top: 1rem;
-      padding: .95rem 1rem;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(158,208,255,.06);
+    .primary ol { margin: 0; padding-left: 1.3rem; }
+    .primary li { margin: .42rem 0; font-size: .96rem; }
+    .primary strong { color: #111; }
+
+    /* ── Details: reference sections (smaller, two columns) ── */
+    .details {
+      column-count: 2;
+      column-gap: 1.6rem;
+      border-top: 1px solid var(--line);
+      padding-top: 1rem;
+      font-size: .8rem;
+      line-height: 1.45;
+      color: #2a2f36;
     }
-    .footer {
+    .details section { break-inside: avoid; margin: 0 0 .8rem; }
+    .details h3 {
+      margin: 0 0 .3rem;
+      color: var(--cyan);
+      font: 700 .85rem 'Hanken Grotesk', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .details p { margin: 0 0 .45rem; }
+    .details ol, .details ul { margin: .15rem 0 .5rem 0; padding-left: 1.05rem; }
+    .details li { margin: .2rem 0; }
+    .details strong { color: #111; }
+    .details .contact { color: var(--cyan); font-weight: 700; }
+
+    .foot {
       margin-top: 1rem;
+      padding-top: .7rem;
+      border-top: 1px solid var(--line);
+      font-size: .82rem;
       color: var(--muted);
-      font-size: .92rem;
     }
+
+    @media (max-width: 640px) {
+      .details { column-count: 1; }
+      h1 { font-size: 1.5rem; }
+    }
+
     @media print {
-      @page { size: letter; margin: 0.65in; }
-      body {
-        background: #fff;
-        color: #111;
-        padding: 0;
-      }
+      @page { size: letter; margin: 0.5in; }
+      body { background: #fff; color: #111; padding: 0; font-size: 11px; }
       .toolbar { display: none !important; }
-      .card {
-        border: 0;
-        box-shadow: none;
-        background: #fff;
-      }
-      .header {
-        border-bottom: 1px solid #bbb;
-        padding: 0.08in 0 0.28in;
-      }
-      .content {
-        padding: .2in 0 0;
-      }
-      .eyebrow { color: #5a5a5a; }
-      h1, h2 { color: #000; }
-      .sub, .footer { color: #444; }
-      .note {
-        background: #f5f7fa;
-        border: 1px solid #cfd8e3;
-      }
-      .page-break-avoid { break-inside: avoid; }
+      .shell { max-width: 100%; }
+      .sheet { border: 0; box-shadow: none; border-radius: 0; padding: 0; }
+      h1 { color: #000; font-size: 25px; }
+      .eyebrow { color: #4a4a4a; }
+      .headline-sub { color: #333; }
+      .lead { font-size: 10.5px; margin-top: .12in; }
+      .primary { margin: .16in 0 .16in; }
+      .primary h2 { color: #000; font-size: 15px; margin-bottom: .08in; }
+      .primary li { font-size: 12px; margin: .06in 0; }
+      .details { column-gap: .36in; font-size: 9px; line-height: 1.4; padding-top: .12in; }
+      .details h3 { color: #000; font-size: 9.5px; }
+      .details section { margin-bottom: .14in; }
+      .foot { color: #333; font-size: 9px; margin-top: .14in; padding-top: .1in; }
     }
   </style>
   <!-- Reddit Pixel -->
@@ -144,68 +144,68 @@
       <button class="btn" data-print-button>Save / Print PDF</button>
     </div>
 
-    <div class="card">
-      <div class="header">
-        <p class="eyebrow">Survival Node</p>
+    <div class="sheet">
+      <header>
+        <p class="eyebrow">Survival Node &middot; Quick Start</p>
         <h1>Do This Now Upon Receipt</h1>
-        <p class="sub">Thanks for your purchase. This quick-start insert will help you prepare your Survival Node for long-term readiness.</p>
-      </div>
+        <p class="headline-sub">Thanks for your purchase. A few steps now prepare your Survival Node for long-term readiness.</p>
+        <p class="lead">Your phone arrives in protective bubble wrap inside the hard case; the solar battery is in its original packaging (opened, inspected, tested, repacked). The two Mission Darkness Faraday bags are in their original packaging, placed <strong>under the hard case</strong> in the shipping box — not inside it. The phone ships below 30% charge per lithium-battery shipping rules. Complete the steps below, then seal both devices in their Faraday bags for storage.</p>
+      </header>
 
-      <div class="content">
-        <div class="page-break-avoid">
-          <h2>Complete these 4 steps first</h2>
-          <p>Your Survival Node phone arrives wrapped in protective bubble wrap inside the hard case. The solar battery arrives in its original manufacturer packaging (opened, inspected, tested, and repacked before shipment). The two Mission Darkness Faraday bags are in their original packaging and placed under the hard case inside the shipping box — not inside the case itself. The phone is intentionally shipped at a reduced battery level (below 30%) in accordance with lithium battery shipping guidelines. Complete the steps below, then place both devices in their Faraday bags before sealing for long-term storage.</p>
-          <ol>
-            <li><strong>Check the solar battery.</strong> Press the battery's power button to check the charge level indicator. If <strong>2 or more of the 4 blue LEDs</strong> are lit, the battery is ready for long-term storage — no charging needed. If fewer than 2 LEDs are lit, plug it into wall power using the included charger and bring it up to at least the 2-LED level (50%) before storage.</li>
-            <li><strong>Charge the phone.</strong> Plug the phone in using the included wall charger and USB-C cable. Charge it to <strong>50–60%</strong>. This is the ideal range for long-term lithium battery storage. Do not store it fully charged or fully drained.</li>
-            <li><strong>Set up your desiccant.</strong> Your case ships with two desiccant packs. Remove and discard the small temporary white desiccant bag that came in the case — it is only a temporary shipping buffer. Then open the long-term premium desiccant pouch by removing it from the sealed plastic bag it shipped in and place it inside the case. This is your permanent moisture protection for long-term storage.</li>
-            <li><strong>Seal it for readiness.</strong> Place the phone and solar battery into their Faraday bags, fold the top twice, seal them tightly, then store both in the case alongside the premium desiccant pouch.</li>
-          </ol>
-        </div>
+      <!-- ═══════ PRIMARY: 4 STEPS ═══════ -->
+      <section class="primary">
+        <h2>Complete these 4 steps first</h2>
+        <ol>
+          <li><strong>Check the solar battery.</strong> Press the battery's power button to read the charge indicator. If <strong>2 or more of the 4 blue LEDs</strong> are lit, it's ready for storage — no charging needed. If fewer than 2 are lit, plug it into wall power with the included charger and bring it to at least the 2-LED level (50%) before storage.</li>
+          <li><strong>Charge the phone.</strong> Plug the phone in with the included wall charger and USB-C cable and charge it to <strong>50–60%</strong> — the ideal range for long-term lithium battery storage. Do not store it fully charged or fully drained.</li>
+          <li><strong>Set up your desiccant.</strong> Remove and discard the small temporary white desiccant bag (a shipping buffer only). Then open the premium long-term desiccant pouch from its sealed plastic bag and place it inside the case — this is your permanent moisture protection.</li>
+          <li><strong>Seal it for readiness.</strong> Place the phone and solar battery into their Faraday bags, fold the top over twice, seal tightly, then store both in the case alongside the premium desiccant pouch.</li>
+        </ol>
+      </section>
 
-        <div class="page-break-avoid">
-          <h2>Storage conditions</h2>
-          <p>Store your Survival Node in a cool, dry location — ideally between <strong>60°F (15°C) and 85°F (30°C)</strong>. Avoid cars, attics, and garages where temperatures reach damaging extremes.</p>
-          <p>The included silica gel pack is reusable. Recharge it when the <strong>blue indicator dot turns light pink</strong>.</p>
+      <!-- ═══════ DETAILS (two columns) ═══════ -->
+      <div class="details">
+
+        <section>
+          <h3>Storage Conditions</h3>
+          <p>Store in a cool, dry location — ideally <strong>60–85°F (15–30°C)</strong>. Avoid cars, attics, and garages where temperatures reach damaging extremes.</p>
+          <p>The reusable silica gel pack should be recharged when its <strong>blue indicator dot turns light pink</strong>:</p>
           <ul>
-            <li><strong>Recharge method:</strong> place the pack with the indicator dot facing up and microwave it for <strong>3–5 minutes</strong>.</li>
-            <li><strong>Important:</strong> do not exceed <strong>210°F</strong> equivalent heating conditions, and check the pack as it recharges.</li>
-            <li><strong>Ready to reuse:</strong> once the indicator dot turns blue again, the pack can be reused.</li>
+            <li><strong>Recharge:</strong> place the pack indicator-dot-up and microwave for <strong>3–5 minutes</strong>.</li>
+            <li><strong>Caution:</strong> do not exceed <strong>210°F</strong> heating, and watch it while it recharges.</li>
+            <li><strong>Reuse:</strong> once the dot turns blue again, the pack is ready.</li>
           </ul>
-        </div>
+        </section>
 
-        <div class="note page-break-avoid">
-          <h2 style="margin-top:0;">Where to find the full Users Guide</h2>
-          <p>The full <strong>Survival Node Users Guide</strong> is available as an app on the home screen — tap it to open.</p>
-          <p>The PDF version is also pre-loaded on the phone in the <strong>Files</strong> folder under <strong>Downloads</strong>.</p>
-          <p>You can also view it online at:<br><strong>www.easternshore.ai/node-setup.html</strong></p>
-        </div>
-
-        <div class="note page-break-avoid">
-          <h2 style="margin-top:0;">6-month maintenance check</h2>
-          <p>Every 6 months, open the case and run this quick readiness check:</p>
+        <section>
+          <h3>6-Month Maintenance Check</h3>
+          <p>Every 6 months, open the case and run a quick readiness check:</p>
           <ol>
-            <li>Open the case and remove the phone, solar battery, and silica gel pack.</li>
-            <li>Inspect the phone and battery for swelling, deformation, corrosion, or moisture damage.</li>
-            <li>Check the phone battery level. If needed, charge the phone back to roughly <strong>50–60%</strong>.</li>
-            <li>Check the solar battery level — press the power button to see the LEDs. If needed, charge it until <strong>2–3 of the 4 blue LEDs</strong> are lit (50–75%).</li>
-            <li>Power the phone on briefly to confirm it still boots normally and the core apps are accessible.</li>
-            <li>Inspect the charging cable, wall charger, Faraday bags, and case hardware for wear or damage.</li>
-            <li>Recharge or replace the silica gel pack if the blue indicator dot has turned pink. Recharge directions are listed above in the <strong>Storage conditions</strong> section of this insert.</li>
-            <li>Power the phone fully back down, reseal both devices in their Faraday bags, and return everything to the case.</li>
+            <li>Remove the phone, solar battery, and silica gel pack.</li>
+            <li>Inspect both for swelling, deformation, corrosion, or moisture.</li>
+            <li>Charge the phone back to roughly <strong>50–60%</strong> if needed.</li>
+            <li>Check the solar battery LEDs; charge to <strong>2–3 of 4 blue LEDs</strong> (50–75%) if needed.</li>
+            <li>Power the phone on briefly to confirm it boots and core apps open.</li>
+            <li>Inspect the cable, charger, Faraday bags, and case hardware for wear.</li>
+            <li>Recharge or replace the silica pack if its dot has turned pink (see Storage Conditions).</li>
+            <li>Power fully down, reseal both devices in their Faraday bags, return to the case.</li>
           </ol>
-          <p>The full Users Guide on the phone includes more detailed maintenance and battery-care guidance.</p>
-        </div>
+        </section>
 
-        <div class="note page-break-avoid">
-          <h2 style="margin-top:0;">Need help?</h2>
-          <p>If you have questions about setup or long-term storage, contact Eastern Shore AI any time:</p>
-          <p><strong>Email:</strong> support@easternshore.ai<br>
-          <strong>Phone:</strong> (302) 907-9162</p>
-        </div>
+        <section>
+          <h3>Where to Find the Full Users Guide</h3>
+          <p>The full <strong>Survival Node Users Guide</strong> is an app on the home screen — tap to open. The PDF is also pre-loaded in <strong>Files &rsaquo; Downloads</strong>. Online: <span class="contact">www.easternshore.ai/node-setup.html</span></p>
+        </section>
 
-        <p class="footer">Tip: After you complete these steps, store the case in a dry, temperature-stable location and set a reminder for your 6-month maintenance check.</p>
+        <section>
+          <h3>Need Help?</h3>
+          <p>Questions about setup or storage? Contact Eastern Shore AI any time:</p>
+          <p><span class="contact">support@easternshore.ai</span><br><span class="contact">(302) 907-9162</span></p>
+        </section>
+
       </div>
+
+      <p class="foot">Tip: after completing these steps, store the case in a dry, temperature-stable location and set a reminder for your 6-month maintenance check.</p>
     </div>
   </div>
   <script>
