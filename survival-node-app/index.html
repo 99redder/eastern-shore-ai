@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Survival Node — User Guide</title>
+<style>
+:root {
+  --bg: #0a0c0f;
+  --bg-card: #12151a;
+  --bg-card-hover: #1a1e25;
+  --border: #1e2530;
+  --border-active: #2a3545;
+  --text: #c8cdd5;
+  --text-bright: #e8ecf0;
+  --text-muted: #6b7585;
+  --accent: #e85d26;
+  --accent-dim: rgba(232, 93, 38, 0.15);
+  --accent-glow: rgba(232, 93, 38, 0.3);
+  --warning: #f0a030;
+  --warning-bg: rgba(240, 160, 48, 0.1);
+  --danger: #e04040;
+  --danger-bg: rgba(224, 64, 64, 0.1);
+  --success: #30b870;
+  --success-bg: rgba(48, 184, 112, 0.1);
+  --mono: 'monospace';
+  --sans: 'Roboto', 'Noto Sans', 'Droid Sans', sans-serif;
+  --radius: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV BAR ── */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(10, 12, 15, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.nav-brand {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.nav-brand span {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.menu-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.menu-btn:active { background: var(--accent-dim); border-color: var(--accent); }
+
+.menu-btn .bar {
+  width: 18px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+.menu-btn.active .bar:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.menu-btn.active .bar:nth-child(2) { opacity: 0; }
+.menu-btn.active .bar:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: fixed;
+  top: 56px;
+  right: -100%;
+  width: 85%;
+  max-width: 320px;
+  height: calc(100vh - 56px);
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  z-index: 999;
+  overflow-y: auto;
+  transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 16px 0;
+}
+
+.sidebar.open { right: 0; }
+
+.sidebar-overlay {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+
+.sidebar-section {
+  padding: 8px 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: 8px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.sidebar a:active, .sidebar a:hover {
+  color: var(--text-bright);
+  background: var(--accent-dim);
+  border-left-color: var(--accent);
+}
+
+/* ── MAIN CONTENT ── */
+.main { padding: 72px 18px 100px; max-width: 640px; margin: 0 auto; }
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  padding: 40px 0 32px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.hero-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.hero h1 {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.hero .subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.hero .company {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  margin-top: 16px;
+}
+
+.hero .contact {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── SECTIONS ── */
+.section {
+  margin-bottom: 28px;
+  scroll-margin-top: 72px;
+}
+
+.section-header {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-header .icon { font-size: 16px; }
+
+/* ── COLLAPSIBLE CARDS ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.card.expanded { border-color: var(--border-active); }
+
+.card-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  color: var(--text-bright);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  gap: 12px;
+}
+
+.card-trigger:active { background: var(--bg-card-hover); }
+
+.card-trigger .card-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: var(--accent-dim);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.card-trigger .arrow {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: transform 0.3s;
+  font-size: 12px;
+}
+
+.card.expanded .card-trigger .arrow { transform: rotate(180deg); }
+
+.card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card.expanded .card-body { max-height: 5000px; }
+
+.card-content {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.card-content p { margin-top: 12px; }
+.card-content p:first-child { margin-top: 12px; }
+
+.card-content strong { color: var(--text-bright); font-weight: 600; }
+
+.card-content ul, .card-content ol {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.card-content li { margin-bottom: 6px; }
+
+.card-content h4 {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 18px 0 8px;
+}
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin: 14px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  border-left: 3px solid;
+}
+
+.callout.warning {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.callout.danger {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.callout.tip {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.callout.info {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── STEP LIST ── */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 36px;
+  margin-bottom: 12px;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 24px;
+  height: 24px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── BENCHMARK TABLE ── */
+.bench-table {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.bench-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 8px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.bench-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.bench-table td:first-child { color: var(--text-bright); font-weight: 600; }
+
+.bench-table .tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.tag-primary { background: var(--accent-dim); color: var(--accent); }
+.tag-secondary { background: rgba(100,140,200,0.15); color: #7cacdf; }
+.tag-tertiary { background: rgba(130,130,130,0.15); color: #999; }
+
+/* ── CHECKLIST ── */
+.checklist { list-style: none; padding: 0; margin: 12px 0; }
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.checklist li:last-child { border-bottom: none; }
+
+.check-box {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 2px solid var(--border-active);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-top: 1px;
+  font-size: 12px;
+  color: transparent;
+}
+
+.checklist li.checked .check-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.checklist li.checked .check-label {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* ── DISCLAIMER ── */
+.disclaimer {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: rgba(50,55,65,0.15);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 32px 0 48px;
+  border-top: 1px solid var(--border);
+  margin-top: 32px;
+}
+
+.footer .logo {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+}
+
+.footer p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* ── SEARCH BAR ── */
+.search-wrap {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-bright);
+  font-family: var(--sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text-muted); }
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 4px; }
+
+/* ── ANIMATION ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section { animation: fadeUp 0.4s ease both; }
+.section:nth-child(2) { animation-delay: 0.05s; }
+.section:nth-child(3) { animation-delay: 0.1s; }
+.section:nth-child(4) { animation-delay: 0.15s; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="nav-brand">SURVIVAL NODE <span>// GUIDE</span></div>
+  <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu">
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  </button>
+</nav>
+
+<div class="sidebar-overlay" onclick="toggleMenu()"></div>
+
+<div class="sidebar">
+  <div class="sidebar-section">Getting Started</div>
+  <a href="#setup" onclick="toggleMenu()">Initial Setup</a>
+  <a href="#first-steps" onclick="toggleMenu()">First Steps</a>
+  <a href="#storage" onclick="toggleMenu()">Storage Conditions</a>
+  <a href="#sim" onclick="toggleMenu()">SIM & Connectivity</a>
+  <div class="sidebar-section">Maintenance</div>
+  <a href="#maintenance" onclick="toggleMenu()">6-Month Check</a>
+  <a href="#update-ai" onclick="toggleMenu()">Update AI Models</a>
+  <a href="#update-maps" onclick="toggleMenu()">Update Maps</a>
+  <a href="#update-apps" onclick="toggleMenu()">Update Apps</a>
+  <div class="sidebar-section">Emergency Use</div>
+  <a href="#deployment" onclick="toggleMenu()">Emergency Deployment</a>
+  <a href="#power" onclick="toggleMenu()">Power & Solar Charging</a>
+  <a href="#battery" onclick="toggleMenu()">Battery Management</a>
+  <a href="#emp" onclick="toggleMenu()">EMP Protocol</a>
+  <div class="sidebar-section">Apps</div>
+  <a href="#pocketpal" onclick="toggleMenu()">PocketPal AI</a>
+  <a href="#organic-maps" onclick="toggleMenu()">Organic Maps</a>
+  <a href="#kiwix" onclick="toggleMenu()">Kiwix Libraries</a>
+  <a href="#survival-manual" onclick="toggleMenu()">Survival Manual</a>
+  <a href="#seamless" onclick="toggleMenu()">Seamless Translate</a>
+  <a href="#deepl" onclick="toggleMenu()">DeepL</a>
+  <a href="#morse" onclick="toggleMenu()">Morse Code</a>
+  <a href="#briar" onclick="toggleMenu()">Briar Messenger</a>
+  <a href="#localsend" onclick="toggleMenu()">LocalSend</a>
+  <a href="#sos" onclick="toggleMenu()">SOS Flashlight</a>
+  <a href="#fennec" onclick="toggleMenu()">Fennec Browser</a>
+  <a href="#fdroid" onclick="toggleMenu()">F-Droid</a>
+  <a href="#fossify" onclick="toggleMenu()">Fossify Files</a>
+  <a href="#exodus" onclick="toggleMenu()">Exodus Privacy</a>
+  <a href="#batteryapps" onclick="toggleMenu()">Battery Apps</a>
+  <a href="#ifixit" onclick="toggleMenu()">iFixit</a>
+  <div class="sidebar-section">Reference</div>
+  <a href="#troubleshooting" onclick="toggleMenu()">Troubleshooting</a>
+  <a href="#warranty" onclick="toggleMenu()">Warranty & Legal</a>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-icon">📡</div>
+  <h1>SURVIVAL NODE</h1>
+  <div class="subtitle">User Guide — Phone Friendly Version</div>
+  <div class="company">Eastern Shore AI, LLC</div>
+  <div class="contact">support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" placeholder="Search the guide…" oninput="filterCards(this.value)">
+</div>
+
+<!-- ════════════════════════ INITIAL SETUP ════════════════════════ -->
+<div class="section" id="setup">
+  <div class="section-header"><span class="icon">⚡</span> INITIAL SETUP</div>
+
+  <div class="card" data-search="initial setup delivery packaging box">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📦</span>
+      <span>About Your Packaging</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Your Survival Node ships in a standard cardboard box which may display the logo or branding of another company. This is standard supply chain practice and does not indicate any partnership or affiliation with Eastern Shore AI, LLC.</p>
+      <h4>What's Inside the Hard Case</h4>
+      <ul>
+        <li>Phone wrapped in protective bubble wrap</li>
+        <li>Solar battery in original manufacturer packaging (opened, inspected, tested, repacked)</li>
+      </ul>
+      <p>The two Mission Darkness Faraday bags will be in their original packaging and placed <strong>under the hard case</strong> inside the shipping box — not inside the case itself.</p>
+    </div></div>
+  </div>
+
+  <div class="card" data-search="what's in the box contents included items">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🧰</span>
+      <span>What's in the Box</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <ul>
+        <li><strong>Survival Node phone</strong> — debloated Android OS, optimized for performance and longevity, pre-loaded with 50GB+ survival apps and 2 offline LLMs — wall charger, USB-C cable, and shockproof phone case included</li>
+        <li><strong>Premium 24,000 mAh Solar Battery</strong> — rugged, drop- and splash-resistant — with 3 attached cables (2× USB-C, 1× iOS) plus a USB-A output on the side, built-in flashlight, and emergency strobe</li>
+        <li><strong>(2) Mission Darkness Faraday Bags</strong> — premium EMP-rated signal-blocking, one for phone, one for solar battery</li>
+        <li><strong>Weatherproof hard storage case</strong> with padlock and silica gel packs</li>
+        <li><strong>Full User Guide</strong> — available as an app on the home screen; the PDF version is also pre-loaded on the phone in the Files folder under Downloads</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="card" id="first-steps" data-search="first steps charge setup initial start">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🚀</span>
+      <span>First Steps</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <div class="callout info">Your phone was intentionally drained to ~30% before shipping to comply with lithium battery regulations. This is normal.</div>
+      <ol class="steps">
+        <li><strong>Charge the solar battery</strong> — plug into wall power. Charge to 100% (all 4 blue LEDs solid) to verify it's working, then bring back down to 2–3 LEDs (50–75%) for storage.</li>
+        <li><strong>Charge the phone</strong> — use the included wall charger and USB-C cable. Charge to 50–60% — ideal for long-term storage. Do not store at full charge or fully drained.</li>
+        <li><strong>Seal for readiness</strong> — place phone and solar battery into their Faraday bags, fold the top twice, seal tightly, store both in the case with silica gel packs.</li>
+      </ol>
+    </div></div>
+  </div>
+
+  <div class="card" id="storage" data-search="storage conditions temperature silica gel">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🌡️</span>
+      <span>Storage Conditions</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Store in a cool, dry location — ideally between <strong>60°F (15°C) and 85°F (30°C)</strong>. Avoid cars, attics, and garages where temperatures reach damaging extremes. Store the case upright, away from direct sunlight.</p>
+      <h4>Silica Gel Packs</h4>
+      <p>The included silica gel packs absorb moisture and are reusable. Recharge them when the <strong>blue indicator dot turns light pink</strong>. Place pack with indicator dot facing up and microwave for <strong>3–5 minutes</strong>. Once the dot turns blue again, the pack is ready to reuse.</p>
+      <div class="callout warning">⚠️ <strong>Silica Pack Safety:</strong> Keep indicator side facing up, monitor while heating, do not exceed 210°F. Discard if damaged, leaking, or overheated.</div>
+    </div></div>
+  </div>
+
+  <div class="card" id="sim" data-search="sim card cellular service carrier connectivity">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📶</span>
+      <span>SIM Card & Connectivity</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <div class="callout danger">⛔ No SIM card is included. No activation code, carrier plan, or cellular service of any kind is provided. Do not purchase expecting cellular voice or data service.</div>
+      <p>This device has been deep-debloated and OS-modified for <strong>offline, off-grid use</strong>. It is not designed for use with a cellular carrier and may not be compatible with one.</p>
+      <p>All core features — AI chat, offline maps, reference libraries, and every preloaded app — work fully without any SIM card, carrier connection, or internet access. Treat any cellular connectivity as a potential bonus — never a dependency.</p>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ MAINTENANCE ════════════════════════ -->
+<div class="section" id="maintenance">
+  <div class="section-header"><span class="icon">🔧</span> MAINTENANCE</div>
+
+  <div class="card" data-search="6 month maintenance check readiness">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📋</span>
+      <span>6-Month Readiness Checklist</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Twice per year, run a full readiness check:</p>
+      <ul class="checklist">
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Open case and remove items from Faraday bags</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Charge power hub to 2–3 blue LEDs (50–75%) on wall power</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Power on phone for 10 minutes; charge if below 50%</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Inspect battery area — check for warping or swelling</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Inspect cables, seals, and Faraday bag folds for wear</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Check silica gel pack — recharge if blue dot turned pink</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Set next reminder now</span></li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="card" id="update-ai" data-search="update ai models pocketpal download">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🤖</span>
+      <span>Update AI Models</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>AI models improve regularly. Your 6-month check is a good time to update. Takes about 5–10 minutes on Wi-Fi. Your Survival Node ships with two offline models — <strong>Qwen 3.5-4B</strong> (primary) and <strong>Qwen 2.5-3B</strong> (fast backup).</p>
+      <ol class="steps">
+        <li>Connect the phone to Wi-Fi</li>
+        <li>Open the <strong>PocketPal</strong> app</li>
+        <li>Tap the <strong>Models</strong> tab at the bottom</li>
+        <li>Browse available models — look for updated versions or newer options at similar sizes</li>
+        <li>Tap <strong>Download</strong> on any model you want to add</li>
+        <li>Open a new chat and select the new model to confirm it loads</li>
+        <li>Delete old version: tap Models → long-press old model → Delete</li>
+      </ol>
+      <div class="callout tip">💡 Swap like-for-like by size — replace small with new small, medium with new medium. Keeps storage balanced.</div>
+    </div></div>
+  </div>
+
+  <div class="card" id="update-maps" data-search="update maps organic maps download offline">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🗺️</span>
+      <span>Update Offline Maps</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <ol class="steps">
+        <li>Connect the phone to Wi-Fi</li>
+        <li>Open <strong>Organic Maps</strong></li>
+        <li>Go to Menu → Maps & Data or Settings → Downloads</li>
+        <li>Look for "Check for map updates" option</li>
+        <li>Select your regions and tap <strong>Update</strong> (use Wi-Fi only — downloads can be large)</li>
+        <li>Run a quick test search or route to confirm</li>
+        <li>Disconnect from Wi-Fi when finished</li>
+      </ol>
+    </div></div>
+  </div>
+
+  <div class="card" id="update-apps" data-search="update apps fdroid f-droid">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📲</span>
+      <span>Update Other Apps</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <ol class="steps">
+        <li>Open <strong>F-Droid</strong></li>
+        <li>Tap the <strong>Updates</strong> tab at the bottom</li>
+        <li>Tap <strong>Update All</strong> or update individual apps</li>
+        <li>Disconnect from Wi-Fi when complete</li>
+      </ol>
+      <div class="callout warning">⚠️ Only connect to a trusted private Wi-Fi network (your home network) during maintenance. Avoid public Wi-Fi.</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ EMERGENCY ════════════════════════ -->
+<div class="section" id="deployment">
+  <div class="section-header"><span class="icon">🚨</span> EMERGENCY DEPLOYMENT</div>
+
+  <div class="card" data-search="emergency deployment grid down protocol">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">⚡</span>
+      <span>Grid-Down Protocol</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <div class="callout danger">🔴 After removing from Faraday storage, keep <strong>Airplane Mode ON</strong> to prevent battery drain from constant tower searching.</div>
+      <p>Use your offline stack first: maps, local AI, and local knowledge library. Conserve power by lowering brightness and closing background apps.</p>
+      <h4>Use-Case Priority Order</h4>
+      <ol>
+        <li><strong>Navigation</strong> — Organic Maps</li>
+        <li><strong>Medical/Repair knowledge</strong> — Kiwix, Survival Manual, AI</li>
+        <li><strong>Communications</strong> — only when needed</li>
+      </ol>
+      <p><strong>Always fully power the phone down after use</strong> to preserve battery.</p>
+    </div></div>
+  </div>
+
+  <div class="card" data-search="calls texts emergency sim cellular">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📞</span>
+      <span>Calls & Texts During Emergencies</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>If you installed a SIM card and a cell tower is reachable:</p>
+      <ul>
+        <li>A partial signal that cannot load a web page can still carry <strong>voice calls and SMS texts</strong></li>
+        <li>Turn cellular back OFF and return to Airplane Mode when not actively communicating</li>
+        <li>All AI, maps, and apps run entirely on-device regardless of connectivity</li>
+        <li>Without a SIM installed, the phone still works fully for all offline capabilities</li>
+      </ul>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ POWER ════════════════════════ -->
+<div class="section" id="power">
+  <div class="section-header"><span class="icon">☀️</span> POWER & SOLAR CHARGING</div>
+
+  <div class="card" data-search="solar charging panel power sun">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🔋</span>
+      <span>Solar Charging — What to Expect</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>The solar panel is not designed for all-day normal use — it's designed for <strong>emergency conditions</strong> where you use the phone briefly and then power it off. Solar input accumulates while the phone is off.</p>
+      <div class="callout tip">💡 Eastern Shore AI founder Chris Gorham powered his test Survival Node exclusively via solar for <strong>over a year</strong> without wall power.</div>
+      <h4>The Rule: Use It, Then Shut It Off</h4>
+      <ul>
+        <li>Place panel in direct overhead sun; re-angle as sunlight shifts</li>
+        <li><strong>Power the phone off when not actively in use</strong> — most important habit</li>
+        <li>Use wall charging whenever available</li>
+        <li>Avoid high-heat charging sessions with phone connected</li>
+        <li>Plan your power budget: prioritize mission-critical tasks, then shut down</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="card" data-search="battery temperature limits heat cold">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🌡️</span>
+      <span>Battery Temperature Limits</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <ul>
+        <li><strong>Do not charge above 113°F (45°C)</strong> — if hot to touch, stop charging and move to shade</li>
+        <li><strong>Do not store below 14°F (−10°C)</strong> — allow to warm to room temperature before charging</li>
+        <li><strong>Ideal storage: 60°F–75°F (15°C–24°C)</strong> at ~50% charge</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="card" data-search="swollen battery warning fire hazard">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">⚠️</span>
+      <span>Swollen Battery Warning</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <div class="callout danger">🔴 If the phone back is warping outward or the power hub casing is deformed — <strong>stop using immediately</strong>. A swollen lithium battery is a fire and puncture hazard.</div>
+      <p>Do not charge it, compress it, or dispose in regular trash. Take it to a <strong>certified battery recycling location</strong> — Best Buy, Home Depot, and many auto parts stores accept lithium batteries at no charge.</p>
+      <h4>Manufacturer Safety Notices</h4>
+      <ul>
+        <li>Do not charge and discharge simultaneously</li>
+        <li>Keep product dry — rain, moisture, and liquids corrode electronics</li>
+        <li>Do not attempt to disassemble</li>
+      </ul>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ BATTERY ════════════════════════ -->
+<div class="section" id="battery">
+  <div class="section-header"><span class="icon">🔋</span> BATTERY MANAGEMENT</div>
+
+  <div class="card" data-search="battery daily use tips charge health">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">⚡</span>
+      <span>Daily Use Tips</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <ul>
+        <li><strong>Keep between 20–85%</strong> — less stress on cells. Use Battery Bot Pro to alarm at 85%</li>
+        <li><strong>Avoid deep discharges</strong> — recharge before 15%</li>
+        <li><strong>Charge at room temperature</strong> — charging hot or cold causes permanent loss</li>
+        <li><strong>Use original or quality USB-C cable</strong> — cheap cables stress the battery controller</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <div class="card" data-search="long term storage battery charge">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🗄️</span>
+      <span>Long-Term Storage</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <ol class="steps">
+        <li>Charge phone to <strong>40–60%</strong> — ideal resting state</li>
+        <li>Power the phone <strong>completely off</strong></li>
+        <li>Charge solar hub to <strong>2–3 blue LEDs</strong> (50–75%)</li>
+        <li>Store between 60°F–75°F (15°C–24°C)</li>
+        <li>Check every 3–6 months; top off to 50% if needed</li>
+      </ol>
+      <div class="callout info">📌 A battery stored at 100% or 0% for months will lose permanent capacity. The 40–60% target is the most impactful habit for kit longevity.</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ EMP ════════════════════════ -->
+<div class="section" id="emp">
+  <div class="section-header"><span class="icon">🛡️</span> EMP PROTOCOL</div>
+
+  <div class="card" data-search="emp faraday bag electromagnetic pulse solar flare">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🛡️</span>
+      <span>Faraday Bag Protection</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>A Faraday bag is a shielded enclosure lined with conductive material (TitanRF fabric) that blocks electromagnetic signals. Every Survival Node includes two <strong>Mission Darkness</strong> Faraday bags — one for the phone, one for the solar battery. Inside a properly sealed bag, electronics are shielded from:</p>
+      <ul>
+        <li>Electromagnetic Pulse (EMP) events and nuclear burst EMP</li>
+        <li>Solar flares and geomagnetic storms (CMEs)</li>
+        <li>RF tracking, cellular location signals, Wi-Fi, and Bluetooth</li>
+        <li>RFID skimming</li>
+      </ul>
+      <div class="callout warning">⚠️ Faraday bags do NOT protect against physical damage, water immersion, or static discharge.</div>
+      <h4>Sealing Protocol</h4>
+      <ul>
+        <li>At first sign of risk, isolate all mission-critical electronics <strong>immediately</strong></li>
+        <li>Fold the opening over itself <strong>at least twice</strong> before sealing Velcro</li>
+        <li>Check for punctures, worn seams, or contaminated seal surfaces</li>
+        <li>Keep spare storage sleeves in the case as backup</li>
+      </ul>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ APPS ════════════════════════ -->
+<div class="section" id="pocketpal">
+  <div class="section-header"><span class="icon">💬</span> APPS — OFFLINE AI & TOOLS</div>
+
+  <div class="card" data-search="pocketpal ai chat llm offline model qwen">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🤖</span>
+      <span>PocketPal — Offline AI Chat</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>PocketPal runs Large Language Models directly on your device — no internet, no cloud, no data leaving your phone. Core AI tool for survival, medical, and engineering questions.</p>
+      <h4>Pre-Loaded Models (2 Offline LLMs)</h4>
+      <table class="bench-table">
+        <thead><tr><th>Model</th><th>Speed</th><th>Memory</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td>Qwen 3.5-4B</td><td>1.41 t/s</td><td>5 GB (60%)</td><td><span class="tag tag-primary">PRIMARY</span></td></tr>
+          <tr><td>Qwen 2.5-3B</td><td>3.50 t/s</td><td>5 GB (59%)</td><td><span class="tag tag-secondary">FAST BACKUP</span></td></tr>
+        </tbody>
+      </table>
+      <p><strong>Qwen 3.5-4B (Q4_K_M)</strong> is the current primary and powers the pre-configured Survival Node AI Agent — chosen for deeper, more capable emergency answers. It is slower while generating, so a long response may take several minutes. <strong>Qwen 2.5-3B (Q5_K_M)</strong> is the previous primary, kept as the faster backup for when time or battery matters.</p>
+      <h4>Using the Survival Node AI Pal</h4>
+      <ol class="steps">
+        <li>Open PocketPal</li>
+        <li>Tap the <strong>↑ arrow</strong> to the left of the input — opens Pal picker</li>
+        <li>Tap the <strong>Pals</strong> tab</li>
+        <li>Select <strong>"Survival Node"</strong></li>
+        <li>Start chatting — system prompt is applied automatically</li>
+      </ol>
+      <div class="callout warning">⚠️ <strong>AI Accuracy:</strong> Models can confidently state wrong information ("hallucination"). Always cross-reference against offline reference libraries for safety-critical decisions.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed software. Eastern Shore AI, LLC has no partnership or affiliation with the developer(s). Provided as-is, use at your own risk.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="organic-maps">
+  <div class="card" data-search="organic maps navigation gps offline directions">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🗺️</span>
+      <span>Organic Maps — Offline Navigation</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Full offline navigation for the entire United States using OpenStreetMap data. Complete US map pack is pre-downloaded — no cell signal, no internet, no Google required.</p>
+      <h4>Key Features</h4>
+      <ul>
+        <li>Full US map pre-loaded — ready immediately</li>
+        <li>Turn-by-turn voice navigation — driving, cycling, pedestrian</li>
+        <li>Offline address search, POI lookup, route planning</li>
+        <li>GPX track import/export</li>
+        <li>Zero tracking — fully private</li>
+      </ul>
+      <ol class="steps">
+        <li>Open Organic Maps — full US map loads with no internet</li>
+        <li>Tap 🔍 to search by address or place name</li>
+        <li>Tap <strong>Directions</strong> to plan a route</li>
+        <li>Tap <strong>Go</strong> to start turn-by-turn navigation</li>
+        <li>Long-press to drop a pin manually</li>
+      </ol>
+      <div class="callout tip">💡 GPS lock may take 30–60 seconds in a new location. Power the app on before you need to move.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="kiwix">
+  <div class="card" data-search="kiwix library wikipedia medical wikimed knots water survival gutenberg ifixit">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📚</span>
+      <span>Kiwix — Offline Libraries</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Offline content reader for encyclopedias, health guides, instructional content, and more — stored as ZIM files on your device. No internet required.</p>
+      <h4>Pre-Loaded Libraries</h4>
+      <ul>
+        <li><strong>WikiMed Medical Encyclopedia</strong> — thousands of articles on anatomy, diseases, symptoms, medications, emergency care</li>
+        <li><strong>Knots</strong> — comprehensive illustrated knot reference</li>
+        <li><strong>Wikipedia (Full)</strong> — broad reference: history, science, geography, tech</li>
+        <li><strong>Water Treatment Library</strong> — purification methods with instructional videos</li>
+        <li><strong>Learning Self Reliance</strong> — food storage, homesteading, gardening</li>
+        <li><strong>Survivor Library</strong> — pre-industrial skills, trades, and technical knowledge</li>
+        <li><strong>Food for Preppers</strong> — long-term food storage and preservation</li>
+        <li><strong>Project Gutenberg (9GB)</strong> — 60,000+ public domain literary works</li>
+        <li><strong>iFixit</strong> — repair guides for thousands of devices</li>
+      </ul>
+      <ol class="steps">
+        <li>Open Kiwix from app drawer</li>
+        <li>Select a library from the Library tab</li>
+        <li>Browse and read — all fully offline</li>
+        <li>Use the search bar within each library</li>
+      </ol>
+      <div class="callout info">📌 If a library doesn't appear, swipe down in the Library tab to trigger a storage scan.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="survival-manual">
+  <div class="card" data-search="survival manual army field guide shelter fire water food first aid">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🏕️</span>
+      <span>Survival Manual</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Fully offline reference based on the US Army Field Manual FM 3-05.70 — wilderness and emergency survival.</p>
+      <h4>Chapters Include</h4>
+      <ul>
+        <li>Psychology of Survival</li>
+        <li>Shelters, Water, Fire, Food</li>
+        <li>First Aid & Signals</li>
+        <li>Navigation without GPS</li>
+        <li>Dangerous Plants & Animals</li>
+      </ul>
+      <div class="callout tip">💡 Browse the app <strong>before</strong> you need it so you know where key chapters live. Fire, water, and first aid are most commonly needed first.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="seamless">
+  <div class="card" data-search="seamless voice translation language offline">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🗣️</span>
+      <span>Seamless — Voice Translation</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>On-device voice translation powered by Meta's Unity model — no internet required. Speak in one language, hear the translation in another.</p>
+      <ol class="steps">
+        <li>Open Seamless</li>
+        <li>Select source language (what you're speaking)</li>
+        <li>Select target language (what you want output in)</li>
+        <li>Tap the microphone and speak — translation plays back automatically</li>
+      </ol>
+      <div class="callout tip">💡 Test your target languages before an emergency to confirm performance.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="deepl">
+  <div class="card" data-search="deepl text translation written languages">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📝</span>
+      <span>DeepL — Text Translation</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>High-accuracy text translation for 30+ languages. Best for translating written text, documents, signs, and longer passages where natural phrasing matters.</p>
+      <div class="callout warning">⚠️ DeepL may require an internet connection for full functionality. Use <strong>Seamless</strong> for fully offline voice translation.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="morse">
+  <div class="card" data-search="morse code sos signaling emergency">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📡</span>
+      <span>Morse Code Encoder/Decoder</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Converts text to Morse code and back — useful for off-grid signaling, radio, or flashlight communication.</p>
+      <div class="callout info" style="font-family:var(--mono);text-align:center;font-size:18px;letter-spacing:4px;">SOS: · · · — — — · · ·</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="briar">
+  <div class="card" data-search="briar messenger encrypted bluetooth wifi mesh">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">💬</span>
+      <span>Briar — Encrypted Messenger</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>End-to-end encrypted messaging via <strong>Bluetooth or Wi-Fi</strong> — no internet, no server, no phone number required. Works when cell networks and internet are down.</p>
+      <ol class="steps">
+        <li>Open Briar and create a local account (stored on-device only)</li>
+        <li>Add contact: tap + → Add contact nearby — scan QR codes</li>
+        <li>Enable Bluetooth and/or connect to same Wi-Fi</li>
+        <li>Tap a contact to chat — messages deliver when in range</li>
+      </ol>
+      <div class="callout warning">⚠️ Add your key contacts <strong>before</strong> an emergency — exchange requires both devices present to scan QR codes.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="localsend">
+  <div class="card" data-search="localsend file transfer wifi share airdrop">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📤</span>
+      <span>LocalSend — File Transfer</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Open-source file transfer over local Wi-Fi — no internet, no cloud, no USB cable. Works across Android, iOS, Windows, macOS, and Linux.</p>
+      <ol class="steps">
+        <li>Open LocalSend on both devices</li>
+        <li>Connect both to same Wi-Fi (or create a hotspot)</li>
+        <li>LocalSend auto-discovers nearby devices</li>
+        <li>Sending device: tap Send, select files, tap recipient</li>
+        <li>Receiving device: accept transfer</li>
+      </ol>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="sos">
+  <div class="card" data-search="sos flashlight distress signal beacon rescue">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🔦</span>
+      <span>SOS Flashlight</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Turns your flashlight into an automatic SOS distress beacon — flashing the international SOS signal without manual timing.</p>
+      <ol class="steps">
+        <li>Open SOS Flashlight</li>
+        <li>Tap the <strong>SOS button</strong> — flashlight pulses automatically</li>
+        <li>Point toward the sky or toward potential rescuers</li>
+        <li>Tap again to stop</li>
+      </ol>
+      <div class="callout tip">💡 Keep screen brightness low while running SOS to conserve battery.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="fennec">
+  <div class="card" data-search="fennec browser firefox web privacy">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🌐</span>
+      <span>Fennec Browser</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Mozilla Firefox for Android with telemetry removed. Default browser for locally cached content, saved HTML files, or web access on Wi-Fi.</p>
+      <ul>
+        <li>Built-in tracking protection — blocks 2,000+ trackers</li>
+        <li>No Mozilla telemetry or background data collection</li>
+        <li>Add-on support: uBlock Origin works natively</li>
+      </ul>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="fdroid">
+  <div class="card" data-search="fdroid f-droid app store marketplace open source">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🏪</span>
+      <span>F-Droid App Marketplace</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Open-source Android app marketplace — no Google account required. All apps are tracker-audited before listing.</p>
+      <div class="callout warning">⚠️ Do not install Google Play Services — it would undermine the privacy architecture of your Survival Node.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="fossify">
+  <div class="card" data-search="fossify file manager files storage browse">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📁</span>
+      <span>Fossify File Manager</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Lightweight, open-source file manager — no ads, no trackers, no internet permissions. Full access to local storage.</p>
+      <div class="callout tip">💡 The User Guide PDF and PocketPal system prompt are pre-loaded in your Files folder.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="exodus">
+  <div class="card" data-search="exodus privacy audit trackers permissions">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🔍</span>
+      <span>Exodus Privacy Audit</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Scans every app and reveals trackers, analytics libraries, and permissions. Run after installing any new app.</p>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="batteryapps">
+  <div class="card" data-search="accubattery battery bot pro health monitor charge alarm">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🔋</span>
+      <span>AccuBattery & Battery Bot Pro</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p><strong>AccuBattery</strong> was used by Eastern Shore AI during pre-shipment health checks. Your phone has already been verified. Remains installed for your use.</p>
+      <h4>Battery Bot Pro — Recommended Settings</h4>
+      <ul>
+        <li>Set charge full alarm at <strong>85%</strong></li>
+        <li>Set low battery alarm at <strong>15%</strong></li>
+        <li>Set temperature alarm at <strong>105°F (40°C)</strong></li>
+        <li>Enable battery logging for health records</li>
+      </ul>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="ifixit">
+  <div class="card" data-search="ifixit repair guide teardown fix device">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🔩</span>
+      <span>iFixit — Repair Guides (via Kiwix)</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Comprehensive repair guide library covering thousands of devices — phones, laptops, appliances, tools. Loaded as a Kiwix ZIM library, fully offline.</p>
+      <ol class="steps">
+        <li>Open <strong>Kiwix</strong></li>
+        <li>Select the <strong>iFixit</strong> library</li>
+        <li>Search by device name, model, or repair type</li>
+        <li>Follow numbered steps with photos</li>
+      </ol>
+      <div class="callout tip">💡 Browse guides for your critical devices <strong>before</strong> an emergency so you know what tools and parts to keep on hand.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ TROUBLESHOOTING ════════════════════════ -->
+<div class="section" id="troubleshooting">
+  <div class="section-header"><span class="icon">🛠️</span> TROUBLESHOOTING</div>
+
+  <div class="card" data-search="troubleshooting problems issues fix debug">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🔧</span>
+      <span>Quick Diagnostic Order</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <ol class="steps">
+        <li>Check battery level and charging cable integrity</li>
+        <li>Check storage capacity and free space</li>
+        <li>Check app permissions and recent setting changes</li>
+        <li>Full reboot, then retry core apps</li>
+      </ol>
+      <p>If behavior persists, document what changed right before failure — that usually reveals root cause faster than random toggling.</p>
+      <h4>Common Issues</h4>
+      <ul>
+        <li><strong>AI giving wrong answers?</strong> Start a fresh chat session, rephrase your question, or try a larger model. Models can hallucinate.</li>
+        <li><strong>Device feels hot?</strong> Stop charging immediately, move to shade. If phone back is warped, see Swollen Battery Warning.</li>
+        <li><strong>App crashing?</strong> Apps requiring Google Play Services may not work on debloated OS — this is expected. Core offline apps are not affected.</li>
+        <li><strong>Phone won't power on?</strong> Connect to solar hub and charge for at least 15 minutes before trying again.</li>
+      </ul>
+      <p>Contact <strong>support@easternshore.ai</strong> if a core app fails to function.</p>
+    </div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ WARRANTY ════════════════════════ -->
+<div class="section" id="warranty">
+  <div class="section-header"><span class="icon">📜</span> WARRANTY, LEGAL & SUPPORT</div>
+
+  <div class="card" data-search="warranty return refund legal shipping support">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📋</span>
+      <span>Warranty & Returns</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p><strong>30-day limited warranty</strong> on products included in this kit, starting from the delivery date. The original manufacturer's warranty may be void due to OS modification — Eastern Shore AI's 30-day warranty is your active coverage.</p>
+      <h4>Returns & Refunds (30-Day Window)</h4>
+      <p>You may return your Survival Node within 30 days of delivery. To be eligible, the device must be in original functional condition and the operating system must not have been further modified after purchase. Contact <strong>support@easternshore.ai</strong> for an RMA number before shipping — items returned without an RMA or after 30 days may not be accepted. <strong>Return shipping costs are the buyer's responsibility.</strong> Refunds are issued to the original payment method after the return is received and inspected. Ship to:</p>
+      <div class="callout info" style="font-family:var(--mono);font-size:12px;">Eastern Shore AI, LLC<br>PO BOX 317<br>Parsonsburg, MD 21849</div>
+      <div class="callout warning">⚠️ Items with physical damage caused after receipt (drops, water, puncture) are not eligible for return.</div>
+      <h4>Additional Notices</h4>
+      <ul>
+        <li><strong>Shipping:</strong> USPS or UPS ground transportation only (lithium battery regulations). Allow up to 7 business days processing + 10 days transit. Continental US only.</li>
+        <li><strong>Payment:</strong> Processed securely through Stripe. No payment card info is stored.</li>
+        <li><strong>Liability:</strong> Not liable for incidental or consequential damages to the maximum extent permitted by law.</li>
+        <li><strong>Trademarks:</strong> Independent seller — not an authorized dealer or affiliate of any OEM brand referenced.</li>
+        <li><strong>Support:</strong> support@easternshore.ai · (302) 907-9162</li>
+      </ul>
+    </div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="logo">EASTERN SHORE AI</div>
+  <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
+</div>
+
+</main>
+
+<script>
+function toggleMenu() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('show');
+  document.querySelector('.menu-btn').classList.toggle('active');
+}
+
+function toggleCard(trigger) {
+  const card = trigger.closest('.card');
+  card.classList.toggle('expanded');
+}
+
+function toggleCheck(li) {
+  li.classList.toggle('checked');
+}
+
+function filterCards(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.card').forEach(card => {
+    const searchData = (card.dataset.search || '') + ' ' + card.textContent;
+    card.style.display = (!q || searchData.toLowerCase().includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('.section').forEach(section => {
+    const visibleCards = section.querySelectorAll('.card:not([style*="display: none"])');
+    const header = section.querySelector('.section-header');
+    if (header) {
+      section.style.display = (!q || visibleCards.length > 0) ? '' : 'none';
+    }
+  });
+}
+</script>
+
+</body>
+</html>
