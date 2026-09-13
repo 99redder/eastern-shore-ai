@@ -189,6 +189,42 @@
       padding: 1rem;
     }
     .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.4rem; }
+    .buyer-review {
+      margin: 1rem 0;
+      padding: clamp(1rem, 3vw, 1.5rem);
+      border-left: 3px solid var(--cyan);
+    }
+    .buyer-review h2 { margin-bottom: .8rem; font-size: 1.15rem; }
+    .buyer-review figure { margin: 0; }
+    .buyer-review blockquote {
+      margin: 0 0 1rem;
+      color: var(--text);
+      font-size: clamp(1.2rem, 2.3vw, 1.5rem);
+      line-height: 1.5;
+    }
+    .buyer-review blockquote p { margin: 0; }
+    .buyer-review-attribution {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .4rem 1rem;
+      color: var(--muted);
+      font-size: .9rem;
+      overflow-wrap: anywhere;
+    }
+    .buyer-review-verified { color: #9bd9b5; }
+    .buyer-review-source {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      margin-left: auto;
+      color: var(--cyan);
+      text-underline-offset: .2em;
+    }
+    .buyer-review-source:hover { color: var(--text); }
+    @media (max-width: 540px) {
+      .buyer-review-source { flex-basis: 100%; margin-left: 0; }
+    }
     ul { padding-left: 1.15rem; margin-top: .6rem; }
     li { margin: .45rem 0; }
     .ghost-intro {
@@ -1508,6 +1544,20 @@
       </a>
 
     </article>
+
+    <section class="card buyer-review" aria-labelledby="buyer-review-title">
+      <h2 id="buyer-review-title">From a Survival Node owner</h2>
+      <figure>
+        <blockquote cite="https://www.ebay.com/fdbk/mweb_profile?fdbkType=FeedbackReceivedAsSeller&amp;filter=feedback_page%3ARECEIVED_AS_SELLER&amp;item_id=358395197749&amp;sort=RELEVANCEV2&amp;username=easternshoreai">
+          <p>“Great product shipped fast arrived well packaged as described and great value”</p>
+        </blockquote>
+        <figcaption class="buyer-review-attribution">
+          <span>— chrisdragonheart1991</span>
+          <span class="buyer-review-verified"><span aria-hidden="true">✓</span> Verified purchase on eBay</span>
+          <a class="buyer-review-source" href="https://www.ebay.com/fdbk/mweb_profile?fdbkType=FeedbackReceivedAsSeller&amp;filter=feedback_page%3ARECEIVED_AS_SELLER&amp;item_id=358395197749&amp;sort=RELEVANCEV2&amp;username=easternshoreai" target="_blank" rel="noopener noreferrer">View feedback on eBay <span aria-hidden="true">↗</span></a>
+        </figcaption>
+      </figure>
+    </section>
 
     <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
