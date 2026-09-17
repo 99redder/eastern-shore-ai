@@ -173,6 +173,7 @@
       .pdf-page .guide-content strong { font-weight: 700; }
       .pdf-page .guide-content em { font-style: italic; }
       .pdf-page .guide-content a { color: #005577 !important; text-decoration: underline; }
+      .pdf-page .guide-content img { display: block; width: 480px; max-width: 100%; max-height: 3in; height: auto; object-fit: contain; margin: 0 auto 1rem; break-inside: avoid; }
 
       /* ── Phone-friendly print variant ── */
       #pdf-print-content.phone-friendly { font-size: 23px !important; line-height: 2.12 !important; }
@@ -221,7 +222,7 @@
   <a href="/node.html" id="global-back-btn" class="back-btn" aria-label="Back to Survival Node page">← Back</a>
 
   <main class="wrap">
-    <img src="/images/carousel/entirenode/wholekit2.png" alt="Survival Node logo" class="hero-logo" />
+    <img src="/images/carousel/entirenode/wholekit-gen2.png" alt="Survival Node Gen 2 complete kit" class="hero-logo" />
     <h1>Survival Node User Guide</h1>
     <div class="sub">One page for setup, operation, maintenance, troubleshooting, and legal notices.</div>
 
@@ -894,7 +895,7 @@ Operational Rules:
 
       container.innerHTML =
         '<div class="pdf-title-page">' +
-          '<img src="/images/carousel/entirenode/wholekit2.png" class="pdf-logo" alt="Survival Node" />' +
+          '<img src="/images/carousel/entirenode/wholekit-gen2.png" class="pdf-logo" alt="Survival Node Gen 2 complete kit" />' +
           '<h1 class="pdf-title-main">Survival Node</h1>' +
           '<p class="pdf-title-sub">User Guide' + (phoneFriendly ? ' · Phone Friendly Version' : '') + '</p>' +
           '<div class="pdf-title-rule"></div>' +

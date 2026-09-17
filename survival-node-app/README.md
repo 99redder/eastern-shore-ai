@@ -12,6 +12,8 @@ This folder holds the source for the **Survival Node User Guide** Android app.
   full copy (e.g. LocalSend to another device in an emergency). **It is generated from
   `/node-setup.html`**, not authored separately — use its "🖨️ Print PDF" button and Save as PDF, or
   headless Chrome against node-setup.html. Regenerate whenever the guide content changes.
+  The cover uses `/images/carousel/entirenode/wholekit-gen2.png`, the same Gen 2 kit photo
+  used by the product gallery, online guide, and flyer. Regenerate the PDF when this photo changes, too.
   (The phone-friendly PDF variant was dropped — the on-phone Users Guide app already covers
   phone-optimized reading.)
 

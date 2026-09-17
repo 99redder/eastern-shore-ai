@@ -714,6 +714,7 @@
     .thumb-img.active { border-color: var(--cyan); opacity: 1; box-shadow: 0 0 8px rgba(158,208,255,.35); }
     .item-photo-gallery { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .2rem; }
     .item-photo-gallery img { height: 180px; width: auto; min-width: 180px; border-radius: 6px; border: 1px solid var(--line); object-fit: cover; flex-shrink: 0; background: #0d1017; cursor: zoom-in; transition: opacity .15s; }
+    .item-photo-gallery[data-item="kit"] img { object-fit: contain; }
     .item-photo-gallery img:hover { opacity: .85; }
     del { color: #d93025; text-decoration-color: #d93025; }
     .photo-modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.9); align-items: center; justify-content: center; }
@@ -1572,7 +1573,7 @@
           <div class="kit-gallery-col">
             <div class="slide2-inner">
               <div class="thumb-strip">
-                <img loading="lazy" class="thumb-img active" src="images/carousel/entirenode/wholekit1.png" alt="Full Kit" data-full="images/carousel/entirenode/wholekit1.png" data-key="kit" />
+                <img loading="lazy" class="thumb-img active" src="images/carousel/entirenode/wholekit-gen2.png" alt="Survival Node Gen 2 complete kit" data-full="images/carousel/entirenode/wholekit-gen2.png" data-key="kit" />
                 <span style="display:flex; align-items:center; color:var(--muted); font-size:.62rem; font-family:'Hanken Grotesk',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; padding:0 .2rem; border-right:1px solid var(--line); margin-right:.1rem;">Components</span>
                 <!-- <img class="thumb-img" src="images/carousel/phone2.png" alt="Core Unit" data-full="images/carousel/phone2.png" data-key="phone" /> -->
                 <img class="thumb-img" src="images/carousel/aichat/qwen35-rainwater.jpeg" alt="Qwen3.5-4B in PocketPal answering a survival question" data-full="images/carousel/aichat/qwen35-rainwater.jpeg" data-key="ai" />
@@ -2173,11 +2174,10 @@
       const itemData = {
         kit: {
           photos: [
-            'images/carousel/entirenode/wholekit1.png',
-            'images/carousel/entirenode/wholekit3.png',
+            'images/carousel/entirenode/wholekit-gen2.png',
           ],
           label: 'Everything in the box',
-          title: 'The Complete Survival Node Kit',
+          title: 'The Complete Survival Node Gen 2 Kit',
           body: `<p>Everything included in every Survival Node — laid out and ready to go. One kit, built as a complete system: Core Unit phone with pre-loaded software, premium solar battery with 3 attached cables, (2) Mission Darkness Faraday bags, shockproof phone case, weatherproof hard case with padlock and rechargable silica gel packets, wall charger, and USB-C cable.</p>
                  <p>Nothing to configure. Nothing to source separately. Every component has been tested together as a system — not just individually. Open the case and it's ready to deploy.</p>`
         },
@@ -2312,6 +2312,7 @@
       function renderItem(key) {
         const d = itemData[key];
         if (!d) { galleryEl.innerHTML = ''; descEl.innerHTML = ''; return; }
+        galleryEl.dataset.item = key;
         galleryEl.innerHTML = d.photos.map(p => {
           if (typeof p === 'string') return `<img src="${p}" alt="${d.title}" loading="lazy" />`;
           // Object with optional labelLeft (top) / labelRight (bottom) overlays
