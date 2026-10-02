@@ -572,6 +572,62 @@
       background: var(--bg);
       transform-origin: center center;
     }
+    .portfolio-shots {
+      position: relative;
+      width: 100%;
+    }
+    .portfolio-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2.4rem;
+      height: 2.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0 0.15rem;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: var(--pink);
+      background: rgba(10, 11, 16, 0.82);
+      border: 1px solid rgba(255, 79, 216, 0.55);
+      clip-path: var(--cut-btn);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .portfolio-nav:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+    }
+    .portfolio-nav.prev { left: 0.5rem; }
+    .portfolio-nav.next { right: 0.5rem; }
+    .portfolio-shot-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      width: 100%;
+    }
+    .portfolio-caption {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .portfolio-dots {
+      display: flex;
+      gap: 0.45rem;
+    }
+    .portfolio-dots button {
+      width: 0.75rem;
+      height: 0.75rem;
+      padding: 0;
+      border: 1px solid var(--pink);
+      background: transparent;
+      cursor: pointer;
+    }
+    .portfolio-dots button.active {
+      background: var(--pink);
+      box-shadow: 0 0 8px rgba(255, 79, 216, 0.5);
+    }
     .portfolio-details ul {
       margin: 0;
       padding-left: 1.1rem;
@@ -836,9 +892,17 @@
 
       <div class="portfolio-preview">
         <a id="portfolio-link" class="portfolio-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a>
-        <a id="portfolio-image-link" class="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
-          <img id="portfolio-image" src="/portfolio-stockstickies.png" alt="Stock Stickies screenshot" loading="lazy" decoding="async" />
-        </a>
+        <div class="portfolio-shots">
+          <a id="portfolio-image-link" class="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
+            <img id="portfolio-image" src="/portfolio-stockstickies-notes.jpg" alt="Stock Stickies notes board screenshot" loading="lazy" decoding="async" />
+          </a>
+          <button type="button" class="portfolio-nav prev" id="portfolio-prev" aria-label="Previous screenshot">&#8249;</button>
+          <button type="button" class="portfolio-nav next" id="portfolio-next" aria-label="Next screenshot">&#8250;</button>
+        </div>
+        <div class="portfolio-shot-bar">
+          <span class="portfolio-caption" id="portfolio-caption" aria-live="polite">Notes board</span>
+          <div class="portfolio-dots" id="portfolio-dots" aria-label="Choose screenshot"></div>
+        </div>
         <a href="#" class="btn btn-primary quote-trigger portfolio-cta">Get Your Free Website Design Quote Now</a>
       </div>
 
@@ -1307,12 +1371,21 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       const imgLink = document.getElementById('portfolio-image-link');
       const points = document.getElementById('portfolio-points');
       const link = document.getElementById('portfolio-link');
-      if (!items.length || !img || !imgLink || !points || !link) return;
+      const prevBtn = document.getElementById('portfolio-prev');
+      const nextBtn = document.getElementById('portfolio-next');
+      const caption = document.getElementById('portfolio-caption');
+      const dots = document.getElementById('portfolio-dots');
+      if (!items.length || !img || !imgLink || !points || !link || !prevBtn || !nextBtn || !caption || !dots) return;
+      let currentShots = [];
+      let shotIndex = 0;
 
       const portfolioData = {
         stock: {
-          image: '/portfolio-stockstickies.png',
-          alt: 'Stock Stickies screenshot',
+          shots: [
+            { image: '/portfolio-stockstickies-notes.jpg', alt: 'Stock Stickies notes board screenshot', caption: 'Notes board' },
+            { image: '/portfolio-stockstickies-portfolio.jpg', alt: 'Stock Stickies portfolio allocation chart screenshot', caption: 'Portfolio allocation' },
+            { image: '/portfolio-stockstickies-dashboard.jpg', alt: 'Stock Stickies live market dashboard screenshot', caption: 'Live dashboard' }
+          ],
           url: 'https://www.stockstickies.com',
           label: 'www.stockstickies.com',
           bullets: [
@@ -1322,8 +1395,11 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
           ]
         },
         florence: {
-          image: '/portfolio-florencemaegifts.png',
-          alt: 'Florence Mae Gifts screenshot',
+          shots: [
+            { image: '/portfolio-florencemaegifts.png', alt: 'Florence Mae Gifts shop screenshot', caption: 'Shop' },
+            { image: '/portfolio-florencemaegifts-listing.jpg', alt: 'Florence Mae Gifts product listing with Stripe checkout screenshot', caption: 'Product listing and checkout' },
+            { image: '/portfolio-florencemaegifts-custom.jpg', alt: 'Florence Mae Gifts custom piece request form screenshot', caption: 'Custom piece request' }
+          ],
           url: 'https://www.florencemaegifts.com',
           label: 'www.florencemaegifts.com',
           bullets: [
@@ -1334,8 +1410,11 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
           ]
         },
         cbf: {
-          image: '/portfolio-cbfchurch.png',
-          alt: 'CBF Church screenshot',
+          shots: [
+            { image: '/portfolio-cbfchurch.png', alt: 'CBF Church home page screenshot', caption: 'Home page' },
+            { image: '/portfolio-cbfchurch-blog.jpg', alt: 'CBF Church blog archive screenshot', caption: 'Blog archive' },
+            { image: '/portfolio-cbfchurch-donate.jpg', alt: 'CBF Church donation page screenshot', caption: 'Online donations' }
+          ],
           url: 'https://www.cbfchurch.com',
           label: 'www.cbfchurch.com',
           bullets: [
@@ -1346,8 +1425,11 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
           ]
         },
         bible: {
-          image: '/portfolio-bibleplannerapp.png',
-          alt: 'Bible Planner App screenshot',
+          shots: [
+            { image: '/portfolio-bibleplannerapp.png', alt: 'Bible Planner App reading dashboard screenshot', caption: 'Reading dashboard' },
+            { image: '/portfolio-bibleplannerapp-calendar.jpg', alt: 'Bible Planner App calendar screenshot', caption: 'Reading calendar' },
+            { image: '/portfolio-bibleplannerapp-landing.jpg', alt: 'Bible Planner App welcome page screenshot', caption: 'Welcome page' }
+          ],
           url: 'https://www.bibleplannerapp.com',
           label: 'www.bibleplannerapp.com',
           bullets: [
@@ -1357,8 +1439,11 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
           ]
         },
         idesign: {
-          image: '/portfolio-idesignas.png',
-          alt: 'iDesign Apparel Store screenshot',
+          shots: [
+            { image: '/portfolio-idesignas.png', alt: 'iDesign Apparel Store home page screenshot', caption: 'Home page' },
+            { image: '/portfolio-idesignas-shop.jpg', alt: 'iDesign Apparel Store shop catalog screenshot', caption: 'Shop catalog' },
+            { image: '/portfolio-idesignas-custom.jpg', alt: 'iDesign Apparel Store custom order form screenshot', caption: 'Custom orders' }
+          ],
           url: 'https://www.idesignas.com',
           label: 'www.idesignas.com',
           bullets: [
@@ -1370,16 +1455,33 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
         }
       };
 
+      function showShot(index) {
+        shotIndex = (index + currentShots.length) % currentShots.length;
+        const shot = currentShots[shotIndex];
+        img.src = shot.image;
+        img.alt = shot.alt;
+        caption.textContent = `${shot.caption} (${shotIndex + 1} of ${currentShots.length})`;
+        dots.querySelectorAll('button').forEach((d, i) => d.classList.toggle('active', i === shotIndex));
+      }
+
       function render(project) {
         const data = portfolioData[project];
         if (!data) return;
-        img.src = data.image;
-        img.alt = data.alt;
+        currentShots = data.shots;
+        dots.innerHTML = currentShots.map((s, i) => `<button type="button" aria-label="Show ${s.caption} screenshot" data-shot="${i}"></button>`).join('');
+        showShot(0);
         imgLink.href = data.url;
         link.href = data.url;
         link.textContent = data.label;
         points.innerHTML = data.bullets.map(b => `<li>${b}</li>`).join('');
       }
+
+      prevBtn.addEventListener('click', () => showShot(shotIndex - 1));
+      nextBtn.addEventListener('click', () => showShot(shotIndex + 1));
+      dots.addEventListener('click', e => {
+        const dot = e.target.closest('button[data-shot]');
+        if (dot) showShot(Number(dot.dataset.shot));
+      });
 
       items.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1388,6 +1490,8 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
           render(btn.dataset.project);
         });
       });
+
+      render('stock');
     })();
   </script>
 </body>
