@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Google Merchant Center product feed. KEEP IN SYNC with the Product JSON-LD and on-page price in node.html. -->
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Eastern Shore AI</title>
+    <link>https://www.easternshore.ai/</link>
+    <description>Eastern Shore AI product feed</description>
+    <item>
+      <g:id>SN-GEN2</g:id>
+      <g:title>Survival Node Gen 2 - Offline AI Emergency Preparedness Kit with Solar Battery, Faraday Bags and Weatherproof Case</g:title>
+      <g:description>The Survival Node Gen 2 is an off-grid emergency preparedness kit built around a hardened Motorola Moto G Power (2024) smartphone with 8GB RAM. It comes pre-loaded with 2 offline AI models, a pre-configured Survival Node AI agent, 50GB+ of survival apps, offline maps and directions for the entire United States, an offline copy of Wikipedia, medical and survival reference libraries, and a translation app. Everything runs locally with no internet, cell signal, or power grid required. The kit includes a rugged 24,000 mAh solar battery with attached charging cables, two Mission Darkness Faraday bags (one for the phone, one for the battery), a shockproof phone case, wall charger and USB-C cable, and a weatherproof hard storage case with padlock. Ready to use out of the box. Ships free by ground to the 48 contiguous U.S. states.</g:description>
+      <g:link>https://www.easternshore.ai/node.html</g:link>
+      <g:image_link>https://www.easternshore.ai/images/carousel/entirenode/wholekit-gen2.png</g:image_link>
+      <g:additional_image_link>https://www.easternshore.ai/images/carousel/solarbattery/solar-battery-gen2.png</g:additional_image_link>
+      <g:additional_image_link>https://www.easternshore.ai/images/carousel/upgrades/faraday2.png</g:additional_image_link>
+      <g:additional_image_link>https://www.easternshore.ai/images/carousel/case/case3.png</g:additional_image_link>
+      <g:availability>in_stock</g:availability>
+      <g:price>349.99 USD</g:price>
+      <g:sale_price>299.99 USD</g:sale_price>
+      <g:condition>new</g:condition>
+      <g:brand>Eastern Shore AI</g:brand>
+      <g:mpn>SN-GEN2</g:mpn>
+      <g:google_product_category>Home &amp; Garden &gt; Emergency Preparedness &gt; Emergency Tools &amp; Kits</g:google_product_category>
+      <g:product_type>Emergency Preparedness &gt; Off-Grid AI Kits</g:product_type>
+      <g:is_bundle>yes</g:is_bundle>
+      <g:product_highlight>Offline AI assistant that works with no internet, cell signal, or power grid</g:product_highlight>
+      <g:product_highlight>50GB+ of survival apps, medical references, and offline maps of the entire United States</g:product_highlight>
+      <g:product_highlight>Rugged 24,000 mAh solar battery with attached charging cables</g:product_highlight>
+      <g:product_highlight>Two Mission Darkness Faraday bags for EMP and signal protection</g:product_highlight>
+      <g:product_highlight>Weatherproof hard storage case with padlock, ready out of the box</g:product_highlight>
+      <g:shipping>
+        <g:country>US</g:country>
+        <g:service>Ground</g:service>
+        <g:price>0 USD</g:price>
+        <g:min_handling_time>1</g:min_handling_time>
+        <g:max_handling_time>7</g:max_handling_time>
+        <g:min_transit_time>5</g:min_transit_time>
+        <g:max_transit_time>10</g:max_transit_time>
+      </g:shipping>
+    </item>
+  </channel>
+</rss>
