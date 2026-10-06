@@ -28,15 +28,6 @@
       <g:product_highlight>Rugged 24,000 mAh solar battery with attached charging cables</g:product_highlight>
       <g:product_highlight>Two Mission Darkness Faraday bags for EMP and signal protection</g:product_highlight>
       <g:product_highlight>Weatherproof hard storage case with padlock, ready out of the box</g:product_highlight>
-      <g:shipping>
-        <g:country>US</g:country>
-        <g:service>Ground</g:service>
-        <g:price>0 USD</g:price>
-        <g:min_handling_time>1</g:min_handling_time>
-        <g:max_handling_time>7</g:max_handling_time>
-        <g:min_transit_time>5</g:min_transit_time>
-        <g:max_transit_time>10</g:max_transit_time>
-      </g:shipping>
     </item>
   </channel>
 </rss>
