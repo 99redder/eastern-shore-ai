@@ -953,3 +953,72 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
    - verify invoice paid/balance update
    - verify tax income + payment processing fee expense entries
    - verify quote accept/deny links and branded response pages.
+
+## Session Update — 2026-10-06 (Survival Node SEO + Google Merchant Center + Search Console)
+
+### Google Merchant Center (live setup — do not re-create)
+
+- Eastern Shore AI sub-account ID **5870939244**, Google login `redonx99@gmail.com`. It sits beside Florence Mae Gifts under a shared advanced account (5871161014); the two stores share nothing customer-facing.
+- `https://www.easternshore.ai` is Verified and Claimed in Merchant Center (automatic, no tag needed for Merchant Center).
+- Free listings only. No Google Ads account is linked ("No Google Ads account linked" is the one expected account notice).
+- **Product feed:** `merchant-feed.xml` at the repo root, served at `https://www.easternshore.ai/merchant-feed.xml`. Feed label US, English, auto-fetched daily at 12:00 AM. One item, `g:id` / `g:mpn` **`SN-GEN2`**.
+- **Account-level shipping policy** "Free Ground Shipping (Continental US)": free, 48 contiguous states + DC only, handling 1–7 business days, transit 5–10 business days.
+- **Account-level return policy:** US, 30 days, by mail, customer pays return shipping, no restocking fee, no exchanges, refund processing 14 days (Merchant Center only takes calendar days; stands in for the site's "10 business days"). Verified by Google against `terms.html`.
+
+### Feed / schema rules (important)
+
+- **Keep `merchant-feed.xml` and the Product JSON-LD in `node.html` in sync** on price, sale price, availability, condition, and image URLs whenever any of them changes. On-page price must match too.
+- Current values: `price` 349.99 USD, `sale_price` 299.99 USD (JSON-LD: offer price 299.99 with a `StrikethroughPrice` of 349.99), `in_stock`, condition **`used`** / `UsedCondition`.
+- **Condition is "used" on purpose.** The phone box is opened to debloat the OS, which meets Google's definition of used. Do not switch to new or refurbished without asking.
+- **Do not add a `<g:shipping>` block to the feed.** Item-level shipping overrides the account policy and makes the listing offer free shipping to Alaska and Hawaii. (JSON-LD `shippingDetails` in `node.html` is fine and stays.)
+- Do not change the feed URL/filename, `SN-GEN2`, or the `google_product_category` (`Home & Garden > Emergency Preparedness > Emergency Tools & Kits`, accepted by Google).
+- **Changing a product image URL restarts Google's image crawl** (up to 3 days). Avoid renaming the four feed images again.
+- **`terms.html` return section is Google-verified.** Rewording the return window, return shipping, restocking fee, refund timing, or exchange lines can trigger a re-review; ask first. The same paragraph is mirrored at `node.html` (on-page terms) and `worker/askk-survival-node-knowledge.md` — keep all three identical.
+- Do not add `review` / `aggregateRating` markup unless real on-site reviews exist (the eBay feedback shown on the page does not qualify).
+- Do not declare a `Product` in JSON-LD on any page other than `node.html`. A bare Product on the homepage caused a Search Console "Either offers, review, or aggregateRating should be specified" error; the homepage now references the node page via `subjectOf` → `WebPage`.
+
+### Google Search Console
+
+- Property verified via the meta tag in `index.html` `<head>`:
+  `<meta name="google-site-verification" content="QCQunP0oLacijAqnjbk8UlRIXZLDDAZW89JEYco-xRw" />`
+  **It must stay permanently**; removing it drops verification.
+- `sitemap.xml` submitted (7 URLs). Indexing requested for `/`, `node.html`, `terms.html`, `privacy.html`.
+- `node.html` live test: Product snippets valid, Merchant listings valid. FAQ schema is harmless but no longer earns a rich result for commercial sites.
+
+### SEO changes shipped
+
+`node.html`:
+- Added a screen-reader-only `<h1>` (`.sr-only`) — the visible headline is an image, and the page previously had no H1.
+- Title now includes "Gen 2"; meta description cut to ~155 chars and includes price; removed meta keywords.
+- Added `og:image` / `twitter:image` (`images/survival-node-og.jpg`, 1200×800) and `product:*` OG tags.
+- Product JSON-LD expanded: images, `sku`/`mpn`, condition, strikethrough price, `shippingDetails`, `hasMerchantReturnPolicy` (`ReturnFeesCustomerResponsibility`, 30 days). Organization block gained logo, `sameAs`, phone, email.
+
+Site-wide:
+- `sitemap.xml` rewritten: removed `node-setup.html` (it is noindex), added `terms.html` and `privacy.html`, added image entries for `node.html`. Do not list noindexed pages in the sitemap.
+- `index.html` LocalBusiness schema: added phone, email, logo, image, `sameAs`, "Website Design".
+- `privacy.html`: added meta description + canonical.
+- `quick-start-insert.html`, `warranty-insert.html`, `deployment-insert.html`: now `noindex`.
+
+### Product photos
+
+- The four feed/schema/carousel images are now white-background JPEGs cut from the original phone photos:
+  - `images/carousel/entirenode/wholekit-gen2.jpg` (main)
+  - `images/carousel/solarbattery/solar-battery-gen2.jpg`
+  - `images/carousel/upgrades/faraday2.jpg`
+  - `images/carousel/case/case3.jpg`
+- The old `.png` versions are **kept on purpose** — `node-setup.html`, `testing.html`, and the flyer still use them.
+- Google's main image must show only the product on a plain background: no text, badges, watermarks, or borders. `images/logo4.png` has text overlays and is only suitable as a social image.
+- Background removal was done with macOS Vision subject lifting (`VNGenerateForegroundInstanceMaskRequest` via a small Swift script), then composited on white and exported as JPEG (~150–350 KB). Large PNGs were 1–2 MB each and too heavy for the page.
+- Known nits for a future reshoot: the solar battery image is only 708px wide, and the phone screen in the main photo shows a Gen 1 model name ("Llama-3.2-3B").
+
+### Wrangler deploy gotcha (very important)
+
+There are **two** Wrangler configs in this repo:
+- `wrangler.jsonc` at the repo root → worker **`eastern-shore-ai`**, a static mirror of the whole folder at `eastern-shore-ai.99redder.workers.dev`.
+- `worker/wrangler.toml` → worker **`eastern-shore-ai-contact`**, the real API.
+
+A deploy meant for the API went to the static mirror and published untracked files from `output/`. Always deploy the API with the config named explicitly and check the output says `Uploaded eastern-shore-ai-contact`:
+```bash
+cd worker && wrangler deploy --config wrangler.toml
+```
+`.assetsignore` now excludes `output/`. Anything else in the repo folder that should not be public on the mirror must be added there.
