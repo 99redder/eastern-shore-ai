@@ -17,3 +17,5 @@ AGENTS.md
 .claude/**
 .vscode
 .vscode/**
+output
+output/**
