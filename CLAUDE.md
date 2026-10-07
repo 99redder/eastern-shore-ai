@@ -984,6 +984,8 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
   **It must stay permanently**; removing it drops verification.
 - `sitemap.xml` submitted (7 URLs). Indexing requested for `/`, `node.html`, `terms.html`, `privacy.html`.
 - `node.html` live test: Product snippets valid, Merchant listings valid. FAQ schema is harmless but no longer earns a rich result for commercial sites.
+- **2026-10-07 — "Product snippets structured data issues" email:** nothing new to fix. The critical item ("Either offers, review, or aggregateRating should be specified", 1 item) was the bare homepage Product already removed in `7252bbd`; checked live that `node.html` is the only page declaring a Product and that it has a full offer. "Validate fix" was started for it in Search Console on 2026-10-07 (passed the quick initial check; Google emails the result).
+- The non-critical "Missing field aggregateRating" / "Missing field review" warnings stay as they are (no real on-site reviews). Do not press "Validate fix" on them; it would fail.
 
 ### SEO changes shipped
 
