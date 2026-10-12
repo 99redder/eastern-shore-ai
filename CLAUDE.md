@@ -982,14 +982,14 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
 - Property verified via the meta tag in `index.html` `<head>`:
   `<meta name="google-site-verification" content="QCQunP0oLacijAqnjbk8UlRIXZLDDAZW89JEYco-xRw" />`
   **It must stay permanently**; removing it drops verification.
-- `sitemap.xml` submitted (7 URLs). Indexing requested for `/`, `node.html`, `terms.html`, `privacy.html`.
+- `sitemap.xml` submitted (6 URLs; `ai-agent-repair.html` removed 2026-10-12). Indexing requested for `/`, `node.html`, `terms.html`, `privacy.html`.
 - `node.html` live test: Product snippets valid, Merchant listings valid. FAQ schema is harmless but no longer earns a rich result for commercial sites.
 - **2026-10-07 — "Product snippets structured data issues" email:** nothing new to fix. The critical item ("Either offers, review, or aggregateRating should be specified", 1 item) was the bare homepage Product already removed in `7252bbd`; checked live that `node.html` is the only page declaring a Product and that it has a full offer. "Validate fix" was started for it in Search Console on 2026-10-07 (passed the quick initial check; Google emails the result).
 - The non-critical "Missing field aggregateRating" / "Missing field review" warnings stay as they are (no real on-site reviews). Do not press "Validate fix" on them; it would fail.
 - **2026-10-12 — "New reasons preventing your pages from being indexed" email:** none of it affected real pages.
   - *Not found (404)*, 4 URLs: `www.easternshore.ai/api/...` paths Google lifted from the inline JS path strings. Added `Disallow: /api/` to `robots.txt` (the real API lives on the workers.dev host, nothing on www uses `/api/`). They will move to "Blocked by robots.txt", which is expected; do not press "Validate fix" on the 404 row.
   - *Alternate page with proper canonical tag*, 1 URL: `/index.html`, correctly folded into `/`. Internal Home links now use `/`; do not link to `/index.html`.
-  - *Crawled - currently not indexed*: `testing.html` (already noindex) and `ai-agent-repair.html` (in the sitemap but no page links to it; the homepage uses the quote modal instead).
+  - *Crawled - currently not indexed*: `testing.html` (already noindex) and `ai-agent-repair.html` (no page links to it; the homepage uses the quote modal instead, so it was dropped from the sitemap).
 
 ### SEO changes shipped
 
