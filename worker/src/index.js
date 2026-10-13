@@ -1229,7 +1229,7 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
   const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
-  const unitAmount = isByogSetup ? '6999' : '29999';
+  const unitAmount = isByogSetup ? '6999' : '24999';
   const productName = isByogSetup
     ? 'Survival Node BYOG Setup-Only Service'
     : 'Survival Node Gen 2';
@@ -6231,7 +6231,7 @@ It works completely without internet, cell signal, or the power grid.
 
 | Product | Price |
 |---------|-------|
-| Survival Node Gen 2 | Regularly $349.99; now $299.99 for a limited time while supplies last (save $50) |
+| Survival Node Gen 2 | Regularly $349.99; now $249.99 for a limited time while supplies last (save $100) |
 | BYOG Setup Service | $69.99 |
 
 **Free shipping** to all continental US states.
@@ -6699,7 +6699,7 @@ function fallbackAskKAnswer(question, context) {
   if (selectedUpgrades.length) contextBits.push(`Selected upgrades: ${selectedUpgrades.join(', ')}.`);
 
   if (q.includes('what') && q.includes('included')) {
-    return `The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. Survival Node Gen 2 is regularly $349.99, now $299.99 for a limited time while supplies last — a $50 saving, with free shipping to the continental U.S. ${contextBits.join(' ')}`.trim();
+    return `The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. Survival Node Gen 2 is regularly $349.99, now $249.99 for a limited time while supplies last — a $100 saving, with free shipping to the continental U.S. ${contextBits.join(' ')}`.trim();
   }
   if (q.includes('offline') || q.includes('internet') || q.includes('cell')) {
     return 'Yes — the Survival Node is designed to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi‑Fi, and no cell signal required.';

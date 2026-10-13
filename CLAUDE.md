@@ -968,7 +968,7 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
 ### Feed / schema rules (important)
 
 - **Keep `merchant-feed.xml` and the Product JSON-LD in `node.html` in sync** on price, sale price, availability, condition, and image URLs whenever any of them changes. On-page price must match too.
-- Current values: `price` 349.99 USD, `sale_price` 299.99 USD (JSON-LD: offer price 299.99 with a `StrikethroughPrice` of 349.99), `in_stock`, condition **`used`** / `UsedCondition`.
+- Current values: `price` 349.99 USD, `sale_price` 249.99 USD (JSON-LD: offer price 249.99 with a `StrikethroughPrice` of 349.99), `in_stock`, condition **`used`** / `UsedCondition`.
 - **Condition is "used" on purpose.** The phone box is opened to debloat the OS, which meets Google's definition of used. Do not switch to new or refurbished without asking.
 - **Do not add a `<g:shipping>` block to the feed.** Item-level shipping overrides the account policy and makes the listing offer free shipping to Alaska and Hawaii. (JSON-LD `shippingDetails` in `node.html` is fine and stays.)
 - Do not change the feed URL/filename, `SN-GEN2`, or the `google_product_category` (`Home & Garden > Emergency Preparedness > Emergency Tools & Kits`, accepted by Google).

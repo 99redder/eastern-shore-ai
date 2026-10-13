@@ -377,7 +377,7 @@
   rdt('track', 'PageVisit');
   rdt('track', 'ViewContent', {
     itemCount: 1,
-    value: 299.99,
+    value: 249.99,
     currency: 'USD',
     products: [{
       id: 'survival-node-core',
@@ -410,8 +410,8 @@
       <span class="order-total-label">Order Total</span>
       <p class="offer-regular">Regularly <s class="price-strike">$349.99</s></p>
       <span class="order-total-amount">
-        <span class="price-current">Now <span id="price-display">$299.99</span></span>
-        <span class="offer-save">Save $50</span>
+        <span class="price-current">Now <span id="price-display">$249.99</span></span>
+        <span class="offer-save">Save $100</span>
       </span>
       <p class="offer-urgency">Limited-time offer — while supplies last.</p>
     </div>
@@ -429,7 +429,7 @@
       </label>
       <div id="agree-terms-error" class="terms-agree-error" role="alert" aria-live="polite">&#9888; Please check the agreement box above to continue.</div>
       <button id="buy-btn" class="btn is-locked" type="button" aria-disabled="true">BUY SURVIVAL NODE GEN 2 NOW</button>
-      <p class="checkout-offer-note">Save $50 for a limited time — while supplies last.</p>
+      <p class="checkout-offer-note">Save $100 for a limited time — while supplies last.</p>
       <div id="status-msg" class="status-msg" aria-live="polite"></div>
     </div>
 
@@ -456,7 +456,7 @@
     const buyBtn      = document.getElementById('buy-btn');
     const priceDisplay = document.getElementById('price-display');
     const statusMsg   = document.getElementById('status-msg');
-    const BASE_PRICE  = 299.99;
+    const BASE_PRICE  = 249.99;
     const upgradeCatalog = new Map();
 
     // ===== Upgrade price =====

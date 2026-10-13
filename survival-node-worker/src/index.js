@@ -95,7 +95,7 @@ export default {
     const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
-    const unitAmount = isByogSetup ? '6999' : '29999';
+    const unitAmount = isByogSetup ? '6999' : '24999';
     const productName = isByogSetup
       ? 'Survival Node BYOG Setup-Only Service'
       : 'Survival Node';
