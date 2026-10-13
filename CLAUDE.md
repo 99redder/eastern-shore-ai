@@ -1035,3 +1035,4 @@ cd worker && wrangler deploy --config wrangler.toml
 - Windows (2026 only, edit the `SALES` array to change): Halloween through Oct 31, Thanksgiving Nov 1–30, Christmas Dec 1–25.
 - Price is $249.99 in every sale; the script never touches price, JSON-LD, or the merchant feed.
 - Preview any theme with `?sale=halloween|thanksgiving|christmas|none`.
+- Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in both pages or visitors keep the old copy.
