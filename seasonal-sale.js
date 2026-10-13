@@ -64,6 +64,8 @@
         0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
         100% { transform: translate3d(3rem, calc(100vh + 4rem), 0) rotate(300deg); }
       }
+      /* phones: the pieces drift across dense copy, so the layer is desktop-only */
+      @media (max-width: 820px) { .sale-drift { display: none; } }
       @media (prefers-reduced-motion: reduce) { .sale-drift { display: none; } }
     `;
     document.head.appendChild(style);
@@ -73,14 +75,14 @@
     const layer = document.createElement('div');
     layer.className = 'sale-drift';
     layer.setAttribute('aria-hidden', 'true');
-    const count = window.innerWidth < 600 ? 7 : 12;
+    const count = 5;
     for (let i = 0; i < count; i++) {
       const piece = document.createElement('span');
       piece.textContent = sale.drift[i % sale.drift.length];
       piece.style.left = (Math.random() * 96) + '%';
       piece.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
       piece.style.animationDuration = (14 + Math.random() * 14) + 's';
-      piece.style.animationDelay = (-Math.random() * 28) + 's';
+      piece.style.animationDelay = (-Math.random() * 28 - i * 5) + 's';
       layer.appendChild(piece);
     }
     document.body.appendChild(layer);
@@ -123,7 +125,7 @@
     if (buyCard) {
       const ribbon = document.createElement('div');
       ribbon.className = 'sale-ribbon';
-      ribbon.innerHTML = `${sale.icon} ${sale.name} — Save $100 ${sale.icon}<small>Ends ${sale.endsLong} · While supplies last</small>`;
+      ribbon.innerHTML = `${sale.icon} ${sale.name} — Save $100<small>Ends ${sale.endsLong} · While supplies last</small>`;
       buyCard.insertBefore(ribbon, buyCard.firstChild);
     }
   }
