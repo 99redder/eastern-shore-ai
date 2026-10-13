@@ -9,21 +9,21 @@
       key: 'halloween', name: 'Halloween Sale', start: '2026-10-01', end: '2026-10-31',
       endsLong: 'October 31', endsShort: 'Oct 31', icon: '🎃',
       drift: ['🎃', '🦇', '👻', '🕸️'],
-      banner: 'linear-gradient(90deg, #ff8a1f, #ffa733 65%, #b98cff)',
+      banner: '#ff8a1f',
       accent: '#ff8a1f', accentInk: '#1a0d00', glow: 'rgba(255, 138, 31, .55)'
     },
     {
       key: 'thanksgiving', name: 'Thanksgiving Sale', start: '2026-11-01', end: '2026-11-30',
       endsLong: 'November 30', endsShort: 'Nov 30', icon: '🦃',
       drift: ['🍂', '🍁', '🦃', '🌽'],
-      banner: 'linear-gradient(90deg, #d98e4a, #f0c987 60%, #c96f3b)',
+      banner: '#b5743a',
       accent: '#f0c987', accentInk: '#2b1606', glow: 'rgba(217, 142, 74, .55)'
     },
     {
       key: 'christmas', name: 'Christmas Sale', start: '2026-12-01', end: '2026-12-25',
       endsLong: 'December 25', endsShort: 'Dec 25', icon: '🎄',
       drift: ['❄️', '❄️', '🎄', '🎁'],
-      banner: 'linear-gradient(90deg, #ff6b6b, #ffe3e3 50%, #7fe0a0)',
+      banner: '#e5383b',
       accent: '#7fe0a0', accentInk: '#06210f', glow: 'rgba(255, 107, 107, .5)'
     }
   ];
