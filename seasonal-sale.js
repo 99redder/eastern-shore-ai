@@ -62,7 +62,7 @@
       }
       @keyframes sale-drift-fall {
         0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
-        100% { transform: translate3d(3rem, calc(100vh + 4rem), 0) rotate(300deg); }
+        100% { transform: translate3d(0, calc(100vh + 4rem), 0) rotate(300deg); }
       }
       /* phones: the pieces drift across dense copy, so the layer is desktop-only */
       @media (max-width: 820px) { .sale-drift { display: none; } }
@@ -71,21 +71,44 @@
     document.head.appendChild(style);
   }
 
+  // Pieces fall only in the empty gutters beside the page content, never over it.
   function addDrift(sale) {
     const layer = document.createElement('div');
     layer.className = 'sale-drift';
     layer.setAttribute('aria-hidden', 'true');
-    const count = 5;
-    for (let i = 0; i < count; i++) {
-      const piece = document.createElement('span');
-      piece.textContent = sale.drift[i % sale.drift.length];
-      piece.style.left = (Math.random() * 96) + '%';
-      piece.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
-      piece.style.animationDuration = (14 + Math.random() * 14) + 's';
-      piece.style.animationDelay = (-Math.random() * 28 - i * 5) + 's';
-      layer.appendChild(piece);
-    }
     document.body.appendChild(layer);
+
+    function fill() {
+      layer.textContent = '';
+      const content = document.querySelector('main.wrap, .buy-card');
+      if (!content) return;
+      const rect = content.getBoundingClientRect();
+      const gutters = [
+        { side: 'left', width: rect.left },
+        { side: 'right', width: document.documentElement.clientWidth - rect.right }
+      ];
+      const PIECE = 36; // widest piece plus room to rotate
+      let n = 0;
+      gutters.forEach(gutter => {
+        if (gutter.width < PIECE + 12) return;
+        for (let i = 0; i < 3; i++, n++) {
+          const piece = document.createElement('span');
+          piece.textContent = sale.drift[n % sale.drift.length];
+          piece.style[gutter.side] = (6 + Math.random() * (gutter.width - PIECE - 6)) + 'px';
+          piece.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
+          piece.style.animationDuration = (16 + Math.random() * 12) + 's';
+          piece.style.animationDelay = (-Math.random() * 10 - i * 9) + 's';
+          layer.appendChild(piece);
+        }
+      });
+    }
+
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(fill, 200);
+    });
+    fill();
   }
 
   function applySale(sale) {
