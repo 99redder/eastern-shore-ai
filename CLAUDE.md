@@ -1028,3 +1028,10 @@ A deploy meant for the API went to the static mirror and published untracked fil
 cd worker && wrangler deploy --config wrangler.toml
 ```
 `.assetsignore` now excludes `output/`. Anything else in the repo folder that should not be public on the mirror must be added there.
+
+## Seasonal sale themes (added 2026-10-13)
+
+- `seasonal-sale.js` (repo root) is loaded by `node.html` and `buynode.html`. It picks the active sale from the date in `America/New_York` and swaps promo copy, accent colors, and a drifting-emoji layer. Outside every window it does nothing, so the pages show their normal markup.
+- Windows (2026 only, edit the `SALES` array to change): Halloween through Oct 31, Thanksgiving Nov 1–30, Christmas Dec 1–25.
+- Price is $249.99 in every sale; the script never touches price, JSON-LD, or the merchant feed.
+- Preview any theme with `?sale=halloween|thanksgiving|christmas|none`.
