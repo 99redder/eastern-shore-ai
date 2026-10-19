@@ -1032,7 +1032,7 @@
         </div>
         <div>
           <div style="font-weight:700; margin-bottom:.35rem;">Preview <span class="web-muted" id="web-email-status" style="font-weight:400;"></span></div>
-          <iframe id="web-email-preview" title="Email preview" sandbox="" style="width:100%; height:520px; border:1px solid var(--line); background:#EEF0F3; display:block;"></iframe>
+          <div id="web-email-preview" role="region" aria-label="Email preview" style="width:100%; max-height:560px; overflow:auto; border:1px solid var(--line); background:#EEF0F3;"></div>
         </div>
       </div>
       <div class="form-actions" style="margin-top:1rem; gap:.5rem;">
@@ -1352,6 +1352,6 @@
   </div>
 
   <script src="/admin.js?v=admin-websites-1"></script>
-  <script src="/admin-websites.js?v=6"></script>
+  <script src="/admin-websites.js?v=7"></script>
 </body>
 </html>

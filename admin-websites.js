@@ -229,6 +229,15 @@
   let previewTimer = null;
   let previewSeq = 0;
 
+  // Render the worker's email HTML in a shadow root: isolated from the admin page's CSS,
+  // and not blocked by the page's CSP the way an iframe (frame-src) is.
+  function setPreviewHtml(html) {
+    const host = $('web-email-preview');
+    if (!host) return;
+    const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
+    root.innerHTML = `<style>:host{all:initial;display:block;} a{pointer-events:none;}</style>${html || ''}`;
+  }
+
   async function renderEmailPreview() {
     if (!emailDraft) return;
     const seq = ++previewSeq;
@@ -237,7 +246,7 @@
     try {
       const data = await call(API.link, { id: emailDraft.id, preview: true, subject: $('web-email-subject').value, body: $('web-email-body').value });
       if (seq !== previewSeq) return;
-      $('web-email-preview').srcdoc = `<!doctype html><meta charset="utf-8"><base target="_blank"><body style="margin:0">${data.html}</body>`;
+      setPreviewHtml(data.html);
       if (status) status.textContent = data.linkInBody ? '' : '(heads up: the agreement link is no longer in the email)';
     } catch (e) {
       if (status) status.textContent = `(preview failed: ${e.message})`;
@@ -251,7 +260,7 @@
     $('web-email-to').innerHTML = `To: <b>${escHtml(data.to)}</b> &middot; ${escHtml(c.business_name)}`;
     $('web-email-subject').value = data.subject;
     $('web-email-body').value = data.body;
-    $('web-email-preview').srcdoc = `<!doctype html><meta charset="utf-8"><base target="_blank"><body style="margin:0">${data.html}</body>`;
+    setPreviewHtml(data.html);
     $('web-email-status').textContent = '';
     const send = $('web-email-send-btn'); send.disabled = false; send.textContent = 'Send Email';
     showModal($('web-email-modal'));
