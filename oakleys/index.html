@@ -158,7 +158,7 @@ footer a { color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
-<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hours tr.today td:first-child::after { color: #fff; }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hours tr.today td:first-child::after { color: #fff; } .g-logo{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;margin-right:.3em;flex:none} .g-nw{white-space:nowrap}</style>
 <!-- m-layer:css -->
 <style>
 /* Phone-first layer (<= 700px). Desktop is unchanged. */
@@ -184,6 +184,8 @@ footer a { color: #fff; }
   .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
   .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
   .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
   .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #B23A2E; color: #FFFFFF; border-radius: 999px; }
   .m-call svg { width: 20px; height: 20px; }
   .m-sub { display: flex; gap: 10px; margin-top: 10px; }
@@ -246,7 +248,7 @@ footer a { color: #fff; }
   <div class="m-body">
     <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
     <h1 class="m-title">Fresh from the farm on Route 50.</h1>
-    <p class="m-lead">Sweet corn, watermelon, peaches and pick-your-own strawberries, plus pumpkins, hayrides and a corn maze in the fall. 4.5 stars on Google.</p>
+    <p class="m-lead">Sweet corn, watermelon, peaches and pick-your-own strawberries, plus pumpkins, hayrides and a corn maze in the fall. 4.5 stars on <span class="m-g"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>.</p>
     <a class="m-call" href="tel:+14108608553"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 860-8553</a>
     <div class="m-sub">
       <a href="https://www.google.com/maps/search/?api=1&amp;query=Oakley%27s+Farm+Market&amp;query_place_id=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener">Directions</a>
@@ -262,7 +264,7 @@ footer a { color: #fff; }
         <span class="badge" id="open-now" hidden>Open now</span>
         <h1>Fresh from the farm <span>on Route 50.</span></h1>
         <p class="lead">Sweet corn, watermelon, peaches, strawberries you pick yourself, and a fall full of pumpkins, hayrides and a corn maze. Right on the way to the beach in Hebron.</p>
-        <div class="stars"><b>4.5</b><span aria-hidden="true">★★★★★</span><small>from 199 Google reviews</small></div>
+        <div class="stars"><b>4.5</b><span aria-hidden="true">★★★★★</span><small>from 199 <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</small></div>
         <div class="actions">
           <a class="btn btn-main" href="https://www.google.com/maps/search/?api=1&amp;query=Oakley%27s+Farm+Market&amp;query_place_id=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Get directions</a>
           <a class="btn btn-ghost" href="tel:+14108608553">Call (410) 860-8553</a>
@@ -291,7 +293,7 @@ footer a { color: #fff; }
   <section class="block">
     <div class="wrap">
       <h2>From the farm stand</h2>
-      <p class="sub">A few photos from our Google listing.</p>
+      <p class="sub">A few photos from our <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> listing.</p>
       <div class="gallery">
         <figure><img src="img/oak_3.webp" alt="Baskets of peaches and nectarines and jars of preserves on crates stamped Oakley's Farm Mkt" loading="lazy"><figcaption>Peaches</figcaption></figure>
         <figure><img src="img/oak_6.webp" alt="Close-up of fresh strawberries" loading="lazy"><figcaption>Strawberries</figcaption></figure>
@@ -315,27 +317,27 @@ footer a { color: #fff; }
   <section class="block">
     <div class="wrap">
       <h2>What customers say</h2>
-      <p class="sub">From our Google reviews.</p>
+      <p class="sub">From our <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews.</p>
       <div class="rgrid">
         <figure>
           <div class="rs" aria-label="5 stars">★★★★★</div>
           <blockquote>Whenever I drive to the beach, Oakley’s farm market is a required stop on the way. The watermelon and sweet corn I picked up had all of my family asking me where I got it from.</blockquote>
-          <figcaption>Nate · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Nate · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <div class="rs" aria-label="5 stars">★★★★★</div>
           <blockquote>You can pick your own pumpkin from the field or choose one they already harvested. Lots of other produce and goods too, we always have fun.</blockquote>
-          <figcaption>Jenna · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Jenna · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <div class="rs" aria-label="5 stars">★★★★★</div>
           <blockquote>Recently took a field trip of 25 kids, all had a great time! Friendly and helpful staff. Hayride. Pumpkin picking.</blockquote>
-          <figcaption>Mark · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Mark · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <div class="rs" aria-label="5 stars">★★★★★</div>
           <blockquote>Nothing like supporting a local farmer! Everything we got was great. Try their cantaloupe and giant carrots. Delicious</blockquote>
-          <figcaption>Scot · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Scot · <a href="https://search.google.com/local/reviews?placeid=ChIJsddaCskBuYkRqmSu3lzsEG8" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
       </div>
     </div>

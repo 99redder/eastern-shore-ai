@@ -163,7 +163,7 @@ footer a { color: var(--manila); }
   @media (hover: hover) and (pointer: fine) { .js-ticks .checklist.in li:hover .tick path { animation: tick-redraw .38s cubic-bezier(.5,0,.3,1); } }
 }
 </style>
-<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } :root { --orange: #B8500F; } @media (max-width: 700px) { .m-tagwrap .stamp { top: 12px; right: 12px; } }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } :root { --orange: #B8500F; } @media (max-width: 700px) { .m-tagwrap .stamp { top: 12px; right: 12px; } } .g-logo{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;margin-right:.3em;flex:none} .g-nw{white-space:nowrap} .fa-ico .fg{fill:var(--green)} .fa-ico .fo{fill:var(--orange)} .fa-ico .fi{fill:var(--ink)} .fa-ico .fm{fill:var(--manila)} .machines li{align-items:center} .mach-ico{flex:none;width:60px;height:38px} .strip .wrap > div{display:grid;grid-template-columns:52px minmax(0,1fr);column-gap:14px;align-items:center} .strip-ico{grid-row:span 2;width:52px;height:40px;justify-self:center} .strip .g-logo.strip-ico{width:28px;height:28px;padding:6px;margin:0;background:#fff;border-radius:50%;box-sizing:content-box;vertical-align:0} .why-ico{display:block;width:44px;height:44px;margin:0 0 10px} @media (max-width: 700px) { .mach-ico{width:52px;height:33px} .strip .wrap > div{grid-template-columns:46px minmax(0,1fr)} .strip-ico{width:46px;height:36px} .strip .g-logo.strip-ico{width:24px;height:24px} }</style>
 <!-- m-layer:css -->
 <style>
 /* Phone-first layer (<= 700px). Desktop is unchanged. */
@@ -189,6 +189,8 @@ footer a { color: var(--manila); }
   .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
   .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
   .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
   .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #D2601A; color: #FFFFFF; border-radius: 8px; }
   .m-call svg { width: 20px; height: 20px; }
   .m-sub { display: flex; gap: 10px; margin-top: 10px; }
@@ -280,9 +282,9 @@ footer a { color: var(--manila); }
 
   <div class="strip">
     <div class="wrap">
-      <div><b>Pickup available</b>for mowers you can't haul</div>
-      <div><b>Warranty</b>on repair work</div>
-      <div><b>4.7 stars</b>on Google</div>
+      <div><svg class="fa-ico strip-ico" viewBox="0 0 64 40" aria-hidden="true" focusable="false"><rect class="fo" x="7" y="13" width="14" height="9" rx="1.5"/><rect class="fm" x="3" y="22" width="28" height="5" rx="1"/><path d="M31 25h6" stroke="var(--manila)" stroke-width="2.5" stroke-linecap="round"/><path class="fm" d="M37 12h13l9 9v9H37z"/><path class="fi" d="M41 15h8l5.5 6H41z"/><circle cx="17" cy="31" r="4.5" fill="#EDEAE0"/><circle class="fi" cx="17" cy="31" r="1.7"/><circle cx="43" cy="31" r="4.5" fill="#EDEAE0"/><circle class="fi" cx="43" cy="31" r="1.7"/><circle cx="54" cy="31" r="4.5" fill="#EDEAE0"/><circle class="fi" cx="54" cy="31" r="1.7"/></svg><b>Pickup available</b>for mowers you can't haul</div>
+      <div><svg class="fa-ico strip-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path class="fm" d="M24 4l16 6v12c0 10-7 17-16 21C15 39 8 32 8 22V10z"/><path d="M16 23l5.5 5.5L32 18" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Warranty</b>on repair work</div>
+      <div><svg class="g-logo strip-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><b>4.7 stars</b>on Google</div>
     </div>
   </div>
 
@@ -291,10 +293,10 @@ footer a { color: var(--manila); }
       <h2 class="sec">What we fix</h2>
       <p class="sub">Got another small engine that needs work? Call and ask. Describe the problem over the phone and we'll tell you straight.</p>
       <ul class="machines">
-        <li>Zero-turn mowers</li>
-        <li>Riding mowers and lawn tractors</li>
-        <li>Push mowers</li>
-        <li>Generators</li>
+        <li><svg class="fa-ico mach-ico" viewBox="0 0 64 40" aria-hidden="true" focusable="false"><rect class="fo" x="20" y="29" width="30" height="5" rx="1.5"/><path class="fg" d="M5 22h45l6 6v3H5z"/><path class="fg" d="M11 22V8a2 2 0 0 1 2-2h4v11h9v5z"/><path d="M31 21V11h6" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle class="fi" cx="14" cy="30" r="9"/><circle class="fm" cx="14" cy="30" r="3.5"/><circle class="fi" cx="54" cy="34" r="5"/><circle class="fm" cx="54" cy="34" r="1.8"/></svg>Zero-turn mowers</li>
+        <li><svg class="fa-ico mach-ico" viewBox="0 0 64 40" aria-hidden="true" focusable="false"><rect class="fo" x="24" y="30" width="20" height="4" rx="1.5"/><path class="fg" d="M29 13h17l9 8v8H29z"/><path class="fg" d="M6 21h24v8H6z"/><path class="fg" d="M8 21v-9a2 2 0 0 1 2-2h4v7h9v4z"/><rect class="fo" x="49" y="17" width="4" height="3" rx="1"/><path d="M27 21l4-12M28 8l8 2" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/><circle class="fi" cx="15" cy="29" r="10"/><circle class="fm" cx="15" cy="29" r="4"/><circle class="fi" cx="50" cy="32" r="7"/><circle class="fm" cx="50" cy="32" r="2.6"/></svg>Riding mowers and lawn tractors</li>
+        <li><svg class="fa-ico mach-ico" viewBox="0 0 64 40" aria-hidden="true" focusable="false"><path d="M26 26 12 5M8 8l8-5" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><rect class="fo" x="31" y="14" width="15" height="10" rx="2"/><rect class="fi" x="35" y="11" width="7" height="3" rx="1"/><path class="fg" d="M23 24h27c4 0 8 3 8 8H18c0-4 2-8 5-8z"/><circle class="fi" cx="25" cy="34" r="5"/><circle class="fm" cx="25" cy="34" r="1.8"/><circle class="fi" cx="51" cy="34" r="5"/><circle class="fm" cx="51" cy="34" r="1.8"/></svg>Push mowers</li>
+        <li><svg class="fa-ico mach-ico" viewBox="0 0 64 40" aria-hidden="true" focusable="false"><rect x="9" y="7" width="46" height="25" rx="3" fill="none" stroke="var(--ink)" stroke-width="3"/><rect class="fg" x="14" y="12" width="36" height="17" rx="2"/><rect class="fo" x="31" y="9" width="16" height="6" rx="1.5"/><rect class="fm" x="18" y="16" width="10" height="9" rx="1"/><circle class="fi" cx="21" cy="20.5" r="1.3"/><circle class="fi" cx="25" cy="20.5" r="1.3"/><circle class="fi" cx="13" cy="34" r="5"/><circle class="fm" cx="13" cy="34" r="1.8"/><rect class="fi" x="48" y="31" width="6" height="7" rx="1"/></svg>Generators</li>
       </ul>
     </div>
   </section>
@@ -320,9 +322,9 @@ footer a { color: var(--manila); }
       <h2 class="sec">Why folks keep coming back</h2>
       <p class="sub">Some customers have been bringing their equipment here for 20 years.</p>
       <div class="why-grid">
-        <div><h3>You'll know what's wrong</h3><p>Frank explains the problem, how to fix it, and your options before any work starts.</p></div>
-        <div><h3>We'll come get it</h3><p>No trailer? Ask about pickup and drop-off for your mower.</p></div>
-        <div><h3>Work you can count on</h3><p>Repairs come with a warranty and fair, reasonable pricing.</p></div>
+        <div><svg class="fa-ico why-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path class="fm" d="M7 7h34a3 3 0 0 1 3 3v20a3 3 0 0 1-3 3H22l-10 8v-8H7a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3z" stroke="var(--green)" stroke-width="2.6" stroke-linejoin="round"/><circle class="fg" cx="15" cy="20" r="3"/><circle class="fg" cx="24" cy="20" r="3"/><circle class="fo" cx="33" cy="20" r="3"/></svg><h3>You'll know what's wrong</h3><p>Frank explains the problem, how to fix it, and your options before any work starts.</p></div>
+        <div><svg class="fa-ico why-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path class="fg" d="M4 20h20v-8h12l6 8h4v12H4z"/><path class="fm" d="M26 14h8.5l4.5 6H26z"/><circle class="fi" cx="13" cy="33" r="5.5"/><circle class="fm" cx="13" cy="33" r="2"/><circle class="fi" cx="37" cy="33" r="5.5"/><circle class="fm" cx="37" cy="33" r="2"/><rect class="fo" x="6" y="14" width="12" height="6" rx="1"/></svg><h3>We'll come get it</h3><p>No trailer? Ask about pickup and drop-off for your mower.</p></div>
+        <div><svg class="fa-ico why-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path class="fo" d="M15 30l-5 14 7-3 4 6 4-12zM33 30l5 14-7-3-4 6-4-12z"/><circle class="fg" cx="24" cy="20" r="15"/><path d="M17 20.5l5 5 9-10" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg><h3>Work you can count on</h3><p>Repairs come with a warranty and fair, reasonable pricing.</p></div>
       </div>
     </div>
   </section>
@@ -330,19 +332,19 @@ footer a { color: var(--manila); }
   <section class="block">
     <div class="wrap">
       <h2 class="sec">What customers say</h2>
-      <p class="sub">From our Google reviews.</p>
+      <p class="sub">From our <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews.</p>
       <div class="quotes">
         <figure>
           <blockquote>Conveniently offers pick-up service for your lawnmower if you don't have a way to transport it. Offers a competitive warranty for his work and great pricing.</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJHYsYiaj9uIkRvpffUbQVIgA" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJHYsYiaj9uIkRvpffUbQVIgA" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <blockquote>Frank has repaired our zero turn lawn mower and two generators. Reasonably priced and I will be recommending him and his son to anyone who needs small engine repair.</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJHYsYiaj9uIkRvpffUbQVIgA" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJHYsYiaj9uIkRvpffUbQVIgA" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <blockquote>He takes the time to tell you what the problem is, how to fix it and provides you with options if there are any.</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJHYsYiaj9uIkRvpffUbQVIgA" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJHYsYiaj9uIkRvpffUbQVIgA" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
       </div>
     </div>

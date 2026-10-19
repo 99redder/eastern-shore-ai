@@ -175,7 +175,7 @@ footer a { color: #fff; }
   .top .diamond { animation: sign-settle 1.4s cubic-bezier(.3,.7,.4,1) .3s both; }
 }
 </style>
-<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero-photo img { object-position: 85% 50%; } @media (max-width: 700px) { .visit .actions .btn { flex: 1 1 100%; justify-content: center; } }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero-photo img { object-position: 85% 50%; } @media (max-width: 700px) { .visit .actions .btn { flex: 1 1 100%; justify-content: center; } } .svc { --acc: var(--blue); } .svc.red { --acc: var(--red); } .svc.yel { --acc: var(--sign-dk); } .svc-ico { display: block; width: 48px; height: 40px; color: var(--navy); margin-bottom: 12px; overflow: visible; } .bay { --acc: var(--sign); } .bay span { display: inline-flex; align-items: center; gap: .5em; } .bay span + span::before { content: none; } .bay-ico { width: 1.55em; height: 1.35em; color: var(--sign); flex: none; } @media (max-width: 600px) { .bay span { justify-content: center; } } @media (prefers-reduced-motion: no-preference) { .svc-ico { animation: svc-in .6s ease-out both; animation-timeline: view(); animation-range: entry 0% entry 60%; } @keyframes svc-in { from { opacity: 0; translate: 0 8px; } } } .g-logo{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;margin-right:.3em;flex:none} span.g-nw{white-space:nowrap;color:inherit;letter-spacing:inherit;font-size:inherit}</style>
 <!-- m-layer:css -->
 <style>
 /* Phone-first layer (<= 700px). Desktop is unchanged. */
@@ -201,6 +201,8 @@ footer a { color: #fff; }
   .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
   .m-title { font-family: var(--display); text-transform:uppercase;font-weight:700; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
   .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
   .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #14233F; color: #FFFFFF; border-radius: 8px; }
   .m-call svg { width: 20px; height: 20px; }
   .m-sub { display: flex; gap: 10px; margin-top: 10px; }
@@ -242,6 +244,14 @@ footer a { color: #fff; }
 <!-- /m-layer:css -->
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="gi-engine" viewBox="0 0 24 24" preserveAspectRatio="xMinYMid meet"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9h3V7h6v2h3l2 2v6l-2 2H6z"/><path d="M3 11v6M3 14h3M20 12h1.5v4H20"/></g><path d="M9.5 4h5M12 4v3" fill="none" stroke-width="2" stroke-linecap="round" style="stroke:var(--acc)"/><path d="M12.6 10.5 10.6 14h2.8l-2 3.5" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--acc)"/></symbol>
+  <symbol id="gi-brake" viewBox="0 0 24 24" preserveAspectRatio="xMinYMid meet"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="13" r="8.5"/><circle cx="11" cy="13" r="2.6"/></g><g fill="currentColor"><circle cx="11" cy="7.6" r="1"/><circle cx="16.1" cy="14.7" r="1"/><circle cx="5.9" cy="14.7" r="1"/><circle cx="7.8" cy="17.6" r="1"/><circle cx="14.2" cy="17.6" r="1"/></g><path d="M15.2 2.6a11 11 0 0 1 6.2 6.6l-4.1 1.4a6.6 6.6 0 0 0-3.6-3.9z" style="fill:var(--acc)" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+  <symbol id="gi-wheel" viewBox="0 0 24 24" preserveAspectRatio="xMinYMid meet"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="8"/><circle cx="12" cy="10" r="2.5"/><path d="M12 7.5V4.5M14.4 9.2l2.9-.9M13.5 12l1.8 2.4M10.5 12l-1.8 2.4M9.6 9.2l-2.9-.9"/></g><path d="M4.5 21.5h15M6.8 19.6 4.6 21.5l2.2 1.9M17.2 19.6l2.2 1.9-2.2 1.9" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--acc)"/></symbol>
+  <symbol id="gi-oil" viewBox="0 4 24 17" preserveAspectRatio="xMinYMid meet"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h9l2.5 2.5 7.5-4.5-6 10H5.5a2 2 0 0 1-2-2z"/><path d="M7 10.5v-3h4v3M6 7.5h6M3.5 12.5H1.8v-3"/></g><path d="M21.5 12.3c.8 1.1 1.5 2 1.5 3.1 0 .9-.7 1.6-1.5 1.6s-1.5-.7-1.5-1.6c0-1.1.7-2 1.5-3.1z" transform="translate(.5 1.2)" style="fill:var(--acc)"/></symbol>
+  <symbol id="gi-inspect" viewBox="0 0 24 24" preserveAspectRatio="xMinYMid meet"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4.5" y="4" width="15" height="18" rx="1.5"/><path d="M9 2.5h6v3.5H9z"/></g><path d="M8.3 13.4l2.6 2.6 4.8-5.2" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--acc)"/></symbol>
+  <symbol id="gi-tow" viewBox="0 0 64 38" preserveAspectRatio="xMinYMid meet"><path fill="currentColor" fill-rule="evenodd" d="M3 28V18.5L9.5 10H25v10h32a3 3 0 0 1 3 3v5zM11 12.5h11.5V18H7z"/><path d="M29 20 50.5 5" stroke-width="4" stroke-linecap="round" style="stroke:var(--acc)"/><path d="M50.5 5v8.5" stroke-width="1.8" fill="none" style="stroke:var(--acc)"/><path d="M50.5 13.5v3.2a2.4 2.4 0 1 1-4.8 0" stroke-width="2.2" fill="none" stroke-linecap="round" style="stroke:var(--acc)"/><circle cx="14" cy="32" r="4.2" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="48" cy="32" r="4.2" fill="none" stroke="currentColor" stroke-width="3"/></symbol>
+</defs></svg>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Grant's Service Center, home">
@@ -265,7 +275,7 @@ footer a { color: #fff; }
   <div class="m-body">
     <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
     <h1 class="m-title">Truck & auto repair, towing and roadside help.</h1>
-    <p class="m-lead">Family-owned in Salisbury for over 50 years. 4.9 stars from 2,600+ Google reviews.</p>
+    <p class="m-lead">Family-owned in Salisbury for over 50 years. 4.9 stars from 2,600+ <span class="m-g"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews.</p>
     <a class="m-call" href="tel:+14107423243"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 742-3243</a>
     <div class="m-sub">
       <a href="https://www.google.com/maps/search/?api=1&amp;query=Grant%27s+Service+Center+101+Alexander+Ave+Salisbury+MD+21801" target="_blank" rel="noopener">Directions</a>
@@ -281,7 +291,7 @@ footer a { color: #fff; }
         <span class="badge" id="open-now" hidden>Open now</span>
         <h1>Truck &amp; auto repair, <em>towing</em> and roadside help in Salisbury.</h1>
         <p class="lead">Family-owned and serving Salisbury for over 50 years. Brakes, alignments, tune-ups and Maryland safety inspections on Business 13 at Alexander Avenue, with our own flatbeds on the road.</p>
-        <div class="stars"><b>4.9</b><span aria-hidden="true">★★★★★</span><small>from 2,600+ Google reviews</small></div>
+        <div class="stars"><b>4.9</b><span aria-hidden="true">★★★★★</span><small>from 2,600+ <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google reviews</span></small></div>
         <div class="actions">
           <a class="btn btn-main" href="tel:+14107423243"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 742-3243</a>
           <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Grant%27s+Service+Center+101+Alexander+Ave+Salisbury+MD+21801" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
@@ -295,7 +305,7 @@ footer a { color: #fff; }
   </section>
 
   <div class="bay" aria-label="Painted on our bay doors">
-    <div class="wrap"><span>Truck Repairs</span><span>Wheel Alignment</span><span>Brakes</span><span>Tune-Up</span></div>
+    <div class="wrap"><span><svg class="bay-ico" aria-hidden="true" focusable="false"><use href="#gi-engine"/></svg>Truck Repairs</span><span><svg class="bay-ico" aria-hidden="true" focusable="false"><use href="#gi-wheel"/></svg>Wheel Alignment</span><span><svg class="bay-ico" aria-hidden="true" focusable="false"><use href="#gi-brake"/></svg>Brakes</span><span><svg class="bay-ico" aria-hidden="true" focusable="false"><use href="#gi-oil"/></svg>Tune-Up</span></div>
   </div>
 
   <section class="block" id="services">
@@ -303,12 +313,12 @@ footer a { color: #fff; }
       <h2>What we do</h2>
       <p class="sub">Cars and trucks, from routine maintenance to a tow off the road. AAA Approved Auto Repair with ASE-certified technicians.</p>
       <div class="svcs">
-        <div class="svc"><h3>Truck &amp; auto repair</h3><p>Engine diagnostics, A/C, electrical, cooling, exhaust and transmissions.</p></div>
-        <div class="svc red"><h3>Brakes</h3><p>Brake inspections and brake work.</p></div>
-        <div class="svc"><h3>Alignment &amp; suspension</h3><p>Wheel alignment, steering, suspension and tire service.</p></div>
-        <div class="svc yel"><h3>Tune-ups &amp; oil changes</h3><p>Routine service to keep it running right.</p></div>
-        <div class="svc"><h3>Maryland safety inspections</h3><p>An Authorized Maryland Vehicle Safety Inspection Station.</p></div>
-        <div class="svc red"><h3>Towing &amp; AAA roadside</h3><p>Flatbed towing, flat tires, jump starts and lockouts.</p></div>
+        <div class="svc"><svg class="svc-ico" aria-hidden="true" focusable="false"><use href="#gi-engine"/></svg><h3>Truck &amp; auto repair</h3><p>Engine diagnostics, A/C, electrical, cooling, exhaust and transmissions.</p></div>
+        <div class="svc red"><svg class="svc-ico" aria-hidden="true" focusable="false"><use href="#gi-brake"/></svg><h3>Brakes</h3><p>Brake inspections and brake work.</p></div>
+        <div class="svc"><svg class="svc-ico" aria-hidden="true" focusable="false"><use href="#gi-wheel"/></svg><h3>Alignment &amp; suspension</h3><p>Wheel alignment, steering, suspension and tire service.</p></div>
+        <div class="svc yel"><svg class="svc-ico" aria-hidden="true" focusable="false"><use href="#gi-oil"/></svg><h3>Tune-ups &amp; oil changes</h3><p>Routine service to keep it running right.</p></div>
+        <div class="svc"><svg class="svc-ico" aria-hidden="true" focusable="false"><use href="#gi-inspect"/></svg><h3>Maryland safety inspections</h3><p>An Authorized Maryland Vehicle Safety Inspection Station.</p></div>
+        <div class="svc red"><svg class="svc-ico" aria-hidden="true" focusable="false"><use href="#gi-tow"/></svg><h3>Towing &amp; AAA roadside</h3><p>Flatbed towing, flat tires, jump starts and lockouts.</p></div>
       </div>
     </div>
   </section>
@@ -344,22 +354,22 @@ footer a { color: #fff; }
   <section class="block reviews">
     <div class="wrap">
       <h2>4.9 stars from 2,600+ reviews</h2>
-      <p class="sub">A few words from customers on Google.</p>
+      <p class="sub">A few words from customers on <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google.</span></p>
       <div class="rgrid">
         <figure>
           <div class="rs" aria-label="5 stars">★★★★★</div>
           <blockquote>Tristan was a LIFESAVER getting me into my locked car. He is very professional, timely…</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJ8dz-f6MDuYkRGEN8KZZ602Q" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJ8dz-f6MDuYkRGEN8KZZ602Q" target="_blank" rel="noopener"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <div class="rs" aria-label="5 stars">★★★★★</div>
           <blockquote>They fixed both and only charged me for the light... not even a diagnostic charge! … they do good and honest work at Grant's.</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJ8dz-f6MDuYkRGEN8KZZ602Q" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJ8dz-f6MDuYkRGEN8KZZ602Q" target="_blank" rel="noopener"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <div class="rs" aria-label="5 stars">★★★★★</div>
           <blockquote>…my tire was completely changed! … 23 yrs of relying on you guys and I'm always pleased!</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJ8dz-f6MDuYkRGEN8KZZ602Q" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJ8dz-f6MDuYkRGEN8KZZ602Q" target="_blank" rel="noopener"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
       </div>
     </div>

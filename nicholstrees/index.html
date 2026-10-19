@@ -189,7 +189,7 @@ footer a { color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } #visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } }</style>
+<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } #visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } .g-logo{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;margin-right:.3em;flex:none} .g-w{white-space:nowrap} .reviews h2 .g-logo{background:#fff;border-radius:50%;padding:.12em;box-sizing:content-box;vertical-align:-.26em} .facts .f-ico{display:block;width:34px;height:34px;margin:0 auto 10px;color:var(--kraft)} .tags .t-ico{display:block;width:36px;height:36px;margin:0 0 12px;color:var(--pine)} .tags .tag.alert .t-ico{color:#fff} .stand li.ico{align-items:center} .stand li.ico::before{display:none} .stand .s-ico{width:30px;height:30px;flex:none;color:var(--pine)} .stand .s-ico .ac{stroke:var(--berry)}</style>
 <style id="sig-anim">
 /* Signature: the kraft tree tags swing on their twine hole as they scroll into view, then settle. */
 @keyframes tagswing {
@@ -233,6 +233,8 @@ footer a { color: #fff; }
   .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
   .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
   .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
   .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #1E4632; color: #FFFFFF; border-radius: 8px; }
   .m-call svg { width: 20px; height: 20px; }
   .m-sub { display: flex; gap: 10px; margin-top: 10px; }
@@ -314,7 +316,7 @@ footer a { color: #fff; }
         <span class="badge" id="open-now" hidden>Open now</span>
         <h1>Cut your own <em>Christmas tree</em> in Hebron.</h1>
         <p class="lead">Nichols Tree Farm has been growing Christmas trees for more than 50 years. Walk over 20 acres and 16 varieties, find the one you want, and cut it yourself. One price for any size.</p>
-        <div class="stars"><b>4.3</b><span aria-hidden="true">★★★★★</span><small>from 26 Google reviews</small></div>
+        <div class="stars"><b>4.3</b><span aria-hidden="true">★★★★★</span><small>from 26 <span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</small></div>
         <div class="actions">
           <a class="btn btn-main" href="tel:+14435232217"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (443) 523-2217</a>
           <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Nichols+Tree+Farm&amp;query_place_id=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
@@ -330,10 +332,10 @@ footer a { color: #fff; }
 
   <div class="facts" aria-label="The farm at a glance">
     <div class="wrap">
-      <div><b>50+</b><span>years running</span></div>
-      <div><b>20+</b><span>acres of trees</span></div>
-      <div><b>16</b><span>varieties</span></div>
-      <div><b>1</b><span>price for any size</span></div>
+      <div><svg class="f-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="7.5" rx="8" ry="3.5"/><ellipse cx="12" cy="7.5" rx="4" ry="1.6"/><path d="M4 7.5v9.5c0 2 3.6 3.5 8 3.5s8-1.5 8-3.5V7.5M4 17l-2 2.5M20 17l2 2.5M9 12.5v3M15 13v4"/></svg><b>50+</b><span>years running</span></div>
+      <div><svg class="f-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 20.5 6 5.5h12l4 15z"/><path d="M10 5.5 9 20.5M14 5.5l1 15M4.4 11.5h15.2M3.2 16h17.6"/></svg><b>20+</b><span>acres of trees</span></div>
+      <div><svg class="f-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5.5 4 3 11.5h5zM5.5 11.5v3"/><path d="M12 3 8.5 9h2L8 14h8l-2.5-5h2zM12 14v3"/><circle cx="19" cy="8.5" r="3.5"/><path d="M19 12v3"/><path d="M2 20.5h20"/></svg><b>16</b><span>varieties</span></div>
+      <div><svg class="f-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><b>1</b><span>price for any size</span></div>
     </div>
   </div>
   <div class="flannel" aria-hidden="true"></div>
@@ -344,12 +346,12 @@ footer a { color: #fff; }
       <h2>Picking out your tree</h2>
       <p class="sub">Come out during the season, walk the rows and pick the tree that fits your room. Here is what to know before you go.</p>
       <div class="tags">
-        <div class="tag"><span class="no">1</span><h3>Choose and cut</h3><p>Over 20 acres and 16 varieties to walk through. You pick it, you cut it.</p></div>
-        <div class="tag"><span class="no">2</span><h3>Bring a saw, or borrow ours</h3><p>Bring your own saw if you like. If not, borrow one of ours.</p></div>
-        <div class="tag"><span class="no">3</span><h3>One price, any size</h3><p>Whatever size you choose, every tree is the same price. Call for this year's price.</p></div>
-        <div class="tag"><span class="no">4</span><h3>Live balled trees</h3><p>Want a tree you can plant after the holidays? Live balled trees are available too.</p></div>
-        <div class="tag"><span class="no">5</span><h3>Twine for the ride home</h3><p>We don't wrap trees. If you need it, we'll give you twine to tie yours down.</p></div>
-        <div class="tag alert"><span class="no">6</span><h3>Cash only</h3><p>We take cash only, so please bring cash with you.</p></div>
+        <div class="tag"><span class="no">1</span><svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2.5 7.5 9h3L6 15h4l-4.5 5.5h13L14 15h4l-4.5-6h3z"/><path d="M12 20.5v2"/></svg><h3>Choose and cut</h3><p>Over 20 acres and 16 varieties to walk through. You pick it, you cut it.</p></div>
+        <div class="tag"><span class="no">2</span><svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 5.5H9v11H5A2.5 2.5 0 0 1 2.5 14V6.5a1 1 0 0 1 1-1z"/><path d="M5.2 8.5h1.6v4.5H5.2z" stroke-width="1.5"/><path d="M9 7.5h13v4.5L9 15"/><path d="M9.00 15.00 L10.62 16.23 L12.25 14.25 L13.88 15.47 L15.50 13.50 L17.12 14.72 L18.75 12.75 L20.38 13.97 L22.00 12.00" stroke-width="1.6"/></svg><h3>Bring a saw, or borrow ours</h3><p>Bring your own saw if you like. If not, borrow one of ours.</p></div>
+        <div class="tag"><span class="no">3</span><svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><h3>One price, any size</h3><p>Whatever size you choose, every tree is the same price. Call for this year's price.</p></div>
+        <div class="tag"><span class="no">4</span><svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2 8 8h2.5l-4 5.5h11l-4-5.5H16z"/><path d="M12 13.5v2"/><ellipse cx="12" cy="18.8" rx="5.8" ry="3.2"/><path d="M7.5 16.9l9 3.8M16.5 16.9l-9 3.8"/></svg><h3>Live balled trees</h3><p>Want a tree you can plant after the holidays? Live balled trees are available too.</p></div>
+        <div class="tag"><span class="no">5</span><svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="10.5" cy="11" r="7.5"/><path d="M4.2 7.2c3.8 2.4 8.8 2.4 12.6 0M3.2 12c4.4 2.6 10.2 2.6 14.6 0M6 17c2.4-3.4 6.6-5 11.4-5.6"/><path d="M14.5 17.6c1.6 2.2 3.8 3 7.5 2.9"/></svg><h3>Twine for the ride home</h3><p>We don't wrap trees. If you need it, we'll give you twine to tie yours down.</p></div>
+        <div class="tag alert"><span class="no">6</span><svg class="t-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg><h3>Cash only</h3><p>We take cash only, so please bring cash with you.</p></div>
       </div>
     </div>
   </section>
@@ -362,8 +364,8 @@ footer a { color: #fff; }
         <h2>Popcorn and Christmas cacti</h2>
         <p>Trees aren't the only thing to take home. Customers keep mentioning two extras.</p>
         <ul>
-          <li>Home-grown, hand-picked popcorn</li>
-          <li>Christmas cacti</li>
+          <li class="ico"><svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5.5 10.5 7.3 21h9.4l1.8-10.5z"/><path class="ac" d="M9.8 10.5l.6 10.5M14.2 10.5l-.6 10.5"/><path d="M5.5 10.5a2.2 2.2 0 0 1 1.3-3.9 2.6 2.6 0 0 1 4.4-2 2.6 2.6 0 0 1 4.3.4 2.2 2.2 0 0 1 3 5.5"/></svg>Home-grown, hand-picked popcorn</li>
+          <li class="ico"><svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 15.5h10l-1.4 6H8.4z"/><path d="M6 15.5h12"/><ellipse cx="12" cy="12.6" rx="1.25" ry="1.75" transform="rotate(0 12 12.6)" fill="currentColor" stroke="none"/><ellipse cx="12" cy="9.4" rx="1.25" ry="1.75" transform="rotate(0 12 9.4)" fill="currentColor" stroke="none"/><ellipse cx="9.7" cy="12.4" rx="1.25" ry="1.75" transform="rotate(-40 9.7 12.4)" fill="currentColor" stroke="none"/><ellipse cx="7.5" cy="10.4" rx="1.25" ry="1.75" transform="rotate(-55 7.5 10.4)" fill="currentColor" stroke="none"/><ellipse cx="5.4" cy="9.2" rx="1.25" ry="1.75" transform="rotate(-75 5.4 9.2)" fill="currentColor" stroke="none"/><ellipse cx="14.3" cy="12.4" rx="1.25" ry="1.75" transform="rotate(40 14.3 12.4)" fill="currentColor" stroke="none"/><ellipse cx="16.5" cy="10.4" rx="1.25" ry="1.75" transform="rotate(55 16.5 10.4)" fill="currentColor" stroke="none"/><ellipse cx="18.6" cy="9.2" rx="1.25" ry="1.75" transform="rotate(75 18.6 9.2)" fill="currentColor" stroke="none"/><path class="ac" d="M12 7.6V5M12 5l-1.4-1.6M12 5l1.4-1.6M3.4 8.6 2 7.8M3.4 8.6l-.6 1.6M20.6 8.6 22 7.8M20.6 8.6l.6 1.6"/></svg>Christmas cacti</li>
         </ul>
       </div>
     </div>
@@ -385,32 +387,32 @@ footer a { color: #fff; }
   <section class="block reviews" id="reviews">
     <div class="wrap">
       <span class="kicker">From the visitors</span>
-      <h2>4.3 stars from 26 Google reviews</h2>
+      <h2>4.3 stars from 26 <span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</h2>
       <p class="sub">A few words from people who've been out to the farm.</p>
       <div class="rgrid">
         <figure class="tag">
           <blockquote>Just left with the perfect fir tree at a great price! … super friendly owner/staff. Thank you!</blockquote>
-          <figcaption>Anita · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Anita · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener"><span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure class="tag">
           <blockquote>20 plus years, never a dud.</blockquote>
-          <figcaption>William · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>William · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener"><span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure class="tag">
           <blockquote>Bruce and the whole crew are there to point you in the right direction.</blockquote>
-          <figcaption>Tom · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Tom · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener"><span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure class="tag">
           <blockquote>This little tree farm is absolutely adorable! They have the best trees…</blockquote>
-          <figcaption>Bronar · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Bronar · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener"><span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure class="tag">
           <blockquote>What a beautiful selection of trees not to mention the addition of gorgeous Christmas cacti…</blockquote>
-          <figcaption>Beth · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Beth · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener"><span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure class="tag">
           <blockquote>Don’t miss the homemade caramel popcorn!</blockquote>
-          <figcaption>Laura · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption>Laura · <a href="https://search.google.com/local/reviews?placeid=ChIJ_dwwYO2quYkRU6N6xA9judE" target="_blank" rel="noopener"><span class="g-w"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
       </div>
     </div>

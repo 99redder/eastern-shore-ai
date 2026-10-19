@@ -194,7 +194,7 @@ footer a { color: var(--brass-hi); }
   .js-seam .seam.in .needle { opacity: 1; animation: needle-stitch .24s ease-in-out 8, needle-away .35s ease 1.9s forwards; }
 }
 </style>
-<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } </style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; }  .g-logo{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;margin-right:.3em;flex:none} .g-nw{white-space:nowrap} .svc-ico{display:block;width:44px;height:44px;margin:0 0 12px;color:var(--oxblood)} .svc-ico .br{fill:var(--brass-hi)} .svc-ico .pp{fill:var(--paper)} .proof-ico{width:20px;height:20px;vertical-align:-4px;margin-right:7px;color:var(--oxblood)} .extras li{display:inline-flex;align-items:center;gap:8px} .ex-ico{width:20px;height:20px;flex:none;color:var(--oxblood)} @media (max-width: 700px) { .svc-ico{width:38px;height:38px;margin-bottom:10px} .proof-ico{width:18px;height:18px;margin-right:6px} }</style>
 <!-- m-layer:css -->
 <style>
 /* Phone-first layer (<= 700px). Desktop is unchanged. */
@@ -220,6 +220,8 @@ footer a { color: var(--brass-hi); }
   .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
   .m-title { font-family: var(--display); font-weight:400; color:#6B1F2A; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
   .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
   .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #6B1F2A; color: #F7F6F1; border-radius: 4px; }
   .m-call svg { width: 20px; height: 20px; }
   .m-sub { display: flex; gap: 10px; margin-top: 10px; }
@@ -314,10 +316,10 @@ footer a { color: var(--brass-hi); }
 
   <div class="proof">
     <div class="wrap">
-      <span><span class="stars" aria-hidden="true">★★★★★</span> <strong>4.9</strong> on Google</span>
-      <span><strong>Residential and commercial</strong> work</span>
-      <span><strong>Pickup and delivery</strong> available</span>
-      <span>Open <strong>Monday to Friday</strong></span>
+      <span><span class="stars" aria-hidden="true">★★★★★</span> <strong>4.9</strong> on <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span>
+      <span><svg class="proof-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22 24 7l18 15M11 18v22h26V18"/><path d="M20 40V29h8v11"/></svg><strong>Residential and commercial</strong> work</span>
+      <span><svg class="proof-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 31V13h26v18M29 19h9l7 8v4M3 31h4M15 31h18M41 31h4"/><circle cx="11" cy="32" r="4"/><circle cx="37" cy="32" r="4"/></svg><strong>Pickup and delivery</strong> available</span>
+      <span><svg class="proof-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="10" width="36" height="31" rx="3"/><path d="M6 18h36M15 6v8M33 6v8M13 26h22M13 33h14"/></svg>Open <strong>Monday to Friday</strong></span>
     </div>
   </div>
 
@@ -328,23 +330,23 @@ footer a { color: var(--brass-hi); }
       <div class="seam" aria-hidden="true"><span class="seam-run"><svg class="needle" viewBox="0 0 60 24" focusable="false"><path d="M9.6 4.7C3 2.5-3 9-1 22" fill="none" stroke="#6B1F2A" stroke-width="1.3" stroke-linecap="round"/><path d="M7.43 2.46 55 17.5 6.57 5.54Z" fill="#4F4B46"/><circle cx="7" cy="4" r="1.6" fill="#4F4B46"/><path d="M12 4.6 40 13" stroke="#C9C5BD" stroke-width=".7" stroke-linecap="round"/><ellipse cx="10.2" cy="4.9" rx="2.3" ry=".55" transform="rotate(15.7 10.2 4.9)" fill="#ECEBE4"/></svg></span></div>
       <div class="services">
         <div class="svc">
-          <h3>Residential</h3>
+          <svg class="svc-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="pp" d="M10 26V17a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v9"/><path d="M24 13v15"/><path class="br" d="M4 24a3 3 0 0 1 6 0v4h28v-4a3 3 0 0 1 6 0v10H4z"/><path d="M8 34v4M40 34v4"/></svg><h3>Residential</h3>
           <p>Sofas, loveseats, dining chairs, wing chairs and bar stools. We rebuild what's worn and keep what's sturdy.</p>
         </div>
         <div class="svc">
-          <h3>Commercial</h3>
+          <svg class="svc-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect class="br" x="13" y="6" width="22" height="7" rx="3.5"/><path d="M18 13l-5 30M30 13l5 30M15.5 32h17M24 13v6"/></svg><h3>Commercial</h3>
           <p>Restaurant seating and other commercial work, built to stand up to daily use.</p>
         </div>
         <div class="svc">
-          <h3>Antique restoration</h3>
+          <svg class="svc-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse class="br" cx="24" cy="13.5" rx="9" ry="10"/><circle cx="24" cy="13.5" r="1.4" fill="currentColor" stroke="none"/><path d="M18 21.5 16 26M30 21.5l2 4.5"/><rect class="pp" x="9" y="26" width="30" height="6" rx="3"/><path d="M13 32c-3 4 2 7-1 11h-2M35 32c3 4-2 7 1 11h2"/></svg><h3>Antique restoration</h3>
           <p>Family heirlooms and older pieces restored with care, so they're ready for another generation.</p>
         </div>
       </div>
       <ul class="extras">
-        <li>Fabric sample books in the shop</li>
-        <li>Customer-supplied fabric welcome</li>
-        <li>Pickup and delivery</li>
-        <li>Decorators and designers welcome</li>
+        <li><svg class="ex-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M24 12c-5-4-12-4-18-2v28c6-2 13-2 18 2 5-4 12-4 18-2V10c-6-2-13-2-18 2zM24 12v28"/></svg>Fabric sample books in the shop</li>
+        <li><svg class="ex-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="24" rx="5" ry="14"/><path d="M12 10h20M12 38h20M32 10a5 14 0 0 1 0 28"/><path d="M32 38h10V26"/></svg>Customer-supplied fabric welcome</li>
+        <li><svg class="ex-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 31V13h26v18M29 19h9l7 8v4M3 31h4M15 31h18M41 31h4"/><circle cx="11" cy="32" r="4"/><circle cx="37" cy="32" r="4"/></svg>Pickup and delivery</li>
+        <li><svg class="ex-ico" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="31" width="38" height="9" rx="1.5"/><path d="M12 31v4M18 31v3M24 31v4M30 31v3M36 31v4"/><path d="M14 24 33 6l5 5-19 18-7 2z"/></svg>Decorators and designers welcome</li>
       </ul>
     </div>
   </section>
@@ -383,22 +385,22 @@ footer a { color: var(--brass-hi); }
   <section class="block" id="reviews">
     <div class="wrap">
       <h2>What customers say</h2>
-      <p class="intro">From our Google reviews.</p>
+      <p class="intro">From our <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews.</p>
       <div class="reviews">
         <figure>
           <span class="stars" aria-label="5 stars">★★★★★</span>
           <blockquote>They were 16 years old and although the fabric was worn the &ldquo;bones&rdquo; were still in very sturdy shape&hellip; You will not be disappointed if you bring your furniture to this guy.</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJadM4cVkCuYkREWdcvjD3lww" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJadM4cVkCuYkREWdcvjD3lww" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <span class="stars" aria-label="5 stars">★★★★★</span>
           <blockquote>It was a very important piece of furniture from my Grandparents and after many years of wear and tear the Upholstery Doctor made it good as new.</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJadM4cVkCuYkREWdcvjD3lww" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJadM4cVkCuYkREWdcvjD3lww" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <span class="stars" aria-label="5 stars">★★★★★</span>
           <blockquote>He is a wealth of knowledge and does incredible work&hellip; So hard to find skilled craftsmen like this anymore.</blockquote>
-          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJadM4cVkCuYkREWdcvjD3lww" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJadM4cVkCuYkREWdcvjD3lww" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
       </div>
     </div>
