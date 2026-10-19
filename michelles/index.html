@@ -220,7 +220,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   .portrait .tag { right: 0; }
 }
 </style>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } @media (max-width: 700px) { .facts { gap: 14px; } .fact b { font-size: 1.05rem; } }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } @media (max-width: 700px) { .facts { gap: 14px; } .fact b { font-size: 1.05rem; } }</style>
 </head>
 <body>
 <header class="top">
@@ -375,6 +375,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   } catch (e) {}
 })();
 </script>
+<script src="/preview-contact.js?v=1" defer data-name="Michelle's Pretty Paws" data-slot=".visit .btns" data-accent="var(--raspberry-dk)" data-accent-fg="#fff" data-ink="var(--navy)" data-paper="var(--white)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:800"></script>
 <script src="/preview-kit.js?v=3" data-slug="michelles" defer></script>
 </body>
 </html>

@@ -221,7 +221,7 @@ footer a { color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero-photo img { object-position: 85% 50%; } @media (max-width: 700px) { .visit .actions .btn { flex: 1 1 100%; justify-content: center; } }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero-photo img { object-position: 85% 50%; } @media (max-width: 700px) { .visit .actions .btn { flex: 1 1 100%; justify-content: center; } }</style>
 </head>
 <body>
 <header class="top">
@@ -394,6 +394,7 @@ footer a { color: #fff; }
   } catch (e) {}
 })();
 </script>
+<script src="/preview-contact.js?v=1" defer data-name="Grant's Service Center" data-slot="#visit .actions" data-accent="var(--navy)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="#fff" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:700;text-transform:uppercase"></script>
 <script src="/preview-kit.js?v=3" data-slug="grants" defer></script>
 </body>
 </html>

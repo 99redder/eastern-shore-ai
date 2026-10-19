@@ -203,7 +203,7 @@ footer a { color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero h1 { text-wrap: balance; }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero h1 { text-wrap: balance; }</style>
 </head>
 <body>
 <header class="top">
@@ -356,6 +356,7 @@ footer a { color: #fff; }
   } catch (e) {}
 })();
 </script>
+<script src="/preview-contact.js?v=1" defer data-name="R&amp;R's Handyman Services" data-slot="#contact .actions" data-accent="var(--cedar-dk)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:700"></script>
 <script src="/preview-kit.js?v=3" data-slug="rrhandyman" defer></script>
 </body>
 </html>

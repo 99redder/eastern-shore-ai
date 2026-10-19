@@ -245,7 +245,7 @@ footer a { color: var(--brass-hi); }
   .swatch-card .chip { right: -8px; } .swatch-card .chip2 { left: -8px; }
 }
 </style>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } </style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } </style>
 </head>
 <body>
 <header class="top">
@@ -450,6 +450,7 @@ footer a { color: var(--brass-hi); }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !lb.hidden) shut(); });
 })();
 </script>
+<script src="/preview-contact.js?v=1" defer data-name="The Upholstery Doctor" data-slot=".visit-grid .cta-row" data-accent="var(--oxblood)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:400"></script>
 <script src="/preview-kit.js?v=3" data-slug="upholsterydoctor" defer></script>
 </body>
 </html>

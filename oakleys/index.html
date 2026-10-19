@@ -211,7 +211,7 @@ footer a { color: #fff; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hours tr.today td:first-child::after { color: #fff; }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hours tr.today td:first-child::after { color: #fff; }</style>
 </head>
 <body>
 <header class="top">
@@ -381,6 +381,7 @@ footer a { color: #fff; }
 })();
 </script>
 
+<script src="/preview-contact.js?v=1" defer data-name="Oakley's Farm Market" data-slot="#visit .actions" data-accent="var(--barn)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:400"></script>
 <script src="/preview-kit.js?v=3" data-slug="oakleys" defer></script>
 </body>
 </html>

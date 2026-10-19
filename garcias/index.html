@@ -138,6 +138,8 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--red); outline-o
   font-size: 1.3rem; line-height: 1; padding: 12px 14px; border: 3px solid var(--ink);
 }
 .shopshot .sticker span { display: block; font-size: .95rem; color: var(--sign); }
+.shopshot .sticker em.town { display: block; font-style: normal; margin-top: 4px; }
+.shopshot .sticker em.town span { font-size: 1.05rem; color: var(--paper); }
 
 .tread {
   height: 46px;
@@ -230,7 +232,7 @@ footer a { color: var(--sign); }
   .shopshot .sticker { left: -6px; }
 }
 </style>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } img[src='img/gts_1.webp'] { object-position: 50% 0 !important; } .shopshot .sticker span { color: inherit; opacity: .85; }</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } img[src='img/gts_1.webp'] { object-position: 50% 0 !important; } .shopshot .sticker span { color: inherit; opacity: .85; }</style>
 </head>
 <body>
 <div id="site" data-lang="en">
@@ -276,7 +278,7 @@ footer a { color: var(--sign); }
       </div>
       <figure class="shopshot">
         <img src="img/gts_0.webp" alt="Garcia's Tire Shop on Washington Street, a red building with yellow New and Used tire signs">
-        <figcaption class="sticker"><span lang="en">Find us at</span><span lang="es">Estamos en</span>104 Washington St</figcaption>
+        <figcaption class="sticker"><span lang="en">Find us at</span><span lang="es">Estamos en</span>104 Washington St<em class="town"><span lang="en">in Salisbury</span><span lang="es">en Salisbury</span></em></figcaption>
       </figure>
     </div>
   </section>
@@ -437,6 +439,7 @@ footer a { color: var(--sign); }
   setLang(start);
 })();
 </script>
+<script src="/preview-contact.js?v=1" defer data-name="Garcia's Tire Shop" data-slot=".visit .btns" data-accent="var(--red)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="text-transform:uppercase;font-weight:400;letter-spacing:.01em"></script>
 <script src="/preview-kit.js?v=3" data-slug="garcias" defer></script>
 </body>
 </html>
