@@ -9,7 +9,7 @@
 // Subscription payments are recorded from invoice.paid (keyed by invoice id),
 // one-time payments from checkout.session.completed (keyed by session id).
 
-export const WEBSITE_AGREEMENT_VERSION = '2026-10-19.4';
+export const WEBSITE_AGREEMENT_VERSION = '2026-10-19.5';
 export const WEBSITE_PLAN_PRICE_CENTS = 10000;
 
 // Canonical agreement text. Placeholders: {{business}}, {{price}}, {{domain}}.
@@ -22,7 +22,7 @@ export const WEBSITE_AGREEMENT_SECTIONS = [
   ['Unlimited updates, fair use', 'There is no limit on the number of update or feature requests, and none of them cost extra. Provider works on requests in the order received and usually completes routine changes within 3 business days. Larger requests, such as several new pages, a new feature, or a redesign, may be scheduled and completed in stages, and Provider will give Client an expected timeline before starting. Requests must relate to Client\'s website and must be lawful.'],
   ['What is not included', 'The annual fee does not cover: third-party paid services Client chooses to use (for example paid booking or scheduling software, email hosting such as Google Workspace, or paid plugins); payment processing or e-commerce transaction fees; paid advertising; printed materials; photography sessions; more than one domain name, a domain name the registrar sells at a premium price (over $25 a year), or buying a domain name from its current owner or a reseller; or work unrelated to Client\'s website. Provider will tell Client in advance if a request falls outside the plan, and nothing outside the plan will be charged without Client\'s written approval.'],
   ['Fee, taxes, and price lock', 'The fee is {{price}} per year, paid in advance. The fee includes any Maryland sales and use tax that applies to this service, so Client pays nothing more. As long as Client renews each year without a lapse of more than 30 days, Provider will not raise this annual fee.'],
-  ['Term and renewal', 'The first term starts on the date of the first payment and lasts one year. Each renewal adds one year. Client chooses how to renew when paying and can switch at any time. With automatic renewal, Client\'s card is charged the annual fee on each renewal date until Client cancels. Provider will email Client a reminder between 15 and 45 days before each automatic charge. Client can turn off automatic renewal at any time before the renewal date with one click, using the "Turn off automatic renewal" button on this agreement page (linked in every renewal email), or by contacting Provider in any way. No further charges are made after that, and the website stays online through the end of the paid year. With manual renewal, nothing is charged unless Client pays, and Provider will send a renewal link about 30 days before each renewal date. If a renewal payment is more than 30 days late, or an automatic charge fails and is not fixed within 30 days, Provider may take the website offline until payment is made. The domain stays registered to Client.'],
+  ['Term and renewal', 'The first term starts on the date of the first payment and lasts one year. Each renewal adds one year. Client chooses how to renew when paying and can switch at any time. With automatic renewal, Client\'s card is charged the annual fee on each renewal date until Client cancels. Provider will email Client a reminder between 15 and 45 days before each automatic charge. Client can turn off automatic renewal at any time before the renewal date with one click, using the "Turn off automatic renewal" button on this agreement page (linked in every renewal email, and available any time by entering Client\'s email at www.easternshore.ai/my-plan.html), or by contacting Provider in any way. No further charges are made after that, and the website stays online through the end of the paid year. With manual renewal, nothing is charged unless Client pays, and Provider will send a renewal link about 30 days before each renewal date. If a renewal payment is more than 30 days late, or an automatic charge fails and is not fixed within 30 days, Provider may take the website offline until payment is made. The domain stays registered to Client.'],
   ['Domain, ownership, and handoff', 'The domain name is registered with Client listed as the registrant, and it belongs to Client. Client owns its business name, logo, photos, and all content it provides, and owns the finished website. Provider keeps ownership of its general tools, code, templates, and know-how that are not specific to Client, and gives Client a permanent, royalty-free license to keep using any of them that are part of the finished website. Third-party items such as fonts, open-source code, and licensed images stay subject to their own licenses. If this Agreement ends for any reason, Provider will, within 10 business days of Client\'s request, transfer the domain to an account Client controls and give Client a copy of the website files. Provider may delete its copies 60 days after this Agreement ends.'],
   ['Client content and approval', 'Client will provide accurate business information and will only provide content (text, photos, logos) that Client owns or has permission to use. Client will review the website, including anything Provider writes or adds at Client\'s request, and is responsible for the accuracy of business claims such as prices, hours, licenses, warranties, and offers. Provider will not keep photos taken by others (for example customer photos from online reviews) on the website without Client\'s approval, and will replace them with Client\'s own photos when Client provides them.'],
   ['Laws, accessibility, and privacy', 'Provider builds the website with reasonable care to be readable, mobile-friendly, and accessible, but does not guarantee that it meets every legal or accessibility standard (such as the ADA or WCAG). Client is responsible for making sure its business, products, services, and claims on the website comply with the law. If the website collects visitor information (for example through a contact form), Provider will use that information only to run the website and deliver messages to Client, will not sell it, and will protect it with reasonable security measures.'],
@@ -164,7 +164,7 @@ export function createWebsitePlanHandlers(deps) {
       + `<tr><td style="padding:18px 28px 22px;border-top:1px solid #E5E7EB;background:#F7F8FA;border-radius:0 0 10px 10px;color:#5B6370;font-size:12px;line-height:1.7;${font}">`
       + `<strong style="color:#15181D;">Eastern Shore AI, LLC</strong> &middot; Fruitland, Maryland<br>`
       + `<a href="${SITE}" style="${link}">www.easternshore.ai</a> &middot; <a href="mailto:contact@easternshore.ai" style="${link}">contact@easternshore.ai</a> &middot; <a href="tel:+13029079162" style="${link}">(302) 907-9162</a> &middot; <a href="https://www.facebook.com/easternshoreai" style="${link}">Facebook</a><br>`
-      + `<span style="color:#7A818C;">You're receiving this about your website plan with Eastern Shore AI. Just reply if you have a question.</span>`
+      + `<span style="color:#7A818C;">You're receiving this about your website plan with Eastern Shore AI. Just reply if you have a question. You can find your plan page any time at <a href="${SITE}/my-plan.html" style="color:#7A818C;">easternshore.ai/my-plan</a>.</span>`
       + `</td></tr></table></div>`;
   }
 
@@ -464,6 +464,45 @@ export function createWebsitePlanHandlers(deps) {
       } catch (e) { console.error('autopay-off confirmation email failed', e); }
     }
     return json({ ok: true, autopay: on }, 200, corsHeaders);
+  }
+
+  // POST /api/website-plan/find {email, website?}
+  // "Manage my website plan": emails the plan link(s) for a matching client. Always answers the same
+  // way so nobody can learn whether an email is a client. One email per client per 10 minutes.
+  async function handleFindPlan(request, env, corsHeaders) {
+    if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+    let data = {};
+    try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid request' }, 400, corsHeaders); }
+    const generic = { ok: true, message: "If that email matches a website plan, we've sent it a link to your plan page. Check your inbox (and spam folder) in a minute." };
+    if (clip(data.website, 200)) return json(generic, 200, corsHeaders); // honeypot
+    const email = clip(data.email, 200).toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ ok: false, error: 'Please enter a valid email address.' }, 400, corsHeaders);
+    const rows = (await env.DB.prepare(
+      `SELECT * FROM website_clients
+       WHERE status != 'canceled' AND (lower(email) = ?1 OR lower(signer_email) = ?1)
+         AND (plan_link_requested_at IS NULL OR plan_link_requested_at < datetime('now', '-10 minutes'))
+       ORDER BY id LIMIT 10`
+    ).bind(email).all()).results || [];
+    if (!rows.length) return json(generic, 200, corsHeaders);
+    for (const r of rows) {
+      await env.DB.prepare(`UPDATE website_clients SET plan_link_requested_at = datetime('now') WHERE id = ?1`).bind(r.id).run();
+    }
+    const items = rows.map((r) => ({ name: r.business_name, link: agreementUrl(r.agreement_token) }));
+    const lines = ['Hi,', '', items.length === 1
+      ? `Here's the link to your website plan page for ${items[0].name}. You can view and print your agreement, check your renewal date, update your card, or turn automatic renewal on or off.`
+      : 'Here are the links to your website plan pages. On each one you can view and print your agreement, check your renewal date, update your card, or turn automatic renewal on or off.', ''];
+    for (const it of items) { if (items.length > 1) lines.push(it.name); lines.push(it.link, ''); }
+    lines.push("Didn't ask for this? You can ignore this email. The link only works for you, so keep it private.", '', 'Chris');
+    const htmlBody = lines.map((l) => {
+      if (!l) return '';
+      const hit = items.find((it) => it.link === l);
+      if (hit) return emailButton(hit.link, items.length > 1 ? `Open plan: ${hit.name}` : 'Open my plan page');
+      return `<p style="margin:0 0 12px;">${escapeHtml(l)}</p>`;
+    }).join('');
+    try {
+      await sendEmail(env, { to: email, subject: 'Your website plan link', text: lines.join('\n'), html: emailShell(htmlBody, { heading: 'Your website plan', preheader: 'Here is the link to your website plan page.' }) });
+    } catch (e) { console.error('plan link email failed', e); }
+    return json(generic, 200, corsHeaders);
   }
 
   // POST /api/website-agreement/portal {token} -> Stripe billing portal (update card, turn off auto-renew)
@@ -918,7 +957,7 @@ export function createWebsitePlanHandlers(deps) {
   }
 
   return {
-    handleAgreementGet, handleAgreementSign, handleAgreementCheckout, handleAgreementPortal, handleAgreementAutopay,
+    handleAgreementGet, handleAgreementSign, handleAgreementCheckout, handleAgreementPortal, handleAgreementAutopay, handleFindPlan,
     handleWebsitePlanPaid, handleWebsitePlanStripeEvent,
     handleClientsList, handleClientSave, handleClientLink, handleClientStatus, handleClientStopAutopay, handleClientDelete, handleClientAgreement,
   };

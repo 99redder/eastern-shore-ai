@@ -1051,6 +1051,7 @@ cd worker && wrangler deploy --config wrangler.toml
   - `GET|POST /api/website-clients`, `POST /api/website-clients/link|status|stop-autopay|delete`, `GET /api/website-clients/agreement` (admin)
   - Webhook: `checkout.session.completed` with `metadata.checkout_type = website_plan` → `website_client_payments` row, client `active`, `current_period_end` +1 year, `tax_income` (category `Website Services`) + Stripe fee expense, deduped by session id.
 - **Tax:** the plan price is tax-inclusive (agreement v2026-10-19.4+ says "The fee includes any Maryland sales and use tax"; checkout descriptions say so). Maryland's 3% tax on data/IT services (custom web design, hosting) applies, so the 3% portion of each payment (price x 3/103, $2.91 on $100) must be reported on the Maryland sales and use tax return. The ledger records the gross amount; the Form 202 work happens in the separate Maryland sales tax workflow, not here. No Stripe tax line is added.
+- **Find my plan:** `my-plan.html` (noindex, linked from the homepage footer and every plan email footer) posts to `POST /api/website-plan/find {email}`, which emails the plan link(s) to a matching client. Same reply whether or not the email matches; one email per client per 10 minutes (`plan_link_requested_at`, migration 0035); honeypot field `website`.
 - **One-click cancel:** `POST /api/website-agreement/autopay {token, on}` sets `cancel_at_period_end` from the client's plan page ("Turn off automatic renewal" button, also "turn back on"). Sends the client a confirmation email and a staff alert. Renewal emails point to it.
 - **Auto-renew (default, added 2026-10-19):** the client picks "Renew automatically" or "I'll pay each year myself" when signing.
   - Auto-renew = Stripe Checkout `mode: subscription`, inline `price_data` with `recurring[interval]=year`. Subscription metadata carries `checkout_type=website_plan` + `website_client_id`.
@@ -1067,7 +1068,7 @@ cd worker && wrangler deploy --config wrangler.toml
   - View Signed Agreement opens `#web-agreement-modal` (signer details, fingerprint, the exact signed text).
 - Website-plan emails share `emailShell()` in `website-plan.js`: table layout, inline styles, one small logo from www.easternshore.ai, plain-text part always sent, no tracking pixels or third-party links (keeps spam scores low). Keep new emails on it.
 - **Owner test** checkbox on a client (`is_owner_test`): its payments post to `tax_income` as `Owner Funded (Non-Revenue)` with `is_owner_funded = 1` (journal credits 3100 Owner Contributions, not revenue) and are left out of the yearly revenue tile. The Stripe fee still posts as a normal expense. Checking or unchecking Owner test on a client re-books its already-posted payments (`rebookClientIncome`). Refunds are not automated: after refunding an owner test, delete the owner-funded income row (the contribution was returned); keep the fee.
-- Migrations: `worker/migrations/0032_create_website_clients.sql`, `0033_website_clients_autopay.sql`, `0034_website_clients_owner_test.sql`.
+- Migrations: `worker/migrations/0032_create_website_clients.sql`, `0033_website_clients_autopay.sql`, `0034_website_clients_owner_test.sql`, `0035_website_clients_plan_link_request.sql`.
 
 Deploy (from the Mac):
 ```bash
