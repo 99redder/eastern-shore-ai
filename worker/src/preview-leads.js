@@ -78,8 +78,20 @@ export function icsFor({ at, anytime, summary, description }) {
 }
 
 export function createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendStaffOperationalAlert }) {
+  // Staff alerts for preview sites come from alerts@ so they're easy to filter.
   async function staff(env, subject, lines) {
-    try { await sendStaffOperationalAlert(env, { subject, text: lines.filter((l) => l !== null).join('\n') }); } catch (e) { console.error('preview staff alert failed', e); }
+    const text = lines.filter((l) => l !== null).join('\n');
+    const from = (env.ALERTS_FROM_EMAIL || 'Eastern Shore AI Alerts <alerts@easternshore.ai>').trim();
+    const to = (env.TO_EMAIL || '').trim();
+    try {
+      if (!env.RESEND_API_KEY || !to) return sendStaffOperationalAlert(env, { subject, text });
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from, to: [to], subject, text, reply_to: 'contact@easternshore.ai' }),
+      });
+      if (!res.ok) console.error('preview alert failed', await res.text().catch(() => res.status));
+    } catch (e) { console.error('preview staff alert failed', e); }
   }
 
   async function visitorHash(request, slug) {
