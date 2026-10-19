@@ -7,6 +7,7 @@ import {
   validatePushSubscription
 } from './support-push.js';
 import { createWebsitePlanHandlers } from './website-plan.js';
+import { createPreviewLeadHandlers } from './preview-leads.js';
 
 let _websitePlan = null;
 function websitePlan() {
@@ -18,6 +19,12 @@ function websitePlan() {
     });
   }
   return _websitePlan;
+}
+
+let _previewLeads = null;
+function previewLeads() {
+  if (!_previewLeads) _previewLeads = createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendStaffOperationalAlert });
+  return _previewLeads;
 }
 
 // ===== ROUTE HANDLER INDEX =====
@@ -154,7 +161,8 @@ export default {
       const isAdminAuthRoute = (url.pathname === '/api/admin/login' && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
       const isWebsitePlanPublic = (url.pathname === '/api/website-agreement' && request.method === 'GET') || (['/api/website-agreement/sign', '/api/website-agreement/checkout', '/api/website-agreement/portal', '/api/website-agreement/autopay', '/api/website-plan/find'].includes(url.pathname) && request.method === 'POST');
       const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/stop-autopay', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
+      const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead'].includes(url.pathname) && request.method === 'POST');
+      if (!isPreviewPublic && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -178,6 +186,9 @@ export default {
     }
 
     // Website Care Plan ($100/yr): public agreement + checkout, admin client tracking
+    if (url.pathname === '/api/preview/site' && request.method === 'GET') return previewLeads().handlePreviewSite(request, env, corsHeaders, url);
+    if (url.pathname === '/api/preview/visit' && request.method === 'POST') return previewLeads().handlePreviewVisit(request, env, corsHeaders);
+    if (url.pathname === '/api/preview/lead' && request.method === 'POST') return previewLeads().handlePreviewLead(request, env, corsHeaders);
     if (url.pathname === '/api/website-agreement' && request.method === 'GET') return websitePlan().handleAgreementGet(request, env, corsHeaders, url);
     if (url.pathname === '/api/website-agreement/sign' && request.method === 'POST') return websitePlan().handleAgreementSign(request, env, corsHeaders);
     if (url.pathname === '/api/website-agreement/checkout' && request.method === 'POST') return websitePlan().handleAgreementCheckout(request, env, corsHeaders);
