@@ -15,7 +15,11 @@ export const PREVIEW_SITES = {
   cathys: { name: "Cathy's Pet Salon", phone: '(410) 670-8348', email: 'cathyspetsalon@yahoo.com' },
   oakleys: { name: "Oakley's Farm Market", phone: '(410) 860-8553', email: 'melonsforyou@msn.com' },
   yourstyle: { name: 'Your Style', phone: '(410) 835-2722', email: 'daydelotte2506@aol.com' },
-  sunnyside: { name: 'Sunnyside Greenhouses', phone: '(410) 677-3364', email: 'sunnysidellc@aol.com' },
+  guitarman: { name: 'The Guitar Man', phone: '(877) 484-2877', email: 'theguitarmanstore@gmail.com' },
+  jackies: { name: "Jackie's Flowers and More", phone: '(410) 603-0399', email: 'jackiesflowersandmore@gmail.com' },
+  keepsake: { name: 'Keepsake Art & Framing', phone: '(410) 749-6663', email: 'keepsakeframing@gmail.com' },
+  alexandersmarine: { name: 'Alexanders Marine Service', phone: '(443) 669-4825', email: 'alexandersmarineservice@hotmail.com' },
+  nicholstrees: { name: 'Nichols Tree Farm', phone: '(443) 523-2217', email: 'sabine@wildblue.net' },
 };
 
 const SITE = 'https://www.easternshore.ai';
