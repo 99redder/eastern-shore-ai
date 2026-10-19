@@ -176,7 +176,7 @@ Relevant migration files now include:
 Apply to production with:
 ```bash
 cd worker
-wrangler d1 migrations apply eastern-shore-ai-bookings --remote
+wrangler d1 migrations apply eastern-shore-ai-bookings --remote --config wrangler.toml
 ```
 Then deploy:
 ```bash
@@ -1067,6 +1067,6 @@ cd worker && wrangler deploy --config wrangler.toml
 Deploy (from the Mac):
 ```bash
 cd worker
-wrangler d1 migrations apply eastern-shore-ai-bookings --remote
+wrangler d1 migrations apply eastern-shore-ai-bookings --remote --config wrangler.toml
 wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-contact
 ```
