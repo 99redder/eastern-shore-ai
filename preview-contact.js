@@ -23,14 +23,14 @@
       name: 'Your name', reach: 'Phone or email', msg: 'Message', send: 'Send message', close: 'Close',
       need: 'Please add a message and a way to reach you.',
       done: 'Thanks{n}! Your message is ready to go.',
-      note: 'This is a preview of the site, so the form isn’t connected yet. Once the site is live, messages here go straight to ' + NAME + "’s email.",
-      prev: 'Preview: this form isn’t connected yet.' },
+      note: 'This form will be connected once you decide to move forward with the site. Then messages here go straight to ' + NAME + "’s email.",
+      prev: 'This form will be connected once you decide to move forward.' },
     es: { btn: 'Envíenos un mensaje', title: 'Envíe un mensaje a ' + NAME, sub: 'Preguntas, cotizaciones o solo saludar. Le responderemos.',
       name: 'Su nombre', reach: 'Teléfono o correo', msg: 'Mensaje', send: 'Enviar mensaje', close: 'Cerrar',
       need: 'Por favor escriba un mensaje y cómo contactarle.',
       done: '¡Gracias{n}! Su mensaje está listo.',
-      note: 'Esta es una vista previa del sitio, así que el formulario aún no está conectado. Cuando el sitio esté activo, los mensajes llegarán directamente al correo de ' + NAME + '.',
-      prev: 'Vista previa: este formulario aún no está conectado.' }
+      note: 'Este formulario se conectará cuando decida seguir adelante con el sitio. Entonces los mensajes llegarán directamente al correo de ' + NAME + '.',
+      prev: 'Este formulario se conectará cuando decida seguir adelante.' }
   };
   function t(k) { return (T[lang()] || T.en)[k]; }
 
