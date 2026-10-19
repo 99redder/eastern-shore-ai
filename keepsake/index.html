@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Keepsake Art &amp; Framing | Salisbury, MD</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Keepsake Art &amp; Framing: family-owned custom picture framing in the Twilley Shopping Centre, Salisbury, Maryland. A wide selection of frames and mats, and help choosing.">
+<link rel="icon" type="image/png" sizes="32x32" href="/keepsake/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/keepsake/img/icon-192.png">
+<link rel="apple-touch-icon" href="/keepsake/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Libre+Franklin:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a quiet gallery wall. Every section hangs like a matted print (moulding, cream mat, bevel-cut opening), captions are museum labels, and frame-shop corner samples mark the services. */
+:root {
+  --wall: #F3EEE6;      /* gallery wall */
+  --mat: #FBF8F2;       /* cream mat board */
+  --mat-edge: #E4DCCD;  /* bevel shadow */
+  --line: #DDD4C4;
+  --ink: #2A221D;
+  --muted: #5E534A;
+  --walnut: #4A3224;    /* moulding */
+  --walnut-dk: #2F1F16;
+  --accent: #7A2C2C;    /* oxblood mat, the one accent */
+  --accent-dk: #5E1F1F;
+  --display: "Cormorant Garamond", Garamond, "Times New Roman", serif;
+  --body: "Libre Franklin", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--wall); color: var(--ink); font: 400 18px/1.65 var(--body); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+p { text-wrap: pretty; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.08; margin: 0; text-wrap: balance; color: var(--walnut-dk); }
+.eyebrow { font: 600 .78rem/1.2 var(--body); letter-spacing: .2em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
+
+/* Frame + mat building blocks */
+.frame { padding: 16px; background: linear-gradient(135deg, #6B4A33 0%, var(--walnut) 40%, var(--walnut-dk) 100%); box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 0 0 1px var(--walnut-dk), 0 26px 40px -26px rgba(47,31,22,.75); }
+.mat { background: var(--mat); padding: clamp(18px, 3.4vw, 40px); box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+.bevel { border: 5px solid; border-color: #FFFFFF #E9E2D5 #D9CFBE #F6F1E8; }
+.bevel img { width: 100%; }
+
+/* Museum label */
+.label { background: #FFFFFF; border: 1px solid var(--line); padding: 12px 16px; font-size: .9rem; line-height: 1.45; color: var(--muted); box-shadow: 0 6px 14px -12px rgba(0,0,0,.4); }
+.label b { display: block; font: italic 600 1.15rem/1.2 var(--display); color: var(--ink); margin-bottom: 2px; }
+
+/* Header */
+.top { background: rgba(251,248,242,.97); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 20; }
+.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.mark { width: 46px; height: 46px; flex: none; padding: 5px; background: linear-gradient(135deg, #6B4A33, var(--walnut-dk)); }
+.mark span { display: grid; place-items: center; width: 100%; height: 100%; background: var(--mat); border: 2px solid var(--accent); font: 600 1.35rem/1 var(--display); color: var(--accent); }
+.brand b { font: 600 1.45rem/1 var(--display); color: var(--walnut-dk); display: block; letter-spacing: .01em; }
+.brand small { display: block; color: var(--muted); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; margin-top: 4px; }
+.nav { margin-left: auto; display: flex; gap: 26px; align-items: center; }
+.nav a { text-decoration: none; font-weight: 500; font-size: .98rem; color: var(--ink); }
+.nav a:hover { color: var(--accent); }
+.nav a.call { background: var(--accent); color: #fff; padding: 10px 16px; font-weight: 600; }
+.nav a.call:hover { background: var(--accent-dk); color: #fff; }
+
+/* Hero */
+.hero .wrap { display: grid; grid-template-columns: 1fr 1.08fr; gap: 56px; align-items: center; padding-block: 64px 72px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: .9rem; padding: 6px 12px; background: #E6F1E8; color: #1E5B34; }
+.badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #2E8B50; }
+.badge.shut { background: #ECE6DC; color: var(--muted); }
+.badge.shut::before { background: #A0958A; }
+.hero h1 { font-size: clamp(2.6rem, 5.2vw, 4.1rem); margin: 18px 0 18px; }
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero .lead { font-size: 1.15rem; color: #3A312B; margin: 0 0 22px; max-width: 40ch; }
+.stars { display: flex; align-items: baseline; gap: 12px; margin: 0 0 28px; flex-wrap: wrap; }
+.stars b { font: 600 2.2rem/1 var(--display); color: var(--walnut-dk); }
+.stars span { color: #B8862B; letter-spacing: 2px; font-size: 1.1rem; }
+.stars small { color: var(--muted); font-size: 1rem; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font: 600 1.02rem/1.2 var(--body); padding: 14px 22px; border: 2px solid var(--accent); }
+.btn svg { width: 19px; height: 19px; flex: none; }
+.btn-main { background: var(--accent); color: #fff; }
+.btn-main:hover { background: var(--accent-dk); border-color: var(--accent-dk); }
+.btn-ghost { background: transparent; color: var(--accent); }
+.btn-ghost:hover { background: #fff; }
+.hero-art { position: relative; }
+.hero-art img { aspect-ratio: 4 / 3; object-fit: cover; }
+.hero-art .label { position: absolute; left: -28px; bottom: -30px; max-width: 290px; }
+
+/* Sections */
+.block { padding-block: 84px; }
+.block h2 { font-size: clamp(2.1rem, 3.8vw, 3rem); }
+.sub { color: var(--muted); max-width: 58ch; margin: 12px 0 40px; font-size: 1.1rem; }
+
+/* Services: corner samples */
+.samples { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.sample { background: var(--mat); border: 1px solid var(--line); padding: 26px 24px 28px; display: flex; flex-direction: column; }
+.sample svg { width: 76px; height: 76px; margin-bottom: 20px; filter: drop-shadow(0 4px 4px rgba(0,0,0,.18)); }
+.sample h3 { font-size: 1.6rem; margin-bottom: 8px; }
+.sample p { margin: 0; color: #3F3630; font-size: 1.02rem; }
+
+/* Wall: the flamingo, hung */
+.hang { background: linear-gradient(#EAE3D8, var(--wall) 70%); }
+.hang .wrap { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); gap: 64px; align-items: center; }
+.hang .frame { max-width: 440px; margin-inline: auto; background: linear-gradient(135deg, #3E3936, #1C1917 60%, #0E0C0B); }
+.hang .mat { padding: clamp(18px, 3vw, 34px); }
+.hang .reveal { padding: 7px; background: var(--accent); }
+.hang .reveal img { aspect-ratio: 3 / 4; object-fit: cover; }
+.hang .label { margin: 26px auto 0; max-width: 440px; }
+.hang ul { list-style: none; padding: 0; margin: 0 0 30px; display: grid; gap: 12px; }
+.hang li { display: flex; gap: 14px; align-items: flex-start; font-size: 1.08rem; }
+.hang li::before { content: ""; width: 14px; height: 14px; flex: none; margin-top: 7px; border: 3px solid var(--walnut); box-shadow: inset 0 0 0 2px var(--mat), inset 0 0 0 4px var(--accent); }
+
+/* Wall text quote */
+.walltext { background: var(--walnut-dk); color: var(--mat); text-align: center; }
+.walltext .wrap { padding-block: 64px; }
+.walltext blockquote { margin: 0 auto 14px; max-width: 24ch; font: italic 500 clamp(2rem, 4.4vw, 3.3rem)/1.15 var(--display); text-wrap: balance; }
+.walltext figcaption { color: #D9CDBB; font-size: .95rem; letter-spacing: .04em; }
+.walltext a { color: inherit; text-underline-offset: 3px; }
+
+/* Reviews */
+.rgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.rgrid figure { margin: 0; background: var(--mat); border: 10px solid #fff; outline: 1px solid var(--line); box-shadow: 0 14px 26px -22px rgba(0,0,0,.55); padding: 26px 28px; display: flex; flex-direction: column; }
+.rgrid .rs { color: #B8862B; letter-spacing: 2px; }
+.rgrid blockquote { margin: 10px 0 18px; font: 500 1.42rem/1.35 var(--display); color: var(--ink); flex: 1; }
+.rgrid figcaption { color: var(--muted); font-size: .9rem; letter-spacing: .02em; border-top: 1px solid var(--line); padding-top: 12px; }
+.rgrid figcaption a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Visit */
+.visit { background: var(--mat); border-top: 1px solid var(--line); }
+.visit .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+.visit address { font-style: normal; font-size: 1.22rem; margin: 16px 0 6px; }
+.visit .near { color: var(--muted); margin: 0 0 24px; }
+.hours { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 1.05rem; background: #fff; border: 10px solid var(--walnut); box-shadow: 0 0 0 1px var(--walnut-dk), 0 20px 34px -26px rgba(47,31,22,.7); }
+.hours td { padding: 12px 18px; border-bottom: 1px solid var(--line); }
+.hours tr:last-child td { border-bottom: 0; }
+.hours td:last-child { text-align: right; font-weight: 600; }
+.hours tr.closed td:last-child { color: var(--muted); font-weight: 400; }
+.hours tr.today td { background: #F6EDE4; font-weight: 700; }
+.hours tr.today td:first-child::after { content: "  Today"; color: var(--accent); font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; }
+
+footer { background: var(--walnut-dk); color: #D9CDBB; font-size: .92rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 24px calc(24px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: #fff; }
+
+@media (max-width: 900px) {
+  .hero .wrap, .hang .wrap, .visit .wrap { grid-template-columns: 1fr; gap: 44px; }
+  .samples { grid-template-columns: 1fr 1fr; }
+  .nav a:not(.call) { display: none; }
+  .hero-art .label { left: 14px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .samples, .rgrid { grid-template-columns: 1fr; }
+  .brand b { font-size: 1.22rem; }
+  .brand small { font-size: .66rem; letter-spacing: .14em; }
+  .mark { width: 40px; height: 40px; }
+  .block { padding-block: 60px; }
+  .frame { padding: 11px; }
+  .rgrid figure { padding: 22px 20px; }
+  .rgrid blockquote { font-size: 1.32rem; }
+  .actions .btn { flex: 1 1 0; padding-inline: 12px; }
+  .visit .actions .btn { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #FBF8F2; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #F3EEE6; color: #2A221D; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 45%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #F3EEE6, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #FFFFFF; color: #2A221D; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:600;color:#2F1F16; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #7A2C2C; color: #FFFFFF; border-radius: 0px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 0px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #2F1F16; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 0px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #7A2C2C; color: #FFFFFF; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .top a.call { display: none; } .top .wrap { padding-block: 10px; } .m-sub a { color: #7A2C2C; }
+}
+</style>
+<!-- /m-layer:css -->
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="corner" viewBox="0 0 120 120">
+      <rect x="30" y="30" width="90" height="90" fill="#FBF8F2"/>
+      <path d="M30 30H120M30 30V120" stroke="#D9CFBE" stroke-width="5" transform="translate(2.5 2.5)"/>
+      <polygon points="0,0 120,0 120,30 30,30" fill="var(--m2)"/>
+      <polygon points="0,0 30,30 30,120 0,120" fill="var(--m1)"/>
+      <polygon points="22,22 120,22 120,30 30,30" fill="var(--m3)"/>
+      <polygon points="22,22 30,30 30,120 22,120" fill="var(--m3)"/>
+      <path d="M8 120V8H120" fill="none" stroke="var(--m4)" stroke-width="2.5"/>
+      <path d="M0 0L30 30" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
+    </symbol>
+  </defs>
+</svg>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Keepsake Art and Framing, home">
+      <span class="mark" aria-hidden="true"><span>K</span></span>
+      <span><b>Keepsake Art &amp; Framing</b><small>Custom framing · Salisbury</small></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#framing">Framing</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#visit">Hours</a>
+      <a class="call" href="tel:+14107496663">(410) 749-6663</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="Keepsake Art &amp; Framing">
+  <figure class="m-photo"><img src="img/kaf_4.webp" alt="Inside Keepsake Art &amp; Framing: framed prints on display panels and easels"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
+    <h1 class="m-title">Custom picture framing in Salisbury.</h1>
+    <p class="m-lead">Family-owned for over 25 years, with a wide selection of frames and mats. 4.6 stars on Google.</p>
+    <a class="m-call" href="tel:+14107496663"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 749-6663</a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Keepsake%20Art%20%26%20Framing&amp;query_place_id=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener">Directions</a>
+      <a href="#framing">What we do</a>
+    </div>
+    <p class="m-addr">327 Civic Ave # A, Salisbury, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="badge" id="open-now" hidden>Open now</span>
+        <h1>Custom picture framing in <em>Salisbury</em></h1>
+        <p class="lead">Family-owned for over 25 years, with a wide selection of frames and mats. Bring in the piece you want framed, and Beth and the staff will walk you through mats and frames until you're happy with how it looks.</p>
+        <div class="stars"><b>4.6</b><span aria-hidden="true">★★★★★</span><small>from 21 Google reviews</small></div>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14107496663"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 749-6663</a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Keepsake%20Art%20%26%20Framing&amp;query_place_id=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="frame"><div class="mat"><div class="bevel">
+          <img src="img/kaf_4.webp" alt="Inside Keepsake Art &amp; Framing: framed prints on display panels and easels, with more framed pieces along the back wall" width="1100" height="825">
+        </div></div></div>
+        <div class="label"><b>Inside the shop</b>Framed work on the display panels. Owner photo from Google.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="framing">
+    <div class="wrap">
+      <p class="eyebrow">What we do</p>
+      <h2>Framed to suit the piece, and the person</h2>
+      <p class="sub">Custom framing with a wide selection of frames and mats, and someone to walk you through the options.</p>
+      <div class="samples">
+        <div class="sample">
+          <svg style="--m1:#3A2416;--m2:#5A3A26;--m3:#2A190F;--m4:#8A6247" aria-hidden="true"><use href="#corner"/></svg>
+          <h3>Custom framing</h3>
+          <p>Bring in the piece that matters to you and have it framed to order.</p>
+        </div>
+        <div class="sample">
+          <svg style="--m1:#9C7A34;--m2:#C29E52;--m3:#7A5E24;--m4:#E8CF8C" aria-hidden="true"><use href="#corner"/></svg>
+          <h3>Frames &amp; mats</h3>
+          <p>A wide selection of frames and mats to choose from, right in the shop.</p>
+        </div>
+        <div class="sample">
+          <svg style="--m1:#151210;--m2:#2B2724;--m3:#0A0908;--m4:#5A5450" aria-hidden="true"><use href="#corner"/></svg>
+          <h3>Help choosing</h3>
+          <p>The staff takes the time to try different mats and frames with you until the combination feels right.</p>
+        </div>
+        <div class="sample">
+          <svg style="--m1:#85857F;--m2:#ABABA5;--m3:#64645F;--m4:#DCDCD6" aria-hidden="true"><use href="#corner"/></svg>
+          <h3>Needlework, too</h3>
+          <p>Stitched pieces like counted cross stitch are framed here as well.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block hang">
+    <div class="wrap">
+      <div>
+        <div class="frame"><div class="mat"><div class="reveal"><div class="bevel">
+          <img src="img/kaf_5.webp" alt="Artwork of two pink flamingos among large blue hibiscus flowers" width="720" height="960" loading="lazy">
+        </div></div></div></div>
+        <div class="label"><b>Flamingos with hibiscus</b>From the Keepsake Art &amp; Framing photos on Google.</div>
+      </div>
+      <div>
+        <p class="eyebrow">Choosing a frame</p>
+        <h2>Try the options side by side</h2>
+        <p class="sub">Picking a frame is easier with help. Customers say the staff is very thorough in walking through the options with you.</p>
+        <ul>
+          <li>A wide selection of frames and mats to compare</li>
+          <li>Different combinations tried until one feels right</li>
+          <li>Thought given to who a gift is for</li>
+        </ul>
+        <a class="btn btn-main" href="tel:+14107496663"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call the shop</a>
+      </div>
+    </div>
+  </section>
+
+  <figure class="walltext" style="margin:0">
+    <div class="wrap">
+      <blockquote>“Excellent craftsmanship, excellent prices.”</blockquote>
+      <figcaption>Stephen · <a href="https://search.google.com/local/reviews?placeid=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+    </div>
+  </figure>
+
+  <section class="block" id="reviews">
+    <div class="wrap">
+      <p class="eyebrow">Reviews</p>
+      <h2>4.6 stars from 21 Google reviews</h2>
+      <p class="sub">A few words from customers on Google.</p>
+      <div class="rgrid">
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>“Beth was wonderful! Well versed in her craft … very friendly and pleasant to deal with.”</blockquote>
+          <figcaption>Brad · <a href="https://search.google.com/local/reviews?placeid=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>“She spent much time trying different mats and frames that would suit the people they were being gifted to until we both were happy with the result.”</blockquote>
+          <figcaption>Darlene · <a href="https://search.google.com/local/reviews?placeid=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>“I just had a counted cross stitch piece framed by her and I won't let anyone else frame for me!”</blockquote>
+          <figcaption>Marsha · <a href="https://search.google.com/local/reviews?placeid=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>“The store has a wide selection of frames and mats and the staff is very thorough in walking through options with you”</blockquote>
+          <figcaption>Tim · <a href="https://search.google.com/local/reviews?placeid=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block visit" id="visit">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Visit</p>
+        <h2>Stop by the shop</h2>
+        <address>327 Civic Ave # A<br>Salisbury, MD 21804</address>
+        <p class="near">In the Twilley Shopping Centre.</p>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14107496663">Call (410) 749-6663</a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Keepsake%20Art%20%26%20Framing&amp;query_place_id=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener">Get directions</a>
+        </div>
+      </div>
+      <div>
+        <table class="hours" id="hours" aria-label="Hours">
+          <tr data-d="1"><td>Monday</td><td>10:00 am – 4:00 pm</td></tr>
+          <tr data-d="2"><td>Tuesday</td><td>10:00 am – 6:00 pm</td></tr>
+          <tr data-d="3"><td>Wednesday</td><td>10:00 am – 6:00 pm</td></tr>
+          <tr data-d="4"><td>Thursday</td><td>10:00 am – 6:00 pm</td></tr>
+          <tr data-d="5"><td>Friday</td><td>10:00 am – 6:00 pm</td></tr>
+          <tr data-d="6"><td>Saturday</td><td>10:00 am – 4:00 pm</td></tr>
+          <tr data-d="0" class="closed"><td>Sunday</td><td>Closed</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Keepsake Art &amp; Framing, Salisbury, Maryland</span>
+    <span>Preview site made for Keepsake Art &amp; Framing by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var HOURS = { 1: [10, 16], 2: [10, 18], 3: [10, 18], 4: [10, 18], 5: [10, 18], 6: [10, 16] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var badge = document.getElementById('open-now');
+    var span = HOURS[d];
+    var open = !!(span && h >= span[0] && h < span[1]);
+    badge.textContent = open ? 'Open now' : 'Closed now';
+    if (!open) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+})();
+</script>
+
+<script src="/preview-kit.js?v=3" data-slug="keepsake" defer></script>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+14107496663"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=Keepsake%20Art%20%26%20Framing&amp;query_place_id=ChIJtz60nqADuYkRfk5oLzsO_Mg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Hours</a>
+</nav>
+<!-- /m-layer:bar -->
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"1": [10, 16], "2": [10, 18], "3": [10, 18], "4": [10, 18], "5": [10, 18], "6": [10, 16]};
+  var SEASON = null;
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      if (SEASON) { var mo = now.getMonth() + 1; if (mo < SEASON[0] || mo > SEASON[1]) { txt.textContent = SEASON[2] || 'Closed for the season'; el.classList.add('shut'); return; } }
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    var wrapEl = document.createElement('div'); wrapEl.className = 'm-hours-wrap';
+    table.parentNode.insertBefore(wrapEl, table); wrapEl.appendChild(table); wrapEl.appendChild(btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>

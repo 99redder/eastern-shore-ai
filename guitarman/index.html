@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>The Guitar Man | Salisbury, MD</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="The Guitar Man in Salisbury, Maryland: guitars, basses, amps, drums, keyboards and band and orchestra instruments. We buy, sell and trade, with repairs and setups.">
+<link rel="icon" type="image/png" sizes="32x32" href="/guitarman/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/guitarman/img/icon-192.png">
+<link rel="apple-touch-icon" href="/guitarman/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: the front of a guitar amp. Black tolex sections, a brushed-metal control panel with every knob on 10, guitar-pick markers, and the teal from the shop's sign. */
+:root {
+  --tolex: #141414;
+  --tolex-2: #1D1D1D;
+  --teal: #2EC4B6;      /* sign lettering */
+  --teal-dk: #0B6E66;   /* teal for text on light */
+  --jewel: #E0353B;     /* amp pilot light */
+  --cream: #F4EFE4;     /* grille cloth */
+  --paper: #FBF8F1;
+  --ink: #1A1A1A;
+  --muted: #4A4741;
+  --line: #DDD5C4;
+  --metal-1: #E4E6E8;
+  --metal-2: #AEB2B6;
+  --display: "Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
+  --cond: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.6 var(--body); }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+p { text-wrap: pretty; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 800; text-transform: uppercase; line-height: 1; margin: 0; letter-spacing: .01em; text-wrap: balance; }
+
+/* Tolex texture */
+.tolex { background-color: var(--tolex); background-image:
+  repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 5px),
+  repeating-linear-gradient(-45deg, rgba(0,0,0,.25) 0 2px, transparent 2px 5px); color: #fff; }
+
+/* Guitar pick mark */
+.pick { display: inline-grid; place-items: center; position: relative; flex: none; }
+.pick svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pick b { position: relative; font: 900 1rem/1 var(--display); color: var(--tolex); letter-spacing: .02em; margin-top: -8%; }
+
+.top { position: sticky; top: 0; z-index: 20; border-bottom: 3px solid var(--teal); }
+.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand .pick { width: 44px; height: 46px; }
+.brand b.name { font: 800 1.6rem/1 var(--display); text-transform: uppercase; letter-spacing: .03em; display: block; color: var(--teal); }
+.brand small { display: block; color: #C9C9C9; font: 600 .82rem/1 var(--cond); letter-spacing: .14em; text-transform: uppercase; margin-top: 4px; }
+.nav { margin-left: auto; display: flex; gap: 24px; align-items: center; }
+.nav a { text-decoration: none; font-weight: 600; color: #E6E6E6; }
+.nav a:hover { color: var(--teal); }
+.nav a.call { background: var(--teal); color: var(--tolex); padding: 10px 16px; border-radius: 6px; font-weight: 700; }
+.nav a.call:hover { background: #4FD6CA; color: var(--tolex); }
+
+/* Hero */
+.hero .wrap { display: grid; grid-template-columns: 1fr 1.05fr; gap: 52px; align-items: center; padding-block: 60px 64px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92rem; padding: 6px 12px; border-radius: 999px; background: rgba(46,196,182,.16); color: #7FE6DC; border: 1px solid rgba(46,196,182,.45); }
+.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+.badge.shut { background: rgba(255,255,255,.06); color: #CFCFCF; border-color: rgba(255,255,255,.2); }
+.badge.shut::before { background: var(--jewel); box-shadow: 0 0 8px var(--jewel); }
+.kicker { display: block; font: 700 1rem/1 var(--cond); letter-spacing: .22em; text-transform: uppercase; color: var(--teal); margin: 20px 0 10px; }
+.hero h1 { font-size: clamp(2.8rem, 6vw, 4.6rem); margin: 0 0 18px; color: #fff; }
+.hero h1 em { font-style: normal; color: var(--teal); }
+.hero .lead { font-size: 1.18rem; color: #DADADA; margin: 0 0 22px; max-width: 40ch; }
+.stars { display: flex; align-items: baseline; gap: 12px; margin: 0 0 28px; flex-wrap: wrap; }
+.stars b { font: 800 2.2rem/1 var(--display); color: #fff; }
+.stars span { color: #F5B82E; letter-spacing: 2px; font-size: 1.25rem; }
+.stars small { color: #CFCFCF; font-size: 1rem; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font: 700 1.05rem var(--body); padding: 14px 22px; border-radius: 8px; border: 2px solid var(--teal); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-main { background: var(--teal); color: var(--tolex); }
+.btn-main:hover { background: #4FD6CA; border-color: #4FD6CA; }
+.btn-ghost { background: transparent; color: #fff; }
+.btn-ghost:hover { background: rgba(46,196,182,.14); }
+.light .btn-main { background: var(--tolex); color: #fff; border-color: var(--tolex); }
+.light .btn-main:hover { background: #333; border-color: #333; }
+.light .btn-ghost { color: var(--tolex); border-color: var(--tolex); }
+.light .btn-ghost:hover { background: rgba(0,0,0,.05); }
+
+.hero-photo { position: relative; margin: 0; }
+.hero-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 55% 50%; border-radius: 10px; border: 3px solid #2A2A2A; box-shadow: 0 24px 50px -24px rgba(0,0,0,.9); }
+.hero-photo .pick { position: absolute; right: -18px; bottom: -24px; width: 100px; height: 104px; transform: rotate(12deg); filter: drop-shadow(0 8px 12px rgba(0,0,0,.5)); }
+.hero-photo .pick b { font-size: 1.05rem; line-height: .95; text-align: center; }
+.hero-photo figcaption { margin-top: 12px; color: #BDBDBD; font-size: .92rem; }
+
+/* Control panel */
+.panel { background: linear-gradient(180deg, var(--metal-1), var(--metal-2)); border-top: 1px solid #fff; border-bottom: 4px solid #0C0C0C; color: var(--tolex); }
+.panel .wrap { display: flex; align-items: center; gap: 28px; padding-block: 16px 14px; }
+.jewel { display: flex; flex-direction: column; align-items: center; gap: 6px; font: 700 .8rem/1 var(--cond); letter-spacing: .16em; flex: none; }
+.jewel i { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FF8A8E, var(--jewel) 55%, #8E1418); box-shadow: 0 0 12px 2px rgba(224,53,59,.65), inset 0 -2px 3px rgba(0,0,0,.4); border: 2px solid #6B6F73; }
+.knobs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; flex: 1; list-style: none; margin: 0; padding: 0; }
+.knobs li { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.knob { width: 46px; height: 46px; border-radius: 50%; position: relative; background: radial-gradient(circle at 40% 30%, #4A4A4A, #111 70%); box-shadow: 0 3px 4px rgba(0,0,0,.45), 0 0 0 3px #C8CBCE, 0 0 0 4px #7F8387; }
+.knob::after { content: ""; position: absolute; left: 50%; top: 5px; width: 3px; height: 15px; margin-left: -1.5px; background: #fff; border-radius: 2px; transform-origin: 50% 18px; transform: rotate(140deg); }
+.knobs span { font: 700 .95rem/1.1 var(--cond); letter-spacing: .1em; text-transform: uppercase; }
+
+/* Sections */
+.block { padding-block: 76px; }
+.light { background-color: var(--cream); background-image:
+  repeating-linear-gradient(0deg, rgba(120,100,60,.05) 0 1px, transparent 1px 4px),
+  repeating-linear-gradient(90deg, rgba(120,100,60,.05) 0 1px, transparent 1px 4px); }
+.eyebrow { display: block; font: 700 .95rem/1 var(--cond); letter-spacing: .2em; text-transform: uppercase; color: var(--teal-dk); margin-bottom: 10px; }
+.tolex .eyebrow { color: var(--teal); }
+.block h2 { font-size: clamp(2.2rem, 4.2vw, 3.2rem); }
+.sub { color: var(--muted); max-width: 60ch; margin: 12px 0 36px; font-size: 1.12rem; }
+.tolex .sub { color: #D0D0D0; }
+
+.gear { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 24px 22px 24px; display: flex; gap: 16px; align-items: flex-start; box-shadow: 0 2px 0 rgba(0,0,0,.04); }
+.card .pick { width: 40px; height: 42px; }
+.card .pick b { font-size: .95rem; }
+.card h3 { font-size: 1.55rem; margin-bottom: 6px; letter-spacing: .02em; }
+.card p { margin: 0; color: #36332E; }
+.reverb { margin-top: 30px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 20px 22px; border: 2px dashed #B9AE97; border-radius: 10px; }
+.reverb p { margin: 0; font-size: 1.1rem; flex: 1 1 320px; }
+
+/* Repairs */
+.bench .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 52px; align-items: center; }
+.bench figure { margin: 0; position: relative; }
+.bench img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 40% 50%; border-radius: 10px; border: 3px solid #2A2A2A; }
+.bench figcaption { margin-top: 12px; color: #BDBDBD; font-size: .92rem; }
+.bench ul { list-style: none; padding: 0; margin: 0 0 28px; display: grid; gap: 12px; }
+.bench li { display: flex; gap: 12px; align-items: flex-start; font-size: 1.1rem; color: #E8E8E8; }
+.bench li::before { content: ""; flex: none; width: 16px; height: 17px; margin-top: 6px; background: var(--teal); clip-path: path("M8 0C13 0 16 2 16 6C16 10.5 11 15.5 8 17C5 15.5 0 10.5 0 6C0 2 3 0 8 0Z"); }
+
+/* Gallery */
+.gal { display: grid; grid-template-columns: 1fr 1fr 0.78fr; grid-template-rows: 300px 300px; gap: 16px; }
+.gal figure { margin: 0; position: relative; overflow: hidden; border-radius: 10px; background: var(--tolex); }
+.gal img { width: 100%; height: 100%; object-fit: cover; }
+.gal figcaption { position: absolute; left: 12px; bottom: 12px; background: rgba(20,20,20,.86); color: #fff; font: 600 .95rem/1.2 var(--cond); letter-spacing: .06em; text-transform: uppercase; padding: 7px 11px; border-radius: 5px; border-left: 3px solid var(--teal); }
+.gal .wide { grid-column: 1 / 3; }
+.gal .tall { grid-column: 3; grid-row: 1 / 3; }
+
+/* Reviews: set-list cards */
+.rgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.rgrid figure { margin: 0; padding: 26px 24px 22px; background: var(--tolex-2); border: 1px solid #333; border-top: 4px solid var(--teal); border-radius: 8px; display: flex; flex-direction: column; }
+.rgrid .rs { color: #F5B82E; letter-spacing: 2px; }
+.rgrid blockquote { margin: 10px 0 16px; font-size: 1.08rem; color: #EDEDED; flex: 1; }
+.rgrid figcaption { color: #BDBDBD; font: 600 .95rem/1.3 var(--cond); letter-spacing: .06em; text-transform: uppercase; }
+.rgrid figcaption a { color: #9EEBE3; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Visit */
+.visit .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.visit address { font-style: normal; font-size: 1.25rem; margin: 16px 0 22px; }
+.perks { list-style: none; padding: 0; margin: 26px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.perks li { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: .95rem; color: #36332E; }
+.hours { width: 100%; border-collapse: collapse; font-size: 1.05rem; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.hours td { padding: 12px 18px; border-bottom: 1px solid var(--line); }
+.hours tr:last-child td { border-bottom: 0; }
+.hours td:last-child { text-align: right; font-weight: 600; }
+.hours tr.closed td:last-child { color: var(--muted); font-weight: 400; }
+.hours tr.today td { background: #DDF4F1; font-weight: 700; }
+.hours tr.today td:first-child::after { content: "  Today"; color: var(--teal-dk); font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
+
+footer { color: #C9C9C9; font-size: .92rem; border-top: 3px solid var(--teal); }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 24px calc(24px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: #fff; }
+
+@media (max-width: 900px) {
+  .hero .wrap, .bench .wrap, .visit .wrap { grid-template-columns: 1fr; }
+  .gear, .rgrid { grid-template-columns: 1fr 1fr; }
+  .nav a:not(.call) { display: none; }
+  .knobs { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 16px; }
+  .gal { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 260px 260px; }
+  .gal .wide { grid-column: 1 / 3; grid-row: 1; }
+  .gal .tall { grid-column: 2; grid-row: 2 / 4; }
+  .hero-photo .pick { right: 10px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .gear, .rgrid { grid-template-columns: 1fr; }
+  .block { padding-block: 56px; }
+  .brand b.name { font-size: 1.3rem; }
+  .brand .pick { width: 38px; height: 40px; }
+  .panel .wrap { gap: 16px; }
+  .jewel { display: none; }
+  .knob { width: 40px; height: 40px; }
+  .knob::after { height: 13px; transform-origin: 50% 15px; }
+  .knobs span { font-size: .85rem; }
+  .gal { grid-template-columns: 1fr; grid-template-rows: none; }
+  .gal figure, .gal .wide, .gal .tall { grid-column: auto; grid-row: auto; height: 240px; }
+  .gal .tall { height: 420px; }
+  .reverb .btn { width: 100%; }
+  .actions { flex-wrap: nowrap; gap: 10px; }
+  .actions .btn { flex: 1 1 auto; padding: 14px 12px; font-size: 1rem; white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #141414; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #141414; color: #FFFFFF; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: 60% 40%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #141414, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #2EC4B6; color: #141414; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); text-transform:uppercase;font-weight:800;letter-spacing:.01em; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #2EC4B6; color: #141414; border-radius: 8px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 8px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #141414; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 8px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #2EC4B6; color: #141414; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .top a.call { display: none; } .top .wrap { padding-block: 10px; } .m-hero { background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 5px); }
+}
+</style>
+<!-- /m-layer:css -->
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pick" viewBox="0 0 100 104"><path d="M50 2C80 2 98 15 98 37C98 64 68 93 50 102C32 93 2 64 2 37C2 15 20 2 50 2Z" fill="#2EC4B6" stroke="#0E0E0E" stroke-width="3"/></symbol>
+</svg>
+</head>
+<body>
+<header class="top tolex">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="The Guitar Man, home">
+      <span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>GM</b></span>
+      <span><b class="name">The Guitar Man</b><small>Salisbury, MD</small></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#gear">Gear</a>
+      <a href="#repairs">Repairs</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#visit">Hours</a>
+      <a class="call" href="tel:+18774842877">(877) 484-2877</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="The Guitar Man">
+  <figure class="m-photo"><img src="img/gm_3.webp" alt="The Guitar Man storefront with its sign reading We Buy, Sell &amp; Trade"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
+    <h1 class="m-title">Guitars, amps & drums. We buy, sell & trade.</h1>
+    <p class="m-lead">Tim and the crew on S. Salisbury Blvd: new and used gear, trade-ins, repairs and setups. 4.7 stars from 299 Google reviews.</p>
+    <a class="m-call" href="tel:+18774842877"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (877) 484-2877</a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=The+Guitar+Man&amp;query_place_id=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Directions</a>
+      <a href="#gear">What we carry</a>
+    </div>
+    <p class="m-addr">1013 S Salisbury Blvd, Salisbury, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero tolex">
+    <div class="wrap">
+      <div>
+        <span class="badge" id="open-now" hidden>Open now</span>
+        <span class="kicker">Music store · S. Salisbury Blvd</span>
+        <h1>We buy, sell <em>&amp; trade.</em></h1>
+        <p class="lead">Guitars, basses, amps, drums, keyboards and band and orchestra instruments, new and used. Bring in your trade, or bring in the one that needs a setup. Tim and the crew will take care of you.</p>
+        <div class="stars"><b>4.7</b><span aria-hidden="true">★★★★★</span><small>from 299 Google reviews</small></div>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+18774842877"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (877) 484-2877</a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=The+Guitar+Man&amp;query_place_id=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+        </div>
+      </div>
+      <figure class="hero-photo">
+        <img src="img/gm_3.webp" alt="The Guitar Man storefront with its sign reading The Guitar Man, Guitars, We Buy, Sell &amp; Trade">
+        <span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>BUY<br>SELL<br>TRADE</b></span>
+        <figcaption>1013 S Salisbury Blvd. Look for the teal-and-black sign.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="panel" role="presentation">
+    <div class="wrap">
+      <span class="jewel" aria-hidden="true"><i></i>ON</span>
+      <ul class="knobs" aria-label="What we carry">
+        <li><i class="knob" aria-hidden="true"></i><span>Guitars</span></li>
+        <li><i class="knob" aria-hidden="true"></i><span>Basses</span></li>
+        <li><i class="knob" aria-hidden="true"></i><span>Amps</span></li>
+        <li><i class="knob" aria-hidden="true"></i><span>Drums</span></li>
+        <li><i class="knob" aria-hidden="true"></i><span>Keys</span></li>
+        <li><i class="knob" aria-hidden="true"></i><span>Orchestra</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <section class="block light" id="gear">
+    <div class="wrap">
+      <span class="eyebrow">On the floor</span>
+      <h2>Gear for every player</h2>
+      <p class="sub">A mom-and-pop music store with a full floor of instruments, new and used.</p>
+      <div class="gear">
+        <div class="card"><span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>1</b></span><div><h3>Guitars &amp; basses</h3><p>Electrics, acoustics and basses. A Schecter and Takamine dealer.</p></div></div>
+        <div class="card"><span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>2</b></span><div><h3>Amps</h3><p>Amps on the floor alongside the guitars and basses.</p></div></div>
+        <div class="card"><span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>3</b></span><div><h3>Drums &amp; percussion</h3><p>Full kits set up on the floor, plus cymbals, hardware and percussion.</p></div></div>
+        <div class="card"><span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>4</b></span><div><h3>Keyboards &amp; synths</h3><p>Keyboards and synthesizers set up on stands.</p></div></div>
+        <div class="card"><span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>5</b></span><div><h3>Band &amp; orchestra</h3><p>Band and orchestra instruments, including violins and cellos.</p></div></div>
+        <div class="card"><span class="pick" aria-hidden="true"><svg><use href="#pick"/></svg><b>6</b></span><div><h3>Used gear &amp; trades</h3><p>Bring in what you're not playing. We buy, sell and trade.</p></div></div>
+      </div>
+      <div class="reverb">
+        <p><strong>Can't make it in?</strong> Gear from the shop is also listed online.</p>
+        <a class="btn btn-main" href="https://reverb.com/shop/the-guitar-man-store-salisbury-md" target="_blank" rel="noopener">Shop our Reverb store<span aria-hidden="true"> ↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block bench tolex" id="repairs">
+    <div class="wrap">
+      <figure>
+        <img src="img/gm_19.webp" alt="A worn sunburst Stratocaster-style guitar on a stand in front of guitar amps" loading="lazy">
+        <figcaption>A Strat on the stand, amps behind it.</figcaption>
+      </figure>
+      <div>
+        <span class="eyebrow">Repairs, lessons &amp; rentals</span>
+        <h2>Make it play right</h2>
+        <p class="sub">Buzzing frets, a dead pickup or a switch that crackles: bring it to the shop. Repairs and setups are done here, and lessons and rentals are available too.</p>
+        <ul>
+          <li>Setups and repairs</li>
+          <li>Pickup and selector switch replacement</li>
+          <li>Music lessons</li>
+          <li>Instrument rentals</li>
+        </ul>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+18774842877">Call (877) 484-2877</a>
+          <a class="btn btn-ghost" href="#visit">Shop hours</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block light">
+    <div class="wrap">
+      <span class="eyebrow">Inside the shop</span>
+      <h2>Come in and play</h2>
+      <p class="sub">A wall of guitars, drum kits set up on the floor and a row of keyboards.</p>
+      <div class="gal">
+        <figure class="wide"><img src="img/gm_8.webp" alt="A wall of electric guitars and basses hanging on slatwall, with a man standing beside them" loading="lazy" style="object-position:50% 45%"><figcaption>The guitar &amp; bass wall</figcaption></figure>
+        <figure class="tall"><img src="img/gm_21.webp" alt="Two synthesizer keyboards on stands, one above the other" loading="lazy"><figcaption>Keyboards &amp; synths</figcaption></figure>
+        <figure><img src="img/gm_18.webp" alt="Drum kits with cymbals set up on the shop floor" loading="lazy" style="object-position:50% 60%"><figcaption>Drum kits</figcaption></figure>
+        <figure><img src="img/gm_20.webp" alt="Drum and percussion area with kits, an electronic drum set and pedals" loading="lazy"><figcaption>Drums &amp; percussion</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block tolex" id="reviews">
+    <div class="wrap">
+      <span class="eyebrow">Google reviews</span>
+      <h2>What players say</h2>
+      <p class="sub">4.7 stars from 299 Google reviews. A few of them:</p>
+      <div class="rgrid">
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Tim and the guys are very customer friendly, good selection of guitars and equipment.</blockquote>
+          <figcaption>Gerald · <a href="https://search.google.com/local/reviews?placeid=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>They did exceptional work, and it plays like a million bucks.</blockquote>
+          <figcaption>Patrick · <a href="https://search.google.com/local/reviews?placeid=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Best music store in the DMV. Great staff, great prices, great service, great selection.</blockquote>
+          <figcaption>Quinn · <a href="https://search.google.com/local/reviews?placeid=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>I recently had work done on a Fender Strat- Lace sensor pickup and selector switch replaced. They did an excellent job at a very reasonable price!</blockquote>
+          <figcaption>Jack · <a href="https://search.google.com/local/reviews?placeid=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>What a great mom and pop music store, staff are friendly knowledgeable, owner what a nice guy I purchased gretsch dual jet, he gave me amazing deal</blockquote>
+          <figcaption>Matthew · <a href="https://search.google.com/local/reviews?placeid=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>…surprisingly is the only schecter dealership within Delmarva that I've been to.</blockquote>
+          <figcaption>Jackson · <a href="https://search.google.com/local/reviews?placeid=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block visit light" id="visit">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Visit the shop</span>
+        <h2>Stop in or call</h2>
+        <address>1013 S Salisbury Blvd<br>Salisbury, MD 21801</address>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+18774842877">Call (877) 484-2877</a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=The+Guitar+Man&amp;query_place_id=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener">Directions</a>
+        </div>
+        <ul class="perks" aria-label="Good to know">
+          <li>In-store pickup</li>
+          <li>Debit cards accepted</li>
+          <li>Wheelchair-accessible entrance &amp; parking</li>
+        </ul>
+      </div>
+      <table class="hours" id="hours" aria-label="Hours">
+        <tr data-d="1"><td>Monday</td><td>10:00 am – 6:00 pm</td></tr>
+        <tr data-d="2"><td>Tuesday</td><td>10:00 am – 6:00 pm</td></tr>
+        <tr data-d="3"><td>Wednesday</td><td>10:00 am – 6:00 pm</td></tr>
+        <tr data-d="4"><td>Thursday</td><td>10:00 am – 6:00 pm</td></tr>
+        <tr data-d="5"><td>Friday</td><td>10:00 am – 6:00 pm</td></tr>
+        <tr data-d="6"><td>Saturday</td><td>10:00 am – 6:00 pm</td></tr>
+        <tr data-d="0" class="closed"><td>Sunday</td><td>Closed</td></tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="tolex">
+  <div class="wrap">
+    <span>The Guitar Man · 1013 S Salisbury Blvd, Salisbury, Maryland</span>
+    <span>Preview site made for The Guitar Man by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var HOURS = { 1: [10, 18], 2: [10, 18], 3: [10, 18], 4: [10, 18], 5: [10, 18], 6: [10, 18] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var badge = document.getElementById('open-now');
+    var span = HOURS[d];
+    var open = !!(span && h >= span[0] && h < span[1]);
+    badge.textContent = open ? 'Open now' : 'Closed now';
+    if (!open) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+})();
+</script>
+
+<script src="/preview-kit.js?v=3" data-slug="guitarman" defer></script>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+18774842877"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=The+Guitar+Man&amp;query_place_id=ChIJfU3Bi_MDuYkRI_vYTvB2uNU" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Hours</a>
+</nav>
+<!-- /m-layer:bar -->
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"1": [10, 18], "2": [10, 18], "3": [10, 18], "4": [10, 18], "5": [10, 18], "6": [10, 18]};
+  var SEASON = null;
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      if (SEASON) { var mo = now.getMonth() + 1; if (mo < SEASON[0] || mo > SEASON[1]) { txt.textContent = SEASON[2] || 'Closed for the season'; el.classList.add('shut'); return; } }
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    var wrapEl = document.createElement('div'); wrapEl.className = 'm-hours-wrap';
+    table.parentNode.insertBefore(wrapEl, table); wrapEl.appendChild(table); wrapEl.appendChild(btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>
