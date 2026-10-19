@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<style>img{max-width:100%}[hidden]{display:none!important}.rgrid figcaption a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rgrid figcaption a:hover { text-decoration-thickness: 2px; }
+</style>
 <title>Garcia's Tire Shop</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
@@ -91,6 +93,15 @@ h2 { font-family: var(--display); font-weight: 400; text-transform: uppercase; f
 .svc p { margin: 0; color: var(--muted); font-size: .98rem; }
 .svc.feature { background: var(--red); color: var(--paper); }
 .svc.feature p { color: #FFE3DF; }
+.svc, .svc h3, .svc p { transition: background-color .18s ease, color .18s ease; }
+@media (hover: hover) and (pointer: fine) {
+  .svc { cursor: default; }
+  .svcs:hover .svc.feature:not(:hover) { background: var(--paper); color: inherit; }
+  .svcs:hover .svc.feature:not(:hover) p { color: var(--muted); }
+  .svc:hover { background: var(--red); color: var(--paper); }
+  .svc:hover p { color: #FFE3DF; }
+}
+@media (prefers-reduced-motion: reduce) { .svc, .svc h3, .svc p { transition: none; } }
 
 /* Shop photos */
 .yard { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px; margin-top: 40px; }
@@ -320,18 +331,18 @@ footer a { color: var(--sign); }
       <div class="rgrid">
         <figure>
           <span class="stars" aria-label="5 stars">★★★★★</span>
-          <blockquote>He patched my tire within 10 minutes while other stores asked me to purchase a new one. He is professional, practical, efficient, and reliable.</blockquote>
-          <figcaption>Google review</figcaption>
+          <blockquote>He patched my tire within 10 mins for $25 while other stores asked me to purchase a new one. He is professional, practical, efficient, and reliable.</blockquote>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJDQkjWZMDuYkRulk9lO4rfLA" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <span class="stars" aria-label="5 stars">★★★★★</span>
-          <blockquote>They give you a quote and they stick to that quote. Fast and efficient. I'll be recommending them to all my friends and family.</blockquote>
-          <figcaption>Google review</figcaption>
+          <blockquote>Fast, efficient. They don't BS or play games. They give you a quote and they stick to that quote. Highly recommend.</blockquote>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJDQkjWZMDuYkRulk9lO4rfLA" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
         <figure>
           <span class="stars" aria-label="5 stars">★★★★★</span>
-          <blockquote>Great price on used tires in excellent condition. Ten minutes later my car was in the bay, and ten minutes after that it was done.</blockquote>
-          <figcaption>Google review</figcaption>
+          <blockquote>Great price on used tires, in excellent condition&hellip; Pulled in, got a very welcomed greeting and 10 mins later it was in the bay. 10 mins later done.</blockquote>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJDQkjWZMDuYkRulk9lO4rfLA" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
         </figure>
       </div>
     </div>
