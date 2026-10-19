@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Your Style | Hair Salon in Pittsville, MD</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Your Style, a hair salon on Gumboro Road in Pittsville, Maryland: haircuts, styling, manicures, pedicures and eyebrow waxing. Walk-ins welcome.">
+<link rel="icon" type="image/png" sizes="32x32" href="/yourstyle/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/yourstyle/img/icon-192.png">
+<link rel="apple-touch-icon" href="/yourstyle/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the salon's own black-and-white checkered floor, with a soft blush accent and a serif wordmark. */
+:root {
+  --ink: #1B1A1D;
+  --blush: #E8A6B5;
+  --rose: #B4466A;
+  --rose-dk: #8E3352;
+  --paper: #FFFBF9;
+  --soft: #F7ECEE;
+  --muted: #5E5860;
+  --line: #ECE1E3;
+  --display: "Young Serif", Georgia, serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.6 var(--body); }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.1; margin: 0; }
+
+.top { background: var(--ink); color: #fff; position: sticky; top: 0; z-index: 20; }
+.top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 14px; }
+.brand { text-decoration: none; display: flex; align-items: baseline; gap: 12px; }
+.brand b { font: 400 1.6rem/1 var(--display); }
+.brand b i { font-style: normal; color: var(--blush); }
+.brand small { color: #BDB6BE; font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; }
+.nav { margin-left: auto; display: flex; gap: 22px; align-items: center; }
+.nav a { text-decoration: none; font-weight: 600; color: #E9E4EA; }
+.nav a:hover { color: var(--blush); }
+.nav a.call { background: var(--blush); color: var(--ink); padding: 9px 16px; border-radius: 999px; }
+
+.checker { height: 18px; background: conic-gradient(var(--ink) 25%, #fff 0 50%, var(--ink) 0 75%, #fff 0) 0 0 / 18px 18px; border-bottom: 1px solid var(--line); }
+
+.hero .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 52px; align-items: center; padding-block: 56px 64px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92rem; padding: 6px 12px; border-radius: 999px; background: #E7F4EA; color: #1E6338; }
+.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #2B9B55; }
+.badge.shut { background: var(--soft); color: var(--muted); }
+.badge.shut::before { background: #AFA4AA; }
+.hero h1 { font-size: clamp(2.6rem, 5vw, 3.9rem); margin: 18px 0 14px; text-wrap: balance; }
+.hero h1 em { font-style: normal; color: var(--rose); }
+.hero .lead { font-size: 1.2rem; color: #3B363C; margin: 0 0 22px; max-width: 36ch; }
+.stars { display: flex; align-items: center; gap: 12px; margin: 0 0 26px; flex-wrap: wrap; }
+.stars b { font: 400 2rem/1 var(--display); }
+.stars span { color: #E0A400; letter-spacing: 2px; font-size: 1.2rem; }
+.stars small { color: var(--muted); font-size: 1rem; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.05rem var(--body); padding: 14px 24px; border-radius: 999px; border: 2px solid var(--ink); }
+.btn svg { width: 20px; height: 20px; }
+.btn-main { background: var(--ink); color: #fff; }
+.btn-main:hover { background: #000; }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-ghost:hover { background: var(--soft); }
+.hero-photo { position: relative; padding: 0 0 22px 22px; }
+.hero-photo::before { content: ""; position: absolute; left: 0; bottom: 0; width: 70%; height: 70%; background: conic-gradient(var(--ink) 25%, #fff 0 50%, var(--ink) 0 75%, #fff 0) 0 0 / 28px 28px; border-radius: 16px; }
+.hero-photo img { position: relative; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 16px; box-shadow: 0 22px 44px -24px rgba(27,26,29,.6); }
+
+.walkin { background: var(--rose); color: #fff; }
+.walkin .wrap { display: flex; justify-content: center; align-items: center; gap: 14px; padding-block: 18px; font: 400 1.35rem/1.2 var(--display); text-align: center; flex-wrap: wrap; }
+.walkin span { font: 500 1rem var(--body); color: #FBE2E9; }
+
+.block { padding-block: 72px; }
+.block h2 { font-size: clamp(2rem, 3.6vw, 2.7rem); }
+.sub { color: var(--muted); max-width: 58ch; margin: 10px 0 34px; font-size: 1.1rem; }
+
+.menu { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.svc { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px 22px; }
+.svc .ic { width: 44px; height: 44px; border-radius: 50%; background: var(--soft); color: var(--rose); display: grid; place-items: center; margin-bottom: 14px; }
+.svc .ic svg { width: 22px; height: 22px; }
+.svc h3 { font-size: 1.35rem; margin-bottom: 6px; }
+.svc p { margin: 0; color: var(--muted); font-size: 1rem; }
+
+.inside { background: var(--soft); }
+.inside .wrap { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; align-items: center; }
+.inside img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 16px; }
+.inside p { font-size: 1.15rem; max-width: 44ch; margin: 14px 0 0; }
+
+.rgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.rgrid figure { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px 26px; }
+.rgrid .rs { color: #E0A400; letter-spacing: 2px; }
+.rgrid blockquote { margin: 8px 0 12px; font-size: 1.1rem; }
+.rgrid figcaption { color: var(--muted); font-size: .92rem; }
+.rgrid figcaption a { color: inherit; text-underline-offset: 3px; }
+
+.visit { background: var(--ink); color: #F1EDF2; }
+.visit .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.visit h2 { color: #fff; }
+.visit address { font-style: normal; font-size: 1.2rem; margin: 14px 0 22px; }
+.visit .btn-main { background: var(--blush); color: var(--ink); border-color: var(--blush); }
+.visit .btn-ghost { border-color: #8D858F; color: #fff; }
+.visit .btn-ghost:hover { background: rgba(255,255,255,.08); }
+.hours { width: 100%; border-collapse: collapse; font-size: 1.05rem; background: rgba(255,255,255,.06); border-radius: 14px; overflow: hidden; }
+.hours td { padding: 11px 16px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.hours tr:last-child td { border-bottom: 0; }
+.hours td:last-child { text-align: right; font-weight: 600; }
+.hours tr.closed td:last-child { color: #A59DA7; font-weight: 400; }
+.hours tr.today td { background: rgba(232,166,181,.18); font-weight: 700; }
+.hours tr.today td:first-child::after { content: "  Today"; color: var(--blush); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+
+footer { background: #000; color: #A59DA7; font-size: .92rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: #fff; }
+
+@media (max-width: 960px) { .menu { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 900px) {
+  .hero .wrap, .inside .wrap, .visit .wrap { grid-template-columns: 1fr; }
+  .rgrid { grid-template-columns: 1fr; }
+  .nav a:not(.call) { display: none; }
+  .brand small { display: none; }
+}
+@media (max-width: 600px) { body { font-size: 17px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #1B1A1D; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #FFFBF9; color: #1B1A1D; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 45%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FFFBF9, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #FFFFFF; color: #1B1A1D; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #1B1A1D; color: #FFFFFF; border-radius: 999px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 999px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #1B1A1D; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 999px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #1B1A1D; color: #FFFFFF; flex-direction: row; gap: 8px; font-size: 1rem; }
+  .top a.call { display: none; } .top .wrap { padding-block: 12px; }
+}
+</style>
+<!-- /m-layer:css -->
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Your Style, home"><b>Your <i>Style</i></b><small>Pittsville, MD</small></a>
+    <nav class="nav" aria-label="Main">
+      <a href="#services">Services</a>
+      <a href="#visit">Hours</a>
+      <a class="call" href="tel:+14108352722">(410) 835-2722</a>
+    </nav>
+  </div>
+</header>
+<div class="checker" aria-hidden="true"></div>
+
+<main id="top">
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="Your Style">
+  <figure class="m-photo"><img src="img/ys_1.webp" alt="Inside Your Style: a styling chair on a black-and-white checkered floor"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
+    <h1 class="m-title">Great hair, right here in Pittsville.</h1>
+    <p class="m-lead">Haircuts, styling, manicures, pedicures and brows on Gumboro Road. Walk-ins welcome. 5.0 stars on Google.</p>
+    <a class="m-call" href="tel:+14108352722"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 835-2722</a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Your+Style+Pittsville+MD&amp;query_place_id=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener">Directions</a>
+      <a href="#services">Services</a>
+    </div>
+    <p class="m-addr">7808 Gumboro Rd, Pittsville, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="badge" id="open-now" hidden>Open now</span>
+        <h1>Great hair, right here in <em>Pittsville.</em></h1>
+        <p class="lead">Haircuts, styling, manicures, pedicures and brows in a friendly, relaxed little salon on Gumboro Road. Walk-ins welcome.</p>
+        <div class="stars"><b>5.0</b><span aria-hidden="true">★★★★★</span><small>from 36 Google reviews</small></div>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14108352722"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 835-2722</a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Your+Style+Pittsville+MD&amp;query_place_id=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener">Directions</a>
+        </div>
+      </div>
+      <div class="hero-photo"><img src="img/ys_1.webp" alt="Inside Your Style: a styling chair on a black-and-white checkered floor, with the salon's front door behind it"></div>
+    </div>
+  </section>
+
+  <div class="walkin"><div class="wrap">Walk-ins welcome <span>or call ahead: (410) 835-2722</span></div></div>
+
+  <section class="block" id="services">
+    <div class="wrap">
+      <h2>Services</h2>
+      <p class="sub">Tell us what you want and we'll make it work for you. Call for prices and openings.</p>
+      <div class="menu">
+        <div class="svc"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg></span><h3>Haircuts</h3><p>Cuts for women and men.</p></div>
+        <div class="svc"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3c3 4 6 6.5 6 10a6 6 0 0 1-12 0c0-3.5 3-6 6-10z"/></svg></span><h3>Styling</h3><p>Styles that fit you.</p></div>
+        <div class="svc"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 21V11a4 4 0 0 1 8 0v10"/><path d="M8 15h8"/></svg></span><h3>Nails</h3><p>Manicures and pedicures.</p></div>
+        <div class="svc"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12c4-5 14-5 18 0"/><path d="M3 12c4 3 14 3 18 0"/></svg></span><h3>Brows</h3><p>Eyebrow waxing.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block inside">
+    <div class="wrap">
+      <img src="img/ys_2.webp" alt="Styling stations and plants inside the salon" loading="lazy">
+      <div>
+        <h2>Friendly, relaxed and spotless</h2>
+        <p>That's how our customers describe us. Come in, sit down, and leave with the best haircut you've had in a while, at a fair price.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <h2>5.0 stars on Google</h2>
+      <p class="sub">A few words from customers on Google.</p>
+      <div class="rgrid">
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>I had a great haircut today with Allison, she listened to what I wanted, then made it work better than I could’ve hoped for!</blockquote>
+          <figcaption>Margaret · <a href="https://search.google.com/local/reviews?placeid=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Absolutely love this place!! Super friendly relaxed atmosphere. Very reasonably priced and the best hair cut I have gotten in years!!</blockquote>
+          <figcaption>Kristine · <a href="https://search.google.com/local/reviews?placeid=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>They are very friendly and they welcome all walk ins. They make you feel very special there. Dana is the greatest</blockquote>
+          <figcaption>Barbara · <a href="https://search.google.com/local/reviews?placeid=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>This place is great! All the ladies are very good and fun. The place is immaculately clean.</blockquote>
+          <figcaption>Patti · <a href="https://search.google.com/local/reviews?placeid=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block visit" id="visit">
+    <div class="wrap">
+      <div>
+        <h2>Come see us</h2>
+        <address>7808 Gumboro Rd<br>Pittsville, MD 21850</address>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14108352722">Call (410) 835-2722</a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Your+Style+Pittsville+MD&amp;query_place_id=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener">Get directions</a>
+        </div>
+      </div>
+      <table class="hours" id="hours" aria-label="Hours">
+        <tr data-d="1" class="closed"><td>Monday</td><td>Closed</td></tr>
+        <tr data-d="2"><td>Tuesday</td><td>8:00 am – 12:00 pm</td></tr>
+        <tr data-d="3"><td>Wednesday</td><td>8:00 am – 7:00 pm</td></tr>
+        <tr data-d="4"><td>Thursday</td><td>8:00 am – 7:00 pm</td></tr>
+        <tr data-d="5"><td>Friday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="6"><td>Saturday</td><td>8:00 am – 12:00 pm</td></tr>
+        <tr data-d="0" class="closed"><td>Sunday</td><td>Closed</td></tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Your Style, Pittsville, Maryland</span>
+    <span>Preview site made for Your Style by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var HOURS = { 2: [8, 12], 3: [8, 19], 4: [8, 19], 5: [8, 17], 6: [8, 12] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var badge = document.getElementById('open-now');
+    var span = HOURS[d];
+    var open = !!(span && h >= span[0] && h < span[1]);
+    badge.textContent = open ? 'Open now' : 'Closed now';
+    if (!open) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+})();
+</script>
+
+<script src="/preview-kit.js?v=1" data-slug="yourstyle" defer></script>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+14108352722"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=Your+Style+Pittsville+MD&amp;query_place_id=ChIJtxQsR-DhuIkRIOhFWw2ahgg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Hours</a>
+</nav>
+<!-- /m-layer:bar -->
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"2": [8, 12], "3": [8, 19], "4": [8, 19], "5": [8, 17], "6": [8, 12]};
+  var SEASON = null;
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      if (SEASON) { var mo = now.getMonth() + 1; if (mo < SEASON[0] || mo > SEASON[1]) { txt.textContent = SEASON[2] || 'Closed for the season'; el.classList.add('shut'); return; } }
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    table.insertAdjacentElement('afterend', btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>

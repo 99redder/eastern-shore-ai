@@ -13,6 +13,9 @@ export const PREVIEW_SITES = {
   grants: { name: "Grant's Service Center", phone: '(410) 742-3243', email: 'grantsexxon@comcast.net' },
   rrhandyman: { name: "R&R's Handyman Services", phone: '(443) 859-3373', email: 'rrhandyman2019@gmail.com' },
   cathys: { name: "Cathy's Pet Salon", phone: '(410) 670-8348', email: 'cathyspetsalon@yahoo.com' },
+  oakleys: { name: "Oakley's Farm Market", phone: '(410) 860-8553', email: 'melonsforyou@msn.com' },
+  yourstyle: { name: 'Your Style', phone: '(410) 835-2722', email: 'daydelotte2506@aol.com' },
+  sunnyside: { name: 'Sunnyside Greenhouses', phone: '(410) 677-3364', email: 'sunnysidellc@aol.com' },
 };
 
 const SITE = 'https://www.easternshore.ai';
