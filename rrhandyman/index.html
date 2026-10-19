@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>R&amp;R's Handyman Services | Mardela Springs, MD</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Handyman services from Mardela Springs, Maryland: deck staining, painting, drywall, flooring, tile, cabinets and attic stairs.">
+<link rel="icon" type="image/png" sizes="32x32" href="/rrhandyman/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/rrhandyman/img/icon-192.png">
+<link rel="apple-touch-icon" href="/rrhandyman/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: a carpenter's work order. Cedar and pencil tones, a tape-measure rule between sections,
+   and the job list written like a punch list. */
+:root {
+  --cedar: #B4642A;
+  --cedar-dk: #8A4517;
+  --pine: #2E4A3A;
+  --paper: #FBF7F0;
+  --card: #FFFFFF;
+  --ink: #2A2420;
+  --muted: #5F564E;
+  --line: #E6DCCD;
+  --tape: #F2C230;
+  --display: "Zilla Slab", Rockwell, Georgia, serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.6 var(--body); }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+.wrap { max-width: 1140px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.08; margin: 0; }
+
+.top { background: var(--pine); color: #fff; position: sticky; top: 0; z-index: 20; }
+.top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 14px; }
+.brand { text-decoration: none; display: flex; align-items: center; gap: 12px; }
+.mark { width: 46px; height: 46px; border-radius: 8px; background: var(--cedar); display: grid; place-items: center; font: 700 1.15rem/1 var(--display); color: #fff; flex: none; }
+.brand b { font: 700 1.4rem/1 var(--display); display: block; }
+.brand small { display: block; color: #CFDCD3; font-size: .85rem; margin-top: 3px; }
+.nav { margin-left: auto; display: flex; gap: 22px; align-items: center; }
+.nav a { text-decoration: none; font-weight: 600; color: #E6EEE8; }
+.nav a:hover { color: var(--tape); }
+.nav a.call { background: var(--tape); color: var(--ink); padding: 10px 16px; border-radius: 6px; font-weight: 700; }
+
+.tape { height: 22px; background:
+  repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 24px) 0 0 / 100% 12px no-repeat,
+  repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 6px) 0 0 / 100% 6px no-repeat,
+  var(--tape); }
+
+.hero .wrap { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; padding-block: 56px 64px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92rem; padding: 6px 12px; border-radius: 999px; background: #E5F3E9; color: #1D6136; }
+.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #23A15A; }
+.badge.shut { background: #F1EDE6; color: var(--muted); }
+.badge.shut::before { background: #A79C8F; }
+.hero h1 { font-size: clamp(2.4rem, 4.8vw, 3.6rem); margin: 18px 0 14px; color: var(--pine); }
+.hero h1 em { font-style: normal; color: var(--cedar); }
+.hero .lead { font-size: 1.2rem; color: #3A322C; margin: 0 0 22px; max-width: 36ch; }
+.stars { display: flex; align-items: center; gap: 12px; margin: 0 0 26px; flex-wrap: wrap; }
+.stars b { font: 700 2rem/1 var(--display); color: var(--pine); }
+.stars span { color: #E0A400; letter-spacing: 2px; font-size: 1.2rem; }
+.stars small { color: var(--muted); font-size: 1rem; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.05rem var(--body); padding: 14px 22px; border-radius: 8px; border: 2px solid var(--cedar-dk); }
+.btn svg { width: 20px; height: 20px; }
+.btn-main { background: var(--cedar); border-color: var(--cedar); color: #fff; }
+.btn-main:hover { background: var(--cedar-dk); }
+.btn-ghost { background: transparent; color: var(--cedar-dk); }
+.btn-ghost:hover { background: #F4E9DB; }
+.hero-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; box-shadow: 0 22px 44px -26px rgba(42,36,32,.7); }
+
+.block { padding-block: 72px; }
+.block h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); color: var(--pine); }
+.sub { color: var(--muted); max-width: 60ch; margin: 10px 0 32px; font-size: 1.1rem; }
+
+.order { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 30px 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 46px; box-shadow: 0 1px 0 var(--line); }
+.order h3 { grid-column: 1 / -1; font-size: 1rem; text-transform: uppercase; letter-spacing: .14em; color: var(--cedar-dk); padding-bottom: 12px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+.job { display: grid; grid-template-columns: 26px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px dashed var(--line); }
+.job .box { width: 22px; height: 22px; border: 2px solid var(--pine); border-radius: 4px; margin-top: 3px; position: relative; }
+.job .box::after { content: ""; position: absolute; left: 5px; top: 0; width: 7px; height: 13px; border: solid var(--cedar); border-width: 0 3px 3px 0; transform: rotate(40deg); }
+.job b { display: block; font-size: 1.1rem; }
+.job span { color: var(--muted); font-size: .98rem; }
+.note { margin-top: 18px; color: var(--muted); }
+
+.work { background: #F3EBDF; }
+.gallery { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-rows: 250px 250px; gap: 14px; }
+.gallery figure { margin: 0; position: relative; overflow: hidden; border-radius: 10px; }
+.gallery figure:first-child { grid-row: span 2; }
+.gallery img { width: 100%; height: 100%; object-fit: cover; }
+.gallery figcaption { position: absolute; left: 10px; bottom: 10px; background: rgba(42,36,32,.82); color: #fff; font-weight: 600; font-size: .9rem; padding: 4px 10px; border-radius: 6px; }
+
+.people .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start; }
+.people p { font-size: 1.12rem; margin: 14px 0 0; max-width: 46ch; }
+.quotes { display: grid; gap: 18px; }
+.quotes figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--cedar); border-radius: 10px; padding: 22px 24px; }
+.quotes .rs { color: #E0A400; letter-spacing: 2px; }
+.quotes blockquote { margin: 8px 0 12px; font-size: 1.12rem; }
+.quotes figcaption { color: var(--muted); font-size: .92rem; }
+.quotes figcaption a { color: inherit; text-underline-offset: 3px; }
+
+.visit { background: var(--pine); color: #F1F5F2; }
+.visit .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.visit h2 { color: #fff; }
+.visit p { font-size: 1.15rem; margin: 14px 0 22px; }
+.visit .btn-main { background: var(--tape); border-color: var(--tape); color: var(--ink); }
+.visit .btn-ghost { border-color: #CFDCD3; color: #fff; }
+.visit .btn-ghost:hover { background: rgba(255,255,255,.08); }
+.hours { width: 100%; border-collapse: collapse; font-size: 1.05rem; background: rgba(255,255,255,.06); border-radius: 10px; overflow: hidden; }
+.hours td { padding: 11px 16px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.hours tr:last-child td { border-bottom: 0; }
+.hours td:last-child { text-align: right; font-weight: 600; }
+.hours tr.closed td:last-child { color: #B8C8BD; font-weight: 400; }
+.hours tr.today td { background: rgba(242,194,48,.18); font-weight: 700; }
+.hours tr.today td:first-child::after { content: "  Today"; color: var(--tape); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+
+footer { background: #1F3328; color: #B8C8BD; font-size: .92rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: #fff; }
+
+@media (max-width: 900px) {
+  .hero .wrap, .people .wrap, .visit .wrap { grid-template-columns: 1fr; }
+  .order { grid-template-columns: 1fr; padding: 24px; }
+  .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: 260px 200px 200px; }
+  .gallery figure:first-child { grid-column: 1 / -1; grid-row: auto; }
+  .nav a:not(.call) { display: none; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .brand b { font-size: 1.15rem; }
+  .mark { width: 40px; height: 40px; font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #2E4A3A; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #FBF7F0; color: #2A2420; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 60%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FBF7F0, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #F2C230; color: #2A2420; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:700; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #B4642A; color: #FFFFFF; border-radius: 8px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 8px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .quotes {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .quotes::-webkit-scrollbar { display: none; }
+  .quotes > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #2E4A3A; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 8px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #B4642A; color: #FFFFFF; flex-direction: row; gap: 8px; font-size: 1rem; }
+  .top a.call { display: none; } .top .wrap { padding-block: 10px; } .gallery { grid-template-rows: 220px 160px 160px; }
+}
+</style>
+<!-- /m-layer:css -->
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="R&amp;R's Handyman Services, home">
+      <span class="mark" aria-hidden="true">R&amp;R</span>
+      <span><b>R&amp;R's Handyman Services</b><small>Mardela Springs, Maryland</small></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#services">Services</a>
+      <a href="#work">Our work</a>
+      <a href="#contact">Hours</a>
+      <a class="call" href="tel:+14438593373">(443) 859-3373</a>
+    </nav>
+  </div>
+</header>
+<div class="tape" aria-hidden="true"></div>
+
+<main id="top">
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="R&amp;R&#x27;s Handyman Services">
+  <figure class="m-photo"><img src="img/rrh_4.webp" alt="A finished wood deck with steps behind a house"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
+    <h1 class="m-title">The fix-it list, finally done.</h1>
+    <p class="m-lead">Decks, painting, drywall, flooring, tile and cabinets from a local Mardela Springs crew. 4.8 stars on Google.</p>
+    <a class="m-call" href="tel:+14438593373"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (443) 859-3373</a>
+    <div class="m-sub">
+      <a href="mailto:rrhandyman2019@gmail.com" target="_blank" rel="noopener">Email us</a>
+      <a href="#services">What we do</a>
+    </div>
+    <p class="m-addr">Mardela Springs, Maryland</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="badge" id="open-now" hidden>Open now</span>
+        <h1>The fix-it list, <em>finally done.</em></h1>
+        <p class="lead">Decks, painting, drywall, flooring, tile and cabinets, handled by a local Mardela Springs crew. Priced by the hour or by the job.</p>
+        <div class="stars"><b>4.8</b><span aria-hidden="true">★★★★★</span><small>from 30 Google reviews</small></div>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14438593373"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (443) 859-3373</a>
+          <a class="btn btn-ghost" href="mailto:rrhandyman2019@gmail.com">Email us</a>
+        </div>
+      </div>
+      <div class="hero-photo"><img src="img/rrh_4.webp" alt="A finished wood deck with steps behind a house"></div>
+    </div>
+  </section>
+
+  <section class="block" id="services">
+    <div class="wrap">
+      <h2>What we can take off your list</h2>
+      <p class="sub">Inside and out. Give us a call and tell us what needs doing.</p>
+      <div class="order">
+        <h3>Work order</h3>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Deck staining</b><span>Bring an old deck back to life.</span></div></div>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Interior painting</b><span>Rooms, trim and cabinets.</span></div></div>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Drywall repairs</b><span>Holes, cracks and patches.</span></div></div>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Laminate flooring</b><span>Rooms and staircases.</span></div></div>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Tile work</b><span>Floors and surrounds.</span></div></div>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Cabinet installation</b><span>New cabinets put in.</span></div></div>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Attic stairs</b><span>Pull-down attic stair replacement.</span></div></div>
+        <div class="job"><span class="box" aria-hidden="true"></span><div><b>Odd jobs</b><span>Ask about the rest of your list.</span></div></div>
+      </div>
+      <p class="note">Priced by the hour or by the job.</p>
+    </div>
+  </section>
+
+  <section class="block work" id="work">
+    <div class="wrap">
+      <h2>From our photo album</h2>
+      <p class="sub">A few projects from our Google listing.</p>
+      <div class="gallery">
+        <figure><img src="img/rrh_1.webp" alt="Wood deck with steps and lattice skirting" loading="lazy"><figcaption>Deck</figcaption></figure>
+        <figure><img src="img/rrh_3.webp" alt="Kitchen with white cabinets and granite counters" loading="lazy"><figcaption>Kitchen</figcaption></figure>
+        <figure><img src="img/rrh_8.webp" alt="Fireplace with wood mantel and tile hearth" loading="lazy" style="object-position:50% 40%"><figcaption>Fireplace</figcaption></figure>
+        <figure><img src="img/rrh_10.webp" alt="Wooden backyard playset with slide and swings" loading="lazy"><figcaption>Playset</figcaption></figure>
+        <figure><img src="img/rrh_4.webp" alt="Deck wrapping the back of a house" loading="lazy"><figcaption>Deck</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block people">
+    <div class="wrap">
+      <div>
+        <h2>Local, and easy to reach</h2>
+        <p>R&amp;R's is run by Robert and Renee Compton out of Mardela Springs, backed by 30 years of on-the-job experience.</p>
+        <p>Call during the week, or send an email with a few photos of the job.</p>
+      </div>
+      <div class="quotes">
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Excellent job replacing a pulldown attic stair. Responds quickly and is very professional.</blockquote>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJCZJMVq8DuYkRWNe5sCXLHmI" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Rob and Will did a great job putting in new wood laminate flooring in the upstairs and staircase.</blockquote>
+          <figcaption><a href="https://search.google.com/local/reviews?placeid=ChIJCZJMVq8DuYkRWNe5sCXLHmI" target="_blank" rel="noopener">Google review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block visit" id="contact">
+    <div class="wrap">
+      <div>
+        <h2>Get it on the schedule</h2>
+        <p>Based in Mardela Springs, Maryland.</p>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14438593373">Call (443) 859-3373</a>
+          <a class="btn btn-ghost" href="mailto:rrhandyman2019@gmail.com">rrhandyman2019@gmail.com</a>
+        </div>
+      </div>
+      <table class="hours" id="hours" aria-label="Hours">
+        <tr data-d="1"><td>Monday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="2"><td>Tuesday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="3"><td>Wednesday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="4"><td>Thursday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="5"><td>Friday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="6" class="closed"><td>Saturday</td><td>Closed</td></tr>
+        <tr data-d="0" class="closed"><td>Sunday</td><td>Closed</td></tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 R&amp;R's Handyman Services, Mardela Springs, Maryland</span>
+    <span>Preview site made for R&amp;R's Handyman Services by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var HOURS = { 1: [8, 17], 2: [8, 17], 3: [8, 17], 4: [8, 17], 5: [8, 17] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var badge = document.getElementById('open-now');
+    var span = HOURS[d];
+    var open = !!(span && h >= span[0] && h < span[1]);
+    badge.textContent = open ? 'Open now' : 'Closed now';
+    if (!open) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+})();
+</script>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+14438593373"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
+  <a href="mailto:rrhandyman2019@gmail.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>Email</a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Hours</a>
+</nav>
+<!-- /m-layer:bar -->
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"1": [8, 17], "2": [8, 17], "3": [8, 17], "4": [8, 17], "5": [8, 17]};
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    table.insertAdjacentElement('afterend', btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>
