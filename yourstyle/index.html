@@ -4,70 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>img{max-width:100%}[hidden]{display:none!important}</style>
-<!-- m-layer:css -->
-<style>
-/* Phone-first layer (<= 700px). Desktop is unchanged. */
-.m-only { display: none; }
-@media (max-width: 700px) {
-  html { scroll-padding-top: 72px; }
-  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
-  .m-only { display: block; }
-  .m-hide { display: none !important; }
-  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
-  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #1B1A1D; }
-  .hero { display: none; }
-
-  /* Mobile hero */
-  .m-hero { background: #FFFBF9; color: #1B1A1D; }
-  .m-photo { position: relative; margin: 0; }
-  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 45%; }
-  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FFFBF9, transparent); }
-  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
-  .m-photo + .m-body { margin-top: -38px; }
-  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #FFFFFF; color: #1B1A1D; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
-  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
-  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
-  .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
-  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
-  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #1B1A1D; color: #FFFFFF; border-radius: 999px; }
-  .m-call svg { width: 20px; height: 20px; }
-  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
-  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 999px; }
-  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
-
-  /* Swipe rows */
-  .rgrid {
-    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
-    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
-    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
-    scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  }
-  .rgrid::-webkit-scrollbar { display: none; }
-  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
-  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
-
-  /* Hours: today first */
-  #hours tr:not(.today) { display: none; }
-  #hours.all tr { display: table-row; }
-  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
-  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-
-  /* Bottom action bar */
-  .m-bar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
-    background: #1B1A1D; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
-    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
-  }
-  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 999px; }
-  .m-bar a svg { width: 22px; height: 22px; }
-  .m-bar a.primary { background: #E8A6B5; color: #1B1A1D; flex-direction: row; gap: 8px; font-size: 1rem; }
-  h1, h2, h3 { text-wrap: balance; }
-  #hours td:last-child { white-space: nowrap; }
-  .m-hours-wrap { min-width: 0; }
-  .top a.call { display: none; } .top .wrap { padding-block: 12px; }
-}
-</style>
-<!-- /m-layer:css -->
 <title>Your Style | Hair Salon in Pittsville, MD</title>
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
@@ -109,6 +45,14 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.1; ma
 .brand b { font: 400 1.6rem/1 var(--display); }
 .brand b i { font-style: normal; color: var(--blush); }
 .brand small { color: #BDB6BE; font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; }
+.brand .snip { display: inline-block; width: .95em; height: .95em; color: var(--blush); vertical-align: -.08em; margin-right: .3em; overflow: visible; }
+.snip g { transform-box: view-box; transform-origin: 12.6px 12px; }
+@media (prefers-reduced-motion: no-preference) {
+  .snip .blade-a { animation: snip-a .9s ease-in-out .7s 1; }
+  .snip .blade-b { animation: snip-b .9s ease-in-out .7s 1; }
+  @keyframes snip-a { 0%, 50%, 100% { transform: none; } 25%, 75% { transform: rotate(-24deg); } }
+  @keyframes snip-b { 0%, 50%, 100% { transform: none; } 25%, 75% { transform: rotate(24deg); } }
+}
 .nav { margin-left: auto; display: flex; gap: 22px; align-items: center; }
 .nav a { text-decoration: none; font-weight: 600; color: #E9E4EA; }
 .nav a:hover { color: var(--blush); }
@@ -179,7 +123,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.1; ma
 .hours td:last-child { text-align: right; font-weight: 600; }
 .hours tr.closed td:last-child { color: #A59DA7; font-weight: 400; }
 .hours tr.today td { background: rgba(232,166,181,.18); font-weight: 700; }
-.hours tr.today td:first-child::after { content: "  Today"; color: var(--blush); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+.hours tr.today td:first-child::after { content: "Today"; margin-left: 10px; display: inline-block; color: var(--blush); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+@media (max-width: 700px) { .hours tr.today td:first-child::after { display: block; margin: 4px 0 0; } }
 
 footer { background: #000; color: #A59DA7; font-size: .92rem; }
 footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
@@ -196,11 +141,75 @@ footer a { color: #fff; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 <style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .inside img { aspect-ratio: 4 / 3; }</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #1B1A1D; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #FFFBF9; color: #1B1A1D; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 45%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FFFBF9, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #FFFFFF; color: #1B1A1D; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #1B1A1D; color: #FFFFFF; border-radius: 999px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 999px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #1B1A1D; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 999px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #E8A6B5; color: #1B1A1D; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .top a.call { display: none; } .top .wrap { padding-block: 12px; }
+}
+</style>
+<!-- /m-layer:css -->
 </head>
 <body>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Your Style, home"><b>Your <i>Style</i></b><small>Pittsville, MD</small></a>
+    <a class="brand" href="#top" aria-label="Your Style, home"><b><svg class="snip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><g class="blade-a"><circle cx="5" cy="6.5" r="3"/><path d="M7.4 8.3 22 17.5"/></g><g class="blade-b"><circle cx="5" cy="17.5" r="3"/><path d="M7.4 15.7 22 6.5"/></g><circle cx="12.6" cy="12" r=".9" fill="currentColor" stroke="none"/></svg>Your <i>Style</i></b><small>Pittsville, MD</small></a>
     <nav class="nav" aria-label="Main">
       <a href="#services">Services</a>
       <a href="#visit">Hours</a>
@@ -322,7 +331,7 @@ footer a { color: #fff; }
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Your Style, Pittsville, Maryland</span>
+    <span>© 2026 Your Style, Pittsville, Maryland</span> <!-- legal-links --><span class="legal-links" style="display:inline-flex;gap:14px;flex-wrap:wrap"><a href="privacy.html">Privacy</a><a href="cookies.html">Cookies</a><a href="terms.html">Terms</a></span><!-- /legal-links -->
     <span>Preview site made for Your Style by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
   </div>
 </footer>
@@ -345,10 +354,8 @@ footer a { color: #fff; }
 })();
 </script>
 
-<script src="/preview-contact.js?v=2" defer data-name="Your Style" data-slot="#visit .actions" data-accent="var(--ink)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:400"></script>
+<script src="/preview-contact.js?v=4" defer data-name="Your Style" data-slot="#visit .actions" data-accent="var(--ink)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:400"></script>
 <script src="/preview-kit.js?v=3" data-slug="yourstyle" defer></script>
-</body>
-</html>
 <!-- m-layer:bar -->
 <nav class="m-bar m-only" aria-label="Quick actions">
   <a class="primary" href="tel:+14108352722"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
@@ -408,3 +415,5 @@ footer a { color: #fff; }
 })();
 </script>
 <!-- /m-layer:js -->
+</body>
+</html>

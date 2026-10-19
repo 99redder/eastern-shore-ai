@@ -6,70 +6,6 @@
 <style>img{max-width:100%}[hidden]{display:none!important}.reviews figcaption a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .reviews figcaption a:hover { text-decoration-thickness: 2px; }
 </style>
-<!-- m-layer:css -->
-<style>
-/* Phone-first layer (<= 700px). Desktop is unchanged. */
-.m-only { display: none; }
-@media (max-width: 700px) {
-  html { scroll-padding-top: 72px; }
-  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
-  .m-only { display: block; }
-  .m-hide { display: none !important; }
-  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
-  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #F7F6F1; }
-  .hero { display: none; }
-
-  /* Mobile hero */
-  .m-hero { background: #ECEBE4; color: #26211F; }
-  .m-photo { position: relative; margin: 0; }
-  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 35%; }
-  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #ECEBE4, transparent); }
-  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
-  .m-photo + .m-body { margin-top: -38px; }
-  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #F7F6F1; color: #26211F; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
-  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
-  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
-  .m-title { font-family: var(--display); font-weight:400; color:#6B1F2A; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
-  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
-  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #6B1F2A; color: #F7F6F1; border-radius: 4px; }
-  .m-call svg { width: 20px; height: 20px; }
-  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
-  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 4px; }
-  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
-
-  /* Swipe rows */
-  .gallery, .reviews {
-    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
-    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
-    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
-    scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  }
-  .gallery::-webkit-scrollbar, .reviews::-webkit-scrollbar { display: none; }
-  .gallery > .tile, .reviews > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
-  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
-
-  /* Hours: today first */
-  #hours tr:not(.today) { display: none; }
-  #hours.all tr { display: table-row; }
-  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
-  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-
-  /* Bottom action bar */
-  .m-bar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
-    background: #F7F6F1; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
-    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
-  }
-  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #6B1F2A; border-radius: 4px; }
-  .m-bar a svg { width: 22px; height: 22px; }
-  .m-bar a.primary { background: #6B1F2A; color: #F7F6F1; flex-direction: row; gap: 8px; font-size: 1rem; }
-  h1, h2, h3 { text-wrap: balance; }
-  #hours td:last-child { white-space: nowrap; }
-  .m-hours-wrap { min-width: 0; }
-  .proof .wrap { gap: 8px 22px; font-size: .92rem; } .services { border-top-width: 1px; } .tile figcaption { font-size: .9rem; } .nav .call { display: none; } .top .wrap { justify-content: center; padding-block: 10px; }
-}
-</style>
-<!-- /m-layer:css -->
 <title>The Upholstery Doctor</title>
 <link rel="icon" type="image/png" sizes="32x32" href="/upholsterydoctor/img/icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/upholsterydoctor/img/icon-192.png">
@@ -244,8 +180,85 @@ footer a { color: var(--brass-hi); }
   .brand img { width: 170px; }
   .swatch-card .chip { right: -8px; } .swatch-card .chip2 { left: -8px; }
 }
+/* Stitch seam above the services: sews across once when it scrolls into view */
+.services { border-top: 0; }
+.seam { position: relative; height: 16px; border-bottom: 2px solid var(--ink); }
+.seam-run { position: absolute; left: 0; top: 4px; height: 3px; width: 100%;
+  background: repeating-linear-gradient(90deg, var(--oxblood) 0 12px, transparent 12px 19px); }
+.needle { position: absolute; right: -5px; top: -12px; width: 60px; height: 24px; overflow: visible; opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .js-seam .seam-run { width: 0; }
+  .js-seam .seam.in .seam-run { width: 100%; transition: width 1.9s cubic-bezier(.4,.1,.5,1); }
+  @keyframes needle-stitch { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-2px, -5px); } }
+  @keyframes needle-away { to { opacity: 0; } }
+  .js-seam .seam.in .needle { opacity: 1; animation: needle-stitch .24s ease-in-out 8, needle-away .35s ease 1.9s forwards; }
+}
 </style>
 <style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } </style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #F7F6F1; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #ECEBE4; color: #26211F; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 35%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #ECEBE4, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #F7F6F1; color: #26211F; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:400; color:#6B1F2A; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #6B1F2A; color: #F7F6F1; border-radius: 4px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 4px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .gallery, .reviews {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .gallery::-webkit-scrollbar, .reviews::-webkit-scrollbar { display: none; }
+  .gallery > .tile, .reviews > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #F7F6F1; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #6B1F2A; border-radius: 4px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #6B1F2A; color: #F7F6F1; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .proof .wrap { gap: 8px 22px; font-size: .92rem; } .services { border-top-width: 1px; } .tile figcaption { font-size: .9rem; } .nav .call { display: none; } .top .wrap { justify-content: center; padding-block: 10px; }
+}
+</style>
+<!-- /m-layer:css -->
 </head>
 <body>
 <header class="top">
@@ -312,6 +325,7 @@ footer a { color: var(--brass-hi); }
     <div class="wrap">
       <h2>What we work on</h2>
       <p class="intro">The Upholstery Doctor is an established furniture reupholstery shop on the Eastern Shore. From the smallest project to a complete home overhaul, every piece gets the same careful, hands-on work.</p>
+      <div class="seam" aria-hidden="true"><span class="seam-run"><svg class="needle" viewBox="0 0 60 24" focusable="false"><path d="M9.6 4.7C3 2.5-3 9-1 22" fill="none" stroke="#6B1F2A" stroke-width="1.3" stroke-linecap="round"/><path d="M7.43 2.46 55 17.5 6.57 5.54Z" fill="#4F4B46"/><circle cx="7" cy="4" r="1.6" fill="#4F4B46"/><path d="M12 4.6 40 13" stroke="#C9C5BD" stroke-width=".7" stroke-linecap="round"/><ellipse cx="10.2" cy="4.9" rx="2.3" ry=".55" transform="rotate(15.7 10.2 4.9)" fill="#ECEBE4"/></svg></span></div>
       <div class="services">
         <div class="svc">
           <h3>Residential</h3>
@@ -416,7 +430,7 @@ footer a { color: var(--brass-hi); }
 
 <footer>
   <div class="wrap">
-    <span>© 2026 The Upholstery Doctor, Salisbury, Maryland</span>
+    <span>© 2026 The Upholstery Doctor, Salisbury, Maryland</span> <!-- legal-links --><span class="legal-links" style="display:inline-flex;gap:14px;flex-wrap:wrap"><a href="privacy.html">Privacy</a><a href="cookies.html">Cookies</a><a href="terms.html">Terms</a></span><!-- /legal-links -->
     <span>Preview site made for The Upholstery Doctor by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
   </div>
 </footer>
@@ -450,10 +464,19 @@ footer a { color: var(--brass-hi); }
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !lb.hidden) shut(); });
 })();
 </script>
-<script src="/preview-contact.js?v=2" defer data-name="The Upholstery Doctor" data-slot=".visit-grid .cta-row" data-accent="var(--oxblood)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:400"></script>
+<script>
+(function () {
+  var seam = document.querySelector('.seam');
+  if (!seam || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('js-seam');
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { seam.classList.add('in'); io.disconnect(); } });
+  }, { threshold: 1, rootMargin: '0px 0px -12% 0px' });
+  io.observe(seam);
+})();
+</script>
+<script src="/preview-contact.js?v=4" defer data-name="The Upholstery Doctor" data-slot=".visit-grid .cta-row" data-accent="var(--oxblood)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:400"></script>
 <script src="/preview-kit.js?v=3" data-slug="upholsterydoctor" defer></script>
-</body>
-</html>
 <!-- m-layer:bar -->
 <nav class="m-bar m-only" aria-label="Quick actions">
   <a class="primary" href="tel:+14108601575"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
@@ -513,3 +536,5 @@ footer a { color: var(--brass-hi); }
 })();
 </script>
 <!-- /m-layer:js -->
+</body>
+</html>

@@ -4,6 +4,178 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Grant's Service Center | Salisbury, MD</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Truck and auto repair, brakes, wheel alignment, Maryland safety inspections, towing and AAA roadside service in Salisbury, Maryland.">
+<link rel="icon" type="image/png" sizes="32x32" href="/grants/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/grants/img/icon-192.png">
+<link rel="apple-touch-icon" href="/grants/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: the shop's own signage. The yellow diamond pole sign is the logo (with a tow truck, for the flatbeds),
+   the bay-door lettering is the services band, and a sign-yellow/navy hazard stripe sits under the header. */
+:root {
+  --sign: #F6C624;      /* pole sign yellow */
+  --sign-dk: #D9A90C;
+  --navy: #14233F;      /* sign lettering */
+  --blue: #2F6DB5;      /* bay door blue */
+  --red: #C8202F;       /* door stripe red */
+  --paper: #F7F8FA;
+  --ink: #141A24;
+  --muted: #4B5563;
+  --line: #DCE1E8;
+  --display: "Oswald", "Arial Narrow", Impact, sans-serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.6 var(--body); }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; margin: 0; }
+
+/* Diamond sign logo */
+.diamond { width: 58px; height: 58px; background: var(--sign); border: 3px solid var(--navy); transform: rotate(45deg); display: grid; place-items: center; flex: none; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+.diamond span { transform: rotate(-45deg); font: 700 13px/1 var(--display); color: var(--navy); text-align: center; text-transform: uppercase; letter-spacing: .02em; }
+
+.top { background: var(--navy); color: #fff; position: sticky; top: 0; z-index: 20; }
+.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 16px; text-decoration: none; }
+.brand b { font: 700 1.5rem/1 var(--display); text-transform: uppercase; letter-spacing: .02em; display: block; }
+.brand small { display: block; color: #C7D0DE; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; }
+.nav { margin-left: auto; display: flex; gap: 22px; align-items: center; }
+.nav a { text-decoration: none; font-weight: 600; color: #E3E8F0; }
+.nav a:hover { color: var(--sign); }
+.nav a.call { background: var(--sign); color: var(--navy); padding: 10px 16px; border-radius: 6px; font-weight: 700; }
+
+.stripe { height: 12px; background: repeating-linear-gradient(-45deg, var(--sign) 0 12px, var(--navy) 12px 24px); border-bottom: 2px solid var(--sign); }
+
+.hero { background: #fff; }
+.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding-block: 56px 60px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92rem; padding: 6px 12px; border-radius: 999px; background: #E7F6EC; color: #17633A; }
+.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #1FA45B; }
+.badge.shut { background: #F3F4F6; color: #4B5563; }
+.badge.shut::before { background: #9CA3AF; }
+.hero h1 { font-size: clamp(2.4rem, 5vw, 3.7rem); margin: 18px 0 14px; color: var(--navy); }
+.hero h1 em { font-style: normal; color: var(--red); }
+.hero .lead { font-size: 1.2rem; color: #2B3443; margin: 0 0 22px; max-width: 34ch; }
+.stars { display: flex; align-items: center; gap: 12px; margin: 0 0 26px; flex-wrap: wrap; }
+.stars b { font: 700 2rem/1 var(--display); color: var(--navy); }
+.stars span { color: #E0A800; letter-spacing: 2px; font-size: 1.2rem; }
+.stars small { color: var(--muted); font-size: 1rem; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.05rem var(--body); padding: 14px 22px; border-radius: 8px; border: 2px solid var(--navy); }
+.btn svg { width: 20px; height: 20px; }
+.btn-main { background: var(--navy); color: #fff; }
+.btn-main:hover { background: #0B1629; }
+.btn-ghost { background: #fff; color: var(--navy); }
+.btn-ghost:hover { background: #EEF2F8; }
+.hero-photo { position: relative; }
+.hero-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; box-shadow: 0 20px 40px -24px rgba(20,35,63,.6); }
+.diamond .truck { display: block; width: 46px; height: auto; }
+.hero-photo .diamond { position: absolute; left: -30px; bottom: -30px; width: 124px; height: 124px; border-width: 4px; }
+.diamond.sign > span { display: flex; flex-direction: column; align-items: center; font-size: 10px; }
+.diamond.sign .truck { width: 5.2em; margin-bottom: .25em; }
+.diamond.sign b { font: 700 2.3em/.95 var(--display); letter-spacing: .02em; }
+.diamond.sign small { font: 600 .78em/1 var(--display); letter-spacing: .1em; margin-top: .35em; }
+
+.bay { background: var(--navy); color: #fff; }
+.bay .wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 34px; padding-block: 18px; font: 600 1.15rem/1.2 var(--display); letter-spacing: .1em; text-transform: uppercase; }
+.bay span { color: #fff; }
+.bay span + span::before { content: "•"; color: var(--sign); margin-right: 34px; }
+
+.block { padding-block: 72px; }
+.block h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); color: var(--navy); }
+.sub { color: var(--muted); max-width: 60ch; margin: 10px 0 34px; font-size: 1.1rem; }
+
+.svcs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.svc { background: #fff; border: 1px solid var(--line); border-top: 5px solid var(--blue); border-radius: 8px; padding: 22px 22px 24px; }
+.svc h3 { font-size: 1.35rem; color: var(--navy); margin-bottom: 6px; }
+.svc p { margin: 0; color: #374151; }
+.svc.red { border-top-color: var(--red); }
+.svc.yel { border-top-color: var(--sign-dk); }
+
+.roadside { background: var(--sign); }
+.roadside .wrap { display: grid; grid-template-columns: 1fr 1.1fr; gap: 44px; align-items: center; padding-block: 64px; }
+.roadside img { border-radius: 10px; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 4px solid var(--navy); }
+.roadside h2 { font-size: clamp(2rem, 3.6vw, 2.8rem); color: var(--navy); }
+.roadside p { font-size: 1.15rem; color: #1F2937; margin: 14px 0 22px; max-width: 46ch; }
+.roadside ul { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 8px; }
+.roadside li { font-weight: 700; color: var(--navy); display: flex; gap: 10px; align-items: center; }
+.roadside li::before { content: ""; width: 12px; height: 12px; background: var(--red); transform: rotate(45deg); flex: none; }
+
+.shop { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 18px; margin-top: 30px; }
+.shop figure { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.shop img { width: 100%; height: 260px; object-fit: cover; }
+.shop figcaption { padding: 12px 16px; font-weight: 600; color: var(--navy); }
+
+.reviews { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.rgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.rgrid figure { margin: 0; padding: 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+.rgrid .rs { color: #E0A800; letter-spacing: 2px; }
+.rgrid blockquote { margin: 10px 0 14px; font-size: 1.08rem; color: #1F2937; }
+.rgrid figcaption { color: var(--muted); font-size: .92rem; }
+.rgrid figcaption a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+
+.visit .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.visit address { font-style: normal; font-size: 1.2rem; margin: 14px 0 20px; }
+.hours { width: 100%; border-collapse: collapse; font-size: 1.05rem; background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.hours td { padding: 11px 16px; border-bottom: 1px solid var(--line); }
+.hours tr:last-child td { border-bottom: 0; }
+.hours td:last-child { text-align: right; font-weight: 600; }
+.hours tr.closed td:last-child { color: var(--muted); font-weight: 400; }
+.hours tr.today td { background: #FFF6D6; font-weight: 700; }
+.hours tr.today td:first-child::after { content: "Today"; display: inline-block; margin-left: 10px; color: var(--red); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+
+footer { background: var(--navy); color: #C7D0DE; font-size: .92rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: #fff; }
+
+@media (max-width: 900px) {
+  .hero .wrap, .roadside .wrap, .visit .wrap { grid-template-columns: 1fr; }
+  .svcs, .rgrid { grid-template-columns: 1fr 1fr; }
+  .shop { grid-template-columns: 1fr 1fr; }
+  .shop figure:first-child { grid-column: 1 / -1; }
+  .nav a:not(.call) { display: none; }
+  .hero-photo .diamond { left: 12px; bottom: -22px; width: 100px; height: 100px; }
+  .diamond.sign > span { font-size: 8px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .svcs, .rgrid, .shop { grid-template-columns: 1fr; }
+  .bay .wrap { font-size: .95rem; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; text-align: center; }
+  .bay span + span::before { content: none; }
+  .bay span + span::before { margin-right: 18px; }
+  .brand b { font-size: 1.2rem; }
+  .diamond { width: 46px; height: 46px; }
+  .diamond .truck { width: 36px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* Signature animation: the pole-sign diamond swings and settles once on load
+   (the big hero sign on desktop; the header sign on phones, where the hero is replaced). */
+@keyframes sign-settle {
+  0% { rotate: -16deg; translate: 0 -10px; }
+  35% { rotate: 9deg; translate: 0 0; }
+  58% { rotate: -5deg; }
+  78% { rotate: 2deg; }
+  100% { rotate: 0deg; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-photo .diamond { animation: sign-settle 1.5s cubic-bezier(.3,.7,.4,1) .35s both; }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 700px) {
+  .top .diamond { animation: sign-settle 1.4s cubic-bezier(.3,.7,.4,1) .3s both; }
+}
+</style>
+<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero-photo img { object-position: 85% 50%; } @media (max-width: 700px) { .visit .actions .btn { flex: 1 1 100%; justify-content: center; } }</style>
 <!-- m-layer:css -->
 <style>
 /* Phone-first layer (<= 700px). Desktop is unchanged. */
@@ -68,166 +240,12 @@
 }
 </style>
 <!-- /m-layer:css -->
-<title>Grant's Service Center | Salisbury, MD</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-<meta name="bingbot" content="noindex, nofollow, noarchive">
-<meta name="description" content="Truck and auto repair, brakes, wheel alignment, Maryland safety inspections, towing and AAA roadside service in Salisbury, Maryland.">
-<link rel="icon" type="image/png" sizes="32x32" href="/grants/img/icon-32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/grants/img/icon-192.png">
-<link rel="apple-touch-icon" href="/grants/img/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
-<style>
-/* Layout: the shop's own signage. The yellow diamond pole sign is the logo, the bay-door lettering is the services band,
-   and the red/white/blue stripe from the truck doors runs between sections. */
-:root {
-  --sign: #F6C624;      /* pole sign yellow */
-  --sign-dk: #D9A90C;
-  --navy: #14233F;      /* sign lettering */
-  --blue: #2F6DB5;      /* bay door blue */
-  --red: #C8202F;       /* door stripe red */
-  --paper: #F7F8FA;
-  --ink: #141A24;
-  --muted: #4B5563;
-  --line: #DCE1E8;
-  --display: "Oswald", "Arial Narrow", Impact, sans-serif;
-  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
-  color-scheme: light;
-}
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.6 var(--body); }
-img { max-width: 100%; display: block; }
-a { color: inherit; }
-.wrap { max-width: 1160px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
-h1, h2, h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .01em; line-height: 1.05; margin: 0; }
-
-/* Diamond sign logo */
-.diamond { width: 58px; height: 58px; background: var(--sign); border: 3px solid var(--navy); transform: rotate(45deg); display: grid; place-items: center; flex: none; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
-.diamond span { transform: rotate(-45deg); font: 700 13px/1 var(--display); color: var(--navy); text-align: center; text-transform: uppercase; letter-spacing: .02em; }
-
-.top { background: var(--navy); color: #fff; position: sticky; top: 0; z-index: 20; }
-.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
-.brand { display: flex; align-items: center; gap: 16px; text-decoration: none; }
-.brand b { font: 700 1.5rem/1 var(--display); text-transform: uppercase; letter-spacing: .02em; display: block; }
-.brand small { display: block; color: #C7D0DE; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; margin-top: 3px; }
-.nav { margin-left: auto; display: flex; gap: 22px; align-items: center; }
-.nav a { text-decoration: none; font-weight: 600; color: #E3E8F0; }
-.nav a:hover { color: var(--sign); }
-.nav a.call { background: var(--sign); color: var(--navy); padding: 10px 16px; border-radius: 6px; font-weight: 700; }
-
-.stripe { height: 12px; background: repeating-linear-gradient(-55deg, var(--red) 0 14px, #fff 14px 22px, var(--blue) 22px 36px, #fff 36px 44px); }
-
-.hero { background: #fff; }
-.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; padding-block: 56px 60px; }
-.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92rem; padding: 6px 12px; border-radius: 999px; background: #E7F6EC; color: #17633A; }
-.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #1FA45B; }
-.badge.shut { background: #F3F4F6; color: #4B5563; }
-.badge.shut::before { background: #9CA3AF; }
-.hero h1 { font-size: clamp(2.4rem, 5vw, 3.7rem); margin: 18px 0 14px; color: var(--navy); }
-.hero h1 em { font-style: normal; color: var(--red); }
-.hero .lead { font-size: 1.2rem; color: #2B3443; margin: 0 0 22px; max-width: 34ch; }
-.stars { display: flex; align-items: center; gap: 12px; margin: 0 0 26px; flex-wrap: wrap; }
-.stars b { font: 700 2rem/1 var(--display); color: var(--navy); }
-.stars span { color: #E0A800; letter-spacing: 2px; font-size: 1.2rem; }
-.stars small { color: var(--muted); font-size: 1rem; }
-.actions { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 700 1.05rem var(--body); padding: 14px 22px; border-radius: 8px; border: 2px solid var(--navy); }
-.btn svg { width: 20px; height: 20px; }
-.btn-main { background: var(--navy); color: #fff; }
-.btn-main:hover { background: #0B1629; }
-.btn-ghost { background: #fff; color: var(--navy); }
-.btn-ghost:hover { background: #EEF2F8; }
-.hero-photo { position: relative; }
-.hero-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; box-shadow: 0 20px 40px -24px rgba(20,35,63,.6); }
-.hero-photo .diamond { position: absolute; left: -26px; bottom: -26px; width: 104px; height: 104px; border-width: 4px; }
-.hero-photo .diamond span { font-size: 19px; }
-.top .diamond span { font-size: 26px; }
-
-.bay { background: var(--navy); color: #fff; }
-.bay .wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 34px; padding-block: 18px; font: 600 1.15rem/1.2 var(--display); letter-spacing: .1em; text-transform: uppercase; }
-.bay span { color: #fff; }
-.bay span + span::before { content: "•"; color: var(--sign); margin-right: 34px; }
-
-.block { padding-block: 72px; }
-.block h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); color: var(--navy); }
-.sub { color: var(--muted); max-width: 60ch; margin: 10px 0 34px; font-size: 1.1rem; }
-
-.svcs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-.svc { background: #fff; border: 1px solid var(--line); border-top: 5px solid var(--blue); border-radius: 8px; padding: 22px 22px 24px; }
-.svc h3 { font-size: 1.35rem; color: var(--navy); margin-bottom: 6px; }
-.svc p { margin: 0; color: #374151; }
-.svc.red { border-top-color: var(--red); }
-.svc.yel { border-top-color: var(--sign-dk); }
-
-.roadside { background: var(--sign); }
-.roadside .wrap { display: grid; grid-template-columns: 1fr 1.1fr; gap: 44px; align-items: center; padding-block: 64px; }
-.roadside img { border-radius: 10px; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border: 4px solid var(--navy); }
-.roadside h2 { font-size: clamp(2rem, 3.6vw, 2.8rem); color: var(--navy); }
-.roadside p { font-size: 1.15rem; color: #1F2937; margin: 14px 0 22px; max-width: 46ch; }
-.roadside ul { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 8px; }
-.roadside li { font-weight: 700; color: var(--navy); display: flex; gap: 10px; align-items: center; }
-.roadside li::before { content: ""; width: 12px; height: 12px; background: var(--red); transform: rotate(45deg); flex: none; }
-
-.shop { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 18px; margin-top: 30px; }
-.shop figure { margin: 0; background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.shop img { width: 100%; height: 260px; object-fit: cover; }
-.shop figcaption { padding: 12px 16px; font-weight: 600; color: var(--navy); }
-
-.reviews { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.rgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-.rgrid figure { margin: 0; padding: 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
-.rgrid .rs { color: #E0A800; letter-spacing: 2px; }
-.rgrid blockquote { margin: 10px 0 14px; font-size: 1.08rem; color: #1F2937; }
-.rgrid figcaption { color: var(--muted); font-size: .92rem; }
-.rgrid figcaption a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-
-.visit .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
-.visit address { font-style: normal; font-size: 1.2rem; margin: 14px 0 20px; }
-.hours { width: 100%; border-collapse: collapse; font-size: 1.05rem; background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.hours td { padding: 11px 16px; border-bottom: 1px solid var(--line); }
-.hours tr:last-child td { border-bottom: 0; }
-.hours td:last-child { text-align: right; font-weight: 600; }
-.hours tr.closed td:last-child { color: var(--muted); font-weight: 400; }
-.hours tr.today td { background: #FFF6D6; font-weight: 700; }
-.hours tr.today td:first-child::after { content: "  Today"; color: var(--red); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
-
-footer { background: var(--navy); color: #C7D0DE; font-size: .92rem; }
-footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
-footer a { color: #fff; }
-
-@media (max-width: 900px) {
-  .hero .wrap, .roadside .wrap, .visit .wrap { grid-template-columns: 1fr; }
-  .svcs, .rgrid { grid-template-columns: 1fr 1fr; }
-  .shop { grid-template-columns: 1fr 1fr; }
-  .shop figure:first-child { grid-column: 1 / -1; }
-  .nav a:not(.call) { display: none; }
-  .hero-photo .diamond { left: 12px; bottom: -22px; width: 84px; height: 84px; }
-}
-@media (max-width: 600px) {
-  body { font-size: 17px; }
-  .svcs, .rgrid, .shop { grid-template-columns: 1fr; }
-  .bay .wrap { font-size: .95rem; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; text-align: center; }
-  .bay span + span::before { content: none; }
-  .bay span + span::before { margin-right: 18px; }
-  .brand b { font-size: 1.2rem; }
-  .diamond { width: 46px; height: 46px; }
-  .diamond span { font-size: 11px; }
-  .top .diamond span { font-size: 21px; }
-}
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-</style>
-<style id="polish">#visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } } p, li { text-wrap: pretty; } footer a { white-space: nowrap; } .hero-photo img { object-position: 85% 50%; } @media (max-width: 700px) { .visit .actions .btn { flex: 1 1 100%; justify-content: center; } }</style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Grant's Service Center, home">
-      <span class="diamond" aria-hidden="true"><span>G</span></span>
+      <span class="diamond" aria-hidden="true"><span><svg class="truck" viewBox="0 0 64 38" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 28V18.5L9.5 10H25v10h32a3 3 0 0 1 3 3v5zM11 12.5h11.5V18H7z"/><path d="M29 20 50.5 5" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M50.5 5v8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M50.5 13.5v3.2a2.4 2.4 0 1 1-4.8 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="14" cy="32" r="4.2" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="48" cy="32" r="4.2" fill="none" stroke="currentColor" stroke-width="3"/></svg></span></span>
       <span><b>Grant's Service Center</b><small>Truck &amp; Auto Repairs</small></span>
     </a>
     <nav class="nav" aria-label="Main">
@@ -271,7 +289,7 @@ footer a { color: #fff; }
       </div>
       <div class="hero-photo">
         <img src="img/gsc_9.webp" alt="Grant's Service Center bays and pole sign at the corner of Alexander Avenue">
-        <span class="diamond" aria-hidden="true"><span>Grant's</span></span>
+        <span class="diamond sign" aria-hidden="true"><span><svg class="truck" viewBox="0 0 64 38" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 28V18.5L9.5 10H25v10h32a3 3 0 0 1 3 3v5zM11 12.5h11.5V18H7z"/><path d="M29 20 50.5 5" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M50.5 5v8.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M50.5 13.5v3.2a2.4 2.4 0 1 1-4.8 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="14" cy="32" r="4.2" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="48" cy="32" r="4.2" fill="none" stroke="currentColor" stroke-width="3"/></svg><b>Grant's</b><small>Service Center</small></span></span>
       </div>
     </div>
   </section>
@@ -372,7 +390,7 @@ footer a { color: #fff; }
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Grant's Service Center LLC, Salisbury, Maryland</span>
+    <span>© 2026 Grant's Service Center LLC, Salisbury, Maryland</span> <!-- legal-links --><span class="legal-links" style="display:inline-flex;gap:14px;flex-wrap:wrap"><a href="privacy.html">Privacy</a><a href="cookies.html">Cookies</a><a href="terms.html">Terms</a></span><!-- /legal-links -->
     <span>Preview site made for Grant's Service Center by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
   </div>
 </footer>
@@ -394,10 +412,8 @@ footer a { color: #fff; }
   } catch (e) {}
 })();
 </script>
-<script src="/preview-contact.js?v=2" defer data-name="Grant's Service Center" data-slot="#visit .actions" data-accent="var(--navy)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="#fff" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:700;text-transform:uppercase"></script>
+<script src="/preview-contact.js?v=4" defer data-name="Grant's Service Center" data-slot="#visit .actions" data-accent="var(--navy)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="#fff" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:700;text-transform:uppercase"></script>
 <script src="/preview-kit.js?v=3" data-slug="grants" defer></script>
-</body>
-</html>
 <!-- m-layer:bar -->
 <nav class="m-bar m-only" aria-label="Quick actions">
   <a class="primary" href="tel:+14107423243"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
@@ -457,3 +473,5 @@ footer a { color: #fff; }
 })();
 </script>
 <!-- /m-layer:js -->
+</body>
+</html>

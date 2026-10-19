@@ -131,14 +131,14 @@ h1, h2, h3 { font-family: var(--display); font-weight: 800; text-transform: uppe
 .visit .btn-main:hover { background: #E9EEF3; }
 .visit .btn-ghost { background: transparent; color: #fff; border-color: #fff; }
 .visit .btn-ghost:hover { background: rgba(255,255,255,.1); }
-.visit .mail { margin: 16px 0 0; color: #D6E8DF; font-size: .98rem; word-break: break-word; }
 .hours { width: 100%; border-collapse: collapse; font-size: 1.05rem; background: #fff; color: var(--ink); border-radius: 6px; overflow: hidden; }
 .hours td { padding: 11px 16px; border-bottom: 1px solid var(--line); }
 .hours tr:last-child td { border-bottom: 0; }
 .hours td:last-child { text-align: right; font-weight: 600; }
 .hours tr.closed td:last-child { color: var(--muted); font-weight: 400; }
 .hours tr.today td { background: #FFF3D1; font-weight: 700; }
-.hours tr.today td:first-child::after { content: "  Today"; color: var(--green); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+.hours tr.today td:first-child::after { content: "Today"; margin-left: 10px; display: inline-block; color: var(--green); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; }
+@media (max-width: 700px) { .hours tr.today td:first-child::after { display: block; margin: 3px 0 0; } }
 
 footer { background: var(--navy-dk); color: #B9C7D6; font-size: .92rem; }
 footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px; flex-wrap: wrap; padding-block: 22px calc(22px + env(safe-area-inset-bottom, 0px)); }
@@ -167,6 +167,36 @@ footer .fl { display: inline-flex; align-items: center; gap: 10px; }
   .visit .actions { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="f-a" viewBox="0 0 30 20"><rect x=".5" y=".5" width="15" height="19" fill="#fff" stroke="#9AA8B6"/><path d="M15 0H30L22 10L30 20H15Z" fill="#1F4FA0"/></symbol>
+    <symbol id="f-m" viewBox="0 0 30 20"><rect width="30" height="20" fill="#1F4FA0"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/></symbol>
+    <symbol id="f-s" viewBox="0 0 30 20"><rect x=".5" y=".5" width="29" height="19" fill="#fff" stroke="#9AA8B6"/><rect x="10" y="6.5" width="10" height="7" fill="#1F4FA0"/></symbol>
+  </defs>
+</svg>
+<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } #visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } }</style>
+<style id="sig-anim">
+/* Signature: the A-M-S signal flags flutter once (header on load, hoist band when it scrolls into view). */
+@keyframes flutter {
+  0% { transform: none; }
+  15% { transform: skewY(7deg) scaleX(.9); }
+  32% { transform: skewY(-6deg) scaleX(.95); }
+  50% { transform: skewY(4deg) scaleX(.97); }
+  68% { transform: skewY(-2.5deg); }
+  84% { transform: skewY(1deg); }
+  100% { transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .flags svg { transform-origin: 0 50%; }
+  .top .flags svg { animation: flutter 1.3s ease-in-out .35s 1 both; }
+  .hoist .flags.in svg { animation: flutter 1.3s ease-in-out 1 both; }
+  .top .flags svg:nth-child(2) { animation-delay: .47s; }
+  .top .flags svg:nth-child(3) { animation-delay: .59s; }
+  .hoist .flags.in svg:nth-child(2) { animation-delay: .12s; }
+  .hoist .flags.in svg:nth-child(3) { animation-delay: .24s; }
+}
 </style>
 <!-- m-layer:css -->
 <style>
@@ -232,15 +262,6 @@ footer .fl { display: inline-flex; align-items: center; gap: 10px; }
 }
 </style>
 <!-- /m-layer:css -->
-
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="f-a" viewBox="0 0 30 20"><rect x=".5" y=".5" width="15" height="19" fill="#fff" stroke="#9AA8B6"/><path d="M15 0H30L22 10L30 20H15Z" fill="#1F4FA0"/></symbol>
-    <symbol id="f-m" viewBox="0 0 30 20"><rect width="30" height="20" fill="#1F4FA0"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/></symbol>
-    <symbol id="f-s" viewBox="0 0 30 20"><rect x=".5" y=".5" width="29" height="19" fill="#fff" stroke="#9AA8B6"/><rect x="10" y="6.5" width="10" height="7" fill="#1F4FA0"/></symbol>
-  </defs>
-</svg>
-<style id="polish">p, li { text-wrap: pretty; } footer a { white-space: nowrap; } #visit .actions, #contact .actions { flex-wrap: wrap; } @media (max-width: 600px) { #visit .actions > *, #contact .actions > * { flex: 1 1 100%; justify-content: center; } }</style>
 </head>
 <body>
 <header class="top">
@@ -354,9 +375,7 @@ footer .fl { display: inline-flex; align-items: center; gap: 10px; }
         <div class="actions">
           <a class="btn btn-main" href="tel:+14436694825">Call (443) 669-4825</a>
           <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Alexanders+Marine+Service&amp;query_place_id=ChIJHdnFRSIeuYkRnzAI7bMy7Mw" target="_blank" rel="noopener">Directions</a>
-          <a class="btn btn-ghost" href="mailto:alexandersmarineservice@hotmail.com">Email us</a>
         </div>
-        <p class="mail">alexandersmarineservice@hotmail.com</p>
       </div>
       <table class="hours" id="hours" aria-label="Hours">
         <tr data-d="1"><td>Monday</td><td>9:00 am – 5:00 pm</td></tr>
@@ -375,8 +394,8 @@ footer .fl { display: inline-flex; align-items: center; gap: 10px; }
   <div class="wrap">
     <span class="fl"><span class="flags" aria-hidden="true"><svg><use href="#f-a"/></svg><svg><use href="#f-m"/></svg><svg><use href="#f-s"/></svg></span>Alexanders Marine Service · Pittsville, Maryland</span>
     <span>Preview site made for Alexanders Marine Service by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
-  </div>
-</footer>
+   <!-- legal-links --><span class="legal-links" style="display:inline-flex;gap:14px;flex-wrap:wrap"><a href="privacy.html">Privacy</a><a href="cookies.html">Cookies</a><a href="terms.html">Terms</a></span><!-- /legal-links -->
+  </div></footer>
 
 <script>
 (function () {
@@ -396,8 +415,28 @@ footer .fl { display: inline-flex; align-items: center; gap: 10px; }
 })();
 </script>
 
-<script src="/preview-contact.js?v=2" defer data-name="Alexanders Marine Service" data-slot="#visit .actions" data-accent="var(--navy)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--white)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:800;text-transform:uppercase"></script>
+<script src="/preview-contact.js?v=4" defer data-name="Alexanders Marine Service" data-slot="#visit .actions" data-accent="var(--navy)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--white)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:800;text-transform:uppercase"></script>
 <script src="/preview-kit.js?v=3" data-slug="alexandersmarine" defer></script>
+<script>
+/* Signature animation: adds .in to .hoist .flags as they scroll into view (staggered). Skipped for reduced motion. */
+(function () {
+  try {
+    if (!('IntersectionObserver' in window) || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+    var els = document.querySelectorAll('.hoist .flags');
+    document.documentElement.classList.add('sig-on');
+    var io = new IntersectionObserver(function (es) {
+      var i = 0;
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.style.setProperty('--sig-delay', (i++ * 0) + 'ms');
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.9 });
+    els.forEach(function (el) { io.observe(el); });
+  } catch (e) {}
+})();
+</script>
 <!-- m-layer:bar -->
 <nav class="m-bar m-only" aria-label="Quick actions">
   <a class="primary" href="tel:+14436694825"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>

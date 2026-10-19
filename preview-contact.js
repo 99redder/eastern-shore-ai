@@ -41,10 +41,20 @@
     var sib = slot.querySelector('a.btn-ghost, a.btn:last-of-type, a:last-of-type, button:last-of-type');
     pageBtn = document.createElement('button');
     pageBtn.type = 'button';
-    pageBtn.className = (sib && sib.className) || 'btn';
+    var forced = d('btn-class', '');
+    pageBtn.className = forced || (sib && sib.className) || 'btn';
     pageBtn.setAttribute('data-contact-open', '');
     pageBtn.style.cursor = 'pointer';
-    pageBtn.style.font = sib ? getComputedStyle(sib).font : '';
+    // A <button> carries browser defaults (3D border, grey background). Copy the neighbour's look exactly.
+    if (forced) {
+      pageBtn.style.appearance = 'none'; pageBtn.style.webkitAppearance = 'none'; pageBtn.style.font = 'inherit';
+    } else if (sib) {
+      var cs = getComputedStyle(sib);
+      ['appearance', 'border', 'borderRadius', 'background', 'color', 'padding', 'boxShadow', 'font', 'letterSpacing',
+       'textTransform', 'lineHeight', 'minHeight', 'display', 'alignItems', 'justifyContent', 'gap', 'textAlign']
+        .forEach(function (k) { try { pageBtn.style[k] = cs[k]; } catch (e) {} });
+      pageBtn.style.webkitAppearance = 'none';
+    }
     slot.appendChild(pageBtn);
   }
   function labelBtn() { if (pageBtn) pageBtn.textContent = t('btn'); }
