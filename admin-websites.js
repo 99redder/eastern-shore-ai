@@ -352,9 +352,14 @@
     if (!body.businessName) { openErrorModal('Business name is required.'); return; }
     btn.disabled = true;
     try {
-      await call(API.save, body);
+      const res = await call(API.save, body);
       closeForm();
       await refresh();
+      if (res.rebooked) {
+        openSuccessModal(body.isOwnerTest
+          ? `Moved ${res.rebooked} payment${res.rebooked === 1 ? '' : 's'} in the Tax Ledger to Owner Funded (Non-Revenue). They now count as owner contributions, not income. Stripe fees stay as expenses.`
+          : `Moved ${res.rebooked} payment${res.rebooked === 1 ? '' : 's'} in the Tax Ledger back to Website Services income.`, 'Books Updated');
+      }
     } catch (ex) {
       openErrorModal(ex.message);
     } finally {

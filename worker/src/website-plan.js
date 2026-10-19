@@ -704,8 +704,9 @@ export function createWebsitePlanHandlers(deps) {
     const id = Number(d.id || 0);
     const ownerTest = d.isOwnerTest ? 1 : 0;
     if (id) {
-      const existing = await env.DB.prepare(`SELECT signed_at FROM website_clients WHERE id = ?1`).bind(id).first();
+      const existing = await env.DB.prepare(`SELECT signed_at, is_owner_test FROM website_clients WHERE id = ?1`).bind(id).first();
       if (!existing) return json({ ok: false, error: 'Client not found' }, 404, corsHeaders);
+      const ownerTestChanged = Number(existing.is_owner_test || 0) !== ownerTest;
       // Business name, domain and price are part of the signed text; lock them once signed.
       if (existing.signed_at) {
         await env.DB.prepare(`UPDATE website_clients SET contact_name=?1, email=?2, phone=?3, preview_url=?4, notes=?5, is_owner_test=?6, updated_at=datetime('now') WHERE id=?7`)
@@ -714,13 +715,31 @@ export function createWebsitePlanHandlers(deps) {
         await env.DB.prepare(`UPDATE website_clients SET business_name=?1, contact_name=?2, email=?3, phone=?4, preview_url=?5, domain_name=?6, annual_price_cents=?7, notes=?8, is_owner_test=?9, updated_at=datetime('now') WHERE id=?10`)
           .bind(...vals, ownerTest, id).run();
       }
-      return json({ ok: true, id }, 200, corsHeaders);
+      const rebooked = ownerTestChanged ? await rebookClientIncome(env, id, ownerTest) : 0;
+      return json({ ok: true, id, rebooked }, 200, corsHeaders);
     }
     const ins = await env.DB.prepare(
       `INSERT INTO website_clients (business_name, contact_name, email, phone, preview_url, domain_name, annual_price_cents, notes, status, agreement_token, is_owner_test)
        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'prospect', ?9, ?10)`
     ).bind(...vals, generateToken() + generateToken().slice(0, 8), ownerTest).run();
     return json({ ok: true, id: Number(ins.meta?.last_row_id || 0) }, 200, corsHeaders);
+  }
+
+  // Re-book a client's already-posted payments when the Owner test flag changes:
+  // owner test -> Owner Funded (Non-Revenue) / 3100 Owner Contributions; otherwise Website Services revenue.
+  async function rebookClientIncome(env, clientId, ownerTest) {
+    const pays = (await env.DB.prepare(`SELECT stripe_session_id FROM website_client_payments WHERE client_id = ?1`).bind(clientId).all()).results || [];
+    let n = 0;
+    for (const p of pays) {
+      const row = await env.DB.prepare(`SELECT * FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`).bind(p.stripe_session_id).first();
+      if (!row) continue;
+      const category = ownerTest ? 'Owner Funded (Non-Revenue)' : 'Website Services';
+      const source = ownerTest ? 'Stripe (owner test payment)' : 'Stripe';
+      await env.DB.prepare(`UPDATE tax_income SET category = ?1, source = ?2, is_owner_funded = ?3 WHERE id = ?4`).bind(category, source, ownerTest, row.id).run();
+      await upsertTaxIncomeJournal(env.DB, { ...row, category, source, is_owner_funded: ownerTest });
+      n++;
+    }
+    return n;
   }
 
   // POST /api/website-clients/link {id, send?, preview?, subject?, body?}
