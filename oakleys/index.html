@@ -93,15 +93,15 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.08; m
 .season.fall h3 { color: #FFB27A; }
 .season.year h3 { color: #E7D8C3; }
 
-.gallery { display: grid; grid-template-columns: 1.3fr 1fr 1fr; grid-template-rows: 240px 240px; gap: 14px; }
+.gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.gallery figure { aspect-ratio: 3 / 4; }
 .gallery figure { margin: 0; position: relative; overflow: hidden; border-radius: 12px; background: var(--line); }
-.gallery figure:first-child { grid-row: span 2; }
 .gallery img { width: 100%; height: 100%; object-fit: cover; }
 .gallery figcaption { position: absolute; left: 10px; bottom: 10px; background: var(--paper); color: var(--ink); font: 400 .95rem var(--display); padding: 4px 10px; border-radius: 4px; border: 1.5px solid var(--ink); }
 
 .kids { background: #FBEFD9; }
-.kids .wrap { max-width: 760px; text-align: center; }
-.kids p { margin-inline: auto; }
+.kids .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
+.kids img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; }
 .fall { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .fall li { background: var(--paper); border: 2px solid var(--ink); border-radius: 10px; padding: 18px 16px; font: 400 1.15rem/1.2 var(--display); color: var(--barn); box-shadow: 4px 4px 0 var(--melon); }
 .kids p { font-size: 1.12rem; margin: 14px 0 22px; max-width: 46ch; }
@@ -137,8 +137,7 @@ footer a { color: #fff; }
 @media (max-width: 900px) {
   .hero .wrap, .kids .wrap, .visit .wrap { grid-template-columns: 1fr; }
   .rgrid { grid-template-columns: 1fr; }
-  .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: 280px 200px 200px; }
-  .gallery figure:first-child { grid-column: 1 / -1; grid-row: auto; }
+  .gallery { grid-template-columns: 1fr 1fr; }
   .nav a:not(.call) { display: none; }
   .tag { left: 12px; }
 }
@@ -281,10 +280,9 @@ footer a { color: #fff; }
       <h2>From the farm stand</h2>
       <p class="sub">A few photos from our Google listing.</p>
       <div class="gallery">
-        <figure><img src="img/oak_3.webp" alt="Baskets of peaches and nectarines and jars of preserves on crates stamped Oakley's Farm Mkt" loading="lazy"><figcaption>Peaches &amp; nectarines</figcaption></figure>
+        <figure><img src="img/oak_3.webp" alt="Baskets of peaches and nectarines and jars of preserves on crates stamped Oakley's Farm Mkt" loading="lazy"><figcaption>Peaches</figcaption></figure>
         <figure><img src="img/oak_6.webp" alt="Close-up of fresh strawberries" loading="lazy"><figcaption>Strawberries</figcaption></figure>
         <figure><img src="img/oak_8.webp" alt="Watermelons piled on a crate stenciled Oakley's Farm" loading="lazy"><figcaption>Watermelon</figcaption></figure>
-        <figure><img src="img/oak_9.webp" alt="A pile of pale blue-gray heirloom pumpkins" loading="lazy"><figcaption>Pumpkins</figcaption></figure>
         <figure><img src="img/oak_4.webp" alt="A large field of sunflowers under a cloudy sky" loading="lazy"><figcaption>Sunflowers</figcaption></figure>
       </div>
     </div>
@@ -292,6 +290,7 @@ footer a { color: #fff; }
 
   <section class="block kids">
     <div class="wrap">
+      <img src="img/oak_9.webp" alt="Heirloom pumpkins at Oakley's" loading="lazy">
       <div>
         <h2>Bring the whole crew</h2>
         <p>Fall at Oakley's means picking a pumpkin straight from the field, a hayride, a corn maze and a playground to keep the kids busy. Planning a group or school trip? Give us a call first.</p>
