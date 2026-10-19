@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Frank Antion Lawn &amp; Garden</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Lawn mower, generator and small engine repair in Delmar, Maryland. Pickup available. Open Monday to Saturday.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Caveat:wght@600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: the manila repair tag wired to every mower in the shop — one big tag in the hero, large readable type everywhere else. */
+:root {
+  --shop: #F1F0EA;       /* shop wall, light grey */
+  --manila: #E9D7A4;     /* repair tag stock */
+  --manila-dk: #CDB878;
+  --ink: #23221F;        /* grease-pencil black */
+  --muted: #55524A;
+  --green: #2F5D3A;      /* equipment green, deep */
+  --orange: #D2601A;     /* engine-cover orange, used once */
+  --line: #D6D3C8;
+  --display: "Alfa Slab One", "Rockwell", Georgia, serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --hand: "Caveat", "Bradley Hand", "Segoe Print", cursive;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--shop); color: var(--ink); font: 400 18px/1.6 var(--body); }
+a { color: inherit; }
+a:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+.wrap { max-width: 1060px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+.top { background: var(--green); color: #F4F1E6; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-block: 14px; flex-wrap: wrap; }
+.brand { font-family: var(--display); font-size: 1.2rem; text-decoration: none; letter-spacing: .01em; line-height: 1.2; }
+.top a.call { font-weight: 700; text-decoration: none; font-size: 1.1rem; }
+
+.hero { overflow: hidden; }
+.hero .wrap { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; align-items: center; padding-block: 56px 60px; }
+.hero h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2.3rem, 5.4vw, 3.8rem); line-height: 1.05; margin: 0 0 20px; text-wrap: balance; }
+.hero p { font-size: 1.2rem; color: var(--muted); max-width: 36ch; margin: 0 0 26px; }
+.btns { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-block; text-decoration: none; font-weight: 700; font-size: 1.1rem; padding: 15px 24px; border-radius: 6px; }
+.btn-main { background: var(--orange); color: #FFFFFF; }
+.btn-main:hover { background: #B44F12; }
+.btn-alt { border: 2px solid var(--ink); }
+.btn-alt:hover { background: #FFFFFF; }
+
+/* The repair tag */
+.tagwrap { position: relative; justify-self: center; width: min(100%, 360px); padding-top: 40px; }
+.wire { position: absolute; top: 0; left: 50%; width: 2px; height: 58px; background: #8A877C; transform: translateX(-50%) rotate(8deg); transform-origin: top; }
+.tag {
+  position: relative; background: var(--manila);
+  clip-path: polygon(16% 0, 84% 0, 100% 9%, 100% 100%, 0 100%, 0 9%);
+  padding: 64px 28px 30px; transform: rotate(-4deg);
+  box-shadow: inset 0 0 0 1px var(--manila-dk);
+}
+.tag::before { /* grommet */
+  content: ""; position: absolute; top: 18px; left: 50%; width: 26px; height: 26px; transform: translateX(-50%);
+  border-radius: 50%; background: var(--shop); box-shadow: 0 0 0 5px #B9A15E;
+}
+.tag h2 { font-family: var(--display); font-weight: 400; font-size: 1.05rem; text-align: center; margin: 0 0 16px; letter-spacing: .02em; }
+.field { display: grid; grid-template-columns: 92px 1fr; align-items: end; gap: 8px; padding: 6px 0; border-bottom: 1.5px solid #B9A15E; }
+.field span { font-size: .85rem; font-weight: 700; color: #5A4E2A; }
+.field b { font-family: var(--hand); font-weight: 600; font-size: 1.6rem; line-height: 1.1; color: #22305E; }
+
+.strip { background: var(--ink); color: #EDEAE0; }
+.strip .wrap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding-block: 26px; }
+.strip b { display: block; font-family: var(--display); font-weight: 400; font-size: 1.3rem; color: var(--manila); }
+
+section.block { padding-block: 64px; }
+h2.sec { font-family: var(--display); font-weight: 400; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.1; margin: 0 0 12px; }
+.sub { color: var(--muted); max-width: 58ch; margin: 0 0 34px; }
+
+.machines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 48px; list-style: none; padding: 0; margin: 0; }
+.machines li { display: flex; gap: 14px; align-items: baseline; padding: 18px 0; border-bottom: 2px solid var(--line); font-size: 1.2rem; font-weight: 600; }
+.machines li small { font-weight: 400; color: var(--muted); font-size: 1rem; }
+.why { background: #FFFFFF; }
+.why-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.why h3 { font-size: 1.25rem; margin: 0 0 6px; }
+.why-grid p { margin: 0; color: var(--muted); }
+
+.quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.quotes figure { margin: 0; padding: 24px; background: var(--manila); }
+.quotes blockquote { margin: 0 0 12px; font-size: 1.12rem; line-height: 1.5; }
+.quotes figcaption { color: #5A4E2A; font-size: .95rem; font-weight: 600; }
+
+.visit { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.addr { font-size: 1.2rem; margin: 0 0 6px; }
+.phone { font-family: var(--display); font-size: clamp(2rem, 5vw, 2.8rem); color: var(--green); text-decoration: none; display: inline-block; margin: 8px 0 20px; }
+.hours { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 1.1rem; }
+.hours td { padding: 11px 0; border-bottom: 2px solid var(--line); }
+.hours td:last-child { text-align: right; }
+.hours .closed td:last-child { color: var(--muted); }
+
+footer { background: var(--green); color: #DCE5DA; font-size: .95rem; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-block: 24px; }
+footer a { color: var(--manila); }
+
+@media (max-width: 860px) {
+  .hero .wrap, .visit { grid-template-columns: 1fr; }
+  .why-grid, .quotes { grid-template-columns: 1fr; }
+  .machines { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .strip .wrap { grid-template-columns: 1fr; gap: 12px; }
+  section.block { padding-block: 48px; }
+  .hero .wrap { padding-block: 36px 44px; }
+}
+
+/* Tag swing on load (one orchestrated moment) */
+@keyframes swing { 0% { transform: rotate(-14deg); } 35% { transform: rotate(5deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(-3deg); } 100% { transform: rotate(-4deg); } }
+.tag { transform-origin: 50% 0; animation: swing 1.6s ease-out .2s both; }
+@media (prefers-reduced-motion: reduce) { .tag { animation: none; } }
+
+/* Status stamp on the tag */
+.stamp { position: absolute; right: 18px; top: 40px; transform: rotate(-12deg); border: 3px solid var(--green); color: var(--green); font-family: var(--display); font-size: .9rem; padding: 2px 8px; border-radius: 4px; opacity: .85; }
+
+/* Call checklist */
+.prep { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: start; }
+.checklist { list-style: none; margin: 0; padding: 22px 24px; background: var(--manila); border-left: 6px solid var(--orange); }
+.checklist li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1.5px dashed #B9A15E; font-size: 1.12rem; }
+.checklist li:last-child { border-bottom: 0; }
+.checklist li::before { content: ""; width: 20px; height: 20px; margin-top: 4px; border: 2px solid var(--ink); border-radius: 3px; background: #FFFFFF; }
+.checklist small { display: block; color: #5A4E2A; font-size: .95rem; }
+
+.hours tr.today td { font-weight: 700; color: var(--green); }
+.open-now { display: inline-block; font-weight: 700; font-size: .95rem; padding: 4px 12px; border-radius: 999px; background: #DCEADF; color: var(--green); margin-bottom: 12px; }
+.open-now.shut { background: #F3E1D6; color: #8A3A0E; }
+
+.callbar { display: none; }
+@media (max-width: 700px) {
+  .callbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; gap: 10px; background: var(--green); padding: 10px max(16px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .callbar a { flex: 1; text-align: center; text-decoration: none; font-weight: 700; font-size: 1.05rem; padding: 13px; border-radius: 6px; }
+  .callbar .c1 { background: var(--orange); color: #FFFFFF; }
+  .callbar .c2 { border: 2px solid var(--manila); color: #F4F1E6; }
+  footer .wrap { padding-bottom: 96px; }
+}
+@media (max-width: 860px) { .prep { grid-template-columns: 1fr; } }
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #2F5D3A; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #F1F0EA; color: #23221F; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #F1F0EA, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #FFFFFF; color: #23221F; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #D2601A; color: #FFFFFF; border-radius: 8px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 8px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .quotes {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .quotes::-webkit-scrollbar { display: none; }
+  .quotes > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #2F5D3A; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #F4F1E6; border-radius: 8px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #D2601A; color: #FFFFFF; flex-direction: row; gap: 8px; font-size: 1rem; }
+  .m-tagwrap { padding: 18px 26px 0; max-width: 330px; margin: 0 auto; } .m-tagwrap .tag { padding: 50px 22px 18px; } .m-tagwrap .field b { font-size: 1.35rem; } .m-tagwrap .stamp { top: 34px; } .top .wrap { padding-block: 10px; } .brand { font-size: 1rem; } .strip .wrap { padding-block: 18px; } .machines li { padding: 14px 0; font-size: 1.1rem; } .top a.call { display: none; } .m-tagwrap .field { grid-template-columns: 74px 1fr; } .m-tagwrap .field b { font-size: 1.25rem; }
+}
+</style>
+<!-- /m-layer:css -->
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#">Frank Antion Lawn &amp; Garden Equipment</a>
+    <a class="call" href="tel:+14108964207">(410) 896-4207</a>
+  </div>
+</header>
+
+<main>
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="Frank Antion Lawn &amp; Garden Equipment">
+  <div class="m-tagwrap" aria-hidden="true"><div class="tag"><h2>REPAIR TAG</h2><div class="field"><span>Machine</span><b>Zero-turn</b></div><div class="field"><span>Problem</span><b>Won't start</b></div><div class="field"><span>Status</span><b>Running like new</b></div><span class="stamp">DONE</span></div></div>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
+    <h1 class="m-title">Mower won't start? Bring it to Frank.</h1>
+    <p class="m-lead">Small engine and lawn equipment repair in Delmar. Fair prices, honest answers, pickup available.</p>
+    <a class="m-call" href="tel:+14108964207"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call Frank (410) 896-4207</a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Frank+Antion+Lawn+and+Garden+Equipment+29347+W+Line+Rd+Delmar+MD+21875" target="_blank" rel="noopener">Directions</a>
+      <a href="#services">What we fix</a>
+    </div>
+    <p class="m-addr">29347 W Line Rd, Delmar, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Mower won't start? Bring it to Frank.</h1>
+        <p>Small engine and lawn equipment repair in Delmar, Maryland. Fair prices, honest answers, and pickup if you can't haul it yourself.</p>
+        <div class="btns">
+          <a class="btn btn-main" href="tel:+14108964207">Call (410) 896-4207</a>
+          <a class="btn btn-alt" href="#visit">Hours and directions</a>
+        </div>
+      </div>
+      <div class="tagwrap" aria-hidden="true">
+        <div class="wire"></div>
+        <div class="tag">
+          <h2>REPAIR TAG</h2>
+          <div class="field"><span>Machine</span><b>Zero-turn</b></div>
+          <div class="field"><span>Problem</span><b>Won't start</b></div>
+          <div class="field"><span>Pickup?</span><b>Yes</b></div>
+          <div class="field"><span>Status</span><b>Running like new</b></div>
+          <span class="stamp">DONE</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="wrap">
+      <div><b>Pickup available</b>for mowers you can't haul</div>
+      <div><b>Warranty</b>on repair work</div>
+      <div><b>4.7 stars</b>on Google</div>
+    </div>
+  </div>
+
+  <section class="block" id="services">
+    <div class="wrap">
+      <h2 class="sec">What we fix</h2>
+      <p class="sub">Got another small engine that needs work? Call and ask. Describe the problem over the phone and we'll tell you straight.</p>
+      <ul class="machines">
+        <li>Zero-turn mowers</li>
+        <li>Riding mowers and lawn tractors</li>
+        <li>Push mowers</li>
+        <li>Generators</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section class="block">
+    <div class="wrap prep">
+      <div>
+        <h2 class="sec">Before you call</h2>
+        <p class="sub">Having a few details handy helps Frank tell you over the phone what's likely wrong and whether it's worth fixing.</p>
+      </div>
+      <ul class="checklist">
+        <li><span>The make and model<small>Usually on a sticker under the seat or on the deck.</small></span></li>
+        <li><span>The engine brand<small>Briggs &amp; Stratton, Kohler, Kawasaki and so on.</small></span></li>
+        <li><span>What it's doing<small>Won't start, smokes, surges, won't cut, leaks.</small></span></li>
+        <li><span>Whether you need pickup<small>Ask if you can't haul it yourself.</small></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block why">
+    <div class="wrap">
+      <h2 class="sec">Why folks keep coming back</h2>
+      <p class="sub">Some customers have been bringing their equipment here for 20 years.</p>
+      <div class="why-grid">
+        <div><h3>You'll know what's wrong</h3><p>Frank explains the problem, how to fix it, and your options before any work starts.</p></div>
+        <div><h3>We'll come get it</h3><p>No trailer? Ask about pickup and drop-off for your mower.</p></div>
+        <div><h3>Work you can count on</h3><p>Repairs come with a warranty and fair, reasonable pricing.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <h2 class="sec">What customers say</h2>
+      <p class="sub">From our Google reviews.</p>
+      <div class="quotes">
+        <figure>
+          <blockquote>Conveniently offers pick-up service for your lawnmower if you don't have a way to transport it. Offers a competitive warranty for his work and great pricing.</blockquote>
+          <figcaption>Google review</figcaption>
+        </figure>
+        <figure>
+          <blockquote>Frank has repaired our zero turn lawn mower and two generators. Reasonably priced, and I will be recommending him and his son to anyone who needs small engine repair.</blockquote>
+          <figcaption>Google review</figcaption>
+        </figure>
+        <figure>
+          <blockquote>He takes the time to tell you what the problem is, how to fix it, and provides you with options if there are any.</blockquote>
+          <figcaption>Google review</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block why" id="visit">
+    <div class="wrap visit">
+      <div>
+        <h2 class="sec">Find the shop</h2>
+        <span class="open-now" id="open-now" hidden></span>
+        <p class="addr">29347 W Line Rd<br>Delmar, MD 21875</p>
+        <a class="phone" href="tel:+14108964207">(410) 896-4207</a>
+        <div class="btns">
+          <a class="btn btn-main" href="https://www.google.com/maps/search/?api=1&amp;query=Frank+Antion+Lawn+and+Garden+Equipment+29347+W+Line+Rd+Delmar+MD+21875" target="_blank" rel="noopener">Get directions</a>
+        </div>
+      </div>
+      <table class="hours" aria-label="Shop hours" id="hours">
+        <tr data-d="1"><td>Monday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="2"><td>Tuesday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="3"><td>Wednesday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="4"><td>Thursday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="5"><td>Friday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="6"><td>Saturday</td><td>8:00 am – 5:00 pm</td></tr>
+        <tr data-d="0" class="closed"><td>Sunday</td><td>Closed</td></tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Frank Antion Lawn &amp; Garden Equipment, Delmar, Maryland</span>
+    <span>Preview site made for Frank Antion by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+
+<script>
+(function () {
+  var HOURS = { 1: [8, 17], 2: [8, 17], 3: [8, 17], 4: [8, 17], 5: [8, 17], 6: [8, 17] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var badge = document.getElementById('open-now');
+    var span = HOURS[d];
+    var open = !!(span && h >= span[0] && h < span[1]);
+    badge.textContent = open ? 'Open now' : 'Closed now';
+    if (!open) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+})();
+</script>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+14108964207"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call Frank</a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=Frank+Antion+Lawn+and+Garden+Equipment+29347+W+Line+Rd+Delmar+MD+21875" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Hours</a>
+</nav>
+<!-- /m-layer:bar -->
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"1": [8, 17], "2": [8, 17], "3": [8, 17], "4": [8, 17], "5": [8, 17], "6": [8, 17]};
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    table.insertAdjacentElement('afterend', btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>

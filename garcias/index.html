@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Garcia's Tire Shop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="New and used tires, flat repair, oil changes and brakes in Salisbury, Maryland. Llantas nuevas y usadas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: their own hand-painted yellow sign, scaled up into the page. Big condensed letters on sign yellow, the red shop wall in photos, one tread band. Bilingual. */
+:root {
+  --sign: #FFCF2E;
+  --sign-lt: #FFE27A;
+  --ink: #141414;
+  --rubber: #2A2A28;
+  --red: #C8261B;
+  --paper: #FFFBEE;
+  --muted: #4A4636;
+  --line: #E4D9B4;
+  --display: "Anton", "Impact", "Arial Narrow Bold", sans-serif;
+  --body: "Work Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--body); }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+#site[data-lang="en"] [lang="es"] { display: none; }
+#site[data-lang="es"] [lang="en"] { display: none; }
+
+.bar { background: var(--ink); color: var(--paper); }
+.bar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; flex-wrap: wrap; }
+.bar a { text-decoration: none; font-weight: 700; color: var(--sign); }
+.langs { display: inline-flex; border: 1.5px solid #5A5A55; border-radius: 4px; overflow: hidden; }
+.langs button { appearance: none; border: 0; background: transparent; color: var(--paper); font: 700 .9rem var(--body); padding: 6px 12px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--sign); color: var(--ink); }
+
+/* Hero = the sign + the shop */
+.hero { background: var(--sign); }
+.hero .wrap { display: grid; grid-template-columns: 1.15fr 1fr; gap: 40px; align-items: center; padding-block: 44px 48px; }
+.hero h1 { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: clamp(3.2rem, 9.5vw, 7rem); line-height: .9; letter-spacing: .005em; margin: 0; }
+.hero h1 .name { display: block; color: var(--red); }
+.hero .what { font-family: var(--display); text-transform: uppercase; font-size: clamp(1.4rem, 3.6vw, 2.3rem); line-height: 1.02; margin: 18px 0 0; }
+.hero .what span { display: block; }
+.hero p.lead { max-width: 42ch; font-size: 1.1rem; margin: 20px 0 24px; }
+.btns { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-block; text-decoration: none; font-weight: 700; padding: 14px 22px; border: 2.5px solid var(--ink); }
+.btn-ink { background: var(--ink); color: var(--sign); }
+.btn-ink:hover { background: var(--rubber); }
+.btn-out:hover { background: var(--sign-lt); }
+
+.shopshot { position: relative; margin: 0; justify-self: center; width: min(100%, 420px); }
+.shopshot img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border: 6px solid var(--ink); }
+.shopshot .sticker {
+  position: absolute; left: -18px; bottom: 26px; transform: rotate(-6deg);
+  background: var(--red); color: var(--paper); font-family: var(--display); text-transform: uppercase;
+  font-size: 1.3rem; line-height: 1; padding: 12px 14px; border: 3px solid var(--ink);
+}
+.shopshot .sticker span { display: block; font-size: .95rem; color: var(--sign); }
+
+.tread {
+  height: 46px;
+  background:
+    linear-gradient(90deg, transparent 0 46%, var(--rubber) 46% 54%, transparent 54%) 0 0 / 40px 100%,
+    repeating-linear-gradient(120deg, #3A3A37 0 10px, var(--ink) 10px 20px),
+    var(--ink);
+  border-top: 4px solid var(--ink);
+}
+
+section.block { padding-block: 64px; }
+h2 { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; letter-spacing: .01em; margin: 0 0 12px; }
+.sub { color: var(--muted); max-width: 58ch; margin: 0 0 32px; }
+
+.svcs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 2.5px solid var(--ink); background: var(--paper); }
+.svc { padding: 22px 22px 24px; border-right: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line); }
+.svc:nth-child(3n) { border-right: 0; }
+.svc:nth-last-child(-n+3) { border-bottom: 0; }
+.svc h3 { font-family: var(--display); font-weight: 400; text-transform: uppercase; font-size: 1.5rem; line-height: 1.05; margin: 0 0 6px; }
+.svc p { margin: 0; color: var(--muted); font-size: .98rem; }
+.svc.feature { background: var(--red); color: var(--paper); }
+.svc.feature p { color: #FFE3DF; }
+
+/* Shop photos */
+.yard { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 14px; margin-top: 40px; }
+.yard figure { margin: 0; position: relative; }
+.yard img { display: block; width: 100%; height: 100%; min-height: 220px; max-height: 320px; object-fit: cover; border: 3px solid var(--ink); }
+.yard figcaption { position: absolute; left: 10px; bottom: 10px; background: var(--sign); font-weight: 700; font-size: .85rem; padding: 3px 8px; border: 2px solid var(--ink); }
+
+.reviews { background: var(--rubber); color: var(--paper); }
+.reviews h2 { color: var(--sign); }
+.reviews .sub { color: #CFCBB8; }
+.rgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+.rgrid figure { margin: 0; border-top: 3px solid var(--sign); padding-top: 16px; }
+.rgrid blockquote { margin: 0 0 10px; font-size: 1.08rem; line-height: 1.5; }
+.rgrid figcaption { color: #CFCBB8; font-size: .9rem; }
+.stars { color: var(--sign); letter-spacing: 2px; display: block; margin-bottom: 8px; }
+
+.visit { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.addr { font-size: 1.15rem; margin: 0 0 6px; }
+.phone { font-family: var(--display); font-size: clamp(2.2rem, 6vw, 3.4rem); text-decoration: none; display: inline-block; margin: 8px 0 18px; color: var(--red); }
+.hours { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.hours td { padding: 10px 0; border-bottom: 1.5px solid var(--line); }
+.hours td:last-child { text-align: right; font-weight: 500; }
+.hours .closed td:last-child { color: var(--muted); font-weight: 400; }
+.hours tr.today td { background: var(--sign-lt); font-weight: 700; }
+.hours tr.today td:first-child { padding-left: 8px; }
+.hours tr.today td:last-child { padding-right: 8px; }
+.open-now { display: inline-block; font-weight: 700; font-size: .9rem; padding: 4px 10px; border: 2px solid var(--ink); background: #CFEFD3; margin-bottom: 12px; }
+.open-now.shut { background: #F6D3CF; }
+
+footer { background: var(--ink); color: #BDB9A6; font-size: .9rem; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding-block: 24px; }
+footer a { color: var(--sign); }
+
+.callbar { display: none; }
+@media (max-width: 700px) {
+  .callbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; gap: 10px; background: var(--ink); padding: 10px max(16px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+  .callbar a { flex: 1; text-align: center; text-decoration: none; font-weight: 700; padding: 12px; }
+  .callbar .c1 { background: var(--sign); color: var(--ink); }
+  .callbar .c2 { border: 2px solid var(--sign); color: var(--sign); }
+  footer .wrap { padding-bottom: 96px; }
+}
+@media (max-width: 900px) {
+  .hero .wrap { grid-template-columns: 1fr; }
+  .shopshot { width: min(100%, 380px); }
+  .svcs { grid-template-columns: 1fr 1fr; }
+  .svc:nth-child(3n) { border-right: 1.5px solid var(--line); }
+  .svc:nth-child(2n) { border-right: 0; }
+  .svc:nth-last-child(-n+3) { border-bottom: 1.5px solid var(--line); }
+  .svc:nth-last-child(-n+2) { border-bottom: 0; }
+  .rgrid, .visit { grid-template-columns: 1fr; }
+  .yard { grid-template-columns: 1fr 1fr; }
+  .yard figure:first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 540px) {
+  .svcs { grid-template-columns: 1fr; }
+  .svc, .svc:nth-child(n) { border-right: 0; border-bottom: 1.5px solid var(--line); }
+  .svc:last-child { border-bottom: 0; }
+  section.block { padding-block: 48px; }
+  .shopshot .sticker { left: -6px; }
+}
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #141414; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #FFCF2E; color: #141414; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 40%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FFCF2E, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #141414; color: #FFFBEE; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:400; text-transform:uppercase; letter-spacing:.005em; font-size: clamp(2.6rem, 13vw, 3.6rem) !important; line-height:.92 !important; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #141414; color: #FFCF2E; border-radius: 0px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 0px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .yard, .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .yard::-webkit-scrollbar, .rgrid::-webkit-scrollbar { display: none; }
+  .yard > figure, .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #141414; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFCF2E; border-radius: 0px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #141414; color: #FFCF2E; flex-direction: row; gap: 8px; font-size: 1rem; }
+  .m-bar a.primary { background: #FFCF2E; color: #141414; } .m-photo::after { display: none; } .m-photo + .m-body { margin-top: 0; padding-top: 18px; } .m-photo img { border-bottom: 5px solid #141414; } .m-sub a { border-width: 2.5px; } .svcs { grid-template-columns: 1fr 1fr !important; } .svc { padding: 16px 14px 18px !important; border-right: 1.5px solid #E4D9B4 !important; border-bottom: 1.5px solid #E4D9B4 !important; } .svc:nth-child(2n) { border-right: 0 !important; } .svc:nth-last-child(-n+2) { border-bottom: 0 !important; } .svc h3 { font-size: 1.2rem; } .svc p { font-size: .9rem; } .yard img { height: 240px; max-height: none; } .yard figure:first-child { grid-column: auto; }
+}
+</style>
+<!-- /m-layer:css -->
+</head>
+<body>
+<div id="site" data-lang="en">
+<header class="bar">
+  <div class="wrap">
+    <a href="tel:+13022126898"><span lang="en">Call</span><span lang="es">Llame</span> (302) 212-6898</a>
+    <div class="langs" role="group" aria-label="Language / Idioma">
+      <button type="button" id="btn-en" aria-pressed="true">English</button>
+      <button type="button" id="btn-es" aria-pressed="false">Español</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="Garcia&#x27;s Tire Shop">
+  <figure class="m-photo"><img src="img/gts_0.webp" alt="Garcia&#x27;s Tire Shop, a red building with yellow New and Used tire signs"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text"><span lang="en">Hours below</span><span lang="es">Horario abajo</span></span></span>
+    <h1 class="m-title"><span style="color:#C8261B;display:block">Garcia's</span>Tire Shop</h1>
+    <p class="m-lead"><span lang="en">New &amp; used tires, flat repair, oil &amp; brakes. Most flats fixed while you wait.</span><span lang="es">Llantas nuevas y usadas, ponchaduras, aceite y frenos. La mayoría de las ponchaduras mientras espera.</span></p>
+    <a class="m-call" href="tel:+13022126898"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span lang="en">Call (302) 212-6898</span><span lang="es">Llame al (302) 212-6898</span></a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Garcia%27s+Tire+Shop+104+Washington+St+Salisbury+MD+21804" target="_blank" rel="noopener"><span lang="en">Directions</span><span lang="es">Cómo llegar</span></a>
+      <a href="#services"><span lang="en">Services</span><span lang="es">Servicios</span></a>
+    </div>
+    <p class="m-addr">104 Washington St, Salisbury, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <h1><span class="name">Garcia's</span>Tire Shop</h1>
+        <p class="what" lang="en"><span>New &amp; used tires</span><span>Flat repair, oil &amp; brakes</span></p>
+        <p class="what" lang="es"><span>Llantas nuevas y usadas</span><span>Ponchaduras, aceite y frenos</span></p>
+        <p class="lead" lang="en">Honest prices and fast service on Washington Street in Salisbury. Most flat repairs are done while you wait.</p>
+        <p class="lead" lang="es">Precios honestos y servicio rápido en la calle Washington en Salisbury. La mayoría de las ponchaduras se reparan mientras usted espera.</p>
+        <div class="btns">
+          <a class="btn btn-ink" href="tel:+13022126898"><span lang="en">Call (302) 212-6898</span><span lang="es">Llame al (302) 212-6898</span></a>
+          <a class="btn btn-out" href="#visit"><span lang="en">Hours &amp; directions</span><span lang="es">Horario y dirección</span></a>
+        </div>
+      </div>
+      <figure class="shopshot">
+        <img src="img/gts_0.webp" alt="Garcia's Tire Shop on Washington Street, a red building with yellow New and Used tire signs">
+        <figcaption class="sticker"><span lang="en">Find us at</span><span lang="es">Estamos en</span>104 Washington St</figcaption>
+      </figure>
+    </div>
+  </section>
+  <div class="tread" aria-hidden="true"></div>
+
+  <section class="block" id="services">
+    <div class="wrap">
+      <h2 lang="en">What we do</h2>
+      <h2 lang="es">Nuestros servicios</h2>
+      <p class="sub" lang="en">Call ahead to check if we have your tire size in stock. Same-day service on most jobs.</p>
+      <p class="sub" lang="es">Llame antes para ver si tenemos su medida de llanta. Servicio el mismo día en la mayoría de los trabajos.</p>
+      <div class="svcs">
+        <div class="svc feature">
+          <h3 lang="en">Used tires</h3><h3 lang="es">Llantas usadas</h3>
+          <p lang="en">Good tread at a fair price, mounted and balanced.</p>
+          <p lang="es">Buen piso a buen precio, montadas y balanceadas.</p>
+        </div>
+        <div class="svc">
+          <h3 lang="en">New tires</h3><h3 lang="es">Llantas nuevas</h3>
+          <p lang="en">Many sizes in stock. We'll help you pick the right one.</p>
+          <p lang="es">Muchas medidas disponibles. Le ayudamos a escoger la correcta.</p>
+        </div>
+        <div class="svc">
+          <h3 lang="en">Flat repair</h3><h3 lang="es">Ponchaduras</h3>
+          <p lang="en">If it can be patched, we patch it. No pushing a new tire you don't need.</p>
+          <p lang="es">Si se puede parchar, la parchamos. No le vendemos una llanta que no necesita.</p>
+        </div>
+        <div class="svc">
+          <h3 lang="en">Oil changes</h3><h3 lang="es">Cambio de aceite</h3>
+          <p lang="en">Quick oil and filter changes for cars and trucks.</p>
+          <p lang="es">Cambio de aceite y filtro rápido para carros y camionetas.</p>
+        </div>
+        <div class="svc">
+          <h3 lang="en">Brakes</h3><h3 lang="es">Frenos</h3>
+          <p lang="en">Brake inspections and repairs.</p>
+          <p lang="es">Revisión y reparación de frenos.</p>
+        </div>
+        <div class="svc">
+          <h3 lang="en">Towing &amp; road service</h3><h3 lang="es">Grúa y servicio en carretera</h3>
+          <p lang="en">Stuck with a flat? Call and ask about road service.</p>
+          <p lang="es">¿Se quedó con una llanta ponchada? Llame y pregunte por servicio en carretera.</p>
+        </div>
+      </div>
+
+      <div class="yard">
+        <figure><img src="img/gts_4.webp" alt="Rows of used tires stacked outside the shop" loading="lazy"><figcaption><span lang="en">Used tires in stock</span><span lang="es">Llantas usadas en existencia</span></figcaption></figure>
+        <figure><img src="img/gts_1.webp" alt="Custom wheels and tires on display under the Tire Sale sign" loading="lazy"><figcaption><span lang="en">Wheels &amp; tires</span><span lang="es">Rines y llantas</span></figcaption></figure>
+        <figure><img src="img/gts_5.webp" alt="Tire balancing machine inside the shop" loading="lazy"><figcaption><span lang="en">Mount &amp; balance</span><span lang="es">Montaje y balanceo</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block reviews">
+    <div class="wrap">
+      <h2 lang="en">4.8 stars on Google</h2>
+      <h2 lang="es">4.8 estrellas en Google</h2>
+      <p class="sub" lang="en">From 125 reviews. A few words from our customers.</p>
+      <p class="sub" lang="es">De 125 reseñas. Lo que dicen nuestros clientes (en inglés).</p>
+      <div class="rgrid">
+        <figure>
+          <span class="stars" aria-label="5 stars">★★★★★</span>
+          <blockquote>He patched my tire within 10 minutes while other stores asked me to purchase a new one. He is professional, practical, efficient, and reliable.</blockquote>
+          <figcaption>Google review</figcaption>
+        </figure>
+        <figure>
+          <span class="stars" aria-label="5 stars">★★★★★</span>
+          <blockquote>They give you a quote and they stick to that quote. Fast and efficient. I'll be recommending them to all my friends and family.</blockquote>
+          <figcaption>Google review</figcaption>
+        </figure>
+        <figure>
+          <span class="stars" aria-label="5 stars">★★★★★</span>
+          <blockquote>Great price on used tires in excellent condition. Ten minutes later my car was in the bay, and ten minutes after that it was done.</blockquote>
+          <figcaption>Google review</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="visit">
+    <div class="wrap visit">
+      <div>
+        <h2 lang="en">Come by</h2>
+        <h2 lang="es">Visítenos</h2>
+        <span class="open-now" id="open-now" hidden></span>
+        <p class="addr">104 Washington St<br>Salisbury, MD 21804</p>
+        <a class="phone" href="tel:+13022126898">(302) 212-6898</a>
+        <div class="btns">
+          <a class="btn btn-ink" href="https://www.google.com/maps/search/?api=1&amp;query=Garcia%27s+Tire+Shop+104+Washington+St+Salisbury+MD+21804" target="_blank" rel="noopener"><span lang="en">Get directions</span><span lang="es">Cómo llegar</span></a>
+        </div>
+      </div>
+      <table class="hours" aria-label="Hours" id="hours">
+        <tr data-d="1"><td><span lang="en">Monday</span><span lang="es">Lunes</span></td><td>9:00 am – 7:00 pm</td></tr>
+        <tr data-d="2"><td><span lang="en">Tuesday</span><span lang="es">Martes</span></td><td>9:00 am – 5:30 pm</td></tr>
+        <tr data-d="3"><td><span lang="en">Wednesday</span><span lang="es">Miércoles</span></td><td>9:00 am – 7:00 pm</td></tr>
+        <tr data-d="4"><td><span lang="en">Thursday</span><span lang="es">Jueves</span></td><td>9:00 am – 7:00 pm</td></tr>
+        <tr data-d="5"><td><span lang="en">Friday</span><span lang="es">Viernes</span></td><td>9:00 am – 7:00 pm</td></tr>
+        <tr data-d="6"><td><span lang="en">Saturday</span><span lang="es">Sábado</span></td><td>9:00 am – 4:30 pm</td></tr>
+        <tr data-d="0" class="closed"><td><span lang="en">Sunday</span><span lang="es">Domingo</span></td><td><span lang="en">Closed</span><span lang="es">Cerrado</span></td></tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Garcia's Tire Shop, Salisbury, Maryland</span>
+    <span><span lang="en">Preview site made for Garcia's Tire Shop by Chris at</span><span lang="es">Sitio de muestra hecho para Garcia's Tire Shop por Chris de</span> <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+13022126898"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span lang="en">Call</span><span lang="es">Llamar</span></a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=Garcia%27s+Tire+Shop+104+Washington+St+Salisbury+MD+21804" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span lang="en">Directions</span><span lang="es">Llegar</span></a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span lang="en">Hours</span><span lang="es">Horario</span></a>
+</nav>
+<!-- /m-layer:bar -->
+</div>
+
+<script>
+(function () {
+  var site = document.getElementById('site');
+  var en = document.getElementById('btn-en');
+  var es = document.getElementById('btn-es');
+  var badge = document.getElementById('open-now');
+  var isOpen = null;
+  function paintBadge(l) {
+    if (isOpen === null) return;
+    badge.textContent = isOpen ? (l === 'es' ? 'Abierto ahora' : 'Open now') : (l === 'es' ? 'Cerrado ahora' : 'Closed now');
+  }
+  function setLang(l) {
+    site.setAttribute('data-lang', l);
+    en.setAttribute('aria-pressed', l === 'en');
+    es.setAttribute('aria-pressed', l === 'es');
+    document.documentElement.lang = l;
+    paintBadge(l);
+    try { localStorage.setItem('garcias-lang', l); } catch (e) {}
+  }
+  en.addEventListener('click', function () { setLang('en'); });
+  es.addEventListener('click', function () { setLang('es'); });
+
+  var HOURS = { 1: [9, 19], 2: [9, 17.5], 3: [9, 19], 4: [9, 19], 5: [9, 19], 6: [9, 16.5] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var span = HOURS[d];
+    isOpen = !!(span && h >= span[0] && h < span[1]);
+    if (!isOpen) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+
+  var start = 'en';
+  try { start = localStorage.getItem('garcias-lang') || start; } catch (e) {}
+  if (location.hash === '#es') start = 'es';
+  if (location.hash === '#en') start = 'en';
+  setLang(start);
+})();
+</script>
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"1": [9, 19], "2": [9, 17.5], "3": [9, 19], "4": [9, 19], "5": [9, 19], "6": [9, 16.5]};
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    table.insertAdjacentElement('afterend', btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>
