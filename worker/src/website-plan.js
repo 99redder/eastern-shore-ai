@@ -395,15 +395,20 @@ export function createWebsitePlanHandlers(deps) {
 
     // Books: income + Stripe fee (same pattern as invoices).
     const incomeDate = eventCreated ? new Date(eventCreated * 1000).toISOString().slice(0, 10) : today;
+    // Owner test clients: the owner paid with personal money, so it's an owner
+    // contribution (equity, account 3100), not revenue. The Stripe fee is still a real expense.
+    const ownerTest = Number(client.is_owner_test || 0) === 1;
+    const category = ownerTest ? 'Owner Funded (Non-Revenue)' : 'Website Services';
+    const source = ownerTest ? 'Stripe (owner test payment)' : 'Stripe';
     const existingIncome = await env.DB.prepare(`SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`).bind(key).first();
     if (!existingIncome?.id) {
-      const notes = `Website Care Plan${autopay ? ' (auto-renew)' : ''} | ${client.business_name} | ${periodStart} to ${periodEnd} | stripe_ref=${key}`;
+      const notes = `Website Care Plan${ownerTest ? ' owner test' : ''}${autopay ? ' (auto-renew)' : ''} | ${client.business_name} | ${periodStart} to ${periodEnd} | stripe_ref=${key}`;
       const ins = await env.DB.prepare(
-        `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
-      ).bind(incomeDate, 'Stripe', 'Website Services', amount, key, notes).run();
+        `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes, is_owner_funded) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`
+      ).bind(incomeDate, source, category, amount, key, notes, ownerTest ? 1 : 0).run();
       const incomeId = Number(ins.meta?.last_row_id || 0) || null;
       if (incomeId) {
-        await upsertTaxIncomeJournal(env.DB, { id: incomeId, income_date: incomeDate, source: 'Stripe', category: 'Website Services', amount_cents: amount, notes });
+        await upsertTaxIncomeJournal(env.DB, { id: incomeId, income_date: incomeDate, source, category, amount_cents: amount, notes, is_owner_funded: ownerTest ? 1 : 0 });
       }
     }
     let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
@@ -424,7 +429,7 @@ export function createWebsitePlanHandlers(deps) {
       }
     }
     try {
-      await sendStaffOperationalAlert(env, { subject: `Website plan paid: ${client.business_name}`, text: `${formatUsd(amount)} received${autopay ? ' (automatic renewal)' : ''}. Paid through ${periodEnd}.` });
+      await sendStaffOperationalAlert(env, { subject: `Website plan paid: ${client.business_name}`, text: `${formatUsd(amount)} received${autopay ? ' (automatic renewal)' : ''}. Paid through ${periodEnd}.${ownerTest ? ' Owner test: booked as an owner contribution, not income.' : ''}` });
     } catch (e) { console.error('staff alert failed', e); }
     return true;
   }
@@ -611,7 +616,7 @@ export function createWebsitePlanHandlers(deps) {
         awaiting: clients.filter((c) => ['link_sent', 'signed'].includes(c.status)).length,
         renewingSoon: active.filter((c) => c.days_to_renewal != null && c.days_to_renewal <= 30).length,
         autopay: clients.filter((c) => c.autopay).length,
-        annualRevenueCents: active.reduce((s, c) => s + Number(c.annual_price_cents || 0), 0),
+        annualRevenueCents: active.filter((c) => !Number(c.is_owner_test || 0)).reduce((s, c) => s + Number(c.annual_price_cents || 0), 0),
       },
     }, 200, corsHeaders);
   }
@@ -628,23 +633,24 @@ export function createWebsitePlanHandlers(deps) {
     if (!Number.isFinite(price) || price < 100) return json({ ok: false, error: 'Price must be at least $1.00 per year.' }, 400, corsHeaders);
     const vals = [businessName, clip(d.contactName, 120), clip(d.email, 200), clip(d.phone, 40), clip(d.previewUrl, 300), clip(d.domainName, 120), price, clip(d.notes, 4000)];
     const id = Number(d.id || 0);
+    const ownerTest = d.isOwnerTest ? 1 : 0;
     if (id) {
       const existing = await env.DB.prepare(`SELECT signed_at FROM website_clients WHERE id = ?1`).bind(id).first();
       if (!existing) return json({ ok: false, error: 'Client not found' }, 404, corsHeaders);
       // Business name, domain and price are part of the signed text; lock them once signed.
       if (existing.signed_at) {
-        await env.DB.prepare(`UPDATE website_clients SET contact_name=?1, email=?2, phone=?3, preview_url=?4, notes=?5, updated_at=datetime('now') WHERE id=?6`)
-          .bind(vals[1], vals[2], vals[3], vals[4], vals[7], id).run();
+        await env.DB.prepare(`UPDATE website_clients SET contact_name=?1, email=?2, phone=?3, preview_url=?4, notes=?5, is_owner_test=?6, updated_at=datetime('now') WHERE id=?7`)
+          .bind(vals[1], vals[2], vals[3], vals[4], vals[7], ownerTest, id).run();
       } else {
-        await env.DB.prepare(`UPDATE website_clients SET business_name=?1, contact_name=?2, email=?3, phone=?4, preview_url=?5, domain_name=?6, annual_price_cents=?7, notes=?8, updated_at=datetime('now') WHERE id=?9`)
-          .bind(...vals, id).run();
+        await env.DB.prepare(`UPDATE website_clients SET business_name=?1, contact_name=?2, email=?3, phone=?4, preview_url=?5, domain_name=?6, annual_price_cents=?7, notes=?8, is_owner_test=?9, updated_at=datetime('now') WHERE id=?10`)
+          .bind(...vals, ownerTest, id).run();
       }
       return json({ ok: true, id }, 200, corsHeaders);
     }
     const ins = await env.DB.prepare(
-      `INSERT INTO website_clients (business_name, contact_name, email, phone, preview_url, domain_name, annual_price_cents, notes, status, agreement_token)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'prospect', ?9)`
-    ).bind(...vals, generateToken() + generateToken().slice(0, 8)).run();
+      `INSERT INTO website_clients (business_name, contact_name, email, phone, preview_url, domain_name, annual_price_cents, notes, status, agreement_token, is_owner_test)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'prospect', ?9, ?10)`
+    ).bind(...vals, generateToken() + generateToken().slice(0, 8), ownerTest).run();
     return json({ ok: true, id: Number(ins.meta?.last_row_id || 0) }, 200, corsHeaders);
   }
 

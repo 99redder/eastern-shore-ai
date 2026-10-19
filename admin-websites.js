@@ -112,7 +112,7 @@
       }
       if (c.notes) lines.push(`<span style="color:var(--muted);">Notes: ${escHtml(c.notes)}</span>`);
       return `<div class="web-row">
-        <div class="web-row-head"><strong>${escHtml(c.business_name)}</strong>${badge(c.status)}</div>
+        <div class="web-row-head"><strong>${escHtml(c.business_name)}</strong><span>${Number(c.is_owner_test || 0) ? '<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:#7c3aed; color:#fff; margin-right:.35rem;">Owner test</span>' : ''}${badge(c.status)}</span></div>
         ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
         <div class="web-row-actions">
           ${canceled ? '' : `<button type="button" class="btn action-pop" data-web-action="copy" data-web-id="${id}">Copy ${paid ? 'Renewal' : 'Agreement'} Link</button>`}
@@ -159,6 +159,7 @@
     const cents = c ? Number(c.annual_price_cents || 0) : 10000;
     $('web-price').value = cents % 100 ? (cents / 100).toFixed(2) : String(cents / 100);
     $('web-notes').value = c?.notes || '';
+    $('web-owner-test').checked = Number(c?.is_owner_test || 0) === 1;
     const locked = !!c?.signed_at;
     ['web-business', 'web-domain', 'web-price'].forEach((id) => { $(id).disabled = locked; });
     $('web-form-lock').hidden = !locked;
@@ -261,6 +262,7 @@ ${escHtml(a.text || '')}</div>`;
       previewUrl: $('web-preview').value.trim(),
       domainName: $('web-domain').value.trim(),
       annualPriceCents: Math.round(Number($('web-price').value || 0) * 100),
+      isOwnerTest: !!$('web-owner-test')?.checked,
       notes: $('web-notes').value.trim(),
     };
     if (!body.businessName) { openErrorModal('Business name is required.'); return; }
