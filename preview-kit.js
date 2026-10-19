@@ -39,6 +39,7 @@
       'background:#111827;color:#fff;border-radius:999px;padding:7px 8px 7px 7px;box-shadow:0 8px 24px -8px rgba(0,0,0,.45);' +
       'opacity:0;transform:translateY(12px);transition:opacity .35s,transform .35s;font-size:14px;line-height:1.2}' +
     '.pill.show{opacity:1;transform:none}' +
+    '.pill.show.away{opacity:0;transform:translateY(12px);pointer-events:none}' +
     '.pill button.open{all:unset;cursor:pointer;display:flex;align-items:center;gap:9px;font-weight:600;font-size:14px;color:#fff}' +
     '.av{width:28px;height:28px;border-radius:50%;background:#10B981;color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}' +
     '.x{all:unset;cursor:pointer;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#9CA3AF;font-size:17px}' +
@@ -230,6 +231,11 @@
     window.removeEventListener('scroll', onScroll);
   }
   function onScroll() { var h = document.documentElement; if (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) > 0.33) reveal(); }
+  // Step aside at the very bottom so the pill never covers the footer.
+  window.addEventListener('scroll', function () {
+    var h = document.documentElement, left = h.scrollHeight - (window.scrollY || h.scrollTop) - window.innerHeight;
+    pill.classList.toggle('away', left < 240);
+  }, { passive: true });
   setTimeout(reveal, 12000);
   window.addEventListener('scroll', onScroll, { passive: true });
 })();

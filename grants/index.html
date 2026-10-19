@@ -4,6 +4,70 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>img{max-width:100%}[hidden]{display:none!important}</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #14233F; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #FFFFFF; color: #14233F; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FFFFFF, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #F6C624; color: #14233F; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); text-transform:uppercase;font-weight:700; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #14233F; color: #FFFFFF; border-radius: 8px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 8px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #14233F; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 8px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #F6C624; color: #14233F; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .top a.call { display: none; } .brand b { font-size: 1.1rem; } .top .wrap { padding-block: 10px; }
+}
+</style>
+<!-- /m-layer:css -->
 <title>Grant's Service Center | Salisbury, MD</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
@@ -82,6 +146,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 700; text-transform: uppe
 .hero-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; box-shadow: 0 20px 40px -24px rgba(20,35,63,.6); }
 .hero-photo .diamond { position: absolute; left: -26px; bottom: -26px; width: 104px; height: 104px; border-width: 4px; }
 .hero-photo .diamond span { font-size: 19px; }
+.top .diamond span { font-size: 26px; }
 
 .bay { background: var(--navy); color: #fff; }
 .bay .wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 34px; padding-block: 18px; font: 600 1.15rem/1.2 var(--display); letter-spacing: .1em; text-transform: uppercase; }
@@ -146,81 +211,22 @@ footer a { color: #fff; }
 @media (max-width: 600px) {
   body { font-size: 17px; }
   .svcs, .rgrid, .shop { grid-template-columns: 1fr; }
-  .bay .wrap { font-size: .95rem; gap: 4px 18px; }
+  .bay .wrap { font-size: .95rem; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; text-align: center; }
+  .bay span + span::before { content: none; }
   .bay span + span::before { margin-right: 18px; }
   .brand b { font-size: 1.2rem; }
   .diamond { width: 46px; height: 46px; }
   .diamond span { font-size: 11px; }
+  .top .diamond span { font-size: 21px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
-<!-- m-layer:css -->
-<style>
-/* Phone-first layer (<= 700px). Desktop is unchanged. */
-.m-only { display: none; }
-@media (max-width: 700px) {
-  html { scroll-padding-top: 72px; }
-  body { padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
-  .m-only { display: block; }
-  .m-hide { display: none !important; }
-  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
-  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #14233F; }
-  .hero { display: none; }
-
-  /* Mobile hero */
-  .m-hero { background: #FFFFFF; color: #14233F; }
-  .m-photo { position: relative; margin: 0; }
-  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center; }
-  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FFFFFF, transparent); }
-  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
-  .m-photo + .m-body { margin-top: -38px; }
-  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #F6C624; color: #14233F; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
-  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
-  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
-  .m-title { font-family: var(--display); text-transform:uppercase;font-weight:700; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
-  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
-  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #14233F; color: #FFFFFF; border-radius: 8px; }
-  .m-call svg { width: 20px; height: 20px; }
-  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
-  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 8px; }
-  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
-
-  /* Swipe rows */
-  .rgrid {
-    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
-    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
-    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
-    scrollbar-width: none; -webkit-overflow-scrolling: touch;
-  }
-  .rgrid::-webkit-scrollbar { display: none; }
-  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
-  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
-
-  /* Hours: today first */
-  #hours tr:not(.today) { display: none; }
-  #hours.all tr { display: table-row; }
-  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
-  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-
-  /* Bottom action bar */
-  .m-bar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
-    background: #14233F; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
-    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
-  }
-  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 8px; }
-  .m-bar a svg { width: 22px; height: 22px; }
-  .m-bar a.primary { background: #14233F; color: #FFFFFF; flex-direction: row; gap: 8px; font-size: 1rem; }
-  .top a.call { display: none; } .brand b { font-size: 1.1rem; } .top .wrap { padding-block: 10px; }
-}
-</style>
-<!-- /m-layer:css -->
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Grant's Service Center, home">
-      <span class="diamond" aria-hidden="true"><span>Grant's</span></span>
+      <span class="diamond" aria-hidden="true"><span>G</span></span>
       <span><b>Grant's Service Center</b><small>Truck &amp; Auto Repairs</small></span>
     </a>
     <nav class="nav" aria-label="Main">
@@ -387,6 +393,9 @@ footer a { color: #fff; }
   } catch (e) {}
 })();
 </script>
+<script src="/preview-kit.js?v=3" data-slug="grants" defer></script>
+</body>
+</html>
 <!-- m-layer:bar -->
 <nav class="m-bar m-only" aria-label="Quick actions">
   <a class="primary" href="tel:+14107423243"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
@@ -398,6 +407,7 @@ footer a { color: #fff; }
 <script>
 (function () {
   var HOURS = {"1": [8, 16], "2": [8, 16], "3": [8, 16], "4": [8, 16], "5": [8, 16]};
+  var SEASON = null;
   var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
   function fmt(t, lang) {
     var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
@@ -410,6 +420,7 @@ footer a { color: #fff; }
     try {
       var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
       var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      if (SEASON) { var mo = now.getMonth() + 1; if (mo < SEASON[0] || mo > SEASON[1]) { txt.textContent = SEASON[2] || 'Closed for the season'; el.classList.add('shut'); return; } }
       var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
       if (open) {
         msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
@@ -435,7 +446,8 @@ footer a { color: #fff; }
     btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
     function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
     btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
-    table.insertAdjacentElement('afterend', btn); label();
+    var wrapEl = document.createElement('div'); wrapEl.className = 'm-hours-wrap';
+    table.parentNode.insertBefore(wrapEl, table); wrapEl.appendChild(table); wrapEl.appendChild(btn); label();
     if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
     var hb = document.getElementById('m-bar-hours');
     if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
@@ -443,6 +455,3 @@ footer a { color: #fff; }
 })();
 </script>
 <!-- /m-layer:js -->
-<script src="/preview-kit.js?v=2" data-slug="grants" defer></script>
-</body>
-</html>
