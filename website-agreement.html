@@ -90,6 +90,7 @@
     .btn-outline { background: #fff; color: var(--ink); border: 1.5px solid #9AA3AE; }
     .btn-outline:hover { background: #F1F3F5; }
     .msg.ok { color: var(--ok); }
+    .bookmark { margin-top: 16px; padding: 12px 14px; border-left: 4px solid var(--accent); background: #EEF7F9; border-radius: 4px; font-size: .92rem; color: #2A3B42; }
     .status-line.warn { color: var(--warn); font-weight: 600; }
     footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 22px; line-height: 1.7; }
     .loading { text-align: center; color: var(--muted); padding: 40px 0; }
@@ -139,6 +140,7 @@
               <li>New features as your business grows</li>
             </ul>
             <p class="fine" id="sum-preview" hidden></p>
+            <p class="fine">After you sign, this page becomes your plan page. Get back to it any time with <strong>"Manage My Website Plan"</strong> at the bottom of <a href="/">easternshore.ai</a>.</p>
           </div>
           <div class="price"><b id="sum-price">$100</b><span>per year</span></div>
         </section>
@@ -186,6 +188,7 @@
             <button class="btn" type="button" id="billing-btn" hidden>Manage billing</button>
           </div>
           <p class="fine no-print" id="pay-fine" hidden style="margin-top:8px;"></p>
+          <div class="bookmark no-print"><b>This is your plan page.</b> Bookmark it. You can also get back here any time: click <strong>"Manage My Website Plan"</strong> at the bottom of <a href="/">www.easternshore.ai</a> (or go to <a href="/my-plan.html">easternshore.ai/my-plan.html</a>) and enter your email.</div>
           <div class="actions no-print" style="margin-top:8px;">
             <button class="btn btn-plain" type="button" id="pay-once-btn" hidden>Or pay for just one year</button>
             <button class="btn btn-plain" type="button" id="print-btn">Print or save a copy</button>
