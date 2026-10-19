@@ -1036,3 +1036,28 @@ cd worker && wrangler deploy --config wrangler.toml
 - Price is $249.99 in every sale; the script never touches price, JSON-LD, or the merchant feed.
 - Preview any theme with `?sale=halloween|thanksgiving|christmas|none`.
 - Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in both pages or visitors keep the old copy.
+
+## Website Care Plan + postcard preview sites (added 2026-10-19)
+
+### Preview sites
+- `/garcias/`, `/michelles/`, `/upholsterydoctor/`, `/frankantion/` are noindex preview sites for the "I built you a website" postcard campaign. Source lives in the campaign workspace (`postcard-campaign/sites/<slug>`), deployed here by `tools/deploy_site.py`. Edit in place here now that they're live.
+- **Never** add them to `sitemap.xml`, link them from other pages, or add them to `robots.txt` (Disallow would stop Google from seeing the noindex tag and would publicly list them). Each page carries robots/googlebot/bingbot `noindex, nofollow, noarchive, nosnippet, noimageindex`.
+- Footer credit uses "Chris" (Red's real name), never "Red", on anything local businesses see.
+
+### Website Care Plan ($100/yr)
+- Public page `website-agreement.html?t=<token>` (noindex): shows the agreement, typed-name e-signature + checkbox, then Stripe Checkout. Same link handles renewals (Pay button opens 45 days before the paid-through date).
+- Worker module `worker/src/website-plan.js` (wired in `index.js` via `websitePlan()`):
+  - `GET /api/website-agreement?token=`, `POST /api/website-agreement/sign`, `POST /api/website-agreement/checkout` (public, origin-checked)
+  - `GET|POST /api/website-clients`, `POST /api/website-clients/link|status|delete`, `GET /api/website-clients/agreement` (admin)
+  - Webhook: `checkout.session.completed` with `metadata.checkout_type = website_plan` → `website_client_payments` row, client `active`, `current_period_end` +1 year, `tax_income` (category `Website Services`) + Stripe fee expense, deduped by session id.
+- Checkout is a one-time $100 payment per year (no subscription, **no automatic tax**: it's a service).
+- Agreement text lives in `WEBSITE_AGREEMENT_SECTIONS`. Any wording change must bump `WEBSITE_AGREEMENT_VERSION`. The exact signed text, version, SHA-256, signer name/email/IP/user agent are stored on the client row; business name, domain and price lock once signed.
+- Admin: **Website Clients** tab (`admin-websites.js`, loaded after `admin.js`, uses its globals and delegated events because the admin DOM re-mounts on login).
+- Migration: `worker/migrations/0032_create_website_clients.sql`.
+
+Deploy (from the Mac):
+```bash
+cd worker
+wrangler d1 migrations apply eastern-shore-ai-bookings --remote
+wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-contact
+```

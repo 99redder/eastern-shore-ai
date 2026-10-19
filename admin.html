@@ -130,6 +130,20 @@
     .admin-collapsible-card { border:1px solid var(--line); border-radius:2px; padding:.85rem; background:#10121a; }
     .admin-collapsible-head { display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.35rem; }
     .admin-collapsible-body-collapsed { display:none; }
+    .web-summary { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .web-summary div { border:1px solid var(--line); background:#10121a; padding:.45rem .7rem; min-width:120px; }
+    .web-summary b { display:block; font-size:1.25rem; color:var(--text); }
+    .web-summary span { font-size:.82rem; color:var(--muted); }
+    .web-form { border:1px solid var(--line); background:#10121a; padding:.7rem; margin-bottom:.6rem; }
+    .web-form-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:.5rem .8rem; }
+    .web-form-grid .web-span { grid-column:1 / -1; }
+    .web-form-grid input, .web-form-grid textarea { width:100%; }
+    .web-muted { color:var(--muted); font-size:.88rem; }
+    .web-row { padding:.55rem 0; border-bottom:1px dashed var(--line); }
+    .web-row-head { display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    .web-row-actions { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.4rem; }
+    .web-agreement { white-space:pre-wrap; font-size:.9rem; color:var(--text); background:#0b0c12; border:1px solid var(--line); padding:.6rem; margin-top:.4rem; max-height:320px; overflow:auto; }
+    @media (max-width:760px) { .web-form-grid { grid-template-columns:1fr; } .web-form-grid input, .web-form-grid textarea, .web-form-grid select { font-size:16px; } }
     .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
     .admin-list { max-height:520px; overflow:auto; border:1px solid var(--line); border-radius:2px; padding:.4rem; background:#10121a; font-size:1rem; color:var(--muted); }
     .admin-row { display:flex; }
@@ -348,6 +362,7 @@
           <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
           <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
           <button type="button" class="btn" data-admin-tab="orders">Survival Node Orders</button>
+          <button type="button" class="btn" data-admin-tab="websites">Website Clients</button>
           <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
           <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
           <button type="button" class="btn" data-admin-tab="invoices">Invoices</button>
@@ -693,6 +708,50 @@
               <button type="button" class="btn btn-primary" id="order-add-manual-btn">Add Manual Order</button>
             </div>
             <div id="order-list" class="admin-list">No orders yet.</div>
+          </section>
+        </div>
+      </div>
+
+      <div class="admin-collapsible-card" id="websites-card" style="margin-top:1rem; display:none;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Website Clients</h3>
+        </div>
+        <div id="websites-body">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <p class="invoice-flow-note">$100/yr Website Care Plan. Add a business, send them the agreement link, and they sign and pay on <code>/website-agreement.html</code>. Paid years, renewal dates, and income post here automatically from Stripe.</p>
+            <div id="web-summary" class="web-summary"></div>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin:.6rem 0 .5rem; align-items:center;">
+              <label for="web-filter" style="margin:0;">Show</label>
+              <select id="web-filter" style="max-width:200px;">
+                <option value="open">Open (not canceled)</option>
+                <option value="renewing">Renewing in 45 days</option>
+                <option value="awaiting">Awaiting signature/payment</option>
+                <option value="active">Active</option>
+                <option value="past_due">Past due</option>
+                <option value="all">All</option>
+              </select>
+              <button type="button" class="btn" id="web-refresh-btn">Refresh</button>
+              <button type="button" class="btn btn-primary" id="web-add-btn">Add Client</button>
+            </div>
+            <form id="web-form" class="web-form" hidden>
+              <input type="hidden" id="web-id">
+              <div class="web-form-grid">
+                <div><label for="web-business">Business name</label><input id="web-business" type="text" required></div>
+                <div><label for="web-contact">Contact name</label><input id="web-contact" type="text"></div>
+                <div><label for="web-email">Email</label><input id="web-email" type="email"></div>
+                <div><label for="web-phone">Phone</label><input id="web-phone" type="text"></div>
+                <div><label for="web-preview">Preview site URL</label><input id="web-preview" type="text" placeholder="https://easternshore.ai/garcias"></div>
+                <div><label for="web-domain">Domain (for the agreement)</label><input id="web-domain" type="text" placeholder="garciastireshop.com"></div>
+                <div><label for="web-price">Price per year ($)</label><input id="web-price" type="number" min="0" step="1" value="100"></div>
+                <div class="web-span"><label for="web-notes">Notes</label><textarea id="web-notes" rows="2"></textarea></div>
+              </div>
+              <p id="web-form-lock" class="web-muted" hidden>Signed: business name, domain, and price are locked to what they signed.</p>
+              <div class="admin-row" style="gap:.5rem; margin-top:.5rem;">
+                <button type="submit" class="btn btn-primary" id="web-save-btn">Save</button>
+                <button type="button" class="btn" id="web-cancel-btn">Cancel</button>
+              </div>
+            </form>
+            <div id="web-list" class="admin-list">Loading…</div>
           </section>
         </div>
       </div>
@@ -1216,6 +1275,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=admin-2fa-1"></script>
+  <script src="/admin.js?v=admin-websites-1"></script>
+  <script src="/admin-websites.js?v=1"></script>
 </body>
 </html>

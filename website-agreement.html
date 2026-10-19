@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://eastern-shore-ai-contact.99redder.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Website Care Agreement | Eastern Shore AI</title>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="googlebot" content="noindex, nofollow, noarchive">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/fonts.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap">
+  <style>
+    /* A plain paper contract: one document column, a summary up top, signature box at the end. */
+    :root {
+      --paper: #FFFFFF;
+      --desk: #EEF0F3;
+      --ink: #15181D;
+      --muted: #5B6370;
+      --line: #D9DDE3;
+      --accent: #0E6E86;
+      --accent-dk: #0A5568;
+      --ok: #1F7A45;
+      --warn: #A33A22;
+      --sans: 'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
+      --sig: 'Caveat', 'Segoe Script', cursive;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--desk); color: var(--ink); font: 400 17px/1.6 var(--sans); }
+    a { color: var(--accent); }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px)); }
+    header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    header img { width: 56px; height: 52px; object-fit: cover; border-radius: 8px; }
+    header b { display: block; font-size: 1.05rem; }
+    header span { color: var(--muted); font-size: .92rem; }
+    .doc { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 34px clamp(18px, 5vw, 48px); box-shadow: 0 10px 30px -22px rgba(0,0,0,.35); }
+    h1 { font-size: clamp(1.6rem, 4.5vw, 2.1rem); line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+    .for { color: var(--muted); margin: 0 0 22px; }
+    .summary { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: start; border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px; margin-bottom: 26px; }
+    .summary ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); }
+    .summary li + li { margin-top: 2px; }
+    .price { text-align: right; }
+    .price b { display: block; font-size: 2rem; line-height: 1; }
+    .price span { color: var(--muted); font-size: .9rem; }
+    .terms h2 { font-size: 1.05rem; margin: 22px 0 4px; }
+    .terms p { margin: 0; color: #2A2F37; }
+    .sign { margin-top: 30px; padding-top: 24px; border-top: 2px solid var(--ink); }
+    .sign h2 { font-size: 1.25rem; margin: 0 0 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+    label { display: block; font-weight: 600; font-size: .92rem; margin-bottom: 4px; }
+    input[type=text], input[type=email] { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid #B9BFC8; border-radius: 6px; background: #fff; color: var(--ink); }
+    input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #7FC3D4; outline-offset: 2px; }
+    .full { grid-column: 1 / -1; }
+    .sigline { margin-top: 16px; border-bottom: 1.5px solid var(--ink); min-height: 64px; display: flex; align-items: flex-end; padding: 0 4px 4px; font-family: var(--sig); font-size: 2.4rem; line-height: 1; color: #1C2A5A; }
+    .sigcap { display: flex; justify-content: space-between; color: var(--muted); font-size: .85rem; margin-top: 4px; }
+    .agree { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0; font-size: .98rem; }
+    .agree input { width: 20px; height: 20px; margin-top: 3px; flex: none; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 0 26px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font: 700 1.05rem var(--sans); cursor: pointer; text-decoration: none; }
+    .btn:hover { background: var(--accent-dk); }
+    .btn[disabled] { opacity: .6; cursor: progress; }
+    .btn-plain { background: none; color: var(--accent); padding: 0 6px; min-height: 44px; }
+    .btn-plain:hover { background: none; text-decoration: underline; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .msg { margin: 12px 0 0; font-weight: 600; }
+    .msg.err { color: var(--warn); }
+    .banner { border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; }
+    .banner.ok { background: #E6F4EC; color: #14532D; }
+    .banner.note { background: #FFF4E5; color: #6B3A06; }
+    .signed-box { border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
+    .signed-box .sigline { margin-top: 0; }
+    .fine { color: var(--muted); font-size: .85rem; margin-top: 12px; }
+    footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 22px; line-height: 1.7; }
+    .loading { text-align: center; color: var(--muted); padding: 40px 0; }
+    @media (max-width: 600px) {
+      .summary { grid-template-columns: 1fr; }
+      .price { text-align: left; }
+      .grid { grid-template-columns: 1fr; }
+      .btn { width: 100%; }
+    }
+    @media print {
+      body { background: #fff; }
+      .doc { border: 0; box-shadow: none; padding: 0; }
+      .no-print, form, footer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="/images/esai-badge.jpg" alt="Eastern Shore AI logo" width="56" height="52">
+      <div><b>Eastern Shore AI, LLC</b><span>Fruitland, Maryland &middot; <a href="https://www.easternshore.ai">www.easternshore.ai</a></span></div>
+    </header>
+
+    <main class="doc" id="doc">
+      <p class="loading" id="loading">Loading your agreement…</p>
+
+      <div id="error" hidden>
+        <h1>This link isn't working</h1>
+        <p id="error-text"></p>
+        <p>Message Chris on <a href="https://www.facebook.com/easternshoreai">Facebook</a>, email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>, or call or text (302) 907-9162.</p>
+      </div>
+
+      <div id="content" hidden>
+        <div class="banner ok" id="paid-banner" hidden><strong>Payment received. Thank you!</strong> You'll get a receipt from Stripe by email. Chris will reach out shortly about your domain and any changes you want.</div>
+        <div class="banner note" id="canceled-banner" hidden>Checkout was canceled and nothing was charged. You can pay whenever you're ready using the button below.</div>
+
+        <h1>Website Care Agreement</h1>
+        <p class="for" id="for"></p>
+
+        <section class="summary" aria-label="Plan summary">
+          <div>
+            <strong>What's included</strong>
+            <ul>
+              <li id="sum-domain">Your own domain name, registered in your name</li>
+              <li>Hosting and security, kept online and working on phones</li>
+              <li>Unlimited updates and changes, whenever you want them</li>
+              <li>New features as your business grows</li>
+            </ul>
+            <p class="fine" id="sum-preview" hidden></p>
+          </div>
+          <div class="price"><b id="sum-price">$100</b><span>per year, no tax</span></div>
+        </section>
+
+        <section class="terms" id="terms" aria-label="Agreement terms"></section>
+
+        <section class="sign" id="sign-section" hidden>
+          <h2>Sign</h2>
+          <form id="sign-form" novalidate>
+            <div class="grid">
+              <div><label for="signer-name">Your full name</label><input id="signer-name" type="text" autocomplete="name" required></div>
+              <div><label for="signer-title">Title (optional)</label><input id="signer-title" type="text" placeholder="Owner" autocomplete="organization-title"></div>
+              <div class="full"><label for="signer-email">Email for your signed copy and receipt</label><input id="signer-email" type="email" autocomplete="email" required></div>
+            </div>
+            <div class="sigline" id="sig-preview" aria-hidden="true"></div>
+            <div class="sigcap"><span>Signature</span><span id="sig-date"></span></div>
+            <label class="agree" for="agree"><input id="agree" type="checkbox"><span>I have read this agreement, I'm authorized to sign for <span class="biz"></span>, and I agree that typing my name above is my electronic signature.</span></label>
+            <div class="actions">
+              <button class="btn" type="submit" id="sign-btn">Sign and continue to payment</button>
+            </div>
+            <p class="msg err" id="sign-msg" role="alert" hidden></p>
+            <p class="fine">Next you'll pay securely on Stripe. We never see your card number.</p>
+          </form>
+        </section>
+
+        <section class="sign" id="signed-section" hidden>
+          <h2>Signed</h2>
+          <div class="signed-box">
+            <div class="sigline" id="signed-sig"></div>
+            <div class="sigcap"><span id="signed-who"></span><span id="signed-when"></span></div>
+          </div>
+          <p id="paid-through" class="fine"></p>
+          <div class="actions no-print" style="margin-top:14px;">
+            <button class="btn" type="button" id="pay-btn" hidden>Pay for the year</button>
+            <button class="btn btn-plain" type="button" id="print-btn">Print or save a copy</button>
+          </div>
+          <p class="msg err" id="pay-msg" role="alert" hidden></p>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      Questions? Message Chris on <a href="https://www.facebook.com/easternshoreai">Facebook</a>, email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>, or call or text (302) 907-9162.<br>
+      Eastern Shore AI, LLC &middot; <a href="/privacy.html">Privacy</a>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const API = 'https://eastern-shore-ai-contact.99redder.workers.dev';
+      const qs = new URLSearchParams(location.search);
+      const token = qs.get('t') || '';
+      const $ = (id) => document.getElementById(id);
+      const money = (c) => '$' + (c / 100).toFixed(c % 100 ? 2 : 0);
+      const niceDate = (iso) => {
+        if (!iso) return '';
+        const d = new Date(iso.length <= 10 ? iso + 'T12:00:00' : iso.replace(' ', 'T') + 'Z');
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      };
+      let state = null;
+
+      function showError(text) {
+        $('loading').hidden = true; $('content').hidden = true;
+        $('error-text').textContent = text; $('error').hidden = false;
+      }
+
+      function renderTerms(text) {
+        const box = $('terms'); box.textContent = '';
+        text.split(/\n\n/).forEach((block) => {
+          const [head, ...rest] = block.split('\n');
+          const h = document.createElement('h2'); h.textContent = head;
+          const p = document.createElement('p'); p.textContent = rest.join('\n');
+          box.append(h, p);
+        });
+      }
+
+      function render(d) {
+        state = d;
+        $('loading').hidden = true; $('content').hidden = false;
+        document.querySelectorAll('.biz').forEach((el) => { el.textContent = d.businessName; });
+        $('for').textContent = 'Between Eastern Shore AI, LLC and ' + d.businessName;
+        $('sum-price').textContent = money(d.priceCents);
+        if (d.domainName) $('sum-domain').textContent = 'Your own domain name (' + d.domainName + '), registered in your name';
+        if (d.previewUrl) {
+          const p = $('sum-preview'); p.hidden = false;
+          p.innerHTML = 'Your website: <a target="_blank" rel="noopener"></a>';
+          const a = p.querySelector('a'); a.href = d.previewUrl; a.textContent = d.previewUrl.replace(/^https?:\/\//, '');
+        }
+        renderTerms(d.agreementText);
+        $('paid-banner').hidden = qs.get('paid') !== '1';
+        $('canceled-banner').hidden = !(qs.get('canceled') === '1' && qs.get('paid') !== '1');
+
+        if (!d.signed) {
+          $('sign-section').hidden = false;
+          $('signer-name').value = d.contactName || '';
+          $('signer-email').value = d.email || '';
+          $('sig-date').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          updateSig();
+        } else {
+          $('signed-section').hidden = false;
+          $('signed-sig').textContent = d.signerName;
+          $('signed-who').textContent = d.signerName;
+          $('signed-when').textContent = 'Signed ' + niceDate(d.signedAt);
+          const justPaid = qs.get('paid') === '1';
+          if (d.paidThrough) $('paid-through').textContent = 'Paid through ' + niceDate(d.paidThrough) + '.';
+          else if (justPaid) $('paid-through').textContent = 'Your payment is being confirmed. Refresh in a minute to see your paid-through date.';
+          const pay = $('pay-btn');
+          pay.hidden = !d.canPay || (justPaid && !d.paidThrough);
+          pay.textContent = (d.paidThrough ? 'Renew for another year, ' : 'Pay for the year, ') + money(d.priceCents);
+        }
+      }
+
+      function updateSig() { $('sig-preview').textContent = $('signer-name').value.trim(); }
+      $('signer-name').addEventListener('input', updateSig);
+
+      async function post(path, body) {
+        const res = await fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+        return data;
+      }
+
+      $('sign-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = $('sign-msg'); msg.hidden = true;
+        const name = $('signer-name').value.trim();
+        const email = $('signer-email').value.trim();
+        let err = '';
+        if (name.length < 3) err = 'Type your full name to sign.';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) err = 'Enter a valid email address.';
+        else if (!$('agree').checked) err = 'Check the box to agree.';
+        if (err) { msg.textContent = err; msg.hidden = false; return; }
+        const btn = $('sign-btn'); btn.disabled = true; btn.textContent = 'Signing…';
+        try {
+          const data = await post('/api/website-agreement/sign', {
+            token, signerName: name, signerTitle: $('signer-title').value.trim(), signerEmail: email,
+            agree: true, agreementVersion: state.agreementVersion,
+          });
+          btn.textContent = 'Opening secure checkout…';
+          location.href = data.checkoutUrl;
+        } catch (ex) {
+          msg.textContent = ex.message; msg.hidden = false;
+          btn.disabled = false; btn.textContent = 'Sign and continue to payment';
+          if (/signed/i.test(ex.message)) load();
+        }
+      });
+
+      $('pay-btn').addEventListener('click', async () => {
+        const btn = $('pay-btn'); const msg = $('pay-msg'); msg.hidden = true;
+        btn.disabled = true; const label = btn.textContent; btn.textContent = 'Opening secure checkout…';
+        try {
+          const data = await post('/api/website-agreement/checkout', { token });
+          location.href = data.checkoutUrl;
+        } catch (ex) {
+          msg.textContent = ex.message; msg.hidden = false; btn.disabled = false; btn.textContent = label;
+        }
+      });
+
+      $('print-btn').addEventListener('click', () => window.print());
+
+      async function load() {
+        if (!/^[a-f0-9]{16,}$/i.test(token)) { showError('The link is missing part of its address. Try opening it again from your email or message.'); return; }
+        try {
+          const res = await fetch(API + '/api/website-agreement?token=' + encodeURIComponent(token));
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok) { showError(data.error || 'We could not find this agreement.'); return; }
+          render(data);
+        } catch {
+          showError('We could not load your agreement. Check your connection and try again.');
+        }
+      }
+      load();
+    })();
+  </script>
+</body>
+</html>

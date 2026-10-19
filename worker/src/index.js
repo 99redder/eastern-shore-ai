@@ -6,6 +6,19 @@ import {
   processSupportPushQueueMessage,
   validatePushSubscription
 } from './support-push.js';
+import { createWebsitePlanHandlers } from './website-plan.js';
+
+let _websitePlan = null;
+function websitePlan() {
+  if (!_websitePlan) {
+    _websitePlan = createWebsitePlanHandlers({
+      json, requireAdmin, escapeHtml, formatUsd, getClientIp, generateToken,
+      upsertTaxIncomeJournal, upsertTaxExpenseJournal, fetchStripeFeeCents, estimateStripeFeeCents,
+      sendStaffOperationalAlert,
+    });
+  }
+  return _websitePlan;
+}
 
 // ===== ROUTE HANDLER INDEX =====
 // POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
@@ -139,7 +152,9 @@ export default {
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages', '/api/chat/push-config'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions', '/api/chat/alerts', '/api/chat/push-status'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old','/api/chat/push-subscribe','/api/chat/push-unsubscribe','/api/chat/push-ack'].includes(url.pathname) && request.method === 'POST');
       const isAdminAuthRoute = (url.pathname === '/api/admin/login' && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
-      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic) {
+      const isWebsitePlanPublic = (url.pathname === '/api/website-agreement' && request.method === 'GET') || (['/api/website-agreement/sign', '/api/website-agreement/checkout'].includes(url.pathname) && request.method === 'POST');
+      const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
+      if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -161,6 +176,17 @@ export default {
         ? json({ ok: true }, 200, corsHeaders)
         : auth.res;
     }
+
+    // Website Care Plan ($100/yr): public agreement + checkout, admin client tracking
+    if (url.pathname === '/api/website-agreement' && request.method === 'GET') return websitePlan().handleAgreementGet(request, env, corsHeaders, url);
+    if (url.pathname === '/api/website-agreement/sign' && request.method === 'POST') return websitePlan().handleAgreementSign(request, env, corsHeaders);
+    if (url.pathname === '/api/website-agreement/checkout' && request.method === 'POST') return websitePlan().handleAgreementCheckout(request, env, corsHeaders);
+    if (url.pathname === '/api/website-clients' && request.method === 'GET') return websitePlan().handleClientsList(request, env, corsHeaders, url);
+    if (url.pathname === '/api/website-clients' && request.method === 'POST') return websitePlan().handleClientSave(request, env, corsHeaders, url);
+    if (url.pathname === '/api/website-clients/link' && request.method === 'POST') return websitePlan().handleClientLink(request, env, corsHeaders, url);
+    if (url.pathname === '/api/website-clients/status' && request.method === 'POST') return websitePlan().handleClientStatus(request, env, corsHeaders, url);
+    if (url.pathname === '/api/website-clients/delete' && request.method === 'POST') return websitePlan().handleClientDelete(request, env, corsHeaders, url);
+    if (url.pathname === '/api/website-clients/agreement' && request.method === 'GET') return websitePlan().handleClientAgreement(request, env, corsHeaders, url);
 
     if (url.pathname === '/api/products' && request.method === 'GET') {
       return json({ ok: true, products: publicSurvivalNodeProducts() }, 200, corsHeaders);
@@ -1369,6 +1395,16 @@ async function handleStripeWebhook(request, env, corsHeaders) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data?.object || {};
     const sessionId = session.id || null;
+
+    if ((session.metadata?.checkout_type || '').toString() === 'website_plan') {
+      try {
+        const r = await websitePlan().handleWebsitePlanPaid(env, event);
+        return json(r, r.ok ? 200 : 400, corsHeaders);
+      } catch (e) {
+        console.error('Website plan webhook failed', e);
+        return json({ ok: false, error: `Website plan webhook failed: ${e?.message || e}` }, 500, corsHeaders);
+      }
+    }
 
     if ((session.metadata?.checkout_type || '').toString() === 'invoice_payment') {
       const invoiceId = Number(session.metadata?.invoice_id || 0);
