@@ -19,7 +19,8 @@
   // Visit ping (the worker de-duplicates and ignores bots).
   if (!navigator.webdriver) {
     try {
-      fetch(API + '/api/preview/visit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+      // text/plain keeps this a "simple" request (no CORS preflight), which every browser sends reliably.
+      fetch(API + '/api/preview/visit', { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
         body: JSON.stringify({ slug: slug, ref: params.get('r') || '', me: isMe }) }).catch(function () {});
     } catch (e) {}
   }
