@@ -1062,6 +1062,9 @@ cd worker && wrangler deploy --config wrangler.toml
   - The Stripe webhook endpoint must have these events enabled: `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `invoice.upcoming`, `customer.subscription.updated`, `customer.subscription.deleted`.
 - Agreement text lives in `WEBSITE_AGREEMENT_SECTIONS`. Any wording change must bump `WEBSITE_AGREEMENT_VERSION`. The exact signed text, version, SHA-256, signer name/email/IP/user agent are stored on the client row; business name, domain and price lock once signed.
 - Admin: **Website Clients** tab (`admin-websites.js`, loaded after `admin.js`, uses its globals and delegated events because the admin DOM re-mounts on login).
+  - Email buttons open `#web-email-modal`: subject/body are editable and the preview iframe is rendered by the worker (`POST /api/website-clients/link` with `preview: true`), so it matches exactly what sends. A body line that is just the agreement link becomes the button.
+  - View Signed Agreement opens `#web-agreement-modal` (signer details, fingerprint, the exact signed text).
+- Website-plan emails share `emailShell()` in `website-plan.js`: table layout, inline styles, one small logo from www.easternshore.ai, plain-text part always sent, no tracking pixels or third-party links (keeps spam scores low). Keep new emails on it.
 - **Owner test** checkbox on a client (`is_owner_test`): its payments post to `tax_income` as `Owner Funded (Non-Revenue)` with `is_owner_funded = 1` (journal credits 3100 Owner Contributions, not revenue) and are left out of the yearly revenue tile. The Stripe fee still posts as a normal expense. Refunds are not automated: after refunding an owner test, delete the owner-funded income row (the contribution was returned); keep the fee.
 - Migrations: `worker/migrations/0032_create_website_clients.sql`, `0033_website_clients_autopay.sql`, `0034_website_clients_owner_test.sql`.
 

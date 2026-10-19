@@ -135,6 +135,30 @@
     .web-summary b { display:block; font-size:1.25rem; color:var(--text); }
     .web-summary span { font-size:.82rem; color:var(--muted); }
     #websites-card .invoice-flow-note { font-size:.92rem; }
+    .web-email-to { color:var(--muted); font-size:.92rem; margin:-.2rem 0 .8rem; }
+    .web-email-to b { color:var(--text); }
+    .web-agreement-modal { text-align:left; }
+    .web-doc-head { display:flex; align-items:center; gap:.8rem; padding:1rem 1.3rem; background:#0a0b10; border-bottom:3px solid var(--cyan); position:sticky; top:0; z-index:1; }
+    .web-doc-head img { border-radius:6px; display:block; }
+    .web-doc-head h3 { margin:0; font-size:1.25rem; color:#fff; }
+    .web-doc-kicker { color:var(--cyan); font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; }
+    .web-doc-body { padding:1.1rem 1.3rem 0; }
+    .web-doc-meta { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:.55rem .9rem; margin-bottom:1rem; }
+    .web-doc-meta div { background:#10121a; border:1px solid var(--line); padding:.5rem .7rem; min-width:0; }
+    .web-doc-meta span { display:block; font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+    .web-doc-meta b { display:block; font-size:.95rem; color:var(--text); font-weight:600; overflow-wrap:anywhere; }
+    .web-doc-meta .wide { grid-column:1 / -1; }
+    .web-doc-meta .wide b { font-weight:400; font-size:.82rem; color:var(--muted); }
+    .web-doc-paper { background:#fbfaf6; color:#1d2128; border-radius:4px; padding:1.4rem 1.6rem; font-family:Georgia, 'Times New Roman', serif; line-height:1.6; }
+    .web-doc-paper h4 { font-family:'Hanken Grotesk', system-ui, sans-serif; font-size:1rem; margin:1.1rem 0 .25rem; color:#11151b; }
+    .web-doc-paper h4:first-child { margin-top:0; }
+    #web-agreement-modal .web-doc-paper p { margin:0; font-size:.98rem; color:#2A2F37; }
+    #web-agreement-modal .web-doc-paper h4 { color:#11151B; }
+    #web-agreement-modal .web-doc-sig, #web-agreement-modal .web-doc-sig div { color:#4A505B; }
+    .web-doc-sig { margin-top:1.4rem; padding-top:.9rem; border-top:2px solid #1d2128; display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-family:'Hanken Grotesk', system-ui, sans-serif; font-size:.9rem; color:#4a505b; }
+    .web-doc-sig .sig { font-family:'Caveat', 'Segoe Script', cursive; font-size:2rem; color:#1C2A5A; line-height:1; }
+    .web-doc-actions { padding:1rem 1.3rem 1.2rem; margin-top:0; gap:.5rem; }
+    @media (max-width:600px) { .web-doc-paper { padding:1rem; } .web-doc-head { padding:.8rem 1rem; } .web-doc-body { padding:1rem 1rem 0; } }
     #websites-card .admin-row label, #websites-card .admin-row .btn { font-size:.92rem; }
     #websites-card .admin-list { font-size:.92rem; }
     .web-form { border:1px solid var(--line); background:#10121a; padding:.7rem; margin-bottom:.6rem; }
@@ -992,6 +1016,49 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="web-email-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="web-email-title" style="width:min(920px,96vw); max-height:92vh; overflow-y:auto;">
+      <h3 id="web-email-title">Preview Email</h3>
+      <div class="web-email-to" id="web-email-to"></div>
+      <div style="display:grid; gap:.7rem;">
+        <div>
+          <label for="web-email-subject">Subject</label>
+          <input id="web-email-subject" maxlength="200">
+        </div>
+        <div>
+          <label for="web-email-body">Email body</label>
+          <textarea id="web-email-body" rows="11" style="min-height:200px;"></textarea>
+          <p class="web-muted" id="web-email-hint" style="margin:.35rem 0 0;">The line with just the link becomes the button. Keep it on its own line.</p>
+        </div>
+        <div>
+          <div style="font-weight:700; margin-bottom:.35rem;">Preview <span class="web-muted" id="web-email-status" style="font-weight:400;"></span></div>
+          <iframe id="web-email-preview" title="Email preview" sandbox="" style="width:100%; height:520px; border:1px solid var(--line); background:#EEF0F3; display:block;"></iframe>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem; gap:.5rem;">
+        <button type="button" class="btn" id="web-email-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="web-email-send-btn">Send Email</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="web-agreement-modal" aria-hidden="true">
+    <div class="success-modal web-agreement-modal" role="dialog" aria-modal="true" aria-labelledby="web-agreement-title" style="width:min(860px,96vw); max-height:92vh; overflow-y:auto; padding:0;">
+      <div class="web-doc-head">
+        <img src="/images/esai-badge.jpg" alt="" width="44" height="41">
+        <div><div class="web-doc-kicker">Eastern Shore AI, LLC</div><h3 id="web-agreement-title">Website Care Agreement</h3></div>
+      </div>
+      <div class="web-doc-body">
+        <div class="web-doc-meta" id="web-agreement-meta"></div>
+        <div class="web-doc-paper" id="web-agreement-terms"></div>
+      </div>
+      <div class="form-actions web-doc-actions">
+        <a class="btn" id="web-agreement-open" href="#" target="_blank" rel="noopener">Open client page / print</a>
+        <button type="button" class="btn btn-primary" id="web-agreement-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <div class="success-modal-overlay" id="order-email-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="order-email-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="order-email-title">Preview Order Email</h3>
@@ -1285,6 +1352,6 @@
   </div>
 
   <script src="/admin.js?v=admin-websites-1"></script>
-  <script src="/admin-websites.js?v=4"></script>
+  <script src="/admin-websites.js?v=5"></script>
 </body>
 </html>

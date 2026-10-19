@@ -125,7 +125,6 @@
             : `<button type="button" class="btn delete" data-web-action="cancel" data-web-id="${id}">Mark Canceled</button>`}
           ${paid ? '' : `<button type="button" class="btn delete" data-web-action="delete" data-web-id="${id}">Delete</button>`}
         </div>
-        <div id="web-agreement-${id}"></div>
       </div>`;
     }).join('');
   }
@@ -191,25 +190,11 @@
       }
       if (action === 'email') {
         if (!c.email) { openErrorModal('Add an email address for this client first (Edit), or use Copy Link and send it yourself.'); return; }
-        const paid = Number(c.payments?.length || 0) > 0;
-        const ok = await openConfirmModal(`Email the ${paid ? 'renewal' : 'agreement'} link to ${c.email}?`, paid ? 'Send Renewal Link' : 'Send Agreement Link', 'Send');
-        if (!ok) return;
-        btn.disabled = true; btn.textContent = 'Sending…';
-        await call(API.link, { id, send: true });
-        openSuccessModal(`Sent to ${c.email}.`, 'Email Sent');
-        await refresh();
+        await openEmailModal(c);
         return;
       }
       if (action === 'agreement') {
-        const box = $(`web-agreement-${id}`);
-        if (box.innerHTML) { box.innerHTML = ''; return; }
-        const a = await call(`${API.agreement}?id=${id}`);
-        box.innerHTML = `<div class="web-agreement">Signed by ${escHtml(a.signerName || '')}${a.signerTitle ? `, ${escHtml(a.signerTitle)}` : ''} (${escHtml(a.signerEmail || '')})
-${escHtml(a.signedAt || '')} UTC from IP ${escHtml(a.signerIp || '')}
-Version ${escHtml(a.version || '')} &bull; SHA-256 ${escHtml(a.hash || '')}
-Browser: ${escHtml(a.signerUserAgent || '')}
-
-${escHtml(a.text || '')}</div>`;
+        await openAgreementModal(c);
         return;
       }
       if (action === 'stop-autopay') {
@@ -235,6 +220,105 @@ ${escHtml(a.text || '')}</div>`;
       await refresh();
     }
   }
+
+  // ---------- Modals ----------
+  function showModal(el) { el.classList.add('active'); el.setAttribute('aria-hidden', 'false'); }
+  function hideModal(el) { if (!el) return; el.classList.remove('active'); el.setAttribute('aria-hidden', 'true'); }
+
+  let emailDraft = null;
+  let previewTimer = null;
+  let previewSeq = 0;
+
+  async function renderEmailPreview() {
+    if (!emailDraft) return;
+    const seq = ++previewSeq;
+    const status = $('web-email-status');
+    if (status) status.textContent = '(updating…)';
+    try {
+      const data = await call(API.link, { id: emailDraft.id, preview: true, subject: $('web-email-subject').value, body: $('web-email-body').value });
+      if (seq !== previewSeq) return;
+      $('web-email-preview').srcdoc = `<!doctype html><meta charset="utf-8"><base target="_blank"><body style="margin:0">${data.html}</body>`;
+      if (status) status.textContent = data.linkInBody ? '' : '(heads up: the agreement link is no longer in the email)';
+    } catch (e) {
+      if (status) status.textContent = `(preview failed: ${e.message})`;
+    }
+  }
+
+  async function openEmailModal(c) {
+    const data = await call(API.link, { id: Number(c.id), preview: true });
+    emailDraft = { id: Number(c.id), to: data.to, isRenewal: data.isRenewal, name: c.business_name };
+    $('web-email-title').textContent = data.isRenewal ? (c.autopay ? 'Preview Renewal Reminder' : 'Preview Renewal Email') : 'Preview Agreement Email';
+    $('web-email-to').innerHTML = `To: <b>${escHtml(data.to)}</b> &middot; ${escHtml(c.business_name)}`;
+    $('web-email-subject').value = data.subject;
+    $('web-email-body').value = data.body;
+    $('web-email-preview').srcdoc = `<!doctype html><meta charset="utf-8"><base target="_blank"><body style="margin:0">${data.html}</body>`;
+    $('web-email-status').textContent = '';
+    const send = $('web-email-send-btn'); send.disabled = false; send.textContent = 'Send Email';
+    showModal($('web-email-modal'));
+    $('web-email-subject').focus();
+  }
+
+  async function sendEmailFromModal() {
+    if (!emailDraft) return;
+    const send = $('web-email-send-btn');
+    send.disabled = true; send.textContent = 'Sending…';
+    try {
+      await call(API.link, { id: emailDraft.id, send: true, subject: $('web-email-subject').value, body: $('web-email-body').value });
+      const to = emailDraft.to;
+      hideModal($('web-email-modal')); emailDraft = null;
+      openSuccessModal(`Sent to ${to}.`, 'Email Sent');
+      await refresh();
+    } catch (e) {
+      send.disabled = false; send.textContent = 'Send Email';
+      openErrorModal(e.message);
+    }
+  }
+
+  async function openAgreementModal(c) {
+    const a = await call(`${API.agreement}?id=${Number(c.id)}`);
+    const cell = (k, v, wide) => `<div${wide ? ' class="wide"' : ''}><span>${escHtml(k)}</span><b>${escHtml(v || '—')}</b></div>`;
+    $('web-agreement-meta').innerHTML = [
+      cell('Business', a.businessName),
+      cell('Signed by', `${a.signerName || ''}${a.signerTitle ? `, ${a.signerTitle}` : ''}`),
+      cell('Email', a.signerEmail),
+      cell('Signed on', a.signedAtEt),
+      cell('Plan', `${money(a.priceCents)} per year`),
+      cell('Domain', a.domainName),
+      cell('Version', a.version),
+      cell('IP address', a.signerIp),
+      cell('Fingerprint (SHA-256)', a.hash, true),
+      cell('Browser', a.signerUserAgent, true),
+    ].join('');
+    const terms = String(a.text || '').split(/\n\n/).map((block) => {
+      const [head, ...rest] = block.split('\n');
+      return `<h4>${escHtml(head)}</h4><p>${escHtml(rest.join(' '))}</p>`;
+    }).join('');
+    $('web-agreement-terms').innerHTML = terms + (a.signerName
+      ? `<div class="web-doc-sig"><div><div class="sig">${escHtml(a.signerName)}</div>${escHtml(a.signerName)}${a.signerTitle ? `, ${escHtml(a.signerTitle)}` : ''} for ${escHtml(a.businessName)}</div><div>Signed electronically<br>${escHtml(a.signedAtEt || '')}</div></div>`
+      : '');
+    const open = $('web-agreement-open');
+    if (a.link) { open.href = a.link; open.hidden = false; } else { open.hidden = true; }
+    $('web-agreement-modal').querySelector('.success-modal').scrollTop = 0;
+    showModal($('web-agreement-modal'));
+  }
+
+  document.addEventListener('input', (e) => {
+    if (e.target && (e.target.id === 'web-email-subject' || e.target.id === 'web-email-body')) {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(renderEmailPreview, 450);
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if ($('web-email-modal')?.classList.contains('active')) { hideModal($('web-email-modal')); emailDraft = null; }
+    if ($('web-agreement-modal')?.classList.contains('active')) hideModal($('web-agreement-modal'));
+  });
+  document.addEventListener('click', (e) => {
+    const id = e.target?.id;
+    if (id === 'web-email-cancel-btn' || id === 'web-email-modal') { hideModal($('web-email-modal')); emailDraft = null; return; }
+    if (id === 'web-email-send-btn') { sendEmailFromModal(); return; }
+    if (id === 'web-agreement-close-btn' || id === 'web-agreement-modal') { hideModal($('web-agreement-modal')); return; }
+  });
 
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-web-action], #web-add-btn, #web-refresh-btn, #web-cancel-btn');

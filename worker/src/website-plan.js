@@ -136,8 +136,50 @@ export function createWebsitePlanHandlers(deps) {
     return data?.id || null;
   }
 
-  function emailShell(innerHtml) {
-    return `<div style="font-family:Arial,sans-serif;background:#f5f6f8;padding:24px;color:#111827;"><div style="max-width:620px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;"><div style="padding:22px 24px;">${innerHtml}</div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;">Chris, Eastern Shore AI, LLC &middot; <a href="${SITE}" style="color:#2563eb;">www.easternshore.ai</a><br>facebook.com/easternshoreai &middot; contact@easternshore.ai &middot; (302) 907-9162</div></div></div>`;
+  // Branded, spam-safe email layout: tables + inline styles, one small logo on our
+  // own domain, no tracking pixels, text-heavy. Always send a plain-text part too.
+  function emailShell(innerHtml, { preheader = '', heading = '' } = {}) {
+    const font = "font-family:Arial,Helvetica,sans-serif;";
+    const link = 'color:#0E6E86;text-decoration:none;';
+    return `<div style="margin:0;padding:24px 12px;background:#EEF0F3;${font}">`
+      + (preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#EEF0F3;font-size:1px;line-height:1px;">${escapeHtml(preheader)}</div>` : '')
+      + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:#FFFFFF;border:1px solid #DDE1E6;border-radius:10px;border-collapse:separate;">`
+      + `<tr><td style="background:#0A0B10;padding:18px 26px;border-radius:10px 10px 0 0;">`
+      + `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>`
+      + `<td style="vertical-align:middle;"><img src="${SITE}/images/esai-badge.jpg" width="46" height="42" alt="Eastern Shore AI" style="display:block;border:0;border-radius:6px;"></td>`
+      + `<td style="vertical-align:middle;padding-left:12px;${font}"><div style="color:#FFFFFF;font-size:17px;font-weight:bold;line-height:1.2;">Eastern Shore AI</div><div style="color:#7FE8FF;font-size:12px;line-height:1.4;">Websites for local businesses</div></td>`
+      + `</tr></table></td></tr>`
+      + `<tr><td style="height:3px;line-height:3px;font-size:0;background:#00B8D4;">&nbsp;</td></tr>`
+      + `<tr><td style="padding:28px 28px 10px;color:#15181D;font-size:15px;line-height:1.6;${font}">`
+      + (heading ? `<h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;color:#15181D;${font}">${escapeHtml(heading)}</h1>` : '')
+      + innerHtml
+      + `</td></tr>`
+      + `<tr><td style="padding:18px 28px 22px;border-top:1px solid #E5E7EB;background:#F7F8FA;border-radius:0 0 10px 10px;color:#5B6370;font-size:12px;line-height:1.7;${font}">`
+      + `<strong style="color:#15181D;">Eastern Shore AI, LLC</strong> &middot; Fruitland, Maryland<br>`
+      + `<a href="${SITE}" style="${link}">www.easternshore.ai</a> &middot; <a href="mailto:contact@easternshore.ai" style="${link}">contact@easternshore.ai</a> &middot; <a href="tel:+13029079162" style="${link}">(302) 907-9162</a> &middot; <a href="https://www.facebook.com/easternshoreai" style="${link}">Facebook</a><br>`
+      + `<span style="color:#7A818C;">You're receiving this about your website plan with Eastern Shore AI. Just reply if you have a question.</span>`
+      + `</td></tr></table></div>`;
+  }
+
+  function emailButton(href, label) {
+    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0;"><tr><td style="border-radius:8px;background:#0E6E86;"><a href="${href}" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:8px;">${escapeHtml(label)}</a></td></tr></table>`;
+  }
+
+  function etDateTime(utc) {
+    if (!utc) return '';
+    const d = new Date(`${String(utc).replace(' ', 'T')}Z`);
+    return d.toLocaleString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET';
+  }
+
+  // Paragraph list -> email HTML. Lines equal to `link` become a button.
+  function linesToEmailHtml(lines, link, buttonLabel) {
+    return lines.map((l) => {
+      if (!l) return '';
+      if (link && l === link) return emailButton(link, buttonLabel);
+      let html = escapeHtml(l);
+      if (link) html = html.replace(escapeHtml(link), `<a href="${link}" style="color:#0E6E86;">${escapeHtml(link)}</a>`);
+      return `<p style="margin:0 0 12px;">${html}</p>`;
+    }).join('');
   }
 
   async function stripeApi(env, method, path, params) {
@@ -242,6 +284,30 @@ export function createWebsitePlanHandlers(deps) {
     return data.url;
   }
 
+  function signedCopyHtml({ client, signerName, signerTitle, signerEmail, signedAt, hash, text }) {
+    const first = (signerName || '').split(' ')[0];
+    const row = (k, v) => `<tr><td style="padding:7px 12px 7px 0;color:#5B6370;font-size:13px;white-space:nowrap;vertical-align:top;">${k}</td><td style="padding:7px 0;font-size:14px;color:#15181D;vertical-align:top;">${v}</td></tr>`;
+    const price = formatUsd(Number(client.annual_price_cents || WEBSITE_PLAN_PRICE_CENTS));
+    const details = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #E5E7EB;border-bottom:1px solid #E5E7EB;margin:6px 0 4px;">`
+      + row('Business', escapeHtml(client.business_name))
+      + row('Signed by', `${escapeHtml(signerName)}${signerTitle ? `, ${escapeHtml(signerTitle)}` : ''}<br><span style="color:#5B6370;font-size:13px;">${escapeHtml(signerEmail)}</span>`)
+      + row('Signed on', escapeHtml(etDateTime(signedAt)))
+      + row('Plan', `${escapeHtml(price)} per year`)
+      + (client.domain_name ? row('Domain', escapeHtml(client.domain_name)) : '')
+      + row('Version', escapeHtml(WEBSITE_AGREEMENT_VERSION))
+      + `</table>`
+      + `<p style="margin:6px 0 0;color:#7A818C;font-size:11px;line-height:1.5;word-break:break-all;">Document fingerprint (SHA-256): ${escapeHtml(hash)}</p>`;
+    const terms = text.split(/\n\n/).map((block) => {
+      const [head, ...rest] = block.split('\n');
+      return `<p style="margin:16px 0 4px;font-size:14px;font-weight:bold;color:#15181D;">${escapeHtml(head)}</p><p style="margin:0;font-size:13px;line-height:1.6;color:#3A404A;">${escapeHtml(rest.join(' '))}</p>`;
+    }).join('');
+    return `<p style="margin:0 0 12px;">Thanks${first ? `, ${escapeHtml(first)}` : ''}. Here's your copy of the Website Care Agreement for <strong>${escapeHtml(client.business_name)}</strong>. Please keep it for your records.</p>`
+      + details
+      + emailButton(agreementUrl(client.agreement_token), 'View or print online')
+      + `<div style="margin:8px 0 0;padding:4px 18px 18px;background:#F7F8FA;border:1px solid #E5E7EB;border-radius:8px;">${terms}</div>`
+      + `<p style="margin:20px 0 0;">Any questions, just reply to this email.</p><p style="margin:4px 0 0;">Chris<br><span style="color:#5B6370;">Eastern Shore AI, LLC</span></p>`;
+  }
+
   // ---------- Public ----------
 
   // GET /api/website-agreement?token=
@@ -314,13 +380,16 @@ export function createWebsitePlanHandlers(deps) {
 
       // Signed copy to the client, and a heads-up to staff. Failures here don't block payment.
       const signedRow = await env.DB.prepare(`SELECT * FROM website_clients WHERE id = ?1`).bind(client.id).first();
-      const copyText = `Signed by ${signerName}${signerTitle ? `, ${signerTitle}` : ''} (${signerEmail}) on ${signedRow.signed_at} UTC.\nAgreement version ${WEBSITE_AGREEMENT_VERSION}. Fingerprint (SHA-256): ${hash}\n\n${text}`;
+      const copyText = `Signed by ${signerName}${signerTitle ? `, ${signerTitle}` : ''} (${signerEmail}) on ${etDateTime(signedRow.signed_at)}.\nAgreement version ${WEBSITE_AGREEMENT_VERSION}. Fingerprint (SHA-256): ${hash}\n\n${text}`;
       try {
         await sendEmail(env, {
           to: signerEmail,
           subject: `Your signed website agreement - ${client.business_name}`,
-          text: `Thanks for signing. Here is your copy.\n\n${copyText}\n\nYou can view it any time at ${agreementUrl(client.agreement_token)}`,
-          html: emailShell(`<p>Thanks for signing. Here is your copy of the Website Care Agreement for <strong>${escapeHtml(client.business_name)}</strong>.</p><p><a href="${agreementUrl(client.agreement_token)}" style="color:#2563eb;">View it online any time</a></p><pre style="white-space:pre-wrap;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:14px;">${escapeHtml(copyText)}</pre>`),
+          text: `Thanks for signing. Here is your copy of the Website Care Agreement for ${client.business_name}. Please keep it for your records.\n\nView or print it any time: ${agreementUrl(client.agreement_token)}\n\n${copyText}\n\nChris\nEastern Shore AI, LLC\nwww.easternshore.ai | contact@easternshore.ai | (302) 907-9162`,
+          html: emailShell(signedCopyHtml({ client, signerName, signerTitle, signerEmail, signedAt: signedRow.signed_at, hash, text }), {
+            heading: 'Your signed agreement',
+            preheader: `Your copy of the Website Care Agreement for ${client.business_name}.`,
+          }),
         });
       } catch (e) { console.error('agreement copy email failed', e); }
       try {
@@ -532,9 +601,9 @@ export function createWebsitePlanHandlers(deps) {
       if (type === 'invoice.payment_failed') {
         await env.DB.prepare(`UPDATE website_clients SET subscription_status = 'past_due', last_payment_failed_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(client.id).run();
         if (Number(obj.attempt_count || 1) <= 1 && to) {
-          const lines = [hi, '', `The automatic ${formatUsd(Number(obj.amount_due || client.annual_price_cents))} renewal for your ${client.business_name} website didn't go through. Your site is still online. The card will be tried again over the next few days, or you can update it any time with the "Manage billing" button here:`, '', link, '', 'Any questions, just reply or call or text (302) 907-9162.', 'Chris'];
+          const lines = [hi, '', `The automatic ${formatUsd(Number(obj.amount_due || client.annual_price_cents))} renewal for your ${client.business_name} website didn't go through. Your site is still online. The card will be tried again over the next few days, or you can update it any time with the "Manage billing" button on your plan page:`, '', link, '', 'Any questions, just reply or call or text (302) 907-9162.', 'Chris'];
           try {
-            await sendEmail(env, { to, subject: `Card update needed for your ${client.business_name} website`, text: lines.join('\n'), html: emailShell(lines.map((l) => (l ? `<p style="margin:0 0 10px;">${l === link ? `<a href="${link}">${link}</a>` : escapeHtml(l)}</p>` : '')).join('')) });
+            await sendEmail(env, { to, subject: `Card update needed for your ${client.business_name} website`, text: lines.join('\n'), html: emailShell(linesToEmailHtml(lines, link, 'Update my card'), { heading: 'Card update needed', preheader: 'Your website renewal payment did not go through.' }) });
           } catch (e) { console.error('failed-payment email failed', e); }
         }
         try {
@@ -547,9 +616,9 @@ export function createWebsitePlanHandlers(deps) {
         if (!autopayOn(client) || client.renewal_reminder_sent_for === periodStart || !to) return { handled: true, ok: true };
         const price = formatUsd(Number(obj.amount_due || client.annual_price_cents || WEBSITE_PLAN_PRICE_CENTS));
         const when = new Date(`${periodStart}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-        const lines = [hi, '', `Just a heads-up: your website plan for ${client.business_name} renews automatically on ${when} for ${price}. That covers another year of your domain, hosting, and any updates or new features you want.`, '', `Nothing to do on your end. If you need to update your card or turn off automatic renewal, use the "Manage billing" button here:`, '', link, '', 'Thanks for being a customer.', 'Chris'];
+        const lines = [hi, '', `Just a heads-up: your website plan for ${client.business_name} renews automatically on ${when} for ${price}. That covers another year of your domain, hosting, and any updates or new features you want.`, '', `Nothing to do on your end. If you need to update your card or turn off automatic renewal, use the "Manage billing" button on your plan page:`, '', link, '', 'Thanks for being a customer.', 'Chris'];
         try {
-          await sendEmail(env, { to, subject: `Your ${client.business_name} website renews on ${when}`, text: lines.join('\n'), html: emailShell(lines.map((l) => (l ? `<p style="margin:0 0 10px;">${l === link ? `<a href="${link}">${link}</a>` : escapeHtml(l)}</p>` : '')).join('')) });
+          await sendEmail(env, { to, subject: `Your ${client.business_name} website renews on ${when}`, text: lines.join('\n'), html: emailShell(linesToEmailHtml(lines, link, 'View my plan'), { heading: 'Renewal reminder', preheader: `Your ${client.business_name} website renews on ${when}.` }) });
           await env.DB.prepare(`UPDATE website_clients SET renewal_reminder_sent_for = ?1, renewal_link_sent_at = datetime('now') WHERE id = ?2`).bind(periodStart, client.id).run();
         } catch (e) { console.error('renewal reminder email failed', e); }
         return { handled: true, ok: true };
@@ -654,7 +723,10 @@ export function createWebsitePlanHandlers(deps) {
     return json({ ok: true, id: Number(ins.meta?.last_row_id || 0) }, 200, corsHeaders);
   }
 
-  // POST /api/website-clients/link {id, send: bool}  -> agreement/renewal link; optionally emails it
+  // POST /api/website-clients/link {id, send?, preview?, subject?, body?}
+  //   preview: returns the default (or edited) subject/body plus the rendered HTML, changes nothing.
+  //   send:    emails it (using the edited subject/body when given) and records the send.
+  //   neither: just returns the link (Copy Link).
   async function handleClientLink(request, env, corsHeaders, url) {
     const auth = await adminGuard(request, env, corsHeaders, url);
     if (!auth.ok) return auth.res;
@@ -666,33 +738,48 @@ export function createWebsitePlanHandlers(deps) {
     if (client.status === 'canceled') return json({ ok: false, error: 'Client is canceled. Reactivate first.' }, 400, corsHeaders);
     const link = agreementUrl(client.agreement_token);
     const isRenewal = !!client.first_paid_at;
+    const auto = isRenewal && autopayOn(client);
+    const to = clip(client.email || client.signer_email, 200);
+
+    const hi = client.contact_name ? `Hi ${client.contact_name.split(' ')[0]},` : 'Hi,';
+    const price = formatUsd(Number(client.annual_price_cents || WEBSITE_PLAN_PRICE_CENTS));
+    const renewOn = client.current_period_end
+      ? new Date(`${client.current_period_end}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+      : '';
+    const defaultLines = auto
+      ? [hi, '', `Your website plan for ${client.business_name} renews automatically on ${renewOn} for ${price}. Nothing to do on your end.`, '', 'To update your card or turn off automatic renewal, use "Manage billing" on your plan page:', '', link, '', 'Thanks for being a customer.', 'Chris']
+      : isRenewal
+      ? [hi, '', `Your website plan for ${client.business_name} renews on ${renewOn}. It's ${price} for another year: domain, hosting, and any updates or new features you need. You can also turn on automatic renewal so you never have to think about it.`, '', link, '', 'Thanks for being a customer.', 'Chris']
+      : [hi, '', `Thanks for taking me up on the website for ${client.business_name}. Here's the short agreement to look over and sign, then you'll pay ${price} for the year on the next screen.`, '', link, '', 'Any questions, just reply, message me on Facebook, or call or text (302) 907-9162.', 'Chris'];
+    const defaultSubject = isRenewal
+      ? (auto ? `Your ${client.business_name} website renews soon` : `Website renewal for ${client.business_name}`)
+      : `Your website agreement for ${client.business_name}`;
+
+    const subject = clip(d.subject, 200) || defaultSubject;
+    const body = typeof d.body === 'string' && d.body.trim() ? d.body.replace(/\r\n/g, '\n').slice(0, 8000) : defaultLines.join('\n');
+    const lines = body.split('\n').map((l) => l.trimEnd());
+    const buttonLabel = isRenewal ? (auto ? 'View my plan' : 'Renew my website') : 'Review and sign';
+    const html = emailShell(linesToEmailHtml(lines, link, buttonLabel), {
+      heading: isRenewal ? 'Your website plan' : 'Your website agreement',
+      preheader: isRenewal ? `Your ${client.business_name} website plan renews on ${renewOn}.` : `Review and sign the agreement for ${client.business_name}.`,
+    });
+
+    if (d.preview) {
+      return json({ ok: true, preview: true, to, subject, body, html, link, isRenewal, linkInBody: lines.some((l) => l.includes(link)) }, 200, corsHeaders);
+    }
+
     let emailed = false;
     if (d.send) {
-      const to = clip(client.email || client.signer_email, 200);
       if (!to) return json({ ok: false, error: 'Add an email address first, or copy the link and send it yourself.' }, 400, corsHeaders);
-      const hi = client.contact_name ? `Hi ${client.contact_name.split(' ')[0]},` : 'Hi,';
-      const price = formatUsd(Number(client.annual_price_cents || WEBSITE_PLAN_PRICE_CENTS));
-      const lines = isRenewal && autopayOn(client)
-        ? [hi, '', `Your website plan for ${client.business_name} renews automatically on ${client.current_period_end} for ${price}. Nothing to do on your end.`, '', `To update your card or turn off automatic renewal, use "Manage billing" here: ${link}`, '', 'Thanks for being a customer.', 'Chris']
-        : isRenewal
-        ? [hi, '', `Your website plan for ${client.business_name} renews on ${client.current_period_end}. It's ${price} for another year: domain, hosting, and any updates or new features you need. You can also turn on automatic renewal so you never have to think about it.`, '', `Renew here: ${link}`, '', 'Thanks for being a customer.', 'Chris']
-        : [hi, '', `Thanks for taking me up on the website for ${client.business_name}. Here's the short agreement to look over and sign, then you'll pay ${price} for the year on the next screen.`, '', link, '', 'Any questions, just reply, message me on Facebook, or call or text (302) 907-9162.', 'Chris'];
       try {
-        await sendEmail(env, {
-          to,
-          subject: isRenewal ? (autopayOn(client) ? `Your ${client.business_name} website renews soon` : `Website renewal for ${client.business_name}`) : `Your website agreement for ${client.business_name}`,
-          text: lines.join('\n'),
-          html: emailShell(lines.map((l) => l === link
-            ? `<p style="margin:16px 0;"><a href="${link}" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:bold;">${isRenewal ? (autopayOn(client) ? 'View my plan' : 'Renew my website') : 'Review and sign'}</a></p>`
-            : (l ? `<p style="margin:0 0 10px;">${escapeHtml(l).replace(escapeHtml(link), `<a href="${link}">${link}</a>`)}</p>` : '')).join('')),
-        });
+        await sendEmail(env, { to, subject, text: lines.join('\n'), html });
         emailed = true;
       } catch (e) {
         return json({ ok: false, error: e.message || 'Email failed' }, 502, corsHeaders);
       }
     }
     if (isRenewal) {
-      await env.DB.prepare(`UPDATE website_clients SET renewal_link_sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
+      if (d.send) await env.DB.prepare(`UPDATE website_clients SET renewal_link_sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
     } else {
       await env.DB.prepare(`UPDATE website_clients SET link_sent_at = COALESCE(link_sent_at, datetime('now')), status = CASE WHEN status = 'prospect' THEN 'link_sent' ELSE status END, updated_at = datetime('now') WHERE id = ?1`).bind(id).run();
     }
@@ -758,6 +845,8 @@ export function createWebsitePlanHandlers(deps) {
     if (!client) return json({ ok: false, error: 'Client not found' }, 404, corsHeaders);
     return json({
       ok: true,
+      businessName: client.business_name, domainName: client.domain_name || '', priceCents: Number(client.annual_price_cents || WEBSITE_PLAN_PRICE_CENTS),
+      signedAtEt: etDateTime(client.signed_at), link: client.agreement_token ? agreementUrl(client.agreement_token) : '',
       text: client.agreement_text || renderAgreementText(client),
       signedAt: client.signed_at, signerName: client.signer_name, signerTitle: client.signer_title, signerEmail: client.signer_email,
       signerIp: client.signer_ip, signerUserAgent: client.signer_user_agent, version: client.agreement_version, hash: client.agreement_hash,
