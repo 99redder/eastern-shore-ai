@@ -9,7 +9,7 @@
 // Subscription payments are recorded from invoice.paid (keyed by invoice id),
 // one-time payments from checkout.session.completed (keyed by session id).
 
-export const WEBSITE_AGREEMENT_VERSION = '2026-10-19.3';
+export const WEBSITE_AGREEMENT_VERSION = '2026-10-19.4';
 export const WEBSITE_PLAN_PRICE_CENTS = 10000;
 
 // Canonical agreement text. Placeholders: {{business}}, {{price}}, {{domain}}.
@@ -18,10 +18,11 @@ export const WEBSITE_PLAN_PRICE_CENTS = 10000;
 export const WEBSITE_AGREEMENT_SECTIONS = [
   ['Parties', 'This Website Care Agreement ("Agreement") is between Eastern Shore AI, LLC, a Maryland limited liability company ("Provider"), and {{business}} ("Client"). It takes effect when Client signs it electronically below. The person signing confirms that they are authorized to sign for Client.'],
   ['What Provider does', 'For the annual fee, Provider will: (a) design, build, and publish Client\'s website; (b) register Client\'s domain name ({{domain}}) and renew it each year while this Agreement is active; (c) host the website and keep it online, secure, and working on phones and computers; (d) make content updates and changes Client asks for, such as text, photos, hours, prices, services, and new pages; (e) add new website features Client asks for as the business grows; and (f) keep backup copies of the website and restore it if something goes wrong.'],
+  ['Choosing a domain name', 'Client\'s first choice of domain name may already be registered by someone else, or held by a domain reseller asking far more than a normal registration price. Provider will work with Client to find a name Client likes, which may use a different spelling or wording, or an ending other than .com, such as .net, .org, or .biz. The plan covers registering one available domain name at a normal price; it does not include buying a name from a current owner or reseller.'],
   ['Unlimited updates, fair use', 'There is no limit on the number of update or feature requests, and none of them cost extra. Provider works on requests in the order received and usually completes routine changes within 3 business days. Larger requests, such as several new pages, a new feature, or a redesign, may be scheduled and completed in stages, and Provider will give Client an expected timeline before starting. Requests must relate to Client\'s website and must be lawful.'],
-  ['What is not included', 'The annual fee does not cover: third-party paid services Client chooses to use (for example paid booking or scheduling software, email hosting such as Google Workspace, or paid plugins); payment processing or e-commerce transaction fees; paid advertising; printed materials; photography sessions; more than one domain name, or a domain name the registrar sells at a premium price (over $25 a year); or work unrelated to Client\'s website. Provider will tell Client in advance if a request falls outside the plan, and nothing outside the plan will be charged without Client\'s written approval.'],
-  ['Fee, taxes, and price lock', 'The fee is {{price}} per year, paid in advance. The fee does not include sales or use tax. If Maryland or another government requires tax on this service, it will be added and shown separately at checkout. As long as Client renews each year without a lapse of more than 30 days, Provider will not raise this annual fee.'],
-  ['Term and renewal', 'The first term starts on the date of the first payment and lasts one year. Each renewal adds one year. Client chooses how to renew when paying and can switch at any time. With automatic renewal, Client\'s card is charged the annual fee (plus any required tax) on each renewal date until Client cancels. Provider will email Client a reminder between 15 and 45 days before each automatic charge, and Client can turn off automatic renewal at any time before the renewal date, online using the "Manage billing" button on this agreement page or by contacting Provider; no further charges are made after that. With manual renewal, nothing is charged unless Client pays, and Provider will send a renewal link about 30 days before each renewal date. If a renewal payment is more than 30 days late, or an automatic charge fails and is not fixed within 30 days, Provider may take the website offline until payment is made. The domain stays registered to Client.'],
+  ['What is not included', 'The annual fee does not cover: third-party paid services Client chooses to use (for example paid booking or scheduling software, email hosting such as Google Workspace, or paid plugins); payment processing or e-commerce transaction fees; paid advertising; printed materials; photography sessions; more than one domain name, a domain name the registrar sells at a premium price (over $25 a year), or buying a domain name from its current owner or a reseller; or work unrelated to Client\'s website. Provider will tell Client in advance if a request falls outside the plan, and nothing outside the plan will be charged without Client\'s written approval.'],
+  ['Fee, taxes, and price lock', 'The fee is {{price}} per year, paid in advance. The fee includes any Maryland sales and use tax that applies to this service, so Client pays nothing more. As long as Client renews each year without a lapse of more than 30 days, Provider will not raise this annual fee.'],
+  ['Term and renewal', 'The first term starts on the date of the first payment and lasts one year. Each renewal adds one year. Client chooses how to renew when paying and can switch at any time. With automatic renewal, Client\'s card is charged the annual fee on each renewal date until Client cancels. Provider will email Client a reminder between 15 and 45 days before each automatic charge. Client can turn off automatic renewal at any time before the renewal date with one click, using the "Turn off automatic renewal" button on this agreement page (linked in every renewal email), or by contacting Provider in any way. No further charges are made after that, and the website stays online through the end of the paid year. With manual renewal, nothing is charged unless Client pays, and Provider will send a renewal link about 30 days before each renewal date. If a renewal payment is more than 30 days late, or an automatic charge fails and is not fixed within 30 days, Provider may take the website offline until payment is made. The domain stays registered to Client.'],
   ['Domain, ownership, and handoff', 'The domain name is registered with Client listed as the registrant, and it belongs to Client. Client owns its business name, logo, photos, and all content it provides, and owns the finished website. Provider keeps ownership of its general tools, code, templates, and know-how that are not specific to Client, and gives Client a permanent, royalty-free license to keep using any of them that are part of the finished website. Third-party items such as fonts, open-source code, and licensed images stay subject to their own licenses. If this Agreement ends for any reason, Provider will, within 10 business days of Client\'s request, transfer the domain to an account Client controls and give Client a copy of the website files. Provider may delete its copies 60 days after this Agreement ends.'],
   ['Client content and approval', 'Client will provide accurate business information and will only provide content (text, photos, logos) that Client owns or has permission to use. Client will review the website, including anything Provider writes or adds at Client\'s request, and is responsible for the accuracy of business claims such as prices, hours, licenses, warranties, and offers. Provider will not keep photos taken by others (for example customer photos from online reviews) on the website without Client\'s approval, and will replace them with Client\'s own photos when Client provides them.'],
   ['Laws, accessibility, and privacy', 'Provider builds the website with reasonable care to be readable, mobile-friendly, and accessible, but does not guarantee that it meets every legal or accessibility standard (such as the ADA or WCAG). Client is responsible for making sure its business, products, services, and claims on the website comply with the law. If the website collects visitor information (for example through a contact form), Provider will use that information only to run the website and deliver messages to Client, will not sell it, and will protect it with reasonable security measures.'],
@@ -243,8 +244,8 @@ export function createWebsitePlanHandlers(deps) {
         'line_items[0][price_data][recurring][interval]': 'year',
         'line_items[0][price_data][product_data][name]': `Website Care Plan: ${client.business_name}`.slice(0, 250),
         'line_items[0][price_data][product_data][description]': (paidAhead
-          ? `Already paid through ${client.current_period_end}. Renews automatically each year starting then. Cancel any time.`
-          : 'Domain, hosting, unlimited updates and new features. Renews automatically each year. Cancel any time.').slice(0, 500),
+          ? `Already paid through ${client.current_period_end}. Renews automatically each year starting then. Cancel any time. Price includes Maryland sales tax.`
+          : 'Domain, hosting, unlimited updates and new features. Renews automatically each year. Cancel any time. Price includes Maryland sales tax.').slice(0, 500),
         'metadata[checkout_type]': 'website_plan',
         'metadata[website_client_id]': String(client.id),
         'metadata[autopay]': '1',
@@ -269,7 +270,7 @@ export function createWebsitePlanHandlers(deps) {
         'line_items[0][price_data][currency]': 'usd',
         'line_items[0][price_data][unit_amount]': amount,
         'line_items[0][price_data][product_data][name]': `Website Care Plan, 1 year: ${client.business_name}`.slice(0, 250),
-        'line_items[0][price_data][product_data][description]': `Domain, hosting, unlimited updates and new features. ${periodStart} to ${periodEnd}. Does not renew automatically.`,
+        'line_items[0][price_data][product_data][description]': `Domain, hosting, unlimited updates and new features. ${periodStart} to ${periodEnd}. Does not renew automatically. Price includes Maryland sales tax.`,
         'metadata[checkout_type]': 'website_plan',
         'metadata[website_client_id]': String(client.id),
         'metadata[autopay]': '0',
@@ -425,6 +426,44 @@ export function createWebsitePlanHandlers(deps) {
     } catch (e) {
       return json({ ok: false, error: e.message || 'Checkout failed' }, 502, corsHeaders);
     }
+  }
+
+  // POST /api/website-agreement/autopay {token, on: bool}
+  // One-click turn off (or back on) of automatic renewal from the client's own page. No login needed:
+  // the private agreement link is the credential. Off = cancel at period end (no refund, no more charges).
+  async function handleAgreementAutopay(request, env, corsHeaders) {
+    if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+    let data = {};
+    try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid request' }, 400, corsHeaders); }
+    const client = await getClientByToken(env.DB, clip(data.token, 64));
+    if (!client) return json({ ok: false, error: 'This link is not valid.' }, 404, corsHeaders);
+    if (!subscriptionLive(client)) return json({ ok: false, error: 'Automatic renewal is not set up for this plan.' }, 400, corsHeaders);
+    const on = data.on === true;
+    try {
+      const sub = await stripeApi(env, 'POST', `subscriptions/${encodeURIComponent(client.stripe_subscription_id)}`, { cancel_at_period_end: on ? 'false' : 'true' });
+      await env.DB.prepare(`UPDATE website_clients SET cancel_at_period_end = ?1, subscription_status = ?2, updated_at = datetime('now') WHERE id = ?3`)
+        .bind(on ? 0 : 1, (sub.status || client.subscription_status || '').toString(), client.id).run();
+    } catch (e) {
+      console.error('autopay toggle failed', e);
+      return json({ ok: false, error: 'That did not go through. Please try again, or contact Chris and he will take care of it right away.' }, 502, corsHeaders);
+    }
+    try {
+      await sendStaffOperationalAlert(env, {
+        subject: on ? `Auto-renew turned back on: ${client.business_name}` : `Auto-renew turned off: ${client.business_name}`,
+        text: on ? `They turned automatic renewal back on from their plan page. Next charge ${client.current_period_end || 'at renewal'}.`
+          : `They turned off automatic renewal from their plan page. Paid through ${client.current_period_end || 'n/a'}; nothing more will be charged.`,
+      });
+    } catch (e) { console.error('staff alert failed', e); }
+    const to = clip(client.signer_email || client.email, 200);
+    if (to && !on) {
+      const when = client.current_period_end ? new Date(`${client.current_period_end}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : 'the end of your paid year';
+      const link = agreementUrl(client.agreement_token);
+      const lines = ['Hi,', '', `Automatic renewal is now off for your ${client.business_name} website plan. You won't be charged again. Your website stays online through ${when}.`, '', 'Changed your mind? You can turn it back on any time from your plan page:', '', link, '', 'Chris'];
+      try {
+        await sendEmail(env, { to, subject: `Automatic renewal is off: ${client.business_name}`, text: lines.join('\n'), html: emailShell(linesToEmailHtml(lines, link, 'View my plan'), { heading: 'Automatic renewal turned off', preheader: `You won't be charged again. Your site stays online through ${when}.` }) });
+      } catch (e) { console.error('autopay-off confirmation email failed', e); }
+    }
+    return json({ ok: true, autopay: on }, 200, corsHeaders);
   }
 
   // POST /api/website-agreement/portal {token} -> Stripe billing portal (update card, turn off auto-renew)
@@ -622,7 +661,7 @@ export function createWebsitePlanHandlers(deps) {
         if (!autopayOn(client) || client.renewal_reminder_sent_for === periodStart || !to) return { handled: true, ok: true };
         const price = formatUsd(Number(obj.amount_due || client.annual_price_cents || WEBSITE_PLAN_PRICE_CENTS));
         const when = new Date(`${periodStart}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-        const lines = [hi, '', `Just a heads-up: your website plan for ${client.business_name} renews automatically on ${when} for ${price}. That covers another year of your domain, hosting, and any updates or new features you want.`, '', `Nothing to do on your end. If you need to update your card or turn off automatic renewal, use the "Manage billing" button on your plan page:`, '', link, '', 'Thanks for being a customer.', 'Chris'];
+        const lines = [hi, '', `Just a heads-up: your website plan for ${client.business_name} renews automatically on ${when} for ${price}. That covers another year of your domain, hosting, and any updates or new features you want.`, '', `Nothing to do on your end. Don't want to renew? You can turn off automatic renewal with one click on your plan page, and you can update your card there too:`, '', link, '', 'Thanks for being a customer.', 'Chris'];
         try {
           await sendEmail(env, { to, subject: `Your ${client.business_name} website renews on ${when}`, text: lines.join('\n'), html: emailShell(linesToEmailHtml(lines, link, 'View my plan'), { heading: 'Renewal reminder', preheader: `Your ${client.business_name} website renews on ${when}.` }) });
           await env.DB.prepare(`UPDATE website_clients SET renewal_reminder_sent_for = ?1, renewal_link_sent_at = datetime('now') WHERE id = ?2`).bind(periodStart, client.id).run();
@@ -772,7 +811,7 @@ export function createWebsitePlanHandlers(deps) {
       ? new Date(`${client.current_period_end}T12:00:00Z`).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
       : '';
     const defaultLines = auto
-      ? [hi, '', `Your website plan for ${client.business_name} renews automatically on ${renewOn} for ${price}. Nothing to do on your end.`, '', 'To update your card or turn off automatic renewal, use "Manage billing" on your plan page:', '', link, '', 'Thanks for being a customer.', 'Chris']
+      ? [hi, '', `Your website plan for ${client.business_name} renews automatically on ${renewOn} for ${price}. Nothing to do on your end.`, '', 'To update your card, or to turn off automatic renewal with one click, open your plan page:', '', link, '', 'Thanks for being a customer.', 'Chris']
       : isRenewal
       ? [hi, '', `Your website plan for ${client.business_name} renews on ${renewOn}. It's ${price} for another year: domain, hosting, and any updates or new features you need. You can also turn on automatic renewal so you never have to think about it.`, '', link, '', 'Thanks for being a customer.', 'Chris']
       : [hi, '', `Thanks for taking me up on the website for ${client.business_name}. Here's the short agreement to look over and sign, then you'll pay ${price} for the year on the next screen.`, '', link, '', 'Any questions, just reply, message me on Facebook, or call or text (302) 907-9162.', 'Chris'];
@@ -879,7 +918,7 @@ export function createWebsitePlanHandlers(deps) {
   }
 
   return {
-    handleAgreementGet, handleAgreementSign, handleAgreementCheckout, handleAgreementPortal,
+    handleAgreementGet, handleAgreementSign, handleAgreementCheckout, handleAgreementPortal, handleAgreementAutopay,
     handleWebsitePlanPaid, handleWebsitePlanStripeEvent,
     handleClientsList, handleClientSave, handleClientLink, handleClientStatus, handleClientStopAutopay, handleClientDelete, handleClientAgreement,
   };

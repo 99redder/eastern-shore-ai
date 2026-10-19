@@ -1047,10 +1047,11 @@ cd worker && wrangler deploy --config wrangler.toml
 ### Website Care Plan ($100/yr)
 - Public page `website-agreement.html?t=<token>` (noindex): shows the agreement, typed-name e-signature + checkbox, then Stripe Checkout. Same link handles renewals (Pay button opens 45 days before the paid-through date).
 - Worker module `worker/src/website-plan.js` (wired in `index.js` via `websitePlan()`):
-  - `GET /api/website-agreement?token=`, `POST /api/website-agreement/sign|checkout|portal` (public, origin-checked; sign/checkout take `autopay: bool`)
+  - `GET /api/website-agreement?token=`, `POST /api/website-agreement/sign|checkout|portal|autopay` (public, origin-checked; sign/checkout take `autopay: bool`)
   - `GET|POST /api/website-clients`, `POST /api/website-clients/link|status|stop-autopay|delete`, `GET /api/website-clients/agreement` (admin)
   - Webhook: `checkout.session.completed` with `metadata.checkout_type = website_plan` → `website_client_payments` row, client `active`, `current_period_end` +1 year, `tax_income` (category `Website Services`) + Stripe fee expense, deduped by session id.
-- **No automatic tax** on any of it: it's a service.
+- **Tax:** the plan price is tax-inclusive (agreement v2026-10-19.4+ says "The fee includes any Maryland sales and use tax"; checkout descriptions say so). Maryland's 3% tax on data/IT services (custom web design, hosting) applies, so the 3% portion of each payment (price x 3/103, $2.91 on $100) must be reported on the Maryland sales and use tax return. The ledger records the gross amount; the Form 202 work happens in the separate Maryland sales tax workflow, not here. No Stripe tax line is added.
+- **One-click cancel:** `POST /api/website-agreement/autopay {token, on}` sets `cancel_at_period_end` from the client's plan page ("Turn off automatic renewal" button, also "turn back on"). Sends the client a confirmation email and a staff alert. Renewal emails point to it.
 - **Auto-renew (default, added 2026-10-19):** the client picks "Renew automatically" or "I'll pay each year myself" when signing.
   - Auto-renew = Stripe Checkout `mode: subscription`, inline `price_data` with `recurring[interval]=year`. Subscription metadata carries `checkout_type=website_plan` + `website_client_id`.
   - A manual client already paid ahead can turn it on later from their link: checkout uses `subscription_data[trial_end]` = paid-through date, so the card is saved now and first charged at renewal (the $0 trial invoice is ignored).

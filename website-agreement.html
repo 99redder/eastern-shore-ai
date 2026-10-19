@@ -84,6 +84,12 @@
     .opt .tag { color: #fff; }
     .tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: var(--accent); color: #fff; border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
     .status-line { margin: 14px 0 0; }
+    .autopay-box { display: flex; align-items: center; justify-content: space-between; gap: 12px 18px; flex-wrap: wrap; margin-top: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: #F7F9FA; }
+    .autopay-box b { display: block; }
+    .autopay-box span { color: var(--muted); font-size: .92rem; }
+    .btn-outline { background: #fff; color: var(--ink); border: 1.5px solid #9AA3AE; }
+    .btn-outline:hover { background: #F1F3F5; }
+    .msg.ok { color: var(--ok); }
     .status-line.warn { color: var(--warn); font-weight: 600; }
     footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 22px; line-height: 1.7; }
     .loading { text-align: center; color: var(--muted); padding: 40px 0; }
@@ -170,6 +176,11 @@
             <div class="sigcap"><span id="signed-who"></span><span id="signed-when"></span></div>
           </div>
           <p id="paid-through" class="status-line"></p>
+          <div class="autopay-box no-print" id="autopay-box" hidden>
+            <div><b id="autopay-title">Automatic renewal is on</b><span id="autopay-sub"></span></div>
+            <button class="btn btn-outline" type="button" id="autopay-btn">Turn off automatic renewal</button>
+          </div>
+          <p class="msg" id="autopay-msg" role="status" hidden></p>
           <div class="actions no-print" style="margin-top:14px;">
             <button class="btn" type="button" id="pay-btn" hidden>Pay for the year</button>
             <button class="btn" type="button" id="billing-btn" hidden>Manage billing</button>
@@ -266,6 +277,20 @@
           once.hidden = !d.canPayOnce || waiting;
           once.textContent = d.paidThrough ? 'Or renew for one year, ' + money(d.priceCents) : 'Or pay for just one year';
           $('billing-btn').hidden = !d.canManageBilling;
+          const box = $('autopay-box');
+          box.hidden = !(d.autopay || d.autopayEnding);
+          if (d.autopay) {
+            $('autopay-title').textContent = 'Automatic renewal is on';
+            $('autopay-sub').textContent = "Don't want to renew? Turn it off with one click. Nothing else will be charged, and your site stays online through " + niceDate(d.paidThrough) + '.';
+            $('autopay-btn').textContent = 'Turn off automatic renewal';
+            $('autopay-btn').dataset.on = '0';
+          } else if (d.autopayEnding) {
+            $('autopay-title').textContent = 'Automatic renewal is off';
+            $('autopay-sub').textContent = 'Changed your mind? Turn it back on and your plan renews on ' + niceDate(d.paidThrough) + '.';
+            $('autopay-btn').textContent = 'Turn automatic renewal back on';
+            $('autopay-btn').dataset.on = '1';
+          }
+          if (location.hash === '#renewal' && !box.hidden) setTimeout(() => box.scrollIntoView({ block: 'center' }), 50);
           const fine = $('pay-fine');
           fine.hidden = pay.hidden;
           fine.textContent = d.paidThrough
@@ -323,6 +348,23 @@
       $('pay-btn').addEventListener('click', () => go($('pay-btn'), '/api/website-agreement/checkout', { token, autopay: true }, 'checkoutUrl'));
       $('pay-once-btn').addEventListener('click', () => go($('pay-once-btn'), '/api/website-agreement/checkout', { token, autopay: false }, 'checkoutUrl'));
       $('billing-btn').addEventListener('click', () => go($('billing-btn'), '/api/website-agreement/portal', { token }, 'url'));
+      $('autopay-btn').addEventListener('click', async () => {
+        const btn = $('autopay-btn'); const msg = $('autopay-msg');
+        const on = btn.dataset.on === '1';
+        btn.disabled = true; const label = btn.textContent; btn.textContent = on ? 'Turning on…' : 'Turning off…';
+        msg.hidden = true;
+        try {
+          await post('/api/website-agreement/autopay', { token, on });
+          msg.className = 'msg ok';
+          msg.textContent = on ? 'Automatic renewal is back on.' : "Done. Automatic renewal is off and you won't be charged again. A confirmation email is on its way.";
+          msg.hidden = false;
+          btn.disabled = false;
+          await load();
+        } catch (ex) {
+          msg.className = 'msg err'; msg.textContent = ex.message; msg.hidden = false;
+          btn.disabled = false; btn.textContent = label;
+        }
+      });
       document.querySelectorAll('input[name=renew]').forEach((r) => r.addEventListener('change', () => {
         $('sign-fine').textContent = r.value === 'auto' && r.checked
           ? 'Next you\'ll pay securely on Stripe. Your card is saved there for the yearly renewal. We never see your card number.'

@@ -152,7 +152,7 @@ export default {
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages', '/api/chat/push-config'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions', '/api/chat/alerts', '/api/chat/push-status'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old','/api/chat/push-subscribe','/api/chat/push-unsubscribe','/api/chat/push-ack'].includes(url.pathname) && request.method === 'POST');
       const isAdminAuthRoute = (url.pathname === '/api/admin/login' && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
-      const isWebsitePlanPublic = (url.pathname === '/api/website-agreement' && request.method === 'GET') || (['/api/website-agreement/sign', '/api/website-agreement/checkout', '/api/website-agreement/portal'].includes(url.pathname) && request.method === 'POST');
+      const isWebsitePlanPublic = (url.pathname === '/api/website-agreement' && request.method === 'GET') || (['/api/website-agreement/sign', '/api/website-agreement/checkout', '/api/website-agreement/portal', '/api/website-agreement/autopay'].includes(url.pathname) && request.method === 'POST');
       const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/stop-autopay', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
       if (!isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -181,6 +181,7 @@ export default {
     if (url.pathname === '/api/website-agreement' && request.method === 'GET') return websitePlan().handleAgreementGet(request, env, corsHeaders, url);
     if (url.pathname === '/api/website-agreement/sign' && request.method === 'POST') return websitePlan().handleAgreementSign(request, env, corsHeaders);
     if (url.pathname === '/api/website-agreement/checkout' && request.method === 'POST') return websitePlan().handleAgreementCheckout(request, env, corsHeaders);
+    if (url.pathname === '/api/website-agreement/autopay' && request.method === 'POST') return websitePlan().handleAgreementAutopay(request, env, corsHeaders);
     if (url.pathname === '/api/website-agreement/portal' && request.method === 'POST') return websitePlan().handleAgreementPortal(request, env, corsHeaders);
     if (url.pathname === '/api/website-clients/stop-autopay' && request.method === 'POST') return websitePlan().handleClientStopAutopay(request, env, corsHeaders, url);
     if (url.pathname === '/api/website-clients' && request.method === 'GET') return websitePlan().handleClientsList(request, env, corsHeaders, url);
