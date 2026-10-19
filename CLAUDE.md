@@ -1047,13 +1047,22 @@ cd worker && wrangler deploy --config wrangler.toml
 ### Website Care Plan ($100/yr)
 - Public page `website-agreement.html?t=<token>` (noindex): shows the agreement, typed-name e-signature + checkbox, then Stripe Checkout. Same link handles renewals (Pay button opens 45 days before the paid-through date).
 - Worker module `worker/src/website-plan.js` (wired in `index.js` via `websitePlan()`):
-  - `GET /api/website-agreement?token=`, `POST /api/website-agreement/sign`, `POST /api/website-agreement/checkout` (public, origin-checked)
-  - `GET|POST /api/website-clients`, `POST /api/website-clients/link|status|delete`, `GET /api/website-clients/agreement` (admin)
+  - `GET /api/website-agreement?token=`, `POST /api/website-agreement/sign|checkout|portal` (public, origin-checked; sign/checkout take `autopay: bool`)
+  - `GET|POST /api/website-clients`, `POST /api/website-clients/link|status|stop-autopay|delete`, `GET /api/website-clients/agreement` (admin)
   - Webhook: `checkout.session.completed` with `metadata.checkout_type = website_plan` → `website_client_payments` row, client `active`, `current_period_end` +1 year, `tax_income` (category `Website Services`) + Stripe fee expense, deduped by session id.
-- Checkout is a one-time $100 payment per year (no subscription, **no automatic tax**: it's a service).
+- **No automatic tax** on any of it: it's a service.
+- **Auto-renew (default, added 2026-10-19):** the client picks "Renew automatically" or "I'll pay each year myself" when signing.
+  - Auto-renew = Stripe Checkout `mode: subscription`, inline `price_data` with `recurring[interval]=year`. Subscription metadata carries `checkout_type=website_plan` + `website_client_id`.
+  - A manual client already paid ahead can turn it on later from their link: checkout uses `subscription_data[trial_end]` = paid-through date, so the card is saved now and first charged at renewal (the $0 trial invoice is ignored).
+  - Payments are recorded by `recordPayment()` keyed by Stripe **invoice id** for subscriptions (session id for one-time). `checkout.session.completed` and `invoice.paid` both try; the key dedupes. Same key goes in `tax_income.stripe_session_id` and the fee note.
+  - Webhook events handled in `handleWebsitePlanStripeEvent()`: `invoice.paid`, `invoice.payment_failed` (client emailed on first failure, row shows past due), `invoice.upcoming` (our renewal reminder email, once per renewal date), `customer.subscription.updated|deleted` (auto-renew on/off, staff alerts). Events not tied to a website client fall through as ignored.
+  - Invoice payment intent: older Stripe API versions have `invoice.payment_intent`; newer ones need `GET /v1/invoice_payments?invoice=`. `paymentIntentForInvoice()` handles both. Subscription id/metadata: `invoice.subscription_details` or `invoice.parent.subscription_details`.
+  - "Manage billing" on the agreement page opens the Stripe customer portal (`POST /api/website-agreement/portal`). The portal must be enabled in Stripe (Settings > Billing > Customer portal) in test and live.
+  - Admin: **Stop Auto-Renew** sets `cancel_at_period_end` (no more charges, keeps the paid year). **Mark Canceled** does the same automatically.
+  - The Stripe webhook endpoint must have these events enabled: `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `invoice.upcoming`, `customer.subscription.updated`, `customer.subscription.deleted`.
 - Agreement text lives in `WEBSITE_AGREEMENT_SECTIONS`. Any wording change must bump `WEBSITE_AGREEMENT_VERSION`. The exact signed text, version, SHA-256, signer name/email/IP/user agent are stored on the client row; business name, domain and price lock once signed.
 - Admin: **Website Clients** tab (`admin-websites.js`, loaded after `admin.js`, uses its globals and delegated events because the admin DOM re-mounts on login).
-- Migration: `worker/migrations/0032_create_website_clients.sql`.
+- Migrations: `worker/migrations/0032_create_website_clients.sql`, `0033_website_clients_autopay.sql`.
 
 Deploy (from the Mac):
 ```bash

@@ -73,6 +73,18 @@
     .signed-box { border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
     .signed-box .sigline { margin-top: 0; }
     .fine { color: var(--muted); font-size: .85rem; margin-top: 12px; }
+    .renew { border: 0; margin: 18px 0 0; padding: 0; }
+    .renew legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
+    .opt { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; cursor: pointer; }
+    .opt + .opt { margin-top: 8px; }
+    .opt input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--accent); }
+    .opt b { display: block; }
+    .opt span { color: var(--muted); font-size: .92rem; }
+    .opt:has(input:checked) { border-color: var(--accent); background: #F1F8FA; }
+    .opt .tag { color: #fff; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: var(--accent); color: #fff; border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+    .status-line { margin: 14px 0 0; }
+    .status-line.warn { color: var(--warn); font-weight: 600; }
     footer { text-align: center; color: var(--muted); font-size: .9rem; margin-top: 22px; line-height: 1.7; }
     .loading { text-align: center; color: var(--muted); padding: 40px 0; }
     @media (max-width: 600px) {
@@ -105,7 +117,7 @@
       </div>
 
       <div id="content" hidden>
-        <div class="banner ok" id="paid-banner" hidden><strong>Payment received. Thank you!</strong> You'll get a receipt from Stripe by email. Chris will reach out shortly about your domain and any changes you want.</div>
+        <div class="banner ok" id="paid-banner" hidden><strong>All set. Thank you!</strong> Stripe will email you a receipt for any payment. Chris will reach out shortly about your domain and any changes you want.</div>
         <div class="banner note" id="canceled-banner" hidden>Checkout was canceled and nothing was charged. You can pay whenever you're ready using the button below.</div>
 
         <h1>Website Care Agreement</h1>
@@ -137,12 +149,17 @@
             </div>
             <div class="sigline" id="sig-preview" aria-hidden="true"></div>
             <div class="sigcap"><span>Signature</span><span id="sig-date"></span></div>
+            <fieldset class="renew" id="renew-choice">
+              <legend>How do you want to renew each year?</legend>
+              <label class="opt"><input type="radio" name="renew" value="auto" checked><div><b>Renew automatically <span class="tag">Easiest</span></b><span>Your card is charged <span class="price-txt">$100</span> once a year. You'll get a reminder email before each renewal and can turn it off any time.</span></div></label>
+              <label class="opt"><input type="radio" name="renew" value="manual"><div><b>I'll pay each year myself</b><span>Pay for one year now. Chris will send you a renewal link before it's due.</span></div></label>
+            </fieldset>
             <label class="agree" for="agree"><input id="agree" type="checkbox"><span>I have read this agreement, I'm authorized to sign for <span class="biz"></span>, and I agree that typing my name above is my electronic signature.</span></label>
             <div class="actions">
               <button class="btn" type="submit" id="sign-btn">Sign and continue to payment</button>
             </div>
             <p class="msg err" id="sign-msg" role="alert" hidden></p>
-            <p class="fine">Next you'll pay securely on Stripe. We never see your card number.</p>
+            <p class="fine" id="sign-fine">Next you'll pay securely on Stripe. Your card is saved there for the yearly renewal. We never see your card number.</p>
           </form>
         </section>
 
@@ -152,9 +169,14 @@
             <div class="sigline" id="signed-sig"></div>
             <div class="sigcap"><span id="signed-who"></span><span id="signed-when"></span></div>
           </div>
-          <p id="paid-through" class="fine"></p>
+          <p id="paid-through" class="status-line"></p>
           <div class="actions no-print" style="margin-top:14px;">
             <button class="btn" type="button" id="pay-btn" hidden>Pay for the year</button>
+            <button class="btn" type="button" id="billing-btn" hidden>Manage billing</button>
+          </div>
+          <p class="fine no-print" id="pay-fine" hidden style="margin-top:8px;"></p>
+          <div class="actions no-print" style="margin-top:8px;">
+            <button class="btn btn-plain" type="button" id="pay-once-btn" hidden>Or pay for just one year</button>
             <button class="btn btn-plain" type="button" id="print-btn">Print or save a copy</button>
           </div>
           <p class="msg err" id="pay-msg" role="alert" hidden></p>
@@ -210,6 +232,7 @@
           const a = p.querySelector('a'); a.href = d.previewUrl; a.textContent = d.previewUrl.replace(/^https?:\/\//, '');
         }
         renderTerms(d.agreementText);
+        document.querySelectorAll('.price-txt').forEach((el) => { el.textContent = money(d.priceCents); });
         $('paid-banner').hidden = qs.get('paid') !== '1';
         $('canceled-banner').hidden = !(qs.get('canceled') === '1' && qs.get('paid') !== '1');
 
@@ -225,11 +248,29 @@
           $('signed-who').textContent = d.signerName;
           $('signed-when').textContent = 'Signed ' + niceDate(d.signedAt);
           const justPaid = qs.get('paid') === '1';
-          if (d.paidThrough) $('paid-through').textContent = 'Paid through ' + niceDate(d.paidThrough) + '.';
-          else if (justPaid) $('paid-through').textContent = 'Your payment is being confirmed. Refresh in a minute to see your paid-through date.';
+          const line = $('paid-through'); line.className = 'status-line';
+          let status = '';
+          if (d.paymentFailed) { status = 'Your last automatic payment didn\'t go through. Use "Manage billing" to update your card.'; line.className += ' warn'; }
+          else if (d.autopay && d.paidThrough) status = 'Paid through ' + niceDate(d.paidThrough) + '. Renews automatically on that date for ' + money(d.priceCents) + '.';
+          else if (d.autopayEnding && d.paidThrough) status = 'Paid through ' + niceDate(d.paidThrough) + '. Automatic renewal is off, so nothing more will be charged.';
+          else if (d.autopay) status = 'Automatic renewal is on.';
+          else if (d.paidThrough) status = 'Paid through ' + niceDate(d.paidThrough) + '.';
+          else if (justPaid) status = 'Your payment is being confirmed. Refresh in a minute to see your paid-through date.';
+          line.textContent = status;
+          const waiting = justPaid && !d.paidThrough && !d.autopay;
           const pay = $('pay-btn');
-          pay.hidden = !d.canPay || (justPaid && !d.paidThrough);
-          pay.textContent = (d.paidThrough ? 'Renew for another year, ' : 'Pay for the year, ') + money(d.priceCents);
+          pay.hidden = !d.canAutopay || waiting;
+          pay.dataset.autopay = '1';
+          pay.textContent = d.paidThrough ? 'Turn on automatic renewal' : 'Pay ' + money(d.priceCents) + ' and renew automatically';
+          const once = $('pay-once-btn');
+          once.hidden = !d.canPayOnce || waiting;
+          once.textContent = d.paidThrough ? 'Or renew for one year, ' + money(d.priceCents) : 'Or pay for just one year';
+          $('billing-btn').hidden = !d.canManageBilling;
+          const fine = $('pay-fine');
+          fine.hidden = pay.hidden;
+          fine.textContent = d.paidThrough
+            ? 'Saves your card with Stripe. Nothing is charged until ' + niceDate(d.paidThrough) + ', then ' + money(d.priceCents) + ' once a year until you turn it off.'
+            : money(d.priceCents) + ' today, then once a year on the same date until you turn it off. You\'ll get a reminder email before each renewal.';
         }
       }
 
@@ -258,6 +299,7 @@
           const data = await post('/api/website-agreement/sign', {
             token, signerName: name, signerTitle: $('signer-title').value.trim(), signerEmail: email,
             agree: true, agreementVersion: state.agreementVersion,
+            autopay: document.querySelector('input[name=renew]:checked').value === 'auto',
           });
           btn.textContent = 'Opening secure checkout…';
           location.href = data.checkoutUrl;
@@ -268,16 +310,24 @@
         }
       });
 
-      $('pay-btn').addEventListener('click', async () => {
-        const btn = $('pay-btn'); const msg = $('pay-msg'); msg.hidden = true;
-        btn.disabled = true; const label = btn.textContent; btn.textContent = 'Opening secure checkout…';
+      async function go(btn, path, body, field) {
+        const msg = $('pay-msg'); msg.hidden = true;
+        btn.disabled = true; const label = btn.textContent; btn.textContent = 'Opening secure Stripe page…';
         try {
-          const data = await post('/api/website-agreement/checkout', { token });
-          location.href = data.checkoutUrl;
+          const data = await post(path, body);
+          location.href = data[field];
         } catch (ex) {
           msg.textContent = ex.message; msg.hidden = false; btn.disabled = false; btn.textContent = label;
         }
-      });
+      }
+      $('pay-btn').addEventListener('click', () => go($('pay-btn'), '/api/website-agreement/checkout', { token, autopay: true }, 'checkoutUrl'));
+      $('pay-once-btn').addEventListener('click', () => go($('pay-once-btn'), '/api/website-agreement/checkout', { token, autopay: false }, 'checkoutUrl'));
+      $('billing-btn').addEventListener('click', () => go($('billing-btn'), '/api/website-agreement/portal', { token }, 'url'));
+      document.querySelectorAll('input[name=renew]').forEach((r) => r.addEventListener('change', () => {
+        $('sign-fine').textContent = r.value === 'auto' && r.checked
+          ? 'Next you\'ll pay securely on Stripe. Your card is saved there for the yearly renewal. We never see your card number.'
+          : 'Next you\'ll pay securely on Stripe. We never see your card number.';
+      }));
 
       $('print-btn').addEventListener('click', () => window.print());
 

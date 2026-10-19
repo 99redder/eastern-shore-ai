@@ -11,6 +11,7 @@
     link: `${BASE}/api/website-clients/link`,
     status: `${BASE}/api/website-clients/status`,
     del: `${BASE}/api/website-clients/delete`,
+    stopAutopay: `${BASE}/api/website-clients/stop-autopay`,
     agreement: `${BASE}/api/website-clients/agreement`,
   };
   const $ = (id) => document.getElementById(id);
@@ -48,9 +49,13 @@
   }
 
   function renewalText(c) {
-    if (!c.current_period_end) return 'Not paid yet';
-    const n = Number(c.days_to_renewal);
     const when = day(c.current_period_end);
+    const n = Number(c.days_to_renewal);
+    if (['past_due', 'unpaid'].includes(c.subscription_status)) return `<strong style="color:#ff9b9b;">Auto-renew card declined</strong>${c.last_payment_failed_at ? ` ${day(c.last_payment_failed_at)}` : ''}. Stripe is retrying; client was emailed to update their card.`;
+    if (c.autopay && c.current_period_end) return `<strong style="color:#4ade80;">Auto-renews ${when}</strong>${n <= 45 ? ` (in ${n} days)` : ''}`;
+    if (c.autopay) return '<strong style="color:#4ade80;">Auto-renew on</strong>';
+    if (!c.current_period_end) return 'Not paid yet';
+    if (c.autopay_ending) return `Paid through ${when}. <strong style="color:#fbbf24;">Auto-renew turned off</strong>, ends then.`;
     if (n < 0) return `<strong style="color:#ff9b9b;">Renewal ${Math.abs(n)} days overdue</strong> (was due ${when})`;
     if (n <= 45) return `<strong style="color:#fbbf24;">Renews in ${n} days</strong> (${when})`;
     return `Paid through ${when}`;
@@ -62,6 +67,7 @@
     el.innerHTML = [
       [s.active, 'Active'],
       [s.awaiting, 'Awaiting sign/pay'],
+      [s.autopay ?? 0, 'On auto-renew'],
       [s.renewingSoon, 'Renewing in 30 days'],
       [s.pastDue, 'Past due'],
       [money(s.annualRevenueCents), 'Yearly revenue'],
@@ -88,7 +94,7 @@
       const id = Number(c.id);
       const paid = Number(c.payments?.length || 0) > 0;
       const canceled = c.status === 'canceled';
-      const renewalDue = paid && c.days_to_renewal != null && c.days_to_renewal <= 45;
+      const renewalDue = paid && !c.autopay && c.days_to_renewal != null && c.days_to_renewal <= 45;
       const linkLabel = paid ? 'Email Renewal Link' : 'Email Agreement Link';
       const lines = [];
       lines.push(`${escHtml(c.contact_name || 'No contact name')}${c.email ? ` &bull; ${escHtml(c.email)}` : ''}${c.phone ? ` &bull; ${escHtml(c.phone)}` : ''}`);
@@ -110,7 +116,8 @@
         ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
         <div class="web-row-actions">
           ${canceled ? '' : `<button type="button" class="btn action-pop" data-web-action="copy" data-web-id="${id}">Copy ${paid ? 'Renewal' : 'Agreement'} Link</button>`}
-          ${canceled ? '' : `<button type="button" class="btn action-pop" data-web-action="email" data-web-id="${id}" ${!c.email ? 'title="Add an email first"' : ''}>${renewalDue || !paid ? linkLabel : 'Email Renewal Link (early)'}</button>`}
+          ${canceled ? '' : `<button type="button" class="btn action-pop" data-web-action="email" data-web-id="${id}" ${!c.email ? 'title="Add an email first"' : ''}>${c.autopay ? 'Email Renewal Reminder' : (renewalDue || !paid ? linkLabel : 'Email Renewal Link (early)')}</button>`}
+          ${c.autopay && !canceled ? `<button type="button" class="btn delete" data-web-action="stop-autopay" data-web-id="${id}">Stop Auto-Renew</button>` : ''}
           ${c.signed_at ? `<button type="button" class="btn action-pop" data-web-action="agreement" data-web-id="${id}">View Signed Agreement</button>` : ''}
           <button type="button" class="btn action-pop" data-web-action="edit" data-web-id="${id}">Edit</button>
           ${canceled
@@ -203,9 +210,15 @@ Browser: ${escHtml(a.signerUserAgent || '')}
 ${escHtml(a.text || '')}</div>`;
         return;
       }
+      if (action === 'stop-autopay') {
+        if (!(await openConfirmModal(`Turn off automatic renewal for ${c.business_name}? They stay paid through ${day(c.current_period_end) || 'the current year'} and won't be charged again. They can turn it back on from their agreement link.`, 'Stop Auto-Renew', 'Stop Auto-Renew'))) return;
+        await call(API.stopAutopay, { id });
+        await refresh();
+        return;
+      }
       if (action === 'cancel' || action === 'reactivate') {
         const next = action === 'cancel' ? 'canceled' : (c.first_paid_at ? 'active' : (c.signed_at ? 'signed' : 'prospect'));
-        if (action === 'cancel' && !(await openConfirmModal(`Mark ${c.business_name} as canceled? Their link stops working. Remember to hand off the domain and files if they ask.`, 'Cancel Client', 'Mark Canceled'))) return;
+        if (action === 'cancel' && !(await openConfirmModal(`Mark ${c.business_name} as canceled? Their link stops working${c.autopay ? ', and automatic renewal is turned off (no more charges; they keep the site through the paid year)' : ''}. Remember to hand off the domain and files if they ask.`, 'Cancel Client', 'Mark Canceled'))) return;
         await call(API.status, { id, status: next });
         await refresh();
         return;
