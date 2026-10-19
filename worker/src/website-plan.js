@@ -9,7 +9,7 @@
 // Subscription payments are recorded from invoice.paid (keyed by invoice id),
 // one-time payments from checkout.session.completed (keyed by session id).
 
-export const WEBSITE_AGREEMENT_VERSION = '2026-10-19.8';
+export const WEBSITE_AGREEMENT_VERSION = '2026-10-19.9';
 export const WEBSITE_PLAN_PRICE_CENTS = 10000;
 
 // Canonical agreement text. Placeholders: {{business}}, {{price}}, {{domain}}.
@@ -34,7 +34,7 @@ export const WEBSITE_AGREEMENT_SECTIONS = [
   ['Limit of liability', 'Each party\'s total liability under this Agreement is limited to the fees Client paid in the 12 months before the claim. Neither party is liable for indirect or consequential damages, such as lost profits or lost business. These limits do not apply to fees Client owes or to either party\'s obligations under the Indemnity section.'],
   ['Events outside anyone\'s control', 'Neither party is responsible for delays or failures caused by events outside its reasonable control, such as severe weather, natural disasters, power or internet outages, or failures of third-party providers.'],
   ['Relationship and notices', 'Provider is an independent contractor, not an employee or partner of Client. Notices under this Agreement may be sent by email: to Client at the email address on file, and to Provider at contact@easternshore.ai.'],
-  ['Portfolio', 'Provider may list the website as an example of its work. Client can opt out at any time by asking.'],
+  ['Portfolio', 'Client agrees that Provider may feature the website in the Website Design portfolio on easternshore.ai and in Provider\'s own marketing, including social media. A feature may show the business name, logo, screenshots of the website, a link to it, and a short description of the work. Provider will never share Client\'s private information or customer data in a feature. Client can ask Provider to remove a feature at any time, and Provider will take it down within 10 business days.'],
   ['General', 'This Agreement is governed by the laws of the State of Maryland, with venue in the courts of Wicomico County. It is the entire agreement between the parties about the website and can only be changed in writing (email is fine) agreed to by both parties. If any part of this Agreement is found unenforceable, the rest stays in effect. Not enforcing a term is not a waiver of it. Neither party may transfer this Agreement without the other\'s consent, except to a successor that takes over its business, with notice. Sections that by their nature should continue after this Agreement ends (including ownership and handoff, confidentiality, indemnity, and limit of liability) will continue. Both parties agree to sign and receive this Agreement, notices, and receipts electronically, and that signing electronically has the same effect as signing on paper. Client may ask for a paper copy at any time.'],
 ];
 
