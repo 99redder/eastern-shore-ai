@@ -134,6 +134,9 @@
     .web-summary div { border:1px solid var(--line); background:#10121a; padding:.45rem .7rem; min-width:120px; }
     .web-summary b { display:block; font-size:1.25rem; color:var(--text); }
     .web-summary span { font-size:.82rem; color:var(--muted); }
+    #websites-card .invoice-flow-note { font-size:.92rem; }
+    #websites-card .admin-row label, #websites-card .admin-row .btn { font-size:.92rem; }
+    #websites-card .admin-list { font-size:.92rem; }
     .web-form { border:1px solid var(--line); background:#10121a; padding:.7rem; margin-bottom:.6rem; }
     .web-form-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:.5rem .8rem; }
     .web-form-grid .web-span { grid-column:1 / -1; }
@@ -723,11 +726,11 @@
         </div>
         <div id="websites-body">
           <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
-            <p class="invoice-flow-note">$100/yr Website Care Plan. Add a business, send them the agreement link, and they sign and pay on <code>/website-agreement.html</code>. Paid years, renewal dates, and income post here automatically from Stripe.</p>
+            <p class="invoice-flow-note">Website Care Plan clients. Add a business with its yearly price, send the agreement link, and they sign and pay online. Each client keeps the price they signed at. Payments, renewal dates, and income post here automatically from Stripe.</p>
             <div id="web-summary" class="web-summary"></div>
             <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin:.6rem 0 .5rem; align-items:center;">
               <label for="web-filter" style="margin:0;">Show</label>
-              <select id="web-filter" style="max-width:200px;">
+              <select id="web-filter" style="max-width:220px; font-size:.92rem; padding:.5rem .6rem;">
                 <option value="open">Open (not canceled)</option>
                 <option value="renewing">Renewing in 45 days</option>
                 <option value="awaiting">Awaiting signature/payment</option>
@@ -747,7 +750,7 @@
                 <div><label for="web-phone">Phone</label><input id="web-phone" type="text"></div>
                 <div><label for="web-preview">Preview site URL</label><input id="web-preview" type="text" placeholder="https://easternshore.ai/garcias"></div>
                 <div><label for="web-domain">Domain (for the agreement)</label><input id="web-domain" type="text" placeholder="garciastireshop.com"></div>
-                <div><label for="web-price">Price per year ($)</label><input id="web-price" type="number" min="0" step="1" value="100"></div>
+                <div><label for="web-price">Price per year ($)</label><input id="web-price" type="number" min="1" step="0.01" value="100" inputmode="decimal"></div>
                 <div class="web-span"><label for="web-notes">Notes</label><textarea id="web-notes" rows="2"></textarea></div>
               </div>
               <p id="web-form-lock" class="web-muted" hidden>Signed: business name, domain, and price are locked to what they signed.</p>
@@ -1281,6 +1284,6 @@
   </div>
 
   <script src="/admin.js?v=admin-websites-1"></script>
-  <script src="/admin-websites.js?v=2"></script>
+  <script src="/admin-websites.js?v=3"></script>
 </body>
 </html>

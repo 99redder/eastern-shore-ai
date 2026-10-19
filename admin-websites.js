@@ -1,4 +1,4 @@
-// ===== Website Clients (Website Care Plan, $100/yr) =====
+// ===== Website Clients (Website Care Plan, price set per client) =====
 // Loaded after admin.js; uses its globals (CONTACT_API_URL, adminSessionToken,
 // escHtml, openErrorModal, openSuccessModal, openConfirmModal, adminSessionActive).
 // The admin DOM is re-mounted from a <template> on login, so all wiring is
@@ -156,7 +156,8 @@
     $('web-phone').value = c?.phone || '';
     $('web-preview').value = c?.preview_url || '';
     $('web-domain').value = c?.domain_name || '';
-    $('web-price').value = c ? Math.round(Number(c.annual_price_cents || 0) / 100) : 100;
+    const cents = c ? Number(c.annual_price_cents || 0) : 10000;
+    $('web-price').value = cents % 100 ? (cents / 100).toFixed(2) : String(cents / 100);
     $('web-notes').value = c?.notes || '';
     const locked = !!c?.signed_at;
     ['web-business', 'web-domain', 'web-price'].forEach((id) => { $(id).disabled = locked; });

@@ -1,7 +1,8 @@
-// Website Care Plan: agreement e-signing, $100/yr Stripe checkout, renewals, admin.
+// Website Care Plan: agreement e-signing, yearly Stripe checkout (price set per client;
+// WEBSITE_PLAN_PRICE_CENTS is only the default), renewals, admin.
 //
 // Flow: admin adds a client -> sends agreement link -> client signs on
-// /website-agreement.html?t=TOKEN -> Stripe Checkout ($100, no tax) ->
+// /website-agreement.html?t=TOKEN -> Stripe Checkout (client's annual_price_cents, no tax) ->
 // webhook marks the year paid and posts income + Stripe fee to the books.
 // Renewal: automatic by default (Stripe subscription, yearly), or a one-time
 // payment per year via the same link if the client prefers to pay by hand.
@@ -623,7 +624,8 @@ export function createWebsitePlanHandlers(deps) {
     try { d = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
     const businessName = clip(d.businessName, 160);
     if (!businessName) return json({ ok: false, error: 'Business name is required' }, 400, corsHeaders);
-    const price = Math.max(0, Math.round(Number(d.annualPriceCents ?? WEBSITE_PLAN_PRICE_CENTS)));
+    const price = Math.round(Number(d.annualPriceCents ?? WEBSITE_PLAN_PRICE_CENTS));
+    if (!Number.isFinite(price) || price < 100) return json({ ok: false, error: 'Price must be at least $1.00 per year.' }, 400, corsHeaders);
     const vals = [businessName, clip(d.contactName, 120), clip(d.email, 200), clip(d.phone, 40), clip(d.previewUrl, 300), clip(d.domainName, 120), price, clip(d.notes, 4000)];
     const id = Number(d.id || 0);
     if (id) {
