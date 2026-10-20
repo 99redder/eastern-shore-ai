@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://challenges.cloudflare.com https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VDFQV9B1J"></script>
   <script>
@@ -2990,6 +2990,52 @@
 
       if (!fab || !drawer) return;
 
+      // Bot check (Cloudflare Turnstile). The first question of a conversation
+      // sends a Turnstile token; the server answers with a signed pass that
+      // covers the rest of the conversation. Empty site key = check disabled.
+      const TURNSTILE_SITE_KEY = '';
+      let askkPass = null;
+      let turnstileWidget = null;
+      let turnstileWaiter = null;
+
+      function loadTurnstile() {
+        if (window.turnstile) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+          s.async = true;
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error('turnstile load failed'));
+          document.head.appendChild(s);
+        });
+      }
+
+      async function getTurnstileToken() {
+        if (!TURNSTILE_SITE_KEY) return null;
+        await loadTurnstile();
+        return new Promise((resolve, reject) => {
+          turnstileWaiter = { resolve, reject };
+          const done = (fn, v) => { const w = turnstileWaiter; turnstileWaiter = null; if (w) w[fn](v); };
+          if (turnstileWidget === null) {
+            turnstileWidget = window.turnstile.render('#askk-turnstile', {
+              sitekey: TURNSTILE_SITE_KEY,
+              appearance: 'interaction-only',
+              execution: 'execute',
+              callback: (t) => done('resolve', t),
+              'error-callback': () => done('reject', new Error('verification failed')),
+              'expired-callback': () => done('reject', new Error('verification expired')),
+            });
+          } else {
+            window.turnstile.reset(turnstileWidget);
+          }
+          window.turnstile.execute(turnstileWidget);
+        });
+      }
+
+      function escapeHtml(text) {
+        return String(text ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
       let conversationHistory = [];
       let isTyping = false;
       // Human-handoff state
@@ -3061,7 +3107,10 @@
       function addMessage(role, content, senderName) {
         const msg = document.createElement('div');
         msg.className = `askk-msg ${role}`;
-        // Basic markdown-like formatting for assistant/staff responses
+        // Escape everything, then apply basic markdown-like formatting for
+        // assistant/staff responses.
+        const raw = String(content ?? '');
+        content = escapeHtml(raw);
         if (role === 'assistant' || role === 'staff') {
           content = content
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -3069,7 +3118,7 @@
         }
         // Add sender name for staff messages
         if (role === 'staff' && senderName) {
-          msg.innerHTML = `<strong style="font-size:0.8rem;opacity:0.8;">${senderName}</strong><br>${content}`;
+          msg.innerHTML = `<strong style="font-size:0.8rem;opacity:0.8;">${escapeHtml(senderName)}</strong><br>${content}`;
         } else {
           msg.innerHTML = content;
         }
@@ -3077,7 +3126,7 @@
         messagesEl.scrollTop = messagesEl.scrollHeight;
 
         if (role !== 'system') {
-          conversationHistory.push({ role, content: content.replace(/<[^>]+>/g, '') });
+          conversationHistory.push({ role, content: raw });
         }
       }
 
@@ -3113,17 +3162,26 @@
         const pageContext = collectPageContext();
 
         try {
-          const res = await fetch(ASKK_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              message: userText.trim(),
-              history: conversationHistory.slice(-10),
-              context: pageContext
-            })
-          });
-
-          const data = await res.json();
+          const ask = async (turnstileToken) => {
+            const res = await fetch(ASKK_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                message: userText.trim(),
+                history: conversationHistory.slice(-10),
+                context: pageContext,
+                pass: askkPass,
+                turnstileToken
+              })
+            });
+            return res.json();
+          };
+          let data = await ask(askkPass ? null : await getTurnstileToken().catch(() => null));
+          if (data.needsVerification) {
+            askkPass = null;
+            data = await ask(await getTurnstileToken().catch(() => null));
+          }
+          if (data.pass) askkPass = data.pass;
           hideTyping();
 
           if (data.ok && data.reply) {
@@ -3554,6 +3612,7 @@
     </div>
 
     <div class="askk-input-area">
+      <div id="askk-turnstile" style="display:flex;justify-content:center"></div>
       <div class="askk-input-row">
         <textarea class="askk-input" id="askk-input" placeholder="Ask about the Survival Node..." rows="1"></textarea>
         <button class="askk-send" id="askk-send" aria-label="Send">→</button>

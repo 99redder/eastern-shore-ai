@@ -73,6 +73,19 @@ All routes in `worker/src/index.js`:
 
 Response shape: `{ ok: boolean, error?: string }`
 
+## Ask K on Claude, with safeguards (added 2026-10-20)
+
+`worker/src/ask-k-claude.js` (`answerAskK`, `checkAskKVisitor`), called from `handleAskK`:
+
+1. **Rate limits** (`checkAskKRateLimit`): 10 questions per IP per 15 min, 40 per day; 20 per conversation (`ASKK_CONVERSATION_LIMIT`).
+2. **Bot check**: Cloudflare Turnstile on `node.html` (`TURNSTILE_SITE_KEY` in the page; `TURNSTILE_SECRET_KEY` secret). A verified token gets a signed conversation pass (HMAC with `ASKK_PASS_SECRET`, 2 h) sent back as `pass`. Skipped while the secret isn't set, and for `/api/admin/ask-k`.
+3. **Topic gate**: keyword rules, then a tiny newest-Claude-Haiku call answering ON/OFF. Off-topic requests get a canned reply and never reach Opus.
+4. **Answer**: newest `claude-opus-*` (Models API, cached daily in `askk_meta`; next newest if one is retired), effort `low`, knowledge cached as the first system block, server-side refusal fallback.
+5. **Backup**: if Claude is out of credit, over `ASKK_CLAUDE_DAILY_BUDGET`, or failing, `generateAskKAnswer` (MiniMax via `ASKK_*` secrets) answers under `ASKK_MINIMAX_DAILY_BUDGET`; past both, a "busy, call us" reply. Staff get one email per day per reason (`sendStaffOperationalAlert`).
+6. **Spend**: estimated per answer from token usage (priced high), per Eastern day in `askk_daily` (`claude`, `minimax`, plus `offtopic` / `busy` counters).
+
+**Deploy the worker with `npx wrangler deploy --config wrangler.toml`.** Without `--config`, wrangler picks up the repo root's `wrangler.jsonc` (the static site) and deploys the website over the API worker.
+
 ## Survival Node Ask K + Live Support (added 2026-03-11)
 
 ### Overview
