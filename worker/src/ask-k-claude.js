@@ -83,7 +83,7 @@ async function setMeta(env, key, value) {
 }
 
 // provider: 'claude' (answers + topic checks), 'minimax', or a counter such
-// as 'offtopic' / 'busy' (questions only).
+// as 'offtopic' / 'busy' / 'unverified' / 'ratelimited' (questions only).
 async function addDaily(env, provider, cost = 0, questions = 0) {
   try {
     await env.DB.prepare(`INSERT INTO askk_daily (day, provider, spent, questions) VALUES (?, ?, ?, ?)
@@ -368,4 +368,49 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
   await notifyOnce(env, deps.notify, 'busy', 'Ask K is paused',
     `Ask K on the Survival Node page can't answer right now: ${why}, and the backup provider is over its daily budget ($${minimaxBudget.toFixed(2)}) or failing. Visitors are being shown your phone number and contact form instead.`);
   return { reply: ASKK_BUSY_REPLY, provider: 'busy' };
+}
+
+// Counts a blocked request (failed bot check, rate limit) for the daily email.
+export async function recordAskKBlocked(env, kind) {
+  try {
+    await ensureTables(env);
+    await addDaily(env, kind, 0, 1);
+  } catch (e) {
+    console.error('askk blocked count failed:', e);
+  }
+}
+
+// Daily summary email (cron in wrangler.toml): yesterday's Ask K activity in
+// Eastern time, plus Claude's month-to-date spend. No AI calls.
+export async function sendAskKDailySummary(env, notify, now = new Date()) {
+  await ensureTables(env);
+  const yesterday = easternDay(new Date(now.getTime() - 24 * 3600 * 1000));
+  const rows = await env.DB.prepare('SELECT provider, spent, questions FROM askk_daily WHERE day = ?').bind(yesterday).all();
+  const by = Object.fromEntries((rows.results || []).map(r => [r.provider, r]));
+  const n = (k) => Number(by[k]?.questions || 0);
+  const $ = (v) => `$${Number(v || 0).toFixed(2)}`;
+  const month = yesterday.slice(0, 7);
+  const mtd = await env.DB.prepare("SELECT SUM(spent) AS s FROM askk_daily WHERE provider = 'claude' AND substr(day, 1, 7) = ?").bind(month).first();
+  const answered = n('claude') + n('minimax');
+  const blocked = n('offtopic') + n('unverified') + n('ratelimited');
+  const lines = [
+    `Ask K on the Survival Node page — ${yesterday}`,
+    '',
+    `Answered: ${answered}`,
+    `  • Claude: ${n('claude')} answers, about ${$(by.claude?.spent)} (daily cap ${$(budget(env, 'ASKK_CLAUDE_DAILY_BUDGET', 3))})`,
+    `  • MiniMax backup: ${n('minimax')} answers, about ${$(by.minimax?.spent)}`,
+    `Blocked: ${blocked}`,
+    `  • Off-topic requests refused: ${n('offtopic')}`,
+    `  • Failed the bot check: ${n('unverified')}`,
+    `  • Hit a rate limit: ${n('ratelimited')}`,
+    `"Busy, contact us" replies: ${n('busy')}`,
+    '',
+    `Claude spend so far in ${month}: about ${$(mtd?.s)}`,
+    '',
+    'Amounts are estimates from token counts, priced slightly high. Exact figures: console.anthropic.com → Usage.',
+  ];
+  const subject = answered || blocked
+    ? `Ask K yesterday: ${answered} answered, ${blocked} blocked, about ${$(Number(by.claude?.spent || 0) + Number(by.minimax?.spent || 0))}`
+    : 'Ask K yesterday: no questions';
+  await notify(env, { subject, text: lines.join('\n') });
 }

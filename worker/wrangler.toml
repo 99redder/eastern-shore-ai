@@ -2,6 +2,12 @@ name = "eastern-shore-ai-contact"
 main = "src/index.js"
 compatibility_date = "2026-02-15"
 
+# Daily Ask K summary email at 12:00 UTC (8 AM EDT / 7 AM EST). This is the
+# Cloudflare account's 5th and last free cron trigger (rentals uses 3,
+# just-in-case 1).
+[triggers]
+crons = ["0 12 * * *"]
+
 # Lets src/index.js import askk-survival-node-knowledge.md as text.
 [[rules]]
 type = "Text"

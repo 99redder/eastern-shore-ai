@@ -8,7 +8,7 @@ import {
 } from './support-push.js';
 import { createWebsitePlanHandlers } from './website-plan.js';
 import { createPreviewLeadHandlers } from './preview-leads.js';
-import { answerAskK, checkAskKVisitor, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
+import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
 import ASKK_SURVIVAL_NODE_KNOWLEDGE from '../askk-survival-node-knowledge.md';
 
 let _websitePlan = null;
@@ -566,6 +566,11 @@ export default {
       console.error('Unhandled worker error', err);
       return json({ ok: false, error: 'Internal server error' }, 500, buildCorsHeaders(request, env));
     }
+  },
+
+  // Daily Ask K summary email (cron in wrangler.toml).
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(sendAskKDailySummary(env, sendStaffOperationalAlert).catch(e => console.error('Ask K daily summary failed', e)));
   },
 
   async queue(batch, env) {
@@ -6276,7 +6281,7 @@ function escapeHtml(input) {
 async function handleAskK(request, env, corsHeaders, url, { admin = false } = {}) {
   if (!admin) {
     const limited = await checkAskKRateLimit(request, env, corsHeaders);
-    if (limited) return limited;
+    if (limited) { await recordAskKBlocked(env, 'ratelimited'); return limited; }
   }
 
   let data;
@@ -6315,6 +6320,7 @@ async function handleAskK(request, env, corsHeaders, url, { admin = false } = {}
   if (!admin) {
     const visitor = await checkAskKVisitor(env, { pass: data.pass, turnstileToken: data.turnstileToken, ip: getClientIp(request) });
     if (!visitor.ok) {
+      if (data.turnstileToken || data.pass) await recordAskKBlocked(env, 'unverified');
       return json({ ok: false, needsVerification: true, error: 'Please confirm you are human, then send your question again.' }, 403, corsHeaders);
     }
     pass = visitor.pass;
@@ -6324,7 +6330,7 @@ async function handleAskK(request, env, corsHeaders, url, { admin = false } = {}
         windowMs: 2 * 60 * 60 * 1000,
         error: "This conversation has reached its question limit. For more help, call (302) 907-9162 or use the contact form."
       }, corsHeaders);
-      if (capped) return capped;
+      if (capped) { await recordAskKBlocked(env, 'ratelimited'); return capped; }
     }
   }
 

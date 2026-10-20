@@ -82,7 +82,8 @@ Response shape: `{ ok: boolean, error?: string }`
 3. **Topic gate**: keyword rules, then a tiny newest-Claude-Haiku call answering ON/OFF. Off-topic requests get a canned reply and never reach Opus.
 4. **Answer**: newest `claude-opus-*` (Models API, cached daily in `askk_meta`; next newest if one is retired), effort `low`, knowledge cached as the first system block, server-side refusal fallback.
 5. **Backup**: if Claude is out of credit, over `ASKK_CLAUDE_DAILY_BUDGET`, or failing, `generateAskKAnswer` (MiniMax via `ASKK_*` secrets) answers under `ASKK_MINIMAX_DAILY_BUDGET`; past both, a "busy, call us" reply. Staff get one email per day per reason (`sendStaffOperationalAlert`).
-6. **Spend**: estimated per answer from token usage (priced high), per Eastern day in `askk_daily` (`claude`, `minimax`, plus `offtopic` / `busy` counters).
+6. **Spend**: estimated per answer from token usage (priced high), per Eastern day in `askk_daily` (`claude`, `minimax`, plus `offtopic` / `busy` / `unverified` / `ratelimited` counters).
+7. **Daily email**: `sendAskKDailySummary` (the worker's `scheduled` handler, cron `0 12 * * *` = 8 AM EDT / 7 AM EST) emails `TO_EMAIL` yesterday's answers, blocks, spend and Claude's month-to-date spend. No AI calls. This is the Cloudflare account's 5th and last free cron trigger.
 
 **Deploy the worker with `npx wrangler deploy --config wrangler.toml`.** Without `--config`, wrangler picks up the repo root's `wrangler.jsonc` (the static site) and deploys the website over the API worker.
 
