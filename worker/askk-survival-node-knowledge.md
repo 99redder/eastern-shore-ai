@@ -78,7 +78,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **Is it ready out of the box?** Yes — hardened OS, full software suite and the Survival Node AI Agent are already set up. For best results, read through the User Guide once to lock in maps, local data and fallback settings.
 
-**Calls and texts?** No SIM card, activation or carrier plan is included. The phone is deep-debloated and OS-modified for offline use; it is not designed for cellular service and may not work with a carrier. Eastern Shore AI makes no promise it works with any carrier or SIM, and the lack of cellular service is not a defect. It's meant as a dedicated offline device.
+**Can it make calls or send texts?** No. Calls and texts aren't part of what the Survival Node is designed to do. It ships without a SIM card or carrier plan, and its operating system has been deep-debloated and modified for offline use. We haven't tested it with any cellular carrier, so even with a SIM card installed there's no guarantee it can make calls, send texts, or reach 911. Don't count on it to call for help in an emergency — keep a regular phone for that. Everything the Survival Node is built for — offline AI, maps, first-aid guides and reference libraries — works with no signal at all, and the included Briar app can message other Briar users nearby over Bluetooth or Wi-Fi without cell service. (The Terms of Sale say the same: not designed or tested for cellular service, calls and 911 may not work even with a SIM, and lack of cellular service is not a defect.)
 
 **Can I use normal apps like banking or streaming?** Some mainstream apps (banking, DRM streaming, Google-dependent apps) may not work. We recommend using it only for emergencies.
 
@@ -126,7 +126,7 @@ For residents of **Maryland's Eastern Shore only**, with a compatible Android ph
 
 testing.html has pre-shipment test data for every component plus two demo videos (Quick Unboxing; Components & Pre-Shipment Testing). Mention it for questions about testing or proof.
 
-**Core unit:** 5,000 mAh rated battery; average measured 4,890 mAh (97.8%); minimum acceptance threshold 88%. 8GB LPDDR4X RAM and 128GB storage confirmed; about 57GB free after the OS and software. GPS lock and microphone confirmed. 0 carrier apps, background data disabled. Cold boot 28 seconds; the Survival Node Pal loads on boot.
+**Core unit:** 5,000 mAh rated battery; average measured 4,890 mAh (97.8%); minimum acceptance threshold 88% (units below it are rejected); nearly every unit tested so far has measured 95% or higher. 8GB LPDDR4X RAM and 128GB storage confirmed; about 57GB free after the OS and software. GPS lock and microphone confirmed. 0 carrier apps, background data disabled. Cold boot 28 seconds; the Survival Node Pal loads on boot.
 
 **Hard case:** model 342413, IP67, 0.565 cu ft. Interior 340 × 235 × 126 mm (13.39 × 9.25 × 4.96 in); exterior 380 × 300 × 140 mm (14.96 × 11.81 × 5.51 in); 1.8 kg (3.97 lb). Water test: submerged 2 ft for 5 minutes, no moisture inside. Drop test: 6 ft onto concrete, 4 drops, no cracks, latches held. Tested on one case of the same model (3/10/2026); every case is inspected before shipping.
 

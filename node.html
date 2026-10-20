@@ -1327,8 +1327,8 @@
         },
         {
           "@type": "Question",
-          "name": "Can the Survival Node make calls and texts without internet?",
-          "acceptedAnswer": { "@type": "Answer", "text": "It is a fully functional phone but does not come with a SIM card. With a SIM installed, it makes standard calls and texts over any available carrier signal. Without any signal at all, everything in the software suite still works: AI chat, offline maps, first aid guides, and all reference libraries." }
+          "name": "Can the Survival Node make calls or send texts?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Calls and texts aren't part of what the Survival Node is designed to do. It ships without a SIM card or carrier plan, and its operating system has been deep-debloated and modified for offline use. We haven't tested it with any cellular carrier, so even with a SIM card installed there's no guarantee it can make calls, send texts, or reach 911. Don't count on it to call for help in an emergency — keep a regular phone for that. Everything the Survival Node is built for — offline AI, maps, first-aid guides and reference libraries — works with no signal at all, and the included Briar app can message other Briar users nearby over Bluetooth or Wi-Fi without cell service." }
         },
         {
           "@type": "Question",
@@ -1839,7 +1839,7 @@
             <p><strong>Why a phone specifically — and why 8GB RAM?</strong></p>
             <ul style="margin:.4rem 0 .6rem; padding-left:1.2rem; line-height:1.7;">
               <li><strong>Processing power to run models locally:</strong> Most phones don't have enough RAM to run a meaningful local AI model at all. We specifically source 8GB RAM units because that's the minimum floor for loading a capable quantized LLM in memory and getting real, useful output — not a toy chatbot. Raspberry Pi builds often hit this same wall: the 8GB Pi 5 is close, but then you're back to power draw and form factor problems.</li>
-              <li><strong>The perfect survival app platform:</strong> A phone already has offline maps, a GPS chip, a camera, a flashlight, a compass, Bluetooth, a SIM slot for cellular when towers are up, and a mature app ecosystem of survival and field-reference tools. A Raspberry Pi needs peripherals, a screen, a keyboard, and a case before it's even usable in the field.</li>
+              <li><strong>The perfect survival app platform:</strong> A phone already has offline maps, a GPS chip, a camera, a flashlight, a compass, Bluetooth, and a mature app ecosystem of survival and field-reference tools. A Raspberry Pi needs peripherals, a screen, a keyboard, and a case before it's even usable in the field.</li>
               <li><strong>Ask questions with your voice:</strong> The built-in microphone lets you speak your question instead of typing it. In a field situation — hands dirty, cold, dealing with an injury or equipment problem — being able to just ask out loud is a real advantage over a keyboard.</li>
               <li><strong>Pocketable and deployable:</strong> The Survival Node fits in a cargo pocket or a pack. A Raspberry Pi build requires a bag just to carry the components. A laptop requires its own case and charger. In an emergency, form factor matters.</li>
               <li><strong>Sealed and ready:</strong> Our phone arrives with the OS hardened, software pre-loaded, maps downloaded, AI persona configured, and battery tested. A Raspberry Pi build requires flashing an OS image, wiring components, solving dependencies, and configuring everything yourself — none of which you want to be doing when you actually need it.</li>
@@ -1894,8 +1894,8 @@
         </details>
 
         <details>
-          <summary>Can it make calls and texts without internet?</summary>
-          <p class="answer">Yes — the Survival Node is a fully functional phone but does not come with a SIM card. With a SIM card installed, it can make standard calls and send texts over any available carrier signal, just like any other phone. What it does completely without any signal (no carrier, no Wi-Fi) is everything in the software suite: AI chat, offline maps, first aid guides, and all reference libraries.</p>
+          <summary>Can it make calls or send texts?</summary>
+          <p class="answer">No. Calls and texts aren't part of what the Survival Node is designed to do. It ships without a SIM card or carrier plan, and its operating system has been deep-debloated and modified for offline use. We haven't tested it with any cellular carrier, so even with a SIM card installed there's no guarantee it can make calls, send texts, or reach 911. Don't count on it to call for help in an emergency — keep a regular phone for that. Everything the Survival Node is built for — offline AI, maps, first-aid guides and reference libraries — works with no signal at all, and the included Briar app can message other Briar users nearby over Bluetooth or Wi-Fi without cell service.</p>
         </details>
 
         <details>
@@ -1931,7 +1931,7 @@
         <p><strong>Solar Battery — Manufacturer Notices:</strong> Do not charge and discharge the solar battery simultaneously; input and output ports should not be connected at the same time, as doing so will reduce product service life and may prevent connected devices from charging. Keep this product dry — rain, moisture, and liquids will corrode electronic components and circuitry. Do not attempt to disassemble this product.</p>
         <p><strong>Silica Pack — Manufacturer Notices:</strong> Recharge the included indicator silica packs only as directed by the manufacturer. Keep the indicator side facing up during microwave recharge, monitor the packs while heating, and do not exceed the manufacturer’s stated heat limit of <strong>210°F</strong>. If a pack appears damaged, leaking, or overheated, discard and replace it.</p>
         <p style="background:rgba(255,80,80,0.08); border:2px solid rgba(255,100,100,0.5); border-radius:6px; padding:.75rem 1rem; margin:.6rem 0;">
-          <strong style="color:#ff8080;">⚠ No SIM Card — Not Designed for Cellular Service:</strong> No SIM card is included and no activation code, carrier plan, or cellular service of any kind is provided with this purchase. This device has been deep-debloated and OS-modified specifically for offline, off-grid use. It is <strong>not designed to be used with a cellular carrier</strong>, and it is possible that it cannot be used with one. Eastern Shore AI, LLC makes no representation that this device is compatible with any carrier network, SIM card, or cellular service plan. By completing checkout the buyer acknowledges that this device is purchased for its <strong>offline capabilities only</strong>, and that the absence of cellular connectivity is not a defect.
+          <strong style="color:#ff8080;">⚠ No SIM Card — Not Designed for Cellular Service:</strong> No SIM card is included and no activation code, carrier plan, or cellular service of any kind is provided with this purchase. This device has been deep-debloated and OS-modified specifically for offline, off-grid use. It is <strong>not designed to be used with a cellular carrier</strong>, has not been tested with any cellular carrier or SIM card, and calls, texts, and emergency calls (including 911) may not work even if a SIM card is installed. <strong>Do not rely on this device to place calls or send texts in an emergency.</strong> Eastern Shore AI, LLC makes no representation that this device is compatible with any carrier network, SIM card, or cellular service plan. By completing checkout the buyer acknowledges that this device is purchased for its <strong>offline capabilities only</strong>, and that the absence of cellular connectivity is not a defect.
         </p>
 
         <h4 style="color:var(--cyan); margin:1.1rem 0 .5rem; font-size:1rem;">2. Device Condition Disclosure</h4>
