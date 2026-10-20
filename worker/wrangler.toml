@@ -2,6 +2,12 @@ name = "eastern-shore-ai-contact"
 main = "src/index.js"
 compatibility_date = "2026-02-15"
 
+# Lets src/index.js import askk-survival-node-knowledge.md as text.
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true
+
 [vars]
 ALLOWED_ORIGINS = "https://easternshore.ai,https://www.easternshore.ai,https://eastern-shore-ai.99redder.workers.dev,https://99redder.github.io,https://lookahead.easternshore.ai"
 TO_EMAIL = "99joefromalamo@gmail.com"
@@ -13,6 +19,8 @@ VAPID_SUBJECT = "mailto:contact@easternshore.ai"
 # Ask K daily spend caps in dollars (estimated from token usage; see src/ask-k-claude.js)
 ASKK_CLAUDE_DAILY_BUDGET = "3"
 ASKK_MINIMAX_DAILY_BUDGET = "1"
+# "1" = require the Turnstile bot check (node.html must have TURNSTILE_SITE_KEY set)
+ASKK_TURNSTILE_ENFORCE = "0"
 
 # Required secrets (set via `wrangler secret put`): RESEND_API_KEY, ADMIN_PASSWORD, TOTP_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
 # Web Push secrets (set via `wrangler secret put`): VAPID_SERVER_PUBLIC_KEY, VAPID_SERVER_PRIVATE_KEY

@@ -145,7 +145,11 @@ async function readPass(env, pass) {
 
 // Returns { ok, pass, conversationId } or { ok:false, needsVerification }.
 export async function checkAskKVisitor(env, { pass, turnstileToken, ip }) {
-  if (!env.TURNSTILE_SECRET_KEY || !env.ASKK_PASS_SECRET) return { ok: true, conversationId: null, pass: null };
+  // ASKK_TURNSTILE_ENFORCE ("1") switches the check on once the page has the
+  // matching site key; with it off, Ask K keeps working without the widget.
+  if (env.ASKK_TURNSTILE_ENFORCE !== '1' || !env.TURNSTILE_SECRET_KEY || !env.ASKK_PASS_SECRET) {
+    return { ok: true, conversationId: null, pass: null };
+  }
   let id = await readPass(env, pass);
   let newPass = null;
   if (!id) {
@@ -163,11 +167,18 @@ const OFF_TOPIC_PATTERNS = [
   /\b(python|javascript|typescript|java|c\+\+|c#|rust|golang|php|html|css|sql|bash|powershell)\b/i,
   /\b(homework|essay|translate|summari[sz]e this|solve for|integral|derivative)\b/i,
 ];
-const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|emp|solar|battery|offline|map|shipping|return|warranty|order|byog|price|phone|eastern shore|prepar|emergency|ai persona|qwen)\b/i;
+const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|bags?|emp|solar|battery|batteries|charg\w*|offline|maps?|gps|ship\w*|deliver\w*|returns?|refund\w*|warranty|rma|orders?|byog|price|pricing|cost|discount|sale|phone|moto\w*|case|padlock|silica|eastern shore|prepar\w*|emergency|persona|pocketpal|qwen|llm|apps?|software|storage|ram|sim|support)\b/i;
 
 function keywordOffTopic(question) {
   const q = String(question || '');
   return !ON_TOPIC_HINT.test(q) && OFF_TOPIC_PATTERNS.some(p => p.test(q));
+}
+
+// Messages that name the product or its topics skip the model check: a
+// wrongly refused customer question costs more than an occasional stray one,
+// and Opus still declines off-topic requests itself.
+function clearlyOnTopic(question) {
+  return ON_TOPIC_HINT.test(String(question || ''));
 }
 
 async function claudeTopicCheck(env, client, question, history) {
@@ -177,7 +188,7 @@ async function claudeTopicCheck(env, client, question, history) {
     model: models[0],
     max_tokens: 5,
     thinking: { type: 'disabled' },
-    system: 'You screen messages sent to the shopping assistant on the Survival Node product page of Eastern Shore AI (an offline emergency-preparedness phone kit with offline AI, maps, solar power and Faraday bags; the company also does local AI setup services). Reply ON if the latest message is something a shopper or owner could reasonably ask that assistant: the product, its contents or specs, offline AI, power, maps, EMP protection, emergency preparedness, pricing, ordering, shipping, returns, warranty, setup, the company, or a greeting, thanks or follow-up. Reply OFF if it asks for unrelated work or chat: writing or fixing code, essays, homework, translations, other products, general knowledge, or using the assistant for something else. Reply with exactly one word: ON or OFF.',
+    system: 'You screen messages sent to the shopping assistant on the Survival Node product page of Eastern Shore AI (an offline emergency-preparedness phone kit with offline AI, maps, solar power and Faraday bags; the company also does local AI setup services). Reply ON if the latest message is something a shopper or owner could reasonably ask that assistant: the product, its contents or specs, offline AI, power, maps, EMP protection, emergency preparedness, pricing, ordering, shipping, returns, warranty, setup, the company, or a greeting, thanks or follow-up. Reply OFF if it asks for unrelated work or chat: writing or fixing code, essays, homework, translations, other products, general knowledge, or using the assistant for something else. If you are unsure, reply ON. Reply with exactly one word: ON or OFF.',
     messages: [{ role: 'user', content: `${lastUser ? `Previous message: ${String(lastUser.content).slice(0, 300)}\n` : ''}Latest message: ${String(question).slice(0, 1000)}` }],
   });
   await addDaily(env, 'claude', costOf(PRICE.topic, response.usage), 0);
@@ -307,7 +318,7 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
 
   // Topic check (cheap). Claude when available, keyword rules otherwise.
   let onTopic = !keywordOffTopic(question);
-  if (claudeOk && onTopic) {
+  if (claudeOk && onTopic && !clearlyOnTopic(question)) {
     try {
       onTopic = await claudeTopicCheck(env, client, question, history);
     } catch (e) {
