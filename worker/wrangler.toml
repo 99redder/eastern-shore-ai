@@ -20,7 +20,7 @@ VAPID_SUBJECT = "mailto:contact@easternshore.ai"
 ASKK_CLAUDE_DAILY_BUDGET = "3"
 ASKK_MINIMAX_DAILY_BUDGET = "1"
 # "1" = require the Turnstile bot check (node.html must have TURNSTILE_SITE_KEY set)
-ASKK_TURNSTILE_ENFORCE = "0"
+ASKK_TURNSTILE_ENFORCE = "1"
 
 # Required secrets (set via `wrangler secret put`): RESEND_API_KEY, ADMIN_PASSWORD, TOTP_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
 # Web Push secrets (set via `wrangler secret put`): VAPID_SERVER_PUBLIC_KEY, VAPID_SERVER_PRIVATE_KEY
