@@ -3010,10 +3010,18 @@
         });
       }
 
-      // Never leaves a visitor stuck: gives up after 10 seconds.
+      // Never leaves a visitor stuck: gives up after 10 seconds, or after 2
+      // minutes once Cloudflare has asked them to tap "Verify you are human".
       async function getTurnstileToken() {
         if (!TURNSTILE_SITE_KEY) return null;
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('verification timed out')), 10000));
+        let timer;
+        const arm = (ms) => { clearTimeout(timer); return new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('verification timed out')), ms); }); };
+        let timeoutPromise = arm(10000);
+        let rearm;
+        const timeout = new Promise((_, reject) => {
+          timeoutPromise.catch(reject);
+          rearm = () => { timeoutPromise = arm(120000); timeoutPromise.catch(reject); };
+        });
         return Promise.race([timeout, (async () => {
         await loadTurnstile();
         return new Promise((resolve, reject) => {
@@ -3027,13 +3035,32 @@
               callback: (t) => done('resolve', t),
               'error-callback': () => done('reject', new Error('verification failed')),
               'expired-callback': () => done('reject', new Error('verification expired')),
+              'before-interactive-callback': () => {
+                rearm();
+                showVerifyHint(true);
+                document.getElementById('askk-turnstile')?.scrollIntoView({ block: 'nearest' });
+              },
+              'after-interactive-callback': () => showVerifyHint(false),
             });
           } else {
             window.turnstile.reset(turnstileWidget);
           }
           window.turnstile.execute(turnstileWidget);
         });
-        })()]);
+        })()]).finally(() => { clearTimeout(timer); showVerifyHint(false); });
+      }
+
+      function showVerifyHint(on) {
+        let hint = document.getElementById('askk-verify-hint');
+        if (on && !hint) {
+          hint = document.createElement('div');
+          hint.id = 'askk-verify-hint';
+          hint.style.cssText = 'font-size:.82rem;color:var(--muted);text-align:center;margin:.25rem 0 .4rem';
+          hint.textContent = 'Quick check: tap "Verify you are human" below to send your question.';
+          document.getElementById('askk-turnstile')?.before(hint);
+        } else if (!on && hint) {
+          hint.remove();
+        }
       }
 
       function escapeHtml(text) {
