@@ -3010,8 +3010,11 @@
         });
       }
 
+      // Never leaves a visitor stuck: gives up after 10 seconds.
       async function getTurnstileToken() {
         if (!TURNSTILE_SITE_KEY) return null;
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('verification timed out')), 10000));
+        return Promise.race([timeout, (async () => {
         await loadTurnstile();
         return new Promise((resolve, reject) => {
           turnstileWaiter = { resolve, reject };
@@ -3030,6 +3033,7 @@
           }
           window.turnstile.execute(turnstileWidget);
         });
+        })()]);
       }
 
       function escapeHtml(text) {
@@ -3176,7 +3180,7 @@
             });
             return res.json();
           };
-          let data = await ask(askkPass ? null : await getTurnstileToken().catch(() => null));
+          let data = await ask(null);
           if (data.needsVerification) {
             askkPass = null;
             data = await ask(await getTurnstileToken().catch(() => null));
