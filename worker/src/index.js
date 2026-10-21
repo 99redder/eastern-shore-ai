@@ -570,7 +570,7 @@ export default {
 
   // Daily Ask K summary email (cron in wrangler.toml).
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(sendAskKDailySummary(env, sendStaffOperationalAlert).catch(e => console.error('Ask K daily summary failed', e)));
+    ctx.waitUntil(sendAskKDailySummary(env, sendAskKAlert).catch(e => console.error('Ask K daily summary failed', e)));
   },
 
   async queue(batch, env) {
@@ -2854,8 +2854,8 @@ ${slotHtml}
   return { ok: true };
 }
 
-async function sendStaffOperationalAlert(env, { subject, text }) {
-  const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+async function sendStaffOperationalAlert(env, { subject, text, from }) {
+  const fromEmail = (from || env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const toEmail = (env.TO_EMAIL || '').toString().trim();
   if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
 
@@ -2880,6 +2880,12 @@ async function sendStaffOperationalAlert(env, { subject, text }) {
     return { ok: false, error: errText || `resend ${res.status}` };
   }
   return { ok: true };
+}
+
+// Ask K's emails (daily summary, backup / busy alerts) come from the alerts
+// address rather than the orders one.
+function sendAskKAlert(env, message) {
+  return sendStaffOperationalAlert(env, { ...message, from: env.ALERTS_FROM_EMAIL });
 }
 
 async function sendStaffPaidBookingNotification(env, { sessionId, customerEmail, customerName, customerPhone, preferredContactMethod, serviceLabel, serviceType, amountCents, slots }) {
@@ -6343,7 +6349,7 @@ async function handleAskK(request, env, corsHeaders, url, { admin = false } = {}
       knowledge: clipAskKKnowledge(ASKK_SURVIVAL_NODE_KNOWLEDGE, 20000),
     }, {
       minimax: (q, c, h) => generateAskKAnswer(env, q, c, h),
-      notify: sendStaffOperationalAlert,
+      notify: sendAskKAlert,
     });
     return json({ ok: true, reply, ...(pass ? { pass } : {}), ...(admin ? { provider } : {}) }, 200, corsHeaders);
   } catch (error) {
