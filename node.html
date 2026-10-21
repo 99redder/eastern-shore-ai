@@ -747,6 +747,9 @@
       .promo-layout { grid-template-columns: 1fr; gap: .35rem; padding-right: 2.8rem; }
       .promo-gen2-highlights { border-left: 0; border-top: 1px solid rgba(0,0,0,.25); padding: .45rem 0 0; }
       .promo-gen2-items { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .2rem .65rem; }
+      /* Promo starts minimized on smaller screens: just the headline until ▼ is tapped */
+      #promo-banner:not(.promo-open) .promo-copy > p,
+      #promo-banner:not(.promo-open) .promo-gen2-highlights { display: none; }
       .kit-offerings-grid { grid-template-columns: 1fr; }
       .brain-grid { grid-template-columns: 1fr; }
       .offerings { grid-template-columns: 1fr; }
@@ -2428,6 +2431,7 @@
         const open = body.hasAttribute('hidden');
         if (open) { body.removeAttribute('hidden'); tog.setAttribute('aria-expanded','true'); }
         else { body.setAttribute('hidden',''); tog.setAttribute('aria-expanded','false'); }
+        document.getElementById('promo-banner').classList.toggle('promo-open', open);
       });
     })();
 
