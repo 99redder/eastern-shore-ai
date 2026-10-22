@@ -392,17 +392,157 @@
       color: var(--cyan);
     }
 
-    /* Portfolio */
-    .work-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-    .work { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
-    .work-shot { display: block; aspect-ratio: 16 / 10; background: var(--bg); border-bottom: 1px solid var(--line); overflow: hidden; }
-    .work-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
-    .work-body { padding: 1.2rem 1.4rem 1.4rem; }
-    .work-body h3 { margin: 0 0 0.3rem; }
-    .work-body h3 a { color: var(--text); }
-    .work-body h3 a:hover { color: var(--pink); }
-    .work-body p { margin: 0; }
-    .center-link { text-align: center; margin: 1.8rem 0 0; }
+    /* Portfolio (same look as the homepage; data and switcher in /portfolio.js) */
+    .portfolio-wide { max-width: 1240px; }
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr) 360px;
+      gap: 1.2rem;
+      align-items: stretch;
+    }
+    .portfolio-list,
+    .portfolio-preview,
+    .portfolio-details {
+      background: var(--card);
+      border: 1px solid var(--line);
+      clip-path: var(--cut-card);
+      padding: 1.2rem;
+      min-height: 420px;
+    }
+    .portfolio-list button {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      padding: 0.75rem 0.85rem;
+      margin-bottom: 0.5rem;
+      clip-path: var(--cut-btn);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .portfolio-list button.active {
+      border-color: var(--pink);
+      color: var(--pink);
+      box-shadow: 0 0 10px rgba(255, 79, 216, 0.2);
+    }
+    .portfolio-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.75rem;
+    }
+    .portfolio-link {
+      display: inline-block;
+      align-self: stretch;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      font-size: 0.92rem;
+      color: var(--pink);
+      border: 1px solid rgba(255, 79, 216, 0.45);
+      clip-path: var(--cut-btn);
+      padding: 0.55rem 0.8rem;
+      text-transform: uppercase;
+      background: linear-gradient(145deg, rgba(255,79,216,0.08), rgba(200,80,255,0.05));
+      box-shadow: 0 0 10px rgba(255, 79, 216, 0.15);
+      transition: all 0.2s ease;
+    }
+    .portfolio-link:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.2);
+    }
+    .portfolio-image-link {
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: var(--bg);
+    }
+    .portfolio-preview img {
+      width: 100%;
+      height: 500px;
+      display: block;
+      object-fit: contain;
+      object-position: center;
+      background: var(--bg);
+      transform-origin: center center;
+    }
+    .portfolio-shots {
+      position: relative;
+      width: 100%;
+    }
+    .portfolio-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2.4rem;
+      height: 2.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0 0.15rem;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: var(--pink);
+      background: rgba(10, 11, 16, 0.82);
+      border: 1px solid rgba(255, 79, 216, 0.55);
+      clip-path: var(--cut-btn);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .portfolio-nav:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+    }
+    .portfolio-nav.prev { left: 0.5rem; }
+    .portfolio-nav.next { right: 0.5rem; }
+    .portfolio-shot-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      width: 100%;
+    }
+    .portfolio-caption {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .portfolio-dots {
+      display: flex;
+      gap: 0.45rem;
+    }
+    .portfolio-dots button {
+      width: 0.75rem;
+      height: 0.75rem;
+      padding: 0;
+      border: 1px solid var(--pink);
+      background: transparent;
+      cursor: pointer;
+    }
+    .portfolio-dots button.active {
+      background: var(--pink);
+      box-shadow: 0 0 8px rgba(255, 79, 216, 0.5);
+    }
+    .portfolio-details ul {
+      margin: 0;
+      padding-left: 1.1rem;
+    }
+    .portfolio-details li {
+      margin-bottom: 0.65rem;
+      color: var(--muted);
+      font-weight: 400;
+      line-height: 1.55;
+    }
+    .portfolio-cta {
+      display: block;
+      margin: 0.9rem auto 0;
+      width: 85%;
+      text-align: center;
+    }
 
     /* Service area */
     .towns { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.55rem; margin: 1.6rem auto 0; max-width: 900px; padding: 0; list-style: none; }
@@ -491,7 +631,11 @@
       .header-nav a:last-child { border-bottom: none; }
       .hero { padding: 100px 1rem 56px; }
       .section { padding: 3.5rem 1rem; }
-      .grid-2, .guarantee, .work-grid, .form-grid { grid-template-columns: 1fr; }
+      .grid-2, .guarantee, .form-grid { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .portfolio-list, .portfolio-preview, .portfolio-details { min-height: 0; }
+      .portfolio-preview img { height: 340px; }
+      .portfolio-cta { width: 100%; }
       .quote-card input, .quote-card textarea { font-size: 16px; }
     }
     @media (max-width: 480px) {
@@ -533,7 +677,7 @@
         <h1>Salisbury &amp; Eastern Shore <span class="highlight">Web Design</span></h1>
         <p class="lead">Affordable websites for local businesses, built by a local web designer in Fruitland, right next to Salisbury. <strong>For a limited time, plans start at $100 a year</strong> with your domain, hosting, and unlimited updates, and every update <strong>done within 24 hours</strong>.</p>
         <div class="hero-buttons">
-          <a href="#quote" class="btn btn-primary">Get a Free Website Quote</a>
+          <a href="#get-started" class="btn btn-primary">Start My Website</a>
           <a href="tel:+13029079162" class="btn btn-secondary">Call or Text (302) 907-9162</a>
         </div>
         <div class="stats">
@@ -648,8 +792,8 @@
         </div>
         <div class="steps">
           <div class="card step">
-            <h3>Free Quote</h3>
-            <p>Tell us about your business by phone, text, email, or the form below. We can meet at your business if you like.</p>
+            <h3>Tell Us About Your Business</h3>
+            <p>Use the form below, or call, text, or email. We can meet at your business if you like.</p>
           </div>
           <div class="card step">
             <h3>We Design &amp; Build</h3>
@@ -667,50 +811,36 @@
       </div>
     </section>
 
-    <section class="section" id="portfolio">
+    <section class="section portfolio-wide" id="portfolio">
       <div class="section-header">
         <h2>Websites We've Built</h2>
-        <p>A few recent projects, from online stores to a community church.</p>
+        <p>A few recent builds, from online stores to a community church, and what makes each one stand out.</p>
       </div>
-      <div class="work-grid">
-        <article class="card work">
-          <a class="work-shot" href="https://www.idesignas.com" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true">
-            <img src="/portfolio-idesignas-shop.jpg" alt="" width="1800" height="1131" loading="lazy" decoding="async" />
-          </a>
-          <div class="work-body">
-            <h3><a href="https://www.idesignas.com" target="_blank" rel="noopener noreferrer">iDesign Apparel Store</a></h3>
-            <p>Print-on-demand apparel shop with seasonal collections and a custom design request workflow.</p>
+      <div class="portfolio-grid">
+        <div class="portfolio-list" id="portfolio-list" aria-label="Portfolio projects"></div>
+
+        <div class="portfolio-preview">
+          <a id="portfolio-link" class="portfolio-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a>
+          <div class="portfolio-shots">
+            <a id="portfolio-image-link" class="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
+              <img id="portfolio-image" src="/portfolio-stockstickies-notes.jpg" alt="Stock Stickies notes board screenshot" loading="lazy" decoding="async" />
+            </a>
+            <button type="button" class="portfolio-nav prev" id="portfolio-prev" aria-label="Previous screenshot">&#8249;</button>
+            <button type="button" class="portfolio-nav next" id="portfolio-next" aria-label="Next screenshot">&#8250;</button>
           </div>
-        </article>
-        <article class="card work">
-          <a class="work-shot" href="https://www.florencemaegifts.com" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true">
-            <img src="/portfolio-florencemaegifts-listing.jpg" alt="" width="1800" height="1131" loading="lazy" decoding="async" />
-          </a>
-          <div class="work-body">
-            <h3><a href="https://www.florencemaegifts.com" target="_blank" rel="noopener noreferrer">Florence Mae Gifts</a></h3>
-            <p>Handmade gift shop with secure Stripe checkout and custom-order requests straight from the site.</p>
+          <div class="portfolio-shot-bar">
+            <span class="portfolio-caption" id="portfolio-caption" aria-live="polite">Notes board</span>
+            <div class="portfolio-dots" id="portfolio-dots" aria-label="Choose screenshot"></div>
           </div>
-        </article>
-        <article class="card work">
-          <a class="work-shot" href="https://www.cbfchurch.com" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true">
-            <img src="/portfolio-cbfchurch-blog.jpg" alt="" width="1800" height="1131" loading="lazy" decoding="async" />
-          </a>
-          <div class="work-body">
-            <h3><a href="https://www.cbfchurch.com" target="_blank" rel="noopener noreferrer">CBF Church</a></h3>
-            <p>Community church site with easy blog posting, their latest YouTube videos, and online giving.</p>
-          </div>
-        </article>
-        <article class="card work">
-          <a class="work-shot" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true">
-            <img src="/portfolio-stockstickies-dashboard.jpg" alt="" width="1568" height="760" loading="lazy" decoding="async" />
-          </a>
-          <div class="work-body">
-            <h3><a href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">Stock Stickies</a></h3>
-            <p>Stock portfolio and notes web app with live market data and shareable portfolio charts.</p>
-          </div>
-        </article>
+          <a href="#get-started" class="btn btn-primary portfolio-cta">Start My Website</a>
+        </div>
+
+        <div class="portfolio-details">
+          <ul id="portfolio-points">
+            <li>Fully customizable stock portfolio and notes web application.</li>
+          </ul>
+        </div>
       </div>
-      <p class="center-link"><a href="/#website-portfolio">See the full portfolio with more screenshots →</a></p>
     </section>
 
     <section class="section-alt" id="service-area">
@@ -765,11 +895,11 @@
       </div>
     </section>
 
-    <section class="section-alt" id="quote">
+    <section class="section-alt" id="get-started">
       <div class="section">
         <div class="section-header">
-          <h2>Get a Free Website Quote</h2>
-          <p>Tell us a little about your business. We'll get back to you within 24 hours, usually much sooner.</p>
+          <h2>Start Your Website</h2>
+          <p>Tell us a little about your business and we'll get back to you within 24 hours, usually much sooner, to get your website started.</p>
         </div>
         <form class="card quote-card" id="quote-form" novalidate>
           <div class="form-grid">
@@ -803,7 +933,7 @@
             <input id="q-website" name="website" type="text" tabindex="-1" autocomplete="off" />
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary" id="quote-submit">Send My Quote Request</button>
+            <button type="submit" class="btn btn-primary" id="quote-submit">Start My Website</button>
             <p class="form-status" id="quote-status" role="status" aria-live="polite"></p>
           </div>
           <p class="quote-alt">Prefer to talk? Call or text <a href="tel:+13029079162">(302) 907-9162</a> or email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>.</p>
@@ -817,7 +947,7 @@
     <p><a href="tel:+13029079162">(302) 907-9162</a> · <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a></p>
     <p class="footer-links">
       <a href="/">Home</a>
-      <a href="/#website-portfolio">Portfolio</a>
+      <a href="#portfolio">Portfolio</a>
       <a href="/my-plan.html">Manage My Website Plan</a>
       <a href="/privacy.html">Privacy Policy</a>
     </p>
@@ -907,7 +1037,7 @@
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setStatus('Please enter a valid email address.', 'err'); return; }
 
         const message =
-          'Request Type: Website Quote (web design page)\n' +
+          'Request Type: Website Request (web design page)\n' +
           'Name: ' + name + '\n' +
           'Business: ' + ((fd.get('business') || '').toString().trim() || 'Not provided') + '\n' +
           'Email: ' + email + '\n' +
@@ -925,7 +1055,7 @@
           });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
-          if (typeof gtag === 'function') gtag('event', 'generate_lead', { form: 'web_design_quote' });
+          if (typeof gtag === 'function') gtag('event', 'generate_lead', { form: 'web_design_start' });
           form.reset();
           setStatus('Thanks! Your request was sent. We\'ll get back to you within 24 hours.', 'ok');
         } catch (err) {
@@ -936,5 +1066,6 @@
       });
     })();
   </script>
+  <script src="/portfolio.js?v=1" defer></script>
 </body>
 </html>

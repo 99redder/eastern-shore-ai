@@ -786,6 +786,7 @@
       .hero { padding: 100px 1rem 60px; }
       .stats { grid-template-columns: 1fr 1fr; }
       .portfolio-grid { grid-template-columns: 1fr; }
+      .portfolio-list, .portfolio-preview, .portfolio-details { min-height: 0; }
       .grid-2x2 { grid-template-columns: 1fr; gap: 1.5rem; }
       .portfolio-preview img { height: 340px; }
       .portfolio-cta { width: 100%; }
@@ -832,7 +833,7 @@
         <h1>Eastern Shore Web Design<br><span class="highlight">$100 a Year, for a Limited Time.</span></h1>
         <p>For a limited time, websites start at just $100 a year, with your domain, hosting, SEO, and unlimited updates done within 24 hours. Built and looked after by a local, veteran-owned company in Fruitland, right next to Salisbury.</p>
         <div class="hero-buttons">
-          <a href="#" class="btn btn-primary quote-trigger">Get Your Free Website Quote</a>
+          <a href="#" class="btn btn-primary quote-trigger">Start My Website</a>
           <a href="/web-design.html" class="btn btn-secondary">See What's Included</a>
         </div>
         <div class="stats">
@@ -881,7 +882,7 @@
       </div>
     </div>
     <div class="hero-buttons" style="margin-top: 2.5rem;">
-      <a href="#" class="btn btn-primary quote-trigger">Get Your Free Website Quote</a>
+      <a href="#" class="btn btn-primary quote-trigger">Start My Website</a>
       <a href="/web-design.html" class="btn btn-secondary">See Everything Included</a>
     </div>
   </section>
@@ -899,13 +900,7 @@
     </figure>
 
     <div class="portfolio-grid">
-      <div class="portfolio-list" aria-label="Portfolio projects">
-        <button type="button" class="portfolio-item active" data-project="stock">Stock Stickies</button>
-        <button type="button" class="portfolio-item" data-project="florence">Florence Mae Gifts</button>
-        <button type="button" class="portfolio-item" data-project="cbf">CBF Church</button>
-        <button type="button" class="portfolio-item" data-project="bible">Bible Reading Plan</button>
-        <button type="button" class="portfolio-item" data-project="idesign">iDesign Apparel Store</button>
-      </div>
+      <div class="portfolio-list" id="portfolio-list" aria-label="Portfolio projects"></div>
 
       <div class="portfolio-preview">
         <a id="portfolio-link" class="portfolio-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a>
@@ -920,7 +915,7 @@
           <span class="portfolio-caption" id="portfolio-caption" aria-live="polite">Notes board</span>
           <div class="portfolio-dots" id="portfolio-dots" aria-label="Choose screenshot"></div>
         </div>
-        <a href="#" class="btn btn-primary quote-trigger portfolio-cta">Get Your Free Website Design Quote Now</a>
+        <a href="#" class="btn btn-primary quote-trigger portfolio-cta">Start My Website</a>
       </div>
 
       <div class="portfolio-details">
@@ -1109,7 +1104,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       const text = triggerText.trim();
       if (text === 'AI Agent Repair') return 'AI Agent Repair Quote';
       if (text === 'Get Your Free Assessment' || text === 'Book Your Free Call or Site Visit') return 'AI Automation Quote';
-      if (text === 'Website Design' || text === 'Get Your Free Website Quote' || text === 'Get Your Free Website Design Quote Now' || text === 'Get Your Free Quote Now' || text === 'Send Your Message') return 'Website Quote';
+      if (text === 'Website Design' || text === 'Start My Website' || text === 'Get Your Free Quote Now' || text === 'Send Your Message') return 'Website Request';
       return 'General Quote';
     }
 
@@ -1121,8 +1116,8 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
 
         currentRequestType = resolveRequestType(text);
 
-        const isWebDesignQuote = currentRequestType === 'Website Quote';
-        modalTitle.textContent = isWebDesignQuote ? 'Get a Free Website Quote' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment') ? 'Book Your Free Call or Site Visit' : 'Get a Quote'));
+        const isWebDesignQuote = currentRequestType === 'Website Request';
+        modalTitle.textContent = isWebDesignQuote ? 'Start Your Website' : (text === 'AI Agent Repair' ? 'AI Agent Repair Request' : ((text === 'Book Your Free Call or Site Visit' || text === 'Get Your Free Assessment') ? 'Book Your Free Call or Site Visit' : 'Get a Quote'));
 
         // Show/hide repair-specific fields
         repairFields.forEach(field => {
@@ -1455,137 +1450,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       if (callbackDatetimeEl) callbackDatetimeEl.value = '';
       document.getElementById('quote-modal').style.display = 'flex';
     });
-
-    // Portfolio switcher
-    (function() {
-      const items = document.querySelectorAll('.portfolio-item');
-      const img = document.getElementById('portfolio-image');
-      const imgLink = document.getElementById('portfolio-image-link');
-      const points = document.getElementById('portfolio-points');
-      const link = document.getElementById('portfolio-link');
-      const prevBtn = document.getElementById('portfolio-prev');
-      const nextBtn = document.getElementById('portfolio-next');
-      const caption = document.getElementById('portfolio-caption');
-      const dots = document.getElementById('portfolio-dots');
-      if (!items.length || !img || !imgLink || !points || !link || !prevBtn || !nextBtn || !caption || !dots) return;
-      let currentShots = [];
-      let shotIndex = 0;
-
-      const portfolioData = {
-        stock: {
-          shots: [
-            { image: '/portfolio-stockstickies-notes.jpg', alt: 'Stock Stickies notes board screenshot', caption: 'Notes board' },
-            { image: '/portfolio-stockstickies-portfolio.jpg', alt: 'Stock Stickies portfolio allocation chart screenshot', caption: 'Portfolio allocation' },
-            { image: '/portfolio-stockstickies-dashboard.jpg', alt: 'Stock Stickies live market dashboard screenshot', caption: 'Live dashboard' }
-          ],
-          url: 'https://www.stockstickies.com',
-          label: 'www.stockstickies.com',
-          bullets: [
-            'Fully customizable stock portfolio and notes web application.',
-            'Utilizes finance APIs for real time market data.',
-            'Portfolio tracking shows pie chart with your allocation and produces social media ready images.',
-          ]
-        },
-        florence: {
-          shots: [
-            { image: '/portfolio-florencemaegifts.png', alt: 'Florence Mae Gifts shop screenshot', caption: 'Shop' },
-            { image: '/portfolio-florencemaegifts-listing.jpg', alt: 'Florence Mae Gifts product listing with Stripe checkout screenshot', caption: 'Product listing and checkout' },
-            { image: '/portfolio-florencemaegifts-custom.jpg', alt: 'Florence Mae Gifts custom piece request form screenshot', caption: 'Custom piece request' }
-          ],
-          url: 'https://www.florencemaegifts.com',
-          label: 'www.florencemaegifts.com',
-          bullets: [
-            'E-commerce shop utilizing secure Stripe payment processing.',
-            'Over 20 unique items inventory managed through custom dashboard.',
-            'Customers can request custom work directly from the site.',
-            'Downloadable content automatically delivered to customers email after purchase.',
-          ]
-        },
-        cbf: {
-          shots: [
-            { image: '/portfolio-cbfchurch.png', alt: 'CBF Church home page screenshot', caption: 'Home page' },
-            { image: '/portfolio-cbfchurch-blog.jpg', alt: 'CBF Church blog archive screenshot', caption: 'Blog archive' },
-            { image: '/portfolio-cbfchurch-donate.jpg', alt: 'CBF Church donation page screenshot', caption: 'Online donations' }
-          ],
-          url: 'https://www.cbfchurch.com',
-          label: 'www.cbfchurch.com',
-          bullets: [
-            'Community church website with an admin mode that allows authorized users to post blog content and upload photos with zero code - replaced their existing Blogger setup.',
-            'Automatically displays their newest YouTube videos and live streams.',
-            'Custom-made contact system that allows visitors to email multiple church leaders straight from the site.',
-            'Stripe powered donation workflow allows one time or periodic payments.'
-          ]
-        },
-        bible: {
-          shots: [
-            { image: '/portfolio-bibleplannerapp-funfacts.jpg', alt: 'Bible Reading Plan daily reading with a "Did you know?" fun fact about Ecclesiastes 3 screenshot', caption: 'Daily reading with fun facts' },
-            { image: '/portfolio-bibleplannerapp-changeplan.jpg', alt: 'Bible Reading Plan change plan screen with a live preview of the new schedule screenshot', caption: 'Change your plan anytime' },
-            { image: '/portfolio-bibleplannerapp-install-v2.jpg', alt: 'Bible Reading Plan step-by-step install guide for iPhone screenshot', caption: 'Install on any phone' }
-          ],
-          url: 'https://biblereadingplan.app',
-          label: 'biblereadingplan.app',
-          bullets: [
-            'Builds a fully personalized Bible reading plan: pick from 11 translations, any timeline from a few months to 10 years, and whether to read on weekends.',
-            'Change your translation or timeline mid-plan without losing progress. The app re-plans what is left and previews your new daily pace and finish date.',
-            'Optional "Did you know?" fun facts connect verses to the songs, films, art, and history they inspired, without interrupting your reading.',
-            'Installs to the home screen of any phone with step-by-step instructions for your device, reads offline, and tracks streaks and progress.',
-          ]
-        },
-        idesign: {
-          shots: [
-            { image: '/portfolio-idesignas.png', alt: 'iDesign Apparel Store home page screenshot', caption: 'Home page' },
-            { image: '/portfolio-idesignas-shop.jpg', alt: 'iDesign Apparel Store shop catalog screenshot', caption: 'Shop catalog' },
-            { image: '/portfolio-idesignas-custom.jpg', alt: 'iDesign Apparel Store custom order form screenshot', caption: 'Custom orders' }
-          ],
-          url: 'https://www.idesignas.com',
-          label: 'www.idesignas.com',
-          bullets: [
-            'Retro synthwave-styled storefront for print-on-demand apparel.',
-            'Products are printed on order and shipped direct to customers in the USA and Canada.',
-            'Shop by category with featured seasonal collections front and center.',
-            'Custom design request workflow lets customers submit an idea, approve a mockup, and order even a single piece.',
-          ]
-        }
-      };
-
-      function showShot(index) {
-        shotIndex = (index + currentShots.length) % currentShots.length;
-        const shot = currentShots[shotIndex];
-        img.src = shot.image;
-        img.alt = shot.alt;
-        caption.textContent = `${shot.caption} (${shotIndex + 1} of ${currentShots.length})`;
-        dots.querySelectorAll('button').forEach((d, i) => d.classList.toggle('active', i === shotIndex));
-      }
-
-      function render(project) {
-        const data = portfolioData[project];
-        if (!data) return;
-        currentShots = data.shots;
-        dots.innerHTML = currentShots.map((s, i) => `<button type="button" aria-label="Show ${s.caption} screenshot" data-shot="${i}"></button>`).join('');
-        showShot(0);
-        imgLink.href = data.url;
-        link.href = data.url;
-        link.textContent = data.label;
-        points.innerHTML = data.bullets.map(b => `<li>${b}</li>`).join('');
-      }
-
-      prevBtn.addEventListener('click', () => showShot(shotIndex - 1));
-      nextBtn.addEventListener('click', () => showShot(shotIndex + 1));
-      dots.addEventListener('click', e => {
-        const dot = e.target.closest('button[data-shot]');
-        if (dot) showShot(Number(dot.dataset.shot));
-      });
-
-      items.forEach(btn => {
-        btn.addEventListener('click', () => {
-          items.forEach(i => i.classList.remove('active'));
-          btn.classList.add('active');
-          render(btn.dataset.project);
-        });
-      });
-
-      render('stock');
-    })();
   </script>
+  <script src="/portfolio.js?v=1" defer></script>
 </body>
 </html>
