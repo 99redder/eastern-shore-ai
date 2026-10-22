@@ -1095,7 +1095,8 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 ## Web design landing page (added 2026-10-22)
 
 - `web-design.html` is the SEO page for "Salisbury web design" / "Eastern Shore web design". Homepage nav "Website Design" and the portfolio subtitle link to it; it's in `sitemap.xml`.
-- Homepage `<title>`/description now lead with "AI Automation & Web Design in Salisbury, MD". The homepage LocalBusiness and the page's ProfessionalService share `@id` `https://www.easternshore.ai/#business` (address: Fruitland, MD 21826, no street).
+- **Homepage now leads with web design** (Red: AI automation hasn't taken off). Order: $100/yr web design hero → "Everything Included" (`#website-plan`) → portfolio → AI automation sections (`#problems`, `#how-it-works`, `#contact`). Title "Salisbury Web Design, $100/Year — Eastern Shore AI".
+- **"$100/year for a limited time"** wording appears in: homepage title/description/OG, hero badge + H1 + stats, `#website-plan`, portfolio subtitle; `web-design.html` description, eyebrow, lead, stat, comparison table, FAQ (visible + JSON-LD). When the promo ends or the price changes, update all of them. The homepage LocalBusiness and the page's ProfessionalService share `@id` `https://www.easternshore.ai/#business` (address: Fruitland, MD 21826, no street).
 - Public price is **"starting at $100/year"** (Red's choice; per-client prices can be higher). Keep the FAQ JSON-LD identical to the visible FAQ text.
 - The page quotes Website Care Agreement terms (24-hour updates, 2–3 day features, every day incl. weekends/holidays; 14-day full refund; domain in client's name; price includes MD sales tax). If `WEBSITE_AGREEMENT_SECTIONS` changes any of these, update `web-design.html` too.
 - Quote form posts to `/api/contact` (`mode: contact`, request type "Website Quote (web design page)", honeypot field `website`).

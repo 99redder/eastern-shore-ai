@@ -13,16 +13,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="QCQunP0oLacijAqnjbk8UlRIXZLDDAZW89JEYco-xRw" />
-  <title>AI Automation &amp; Web Design in Salisbury, MD — Eastern Shore AI</title>
-  <meta name="description" content="Salisbury, MD AI automation and low-cost web design for Eastern Shore small businesses. Websites from $100/year with unlimited updates done within 24 hours." />
-  <meta property="og:title" content="AI Automation &amp; Web Design in Salisbury, MD — Eastern Shore AI" />
-  <meta property="og:description" content="AI automation and low-cost web design for Eastern Shore small businesses. Websites from $100/year with unlimited updates done within 24 hours." />
+  <title>Salisbury Web Design, $100/Year — Eastern Shore AI</title>
+  <meta name="description" content="Local web design for Salisbury and Eastern Shore businesses. For a limited time, websites start at $100/year with domain, hosting, SEO and 24-hour updates." />
+  <meta property="og:title" content="Salisbury Web Design, $100/Year — Eastern Shore AI" />
+  <meta property="og:description" content="For a limited time, websites start at $100/year with your domain, hosting, SEO and unlimited updates done within 24 hours." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.easternshore.ai/" />
   <meta property="og:image" content="https://www.easternshore.ai/carousel.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI Automation &amp; Web Design in Salisbury, MD — Eastern Shore AI" />
-  <meta name="twitter:description" content="AI automation and low-cost web design for Eastern Shore small businesses. Websites from $100/year with unlimited updates done within 24 hours." />
+  <meta name="twitter:title" content="Salisbury Web Design, $100/Year — Eastern Shore AI" />
+  <meta name="twitter:description" content="For a limited time, websites start at $100/year with your domain, hosting, SEO and unlimited updates done within 24 hours." />
   <meta name="twitter:image" content="https://www.easternshore.ai/carousel.png" />
   <link rel="canonical" href="https://www.easternshore.ai/" />
   <script type="application/ld+json">
@@ -32,7 +32,7 @@
     "@id": "https://www.easternshore.ai/#business",
     "name": "Eastern Shore AI",
     "legalName": "Eastern Shore AI, LLC",
-    "description": "AI automation consulting and low-cost web design for small businesses in Salisbury, MD and across the Eastern Shore. We build custom AI systems and websites, set up OpenClaw, repair broken AI agents, teach hands-on tech lessons, and make the Survival Node off-grid AI emergency preparedness kit.",
+    "description": "Low-cost web design and AI automation for small businesses in Salisbury, MD and across the Eastern Shore. We build websites and custom AI systems, set up OpenClaw, repair broken AI agents, teach hands-on tech lessons, and make the Survival Node off-grid AI emergency preparedness kit.",
     "url": "https://www.easternshore.ai",
     "image": "https://www.easternshore.ai/carousel.png",
     "logo": "https://www.easternshore.ai/logo.jpg",
@@ -43,7 +43,7 @@
       { "@type": "City", "name": "Salisbury, MD" },
       { "@type": "Place", "name": "Eastern Shore of Maryland" }
     ],
-    "serviceType": ["AI Automation", "Website Design", "OpenClaw Setup", "AI Agent Repair", "Tech Lessons"],
+    "serviceType": ["Website Design", "AI Automation", "OpenClaw Setup", "AI Agent Repair", "Tech Lessons"],
     "sameAs": [
       "https://www.facebook.com/easternshoreai",
       "https://instagram.com/easternshoreai",
@@ -210,6 +210,8 @@
       transition: color 0.2s;
     }
     .header-nav a:hover { color: var(--cyan); }
+    .header-nav a.web-link { color: var(--pink); }
+    .header-nav a.web-link:hover { color: var(--cyan); }
     .header-nav a.openclaw-link {
       transition: color .2s ease, text-shadow .2s ease;
       display: inline-block;
@@ -280,6 +282,20 @@
       color: var(--muted);
       max-width: 600px;
       margin: 0 auto 2rem;
+    }
+    .hero-badge {
+      display: inline-block;
+      margin: 0 0 1.2rem;
+      padding: 0.35rem 0.9rem;
+      border: 1px solid var(--pink);
+      clip-path: var(--cut-btn);
+      color: var(--pink);
+      box-shadow: 0 0 10px rgba(255, 79, 216, 0.25);
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
     .hero-buttons {
       display: flex;
@@ -374,6 +390,15 @@
       font-size: 2rem;
       margin: 0 0 1rem;
     }
+    .section-header .section-eyebrow {
+      color: var(--cyan);
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0 auto 0.5rem;
+    }
     .section-header p {
       color: var(--muted);
       font-size: 1.1rem;
@@ -384,6 +409,11 @@
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 2rem;
     }
     .card {
@@ -756,10 +786,16 @@
       .hero { padding: 100px 1rem 60px; }
       .stats { grid-template-columns: 1fr 1fr; }
       .portfolio-grid { grid-template-columns: 1fr; }
+      .grid-2x2 { grid-template-columns: 1fr; gap: 1.5rem; }
       .portfolio-preview img { height: 340px; }
       .portfolio-cta { width: 100%; }
       .results-logo { width: 170px; right: 1.6rem; top: -152px; opacity: 0.22; }
       .logo-switch { right: 0.1rem; top: -168px; }
+    }
+    @media (max-width: 480px) {
+      .header-logo { font-size: 1rem; white-space: nowrap; }
+      .theme-toggle { padding: 0.28rem; }
+      .theme-toggle-label { display: none; }
     }
   </style>
   <!-- Reddit Pixel -->
@@ -775,9 +811,9 @@
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">&#9776;</button>
       <a href="/" class="header-logo" data-text="Eastern Shore AI">Eastern Shore <span>AI</span></a>
       <nav class="header-nav" id="header-nav">
+        <a href="/web-design.html" class="web-link">💻 $100/yr Websites</a>
         <a href="openclaw-setup.html" class="openclaw-link" style="color:#C73E2D;">🦞 $100 OpenClaw Setup</a>
         <a href="node.html" style="color:#9ed0ff;">⚙️ Survival Node</a>
-        <a href="/web-design.html">Website Design</a>
         <a href="#" class="quote-trigger">AI Agent Repair</a>
         <a href="book-lessons.html">Tech Tutoring</a>
         <a href="newsletter.html">Newsletter</a>
@@ -792,32 +828,115 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-content">
-        <h1>Less Time on Repetitive Work.<br><span class="highlight">More Time Running the Business.</span></h1>
-        <p>Small businesses lose thousands every month to repetitive tasks that AI can handle automatically. We build custom automation systems that actually work — no jargon, no complicated software, just results.</p>
+        <div class="hero-badge">Limited-Time Offer · Salisbury, MD</div>
+        <h1>Eastern Shore Web Design<br><span class="highlight">$100 a Year, for a Limited Time.</span></h1>
+        <p>For a limited time, websites start at just $100 a year, with your domain, hosting, SEO, and unlimited updates done within 24 hours. Built and looked after by a local, veteran-owned company in Fruitland, right next to Salisbury.</p>
         <div class="hero-buttons">
-          <a href="#" class="btn btn-primary quote-trigger">Get Your Free Assessment</a>
-          <a href="#how-it-works" class="btn btn-secondary">See How It Works</a>
+          <a href="#" class="btn btn-primary quote-trigger">Get Your Free Website Quote</a>
+          <a href="/web-design.html" class="btn btn-secondary">See What's Included</a>
         </div>
         <div class="stats">
           <div class="stat">
-            <div class="stat-value">20+</div>
-            <div class="stat-label">Hours Saved Weekly</div>
+            <div class="stat-value">$100/yr</div>
+            <div class="stat-label">Limited-Time Price</div>
           </div>
           <div class="stat">
-            <div class="stat-value">60%</div>
-            <div class="stat-label">Cost Reduction</div>
+            <div class="stat-value">24 hrs</div>
+            <div class="stat-label">Updates, Guaranteed</div>
           </div>
           <div class="stat">
-            <div class="stat-value">3-4</div>
-            <div class="stat-label">Days to Deploy</div>
+            <div class="stat-value">Unlimited</div>
+            <div class="stat-label">Updates &amp; Features</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <section class="section" id="website-plan">
+    <div class="section-header">
+      <h2>Everything Included for $100 a Year</h2>
+      <p>No hourly bills for changes, no separate hosting bill, and no website builder to learn. For a limited time, here's what you get starting at $100 a year.</p>
+    </div>
+    <div class="grid-2x2">
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <h3>A Custom Website, Built for You</h3>
+        <p>Designed around your business and built to look great on phones and computers. No cookie-cutter template, no DIY builder.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <h3>Domain &amp; Hosting Included</h3>
+        <p>Your domain is registered in your name, and hosting, security, and backups are all covered.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">✏️</div>
+        <h3>Unlimited Updates in 24 Hours</h3>
+        <p>Text, photos, hours, prices, specials: send it over and it's done within 24 hours, guaranteed. New features within 2–3 days.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <h3>Found on Google</h3>
+        <p>Local SEO setup and submission to Google and Bing, so people searching around Salisbury and the Shore can find you.</p>
+      </div>
+    </div>
+    <div class="hero-buttons" style="margin-top: 2.5rem;">
+      <a href="#" class="btn btn-primary quote-trigger">Get Your Free Website Quote</a>
+      <a href="/web-design.html" class="btn btn-secondary">See Everything Included</a>
+    </div>
+  </section>
+
+  <section class="portfolio-section" id="website-portfolio">
+    <h2>Our Website Portfolio</h2>
+    <p class="subtitle">A few recent builds and what makes each one stand out. Looking for <a href="/web-design.html">Salisbury &amp; Eastern Shore web design</a>? For a limited time, plans start at $100 a year with unlimited updates.</p>
+    <figure class="portfolio-review" aria-label="Client review from Matt Houde of iDesign Apparel Store">
+      <div class="portfolio-review-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div>
+      <blockquote>
+        <p>By far the smartest web design support I've worked with and FAST, too! I laid out what I wanted done in great detail and told them my availability. Eastern Shore AI blew my expectations out of the water, and had all improvements to my website up and running well ahead of schedule!!</p>
+        <p>I LOVE the way my site looks and functions!</p>
+      </blockquote>
+      <figcaption><strong>Matt Houde</strong> — Owner, <a href="https://www.idesignas.com" target="_blank" rel="noopener noreferrer">iDesign Apparel Store</a> · 5-star Google review</figcaption>
+    </figure>
+
+    <div class="portfolio-grid">
+      <div class="portfolio-list" aria-label="Portfolio projects">
+        <button type="button" class="portfolio-item active" data-project="stock">Stock Stickies</button>
+        <button type="button" class="portfolio-item" data-project="florence">Florence Mae Gifts</button>
+        <button type="button" class="portfolio-item" data-project="cbf">CBF Church</button>
+        <button type="button" class="portfolio-item" data-project="bible">Bible Reading Plan</button>
+        <button type="button" class="portfolio-item" data-project="idesign">iDesign Apparel Store</button>
+      </div>
+
+      <div class="portfolio-preview">
+        <a id="portfolio-link" class="portfolio-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a>
+        <div class="portfolio-shots">
+          <a id="portfolio-image-link" class="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
+            <img id="portfolio-image" src="/portfolio-stockstickies-notes.jpg" alt="Stock Stickies notes board screenshot" loading="lazy" decoding="async" />
+          </a>
+          <button type="button" class="portfolio-nav prev" id="portfolio-prev" aria-label="Previous screenshot">&#8249;</button>
+          <button type="button" class="portfolio-nav next" id="portfolio-next" aria-label="Next screenshot">&#8250;</button>
+        </div>
+        <div class="portfolio-shot-bar">
+          <span class="portfolio-caption" id="portfolio-caption" aria-live="polite">Notes board</span>
+          <div class="portfolio-dots" id="portfolio-dots" aria-label="Choose screenshot"></div>
+        </div>
+        <a href="#" class="btn btn-primary quote-trigger portfolio-cta">Get Your Free Website Design Quote Now</a>
+      </div>
+
+      <div class="portfolio-details">
+        <ul id="portfolio-points">
+          <li>Live market visuals with a focused trader-friendly layout.</li>
+          <li>Fast glance UX for quick decision-making under pressure.</li>
+          <li>Lean interface design that keeps distractions low.</li>
+          <li>Built for speed across desktop and mobile screens.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="problems">
     <div class="section-header">
+      <p class="section-eyebrow">AI Automation</p>
       <h2>What's Killing Your Productivity and Costs</h2>
       <p>Most small businesses are drowning in tasks and product costs that should be automated.</p>
     </div>
@@ -887,54 +1006,6 @@
     <h2>Ready to Work Smarter?</h2>
     <p>Book a free 15-minute call. We'll show you what's possible and give you a custom quote.</p>
     <a href="#" class="btn btn-primary quote-trigger">Book Your Free Call or Site Visit</a>
-  </section>
-
-  <section class="portfolio-section" id="website-portfolio">
-    <h2>Our Website Portfolio</h2>
-    <p class="subtitle">A few recent builds and what makes each one stand out. Looking for <a href="/web-design.html">Salisbury &amp; Eastern Shore web design</a>? Plans start at $100 a year with unlimited updates.</p>
-    <figure class="portfolio-review" aria-label="Client review from Matt Houde of iDesign Apparel Store">
-      <div class="portfolio-review-stars" role="img" aria-label="5 out of 5 stars">★★★★★</div>
-      <blockquote>
-        <p>By far the smartest web design support I've worked with and FAST, too! I laid out what I wanted done in great detail and told them my availability. Eastern Shore AI blew my expectations out of the water, and had all improvements to my website up and running well ahead of schedule!!</p>
-        <p>I LOVE the way my site looks and functions!</p>
-      </blockquote>
-      <figcaption><strong>Matt Houde</strong> — Owner, <a href="https://www.idesignas.com" target="_blank" rel="noopener noreferrer">iDesign Apparel Store</a> · 5-star Google review</figcaption>
-    </figure>
-
-    <div class="portfolio-grid">
-      <div class="portfolio-list" aria-label="Portfolio projects">
-        <button type="button" class="portfolio-item active" data-project="stock">Stock Stickies</button>
-        <button type="button" class="portfolio-item" data-project="florence">Florence Mae Gifts</button>
-        <button type="button" class="portfolio-item" data-project="cbf">CBF Church</button>
-        <button type="button" class="portfolio-item" data-project="bible">Bible Reading Plan</button>
-        <button type="button" class="portfolio-item" data-project="idesign">iDesign Apparel Store</button>
-      </div>
-
-      <div class="portfolio-preview">
-        <a id="portfolio-link" class="portfolio-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer">www.stockstickies.com</a>
-        <div class="portfolio-shots">
-          <a id="portfolio-image-link" class="portfolio-image-link" href="https://www.stockstickies.com" target="_blank" rel="noopener noreferrer" aria-label="Open selected portfolio site">
-            <img id="portfolio-image" src="/portfolio-stockstickies-notes.jpg" alt="Stock Stickies notes board screenshot" loading="lazy" decoding="async" />
-          </a>
-          <button type="button" class="portfolio-nav prev" id="portfolio-prev" aria-label="Previous screenshot">&#8249;</button>
-          <button type="button" class="portfolio-nav next" id="portfolio-next" aria-label="Next screenshot">&#8250;</button>
-        </div>
-        <div class="portfolio-shot-bar">
-          <span class="portfolio-caption" id="portfolio-caption" aria-live="polite">Notes board</span>
-          <div class="portfolio-dots" id="portfolio-dots" aria-label="Choose screenshot"></div>
-        </div>
-        <a href="#" class="btn btn-primary quote-trigger portfolio-cta">Get Your Free Website Design Quote Now</a>
-      </div>
-
-      <div class="portfolio-details">
-        <ul id="portfolio-points">
-          <li>Live market visuals with a focused trader-friendly layout.</li>
-          <li>Fast glance UX for quick decision-making under pressure.</li>
-          <li>Lean interface design that keeps distractions low.</li>
-          <li>Built for speed across desktop and mobile screens.</li>
-        </ul>
-      </div>
-    </div>
   </section>
 
   <footer>
@@ -1038,7 +1109,7 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       const text = triggerText.trim();
       if (text === 'AI Agent Repair') return 'AI Agent Repair Quote';
       if (text === 'Get Your Free Assessment' || text === 'Book Your Free Call or Site Visit') return 'AI Automation Quote';
-      if (text === 'Website Design' || text === 'Get Your Free Website Design Quote Now' || text === 'Get Your Free Quote Now' || text === 'Send Your Message') return 'Website Quote';
+      if (text === 'Website Design' || text === 'Get Your Free Website Quote' || text === 'Get Your Free Website Design Quote Now' || text === 'Get Your Free Quote Now' || text === 'Send Your Message') return 'Website Quote';
       return 'General Quote';
     }
 
