@@ -369,6 +369,9 @@
     .header-nav a:hover { color: var(--cyan); }
     .header-nav a.web-link { color: var(--pink); }
     .header-nav a.web-link:hover { color: var(--cyan); }
+    .header-nav a.node-link { color: #9ed0ff; }
+    .header-nav a.node-link:hover { color: var(--cyan); }
+    body[data-theme="light"] .header-nav a.node-link { color: #1a6bb0; }
     .header-nav a.openclaw-link {
       transition: color .2s ease, text-shadow .2s ease;
       display: inline-block;
@@ -539,6 +542,7 @@
       font-size: 2rem;
       margin: 0 0 1rem;
     }
+    .section-header a[href^="tel:"] { white-space: nowrap; }
     .section-header p {
       color: var(--muted);
       font-size: 1.1rem;
@@ -961,11 +965,24 @@
     }
     @media (max-width: 768px) {
       .guarantee, .form-grid { grid-template-columns: 1fr; }
+      /* Comparison table becomes one card per row */
+      .compare { min-width: 0; }
+      .compare thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+      .compare, .compare tbody, .compare tr, .compare th, .compare td { display: block; }
+      .compare tr { padding: 1rem 1.1rem; border-bottom: 1px solid var(--line); }
+      .compare tr:last-child { border-bottom: none; }
+      .compare tbody th { padding: 0 0 0.45rem; border: none; color: var(--cyan); font-family: 'Hanken Grotesk', system-ui, sans-serif; }
+      .compare td { display: grid; grid-template-columns: 8.5rem 1fr; gap: 0.6rem; padding: 0.3rem 0; border: none; background: none; }
+      .compare td::before { content: attr(data-label); color: var(--muted); font-size: 0.85rem; }
+      .compare td.us { background: none; }
+      .compare td.us::before { color: var(--pink); font-weight: 600; }
       .start-card input, .start-card textarea { font-size: 16px; }
       /* Rest of mobile adjustments */
       .hero { padding: 100px 1rem 60px; }
       .stats { grid-template-columns: 1fr 1fr; }
-      .portfolio-grid { grid-template-columns: 1fr; }
+      .stats .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
+      .portfolio-grid { grid-template-columns: minmax(0, 1fr); }
+      .portfolio-link { font-size: 0.8rem; letter-spacing: 0.03em; overflow-wrap: anywhere; }
       .portfolio-list, .portfolio-preview, .portfolio-details { min-height: 0; }
       .portfolio-preview img { height: 340px; }
       .portfolio-cta { width: 100%; }
@@ -976,6 +993,9 @@
       .header-logo { font-size: 1rem; white-space: nowrap; }
       .theme-toggle { padding: 0.28rem; }
       .theme-toggle-label { display: none; }
+      .hero-badge { font-size: 0.7rem; letter-spacing: 0.06em; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+      .hero-buttons .btn { width: 100%; max-width: 300px; text-align: center; }
     }
   </style>
   <!-- Reddit Pixel -->
@@ -993,7 +1013,7 @@
       <nav class="header-nav" id="header-nav">
         <a href="/#website-plan" class="web-link">💻 $100/yr Websites</a>
         <a href="openclaw-setup.html" class="openclaw-link" style="color:#C73E2D;">🦞 $100 OpenClaw Setup</a>
-        <a href="node.html" style="color:#9ed0ff;">⚙️ Survival Node</a>
+        <a href="node.html" class="node-link">⚙️ Survival Node</a>
         <a href="/ai-automation.html">AI Automation</a>
         <a href="#" class="quote-trigger">AI Agent Repair</a>
         <a href="book-lessons.html">Tech Tutoring</a>
@@ -1183,12 +1203,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr><th scope="row">Cost</th><td class="us">$100 a year, all in, and it never goes up</td><td>Monthly subscription, plus your time</td><td>Often thousands up front</td></tr>
-          <tr><th scope="row">Who builds it</th><td class="us">We do</td><td>You do</td><td>They do</td></tr>
-          <tr><th scope="row">Changes</th><td class="us">Unlimited, included</td><td>You make them yourself</td><td>Often billed by the hour</td></tr>
-          <tr><th scope="row">Update speed</th><td class="us">Within 24 hours, guaranteed</td><td>Whenever you find time</td><td>Days to weeks</td></tr>
-          <tr><th scope="row">Domain &amp; hosting</th><td class="us">Included, domain in your name</td><td>Varies by plan</td><td>Often billed separately</td></tr>
-          <tr><th scope="row">Local help</th><td class="us">Yes, we can meet at your business</td><td>Online support</td><td>Varies</td></tr>
+          <tr><th scope="row">Cost</th><td class="us" data-label="Eastern Shore AI">$100 a year, all in, and it never goes up</td><td data-label="DIY website builder">Monthly subscription, plus your time</td><td data-label="Typical agency">Often thousands up front</td></tr>
+          <tr><th scope="row">Who builds it</th><td class="us" data-label="Eastern Shore AI">We do</td><td data-label="DIY website builder">You do</td><td data-label="Typical agency">They do</td></tr>
+          <tr><th scope="row">Changes</th><td class="us" data-label="Eastern Shore AI">Unlimited, included</td><td data-label="DIY website builder">You make them yourself</td><td data-label="Typical agency">Often billed by the hour</td></tr>
+          <tr><th scope="row">Update speed</th><td class="us" data-label="Eastern Shore AI">Within 24 hours, guaranteed</td><td data-label="DIY website builder">Whenever you find time</td><td data-label="Typical agency">Days to weeks</td></tr>
+          <tr><th scope="row">Domain &amp; hosting</th><td class="us" data-label="Eastern Shore AI">Included, domain in your name</td><td data-label="DIY website builder">Varies by plan</td><td data-label="Typical agency">Often billed separately</td></tr>
+          <tr><th scope="row">Local help</th><td class="us" data-label="Eastern Shore AI">Yes, we can meet at your business</td><td data-label="DIY website builder">Online support</td><td data-label="Typical agency">Varies</td></tr>
         </tbody>
       </table>
     </div>
