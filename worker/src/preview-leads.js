@@ -5,6 +5,7 @@
 //   POST /api/preview/lead            -> "call me" (with a date/time) or "not for me"
 // Rows live in D1 table preview_events (migration 0036).
 import { sendEmail, emailConfigured } from './email.js';
+import { emailLayout, TAGLINES, BUSINESS_LOCATION } from './email-layout.js';
 
 export const PREVIEW_SITES = {
   garcias: { name: "Garcia's Tire Shop", phone: '(302) 212-6898', email: '' },
@@ -139,17 +140,18 @@ export function createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendS
     const from = env.CONTACT_FROM_EMAIL || env.FROM_EMAIL;
     if (!emailConfigured(env) || !from) return;
     const how = method === 'text' ? `text you first at ${phone}` : `call you at ${phone}`;
-    const font = 'font-family:Arial,Helvetica,sans-serif;';
-    const html = `<div style="margin:0;padding:24px 12px;background:#EEF0F3;${font}">`
-      + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #DDE1E6;border-radius:10px;">`
-      + `<tr><td style="padding:26px 28px 8px;${font}color:#15181D;font-size:15px;line-height:1.6;">`
-      + `<h1 style="margin:0 0 12px;font-size:21px;${font}">You're all set</h1>`
-      + `<p style="margin:0 0 12px;">Thanks for taking a look at the website I built for ${escapeHtml(site.name)}. I'll ${escapeHtml(how)} on <strong>${escapeHtml(info.label)}</strong>.</p>`
-      + `<p style="margin:0 0 12px;">A calendar invite is attached. If something comes up, just reply to this email or call or text me at (302) 907-9162.</p>`
-      + `<p style="margin:0 0 12px;">Your site: <a href="${SITE}/${slug}" style="color:#0E6E86;">www.easternshore.ai/${slug}</a></p>`
-      + `<p style="margin:0 0 18px;">Talk soon,<br>Chris<br><span style="color:#5B6370;">Eastern Shore AI, LLC</span></p>`
-      + `</td></tr><tr><td style="padding:14px 28px;border-top:1px solid #E5E7EB;background:#F7F8FA;border-radius:0 0 10px 10px;${font}font-size:12px;color:#5B6370;line-height:1.6;">Eastern Shore AI, LLC &middot; PO Box 317, Parsonsburg, MD 21849 &middot; <a href="${SITE}" style="color:#0E6E86;">easternshore.ai</a></td></tr></table></div>`;
-    const text = `You're all set\n\nThanks for taking a look at the website I built for ${site.name}. I'll ${how} on ${info.label}.\n\nA calendar invite is attached. If something comes up, just reply to this email or call or text me at (302) 907-9162.\n\nYour site: ${SITE}/${slug}\n\nTalk soon,\nChris\nEastern Shore AI, LLC\nPO Box 317, Parsonsburg, MD 21849`;
+    const p = (html) => `<p style="margin:0 0 12px;">${html}</p>`;
+    const html = emailLayout({
+      heading: "You're all set",
+      preheader: `I'll ${how} on ${info.label}.`,
+      tagline: TAGLINES.websites,
+      body: p(`Thanks for taking a look at the website I built for ${escapeHtml(site.name)}. I'll ${escapeHtml(how)} on <strong>${escapeHtml(info.label)}</strong>.`)
+        + p('A calendar invite is attached. If something comes up, just reply to this email or call or text me at (302) 907-9162.')
+        + p(`Your site: <a href="${SITE}/${slug}" style="color:#0E6E86;">www.easternshore.ai/${slug}</a>`)
+        + `<p style="margin:0 0 18px;">Talk soon,<br>Chris<br><span style="color:#5B6370;">Eastern Shore AI, LLC</span></p>`,
+      footerNote: "You're receiving this because you asked for a call about your website preview. Just reply if you need a different time."
+    });
+    const text = `You're all set\n\nThanks for taking a look at the website I built for ${site.name}. I'll ${how} on ${info.label}.\n\nA calendar invite is attached. If something comes up, just reply to this email or call or text me at (302) 907-9162.\n\nYour site: ${SITE}/${slug}\n\nTalk soon,\nChris\nEastern Shore AI, LLC\n${BUSINESS_LOCATION}`;
     const ics = icsFor({ at: info.at, anytime: info.anytime, summary: `Call with Chris (Eastern Shore AI) about your website`, description: `Chris will ${how}. Your site: ${SITE}/${slug}. Questions: (302) 907-9162.` });
     const res = await sendEmail(env, {
       from, to: [to], reply_to: 'contact@easternshore.ai',

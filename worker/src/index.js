@@ -9,6 +9,7 @@ import {
 import { createWebsitePlanHandlers } from './website-plan.js';
 import { createPreviewLeadHandlers } from './preview-leads.js';
 import { sendEmail, emailConfigured } from './email.js';
+import { emailLayout, emailButton, emailButtonRow, detailsBox, callout, emailParagraphs, itemsTable, smallPrint, TAGLINES, BUSINESS_LOCATION } from './email-layout.js';
 import { handleEmailEventBatch } from './email-events.js';
 import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
 import ASKK_SURVIVAL_NODE_KNOWLEDGE from '../askk-survival-node-knowledge.md';
@@ -2421,15 +2422,6 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
   ].filter(Boolean).join('\n');
 }
 
-function textToEmailHtml(text) {
-  const blocks = (text || '').toString().trim().split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
-  if (!blocks.length) return '<p style="margin:0 0 14px;color:#d8dce8;">&nbsp;</p>';
-  return blocks.map((part) => {
-    const html = escapeHtml(part).replace(/contact@easternshore\.ai/g, '<a href="mailto:contact@easternshore.ai" style="color:#00e5ff;">contact@easternshore.ai</a>');
-    return `<p style="margin:0 0 20px;color:#d8dce8;white-space:pre-wrap;line-height:1.7;">${html}</p>`;
-  }).join('');
-}
-
 
 function buildOrderEmailContent(kind, row, overrides = {}) {
   const trackingProvider = (overrides.trackingProvider ?? row?.tracking_provider ?? '').toString().trim();
@@ -2450,29 +2442,39 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
       : kind === 'review'
         ? 'We\'d love to hear what you think!'
         : 'Your items are currently being quality checked';
-  const detailLines = [
-    orderNumber ? `<strong>Order Number:</strong> ${escapeHtml(orderNumber)}` : '',
-    `<strong>Order:</strong> ${escapeHtml(summary)}`,
-    `<strong>Amount:</strong> ${escapeHtml(formatUsd(Number(row?.amount_cents || 0)))}`,
-    row?.payment_date ? `<strong>Payment Date:</strong> ${escapeHtml(String(row.payment_date).slice(0, 10))}` : '',
-    trackingProvider ? `<strong>Carrier:</strong> ${escapeHtml(trackingProvider)}` : '',
-    trackingNumber ? `<strong>Tracking Number:</strong> ${escapeHtml(trackingNumber)}` : ''
-  ].filter(Boolean).join('<br>');
   const batteryTestNote = (overrides.batteryTestNote ?? row?.battery_test_note ?? '').toString().trim();
   const batteryTestImageKey = (overrides.batteryTestImageKey ?? row?.battery_test_image_key ?? '').toString().trim();
-  const batteryHtml = (batteryTestNote || batteryTestImageKey)
-    ? `<div style="margin:20px 0;padding:16px 20px;background:#101923;border:1px solid #26364a;border-left:4px solid #00e5ff;border-radius:6px;"><div style="font-weight:700;color:#00e5ff;margin-bottom:8px;">Battery Test Results</div>${batteryTestNote ? `<div style="color:#d8dce8;white-space:pre-wrap;">${escapeHtml(batteryTestNote)}</div>` : ''}${batteryTestImageKey ? `<div style="margin-top:10px;"><a href="https://services.easternshore.ai/api/orders/battery-image?key=${encodeURIComponent(batteryTestImageKey)}" style="color:#9ed0ff;">View AccuBattery results &rarr;</a></div>` : ''}</div>`
-    : '';
-  const shippingGuideHtml = kind === 'delivered'
-    ? `<div style="margin:28px 0;padding:16px 20px;background:#101923;border:1px solid #26364a;border-left:4px solid #c850ff;border-radius:6px;color:#d8dce8;"><div style="font-weight:700;color:#d8c2ff;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is an app on the main screen of the phone — just tap it to open anytime.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#9ed0ff;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
-    : '';
-  const googleReviewHtml = kind === 'review'
-    ? `<div style="margin:24px 0;text-align:center;"><a href="${GOOGLE_REVIEW_URL}" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-weight:700;font-size:16px;">Leave a Google Review &#9733;</a></div>`
+  const showBattery = (batteryTestNote || batteryTestImageKey) && kind !== 'delivered' && kind !== 'review';
+  const batteryHtml = showBattery
+    ? `<div style="margin:0 0 16px;">${callout('Battery Test Results',
+      (batteryTestNote ? escapeHtml(batteryTestNote).replace(/\n/g, '<br>') : '')
+      + (batteryTestImageKey ? `${batteryTestNote ? '<br>' : ''}<a href="https://services.easternshore.ai/api/orders/battery-image?key=${encodeURIComponent(batteryTestImageKey)}" style="color:#0E6E86;">View AccuBattery results &rarr;</a>` : ''))}</div>`
     : '';
   const trackProxyUrl = trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
   const trackButtonLabel = trackingProvider ? `Track on ${trackingProvider.toUpperCase()}` : 'Track Your Shipment';
-  const text = `${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — Fruitland, Maryland\nhttps://www.easternshore.ai`;
-  const html = `<!doctype html><html><head><meta name="color-scheme" content="dark"><meta name="supported-color-schemes" content="dark"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#0a0b10;color:#d8dce8;"><div style="font-family:Arial,sans-serif;background:#0a0b10;padding:24px 12px;color:#d8dce8;color-scheme:dark;"><div style="max-width:700px;margin:0 auto;background:#141620;border:1px solid #2a2d42;border-radius:12px;overflow:hidden;"><div style="height:4px;background:#00e5ff;background-image:linear-gradient(90deg,#00e5ff,#c850ff,#ff4fd8);font-size:0;line-height:0;">&nbsp;</div><div style="padding:24px;background:#0c0d14;border-bottom:1px solid #222438;color:#eaf1ff;"><div style="font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:#00e5ff;font-weight:700;">Eastern Shore AI</div><h1 style="margin:8px 0 0;font-size:25px;line-height:1.25;color:#eaf1ff;">${escapeHtml(subject)}</h1><div style="margin-top:9px;font-size:14px;color:#a5b1c8;">${escapeHtml(preheader)}</div></div><div style="padding:24px;background:#141620;"><div style="margin:0 0 22px;padding:16px 18px;background:#10121a;border:1px solid #222438;border-left:4px solid #c850ff;border-radius:6px;color:#d8dce8;line-height:1.55;">${detailLines}</div>${textToEmailHtml(bodyText)}${(kind === 'delivered' || kind === 'review') ? '' : batteryHtml}${trackProxyUrl && kind !== 'delivered' && kind !== 'review' ? `<div style="margin:24px 0 10px;text-align:center;"><a href="${escapeHtml(trackProxyUrl)}" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:13px 22px;border-radius:6px;font-weight:700;">${escapeHtml(trackButtonLabel)}</a><div style="margin-top:9px;font-size:11px;color:#7a7e96;">Tracking opens the official carrier website.</div></div>` : ''}${shippingGuideHtml}${googleReviewHtml}</div><div style="padding:18px 24px;border-top:1px solid #222438;background:#0c0d14;color:#a5b1c8;font-size:13px;line-height:1.5;text-align:center;"><div style="margin-bottom:10px;color:#a5b1c8;"><strong style="color:#d8dce8;">Why you received this:</strong> ${escapeHtml(transactionContext)}</div><div style="margin-bottom:14px;padding:10px 12px;background:#10121a;border:1px solid #222438;border-radius:5px;color:#a5b1c8;font-size:12px;"><strong style="color:#d8c2ff;">Security reminder:</strong> ${escapeHtml(securityReminder)}</div><strong style="color:#d8dce8;">Eastern Shore AI, LLC</strong><span style="color:#7a7e96;"> &bull; </span>Fruitland, Maryland<div style="margin-top:6px;"><a href="mailto:contact@easternshore.ai" style="color:#00e5ff;">contact@easternshore.ai</a><span style="color:#7a7e96;"> &bull; </span><a href="tel:+13029079162" style="color:#00e5ff;">(302) 907-9162</a></div><div style="margin-top:6px;"><a href="https://www.easternshore.ai" style="color:#00e5ff;">www.easternshore.ai</a></div><p style="margin:8px 0 0;font-size:11px;line-height:1.45;color:#7a7e96;">Privacy: We use your contact information only to fulfill your order and send related service communications.</p></div></div></div></body></html>`;
+  const trackHtml = trackProxyUrl && kind !== 'delivered' && kind !== 'review'
+    ? emailButton(trackProxyUrl, trackButtonLabel) + smallPrint('Tracking opens the official carrier website.')
+    : '';
+  const reviewHtml = kind === 'review' ? emailButton(GOOGLE_REVIEW_URL, 'Leave a Google Review \u2605') : '';
+  const gettingStarted = kind === 'delivered'
+    ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
+    : '';
+  const text = `${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — ${BUSINESS_LOCATION}\nhttps://www.easternshore.ai`;
+  const html = emailLayout({
+    heading: subject,
+    preheader,
+    tagline: TAGLINES.survivalNode,
+    body: detailsBox([
+      ['Order Number', orderNumber],
+      ['Order', summary],
+      ['Amount', formatUsd(Number(row?.amount_cents || 0))],
+      ['Payment Date', row?.payment_date ? String(row.payment_date).slice(0, 10) : ''],
+      ['Carrier', trackingProvider ? trackingProvider.toUpperCase() : ''],
+      ['Tracking Number', trackingNumber]
+    ]) + emailParagraphs(bodyText) + batteryHtml + trackHtml + reviewHtml,
+    panels: [gettingStarted],
+    footerNote: `<strong>Why you received this:</strong> ${escapeHtml(transactionContext)}<br><strong>Security reminder:</strong> ${escapeHtml(securityReminder)}<br>Privacy: We use your contact information only to fulfill your order and send related service communications.`
+  });
   return { subject, bodyText, html, text };
 }
 
@@ -2813,19 +2815,24 @@ async function sendServiceBuyerConfirmationForSession(env, { sessionId, customer
   const slotLines = (Array.isArray(slots) ? slots : [])
     .map((slot) => `${slot.setupDate || ''} ${slot.setupTime || ''}`.trim())
     .filter(Boolean);
-  const slotHtml = slotLines.length
-    ? `<p><strong>Scheduled time${slotLines.length > 1 ? 's' : ''}:</strong><br>${slotLines.map(escapeHtml).join('<br>')}</p>`
-    : '';
   const slotText = slotLines.length ? `\nScheduled time${slotLines.length > 1 ? 's' : ''}:\n${slotLines.join('\n')}` : '';
   const subject = `Your Eastern Shore AI booking is confirmed`;
   const text = `Hi ${customerName || 'there'},\n\nThanks for your payment. Your ${serviceLabel || serviceType || 'booking'} is confirmed.${slotText}\n\nTotal paid: ${formatUsd(amountCents)}\nReference: ${sessionId || 'n/a'}\n\nWe'll follow up with any next steps.\n\n— Eastern Shore AI`;
-  const html = `<p>Hi ${safeName},</p>
-<p>Thanks for your payment. Your <strong>${safeService}</strong> is confirmed.</p>
-${slotHtml}
-<p><strong>Total paid:</strong> ${formatUsd(amountCents)}</p>
-<p>We'll follow up with any next steps.</p>
-<p>&mdash; Eastern Shore AI</p>
-<hr><p style="color:#888;font-size:12px;">Reference: ${escapeHtml(sessionId || 'n/a')}</p>`;
+  const html = emailLayout({
+    heading: 'Your booking is confirmed',
+    preheader: `Thanks for your payment. Your ${serviceLabel || serviceType || 'booking'} is confirmed.`,
+    tagline: TAGLINES.services,
+    body: `<p style="margin:0 0 12px;">Hi ${safeName},</p>`
+      + `<p style="margin:0 0 12px;">Thanks for your payment. Your <strong>${safeService}</strong> is confirmed.</p>`
+      + detailsBox([
+        [`Scheduled time${slotLines.length > 1 ? 's' : ''}`, slotLines.length ? { html: slotLines.map(escapeHtml).join('<br>') } : ''],
+        ['Total paid', formatUsd(amountCents)],
+        ['Reference', sessionId || 'n/a']
+      ])
+      + `<p style="margin:0 0 12px;">We'll follow up with any next steps.</p>`
+      + `<p style="margin:0 0 12px;">&mdash; Eastern Shore AI</p>`,
+    footerNote: "You're receiving this because you booked with Eastern Shore AI. Just reply if you have a question."
+  });
 
   const res = await sendEmail(env, {
     from: fromEmail,
@@ -5248,23 +5255,33 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   const notes = (invoice.notes || '').toString().trim();
   const paymentUrl = (invoice.stripe_checkout_url || '').toString().trim();
   const hasPaymentLink = !!paymentUrl && balanceDueCents > 0 && !['paid','void'].includes(String(invoice.status || '').toLowerCase());
-  const payButtonHtml = hasPaymentLink ? `<div style="margin:18px 0 12px;text-align:center;"><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Pay Invoice Securely</a><div style="margin-top:8px;font-size:12px;color:#6b7280;">Secure checkout powered by Stripe</div></div>` : '';
   const fromEmail = contactFromEmail(env);
-
-  const itemRowsHtml = items.map((item) => {
-    const desc = escapeHtml(item.item_description || 'Service');
-    const qty = Number(item.quantity || 1);
-    const unit = Number(item.unit_amount_cents || 0);
-    const line = Number(item.line_total_cents || 0);
-    return `<tr>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;">${desc}</td>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:center;">${qty}</td>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(unit)}</td>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(line)}</td>
-    </tr>`;
-  }).join('');
-
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Invoice ${escapeHtml(invoice.invoice_number || `INV-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(invoice.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thanks for working with Eastern Shore AI. Your invoice details are below.</p><div style="margin:0 0 14px;color:#111827;"><strong>Issue Date:</strong> ${escapeHtml(invoice.issue_date || '')}<br><strong>Due Date:</strong> ${escapeHtml(invoice.due_date || '')}<br><strong>Customer:</strong> ${escapeHtml(invoice.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div>${taxCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Tax</span><strong>${formatUsd(taxCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div>${amountPaidCents > 0 ? `<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Paid</span><strong>${formatUsd(amountPaidCents)}</strong></div>` : ''}<div style="display:flex;justify-content:flex-end;gap:20px;margin-top:4px;"><span>Balance Due</span><strong>${formatUsd(balanceDueCents)}</strong></div></div>${payButtonHtml}${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<p style="margin:18px 0 0;color:#374151;text-align:center;">Questions? Reply to this email or contact us at (302) 907-9162 and we'll get back to you ASAP.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to prepare and deliver your invoice and related service communications. Terms: Charges are based on the line items shown; taxes or third-party processing fees may apply where required.</p></div></div></div>`;
+  const lineItems = items.map((item) => ({
+    description: (item.item_description || 'Service').toString(),
+    quantity: Number(item.quantity || 1),
+    unitCents: Number(item.unit_amount_cents || 0),
+    lineCents: Number(item.line_total_cents || 0)
+  }));
+  const invoiceNumber = invoice.invoice_number || `INV-${id}`;
+  const html = emailLayout({
+    heading: `Invoice ${invoiceNumber}`,
+    preheader: balanceDueCents > 0 ? `${formatUsd(balanceDueCents)} due ${invoice.due_date || ''}`.trim() : `Invoice ${invoiceNumber} from Eastern Shore AI`,
+    tagline: TAGLINES.general,
+    body: `<p style="margin:0 0 12px;">Hi ${escapeHtml(invoice.customer_name || 'there')},</p>`
+      + `<p style="margin:0 0 12px;">Thanks for working with Eastern Shore AI. Your invoice details are below.</p>`
+      + detailsBox([['Issue Date', invoice.issue_date || ''], ['Due Date', invoice.due_date || ''], ['Customer', invoice.customer_name || '']])
+      + itemsTable(lineItems, [
+        ['Subtotal', subtotalCents],
+        ...(taxCents > 0 ? [['Tax', taxCents]] : []),
+        ['Total', totalCents, { strong: true }],
+        ...(amountPaidCents > 0 ? [['Paid', amountPaidCents]] : []),
+        ['Balance Due', balanceDueCents, { strong: true }]
+      ], formatUsd)
+      + (hasPaymentLink ? emailButton(paymentUrl, 'Pay Invoice Securely') + smallPrint('Secure checkout powered by Stripe') : '')
+      + (notes ? `<p style="margin:0 0 12px;"><strong>Description of work:</strong><br>${escapeHtml(notes).replace(/\n/g, '<br>')}</p>` : '')
+      + `<p style="margin:0 0 12px;">Questions? Reply to this email or contact us at (302) 907-9162 and we'll get back to you ASAP.</p>`,
+    footerNote: 'Privacy: We use your contact information only to prepare and deliver your invoice and related service communications. Terms: Charges are based on the line items shown; taxes or third-party processing fees may apply where required.'
+  });
 
   const textLines = [
     `Eastern Shore AI Invoice ${invoice.invoice_number || `INV-${id}`}`,
@@ -5536,20 +5553,26 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
   const acceptUrl = `${baseUrl}/api/quote/accept?token=${encodeURIComponent(quote.accept_token)}`;
   const denyUrl = `${baseUrl}/api/quote/deny?token=${encodeURIComponent(quote.deny_token)}`;
 
-  const itemRowsHtml = items.map((item) => {
-    const desc = escapeHtml(item.item_description || 'Service');
-    const qty = Number(item.quantity || 1);
-    const unit = Number(item.unit_amount_cents || 0);
-    const line = Number(item.line_total_cents || 0);
-    return `<tr>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;">${desc}</td>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:center;">${qty}</td>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(unit)}</td>
-      <td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatUsd(line)}</td>
-    </tr>`;
-  }).join('');
-
-  const html = `<div style="font-family:Arial,sans-serif;background:#f7fafc;padding:24px;color:#111827;"><div style="max-width:760px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;"><img src="https://www.easternshore.ai/carousel.jpg" alt="Eastern Shore AI" style="width:100%;height:auto;display:block;" /><div style="padding:20px 24px;background:linear-gradient(135deg,#0f172a,#1f2937);color:#ffffff;"><div style="font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">Eastern Shore AI</div><h1 style="margin:6px 0 0;font-size:24px;">Quote ${escapeHtml(quote.quote_number || `Q-${id}`)}</h1></div><div style="padding:24px;"><p style="margin:0 0 12px;">Hi ${escapeHtml(quote.customer_name || 'there')},</p><p style="margin:0 0 14px;color:#374151;">Thank you for your interest in Eastern Shore AI services. Here is your personalized quote:</p><div style="margin:0 0 14px;color:#111827;"><strong>Valid Until:</strong> ${escapeHtml(quote.valid_until || '')}<br><strong>Customer:</strong> ${escapeHtml(quote.customer_name || '')}</div><table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:10px 0 14px;"><thead><tr style="background:#f3f4f6;color:#111827;"><th style="padding:10px;text-align:left;">Item</th><th style="padding:10px;text-align:center;">Qty</th><th style="padding:10px;text-align:right;">Unit</th><th style="padding:10px;text-align:right;">Line Total</th></tr></thead><tbody>${itemRowsHtml}</tbody></table><div style="margin-top:10px;"><div style="display:flex;justify-content:flex-end;gap:20px;"><span>Subtotal</span><strong>${formatUsd(subtotalCents)}</strong></div><div style="display:flex;justify-content:flex-end;gap:20px;margin-top:6px;font-size:18px;"><span>Total</span><strong>${formatUsd(totalCents)}</strong></div></div>${notes ? `<p style="margin:16px 0 0;white-space:pre-wrap;color:#374151;"><strong>Description of work:</strong><br>${escapeHtml(notes)}</p>` : ''}<div style="margin:24px 0;text-align:center;"><a href="${acceptUrl}" style="display:inline-block;padding:14px 32px;margin:0 8px;background:#059669;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;">Accept Quote</a><a href="${denyUrl}" style="display:inline-block;padding:14px 32px;margin:0 8px;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;">Decline Quote</a></div><p style="margin:18px 0 0;color:#374151;text-align:center;">Questions? Reply to this email or contact us at (302) 907-9162 and we'll get back to you ASAP.</p></div><div style="padding:14px 24px;border-top:1px solid #e5e7eb;background:#f9fafb;color:#4b5563;font-size:13px;text-align:center;"><strong>Eastern Shore AI, LLC</strong> • <a href="https://www.easternshore.ai" style="color:#2563eb;">www.easternshore.ai</a><p style="margin:6px 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Privacy: We use your contact information only to prepare and deliver your quote and related service communications. Terms: Pricing and scope are based on the listed line items; quote is valid until the listed date unless otherwise stated.</p></div></div></div>`;
+  const lineItems = items.map((item) => ({
+    description: (item.item_description || 'Service').toString(),
+    quantity: Number(item.quantity || 1),
+    unitCents: Number(item.unit_amount_cents || 0),
+    lineCents: Number(item.line_total_cents || 0)
+  }));
+  const quoteNumber = quote.quote_number || `Q-${id}`;
+  const html = emailLayout({
+    heading: `Quote ${quoteNumber}`,
+    preheader: `Your quote from Eastern Shore AI${quote.valid_until ? `, valid until ${quote.valid_until}` : ''}.`,
+    tagline: TAGLINES.general,
+    body: `<p style="margin:0 0 12px;">Hi ${escapeHtml(quote.customer_name || 'there')},</p>`
+      + `<p style="margin:0 0 12px;">Thank you for your interest in Eastern Shore AI services. Here is your personalized quote:</p>`
+      + detailsBox([['Valid Until', quote.valid_until || ''], ['Customer', quote.customer_name || '']])
+      + itemsTable(lineItems, [['Subtotal', subtotalCents], ['Total', totalCents, { strong: true }]], formatUsd)
+      + (notes ? `<p style="margin:0 0 12px;"><strong>Description of work:</strong><br>${escapeHtml(notes).replace(/\n/g, '<br>')}</p>` : '')
+      + emailButtonRow([{ href: acceptUrl, label: 'Accept Quote' }, { href: denyUrl, label: 'Decline Quote', tone: 'secondary' }])
+      + `<p style="margin:0 0 12px;">Questions? Reply to this email or contact us at (302) 907-9162 and we'll get back to you ASAP.</p>`,
+    footerNote: 'Privacy: We use your contact information only to prepare and deliver your quote and related service communications. Terms: Pricing and scope are based on the listed line items; quote is valid until the listed date unless otherwise stated.'
+  });
 
   const textLines = [
     `Eastern Shore AI Quote ${quote.quote_number || `Q-${id}`}`,
@@ -6120,30 +6143,56 @@ async function sendNonConusRefundEmail(env, {
   const greeting = customerName ? `Hi ${customerName},` : 'Hi,';
   const subject = 'Your Survival Node order has been refunded (CONUS-only shipping)';
   const fmt = (c) => `$${(Math.max(Number(c) || 0, 0) / 100).toFixed(2)}`;
+  const p = (html) => `<p style="margin:0 0 12px;">${html}</p>`;
   const refundLine = refundIssued
-    ? `<p>We have refunded <strong>${fmt(refundCents)}</strong> to your original payment method. The refund typically appears within 5&ndash;10 business days depending on your bank.</p>`
-    : `<p>Our automated refund attempt did not succeed. We've been alerted and will issue your refund manually within 1&ndash;2 business days.</p>`;
-  const html = `
-    <p>${greeting}</p>
-    <p>Thanks for your Survival Node order. Unfortunately we can only ship to the <strong>continental United States (CONUS &mdash; the 48 contiguous states + D.C.)</strong>, and the shipping address on your order was in <strong>${state || 'a non-CONUS region'}</strong> (Alaska, Hawaii, U.S. territory, military APO/FPO/DPO, or international).</p>
-    <p>Per our <a href="https://www.easternshore.ai/terms.html">Terms of Sale</a>, non-CONUS orders are canceled and refunded <strong>minus the Stripe payment processing fee</strong>. Stripe retains this fee on refunded transactions and does not return it to us, so it cannot be returned to you.</p>
-    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse; margin:12px 0; font-size:14px;">
-      <tr><td>Order total charged:</td><td style="text-align:right;"><strong>${fmt(orderTotalCents)}</strong></td></tr>
-      <tr><td>Stripe processing fee (retained):</td><td style="text-align:right;">&minus; ${fmt(feeCents)}</td></tr>
-      <tr style="border-top:1px solid #ccc;"><td><strong>Refund issued:</strong></td><td style="text-align:right;"><strong>${fmt(refundCents)}</strong></td></tr>
-    </table>
-    ${refundLine}
-    <p>If you'd like to ship to a continental U.S. address instead, please reply to this email or write to <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> and we'll help work it out.</p>
-    <p>&mdash; Eastern Shore AI</p>
-    <hr />
-    <p style="color:#888; font-size:12px;">Reference: ${sessionId || 'n/a'}</p>
-  `;
+    ? `We have refunded <strong>${fmt(refundCents)}</strong> to your original payment method. The refund typically appears within 5&ndash;10 business days depending on your bank.`
+    : `Our automated refund attempt did not succeed. We've been alerted and will issue your refund manually within 1&ndash;2 business days.`;
+  const where = escapeHtml(state || 'a non-CONUS region');
+  const html = emailLayout({
+    heading: 'Your order has been refunded',
+    preheader: refundIssued ? `We've refunded ${fmt(refundCents)} to your original payment method.` : 'Your refund is on its way.',
+    tagline: TAGLINES.survivalNode,
+    body: p(escapeHtml(greeting))
+      + p(`Thanks for your Survival Node order. Unfortunately we can only ship to the <strong>continental United States (CONUS &mdash; the 48 contiguous states + D.C.)</strong>, and the shipping address on your order was in <strong>${where}</strong> (Alaska, Hawaii, U.S. territory, military APO/FPO/DPO, or international).`)
+      + p(`Per our <a href="https://www.easternshore.ai/terms.html" style="color:#0E6E86;">Terms of Sale</a>, non-CONUS orders are canceled and refunded <strong>minus the Stripe payment processing fee</strong>. Stripe retains this fee on refunded transactions and does not return it to us, so it cannot be returned to you.`)
+      + detailsBox([
+        ['Order total charged', fmt(orderTotalCents)],
+        ['Stripe processing fee (retained)', `\u2212 ${fmt(feeCents)}`],
+        ['Refund issued', fmt(refundCents)]
+      ])
+      + p(refundLine)
+      + p(`If you'd like to ship to a continental U.S. address instead, please reply to this email or write to <a href="mailto:contact@easternshore.ai" style="color:#0E6E86;">contact@easternshore.ai</a> and we'll help work it out.`)
+      + p('&mdash; Eastern Shore AI'),
+    footerNote: `This is about your Survival Node order (reference ${escapeHtml(sessionId || 'n/a')}). Just reply if you have a question.`
+  });
+  const text = [
+    greeting,
+    '',
+    `Thanks for your Survival Node order. Unfortunately we can only ship to the continental United States (CONUS: the 48 contiguous states + D.C.), and the shipping address on your order was in ${state || 'a non-CONUS region'} (Alaska, Hawaii, U.S. territory, military APO/FPO/DPO, or international).`,
+    '',
+    'Per our Terms of Sale (https://www.easternshore.ai/terms.html), non-CONUS orders are canceled and refunded minus the Stripe payment processing fee. Stripe retains this fee on refunded transactions and does not return it to us, so it cannot be returned to you.',
+    '',
+    `Order total charged: ${fmt(orderTotalCents)}`,
+    `Stripe processing fee (retained): -${fmt(feeCents)}`,
+    `Refund issued: ${fmt(refundCents)}`,
+    '',
+    refundIssued
+      ? `We have refunded ${fmt(refundCents)} to your original payment method. The refund typically appears within 5-10 business days depending on your bank.`
+      : "Our automated refund attempt did not succeed. We've been alerted and will issue your refund manually within 1-2 business days.",
+    '',
+    "If you'd like to ship to a continental U.S. address instead, please reply to this email or write to contact@easternshore.ai and we'll help work it out.",
+    '',
+    '— Eastern Shore AI',
+    '',
+    `Reference: ${sessionId || 'n/a'}`
+  ].join('\n');
   const res = await sendEmail(env, {
     from: fromEmail,
     to: [toEmail],
     ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
     subject,
-    html
+    html,
+    text
   });
   if (!res.ok) {
     const errText = await res.text().catch(() => '');

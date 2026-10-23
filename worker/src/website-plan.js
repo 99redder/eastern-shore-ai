@@ -9,6 +9,7 @@
 // Subscription payments are recorded from invoice.paid (keyed by invoice id),
 // one-time payments from checkout.session.completed (keyed by session id).
 import { sendEmail as deliverEmail, emailConfigured } from './email.js';
+import { emailLayout, emailButton, callout, TAGLINES } from './email-layout.js';
 
 export const WEBSITE_AGREEMENT_VERSION = '2026-10-22.1';
 export const WEBSITE_PLAN_PRICE_CENTS = 10000;
@@ -148,37 +149,18 @@ export function createWebsitePlanHandlers(deps) {
     return data?.id || null;
   }
 
-  // Branded, spam-safe email layout: tables + inline styles, one small logo on our
-  // own domain, no tracking pixels, text-heavy. Always send a plain-text part too.
+  // Website-plan emails use the shared customer email layout (email-layout.js).
   function emailShell(innerHtml, { preheader = '', heading = '', manage = true } = {}) {
-    const font = "font-family:Arial,Helvetica,sans-serif;";
     const link = 'color:#0E6E86;text-decoration:none;';
-    return `<div style="margin:0;padding:24px 12px;background:#EEF0F3;${font}">`
-      + (preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#EEF0F3;font-size:1px;line-height:1px;">${escapeHtml(preheader)}</div>` : '')
-      + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:#FFFFFF;border:1px solid #DDE1E6;border-radius:10px;border-collapse:separate;">`
-      + `<tr><td style="background:#0A0B10;padding:18px 26px;border-radius:10px 10px 0 0;">`
-      + `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>`
-      + `<td style="vertical-align:middle;"><img src="${SITE}/images/esai-badge.jpg" width="46" height="42" alt="Eastern Shore AI" style="display:block;border:0;border-radius:6px;"></td>`
-      + `<td style="vertical-align:middle;padding-left:12px;${font}"><div style="color:#FFFFFF;font-size:17px;font-weight:bold;line-height:1.2;">Eastern Shore AI</div><div style="color:#7FE8FF;font-size:12px;line-height:1.4;">Websites for local businesses</div></td>`
-      + `</tr></table></td></tr>`
-      + `<tr><td style="height:3px;line-height:3px;font-size:0;background:#00B8D4;">&nbsp;</td></tr>`
-      + `<tr><td style="padding:28px 28px 10px;color:#15181D;font-size:15px;line-height:1.6;${font}">`
-      + (heading ? `<h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;color:#15181D;${font}">${escapeHtml(heading)}</h1>` : '')
-      + innerHtml
-      + `</td></tr>`
-      + (manage ? `<tr><td style="padding:6px 28px 24px;${font}"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EEF7F9;border:1px solid #CFE6EC;border-radius:8px;"><tr><td style="padding:14px 16px;${font}font-size:13px;line-height:1.6;color:#2A3B42;">`
-        + `<strong style="color:#0A5568;font-size:14px;">Manage your plan any time</strong><br>`
-        + `Click <strong>"Manage My Website Plan"</strong> at the bottom of <a href="${SITE}" style="${link}">www.easternshore.ai</a>, or go to <a href="${SITE}/my-plan.html" style="${link}">easternshore.ai/my-plan.html</a>. You can view your agreement, see your renewal date, update your card, and turn automatic renewal on or off. Bookmark it so you always have it.`
-        + `</td></tr></table></td></tr>` : '')
-      + `<tr><td style="padding:18px 28px 22px;border-top:1px solid #E5E7EB;background:#F7F8FA;border-radius:0 0 10px 10px;color:#5B6370;font-size:12px;line-height:1.7;${font}">`
-      + `<strong style="color:#15181D;">Eastern Shore AI, LLC</strong> &middot; Fruitland, Maryland<br>`
-      + `<a href="${SITE}" style="${link}">www.easternshore.ai</a> &middot; <a href="mailto:contact@easternshore.ai" style="${link}">contact@easternshore.ai</a> &middot; <a href="tel:+13029079162" style="${link}">(302) 907-9162</a> &middot; <a href="https://www.facebook.com/easternshoreai" style="${link}">Facebook</a><br>`
-      + `<span style="color:#7A818C;">You're receiving this about your website plan with Eastern Shore AI. Just reply if you have a question.</span>`
-      + `</td></tr></table></div>`;
-  }
-
-  function emailButton(href, label) {
-    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0;"><tr><td style="border-radius:8px;background:#0E6E86;"><a href="${href}" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#FFFFFF;text-decoration:none;border-radius:8px;">${escapeHtml(label)}</a></td></tr></table>`;
+    return emailLayout({
+      heading,
+      preheader,
+      tagline: TAGLINES.websites,
+      body: innerHtml,
+      panels: manage ? [callout('Manage your plan any time',
+        `Click <strong>"Manage My Website Plan"</strong> at the bottom of <a href="${SITE}" style="${link}">www.easternshore.ai</a>, or go to <a href="${SITE}/my-plan.html" style="${link}">easternshore.ai/my-plan.html</a>. You can view your agreement, see your renewal date, update your card, and turn automatic renewal on or off. Bookmark it so you always have it.`)] : [],
+      footerNote: "You're receiving this about your website plan with Eastern Shore AI. Just reply if you have a question."
+    });
   }
 
   function etDateTime(utc) {

@@ -90,6 +90,18 @@ function checkoutCompleted(session) {
   return { id: `evt_${session.id}`, type: 'checkout.session.completed', created: Math.floor(Date.now() / 1000), data: { object: session } };
 }
 
+
+// Every customer email uses the shared layout (src/email-layout.js): the small
+// logo from our own site, the standard footer, no banner photos, and a
+// plain-text part.
+function assertStandardLayout(mail) {
+  assert.match(mail.html, /<img src="https:\/\/www\.easternshore\.ai\/images\/esai-badge\.jpg" width="46" height="42"/, `${mail.subject}: logo`);
+  assert.equal((mail.html.match(/<img /g) || []).length, 1, `${mail.subject}: only the logo image`);
+  assert.match(mail.html, /Eastern Shore AI, LLC<\/strong> &middot; /, `${mail.subject}: footer`);
+  assert.doesNotMatch(mail.html, /carousel\.jpg|linear-gradient|display:flex/, `${mail.subject}: old layout leftovers`);
+  assert.ok(mail.text && mail.text.length > 40, `${mail.subject}: plain-text part`);
+}
+
 const ctx = { waitUntil() {} };
 const post = (path, body, headers = {}) => new Request(`https://worker.example${path}`, {
   method: 'POST', headers: { Origin: SITE, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body)
@@ -155,6 +167,8 @@ test('lesson booking webhook emails the buyer a confirmation and staff a notice'
   assert.equal(toBuyer.from, 'orders@easternshore.ai');
   assert.deepEqual(toBuyer.bcc, ['emailconfirm@easternshore.ai']);
   assert.ok(toBuyer.html && toBuyer.text, 'buyer confirmation should have HTML and text');
+  assertStandardLayout(toBuyer);
+  assert.match(toBuyer.html, /AI lessons and setup/);
   assert.deepEqual(toStaff.to, ['owner@inbox.example']);
 });
 
@@ -179,6 +193,8 @@ test('non-CONUS order: refund issued and the buyer is emailed why', async (t) =>
   assert.match(env.EMAIL.sent[0].html, /AK|Alaska/);
   assert.match(env.EMAIL.sent[0].html, /mailto:contact@easternshore\.ai/);
   assert.doesNotMatch(env.EMAIL.sent[0].html, /contact\.html/);
+  assertStandardLayout(env.EMAIL.sent[0]);
+  assert.match(env.EMAIL.sent[0].text, /Refund issued: \$/);
 });
 
 test('admin order emails: sent once per draft, review email carries List-Unsubscribe', async (t) => {
@@ -221,6 +237,8 @@ test('admin order emails: sent once per draft, review email carries List-Unsubsc
   assert.equal(ack.replyTo, 'contact@easternshore.ai');
   assert.deepEqual(ack.bcc, ['emailconfirm@easternshore.ai']);
   assert.ok(ack.html && ack.text);
+  assertStandardLayout(ack);
+  assert.match(ack.html, /Survival Node/);
 
   // Sending it again later is refused by the sent-at check.
   let res = await send('ack', 'draft-ack-2');
@@ -232,7 +250,11 @@ test('admin order emails: sent once per draft, review email carries List-Unsubsc
     assert.equal(res.status, 200, `${kind}: ${await res.clone().text()}`);
   }
   assert.equal(env.EMAIL.sent.length, 4);
+  env.EMAIL.sent.forEach(assertStandardLayout);
+  assert.match(env.EMAIL.sent[1].html, /Track on USPS/);
+  assert.match(env.EMAIL.sent[2].html, /Getting Started/);
   const review = env.EMAIL.sent[3];
+  assert.match(review.html, /Leave a Google Review/);
   assert.deepEqual(review.headers, { 'List-Unsubscribe': '<mailto:contact@easternshore.ai?subject=Unsubscribe%20from%20review%20requests>' });
   assert.equal(env.EMAIL.sent[0].headers, undefined);
 });
@@ -294,6 +316,7 @@ test('preview lead: confirmation with calendar invite to the business, alert to 
   const alert = env.EMAIL.sent.find((m) => m.to.includes('owner@inbox.example'));
   assert.ok(confirmation && alert, `sent: ${env.EMAIL.sent.map((m) => m.subject)}`);
   assert.deepEqual(confirmation.from, { email: 'contact@easternshore.ai', name: 'Eastern Shore AI' });
+  assertStandardLayout(confirmation);
   assert.equal(confirmation.replyTo, 'contact@easternshore.ai');
   assert.equal(confirmation.attachments.length, 1);
   assert.equal(confirmation.attachments[0].filename, 'call-with-chris.ics');
@@ -362,6 +385,9 @@ test('invoice email comes from contact@, replies go to contact@, Officer K still
   assert.equal(mail.replyTo, 'contact@easternshore.ai');
   assert.deepEqual(mail.cc, ['k@agent.example']);
   assert.deepEqual(mail.bcc, ['emailconfirm@easternshore.ai']);
+  assertStandardLayout(mail);
+  assert.match(mail.html, /Website setup/);
+  assert.match(mail.html, /Balance Due/);
 });
 
 test('quote email comes from contact@ and replies go to contact@', async (t) => {
@@ -377,6 +403,10 @@ test('quote email comes from contact@ and replies go to contact@', async (t) => 
   assert.deepEqual(mail.from, contactSender);
   assert.deepEqual(mail.to, ['quinn@client.example']);
   assert.equal(mail.replyTo, 'contact@easternshore.ai');
+  assertStandardLayout(mail);
+  assert.match(mail.html, /Accept Quote/);
+  assert.match(mail.html, /Decline Quote/);
+  assert.match(mail.html, /\/api\/quote\/accept\?token=acc-tok/);
 });
 
 test('website plan email (agreement link) comes from contact@, matching its "just reply" footer', async (t) => {
@@ -391,7 +421,7 @@ test('website plan email (agreement link) comes from contact@, matching its "jus
   assert.deepEqual(mail.to, ['rosa@shop.example']);
   assert.equal(mail.replyTo, 'contact@easternshore.ai');
   assert.match(mail.html, /Just reply if you have a question/);
-  assert.ok(mail.text);
+  assertStandardLayout(mail);
 });
 
 test('without CONTACT_FROM_EMAIL these emails fall back to FROM_EMAIL', async (t) => {
