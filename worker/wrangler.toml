@@ -25,6 +25,8 @@ ALLOWED_ORIGINS = "https://easternshore.ai,https://www.easternshore.ai,https://e
 TO_EMAIL = "99joefromalamo@gmail.com"
 CC_EMAIL = "officerk@agentmail.to"
 FROM_EMAIL = "noreply@easternshore.ai"
+# Emails that invite a reply (website plan, invoices, quotes, preview confirmations).
+CONTACT_FROM_EMAIL = "Eastern Shore AI <contact@easternshore.ai>"
 ORDERS_FROM_EMAIL = "orders@easternshore.ai"
 ALERTS_FROM_EMAIL = "alerts@easternshore.ai"
 BCC_EMAIL = "emailconfirm@easternshore.ai"
@@ -37,10 +39,10 @@ ASKK_TURNSTILE_ENFORCE = "1"
 
 # Outgoing email (src/email.js) goes through Cloudflare Email Sending on
 # easternshore.ai; if that fails, RESEND_API_KEY (Resend) sends it instead.
-# The binding may only send as these three addresses.
+# The binding may only send as these four addresses.
 [[send_email]]
 name = "EMAIL"
-allowed_sender_addresses = ["noreply@easternshore.ai", "orders@easternshore.ai", "alerts@easternshore.ai"]
+allowed_sender_addresses = ["noreply@easternshore.ai", "contact@easternshore.ai", "orders@easternshore.ai", "alerts@easternshore.ai"]
 
 # Required secrets (set via `wrangler secret put`): RESEND_API_KEY (email fallback), ADMIN_PASSWORD, TOTP_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
 # Web Push secrets (set via `wrangler secret put`): VAPID_SERVER_PUBLIC_KEY, VAPID_SERVER_PRIVATE_KEY

@@ -137,9 +137,10 @@ export function createWebsitePlanHandlers(deps) {
   const MANAGE_TEXT = `Manage your plan any time, even if you lose this email: click "Manage My Website Plan" at the bottom of www.easternshore.ai, or go to ${MANAGE_URL}. You can view your agreement, see your renewal date, update your card, and turn automatic renewal on or off.`;
 
   async function sendEmail(env, { to, subject, html, text, manage = true }) {
-    if (!emailConfigured(env) || !env.FROM_EMAIL) throw new Error('Email provider is not configured');
+    const from = env.CONTACT_FROM_EMAIL || env.FROM_EMAIL;
+    if (!emailConfigured(env) || !from) throw new Error('Email provider is not configured');
     if (manage && text && !text.includes(MANAGE_URL)) text = `${text}\n\n---\n${MANAGE_TEXT}`;
-    const payload = { from: env.FROM_EMAIL, to: [to], subject, html, text, reply_to: 'contact@easternshore.ai' };
+    const payload = { from, to: [to], subject, html, text, reply_to: 'contact@easternshore.ai' };
     if (env.BCC_EMAIL) payload.bcc = [env.BCC_EMAIL];
     const res = await deliverEmail(env, payload);
     const data = await res.json().catch(() => ({}));

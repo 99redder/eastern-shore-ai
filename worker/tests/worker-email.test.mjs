@@ -43,6 +43,7 @@ function baseEnv(overrides = {}) {
     TO_EMAIL: 'owner@inbox.example',
     CC_EMAIL: 'k@agent.example',
     FROM_EMAIL: 'noreply@easternshore.ai',
+    CONTACT_FROM_EMAIL: 'Eastern Shore AI <contact@easternshore.ai>',
     ORDERS_FROM_EMAIL: 'orders@easternshore.ai',
     ALERTS_FROM_EMAIL: 'alerts@easternshore.ai',
     BCC_EMAIL: 'emailconfirm@easternshore.ai',
@@ -176,6 +177,8 @@ test('non-CONUS order: refund issued and the buyer is emailed why', async (t) =>
   assert.equal(env.EMAIL.sent.length, 1);
   assert.deepEqual(env.EMAIL.sent[0].to, ['alaska@example.net']);
   assert.match(env.EMAIL.sent[0].html, /AK|Alaska/);
+  assert.match(env.EMAIL.sent[0].html, /mailto:contact@easternshore\.ai/);
+  assert.doesNotMatch(env.EMAIL.sent[0].html, /contact\.html/);
 });
 
 test('admin order emails: sent once per draft, review email carries List-Unsubscribe', async (t) => {
@@ -290,6 +293,7 @@ test('preview lead: confirmation with calendar invite to the business, alert to 
   const confirmation = env.EMAIL.sent.find((m) => m.to.includes('rosa@shop.example'));
   const alert = env.EMAIL.sent.find((m) => m.to.includes('owner@inbox.example'));
   assert.ok(confirmation && alert, `sent: ${env.EMAIL.sent.map((m) => m.subject)}`);
+  assert.deepEqual(confirmation.from, { email: 'contact@easternshore.ai', name: 'Eastern Shore AI' });
   assert.equal(confirmation.replyTo, 'contact@easternshore.ai');
   assert.equal(confirmation.attachments.length, 1);
   assert.equal(confirmation.attachments[0].filename, 'call-with-chris.ics');
@@ -338,4 +342,64 @@ test('support push queue still goes to its own handler', async (t) => {
   await worker.queue({ queue: 'eastern-shore-ai-support-push', messages }, env);
   assert.equal(env.EMAIL.sent.length, 0);
   assert.ok(messages[0].acked || messages[0].retried);
+});
+
+const contactSender = { email: 'contact@easternshore.ai', name: 'Eastern Shore AI' };
+const adminHeaders = { 'X-Admin-Password': 'admin-test-password' };
+
+test('invoice email comes from contact@, replies go to contact@, Officer K still copied', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv();
+  const id = Number(env.DB.sqlite.prepare(`INSERT INTO invoices (invoice_number, customer_name, customer_email, issue_date, due_date, subtotal_cents, total_cents, balance_due_cents, status)
+    VALUES ('INV-TEST-1', 'Dana Client', 'dana@client.example', '2026-10-23', '2026-11-23', 50000, 50000, 50000, 'draft')`).run().lastInsertRowid);
+  env.DB.sqlite.prepare(`INSERT INTO invoice_line_items (invoice_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?, 'Website setup', 1, 50000, 50000)`).run(id);
+  const res = await worker.fetch(post('/api/accounts/invoices/send', { id }, adminHeaders), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const [mail] = env.EMAIL.sent;
+  assert.deepEqual(mail.from, contactSender);
+  assert.deepEqual(mail.to, ['dana@client.example']);
+  assert.equal(mail.replyTo, 'contact@easternshore.ai');
+  assert.deepEqual(mail.cc, ['k@agent.example']);
+  assert.deepEqual(mail.bcc, ['emailconfirm@easternshore.ai']);
+});
+
+test('quote email comes from contact@ and replies go to contact@', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv();
+  const id = Number(env.DB.sqlite.prepare(`INSERT INTO quotes (quote_number, customer_name, customer_email, valid_until, subtotal_cents, total_cents, status, accept_token, deny_token)
+    VALUES ('Q-TEST-1', 'Quinn Client', 'quinn@client.example', '2026-11-30', 80000, 80000, 'draft', 'acc-tok', 'deny-tok')`).run().lastInsertRowid);
+  env.DB.sqlite.prepare(`INSERT INTO quote_line_items (quote_id, item_description, quantity, unit_amount_cents, line_total_cents) VALUES (?, 'Website build', 1, 80000, 80000)`).run(id);
+  const res = await worker.fetch(post('/api/accounts/quotes/send', { id }, adminHeaders), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const [mail] = env.EMAIL.sent;
+  assert.deepEqual(mail.from, contactSender);
+  assert.deepEqual(mail.to, ['quinn@client.example']);
+  assert.equal(mail.replyTo, 'contact@easternshore.ai');
+});
+
+test('website plan email (agreement link) comes from contact@, matching its "just reply" footer', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv();
+  const id = Number(env.DB.sqlite.prepare(`INSERT INTO website_clients (business_name, contact_name, email, agreement_token) VALUES ('Garcia Tire', 'Rosa Garcia', 'rosa@shop.example', 'tok-123')`).run().lastInsertRowid);
+  const res = await worker.fetch(post('/api/website-clients/link', { id, send: true }, adminHeaders), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const [mail] = env.EMAIL.sent;
+  assert.deepEqual(mail.from, contactSender);
+  assert.deepEqual(mail.to, ['rosa@shop.example']);
+  assert.equal(mail.replyTo, 'contact@easternshore.ai');
+  assert.match(mail.html, /Just reply if you have a question/);
+  assert.ok(mail.text);
+});
+
+test('without CONTACT_FROM_EMAIL these emails fall back to FROM_EMAIL', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv({ CONTACT_FROM_EMAIL: undefined });
+  const id = Number(env.DB.sqlite.prepare(`INSERT INTO website_clients (business_name, email, agreement_token) VALUES ('Shop', 'owner@shop.example', 'tok-456')`).run().lastInsertRowid);
+  const res = await worker.fetch(post('/api/website-clients/link', { id, send: true }, adminHeaders), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.equal(env.EMAIL.sent[0].from, 'noreply@easternshore.ai');
 });

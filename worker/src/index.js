@@ -2845,6 +2845,16 @@ ${slotHtml}
   return { ok: true };
 }
 
+// Emails that invite the customer to reply (website plan, invoices, quotes,
+// preview-site call confirmations) come from contact@, the address in the site
+// footer, and replies go there too (Email Routing forwards it to Gmail).
+// Order emails use ORDERS_FROM_EMAIL; internal alerts use ALERTS_FROM_EMAIL.
+const CONTACT_ADDRESS = 'contact@easternshore.ai';
+
+function contactFromEmail(env) {
+  return (env.CONTACT_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
+}
+
 async function sendStaffOperationalAlert(env, { subject, text, from }) {
   const fromEmail = (from || env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const toEmail = (env.TO_EMAIL || '').toString().trim();
@@ -5212,7 +5222,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  if (!emailConfigured(env) || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+  if (!emailConfigured(env) || !contactFromEmail(env)) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
 
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -5239,8 +5249,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   const paymentUrl = (invoice.stripe_checkout_url || '').toString().trim();
   const hasPaymentLink = !!paymentUrl && balanceDueCents > 0 && !['paid','void'].includes(String(invoice.status || '').toLowerCase());
   const payButtonHtml = hasPaymentLink ? `<div style="margin:18px 0 12px;text-align:center;"><a href="${escapeHtml(paymentUrl)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:700;">Pay Invoice Securely</a><div style="margin-top:8px;font-size:12px;color:#6b7280;">Secure checkout powered by Stripe</div></div>` : '';
-  const fromEmail = (env.FROM_EMAIL || '').toString().trim();
-  const replyToEmail = (env.CC_EMAIL || env.FROM_EMAIL || '').toString().trim();
+  const fromEmail = contactFromEmail(env);
 
   const itemRowsHtml = items.map((item) => {
     const desc = escapeHtml(item.item_description || 'Service');
@@ -5283,7 +5292,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
     subject: `Invoice ${invoice.invoice_number || `INV-${id}`} from Eastern Shore AI`,
     html,
     text: textLines.join('\n'),
-    reply_to: replyToEmail || fromEmail
+    reply_to: CONTACT_ADDRESS
   };
   if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
   if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
@@ -5500,7 +5509,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  if (!emailConfigured(env) || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+  if (!emailConfigured(env) || !contactFromEmail(env)) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
 
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -5521,7 +5530,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
   const subtotalCents = Number(quote.subtotal_cents || 0);
   const totalCents = Number(quote.total_cents || 0);
   const notes = (quote.notes || '').toString().trim();
-  const fromEmail = (env.FROM_EMAIL || '').toString().trim();
+  const fromEmail = contactFromEmail(env);
 
   const baseUrl = new URL(request.url).origin;
   const acceptUrl = `${baseUrl}/api/quote/accept?token=${encodeURIComponent(quote.accept_token)}`;
@@ -5563,7 +5572,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
     subject: `Quote ${quote.quote_number || `Q-${id}`} from Eastern Shore AI`,
     html,
     text: textLines.join('\n'),
-    reply_to: env.CC_EMAIL || fromEmail
+    reply_to: CONTACT_ADDRESS
   };
   if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
   if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
@@ -6124,7 +6133,7 @@ async function sendNonConusRefundEmail(env, {
       <tr style="border-top:1px solid #ccc;"><td><strong>Refund issued:</strong></td><td style="text-align:right;"><strong>${fmt(refundCents)}</strong></td></tr>
     </table>
     ${refundLine}
-    <p>If you'd like to ship to a continental U.S. address instead, please reply to this email or use our <a href="https://www.easternshore.ai/contact.html">contact form</a> and we'll help work it out.</p>
+    <p>If you'd like to ship to a continental U.S. address instead, please reply to this email or write to <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> and we'll help work it out.</p>
     <p>&mdash; Eastern Shore AI</p>
     <hr />
     <p style="color:#888; font-size:12px;">Reference: ${sessionId || 'n/a'}</p>

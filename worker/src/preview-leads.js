@@ -136,7 +136,8 @@ export function createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendS
   }
 
   async function sendOwnerConfirmation(env, { to, site, slug, info, phone, method }) {
-    if (!emailConfigured(env) || !env.FROM_EMAIL) return;
+    const from = env.CONTACT_FROM_EMAIL || env.FROM_EMAIL;
+    if (!emailConfigured(env) || !from) return;
     const how = method === 'text' ? `text you first at ${phone}` : `call you at ${phone}`;
     const font = 'font-family:Arial,Helvetica,sans-serif;';
     const html = `<div style="margin:0;padding:24px 12px;background:#EEF0F3;${font}">`
@@ -151,7 +152,7 @@ export function createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendS
     const text = `You're all set\n\nThanks for taking a look at the website I built for ${site.name}. I'll ${how} on ${info.label}.\n\nA calendar invite is attached. If something comes up, just reply to this email or call or text me at (302) 907-9162.\n\nYour site: ${SITE}/${slug}\n\nTalk soon,\nChris\nEastern Shore AI, LLC\nPO Box 317, Parsonsburg, MD 21849`;
     const ics = icsFor({ at: info.at, anytime: info.anytime, summary: `Call with Chris (Eastern Shore AI) about your website`, description: `Chris will ${how}. Your site: ${SITE}/${slug}. Questions: (302) 907-9162.` });
     const res = await sendEmail(env, {
-      from: env.FROM_EMAIL, to: [to], reply_to: 'contact@easternshore.ai',
+      from, to: [to], reply_to: 'contact@easternshore.ai',
       subject: `Your call with Chris about the ${site.name} website`, html, text,
       attachments: [{ filename: 'call-with-chris.ics', content: btoa(ics), content_type: 'text/calendar' }],
     });
