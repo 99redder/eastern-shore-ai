@@ -17,7 +17,7 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 - **Backend**: Cloudflare Workers (`worker/src/index.js`)
 - **Database**: Cloudflare D1 (SQLite)
 - **Payments**: Stripe (checkout sessions + webhooks)
-- **Email**: Resend API
+- **Email**: Cloudflare Email Sending, Resend as fallback (see **Email** below)
 - **Hosting**: GitHub Pages (frontend), Cloudflare Workers (API)
 
 ## Project Structure
@@ -44,7 +44,17 @@ Marketing and booking website for Eastern Shore AI, a local AI consulting busine
 cd worker && wrangler deploy
 ```
 
-Worker secrets (configured in Cloudflare dashboard): `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_PASSWORD`, `TOTP_SECRET`
+Worker secrets (configured in Cloudflare dashboard): `RESEND_API_KEY` (email fallback), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ADMIN_PASSWORD`, `TOTP_SECRET`
+
+## Email (Cloudflare Email Sending, Resend fallback)
+
+- Every email the worker sends goes through `sendEmail(env, payload)` in `worker/src/email.js`: Cloudflare Email Sending via the `EMAIL` binding first (`[[send_email]]`, allowed senders `noreply@` / `orders@` / `alerts@easternshore.ai`), then Resend (`RESEND_API_KEY`) if Cloudflare throws. Payloads stay in Resend's shape (`from`, `to`, `cc`, `bcc`, `reply_to`, `attachments`, `headers`); the helper converts them. `email.js` is shared word for word with just-in-case and FlorenceMaeGifts.com — change all three together.
+- `website-plan.js` imports it as `deliverEmail` because it has its own `sendEmail` wrapper.
+- Cloudflare has no idempotency keys, so `/api/orders/send` claims the admin draft's key in D1 (`order_email_sends`, created on first use, rows kept two days) before sending; a failed send releases it.
+- Only `List-Unsubscribe` and `X-` headers are used; Cloudflare rejects headers outside its allowlist (developers.cloudflare.com/email-service/reference/headers).
+- **Bounce alerts**: an Email Sending event subscription on easternshore.ai puts bounced / failed / rejected / complained events on the `eastern-shore-ai-email-events` queue; `src/email-events.js` emails `TO_EMAIL` about each one from the alerts address (skipping the business's own addresses). Covers just-in-case's emails too (same domain).
+- **Logs and crash alerts**: Workers Logs is on (`[observability]`, 7 days on Workers Paid); uncaught errors are emailed by the `worker-error-alerts` Tail Worker (source in the rentals repo, `worker-alerts/`).
+- **Tests**: `cd worker && npm test` (Node's test runner; `tests/text-imports.mjs` lets Node import the `.md` knowledge file). `tests/worker-email.test.mjs` runs the contact form, signed Stripe webhooks (Survival Node order, lesson booking, non-CONUS refund), admin order emails, preview leads, the daily Ask K summary and the bounce queue through `src/index.js` with every migration applied to a SQLite D1 double (`tests/d1.mjs`) and a fake `EMAIL` binding.
 
 ## API Endpoints
 
@@ -315,7 +325,7 @@ Required secrets:
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `ADMIN_PASSWORD` (shared admin password for dashboard APIs)
-- `RESEND_API_KEY`
+- `RESEND_API_KEY` (fallback when Cloudflare Email Sending fails)
 
 Set via:
 ```bash

@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "node --test tests/*.mjs"
+    "test": "node --import ./tests/text-imports.mjs --test tests/*.test.mjs"
   },
   "keywords": [],
   "author": "",

@@ -2,9 +2,15 @@ name = "eastern-shore-ai-contact"
 main = "src/index.js"
 compatibility_date = "2026-02-15"
 
-# Daily Ask K summary email at 12:00 UTC (8 AM EDT / 7 AM EST). This is the
-# Cloudflare account's 5th and last free cron trigger (rentals uses 3,
-# just-in-case 1).
+# Workers Logs (Workers Paid: kept 7 days) and crash alerts by email from the
+# worker-error-alerts Tail Worker (rentals/worker-alerts).
+[observability]
+enabled = true
+
+[[tail_consumers]]
+service = "worker-error-alerts"
+
+# Daily Ask K summary email at 12:00 UTC (8 AM EDT / 7 AM EST).
 [triggers]
 crons = ["0 12 * * *"]
 
@@ -29,7 +35,14 @@ ASKK_MINIMAX_DAILY_BUDGET = "1"
 # "1" = require the Turnstile bot check (node.html must have TURNSTILE_SITE_KEY set)
 ASKK_TURNSTILE_ENFORCE = "1"
 
-# Required secrets (set via `wrangler secret put`): RESEND_API_KEY, ADMIN_PASSWORD, TOTP_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
+# Outgoing email (src/email.js) goes through Cloudflare Email Sending on
+# easternshore.ai; if that fails, RESEND_API_KEY (Resend) sends it instead.
+# The binding may only send as these three addresses.
+[[send_email]]
+name = "EMAIL"
+allowed_sender_addresses = ["noreply@easternshore.ai", "orders@easternshore.ai", "alerts@easternshore.ai"]
+
+# Required secrets (set via `wrangler secret put`): RESEND_API_KEY (email fallback), ADMIN_PASSWORD, TOTP_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, TAX_READ_TOKEN
 # Web Push secrets (set via `wrangler secret put`): VAPID_SERVER_PUBLIC_KEY, VAPID_SERVER_PRIVATE_KEY
 
 [[d1_databases]]
@@ -50,6 +63,15 @@ queue = "eastern-shore-ai-support-push"
 max_batch_size = 10
 max_batch_timeout = 5
 max_retries = 100
+
+# Email Sending delivery events for easternshore.ai (bounced / failed /
+# rejected / spam complaint), delivered by an event subscription on this
+# queue. Each one becomes an alert email to TO_EMAIL (src/email-events.js).
+[[queues.consumers]]
+queue = "eastern-shore-ai-email-events"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 10
 
 # Ask K Assistant (src/ask-k-claude.js): Claude first (newest Opus), MiniMax backup.
 # DEPLOY WITH `npx wrangler deploy --config wrangler.toml` — without --config,

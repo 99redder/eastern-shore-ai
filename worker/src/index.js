@@ -8,6 +8,8 @@ import {
 } from './support-push.js';
 import { createWebsitePlanHandlers } from './website-plan.js';
 import { createPreviewLeadHandlers } from './preview-leads.js';
+import { sendEmail, emailConfigured } from './email.js';
+import { handleEmailEventBatch } from './email-events.js';
 import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
 import ASKK_SURVIVAL_NODE_KNOWLEDGE from '../askk-survival-node-knowledge.md';
 
@@ -30,7 +32,7 @@ function previewLeads() {
 }
 
 // ===== ROUTE HANDLER INDEX =====
-// POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + Resend email
+// POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + email (email.js)
 // POST /api/checkout-session    → handleCheckoutSession() — Create Stripe checkout with conflict + past-time checks
 // POST /api/survival-node-checkout → handleSurvivalNodeCheckout() — Create Stripe checkout for Survival Node product
 // POST /api/stripe-webhook      → handleStripeWebhook()   — Stripe payment confirmation, records service bookings/orders in D1, auto-inserts tax income
@@ -115,6 +117,9 @@ function parseAllowedOrigins(env) {
     .filter(Boolean);
   return [...new Set([...configured, ...DEFAULT_ALLOWED_ORIGINS])];
 }
+
+// Queue that receives Email Sending delivery events for easternshore.ai (wrangler.toml).
+const EMAIL_EVENTS_QUEUE = 'eastern-shore-ai-email-events';
 
 export default {
   async fetch(request, env, ctx) {
@@ -574,6 +579,13 @@ export default {
   },
 
   async queue(batch, env) {
+    // Bounced / failed / rejected / spam-flagged emails (Email Sending event subscription).
+    if (batch.queue === EMAIL_EVENTS_QUEUE) {
+      return handleEmailEventBatch(batch, {
+        notify: ({ subject, text }) => sendStaffOperationalAlert(env, { subject, text, from: env.ALERTS_FROM_EMAIL }),
+        internalAddresses: [env.TO_EMAIL, env.CC_EMAIL, env.BCC_EMAIL, env.FROM_EMAIL, env.ORDERS_FROM_EMAIL, env.ALERTS_FROM_EMAIL, 'contact@easternshore.ai']
+      });
+    }
     for (const message of batch.messages) {
       try {
         const outcome = await processSupportPushQueueMessage(env, message.body);
@@ -588,9 +600,9 @@ export default {
 };
 
 /**
- * POST /api/contact — Process contact form submissions and send via Resend
+ * POST /api/contact — Process contact form submissions and email them (email.js)
  * @param {Request} request - JSON body: {name, email, message, mode, offer?, honey?}
- * @param {Object} env - Worker env (RESEND_API_KEY, TO_EMAIL, FROM_EMAIL)
+ * @param {Object} env - Worker env (EMAIL binding or RESEND_API_KEY, TO_EMAIL, FROM_EMAIL)
  * @param {Object} corsHeaders
  * @returns {Response} {ok: true} or {ok: false, error: string}
  */
@@ -624,7 +636,7 @@ async function handleContact(request, env, corsHeaders) {
     return json({ ok: false, error: 'Invalid email address' }, 400, corsHeaders);
   }
 
-  if (!env.RESEND_API_KEY || !env.TO_EMAIL || !env.FROM_EMAIL) {
+  if (!emailConfigured(env) || !env.TO_EMAIL || !env.FROM_EMAIL) {
     return json({ ok: false, error: 'Email provider not configured' }, 500, corsHeaders);
   }
 
@@ -657,14 +669,7 @@ async function handleContact(request, env, corsHeaders) {
     emailPayload.bcc = [env.BCC_EMAIL];
   }
 
-  const resendRes = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(emailPayload)
-  });
+  const resendRes = await sendEmail(env, emailPayload);
 
   if (!resendRes.ok) {
     const errText = await resendRes.text();
@@ -1635,19 +1640,12 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           });
           if (!emailRes.ok) {
             console.error('Non-CONUS refund email failed', emailRes.error);
-            if (env.RESEND_API_KEY && env.TO_EMAIL) {
-              await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  from: env.ORDERS_FROM_EMAIL || env.FROM_EMAIL,
-                  to: [env.TO_EMAIL],
-                  subject: '[ACTION NEEDED] Non-CONUS refund email failed to send',
-                  text: `The refund notification email to ${buyerEmail} failed to send. Please contact them manually. Order/session: ${sessionId}.`
-                })
+            if (emailConfigured(env) && env.TO_EMAIL) {
+              await sendEmail(env, {
+                from: env.ORDERS_FROM_EMAIL || env.FROM_EMAIL,
+                to: [env.TO_EMAIL],
+                subject: '[ACTION NEEDED] Non-CONUS refund email failed to send',
+                text: `The refund notification email to ${buyerEmail} failed to send. Please contact them manually. Order/session: ${sessionId}.`
               }).catch(e => console.error('Staff escalation also failed', e));
             }
           }
@@ -2808,7 +2806,7 @@ async function handleOrderTrackingUpdate(request, env, corsHeaders, url) {
 async function sendServiceBuyerConfirmationForSession(env, { sessionId, customerEmail, customerName, serviceLabel, serviceType, amountCents, slots }) {
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const toEmail = (customerEmail || '').toString().trim();
-  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'email not configured' };
+  if (!emailConfigured(env) || !fromEmail || !toEmail) return { ok: false, error: 'email not configured' };
 
   const safeName = escapeHtml(customerName || 'there');
   const safeService = escapeHtml(serviceLabel || serviceType || 'your booking');
@@ -2829,21 +2827,14 @@ ${slotHtml}
 <p>&mdash; Eastern Shore AI</p>
 <hr><p style="color:#888;font-size:12px;">Reference: ${escapeHtml(sessionId || 'n/a')}</p>`;
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
-      subject,
-      html,
-      text,
-      reply_to: fromEmail
-    })
+  const res = await sendEmail(env, {
+    from: fromEmail,
+    to: [toEmail],
+    ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+    subject,
+    html,
+    text,
+    reply_to: fromEmail
   });
 
   if (!res.ok) {
@@ -2857,21 +2848,14 @@ ${slotHtml}
 async function sendStaffOperationalAlert(env, { subject, text, from }) {
   const fromEmail = (from || env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const toEmail = (env.TO_EMAIL || '').toString().trim();
-  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
+  if (!emailConfigured(env) || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      subject: subject || '[ACTION NEEDED] Eastern Shore AI worker alert',
-      text: text || 'Eastern Shore AI worker alert',
-      reply_to: fromEmail
-    })
+  const res = await sendEmail(env, {
+    from: fromEmail,
+    to: [toEmail],
+    subject: subject || '[ACTION NEEDED] Eastern Shore AI worker alert',
+    text: text || 'Eastern Shore AI worker alert',
+    reply_to: fromEmail
   });
 
   if (!res.ok) {
@@ -2891,7 +2875,7 @@ function sendAskKAlert(env, message) {
 async function sendStaffPaidBookingNotification(env, { sessionId, customerEmail, customerName, customerPhone, preferredContactMethod, serviceLabel, serviceType, amountCents, slots }) {
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const toEmail = (env.TO_EMAIL || '').toString().trim();
-  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
+  if (!emailConfigured(env) || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
 
   const slotLines = (Array.isArray(slots) ? slots : [])
     .map((slot) => `${slot.setupDate || ''} ${slot.setupTime || ''}`.trim())
@@ -2909,20 +2893,13 @@ async function sendStaffPaidBookingNotification(env, { sessionId, customerEmail,
     `Stripe session: ${sessionId || 'n/a'}`
   ].join('\n');
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
-      subject: '[Eastern Shore AI] New paid booking',
-      text,
-      reply_to: fromEmail
-    })
+  const res = await sendEmail(env, {
+    from: fromEmail,
+    to: [toEmail],
+    ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+    subject: '[Eastern Shore AI] New paid booking',
+    text,
+    reply_to: fromEmail
   });
 
   if (!res.ok) {
@@ -2936,7 +2913,7 @@ async function sendStaffPaidBookingNotification(env, { sessionId, customerEmail,
 async function sendStaffSurvivalNodeOrderNotification(env, { sessionId, paymentIntentId, customerEmail, customerName, customerPhone, productLabel, productCode, amountCents, shippingDetails }) {
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
   const toEmail = (env.TO_EMAIL || '').toString().trim();
-  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
+  if (!emailConfigured(env) || !fromEmail || !toEmail) return { ok: false, error: 'staff email not configured' };
 
   const address = shippingDetails?.address || {};
   const shipTo = [
@@ -2963,20 +2940,13 @@ async function sendStaffSurvivalNodeOrderNotification(env, { sessionId, paymentI
     'Next step: review the order in Admin → Survival Node Orders and prepare fulfillment.'
   ].join('\n');
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
-      subject: '[Eastern Shore AI] New Survival Node order',
-      text,
-      reply_to: fromEmail
-    })
+  const res = await sendEmail(env, {
+    from: fromEmail,
+    to: [toEmail],
+    ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+    subject: '[Eastern Shore AI] New Survival Node order',
+    text,
+    reply_to: fromEmail
   });
 
   if (!res.ok) {
@@ -2987,11 +2957,27 @@ async function sendStaffSurvivalNodeOrderNotification(env, { sessionId, paymentI
   return { ok: true };
 }
 
+// One row per order-email draft key (admin.js makes a new key each time the
+// preview opens). Rows older than two days are dropped on the next claim.
+async function claimOrderEmailSend(db, key) {
+  await db.prepare(`CREATE TABLE IF NOT EXISTS order_email_sends (
+    idempotency_key TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`).run();
+  await db.prepare(`DELETE FROM order_email_sends WHERE created_at < datetime('now', '-2 days')`).run();
+  const result = await db.prepare(`INSERT OR IGNORE INTO order_email_sends (idempotency_key) VALUES (?1)`).bind(key).run();
+  return Number(result?.meta?.changes || 0) > 0;
+}
+
+async function releaseOrderEmailSend(db, key) {
+  await db.prepare(`DELETE FROM order_email_sends WHERE idempotency_key = ?1`).bind(key).run();
+}
+
 async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  if (!env.RESEND_API_KEY || !(env.ORDERS_FROM_EMAIL || env.FROM_EMAIL)) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+  if (!emailConfigured(env) || !(env.ORDERS_FROM_EMAIL || env.FROM_EMAIL)) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -3054,23 +3040,24 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const idempotencyKey = rawIdempotencyKey
     ? rawIdempotencyKey.replace(/[^a-zA-Z0-9._:-]/g, '').slice(0, 256)
     : '';
-  const resendHeaders = {
-    Authorization: `Bearer ${env.RESEND_API_KEY}`,
-    'Content-Type': 'application/json',
-    ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {})
-  };
 
-  const sendRes = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: resendHeaders,
-    body: JSON.stringify(emailPayload)
-  });
+  // Cloudflare Email Sending has no idempotency keys, so the draft's key is
+  // claimed in D1 first: a resubmitted draft (double click, retried request)
+  // is reported as already handled instead of emailing the customer twice.
+  // A failed send releases the claim so the same draft can be retried.
+  if (idempotencyKey) {
+    const claimed = await claimOrderEmailSend(env.DB, idempotencyKey);
+    if (!claimed) return json({ ok: true, orderKey: row.order_key, kind, duplicateSuppressed: true }, 200, corsHeaders);
+  }
+
+  const sendRes = await sendEmail(env, emailPayload, { idempotencyKey });
   const sendJson = await sendRes.json().catch(() => ({}));
   if (!sendRes.ok) {
     const resendError = (sendJson?.name || sendJson?.error || sendJson?.message || '').toString();
     if (sendRes.status === 409 && /concurrent_idempotent_requests|same idempotency key/i.test(resendError)) {
       return json({ ok: true, orderKey: row.order_key, kind, duplicateSuppressed: true }, 200, corsHeaders);
     }
+    if (idempotencyKey) await releaseOrderEmailSend(env.DB, idempotencyKey);
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send order email' }, 502, corsHeaders);
   }
 
@@ -5225,7 +5212,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+  if (!emailConfigured(env) || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
 
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -5301,14 +5288,7 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
   if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
   if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
 
-  const sendRes = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(emailPayload)
-  });
+  const sendRes = await sendEmail(env, emailPayload);
   const sendJson = await sendRes.json().catch(() => ({}));
   if (!sendRes.ok) {
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send invoice email' }, 502, corsHeaders);
@@ -5520,7 +5500,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
   if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
   const auth = await requireAdmin(request, env, corsHeaders, url);
   if (!auth.ok) return auth.res;
-  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
+  if (!emailConfigured(env) || !env.FROM_EMAIL) return json({ ok: false, error: 'Email provider is not configured' }, 500, corsHeaders);
 
   let data;
   try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -5588,14 +5568,7 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
   if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
   if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
 
-  const sendRes = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(emailPayload)
-  });
+  const sendRes = await sendEmail(env, emailPayload);
   const sendJson = await sendRes.json().catch(() => ({}));
   if (!sendRes.ok) {
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send quote email' }, 502, corsHeaders);
@@ -5777,7 +5750,7 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
   await env.DB.prepare(`UPDATE quotes SET status = 'accepted', accepted_at = datetime('now'), converted_invoice_id = ?1, updated_at = datetime('now') WHERE id = ?2`).bind(invoiceId, quote.id).run();
 
   // Send notification email to Chris
-  if (env.RESEND_API_KEY && env.TO_EMAIL) {
+  if (emailConfigured(env) && env.TO_EMAIL) {
     const notifyHtml = `<div style="font-family:Arial,sans-serif;padding:20px;"><h2 style="color:#059669;">Quote Accepted!</h2><p><strong>Quote:</strong> ${escapeHtml(quote.quote_number || `Q-${quote.id}`)}</p><p><strong>Customer:</strong> ${escapeHtml(quote.customer_name)} (${escapeHtml(quote.customer_email)})</p><p><strong>Total:</strong> ${formatUsd(total)}</p><p><strong>Invoice Created:</strong> ${invoiceNumber} (status: draft - not sent to customer yet)</p><p>Log in to the admin panel to review and send the invoice.</p></div>`;
 
     const notifyPayload = {
@@ -5789,11 +5762,7 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
     };
     if (env.CC_EMAIL) notifyPayload.cc = [env.CC_EMAIL];
 
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(notifyPayload)
-    }).catch(e => console.error('Quote accept admin notification failed', e));
+    await sendEmail(env, notifyPayload).catch(e => console.error('Quote accept admin notification failed', e));
   }
 
   return new Response(htmlPage('Quote Accepted', 'Thank You!', "Your quote has been accepted. We'll be in touch shortly for scheduling and confirmation.", true), { status: 200, headers: { 'Content-Type': 'text/html' } });
@@ -6138,7 +6107,7 @@ async function sendNonConusRefundEmail(env, {
   refundIssued
 }) {
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
-  if (!env.RESEND_API_KEY || !fromEmail || !toEmail) return { ok: false, error: 'email not configured' };
+  if (!emailConfigured(env) || !fromEmail || !toEmail) return { ok: false, error: 'email not configured' };
   const greeting = customerName ? `Hi ${customerName},` : 'Hi,';
   const subject = 'Your Survival Node order has been refunded (CONUS-only shipping)';
   const fmt = (c) => `$${(Math.max(Number(c) || 0, 0) / 100).toFixed(2)}`;
@@ -6160,19 +6129,12 @@ async function sendNonConusRefundEmail(env, {
     <hr />
     <p style="color:#888; font-size:12px;">Reference: ${sessionId || 'n/a'}</p>
   `;
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
-      subject,
-      html
-    })
+  const res = await sendEmail(env, {
+    from: fromEmail,
+    to: [toEmail],
+    ...(env.BCC_EMAIL ? { bcc: [env.BCC_EMAIL] } : {}),
+    subject,
+    html
   });
   if (!res.ok) {
     const errText = await res.text().catch(() => '');

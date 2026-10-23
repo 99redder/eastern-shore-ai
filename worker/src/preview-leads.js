@@ -4,6 +4,7 @@
 //   POST /api/preview/visit           -> one staff email per visitor per 12 hours
 //   POST /api/preview/lead            -> "call me" (with a date/time) or "not for me"
 // Rows live in D1 table preview_events (migration 0036).
+import { sendEmail, emailConfigured } from './email.js';
 
 export const PREVIEW_SITES = {
   garcias: { name: "Garcia's Tire Shop", phone: '(302) 212-6898', email: '' },
@@ -88,12 +89,8 @@ export function createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendS
     const from = (env.ALERTS_FROM_EMAIL || 'Eastern Shore AI Alerts <alerts@easternshore.ai>').trim();
     const to = (env.TO_EMAIL || '').trim();
     try {
-      if (!env.RESEND_API_KEY || !to) return sendStaffOperationalAlert(env, { subject, text });
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to: [to], subject, text, reply_to: 'contact@easternshore.ai' }),
-      });
+      if (!emailConfigured(env) || !to) return sendStaffOperationalAlert(env, { subject, text });
+      const res = await sendEmail(env, { from, to: [to], subject, text, reply_to: 'contact@easternshore.ai' });
       if (!res.ok) console.error('preview alert failed', await res.text().catch(() => res.status));
     } catch (e) { console.error('preview staff alert failed', e); }
   }
@@ -139,7 +136,7 @@ export function createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendS
   }
 
   async function sendOwnerConfirmation(env, { to, site, slug, info, phone, method }) {
-    if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return;
+    if (!emailConfigured(env) || !env.FROM_EMAIL) return;
     const how = method === 'text' ? `text you first at ${phone}` : `call you at ${phone}`;
     const font = 'font-family:Arial,Helvetica,sans-serif;';
     const html = `<div style="margin:0;padding:24px 12px;background:#EEF0F3;${font}">`
@@ -153,14 +150,10 @@ export function createPreviewLeadHandlers({ json, escapeHtml, getClientIp, sendS
       + `</td></tr><tr><td style="padding:14px 28px;border-top:1px solid #E5E7EB;background:#F7F8FA;border-radius:0 0 10px 10px;${font}font-size:12px;color:#5B6370;line-height:1.6;">Eastern Shore AI, LLC &middot; PO Box 317, Parsonsburg, MD 21849 &middot; <a href="${SITE}" style="color:#0E6E86;">easternshore.ai</a></td></tr></table></div>`;
     const text = `You're all set\n\nThanks for taking a look at the website I built for ${site.name}. I'll ${how} on ${info.label}.\n\nA calendar invite is attached. If something comes up, just reply to this email or call or text me at (302) 907-9162.\n\nYour site: ${SITE}/${slug}\n\nTalk soon,\nChris\nEastern Shore AI, LLC\nPO Box 317, Parsonsburg, MD 21849`;
     const ics = icsFor({ at: info.at, anytime: info.anytime, summary: `Call with Chris (Eastern Shore AI) about your website`, description: `Chris will ${how}. Your site: ${SITE}/${slug}. Questions: (302) 907-9162.` });
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: env.FROM_EMAIL, to: [to], reply_to: 'contact@easternshore.ai',
-        subject: `Your call with Chris about the ${site.name} website`, html, text,
-        attachments: [{ filename: 'call-with-chris.ics', content: btoa(ics), content_type: 'text/calendar' }],
-      }),
+    const res = await sendEmail(env, {
+      from: env.FROM_EMAIL, to: [to], reply_to: 'contact@easternshore.ai',
+      subject: `Your call with Chris about the ${site.name} website`, html, text,
+      attachments: [{ filename: 'call-with-chris.ics', content: btoa(ics), content_type: 'text/calendar' }],
     });
     if (!res.ok) console.error('preview owner confirmation failed', await res.text().catch(() => res.status));
   }

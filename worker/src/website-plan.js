@@ -8,6 +8,7 @@
 // payment per year via the same link if the client prefers to pay by hand.
 // Subscription payments are recorded from invoice.paid (keyed by invoice id),
 // one-time payments from checkout.session.completed (keyed by session id).
+import { sendEmail as deliverEmail, emailConfigured } from './email.js';
 
 export const WEBSITE_AGREEMENT_VERSION = '2026-10-22.1';
 export const WEBSITE_PLAN_PRICE_CENTS = 10000;
@@ -136,15 +137,11 @@ export function createWebsitePlanHandlers(deps) {
   const MANAGE_TEXT = `Manage your plan any time, even if you lose this email: click "Manage My Website Plan" at the bottom of www.easternshore.ai, or go to ${MANAGE_URL}. You can view your agreement, see your renewal date, update your card, and turn automatic renewal on or off.`;
 
   async function sendEmail(env, { to, subject, html, text, manage = true }) {
-    if (!env.RESEND_API_KEY || !env.FROM_EMAIL) throw new Error('Email provider is not configured');
+    if (!emailConfigured(env) || !env.FROM_EMAIL) throw new Error('Email provider is not configured');
     if (manage && text && !text.includes(MANAGE_URL)) text = `${text}\n\n---\n${MANAGE_TEXT}`;
     const payload = { from: env.FROM_EMAIL, to: [to], subject, html, text, reply_to: 'contact@easternshore.ai' };
     if (env.BCC_EMAIL) payload.bcc = [env.BCC_EMAIL];
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    const res = await deliverEmail(env, payload);
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.message || data?.error || 'Failed to send email');
     return data?.id || null;
