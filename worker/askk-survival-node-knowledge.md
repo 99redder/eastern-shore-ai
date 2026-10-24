@@ -88,7 +88,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **Can solar keep it charged indefinitely?** Not for all-day normal use. Under emergency use — use the phone for a specific task (about 30 minutes), then power it off — solar plus the large battery reserve can sustain the kit for a very long time; the founder has run his on solar only for over a year. Use wall power whenever available.
 
-**What does EMP-hardened mean?** An electromagnetic pulse (nuclear detonation, high-powered microwave weapon, or extreme solar flare) can fry unshielded electronics. The two Mission Darkness Faraday bags isolate the phone and battery from it. Protection only works when the bags are fully sealed per the instructions (roll-fold, 3 folds minimum). No guarantee against any specific event.
+**What does EMP-hardened mean?** An electromagnetic pulse (nuclear detonation, high-powered microwave weapon, or extreme solar flare) can fry unshielded electronics. The two Mission Darkness Faraday bags isolate the phone and battery from it. Protection only works when the bags are fully sealed per the instructions (roll-fold, 2 folds minimum). No guarantee against any specific event.
 
 **Can I trust the AI in an emergency?** Use it as a knowledgeable reference, not a replacement for professionals. Cross-check critical decisions against the medical wiki, first-aid guides and survival manuals on the device.
 
@@ -132,7 +132,7 @@ testing.html has pre-shipment test data for every component plus two demo videos
 
 **Solar battery:** 24,000 mAh (manufacturer rating, not lab-tested); about 3 full phone charges in practice. We recommend storing the phone at about 60% charge.
 
-**Faraday bags:** phone shows no signal inside a sealed bag; roll-fold seal (3 folds minimum) passes a leak-down test; no pinholes or delamination; the phone fits inside with its case removed.
+**Faraday bags:** phone shows no signal inside a sealed bag; roll-fold seal (2 folds minimum) passes a leak-down test; no pinholes or delamination; the phone fits inside with its case on.
 
 **Offline maps:** all 50 states, about 14.2 GB, street-level zoom (z16), cross-checked against USGS data. GPS cold lock 6–9 seconds, warm under 3 seconds, ±4 m accuracy in open sky; works in airplane mode (GPS uses satellites, not internet). Offline turn-by-turn routing, place search and waypoints all work.
 
