@@ -29,14 +29,14 @@ and produces the signed APK/AAB.
 uploading the file in WebIntoApp, never by pointing it at the website URL. A URL build only opens
 `https://www.easternshore.ai/survival-node-app/index.html` and fails with no internet, which is
 how a Survival Node is used. `index.html` itself needs nothing online (no external fonts, images or
-scripts), so keep it that way.
+scripts), so keep it that way. Its one network request is the optional update check below.
 
 | Field | Value |
 |---|---|
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.3 |
+| Current source version | 1.4 (next build: versionName 1.4, versionCode 10400) |
 | Last built version | 1.3 (versionCode 10300, built 2026-10-24 from HTML Files — works offline) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
@@ -77,9 +77,35 @@ scripts), so keep it that way.
   just before the update note below was added. It is signed with the same certificate as 1.1 and
   1.2, so it installs over either.
 
-### Update note for 1.2 installs
+- **1.4** (versionCode 10400 — source ready, not yet built) — built-in update check (below), "Update
+  This Guide" card and 6-month checklist line. Footer stamped `v1.4`.
 
-Because 1.2 loads `https://www.easternshore.ai/survival-node-app/index.html`, that page shows an
-"Update to the offline version" note (`#update-note`) linking to the 1.3 APK. It only appears when
-the page is served from easternshore.ai on Android, so the bundled app never shows it. Add
-`?update-note` to the URL to preview it anywhere. Remove the note once 1.2 installs are updated.
+## Update check (1.4 and later)
+
+[`latest.json`](latest.json) names the newest release and its APK:
+
+```json
+{ "version": "1.4", "versionCode": 10400, "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.4.apk" }
+```
+
+`checkForGuideUpdate()` in `index.html` reads it each time the guide opens:
+
+- **Bundled in the app:** if `latest.json`'s `versionCode` is higher than `APP_VERSION_CODE`, the
+  orange `#update-note` appears ("Guide update available") with the APK link. Offline, the request
+  fails silently (8-second timeout) and nothing shows. The site sends `Access-Control-Allow-Origin: *`,
+  which the in-app request needs, and caches files for 10 minutes.
+- **Served from easternshore.ai on Android:** that is what app 1.2 loads, and 1.2 can't open
+  offline, so the note always shows ("Update to the offline version") with the `latest.json` APK.
+  The only known 1.2 install is a phone sold on eBay; drop this branch once it's updated.
+- Add `?update-note` to the URL to preview the note anywhere.
+
+### Releasing a new version
+
+1. Edit `index.html`, keep `/node-setup.html` in sync, and regenerate the PDF.
+2. Bump `APP_VERSION_CODE` in `index.html` and the footer version (1.5 = 10500, and so on).
+3. Zip `index.html` on its own and build it in WebIntoApp's **HTML Files** mode with the same
+   Major/Minor version, package and certificate.
+4. Check the APK (bundled `index.html` matches, version, signing certificate), test it in airplane
+   mode, then add it here as `survival-node-user-guide-v<version>.apk` and remove the old APK.
+5. Point `latest.json` at the new APK **last**, in the same push as the APK, so the update note
+   never links to a missing file. Every 1.4+ install sees the update the next time it opens on Wi-Fi.

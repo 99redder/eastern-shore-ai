@@ -40,7 +40,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
    - 50GB+ survival software suite with 2 offline LLMs and the pre-configured "Survival Node" AI Agent
    - Shockproof protective phone case
    - Wall charger and USB-C charging cable
-   - Survival Node User Guide — installed as an app on the home screen; a standard PDF copy is in Files → Downloads
+   - Survival Node User Guide — installed as an app on the home screen (works offline, and checks for guide updates whenever it's opened on Wi-Fi); a standard PDF copy is in Files → Downloads
 2. **Premium Solar Battery with attached cables** — 24,000 mAh (manufacturer rating), about 3 full phone charges in practice. 3 attached cables (2× USB-C, 1× iOS) plus a USB-A output on the side. Rugged impact-resistant ABS shell with silicone corner bumpers; drop-, dust- and splash-resistant; noticeably tougher than the Gen 1 battery. Built-in dual LED flashlight (steady / strobe / SOS), thermometer, carabiner clip, 4-LED charge indicator. Recharges by solar or wall (USB-C, USB-A or iOS input). Do not charge and discharge it at the same time.
 3. **(2) Mission Darkness Faraday bags** — one for the phone, one for the solar battery. Premium EMP-rated TitanRF shielding; blocks RF and electromagnetic interference when properly sealed.
 4. **Weatherproof hard case with padlock** — IP67, secure latches, pressure-relief valve, custom foam interior. Reusable indicator silica gel packs included to absorb moisture. The case, latches and padlock may look slightly different from the photos (multiple suppliers); function is the same.
@@ -65,7 +65,7 @@ No SIM card is included (see "Calls and texts" below).
 - **Briar** — encrypted Bluetooth/Wi-Fi mesh messenger, no internet or cell needed
 - **LocalSend** — off-grid file transfer over local Wi-Fi
 - **Fossify File Manager** — private file manager
-- **Eastern Shore AI Users Guide** — the full User Guide as an app
+- **Eastern Shore AI Users Guide** — the full User Guide as an app; works offline and checks for guide updates on Wi-Fi
 
 All of it runs fully offline after setup.
 
@@ -83,6 +83,8 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 **Can I use normal apps like banking or streaming?** Some mainstream apps (banking, DRM streaming, Google-dependent apps) may not work. We recommend using it only for emergencies.
 
 **Can I add apps or update the AI models and maps?** Yes. You can side-load APKs (no Google Play Services installed). PocketPal can download new or larger model files, and Organic Maps can re-download updated maps, whenever you have Wi-Fi. The User Guide's Maintenance section walks through it.
+
+**How do I update the User Guide app?** It checks for itself. Open the User Guide app while the phone is on Wi-Fi; if a newer guide exists, an orange "Guide update available" note appears at the top. Tap Update, tap the downloaded file (notification bar or Files → Downloads), allow installs from that source if Android asks, then tap Update. It installs over the old guide and nothing else on the phone changes. No note means the guide is already current. Offline, the guide opens as usual. Guide apps on older kits may not have the automatic check; those owners can contact the team for the latest version. The version number is at the bottom of the guide.
 
 **How should I store it?** Dry, temperature-stable, out of prolonged heat. When it arrives, charge the solar battery to 50–70% by wall power before storing (you can charge to 100% to check capacity, then bring it back to 50–70%). Recharge every 6–12 months. Don't store it above 113°F (45°C) or below 14°F (−10°C). Silica packs: when the blue dot turns light pink, microwave the pack dot-side up for 3–5 minutes until blue again (never above 210°F).
 

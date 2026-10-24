@@ -2457,7 +2457,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
     : '';
   const reviewHtml = kind === 'review' ? emailButton(GOOGLE_REVIEW_URL, 'Leave a Google Review \u2605') : '';
   const gettingStarted = kind === 'delivered'
-    ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
+    ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime. It works offline, and whenever you open it on Wi-Fi it checks for a newer version of the guide.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
     : '';
   const text = `${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — ${BUSINESS_LOCATION}\nhttps://www.easternshore.ai`;
   const html = emailLayout({

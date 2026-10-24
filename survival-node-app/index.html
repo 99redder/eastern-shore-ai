@@ -637,6 +637,7 @@ body {
   <a href="#update-ai" onclick="toggleMenu()">Update AI Models</a>
   <a href="#update-maps" onclick="toggleMenu()">Update Maps</a>
   <a href="#update-apps" onclick="toggleMenu()">Update Apps</a>
+  <a href="#update-guide" onclick="toggleMenu()">Update This Guide</a>
   <div class="sidebar-section">Emergency Use</div>
   <a href="#deployment" onclick="toggleMenu()">Emergency Deployment</a>
   <a href="#power" onclick="toggleMenu()">Power & Solar Charging</a>
@@ -667,13 +668,13 @@ body {
 <!-- MAIN -->
 <main class="main">
 
-<!-- UPDATE NOTE (only shown when this page is loaded from the website; see README) -->
+<!-- UPDATE NOTE (shown by checkForGuideUpdate; see README) -->
 <div class="update-note" id="update-note">
-  <h2>Update to the offline version</h2>
-  <p>This copy of the guide needs an internet connection. Version 1.3 keeps the whole guide on your phone, so it opens with no signal. Nothing else on your phone changes.</p>
-  <a class="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.3.apk">Update</a>
+  <h2 id="update-title">Update to the offline version</h2>
+  <p id="update-intro">This copy of the guide needs an internet connection. The latest version keeps the whole guide on your phone, so it opens with no signal. Nothing else on your phone changes.</p>
+  <a class="update-btn" id="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.3.apk">Update</a>
   <p>When the download finishes, tap the file (in the notification bar or <strong>Files → Downloads</strong>). If Android asks, turn on <strong>Allow from this source</strong>, go back, and tap <strong>Update</strong>.</p>
-  <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.3.apk</span></p>
+  <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url" id="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.3.apk</span></p>
 </div>
 
 <!-- HERO -->
@@ -724,7 +725,7 @@ body {
         <li><strong>Premium 24,000 mAh Solar Battery</strong> — rugged, drop- and splash-resistant — with 3 attached cables (2× USB-C, 1× iOS) plus a USB-A output on the side, built-in flashlight, and emergency strobe</li>
         <li><strong>(2) Mission Darkness Faraday Bags</strong> — premium EMP-rated signal-blocking, one for phone, one for solar battery</li>
         <li><strong>Weatherproof hard storage case</strong> with padlock and silica gel packs</li>
-        <li><strong>Full User Guide</strong> — available as an app on the home screen; the standard PDF version is also pre-loaded on the phone in the Files folder under Downloads</li>
+        <li><strong>Full User Guide</strong> — available as an app on the home screen (it checks for guide updates whenever you open it on Wi-Fi); the standard PDF version is also pre-loaded on the phone in the Files folder under Downloads</li>
       </ul>
     </div></div>
   </div>
@@ -792,6 +793,7 @@ body {
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Inspect battery area — check for warping or swelling</span></li>
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Inspect cables, seals, and Faraday bag folds for wear</span></li>
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Check silica gel pack — recharge if blue dot turned pink</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Open this guide on Wi-Fi — if an update note appears at the top, tap Update</span></li>
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Set next reminder now</span></li>
       </ul>
     </div></div>
@@ -851,6 +853,25 @@ body {
         <li>Disconnect from Wi-Fi when complete</li>
       </ol>
       <div class="callout warning">⚠️ Only connect to a trusted private Wi-Fi network (your home network) during maintenance. Avoid public Wi-Fi.</div>
+    </div></div>
+  </div>
+
+  <div class="card" id="update-guide" data-search="update user guide app new version download install">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📖</span>
+      <span>Update This Guide</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>This guide lives on your phone and works fully offline. Whenever you open it while connected to Wi-Fi, it checks for a newer version. Offline, it simply opens as usual.</p>
+      <ol class="steps">
+        <li>Connect the phone to Wi-Fi and open this guide</li>
+        <li>If a newer version exists, an orange <strong>Guide update available</strong> note appears at the top — tap <strong>Update</strong></li>
+        <li>When the download finishes, tap the file (notification bar or <strong>Files → Downloads</strong>)</li>
+        <li>If Android asks, turn on <strong>Allow from this source</strong>, go back, and tap <strong>Update</strong></li>
+        <li>Open the guide again — the version number is at the bottom of the page</li>
+      </ol>
+      <div class="callout tip">💡 The update installs over this one. Nothing else on your phone changes. If no note appears, you already have the latest guide.</div>
     </div></div>
   </div>
 </div>
@@ -1423,20 +1444,58 @@ body {
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p>Survival Node User Guide · v1.3</p>
+  <p>Survival Node User Guide · v1.4</p>
 </div>
 
 </main>
 
 <script>
-// App 1.2 loads this page from the website and can't open offline; point those installs to 1.3.
-// The copy bundled inside the app is never served from easternshore.ai, so it stays hidden there.
-(function showUpdateNote() {
+// Bump with the footer version and latest.json on every release (see README).
+const APP_VERSION_CODE = 10400;
+const LATEST_URL = 'https://www.easternshore.ai/survival-node-app/latest.json';
+
+function showUpdateNote(apkUrl, title, intro) {
+  if (apkUrl) {
+    document.getElementById('update-btn').href = apkUrl;
+    document.getElementById('update-url').textContent = apkUrl.replace(/^https:\/\//, '');
+  }
+  if (title) document.getElementById('update-title').textContent = title;
+  if (intro) document.getElementById('update-intro').textContent = intro;
+  document.getElementById('update-note').classList.add('show');
+}
+
+async function fetchLatest() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(LATEST_URL + '?t=' + Date.now(), { cache: 'no-store', signal: controller.signal });
+    return res.ok ? await res.json() : null;
+  } catch (e) {
+    return null; // offline, so there's nothing to check
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// App 1.2 loads the website copy of this page and can't open offline, so on Android the website
+// copy always offers the latest APK. The copy bundled in the app checks for a newer release
+// whenever it opens with internet, and does nothing when offline.
+async function checkForGuideUpdate(currentCode = APP_VERSION_CODE) {
   const fromSite = /(^|\.)easternshore\.ai$/.test(location.hostname) && /Android/i.test(navigator.userAgent);
   if (fromSite || new URLSearchParams(location.search).has('update-note')) {
-    document.getElementById('update-note').classList.add('show');
+    showUpdateNote();
+    const latest = await fetchLatest();
+    if (latest && latest.apk) showUpdateNote(latest.apk);
+    return;
   }
-})();
+  const latest = await fetchLatest();
+  if (latest && latest.apk && latest.versionCode > currentCode) {
+    showUpdateNote(latest.apk, 'Guide update available',
+      `Version ${latest.version} of this guide is available. Download it while you're online. It installs over this version and works offline just like it.`);
+  }
+}
+
+checkForGuideUpdate();
 
 function toggleMenu() {
   document.querySelector('.sidebar').classList.toggle('open');
