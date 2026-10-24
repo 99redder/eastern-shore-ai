@@ -495,6 +495,54 @@ body {
   line-height: 1.5;
 }
 
+/* ── UPDATE NOTE ── */
+.update-note {
+  display: none;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.update-note.show { display: block; }
+
+.update-note h2 {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.update-note p { margin-top: 8px; }
+.update-note strong { color: var(--text-bright); }
+
+.update-btn {
+  display: block;
+  margin: 14px 0 6px;
+  padding: 12px;
+  background: var(--accent);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.update-btn:active { background: #c94c1c; }
+
+.update-url {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-bright);
+  word-break: break-all;
+}
+
 /* ── FOOTER ── */
 .footer {
   text-align: center;
@@ -618,6 +666,15 @@ body {
 
 <!-- MAIN -->
 <main class="main">
+
+<!-- UPDATE NOTE (only shown when this page is loaded from the website; see README) -->
+<div class="update-note" id="update-note">
+  <h2>Update to the offline version</h2>
+  <p>This copy of the guide needs an internet connection. Version 1.3 keeps the whole guide on your phone, so it opens with no signal. Nothing else on your phone changes.</p>
+  <a class="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.3.apk">Update</a>
+  <p>When the download finishes, tap the file (in the notification bar or <strong>Files → Downloads</strong>). If Android asks, turn on <strong>Allow from this source</strong>, go back, and tap <strong>Update</strong>.</p>
+  <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.3.apk</span></p>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -1372,6 +1429,15 @@ body {
 </main>
 
 <script>
+// App 1.2 loads this page from the website and can't open offline; point those installs to 1.3.
+// The copy bundled inside the app is never served from easternshore.ai, so it stays hidden there.
+(function showUpdateNote() {
+  const fromSite = /(^|\.)easternshore\.ai$/.test(location.hostname) && /Android/i.test(navigator.userAgent);
+  if (fromSite || new URLSearchParams(location.search).has('update-note')) {
+    document.getElementById('update-note').classList.add('show');
+  }
+})();
+
 function toggleMenu() {
   document.querySelector('.sidebar').classList.toggle('open');
   document.querySelector('.sidebar-overlay').classList.toggle('show');

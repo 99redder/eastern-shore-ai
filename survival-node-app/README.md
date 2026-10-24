@@ -36,8 +36,8 @@ scripts), so keep it that way.
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.3 (next build: versionName 1.3, versionCode 10300) |
-| Last built version | 1.2 (versionCode 10200, built 2026-09-12 as a website-URL app — needs internet; replace it) |
+| Current source version | 1.3 |
+| Last built version | 1.3 (versionCode 10300, built 2026-10-24 from HTML Files — works offline) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -66,10 +66,20 @@ scripts), so keep it that way.
   Faraday bags, 24,000 mAh solar battery (3 attached cables + side USB-A), 2 offline LLMs with
   Qwen 3.5-4B as primary (Qwen 2.5-3B fast backup), and warranty section aligned to the site (buyer
   pays return shipping, return eligibility, support phone number). Footer stamped `v1.2`.
-  **Built as a website-URL app** (`survival-node-user-guide-v1.2.apk`): it loads the live page and
-  does not work offline.
-- **1.3** (versionCode 10300 — source ready, not yet built) — calls/texts wording from 2026-10-20
-  (not designed or tested for calls, texts or 911; keep a regular phone; Briar for nearby messaging),
-  return policy matched to the Terms (no restocking fee, refund within 10 business days, no
-  exchanges), shipping "up to 10 business days" transit. Footer stamped `v1.3`. Build with the
-  bundled file so it works offline.
+  **Built as a website-URL app**: it loads the live page and does not work offline. No customer kit
+  got it (the last order before it shipped 2026-09-05 with 1.1), but an eBay phone sale did. Its
+  APK was removed from this folder when 1.3 replaced it.
+- **1.3** (versionCode 10300, built 2026-10-24 in WebIntoApp's HTML Files mode,
+  `survival-node-user-guide-v1.3.apk`) — calls/texts wording from 2026-10-20 (not designed or tested
+  for calls, texts or 911; keep a regular phone; Briar for nearby messaging), return policy matched
+  to the Terms (no restocking fee, refund within 10 business days, no exchanges), shipping "up to 10
+  business days" transit. Footer stamped `v1.3`. The bundled `index.html` is this folder's copy from
+  just before the update note below was added. It is signed with the same certificate as 1.1 and
+  1.2, so it installs over either.
+
+### Update note for 1.2 installs
+
+Because 1.2 loads `https://www.easternshore.ai/survival-node-app/index.html`, that page shows an
+"Update to the offline version" note (`#update-note`) linking to the 1.3 APK. It only appears when
+the page is served from easternshore.ai on Android, so the bundled app never shows it. Add
+`?update-note` to the URL to preview it anywhere. Remove the note once 1.2 installs are updated.
