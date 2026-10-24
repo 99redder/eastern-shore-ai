@@ -36,8 +36,8 @@ scripts), so keep it that way. Its one network request is the optional update ch
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.4 (next build: versionName 1.4, versionCode 10400) |
-| Last built version | 1.3 (versionCode 10300, built 2026-10-24 from HTML Files — works offline) |
+| Current source version | 1.4 |
+| Last built version | 1.4 (versionCode 10400, built 2026-10-24 from HTML Files — works offline) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -53,7 +53,7 @@ scripts), so keep it that way. Its one network request is the optional update ch
    `/warranty-insert.html` (the canonical return/warranty policy).
 3. Upload `index.html` to WebIntoApp app #1240101 as a bundled file (not the website URL), bump the
    version, and rebuild using the **same keystore**. The versionCode must be higher than the last
-   build's (WebIntoApp numbered 1.2 as 10200, so 1.3 is 10300); a lower one won't install over the
+   build's (WebIntoApp numbers 1.4 as 10400, so 1.5 is 10500); a lower one won't install over the
    existing app and the Play Store rejects it.
 4. Test the new APK on a phone in airplane mode before loading it onto kits.
 5. Replace the APK in this folder (named with the version), stamp the footer with the new version,
@@ -69,16 +69,17 @@ scripts), so keep it that way. Its one network request is the optional update ch
   **Built as a website-URL app**: it loads the live page and does not work offline. No customer kit
   got it (the last order before it shipped 2026-09-05 with 1.1), but an eBay phone sale did. Its
   APK was removed from this folder when 1.3 replaced it.
-- **1.3** (versionCode 10300, built 2026-10-24 in WebIntoApp's HTML Files mode,
-  `survival-node-user-guide-v1.3.apk`) — calls/texts wording from 2026-10-20 (not designed or tested
-  for calls, texts or 911; keep a regular phone; Briar for nearby messaging), return policy matched
-  to the Terms (no restocking fee, refund within 10 business days, no exchanges), shipping "up to 10
-  business days" transit. Footer stamped `v1.3`. The bundled `index.html` is this folder's copy from
-  just before the update note below was added. It is signed with the same certificate as 1.1 and
-  1.2, so it installs over either.
-
-- **1.4** (versionCode 10400 — source ready, not yet built) — built-in update check (below), "Update
-  This Guide" card and 6-month checklist line. Footer stamped `v1.4`.
+- **1.3** (versionCode 10300, built 2026-10-24 in WebIntoApp's HTML Files mode) — calls/texts
+  wording from 2026-10-20 (not designed or tested for calls, texts or 911; keep a regular phone;
+  Briar for nearby messaging), return policy matched to the Terms (no restocking fee, refund within
+  10 business days, no exchanges), shipping "up to 10 business days" transit. Footer stamped `v1.3`.
+  Never installed anywhere; its APK was removed when 1.4 replaced it the same day.
+- **1.4** (versionCode 10400, built 2026-10-24 in HTML Files mode,
+  `survival-node-user-guide-v1.4.apk`) — built-in update check (below), "Update This Guide" card and
+  6-month checklist line. Footer stamped `v1.4`. The bundled `index.html` matches this folder's except
+  the update note's placeholder link, which was pointed at the 1.4 APK after the build (the app
+  replaces it with `latest.json`'s link before showing the note). Signed with the same certificate
+  as 1.1–1.3, so it installs over any of them.
 
 ## Update check (1.4 and later)
 
