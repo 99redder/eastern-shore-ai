@@ -1015,6 +1015,11 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
   - *Not found (404)*, 4 URLs: `www.easternshore.ai/api/...` paths Google lifted from the inline JS path strings. Added `Disallow: /api/` to `robots.txt` (the real API lives on the workers.dev host, nothing on www uses `/api/`). They will move to "Blocked by robots.txt", which is expected; do not press "Validate fix" on the 404 row.
   - *Alternate page with proper canonical tag*, 1 URL: `/index.html`, correctly folded into `/`. Internal Home links now use `/`; do not link to `/index.html`.
   - *Crawled - currently not indexed*: `testing.html` (already noindex) and `ai-agent-repair.html` (no page links to it; the homepage uses the quote modal instead, so it was dropped from the sitemap).
+- **2026-10-26 — "New reasons" email (Excluded by 'noindex' tag, Blocked by robots.txt; both first detected 2026-10-24):** both intentional, nothing changed.
+  - *noindex*, 1 URL: `my-plan.html` (the Find my plan page, noindex on purpose; Google found it through the homepage footer link).
+  - *Blocked by robots.txt*, 1 URL: `/api/website-plan/find`, lifted from `my-plan.html`'s inline JS; `Disallow: /api/` covers it, as planned on 2026-10-12.
+  - The rest is unchanged: 404 (the 4 old `/api/...` URLs, last crawled in August), alternate canonical (`/index.html`), crawled-not-indexed (`testing.html`). Don't press "Validate fix" on any of them.
+  - All 6 sitemap pages Google had read were indexed. `ai-automation.html` (added 2026-10-22) was still "URL is unknown to Google" because Google last read the sitemap on 2026-10-20; it gets picked up at the next read (or use Request indexing).
 
 ### SEO changes shipped
 
