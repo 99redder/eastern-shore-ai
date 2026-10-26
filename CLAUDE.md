@@ -1019,7 +1019,7 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
   - *noindex*, 1 URL: `my-plan.html` (the Find my plan page, noindex on purpose; Google found it through the homepage footer link).
   - *Blocked by robots.txt*, 1 URL: `/api/website-plan/find`, lifted from `my-plan.html`'s inline JS; `Disallow: /api/` covers it, as planned on 2026-10-12.
   - The rest is unchanged: 404 (the 4 old `/api/...` URLs, last crawled in August), alternate canonical (`/index.html`), crawled-not-indexed (`testing.html`). Don't press "Validate fix" on any of them.
-  - All 6 sitemap pages Google had read were indexed. `ai-automation.html` (added 2026-10-22) was still "URL is unknown to Google" because Google last read the sitemap on 2026-10-20; it gets picked up at the next read (or use Request indexing).
+  - All 6 sitemap pages Google had read were indexed. `ai-automation.html` (added 2026-10-22) was still "URL is unknown to Google" because Google last read the sitemap on 2026-10-20; "Request indexing" was pressed for it on 2026-10-26 (added to the priority crawl queue).
 
 ### SEO changes shipped
 
