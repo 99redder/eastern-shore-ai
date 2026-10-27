@@ -1125,7 +1125,7 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - Homepage JSON-LD is one `@graph`: LocalBusiness (`@id` `https://www.easternshore.ai/#business`, Fruitland, MD 21826, no street), the web design Service (`minPrice` 100/year), and the FAQPage. Keep the FAQ JSON-LD identical to the visible FAQ text.
 - The page quotes Website Care Agreement terms (24-hour updates, 2–3 day features, every day incl. weekends/holidays; 14-day full refund; domain in client's name; price includes MD sales tax). The "What domain name will I get?" FAQ mirrors agreement sections 4 (one available name at a normal price, no buying from owners/resellers) and 7 (no premium names over $25/yr, which is what rules out .ai). If `WEBSITE_AGREEMENT_SECTIONS` changes any of these, update `index.html` too.
 - No "quote" wording for websites: every website CTA is **"Start My Website"** and jumps to `#get-started`, which posts to `/api/contact` (`mode: contact`, request type "Website Request (homepage form)", honeypot field `website`). The quote modal is still on both pages for "AI Agent Repair", the footer Contact link, and the AI page's "Get Your Free Assessment" / "Book Your Free Call or Site Visit".
-- The portfolio switcher script is inline in `index.html` (`portfolioData`; the project list buttons are built from it).
+- The portfolio switcher script is inline in `index.html` (`portfolioData`; the project list buttons are built from it). Each screenshot in a project's `shots` has its own `bullets`, shown under its caption in the right-hand panel, so new screenshots need their own bullets describing what they show.
 
 ## Survival Node User Guide app releases (added 2026-10-24)
 
