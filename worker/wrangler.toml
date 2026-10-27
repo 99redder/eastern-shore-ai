@@ -80,25 +80,25 @@ max_retries = 10
 
 # The daily Ask K email (sendAskKDailySummary in src/ask-k-claude.js) also
 # covers the other two Ask K deployments: it calls their
-# POST /internal/daily-summary through these bindings with the SUMMARY_TOKEN
-# secret (same value set in each of those workers).
+# POST /internal/daily-summary through these bindings. Each has its own token
+# secret here, which must equal SUMMARY_TOKEN on that worker:
+#   JIC_ASKK → SUMMARY_TOKEN, FMG_ASKK → FMG_ASKK_SUMMARY_TOKEN.
 [[services]]
 binding = "JIC_ASKK"
 service = "just-in-case-askk"
 
-# Florence Mae Gifts: uncomment (with the worker that serves FMG's Ask K, today
-# fmg-stripe-api) once it answers /internal/daily-summary. Until then the email
-# says "Florence Mae Gifts: not live yet".
-# [[services]]
-# binding = "FMG_ASKK"
-# service = "fmg-stripe-api"
+# Florence Mae Gifts' Ask K runs on its main API worker.
+[[services]]
+binding = "FMG_ASKK"
+service = "fmg-stripe-api"
 
 # Ask K Assistant (src/ask-k-claude.js): Claude first (newest Opus), MiniMax backup.
 # DEPLOY WITH `npx wrangler deploy --config wrangler.toml` — without --config,
 # wrangler finds the parent folder's wrangler.jsonc (the static site) first.
 # Secrets: ANTHROPIC_API_KEY (Eastern Shore AI Anthropic account),
 #          TURNSTILE_SECRET_KEY (bot check), ASKK_PASS_SECRET (signs conversation passes),
-#          SUMMARY_TOKEN (daily email's calls to the other Ask K workers).
+#          SUMMARY_TOKEN / FMG_ASKK_SUMMARY_TOKEN (daily email's calls to the
+#          Just In Case / Florence Mae Gifts Ask K workers).
 # Backup provider secrets (set via `wrangler secret put`):
 # - ASKK_API_KEY: API key for the LLM provider (required)
 # - ASKK_BASE_URL: provider base URL (optional, defaults to https://api.openai.com/v1)

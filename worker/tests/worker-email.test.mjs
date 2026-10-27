@@ -337,16 +337,26 @@ async function seedAskKDay(env, day, rows) {
   }
 }
 
+const fmgSummary = (day) => ({ day, answers: 2, errors: 0, est_spent: 0.12, mtd_est_spent: 1.85, credit: { loaded: 20, spent: 1.85, level: 'ok' } });
+
 test('daily Ask K summary covers all three deployments, emailed from the alerts address', async (t) => {
   quietConsole(t);
   guardNetwork(t);
   const jicCalls = [];
+  const fmgCalls = [];
   const env = baseEnv({
     SUMMARY_TOKEN: 'summary-test-token',
+    FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token',
     JIC_ASKK: {
       async fetch(url, init) {
         jicCalls.push({ url, init });
         return Response.json({ day: JSON.parse(init.body).day, answers: 3, errors: 1, est_spent: 0.4, mtd_est_spent: 8, credit: { loaded: 40, spent: 8, level: 'ok' } });
+      }
+    },
+    FMG_ASKK: {
+      async fetch(url, init) {
+        fmgCalls.push({ url, init });
+        return Response.json(fmgSummary(JSON.parse(init.body).day));
       }
     }
   });
@@ -360,28 +370,55 @@ test('daily Ask K summary covers all three deployments, emailed from the alerts 
   assert.match(jicCalls[0].url, /\/internal\/daily-summary$/);
   assert.equal(jicCalls[0].init.method, 'POST');
   assert.equal(jicCalls[0].init.headers.Authorization, 'Bearer summary-test-token');
+  assert.equal(jicCalls[0].init.headers['X-Summary-Token'], 'summary-test-token');
   assert.deepEqual(JSON.parse(jicCalls[0].init.body), { day: yesterday });
+
+  // FMG gets its own token, never Just In Case's.
+  assert.equal(fmgCalls.length, 1);
+  assert.equal(fmgCalls[0].url, 'https://fmg-stripe-api/internal/daily-summary');
+  assert.equal(fmgCalls[0].init.method, 'POST');
+  assert.equal(fmgCalls[0].init.headers['X-Summary-Token'], 'fmg-test-token');
+  assert.equal(fmgCalls[0].init.headers['Content-Type'], 'application/json');
+  assert.doesNotMatch(JSON.stringify(fmgCalls[0].init.headers), /summary-test-token/);
+  assert.deepEqual(JSON.parse(fmgCalls[0].init.body), { day: yesterday });
 
   assert.equal(env.EMAIL.sent.length, 1);
   const [email] = env.EMAIL.sent;
   assert.equal(email.from, 'alerts@easternshore.ai');
   assert.deepEqual(email.to, ['owner@inbox.example']);
-  assert.match(email.subject, /^Ask K yesterday: 8 answered, about \$0\.91; \w+ so far \$8\.50 of \$200$/);
+  assert.match(email.subject, /^Ask K yesterday: 10 answered, about \$1\.03; \w+ so far \$10\.35 of \$200$/);
   assert.match(email.text, /── Survival Node ──\nAnswered: 5\n  • Claude: 4 answers, about \$0\.50/);
   assert.match(email.text, /Blocked: 2/);
   assert.match(email.text, /── Just In Case ──\nAnswered: 3\nErrors: 1\nSpend: about \$0\.40\nClaude spend so far in \w+: about \$8\.00\nK's credit: OK, \$32\.00 left of \$40\.00 loaded/);
-  assert.match(email.text, /\nFlorence Mae Gifts: not live yet\n/);
-  assert.match(email.text, /── All three ──\nAnswered: 8\nSpend: about \$0\.91\nClaude spend so far in \w+: about \$8\.50 of the \$200 monthly org limit \(4%\)\nNot counted: Florence Mae Gifts/);
+  assert.match(email.text, /── Florence Mae Gifts ──\nAnswered: 2\nErrors: 0\nSpend: about \$0\.12\nClaude spend so far in \w+: about \$1\.85\nMonthly Ask K budget: \$1\.85 spent of \$20\.00, OK\n/);
+  assert.match(email.text, /── All three ──\nAnswered: 10\nSpend: about \$1\.03\nClaude spend so far in \w+: about \$10\.35 of the \$200 monthly org limit \(5%\)\n/);
+  assert.doesNotMatch(email.text, /Not counted/);
+  assert.doesNotMatch(email.text, /fmg-test-token|summary-test-token/);
   assert.match(email.text, /platform\.claude\.com → Usage/);
   assert.doesNotMatch(email.text, /console\.anthropic\.com/);
+});
+
+test('daily Ask K summary: FMG budget used up is named, not shown as prepaid credit', async (t) => {
+  quietConsole(t);
+  const env = baseEnv({
+    FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token',
+    FMG_ASKK: { fetch: async (_url, init) => Response.json({ ...fmgSummary(JSON.parse(init.body).day), credit: { loaded: 20, spent: 20.4, level: 'out' } }) }
+  });
+  await seedAskKDay(env, easternDay(Date.now()), []);
+  const sent = [];
+  await sendAskKDailySummary(env, (_env, message) => sent.push(message), new Date(Date.now() + 24 * 3600 * 1000), { timeoutMs: 20 });
+
+  assert.match(sent[0].text, /Monthly Ask K budget: \$20\.40 spent of \$20\.00, used up \(cap reached or Claude refused for billing\)/);
+  assert.doesNotMatch(sent[0].text.split('── Florence Mae Gifts ──')[1], /K's credit|loaded/);
 });
 
 test('daily Ask K summary still sends when the other Ask K workers fail or hang', async (t) => {
   quietConsole(t);
   const env = baseEnv({
     SUMMARY_TOKEN: 'summary-test-token',
-    JIC_ASKK: { fetch: async () => new Response('Not Found', { status: 404 }) },
-    FMG_ASKK: { fetch: () => new Promise(() => {}) }
+    FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token',
+    JIC_ASKK: { fetch: () => new Promise(() => {}) },
+    FMG_ASKK: { fetch: async () => new Response('Not Found', { status: 404 }) }
   });
   await seedAskKDay(env, easternDay(Date.now()), [['claude', 0.25, 2]]);
   const sent = [];
@@ -390,9 +427,39 @@ test('daily Ask K summary still sends when the other Ask K workers fail or hang'
   assert.equal(sent.length, 1);
   assert.match(sent[0].subject, /^Ask K yesterday: 2 answered, about \$0\.25; \w+ so far \$0\.25 of \$200 \(Just In Case, Florence Mae Gifts couldn't fetch\)$/);
   assert.match(sent[0].text, /── Survival Node ──\nAnswered: 2/);
-  assert.match(sent[0].text, /\nJust In Case: couldn't fetch\n/);
-  assert.match(sent[0].text, /\nFlorence Mae Gifts: couldn't fetch\n/);
+  assert.match(sent[0].text, /\nJust In Case: couldn't fetch \(no reply in 0\.02 s\)\n/);
+  assert.match(sent[0].text, /\nFlorence Mae Gifts: couldn't fetch \(HTTP 404\)\n/);
   assert.match(sent[0].text, /Not counted: Just In Case, Florence Mae Gifts/);
+});
+
+test('daily Ask K summary still sends when FMG errors, has no token, or is not bound', async (t) => {
+  quietConsole(t);
+  const run = async (extra) => {
+    const env = baseEnv({ JIC_ASKK: undefined, ...extra });
+    await seedAskKDay(env, easternDay(Date.now()), [['claude', 0.25, 2]]);
+    const sent = [];
+    await sendAskKDailySummary(env, (_env, message) => sent.push(message), new Date(Date.now() + 24 * 3600 * 1000), { timeoutMs: 20 });
+    assert.equal(sent.length, 1);
+    assert.match(sent[0].text, /── Survival Node ──\nAnswered: 2/);
+    return sent[0];
+  };
+
+  const serverError = await run({
+    FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token',
+    FMG_ASKK: { fetch: async () => Response.json({ error: 'Summary unavailable' }, { status: 500 }) }
+  });
+  assert.match(serverError.text, /\nFlorence Mae Gifts: couldn't fetch \(HTTP 500\)\n/);
+  assert.match(serverError.subject, /\(Florence Mae Gifts couldn't fetch\)$/);
+
+  let called = false;
+  const noToken = await run({ FMG_ASKK: { fetch: async () => { called = true; return Response.json({}); } } });
+  assert.equal(called, false);
+  assert.match(noToken.text, /\nFlorence Mae Gifts: couldn't fetch \(FMG_ASKK_SUMMARY_TOKEN not set\)\n/);
+
+  const unbound = await run({ FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token' });
+  assert.match(unbound.text, /\nFlorence Mae Gifts: not live yet\n/);
+  assert.match(unbound.text, /Not counted: Just In Case, Florence Mae Gifts/);
+  assert.doesNotMatch(unbound.subject, /couldn't fetch/);
 });
 
 test('email events queue: a bounced customer email alerts the owner from the alerts address', async (t) => {

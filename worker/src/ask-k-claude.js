@@ -384,19 +384,24 @@ export async function recordAskKBlocked(env, kind) {
 // One email (cron in wrangler.toml) covering yesterday, in Eastern time, for
 // all three Ask K deployments. No AI calls. Survival Node's numbers come from
 // this worker's D1. Just In Case and Florence Mae Gifts are asked through a
-// service binding: POST /internal/daily-summary { day } with the SUMMARY_TOKEN
-// secret, answered with { day, answers, errors, est_spent, mtd_est_spent,
+// service binding: POST /internal/daily-summary { day } with that
+// deployment's token secret (the same value as SUMMARY_TOKEN on its worker),
+// answered with { day, answers, errors, est_spent, mtd_est_spent,
 // credit: { loaded, spent, level } }. A deployment that fails, times out or
 // isn't bound yet gets a one-line note and is left out of the totals; it
 // never stops the email.
+//
+// `credit` is prepaid credit for Just In Case. Florence Mae Gifts has no
+// prepaid balance, so its `credit` is the monthly Ask K budget instead
+// (loaded = the cap, spent = this month's estimate).
 
 const REMOTE_ASKK = [
-  { name: 'Just In Case', binding: 'JIC_ASKK' },
-  { name: 'Florence Mae Gifts', binding: 'FMG_ASKK' },
+  { name: 'Just In Case', binding: 'JIC_ASKK', service: 'just-in-case-askk', token: 'SUMMARY_TOKEN', credit: 'prepaid' },
+  { name: 'Florence Mae Gifts', binding: 'FMG_ASKK', service: 'fmg-stripe-api', token: 'FMG_ASKK_SUMMARY_TOKEN', credit: 'monthly' },
 ];
 const REMOTE_SUMMARY_TIMEOUT_MS = 10000;
 
-// creditLevel in the Just In Case Ask K worker (low = 20% or less left,
+// creditLevel in both remote Ask K workers (low = 20% or less left,
 // critical = 5% or less).
 const CREDIT_LEVELS = {
   ok: 'OK',
@@ -404,6 +409,14 @@ const CREDIT_LEVELS = {
   critical: 'very low',
   out: 'out of credit',
   unset: 'no top-ups recorded',
+};
+// FMG's "out" also covers Claude refusing for billing until it answers again.
+const BUDGET_LEVELS = {
+  ok: 'OK',
+  low: 'low',
+  critical: 'very low',
+  out: 'used up (cap reached or Claude refused for billing)',
+  unset: 'no budget set',
 };
 
 const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
@@ -434,17 +447,19 @@ async function survivalNodeSummary(env, day, month) {
   };
 }
 
-async function remoteSummary(env, service, day, month, timeoutMs) {
+async function remoteSummary(env, remote, day, month, timeoutMs) {
+  const service = env[remote.binding];
   if (!service) return { status: 'not live yet' };
-  if (!env.SUMMARY_TOKEN) throw new Error('SUMMARY_TOKEN secret not set');
+  const token = env[remote.token];
+  if (!token) throw new Error(`${remote.token} not set`);
   const ask = async () => {
-    // The host is ignored by service bindings. X-Summary-Token is what the
-    // Just In Case worker reads today; Authorization is the agreed contract.
-    const res = await service.fetch('https://askk.internal/internal/daily-summary', {
+    // The host is ignored by service bindings. X-Summary-Token is what both
+    // remote workers read; Authorization is the agreed contract.
+    const res = await service.fetch(`https://${remote.service}/internal/daily-summary`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${env.SUMMARY_TOKEN}`,
-        'X-Summary-Token': env.SUMMARY_TOKEN,
+        Authorization: `Bearer ${token}`,
+        'X-Summary-Token': token,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ day }),
@@ -466,6 +481,9 @@ async function remoteSummary(env, service, day, month, timeoutMs) {
   const credit = data.credit || {};
   const loaded = Number(credit.loaded) || 0;
   const left = Math.max(0, loaded - (Number(credit.spent) || 0));
+  const creditLine = remote.credit === 'monthly'
+    ? `Monthly Ask K budget: ${loaded > 0 ? `${money(credit.spent)} spent of ${money(loaded)}, ` : ''}${BUDGET_LEVELS[credit.level] || credit.level || 'unknown'}`
+    : `K's credit: ${CREDIT_LEVELS[credit.level] || credit.level || 'unknown'}${loaded > 0 ? `, ${money(left)} left of ${money(loaded)} loaded` : ''}`;
   return {
     answers: data.answers,
     spent: Number(data.est_spent) || 0,
@@ -475,7 +493,7 @@ async function remoteSummary(env, service, day, month, timeoutMs) {
       `Errors: ${Number(data.errors) || 0}`,
       `Spend: about ${money(data.est_spent)}`,
       `Claude spend so far in ${month}: about ${money(data.mtd_est_spent)}`,
-      `K's credit: ${CREDIT_LEVELS[credit.level] || credit.level || 'unknown'}${loaded > 0 ? `, ${money(left)} left of ${money(loaded)} loaded` : ''}`,
+      creditLine,
     ],
   };
 }
@@ -486,14 +504,15 @@ export async function sendAskKDailySummary(env, notify, now = new Date(), { time
   const limit = budget(env, 'ASKK_ORG_MONTHLY_LIMIT', 200);
   const sources = [
     { name: 'Survival Node', load: () => survivalNodeSummary(env, day, month) },
-    ...REMOTE_ASKK.map(r => ({ name: r.name, load: () => remoteSummary(env, env[r.binding], day, month, timeoutMs) })),
+    ...REMOTE_ASKK.map(r => ({ name: r.name, load: () => remoteSummary(env, r, day, month, timeoutMs) })),
   ];
   const sections = await Promise.all(sources.map(async ({ name, load }) => {
     try {
       return { name, ...(await load()) };
     } catch (e) {
-      console.error(`Ask K daily summary: ${name} failed:`, e?.message || e);
-      return { name, status: "couldn't fetch", failed: true };
+      const reason = String(e?.message || e).slice(0, 80);
+      console.error(`Ask K daily summary: ${name} failed:`, reason);
+      return { name, status: `couldn't fetch (${reason})`, failed: true };
     }
   }));
 
