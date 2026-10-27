@@ -1778,6 +1778,8 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
         florence: {
           name: 'Florence Mae Gifts',
           shots: [
+            { image: '/portfolio-florencemaegifts-askk.jpg', alt: 'Florence Mae Gifts Ask K order-help chat recommending a hat size for a 4-month-old on a baby hat listing screenshot', caption: 'Ask K order help' },
+            { image: '/portfolio-florencemaegifts-askk-status.jpg', alt: 'Florence Mae Gifts Ask K chat asking for the email used to order so it can email the order status and tracking screenshot', caption: 'Ask K order status by email' },
             { image: '/portfolio-florencemaegifts-shop.jpg', alt: 'Florence Mae Gifts shop screenshot', caption: 'Shop' },
             { image: '/portfolio-florencemaegifts-product.jpg', alt: 'Florence Mae Gifts product listing with Stripe checkout screenshot', caption: 'Product listing and checkout' },
             { image: '/portfolio-florencemaegifts-map.jpg', alt: 'Florence Mae Gifts interactive world map of orders shipped screenshot', caption: 'Orders map' },
@@ -1786,10 +1788,11 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
           url: 'https://www.florencemaegifts.com',
           label: 'www.florencemaegifts.com',
           bullets: [
-            'E-commerce shop utilizing secure Stripe payment processing.',
-            'Over 20 unique items inventory managed through custom dashboard.',
-            'Customers can request custom work directly from the site.',
-            'Downloadable content automatically delivered to customers email after purchase.',
+            'A "Need help with an order?" button on every page opens Ask K, an AI chat on Anthropic\'s newest Claude Opus, running on Cloudflare Workers. It answers from the shop\'s own listings, sizes, prices, handling times, shipping and returns, refreshed from the catalog on every rebuild.',
+            'Answers sizing, ship-date (in business days), returns, pattern and custom-order questions and refuses off-topic ones. When it can\'t help, it opens the contact form prefilled with a summary and the chat.',
+            'Private order updates: the visitor enters the email they ordered with, and the status and tracking are emailed to that inbox. Nothing about an order is shown in the chat.',
+            'Turnstile bot check, per-visitor rate limits, and daily and monthly spend caps that hand off to the contact form.',
+            'Stripe shop of over 20 unique items with custom requests and emailed downloads. Orders move from Order Received to In Production, Shipped and Delivered in the admin dashboard, which can email the customer at each step.',
           ]
         },
         cbf: {
