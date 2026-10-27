@@ -1165,10 +1165,10 @@
       <div class="portfolio-details">
         <h3 id="portfolio-points-title">Notes board</h3>
         <ul id="portfolio-points">
-          <li>Every holding is a color-coded sticky note, sorted by a legend you edit yourself: Cash, Moonshot, Turnaround, Defense, Long Term Hold, Trade Idea, Hedge, or your own.</li>
-          <li>Notes are grouped by brokerage account, each with its own theme, and show open covered calls with strike, contracts and expiration.</li>
-          <li>A side panel tracks cash-secured puts and a Radar of your top-priority ideas with live prices and your notes.</li>
-          <li>Synced across devices, with backups, a user guide and Ask K help built in.</li>
+          <li>Every stock is a color-coded sticky note.</li>
+          <li>Notes are grouped by account, with labels you choose.</li>
+          <li>A Radar panel keeps your top ideas in view.</li>
+          <li>Syncs across all your devices.</li>
         </ul>
       </div>
     </div>
@@ -1774,29 +1774,27 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
             {
               image: '/portfolio-stockstickies-notes.jpg', alt: 'Stock Stickies notes board screenshot', caption: 'Notes board',
               bullets: [
-                'Every holding is a color-coded sticky note, sorted by a legend you edit yourself: Cash, Moonshot, Turnaround, Defense, Long Term Hold, Trade Idea, Hedge, or your own.',
-                'Notes are grouped by brokerage account, each with its own theme, and show open covered calls with strike, contracts and expiration.',
-                'A side panel tracks cash-secured puts and a Radar of your top-priority ideas with live prices and your notes.',
-                'Synced across devices, with backups, a user guide and Ask K help built in.'
+                'Every stock is a color-coded sticky note.',
+                'Notes are grouped by account, with labels you choose.',
+                'A Radar panel keeps your top ideas in view.',
+                'Syncs across all your devices.'
               ]
             },
             {
               image: '/portfolio-stockstickies-portfolio.jpg', alt: 'Stock Stickies portfolio allocation chart screenshot', caption: 'Portfolio allocation',
               bullets: [
-                'Donut chart of your allocation across every account at once, or one account at a time.',
-                'Switch between donut, sector and map views, or compare year-to-date returns against the S&amp;P 500.',
-                'Labels, the cash slice and dollar values toggle on and off, so you can share the chart without showing amounts.',
-                'Copy or Snapshot turns the chart into a social-media-ready image in one click.',
-                'A watch list with quick notes sits beside it, and any ticker can be flagged for the Radar.'
+                'See your whole portfolio as a pie chart.',
+                'Compare your returns against the S&amp;P 500.',
+                'Hide dollar amounts with one click.',
+                'Save the chart as a shareable image.'
               ]
             },
             {
               image: '/portfolio-stockstickies-dashboard.jpg', alt: 'Stock Stickies live market dashboard screenshot', caption: 'Live dashboard',
               bullets: [
-                'A full-screen market terminal streaming real-time quotes from the Finnhub finance API.',
-                'Nearly 100 ticker widgets grouped by theme: Mag 7, AI, drones, space, robotics, nuclear, energy, financials and more.',
-                'Indexes, the VIX, gold, bitcoin and the 30-year Treasury yield sit right next to the stocks.',
-                'Add any symbol, pause the stream, lock the layout or reset the groups, with live stream stats across the top.'
+                'Live stock prices, updated in real time.',
+                'Nearly 100 stocks grouped by theme.',
+                'Add any stock you want to watch.'
               ]
             }
           ],
@@ -1809,54 +1807,52 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
             {
               image: '/portfolio-florencemaegifts-askk.jpg', alt: 'Florence Mae Gifts Ask K order-help chat recommending a hat size for a 4-month-old on a baby hat listing screenshot', caption: 'Ask K order help',
               bullets: [
-                'A "Need help with an order?" button on every page opens Ask K, an AI chat on Anthropic\'s newest Claude Opus, running on Cloudflare Workers.',
-                'It answers from the shop\'s own listings, refreshed on every rebuild. Here it knows the hat stretches like a beanie and recommends the next size up for a 4-month-old.',
-                'Handles sizing, ship dates (in business days), returns, patterns and custom orders, and refuses off-topic questions.',
-                'When it can\'t help, it opens the contact form prefilled with a summary and the chat, and a link at the top reaches Megan anytime.'
+                'An AI helper answers shopper questions any time.',
+                'Gives sizing advice based on the actual listing.',
+                'Knows shipping times, returns and custom orders.',
+                'Hands off to Megan when it can\'t help.'
               ]
             },
             {
               image: '/portfolio-florencemaegifts-askk-status.jpg', alt: 'Florence Mae Gifts Ask K chat asking for the email used to order so it can email the order status and tracking screenshot', caption: 'Ask K order status by email',
               bullets: [
-                'Private order updates: the visitor enters the email they ordered with, and the status and tracking are emailed to that inbox.',
-                'Nothing about an order is ever shown in the chat, so no one can look up someone else\'s order.',
-                'Covers website orders and custom work Megan invoiced.',
-                'Turnstile bot check, per-visitor rate limits, and daily and monthly spend caps that hand off to the contact form.'
+                'Customers can check on their order from the chat.',
+                'Status and tracking are emailed privately to the buyer.',
+                'Built-in protection against bots and spam.'
               ]
             },
             {
               image: '/portfolio-florencemaegifts-shop.jpg', alt: 'Florence Mae Gifts shop screenshot', caption: 'Shop',
               bullets: [
-                'Stripe shop of over 20 unique handmade items: crochet baby hats, diaper sets, and downloadable patterns sent by email.',
-                'Category filters, plus "New" badges with the month each item was added and a one-line description.',
-                'Shows the shop\'s 5-star Etsy rating, and the free U.S. shipping policy right up front.',
-                'Watercolor branding with a dark mode switch, a gallery archive, reviews, and links to Etsy and Instagram.'
+                'Handmade baby hats, sets and patterns, sorted by category.',
+                'New items get a "New" badge.',
+                'Free U.S. shipping and a 5-star Etsy rating up front.',
+                'Light and dark mode.'
               ]
             },
             {
               image: '/portfolio-florencemaegifts-product.jpg', alt: 'Florence Mae Gifts product listing with Stripe checkout screenshot', caption: 'Product listing and checkout',
               bullets: [
-                'Each listing opens with a photo gallery, the full description and a size picker that shows each size\'s price.',
-                'Buy Now goes straight to Stripe Checkout with free U.S. shipping.',
-                'Made-to-order handling time is shown in business days before the customer buys.',
-                'Orders move from Order Received to In Production, Shipped and Delivered in the admin dashboard, which can email the customer at each step.'
+                'Photo gallery, full details and a size picker.',
+                'Secure checkout with Stripe.',
+                'Shows when the order will ship before you buy.',
+                'Customers get an email at each step until delivery.'
               ]
             },
             {
               image: '/portfolio-florencemaegifts-map.jpg', alt: 'Florence Mae Gifts interactive world map of orders shipped screenshot', caption: 'Orders map',
               bullets: [
-                'An interactive map of every town and city the shop\'s Etsy orders have shipped to, from Megan\'s studio in Salisbury, Maryland.',
-                'Headline stats for orders shipped, states, countries, towns, and the farthest delivery: 11,650 miles to Australia.',
-                'Switch between world and U.S. views, and hover any country for its order count.',
-                'Top countries, top states and orders by continent are charted below the map.'
+                'Interactive map of everywhere an order has shipped.',
+                'Totals for orders, states and countries at a glance.',
+                'Hover a country to see its order count.'
               ]
             },
             {
               image: '/portfolio-florencemaegifts-contact.jpg', alt: 'Florence Mae Gifts contact form open on a custom piece request screenshot', caption: 'Custom piece request',
               bullets: [
-                'One branded contact form for questions, custom pieces, sizing and returns, with a reply within 24 hours.',
-                'A custom request collects the type of piece, size or age, a needed-by date, and the character, theme and colors.',
-                'Opens from the "Request Custom Piece" menu link, or from Ask K already filled in with the chat.'
+                'One simple form for questions and custom orders.',
+                'Collects the size, theme, colors and needed-by date.',
+                'Megan replies within 24 hours.'
               ]
             }
           ],
@@ -1869,27 +1865,25 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
             {
               image: '/portfolio-cbfchurch.png', alt: 'CBF Church home page screenshot', caption: 'Home page',
               bullets: [
-                'Community church website with the latest blog posts up front, and service times, location with directions, and social links in the sidebar.',
-                'Automatically displays their newest YouTube videos and live streams.',
-                'Custom-made contact system lets visitors email multiple church leaders straight from the site.',
-                'Clear navigation to beliefs, mission, history, photo gallery and videos, with a light and dark mode switch.'
+                'Latest posts, service times and directions up front.',
+                'Newest YouTube videos and live streams appear automatically.',
+                'Visitors can email church leaders right from the site.'
               ]
             },
             {
               image: '/portfolio-cbfchurch-blog.jpg', alt: 'CBF Church blog archive screenshot', caption: 'Blog archive',
               bullets: [
-                'An admin mode lets authorized users post blog content and upload photos with zero code. It replaced their old Blogger setup.',
-                'Every article is organized in a collapsible archive by year and month, with a post count for each month.',
-                'A "Learn the Truth" sidebar links to their beliefs, mission statement and the Bible Reading Plan app we also built.'
+                'Staff post articles and photos with no coding.',
+                'Every post organized by year and month.',
+                'Replaced their old Blogger site.'
               ]
             },
             {
               image: '/portfolio-cbfchurch-donate.jpg', alt: 'CBF Church donation page screenshot', caption: 'Online donations',
               bullets: [
-                'Stripe-powered giving for one-time or recurring donations.',
-                'Payments go through Stripe Checkout, so card details never touch the church\'s site.',
-                'Name and email are optional, for anyone who wants to give privately.',
-                'Explains where gifts go and links to the contact page for giving questions.'
+                'Secure online giving through Stripe.',
+                'One-time or recurring donations.',
+                'Name and email are optional.'
               ]
             }
           ],
@@ -1902,28 +1896,25 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
             {
               image: '/portfolio-bibleplannerapp-funfacts.jpg', alt: 'Bible Reading Plan daily reading with a "Did you know?" fun fact about Ecclesiastes 3 screenshot', caption: 'Daily reading with fun facts',
               bullets: [
-                'Each day\'s passage reads right in the app, with a Mark as Read button that keeps your streak going.',
-                'A sparkle marks verses with an optional "Did you know?" fun fact, like the 1960s hit song built from Ecclesiastes 3.',
-                'Facts connect verses to the songs, films, art and history they inspired, each with a source link.',
-                'Facts open in a panel on tap, so they never interrupt your reading.'
+                'Read each day\'s passage right in the app.',
+                'Optional fun facts link verses to songs, films and history.',
+                'Tracks your daily reading streak.'
               ]
             },
             {
               image: '/portfolio-bibleplannerapp-changeplan.jpg', alt: 'Bible Reading Plan change plan screen with a live preview of the new schedule screenshot', caption: 'Change your plan anytime',
               bullets: [
-                'Builds a fully personalized plan: pick from 11 translations, any timeline from a few months to 10 years, what to read, and whether to read on weekends.',
-                'Change any of it mid-plan. The app re-plans what is left without losing progress.',
-                'A live preview shows chapters left, your new daily pace and your finish date before you save.',
-                'Completed readings, streak and calendar are all kept, and your pace resets so you start back on track.'
+                'Choose from 11 translations and any timeline up to 10 years.',
+                'Change your plan anytime without losing progress.',
+                'Preview your new finish date before saving.'
               ]
             },
             {
               image: '/portfolio-bibleplannerapp-install-v2.jpg', alt: 'Bible Reading Plan step-by-step install guide for iPhone screenshot', caption: 'Install on any phone',
               bullets: [
-                'Installs to the home screen of any phone, no app store needed.',
-                'Detects your device and browser and shows matching step-by-step instructions.',
-                'Opens full-screen, loads fast and reads offline, like a native app.',
-                'Sign in once, and it tracks your streaks and progress from then on.'
+                'Installs on any phone, no app store needed.',
+                'Step-by-step instructions for your device.',
+                'Works offline.'
               ]
             }
           ],
@@ -1936,28 +1927,25 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
             {
               image: '/portfolio-idesignas.png', alt: 'iDesign Apparel Store home page screenshot', caption: 'Home page',
               bullets: [
-                'Retro synthwave-styled storefront for print-on-demand apparel: satin pajamas, rash guards, Hawaiian shirts and tees.',
-                'The hero sums up the offer at a glance: sizes from 18 months to 5XL, a one-piece minimum, and shipping to the USA and Canada.',
-                'Two clear paths from the first screen: shop the collection or request a custom design.',
-                'Products are printed on order and shipped direct to customers.'
+                'Bold retro look for a print-on-demand apparel brand.',
+                'Sizes from baby to 5XL, shipped to the U.S. and Canada.',
+                'Shop or request a custom design from the first screen.'
               ]
             },
             {
               image: '/portfolio-idesignas-shop.jpg', alt: 'iDesign Apparel Store shop catalog screenshot', caption: 'Shop catalog',
               bullets: [
-                'Full catalog with search, a sort menu, and category filters with item counts.',
-                'Shop for women, men or kids with one tap.',
-                'Featured seasonal collections front and center, like the Halloween line shown here.',
-                'Every page links to custom orders for anyone who wants something a little different.'
+                'Search and filter the full catalog.',
+                'Shop by category, or for women, men and kids.',
+                'Seasonal collections featured up front.'
               ]
             },
             {
               image: '/portfolio-idesignas-custom.jpg', alt: 'iDesign Apparel Store custom order form screenshot', caption: 'Custom orders',
               bullets: [
-                'Custom design request workflow lets customers submit an idea, approve a mockup, and order even a single piece.',
-                'The form asks for the type of request and product, then the design idea, colors, sizes, quantity and deadline.',
-                'Past custom work is shown right beside the form.',
-                'Doubles as the contact page for questions about an existing order.'
+                'Customers send an idea and approve a mockup.',
+                'Custom orders start at just one piece.',
+                'Doubles as the contact page.'
               ]
             }
           ],
