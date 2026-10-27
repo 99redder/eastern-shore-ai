@@ -94,7 +94,11 @@ Response shape: `{ ok: boolean, error?: string }`
 4. **Answer**: newest `claude-opus-*` (Models API, cached daily in `askk_meta`; next newest if one is retired), effort `low`, knowledge cached as the first system block, server-side refusal fallback.
 5. **Backup**: if Claude is out of credit, over `ASKK_CLAUDE_DAILY_BUDGET`, or failing, `generateAskKAnswer` (MiniMax via `ASKK_*` secrets) answers under `ASKK_MINIMAX_DAILY_BUDGET`; past both, a "busy, call us" reply. Staff get one email per day per reason (`sendStaffOperationalAlert`).
 6. **Spend**: estimated per answer from token usage (priced high), per Eastern day in `askk_daily` (`claude`, `minimax`, plus `offtopic` / `busy` / `unverified` / `ratelimited` counters).
-7. **Daily email**: `sendAskKDailySummary` (the worker's `scheduled` handler, cron `0 12 * * *` = 8 AM EDT / 7 AM EST) emails `TO_EMAIL` yesterday's answers, blocks, spend and Claude's month-to-date spend. No AI calls. (The account is on Workers Paid, which allows 250 cron triggers; it used to be the 5th of the Free plan's five.)
+7. **Daily email**: `sendAskKDailySummary` (the worker's `scheduled` handler, cron `0 12 * * *` = 8 AM EDT / 7 AM EST) emails `TO_EMAIL` one summary of yesterday (Eastern) for all three Ask K deployments, then combined totals and month-to-date Claude spend against `ASKK_ORG_MONTHLY_LIMIT` ($200, the Anthropic org limit). No AI calls. (The account is on Workers Paid, which allows 250 cron triggers; it used to be the 5th of the Free plan's five.)
+   - **Survival Node**: from `askk_daily` here.
+   - **Just In Case** (`JIC_ASKK` → `just-in-case-askk`) and **Florence Mae Gifts** (`FMG_ASKK`, commented out in `wrangler.toml` until FMG has the endpoint; the email says "not live yet"): `POST /internal/daily-summary {day}` through the service binding with the `SUMMARY_TOKEN` secret (same value in each worker), sent as `Authorization: Bearer` and as `X-Summary-Token` (what the JIC worker reads). Reply: `{ day, answers, errors, est_spent, mtd_est_spent, credit: { loaded, spent, level } }`.
+   - A deployment that fails or takes over 10 s shows "couldn't fetch", is left out of the totals and named in the subject; the email still sends.
+   - Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k): platform.claude.com → Usage.
 
 **Deploy the worker with `npx wrangler deploy --config wrangler.toml`.** Without `--config`, wrangler picks up the repo root's `wrangler.jsonc` (the static site) and deploys the website over the API worker.
 

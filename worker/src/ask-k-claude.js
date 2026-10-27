@@ -380,37 +380,144 @@ export async function recordAskKBlocked(env, kind) {
   }
 }
 
-// Daily summary email (cron in wrangler.toml): yesterday's Ask K activity in
-// Eastern time, plus Claude's month-to-date spend. No AI calls.
-export async function sendAskKDailySummary(env, notify, now = new Date()) {
+// ── Daily summary email ────────────────────────────────────────
+// One email (cron in wrangler.toml) covering yesterday, in Eastern time, for
+// all three Ask K deployments. No AI calls. Survival Node's numbers come from
+// this worker's D1. Just In Case and Florence Mae Gifts are asked through a
+// service binding: POST /internal/daily-summary { day } with the SUMMARY_TOKEN
+// secret, answered with { day, answers, errors, est_spent, mtd_est_spent,
+// credit: { loaded, spent, level } }. A deployment that fails, times out or
+// isn't bound yet gets a one-line note and is left out of the totals; it
+// never stops the email.
+
+const REMOTE_ASKK = [
+  { name: 'Just In Case', binding: 'JIC_ASKK' },
+  { name: 'Florence Mae Gifts', binding: 'FMG_ASKK' },
+];
+const REMOTE_SUMMARY_TIMEOUT_MS = 10000;
+
+// creditLevel in the Just In Case Ask K worker (low = 20% or less left,
+// critical = 5% or less).
+const CREDIT_LEVELS = {
+  ok: 'OK',
+  low: 'low',
+  critical: 'very low',
+  out: 'out of credit',
+  unset: 'no top-ups recorded',
+};
+
+const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
+
+async function survivalNodeSummary(env, day, month) {
   await ensureTables(env);
-  const yesterday = easternDay(new Date(now.getTime() - 24 * 3600 * 1000));
-  const rows = await env.DB.prepare('SELECT provider, spent, questions FROM askk_daily WHERE day = ?').bind(yesterday).all();
+  const rows = await env.DB.prepare('SELECT provider, spent, questions FROM askk_daily WHERE day = ?').bind(day).all();
   const by = Object.fromEntries((rows.results || []).map(r => [r.provider, r]));
   const n = (k) => Number(by[k]?.questions || 0);
-  const $ = (v) => `$${Number(v || 0).toFixed(2)}`;
-  const month = yesterday.slice(0, 7);
-  const mtd = await env.DB.prepare("SELECT SUM(spent) AS s FROM askk_daily WHERE provider = 'claude' AND substr(day, 1, 7) = ?").bind(month).first();
-  const answered = n('claude') + n('minimax');
-  const blocked = n('offtopic') + n('unverified') + n('ratelimited');
-  const lines = [
-    `Ask K on the Survival Node page — ${yesterday}`,
-    '',
-    `Answered: ${answered}`,
-    `  • Claude: ${n('claude')} answers, about ${$(by.claude?.spent)} (daily cap ${$(budget(env, 'ASKK_CLAUDE_DAILY_BUDGET', 3))})`,
-    `  • MiniMax backup: ${n('minimax')} answers, about ${$(by.minimax?.spent)}`,
-    `Blocked: ${blocked}`,
-    `  • Off-topic requests refused: ${n('offtopic')}`,
-    `  • Failed the bot check: ${n('unverified')}`,
-    `  • Hit a rate limit: ${n('ratelimited')}`,
-    `"Busy, contact us" replies: ${n('busy')}`,
-    '',
-    `Claude spend so far in ${month}: about ${$(mtd?.s)}`,
-    '',
-    'Amounts are estimates from token counts, priced slightly high. Exact figures: console.anthropic.com → Usage.',
+  const spent = (k) => Number(by[k]?.spent || 0);
+  const mtd = await env.DB.prepare("SELECT SUM(spent) AS s FROM askk_daily WHERE provider = 'claude' AND substr(day, 1, 7) = ?").bind(day.slice(0, 7)).first();
+  const answers = n('claude') + n('minimax');
+  return {
+    answers,
+    spent: spent('claude') + spent('minimax'),
+    claudeMtd: Number(mtd?.s || 0),
+    lines: [
+      `Answered: ${answers}`,
+      `  • Claude: ${n('claude')} answers, about ${money(spent('claude'))} (daily cap ${money(budget(env, 'ASKK_CLAUDE_DAILY_BUDGET', 3))})`,
+      `  • MiniMax backup: ${n('minimax')} answers, about ${money(spent('minimax'))}`,
+      `Blocked: ${n('offtopic') + n('unverified') + n('ratelimited')}`,
+      `  • Off-topic requests refused: ${n('offtopic')}`,
+      `  • Failed the bot check: ${n('unverified')}`,
+      `  • Hit a rate limit: ${n('ratelimited')}`,
+      `"Busy, contact us" replies: ${n('busy')}`,
+      `Claude spend so far in ${month}: about ${money(mtd?.s)}`,
+    ],
+  };
+}
+
+async function remoteSummary(env, service, day, month, timeoutMs) {
+  if (!service) return { status: 'not live yet' };
+  if (!env.SUMMARY_TOKEN) throw new Error('SUMMARY_TOKEN secret not set');
+  const ask = async () => {
+    // The host is ignored by service bindings. X-Summary-Token is what the
+    // Just In Case worker reads today; Authorization is the agreed contract.
+    const res = await service.fetch('https://askk.internal/internal/daily-summary', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.SUMMARY_TOKEN}`,
+        'X-Summary-Token': env.SUMMARY_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ day }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  };
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`no reply in ${timeoutMs / 1000} s`)), timeoutMs);
+  });
+  let data;
+  try {
+    data = await Promise.race([ask(), timeout]);
+  } finally {
+    clearTimeout(timer);
+  }
+  if (!data || typeof data.answers !== 'number') throw new Error('unexpected reply');
+  const credit = data.credit || {};
+  const loaded = Number(credit.loaded) || 0;
+  const left = Math.max(0, loaded - (Number(credit.spent) || 0));
+  return {
+    answers: data.answers,
+    spent: Number(data.est_spent) || 0,
+    claudeMtd: Number(data.mtd_est_spent) || 0,
+    lines: [
+      `Answered: ${data.answers}`,
+      `Errors: ${Number(data.errors) || 0}`,
+      `Spend: about ${money(data.est_spent)}`,
+      `Claude spend so far in ${month}: about ${money(data.mtd_est_spent)}`,
+      `K's credit: ${CREDIT_LEVELS[credit.level] || credit.level || 'unknown'}${loaded > 0 ? `, ${money(left)} left of ${money(loaded)} loaded` : ''}`,
+    ],
+  };
+}
+
+export async function sendAskKDailySummary(env, notify, now = new Date(), { timeoutMs = REMOTE_SUMMARY_TIMEOUT_MS } = {}) {
+  const day = easternDay(new Date(now.getTime() - 24 * 3600 * 1000));
+  const month = new Date(`${day}T12:00:00Z`).toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
+  const limit = budget(env, 'ASKK_ORG_MONTHLY_LIMIT', 200);
+  const sources = [
+    { name: 'Survival Node', load: () => survivalNodeSummary(env, day, month) },
+    ...REMOTE_ASKK.map(r => ({ name: r.name, load: () => remoteSummary(env, env[r.binding], day, month, timeoutMs) })),
   ];
-  const subject = answered || blocked
-    ? `Ask K yesterday: ${answered} answered, ${blocked} blocked, about ${$(Number(by.claude?.spent || 0) + Number(by.minimax?.spent || 0))}`
-    : 'Ask K yesterday: no questions';
+  const sections = await Promise.all(sources.map(async ({ name, load }) => {
+    try {
+      return { name, ...(await load()) };
+    } catch (e) {
+      console.error(`Ask K daily summary: ${name} failed:`, e?.message || e);
+      return { name, status: "couldn't fetch", failed: true };
+    }
+  }));
+
+  const counted = sections.filter(s => !s.status);
+  const sum = (key) => counted.reduce((total, s) => total + s[key], 0);
+  const answers = sum('answers');
+  const spent = sum('spent');
+  const claudeMtd = sum('claudeMtd');
+  const lines = [`Ask K yesterday — ${day} (Eastern time)`, ''];
+  for (const s of sections) {
+    lines.push(...(s.status ? [`${s.name}: ${s.status}`] : [`── ${s.name} ──`, ...s.lines]), '');
+  }
+  lines.push(
+    '── All three ──',
+    `Answered: ${answers}`,
+    `Spend: about ${money(spent)}`,
+    `Claude spend so far in ${month}: about ${money(claudeMtd)} of the $${limit} monthly org limit (${limit > 0 ? Math.round(claudeMtd / limit * 100) : 0}%)`,
+  );
+  const left = sections.filter(s => s.status);
+  if (left.length) lines.push(`Not counted: ${left.map(s => s.name).join(', ')}`);
+  lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k): platform.claude.com → Usage.');
+
+  const failed = sections.filter(s => s.failed).map(s => s.name);
+  const subject = `Ask K yesterday: ${answers} answered, about ${money(spent)}; ${month} so far ${money(claudeMtd)} of $${limit}`
+    + (failed.length ? ` (${failed.join(', ')} couldn't fetch)` : '');
   await notify(env, { subject, text: lines.join('\n') });
 }

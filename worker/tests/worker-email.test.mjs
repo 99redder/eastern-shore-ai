@@ -5,6 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import worker from '../src/index.js';
+import { recordAskKBlocked, sendAskKDailySummary } from '../src/ask-k-claude.js';
 import { createD1 } from './d1.mjs';
 
 const MIGRATIONS = new URL('../migrations/', import.meta.url);
@@ -325,17 +326,73 @@ test('preview lead: confirmation with calendar invite to the business, alert to 
   assert.equal(alert.from, 'alerts@easternshore.ai');
 });
 
-test('daily Ask K summary is emailed to the owner from the alerts address', async (t) => {
+const easternDay = (ms) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(ms));
+
+// askk_daily is created on first use; recordAskKBlocked creates it.
+async function seedAskKDay(env, day, rows) {
+  await recordAskKBlocked(env, 'unverified');
+  env.DB.sqlite.exec('DELETE FROM askk_daily');
+  for (const [provider, spent, questions] of rows) {
+    env.DB.sqlite.prepare('INSERT INTO askk_daily (day, provider, spent, questions) VALUES (?, ?, ?, ?)').run(day, provider, spent, questions);
+  }
+}
+
+test('daily Ask K summary covers all three deployments, emailed from the alerts address', async (t) => {
   quietConsole(t);
   guardNetwork(t);
-  const env = baseEnv();
+  const jicCalls = [];
+  const env = baseEnv({
+    SUMMARY_TOKEN: 'summary-test-token',
+    JIC_ASKK: {
+      async fetch(url, init) {
+        jicCalls.push({ url, init });
+        return Response.json({ day: JSON.parse(init.body).day, answers: 3, errors: 1, est_spent: 0.4, mtd_est_spent: 8, credit: { loaded: 40, spent: 8, level: 'ok' } });
+      }
+    }
+  });
+  const yesterday = easternDay(Date.now() - 24 * 3600 * 1000);
+  await seedAskKDay(env, yesterday, [['claude', 0.5, 4], ['minimax', 0.01, 1], ['offtopic', 0, 2]]);
   const pending = [];
   await worker.scheduled({ cron: '0 12 * * *', scheduledTime: Date.now() }, env, { waitUntil: (p) => pending.push(p) });
   await Promise.all(pending);
+
+  assert.equal(jicCalls.length, 1);
+  assert.match(jicCalls[0].url, /\/internal\/daily-summary$/);
+  assert.equal(jicCalls[0].init.method, 'POST');
+  assert.equal(jicCalls[0].init.headers.Authorization, 'Bearer summary-test-token');
+  assert.deepEqual(JSON.parse(jicCalls[0].init.body), { day: yesterday });
+
   assert.equal(env.EMAIL.sent.length, 1);
-  assert.equal(env.EMAIL.sent[0].from, 'alerts@easternshore.ai');
-  assert.deepEqual(env.EMAIL.sent[0].to, ['owner@inbox.example']);
-  assert.match(env.EMAIL.sent[0].text, /Ask K on the Survival Node page/);
+  const [email] = env.EMAIL.sent;
+  assert.equal(email.from, 'alerts@easternshore.ai');
+  assert.deepEqual(email.to, ['owner@inbox.example']);
+  assert.match(email.subject, /^Ask K yesterday: 8 answered, about \$0\.91; \w+ so far \$8\.50 of \$200$/);
+  assert.match(email.text, /── Survival Node ──\nAnswered: 5\n  • Claude: 4 answers, about \$0\.50/);
+  assert.match(email.text, /Blocked: 2/);
+  assert.match(email.text, /── Just In Case ──\nAnswered: 3\nErrors: 1\nSpend: about \$0\.40\nClaude spend so far in \w+: about \$8\.00\nK's credit: OK, \$32\.00 left of \$40\.00 loaded/);
+  assert.match(email.text, /\nFlorence Mae Gifts: not live yet\n/);
+  assert.match(email.text, /── All three ──\nAnswered: 8\nSpend: about \$0\.91\nClaude spend so far in \w+: about \$8\.50 of the \$200 monthly org limit \(4%\)\nNot counted: Florence Mae Gifts/);
+  assert.match(email.text, /platform\.claude\.com → Usage/);
+  assert.doesNotMatch(email.text, /console\.anthropic\.com/);
+});
+
+test('daily Ask K summary still sends when the other Ask K workers fail or hang', async (t) => {
+  quietConsole(t);
+  const env = baseEnv({
+    SUMMARY_TOKEN: 'summary-test-token',
+    JIC_ASKK: { fetch: async () => new Response('Not Found', { status: 404 }) },
+    FMG_ASKK: { fetch: () => new Promise(() => {}) }
+  });
+  await seedAskKDay(env, easternDay(Date.now()), [['claude', 0.25, 2]]);
+  const sent = [];
+  await sendAskKDailySummary(env, (_env, message) => sent.push(message), new Date(Date.now() + 24 * 3600 * 1000), { timeoutMs: 20 });
+
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].subject, /^Ask K yesterday: 2 answered, about \$0\.25; \w+ so far \$0\.25 of \$200 \(Just In Case, Florence Mae Gifts couldn't fetch\)$/);
+  assert.match(sent[0].text, /── Survival Node ──\nAnswered: 2/);
+  assert.match(sent[0].text, /\nJust In Case: couldn't fetch\n/);
+  assert.match(sent[0].text, /\nFlorence Mae Gifts: couldn't fetch\n/);
+  assert.match(sent[0].text, /Not counted: Just In Case, Florence Mae Gifts/);
 });
 
 test('email events queue: a bounced customer email alerts the owner from the alerts address', async (t) => {
