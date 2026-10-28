@@ -115,7 +115,8 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
   `latest.json` was pointed back at 1.4 (so 1.4 phones aren't offered 1.5/1.6) and the 1.6 APK
   removed from this folder.
 - **1.7** (versionCode 10700, **source only, not built yet**) — the update check makes no request
-  while `navigator.onLine` is false, so the guide opens offline. Same content as 1.6.
+  while `navigator.onLine` is false, so the guide opens offline, and the hidden test-updates switch
+  (below). Same content as 1.6. A first 1.7 build without the switch was made and discarded unused.
 
 ## Update check (1.4 and later)
 
@@ -142,7 +143,25 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 2. Bump `APP_VERSION_CODE` in `index.html` and the footer version (1.5 = 10500, and so on).
 3. Zip `index.html` on its own and build it in WebIntoApp's **HTML Files** mode with the same
    Major/Minor version, package and certificate.
-4. Check the APK (bundled `index.html` matches, version, signing certificate), test it in airplane
-   mode, then add it here as `survival-node-user-guide-v<version>.apk` and remove the old APK.
-5. Point `latest.json` at the new APK **last**, in the same push as the APK, so the update note
-   never links to a missing file. Every 1.4+ install sees the update the next time it opens on Wi-Fi.
+4. Check the APK (bundled `index.html` matches, version, signing certificate), add it here as
+   `survival-node-user-guide-v<version>.apk`, and list it as the **test** build in `latest.json`
+   (leave the top-level fields on the current release):
+
+   ```json
+   { "version": "1.7", "versionCode": 10700, "apk": ".../survival-node-user-guide-v1.7.apk",
+     "test": { "version": "1.8", "versionCode": 10800, "apk": ".../survival-node-user-guide-v1.8.apk" } }
+   ```
+
+5. On the test phone (test updates on, see below), open the guide on Wi-Fi: it shows "Test build
+   available". Install it, then **cold-start it in airplane mode with Wi-Fi off** and check the guide
+   opens and cards expand.
+6. Release: move the test entry's values to the top-level fields, delete `test`, and remove the old
+   APK, in one push. Every 1.4+ install sees the update the next time it opens on Wi-Fi.
+
+### Test updates (1.7 and later)
+
+Tap the version line at the bottom of the guide **7 times quickly** to turn test updates on or off
+(saved on that phone only; the footer then reads "· test updates on"). With it on, the guide also
+offers `latest.json`'s `test` build when it's newer than both the installed version and the
+release. Customers' guides ignore `test` (1.4–1.6 don't know it exists). The first install of 1.7
+itself has to be done by hand, since 1.6 has no test channel.

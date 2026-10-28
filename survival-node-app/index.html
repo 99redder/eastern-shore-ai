@@ -1451,7 +1451,7 @@ body {
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p>Survival Node User Guide · v1.7</p>
+  <p id="guide-version">Survival Node User Guide · v1.7<span id="test-flag"></span></p>
 </div>
 
 </main>
@@ -1499,11 +1499,46 @@ async function checkForGuideUpdate(currentCode = APP_VERSION_CODE) {
   }
   if (!navigator.onLine) return;
   const latest = await fetchLatest();
-  if (latest && latest.apk && latest.versionCode > currentCode) {
+  if (!latest) return;
+  const test = latest.test;
+  if (testUpdatesOn() && test && test.apk && test.versionCode > currentCode && test.versionCode > (latest.versionCode || 0)) {
+    showUpdateNote(test.apk, 'Test build available',
+      `Test version ${test.version} is ready (customers aren't offered it yet). Download it while you're online and install it over this version.`);
+  } else if (latest.apk && latest.versionCode > currentCode) {
     showUpdateNote(latest.apk, 'Guide update available',
       `Version ${latest.version} of this guide is available. Download it while you're online. It installs over this version and works offline just like it.`);
   }
 }
+
+// Test channel (Red's test phone): tap the version line at the bottom 7 times quickly to turn
+// test updates on or off. It's saved on that phone only. With it on, the guide also offers
+// latest.json's "test" build, so a new version installs over Wi-Fi and gets tried before
+// customers are offered it. Customers' guides never read "test" unless they turn this on.
+const TEST_UPDATES_KEY = 'snugTestUpdates';
+
+function testUpdatesOn() {
+  try { return localStorage.getItem(TEST_UPDATES_KEY) === '1'; } catch (e) { return false; }
+}
+
+function showTestFlag() {
+  document.getElementById('test-flag').textContent = testUpdatesOn() ? ' · test updates on' : '';
+}
+
+(function () {
+  let taps = 0;
+  let timer;
+  document.getElementById('guide-version').addEventListener('click', () => {
+    taps += 1;
+    clearTimeout(timer);
+    timer = setTimeout(() => { taps = 0; }, 4000);
+    if (taps < 7) return;
+    taps = 0;
+    try { localStorage.setItem(TEST_UPDATES_KEY, testUpdatesOn() ? '0' : '1'); } catch (e) {}
+    showTestFlag();
+    if (testUpdatesOn()) checkForGuideUpdate();
+  });
+  showTestFlag();
+})();
 
 checkForGuideUpdate();
 
