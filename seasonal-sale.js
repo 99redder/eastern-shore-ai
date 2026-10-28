@@ -1,7 +1,9 @@
 // ===== Seasonal Sale Themes (node.html + buynode.html) =====
 // Picks the active sale from the date in America/New_York and dresses the
 // page for it. Outside every window it does nothing, so the pages fall back
-// to their normal look. Price is the same in every sale; only copy and
+// to their normal look (the plain limited-time offer), e.g. in the breaks
+// Nov 1–8 and Nov 27–30. Start and end dates are inclusive, so a sale runs
+// until midnight Eastern at the end of its end date. Price is the same in every sale; only copy and
 // styling change. Preview any theme with ?sale=halloween|thanksgiving|christmas|none
 (function() {
   const SALES = [
@@ -13,8 +15,8 @@
       accent: '#ff8a1f', accentInk: '#1a0d00', glow: 'rgba(255, 138, 31, .55)'
     },
     {
-      key: 'thanksgiving', name: 'Thanksgiving Sale', start: '2026-11-01', end: '2026-11-30',
-      endsLong: 'November 30', endsShort: 'Nov 30', icon: '🦃',
+      key: 'thanksgiving', name: 'Thanksgiving Sale', start: '2026-11-09', end: '2026-11-26',
+      endsLong: 'November 26', endsShort: 'Nov 26', icon: '🦃',
       drift: ['🍂', '🍁', '🦃', '🌽'],
       banner: '#b5743a',
       accent: '#f0c987', accentInk: '#2b1606', glow: 'rgba(217, 142, 74, .55)'

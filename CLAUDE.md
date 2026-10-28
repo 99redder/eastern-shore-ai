@@ -1070,7 +1070,7 @@ cd worker && wrangler deploy --config wrangler.toml
 ## Seasonal sale themes (added 2026-10-13)
 
 - `seasonal-sale.js` (repo root) is loaded by `node.html` and `buynode.html`. It picks the active sale from the date in `America/New_York` and swaps promo copy, accent colors, and a drifting-emoji layer. Outside every window it does nothing, so the pages show their normal markup.
-- Windows (2026 only, edit the `SALES` array to change): Halloween through Oct 31, Thanksgiving Nov 1–30, Christmas Dec 1–25.
+- Windows (2026 only, edit the `SALES` array to change; end dates are inclusive, so each sale ends at midnight Eastern after its last day): Halloween through Oct 31, Thanksgiving Nov 9–26 (ends Thanksgiving night), Christmas Dec 1–25. Nov 1–8 and Nov 27–30 are deliberate breaks: no theme, the pages show their plain "limited time" offer, still at $249.99.
 - Price is $249.99 in every sale; the script never touches price, JSON-LD, or the merchant feed.
 - Preview any theme with `?sale=halloween|thanksgiving|christmas|none`.
 - Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in both pages or visitors keep the old copy.
