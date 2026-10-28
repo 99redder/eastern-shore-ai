@@ -1,10 +1,16 @@
-// ===== Seasonal Sale Themes (node.html + buynode.html) =====
-// Picks the active sale from the date in America/New_York and dresses the
-// page for it. Outside every window it does nothing, so the pages fall back
-// to their normal look (the plain limited-time offer), e.g. in the breaks
-// Nov 1–8 and Nov 27–30. Start and end dates are inclusive, so a sale runs
-// until midnight Eastern at the end of its end date. Price is the same in every sale; only copy and
-// styling change. Preview any theme with ?sale=halloween|thanksgiving|christmas|none
+// ===== Seasonal Sale Themes + price (node.html + buynode.html) =====
+// Picks the active sale from the date in America/New_York. During a sale the
+// price is $249.99 and the page is dressed for it; outside every window (the
+// breaks Nov 1–8 and Nov 27–30, and after Christmas) it's the regular $349.99.
+// Start and end dates are inclusive, so a sale runs until midnight Eastern at
+// the end of its end date.
+// Loaded without defer in <head> so <html data-price="sale|regular"> is set
+// before the page draws; CSS hides .sale-only / .regular-only copy to match.
+// The static data-price in the HTML is the fallback without JS, kept current
+// by tools/node-price-pages.mjs. KEEP the windows IN SYNC with
+// worker/src/node-price.js, which sets what checkout charges.
+// Preview any theme with ?sale=halloween|thanksgiving|christmas, or the
+// regular price with ?sale=none
 (function() {
   const SALES = [
     {
@@ -141,7 +147,7 @@
     const fab = document.getElementById('mobile-buy-fab');
     if (fab) {
       fab.setAttribute('aria-label', `Buy Survival Node Gen 2 — ${sale.name}, regularly $349.99, now $249.99 through ${sale.endsLong}`);
-      const fabNote = fab.querySelector('.mobile-buy-fab-copy small:last-child');
+      const fabNote = fab.querySelector('.fab-offer-note');
       if (fabNote) fabNote.textContent = shortNote;
     }
 
@@ -155,8 +161,10 @@
     }
   }
 
+  const sale = activeSale();
+  document.documentElement.dataset.price = sale ? 'sale' : 'regular';
+
   function init() {
-    const sale = activeSale();
     if (sale) applySale(sale);
   }
 

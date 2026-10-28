@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Google Merchant Center product feed. KEEP IN SYNC with the Product JSON-LD and on-page price in node.html. -->
+<!-- Google Merchant Center product feed. KEEP IN SYNC with the Product JSON-LD and on-page price in node.html.
+     sale_price / sale_price_effective_date are set by tools/node-price-pages.mjs from the sale schedule; don't edit them by hand. -->
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
     <title>Eastern Shore AI</title>
@@ -17,6 +18,7 @@
       <g:availability>in_stock</g:availability>
       <g:price>349.99 USD</g:price>
       <g:sale_price>249.99 USD</g:sale_price>
+      <g:sale_price_effective_date>2026-10-01T00:00-0400/2026-10-31T23:59-0400</g:sale_price_effective_date>
       <g:condition>used</g:condition>
       <g:brand>Eastern Shore AI</g:brand>
       <g:mpn>SN-GEN2</g:mpn>

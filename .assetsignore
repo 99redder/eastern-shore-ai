@@ -19,3 +19,7 @@ AGENTS.md
 .vscode/**
 output
 output/**
+.github
+.github/**
+tools
+tools/**

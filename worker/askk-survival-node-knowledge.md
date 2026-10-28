@@ -26,12 +26,12 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 
 | Product | Price |
 |---|---|
-| Survival Node Gen 2 | Regularly **$349.99** — now **$249.99** for a limited time, while supplies last (**save $100**) |
+| Survival Node Gen 2 | **$349.99**, or **$249.99** during a seasonal sale (**save $100**). Today's price is given in your instructions. |
 | BYOG Setup Service (Eastern Shore of Maryland only) | **$69.99** |
 
 - **Free shipping** to the continental U.S.
 - There are no add-ons or upgrades to choose at checkout; it's one kit.
-- Seasonal sale themes on the page change the look only; the price is the same.
+- Sales run for set dates (for example a Thanksgiving Sale or Christmas Sale). Between sales the price is the regular $349.99.
 
 ## What's in the box
 

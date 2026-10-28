@@ -1,0 +1,34 @@
+# Keeps the Survival Node price that Google and no-JS visitors read (node.html
+# JSON-LD and meta, <html data-price>, merchant-feed.xml sale dates) on the
+# sale schedule in worker/src/node-price.js. Runs just after midnight Eastern
+# and commits only when something changed. Visitors with JS and checkout switch
+# at midnight on their own.
+name: Survival Node price
+
+on:
+  schedule:
+    - cron: '5 4 * * *'   # 00:05 EDT
+    - cron: '5 5 * * *'   # 00:05 EST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: node-price
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/node-price-pages.mjs
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am "Survival Node price for $(TZ=America/New_York date +%F)"
+          git push

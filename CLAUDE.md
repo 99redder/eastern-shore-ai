@@ -1001,7 +1001,7 @@ A glowing PCB/chip circuit board rendered on a Canvas 2D element, positioned to 
 ### Feed / schema rules (important)
 
 - **Keep `merchant-feed.xml` and the Product JSON-LD in `node.html` in sync** on price, sale price, availability, condition, and image URLs whenever any of them changes. On-page price must match too.
-- Current values: `price` 349.99 USD, `sale_price` 249.99 USD (JSON-LD: offer price 249.99 with a `StrikethroughPrice` of 349.99), `in_stock`, condition **`used`** / `UsedCondition`.
+- Current values: `price` 349.99 USD, `in_stock`, condition **`used`** / `UsedCondition`. The sale price (249.99) follows the sale schedule (see **Seasonal sales and price**): the feed carries `sale_price` + `sale_price_effective_date` for the running or next sale, and the JSON-LD offer is 249.99 with a `StrikethroughPrice` of 349.99 and `priceValidUntil` during a sale, plain 349.99 between sales. `tools/node-price-pages.mjs` writes these; don't hand-edit them.
 - **Condition is "used" on purpose.** The phone box is opened to debloat the OS, which meets Google's definition of used. Do not switch to new or refurbished without asking.
 - **Do not add a `<g:shipping>` block to the feed.** Item-level shipping overrides the account policy and makes the listing offer free shipping to Alaska and Hawaii. (JSON-LD `shippingDetails` in `node.html` is fine and stays.)
 - Do not change the feed URL/filename, `SN-GEN2`, or the `google_product_category` (`Home & Garden > Emergency Preparedness > Emergency Tools & Kits`, accepted by Google).
@@ -1067,13 +1067,16 @@ cd worker && wrangler deploy --config wrangler.toml
 ```
 `.assetsignore` now excludes `output/`. Anything else in the repo folder that should not be public on the mirror must be added there.
 
-## Seasonal sale themes (added 2026-10-13)
+## Seasonal sales and price (added 2026-10-13, price by date 2026-10-28)
 
-- `seasonal-sale.js` (repo root) is loaded by `node.html` and `buynode.html`. It picks the active sale from the date in `America/New_York` and swaps promo copy, accent colors, and a drifting-emoji layer. Outside every window it does nothing, so the pages show their normal markup.
-- Windows (2026 only, edit the `SALES` array to change; end dates are inclusive, so each sale ends at midnight Eastern after its last day): Halloween through Oct 31, Thanksgiving Nov 9–26 (ends Thanksgiving night), Christmas Dec 1–25. Nov 1–8 and Nov 27–30 are deliberate breaks: no theme, the pages show their plain "limited time" offer, still at $249.99.
-- Price is $249.99 in every sale; the script never touches price, JSON-LD, or the merchant feed.
-- Preview any theme with `?sale=halloween|thanksgiving|christmas|none`.
+- **Price follows the sale schedule:** $249.99 during a sale, the regular **$349.99** at every other time (Red's call: the breaks between sales go back to full price, and so does everything after the last sale). Windows (2026, Eastern dates, inclusive, so each sale ends at midnight after its last day): Halloween Oct 1–31, Thanksgiving Nov 9–26 (ends Thanksgiving night), Christmas Dec 1–25. Breaks: Nov 1–8, Nov 27–30, and from Dec 26 on.
+- **The windows live in two places, keep them identical:** `SALES` in `seasonal-sale.js` (page) and `NODE_SALES` in `worker/src/node-price.js` (checkout, Ask K, the tool below). `worker/tests/node-price.test.mjs` fails if they differ. Changing a window means editing both, bumping the script's `?v=` in both pages, running `node tools/node-price-pages.mjs`, running the worker tests and deploying the worker.
+- **Checkout:** `/api/survival-node-checkout` charges `nodePrice().cents` (24999 or 34999) by today's Eastern date. Ask K gets today's price in its system prompt (`nodePriceSentence()`) and is told not to mention past or upcoming sales; the knowledge file only says the price depends on the sale.
+- **Pages:** `seasonal-sale.js` loads without `defer` in each page's `<head>` (before the Reddit pixel) and sets `<html data-price="sale|regular">` before the page draws. Price copy comes in pairs, `.sale-only` and `.regular-only`, hidden by one CSS rule at the top of each page's first `<style>`. During a sale it also swaps in the sale name and end date, accent colors and the drifting emoji. Page JS reads the price from `data-price` (`BASE_PRICE`, pixel values, Ask K's canned "What's included?" reply). New price copy needs both versions.
+- **What Google and no-JS visitors read** (the static `data-price`, `node.html`'s meta description, `product:price:amount` and Product JSON-LD offer, and `merchant-feed.xml`'s sale price dates) is written by `tools/node-price-pages.mjs` (`--date YYYY-MM-DD` to try a day, `--check` to test). The **Survival Node price** GitHub Action (`.github/workflows/node-price.yml`) runs it at 00:05 Eastern daily and commits to `main` only on days the price changes, so pull before pushing on those days. The feed only needs to change once per window because Google switches on the effective dates itself. A public repo's scheduled workflows stop after 60 days without commits; re-enable it in the Actions tab if that ever happens.
+- Preview with `?sale=halloween|thanksgiving|christmas`, or the regular price with `?sale=none`.
 - Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in both pages or visitors keep the old copy.
+- The printed flyer (`flyer/`) still says $249.99.
 
 ## Website Care Plan + postcard preview sites (added 2026-10-19)
 

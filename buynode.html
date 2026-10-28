@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-price="sale">
 <head>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <meta charset="UTF-8" />
@@ -11,6 +11,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600&display=swap" rel="stylesheet" />
   <style>
+    /* Sale vs regular price: seasonal-sale.js sets html[data-price]; the static
+       value is the no-JS fallback, kept current by tools/node-price-pages.mjs */
+    html[data-price="regular"] .sale-only, html[data-price="sale"] .regular-only { display: none !important; }
     :root {
       --bg: #0a0b10;
       --surface: #111320;
@@ -370,6 +373,7 @@
       .ship-callout p:last-child { font-size: .88rem; }
     }
   </style>
+  <script src="/seasonal-sale.js?v=20261028b"></script>
   <!-- Reddit Pixel -->
   <script>
   !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
@@ -377,7 +381,7 @@
   rdt('track', 'PageVisit');
   rdt('track', 'ViewContent', {
     itemCount: 1,
-    value: 249.99,
+    value: document.documentElement.dataset.price === 'regular' ? 349.99 : 249.99,
     currency: 'USD',
     products: [{
       id: 'survival-node-core',
@@ -408,12 +412,12 @@
 
     <div class="order-total">
       <span class="order-total-label">Order Total</span>
-      <p class="offer-regular">Regularly <s class="price-strike">$349.99</s></p>
+      <p class="offer-regular sale-only">Regularly <s class="price-strike">$349.99</s></p>
       <span class="order-total-amount">
-        <span class="price-current">Now <span id="price-display">$249.99</span></span>
-        <span class="offer-save">Save $100</span>
+        <span class="price-current"><span class="sale-only">Now </span><span id="price-display"><span class="sale-only">$249.99</span><span class="regular-only">$349.99</span></span></span>
+        <span class="offer-save sale-only">Save $100</span>
       </span>
-      <p class="offer-urgency">Limited-time offer — while supplies last.</p>
+      <p class="offer-urgency sale-only">Limited-time offer — while supplies last.</p>
     </div>
 
     <div class="buy-cta">
@@ -429,7 +433,7 @@
       </label>
       <div id="agree-terms-error" class="terms-agree-error" role="alert" aria-live="polite">&#9888; Please check the agreement box above to continue.</div>
       <button id="buy-btn" class="btn is-locked" type="button" aria-disabled="true">BUY SURVIVAL NODE GEN 2 NOW</button>
-      <p class="checkout-offer-note">Save $100 for a limited time — while supplies last.</p>
+      <p class="checkout-offer-note sale-only">Save $100 for a limited time — while supplies last.</p>
       <div id="status-msg" class="status-msg" aria-live="polite"></div>
     </div>
 
@@ -456,7 +460,7 @@
     const buyBtn      = document.getElementById('buy-btn');
     const priceDisplay = document.getElementById('price-display');
     const statusMsg   = document.getElementById('status-msg');
-    const BASE_PRICE  = 249.99;
+    const BASE_PRICE  = document.documentElement.dataset.price === 'regular' ? 349.99 : 249.99;
     const upgradeCatalog = new Map();
 
     // ===== Upgrade price =====
@@ -642,6 +646,5 @@
       window.history.replaceState({}, '', clean);
     }
   </script>
-  <script src="/seasonal-sale.js?v=20261028a" defer></script>
 </body>
 </html>
