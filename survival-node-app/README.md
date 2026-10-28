@@ -45,8 +45,8 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.7 (in `index.html`, not built yet) |
-| Last built version | 1.6 (versionCode 10600, built 2026-10-27 from HTML Files — **does not open offline**, see above) |
+| Current source version | 1.7 |
+| Last built version | 1.7 (versionCode 10700, built 2026-10-28 from HTML Files — opens offline, tested) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -114,16 +114,22 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
   mode" lines above for 1.5 and 1.6 came from a pre-written reply, not an actual test.
   `latest.json` was pointed back at 1.4 (so 1.4 phones aren't offered 1.5/1.6) and the 1.6 APK
   removed from this folder.
-- **1.7** (versionCode 10700, **source only, not built yet**) — the update check makes no request
-  while `navigator.onLine` is false, so the guide opens offline, and the hidden test-updates switch
-  (below). Same content as 1.6. A first 1.7 build without the switch was made and discarded unused.
+- **1.7** (versionCode 10700, built 2026-10-28 in HTML Files mode,
+  `survival-node-user-guide-v1.7.apk`) — the update check makes no request while
+  `navigator.onLine` is false, so the guide opens offline, plus the hidden test-updates switch
+  (below). Same content as 1.6. Checked before release: versionCode 10700 / 1.7, same package,
+  bundled `index.html` identical to this folder's, same signing certificate (`689120c5…89de7b`).
+  **Tested by Red 2026-10-28:** airplane mode on, Wi-Fi off, app swiped closed, cold start, the
+  guide loaded and its cards opened. Installed on the test phone from the hosted APK (1.6 has no
+  test channel). A first 1.7 build without the switch was made and discarded unused. The update
+  note's placeholder link was pointed at the 1.7 APK after the build; the 1.4 APK was removed.
 
 ## Update check (1.4 and later)
 
 [`latest.json`](latest.json) names the newest release and its APK:
 
 ```json
-{ "version": "1.6", "versionCode": 10600, "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.6.apk" }
+{ "version": "1.7", "versionCode": 10700, "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.7.apk" }
 ```
 
 `checkForGuideUpdate()` in `index.html` reads it each time the guide opens:
