@@ -36,8 +36,8 @@ scripts), so keep it that way. Its one network request is the optional update ch
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.6 (in `index.html`, not built yet) |
-| Last built version | 1.5 (versionCode 10500, built 2026-10-27 from HTML Files — works offline) |
+| Current source version | 1.6 |
+| Last built version | 1.6 (versionCode 10600, built 2026-10-27 from HTML Files — works offline) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -91,17 +91,21 @@ scripts), so keep it that way. Its one network request is the optional update ch
   `689120c5…89de7b`, WebIntoApp's saved Global Key, alias `survivalnodeuserguide`); tested on a
   phone in airplane mode. As with 1.4, the update note's placeholder link was pointed at the 1.5
   APK after the build, which is the only difference from the bundled file. WebIntoApp shows no
-  version code and only downloads one ZIP (APK, AAB and keystore together).
-- **1.6** (versionCode 10600, **source only, not built yet**) — Warranty & Terms shipping line says
-  USPS ground only (was USPS or UPS), matching the product page. Footer and `APP_VERSION_CODE`
-  already say 1.6 / 10600. No rush to build; it can ride along with the next content change.
+  version code and only downloads one ZIP (APK, AAB and keystore together). Its APK was removed
+  when 1.6 replaced it the same day.
+- **1.6** (versionCode 10600, built 2026-10-27 in HTML Files mode,
+  `survival-node-user-guide-v1.6.apk`) — Warranty & Terms shipping line says USPS ground only
+  (was USPS or UPS), matching the product page and terms. Footer stamped `v1.6`. Checked before
+  release: versionCode 10600 / 1.6, same package, bundled `index.html` identical to this folder's,
+  same v2 signing certificate as 1.4 and 1.5 (`689120c5…89de7b`); tested on a phone in airplane
+  mode. The update note's placeholder link was pointed at the 1.6 APK after the build.
 
 ## Update check (1.4 and later)
 
 [`latest.json`](latest.json) names the newest release and its APK:
 
 ```json
-{ "version": "1.5", "versionCode": 10500, "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.5.apk" }
+{ "version": "1.6", "versionCode": 10600, "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.6.apk" }
 ```
 
 `checkForGuideUpdate()` in `index.html` reads it each time the guide opens:
