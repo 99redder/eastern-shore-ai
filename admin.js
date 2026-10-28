@@ -2120,8 +2120,21 @@
         const sortedIncome = [...incomeByCategory.entries()].sort((a,b) => b[1]-a[1]);
         const sortedExpense = [...expenseByCategory.entries()].sort((a,b) => b[1]-a[1]);
 
+        // "Other" income expands to list the entries behind its total; keep it open across reloads.
+        const otherIncomeOpen = !!taxSummaryListEl.querySelector('.tax-summary-details[open]');
+        const otherIncomeItems = (summaryData.income || [])
+          .filter(r => (r.category || 'Uncategorized') === 'Other')
+          .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')) || Number(b.id || 0) - Number(a.id || 0))
+          .map((r) => {
+            const notes = (r.notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim();
+            const label = `${r.date || ''} · ${r.source || 'No source'}${notes ? ` — ${notes}` : ''}`;
+            return `<div class="tax-summary-line"><span>${escHtml(label)}</span><strong>$${(Number(r.amount_cents || 0)/100).toFixed(2)}</strong></div>`;
+          }).join('');
+
         const incomeRows = sortedIncome.length
-          ? sortedIncome.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+          ? sortedIncome.map(([cat, cents]) => cat === 'Other'
+            ? `<details class="tax-summary-details"${otherIncomeOpen ? ' open' : ''}><summary class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></summary><div class="tax-summary-items">${otherIncomeItems}</div></details>`
+            : `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
           : '<div class="tax-summary-line"><span>No income entries</span><strong>$0.00</strong></div>';
 
         const expenseRows = sortedExpense.length
