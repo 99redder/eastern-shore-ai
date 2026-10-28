@@ -36,8 +36,8 @@ scripts), so keep it that way. Its one network request is the optional update ch
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.5 (in `index.html`, not built yet) |
-| Last built version | 1.4 (versionCode 10400, built 2026-10-24 from HTML Files — works offline) |
+| Current source version | 1.5 |
+| Last built version | 1.5 (versionCode 10500, built 2026-10-27 from HTML Files — works offline) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -79,21 +79,26 @@ scripts), so keep it that way. Its one network request is the optional update ch
   6-month checklist line. Footer stamped `v1.4`. The bundled `index.html` matches this folder's except
   the update note's placeholder link, which was pointed at the 1.4 APK after the build (the app
   replaces it with `latest.json`'s link before showing the note). Signed with the same certificate
-  as 1.1–1.3, so it installs over any of them.
-- **1.5** (versionCode 10500, **source only, not built yet**) — battery storage wording made the
-  same as the site and inserts: phone at about 60% and powered off (was 40–60%, 50–60% and ~50% in
-  different cards), solar battery at 2–3 of its 4 blue LEDs (50–75%), a Daily Solar Routine
-  (charge the solar battery in daylight, 30 minutes of use at most, charge the phone back to about
-  60% from the solar battery, power off, reseal), and the Grid-Down Protocol's after-use step.
-  Footer and `APP_VERSION_CODE` already say 1.5 / 10500. After building, add the APK and point
-  `latest.json` at it in the same push.
+  as 1.1–1.3, so it installs over any of them. Its APK was removed when 1.5 replaced it.
+- **1.5** (versionCode 10500, built 2026-10-27 in HTML Files mode,
+  `survival-node-user-guide-v1.5.apk`) — battery storage wording made the same as the site and
+  inserts: phone at about 60% and powered off (was 40–60%, 50–60% and ~50% in different cards),
+  solar battery at 2–3 of its 4 blue LEDs (50–75%), a Daily Solar Routine (charge the solar
+  battery in daylight, 30 minutes of use at most, charge the phone back to about 60% from the
+  solar battery, power off, reseal), and the Grid-Down Protocol's after-use step. Footer stamped
+  `v1.5`. Checked before release: versionCode 10500 / 1.5, same package, bundled `index.html`
+  identical to this folder's, and the same v2 signing certificate as 1.4 (SHA-256
+  `689120c5…89de7b`, WebIntoApp's saved Global Key, alias `survivalnodeuserguide`); tested on a
+  phone in airplane mode. As with 1.4, the update note's placeholder link was pointed at the 1.5
+  APK after the build, which is the only difference from the bundled file. WebIntoApp shows no
+  version code and only downloads one ZIP (APK, AAB and keystore together).
 
 ## Update check (1.4 and later)
 
 [`latest.json`](latest.json) names the newest release and its APK:
 
 ```json
-{ "version": "1.4", "versionCode": 10400, "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.4.apk" }
+{ "version": "1.5", "versionCode": 10500, "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.5.apk" }
 ```
 
 `checkForGuideUpdate()` in `index.html` reads it each time the guide opens:
