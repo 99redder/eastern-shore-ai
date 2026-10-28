@@ -36,7 +36,7 @@ scripts), so keep it that way. Its one network request is the optional update ch
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.4 |
+| Current source version | 1.5 (in `index.html`, not built yet) |
 | Last built version | 1.4 (versionCode 10400, built 2026-10-24 from HTML Files — works offline) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
@@ -80,6 +80,13 @@ scripts), so keep it that way. Its one network request is the optional update ch
   the update note's placeholder link, which was pointed at the 1.4 APK after the build (the app
   replaces it with `latest.json`'s link before showing the note). Signed with the same certificate
   as 1.1–1.3, so it installs over any of them.
+- **1.5** (versionCode 10500, **source only, not built yet**) — battery storage wording made the
+  same as the site and inserts: phone at about 60% and powered off (was 40–60%, 50–60% and ~50% in
+  different cards), solar battery at 2–3 of its 4 blue LEDs (50–75%), a Daily Solar Routine
+  (charge the solar battery in daylight, 30 minutes of use at most, charge the phone back to about
+  60% from the solar battery, power off, reseal), and the Grid-Down Protocol's after-use step.
+  Footer and `APP_VERSION_CODE` already say 1.5 / 10500. After building, add the APK and point
+  `latest.json` at it in the same push.
 
 ## Update check (1.4 and later)
 

@@ -739,8 +739,8 @@ body {
     <div class="card-body"><div class="card-content">
       <div class="callout info">Your phone was intentionally drained to ~30% before shipping to comply with lithium battery regulations. This is normal.</div>
       <ol class="steps">
-        <li><strong>Charge the solar battery</strong> — plug into wall power. Charge to 100% (all 4 blue LEDs solid) to verify it's working, then bring back down to 2–3 LEDs (50–75%) for storage.</li>
-        <li><strong>Charge the phone</strong> — use the included wall charger and USB-C cable. Charge to 50–60% — ideal for long-term storage. Do not store at full charge or fully drained.</li>
+        <li><strong>Charge the solar battery</strong> — plug into wall power. Charge to 100% (all 4 blue LEDs solid) to verify it's working, then bring it back down to 2–3 of the 4 blue LEDs (50–75%) for storage.</li>
+        <li><strong>Charge the phone</strong> — use the included wall charger and USB-C cable. Charge to about 60%, then power it completely off. Don't store it fully charged or fully drained.</li>
         <li><strong>Seal for readiness</strong> — place phone and solar battery into their Faraday bags, fold the top twice, seal tightly, store both in the case with silica gel packs.</li>
       </ol>
     </div></div>
@@ -788,8 +788,8 @@ body {
       <p>Twice per year, run a full readiness check:</p>
       <ul class="checklist">
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Open case and remove items from Faraday bags</span></li>
-        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Charge power hub to 2–3 blue LEDs (50–75%) on wall power</span></li>
-        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Power on phone for 10 minutes; charge if below 50%</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Charge power hub to 2–3 of the 4 blue LEDs (50–75%) on wall power</span></li>
+        <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Power on phone for 10 minutes; charge back to about 60% if it's lower, then power it off</span></li>
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Inspect battery area — check for warping or swelling</span></li>
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Inspect cables, seals, and Faraday bag folds for wear</span></li>
         <li onclick="toggleCheck(this)"><span class="check-box">✓</span><span class="check-label">Check silica gel pack — recharge if blue dot turned pink</span></li>
@@ -895,7 +895,7 @@ body {
         <li><strong>Medical/Repair knowledge</strong> — Kiwix, Survival Manual, AI</li>
         <li><strong>Communications</strong> — only when needed</li>
       </ol>
-      <p><strong>Always fully power the phone down after use</strong> to preserve battery.</p>
+      <p>After each use, <strong>top the phone back up to about 60% from the solar battery, then fully power it down</strong> to preserve the battery.</p>
     </div></div>
   </div>
 
@@ -936,6 +936,13 @@ body {
         <li>Avoid high-heat charging sessions with phone connected</li>
         <li>Plan your power budget: prioritize mission-critical tasks, then shut down</li>
       </ul>
+      <h4>Daily Solar Routine</h4>
+      <ol class="steps">
+        <li>During daylight, leave the solar battery panel-up in direct sun to charge</li>
+        <li>Use the phone for <strong>30 minutes at most</strong></li>
+        <li>Charge the phone back to <strong>about 60%</strong> from the solar battery</li>
+        <li>Power the phone off and seal it back in its Faraday bag</li>
+      </ol>
     </div></div>
   </div>
 
@@ -949,7 +956,7 @@ body {
       <ul>
         <li><strong>Do not charge above 113°F (45°C)</strong> — if hot to touch, stop charging and move to shade</li>
         <li><strong>Do not store below 14°F (−10°C)</strong> — allow to warm to room temperature before charging</li>
-        <li><strong>Ideal storage: 60°F–75°F (15°C–24°C)</strong> at ~50% charge</li>
+        <li><strong>Ideal storage: 60°F–75°F (15°C–24°C)</strong> at about 60% charge</li>
       </ul>
     </div></div>
   </div>
@@ -1001,13 +1008,13 @@ body {
     </button>
     <div class="card-body"><div class="card-content">
       <ol class="steps">
-        <li>Charge phone to <strong>40–60%</strong> — ideal resting state</li>
+        <li>Charge phone to <strong>about 60%</strong> — never full or empty</li>
         <li>Power the phone <strong>completely off</strong></li>
-        <li>Charge solar hub to <strong>2–3 blue LEDs</strong> (50–75%)</li>
+        <li>Charge solar hub to <strong>2–3 of the 4 blue LEDs</strong> (50–75%)</li>
         <li>Store between 60°F–75°F (15°C–24°C)</li>
-        <li>Check every 3–6 months; top off to 50% if needed</li>
+        <li>Check every 3–6 months; top the phone back up to about 60% if needed</li>
       </ol>
-      <div class="callout info">📌 A battery stored at 100% or 0% for months will lose permanent capacity. The 40–60% target is the most impactful habit for kit longevity.</div>
+      <div class="callout info">📌 A battery stored at 100% or 0% for months will lose permanent capacity. Storing the phone at about 60% is the most impactful habit for kit longevity.</div>
     </div></div>
   </div>
 </div>
@@ -1444,14 +1451,14 @@ body {
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p>Survival Node User Guide · v1.4</p>
+  <p>Survival Node User Guide · v1.5</p>
 </div>
 
 </main>
 
 <script>
 // Bump with the footer version and latest.json on every release (see README).
-const APP_VERSION_CODE = 10400;
+const APP_VERSION_CODE = 10500;
 const LATEST_URL = 'https://www.easternshore.ai/survival-node-app/latest.json';
 
 function showUpdateNote(apkUrl, title, intro) {
