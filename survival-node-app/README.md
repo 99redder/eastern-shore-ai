@@ -36,7 +36,7 @@ scripts), so keep it that way. Its one network request is the optional update ch
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.5 |
+| Current source version | 1.6 (in `index.html`, not built yet) |
 | Last built version | 1.5 (versionCode 10500, built 2026-10-27 from HTML Files — works offline) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
@@ -92,6 +92,9 @@ scripts), so keep it that way. Its one network request is the optional update ch
   phone in airplane mode. As with 1.4, the update note's placeholder link was pointed at the 1.5
   APK after the build, which is the only difference from the bundled file. WebIntoApp shows no
   version code and only downloads one ZIP (APK, AAB and keystore together).
+- **1.6** (versionCode 10600, **source only, not built yet**) — Warranty & Terms shipping line says
+  USPS ground only (was USPS or UPS), matching the product page. Footer and `APP_VERSION_CODE`
+  already say 1.6 / 10600. No rush to build; it can ride along with the next content change.
 
 ## Update check (1.4 and later)
 

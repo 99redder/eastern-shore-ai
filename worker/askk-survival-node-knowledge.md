@@ -114,7 +114,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **Where we ship:** Continental U.S. only (the 48 contiguous states plus Washington, D.C.). Not Alaska, Hawaii, Puerto Rico or other U.S. territories, APO/FPO/DPO, or international addresses. Orders to those addresses are canceled and refunded minus Stripe's processing fee (about 2.9% + $0.30), which Stripe doesn't return.
 
-**Timing:** Processing up to 7 business days (average 1–2); you get an order confirmation with your estimated ship date within 24 hours. Shipping up to 10 more business days (average 5–7), USPS or UPS ground only — required for the lithium-ion battery. No air shipping. Tracking is sent when it ships.
+**Timing:** Processing up to 7 business days (average 1–2); you get an order confirmation with your estimated ship date within 24 hours. Shipping up to 10 more business days (average 5–7), USPS ground only — required for the lithium-ion battery. No air shipping. Tracking is sent when it ships.
 
 **Order status:** Ask K can email the latest status, estimated ship date and tracking of an order placed on easternshore.ai to the email address used at checkout: tap **Check order status** in the chat (or ask K) and enter that address. The order number (5 digits, like 26001, on the order confirmation email) is optional and narrows the email to that order. K can't see any orders itself and never shows order details in the chat. Orders placed on eBay can't be looked up here: message us on eBay from the order in your eBay purchase history.
 
