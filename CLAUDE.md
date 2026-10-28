@@ -71,6 +71,8 @@ All routes in `worker/src/index.js`:
 - `POST /api/tax/expense` — Admin add expense entry
 - `POST /api/tax/income` — Admin add income entry
 - `GET /api/tax/export.csv` — Admin CSV export for selected year/type
+- `POST /api/ask-k/order-status` — Ask K order updates: emails an address the status of its Survival Node orders (see **Survival Node Ask K order updates**)
+- `POST /api/orders/ship-date` — Admin: set/clear an order's estimated ship date (no email)
 - `POST /api/admin/ask-k` — Survival Node Ask K assistant endpoint
 - `POST /api/admin/ask-k/escalate` — Survival Node Ask K Discord/webhook escalation
 - `POST /api/chat/session` — Create a live human support chat session from the site
@@ -1132,3 +1134,16 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - The Android guide app is `survival-node-app/index.html`, built in WebIntoApp (app 1240101) in **HTML Files** mode so it works offline. Never the Online URL mode (1.2 was built that way by mistake and can't open offline). Full release steps, versionCode scheme (1.4 = 10400) and APK checks are in `survival-node-app/README.md`.
 - From 1.4 the guide checks `survival-node-app/latest.json` when it opens online and shows an orange update note if a newer APK exists. Point `latest.json` at a new APK only in the same push that adds the APK.
 - The update feature is described in the guide app, `node-setup.html` (Maintenance), `node.html` (box contents, update FAQ, software list, User Guide card), `quick-start-insert.html`, the Ask K knowledge file and the delivered-order email (`worker/src/index.js` + its preview in `admin.js`). Keep them consistent when the flow changes.
+
+## Survival Node Ask K order updates (added 2026-10-27)
+
+Ported from Florence Mae Gifts' Ask K (`FlorenceMaeGifts.com/cloudflare/src/ask-k.js` + `orders.js`). Survival Node orders only: no invoices, no eBay.
+
+- **Visitors**: "Check my order status" (first quick-action chip, and the CHECK ORDER STATUS button beside TALK TO A HUMAN) or a question K recognises opens a box in the chat: "Email you ordered with" + optional order number. The status is emailed to that address, never shown in the chat. eBay buyers are told to message us from the order in their eBay purchase history (eBay sales are only in the tax ledger, not order rows).
+- **Trigger**: Claude answers in JSON (`reply`, `lookup`; `ANSWER_SCHEMA` in `ask-k-claude.js`) and `lookup: true` shows the box. MiniMax and the "busy" reply use `wantsOrderStatus()` (a regex) instead. `/api/ask-k` returns `lookup`.
+- **Endpoint** `POST /api/ask-k/order-status` `{ email, orderNumber?, pass | turnstileToken }` (`handleAskKOrderStatus` in `index.js`, email built in `src/order-status.js`). Same reply whether or not the address has orders; the email goes out after the response (`ctx.waitUntil`). Fails closed (503) unless the Turnstile check is on (`ASKK_TURNSTILE_ENFORCE`, `TURNSTILE_SECRET_KEY`, `ASKK_PASS_SECRET`). Limits (`rate_limits` table): 6 per IP per hour, 3 per address per hour and 6 per day (keyed by a SHA-256 of the address), 4 per chat. Over a limit: an "already emailed recently" reply. Counted as `status` in `askk_daily` and shown in the daily Ask K email.
+- **Which orders**: the same Stripe orders as the admin Orders tab (minus BYOG setups) plus `manual_survival_node_orders`, matched on `lower(trim(customer_email))`. The order number is read however it's typed ("Order #26001" → `26001`); a number that doesn't match gets all of the address's orders with a "couldn't find that number" line, and what was typed is never put in the email. Orders on their way come first; finished ones over 90 days old fold into "Plus N older orders"; at most 10.
+- **Status wording** (`orderState`): refund row in `tax_income.refund_order_key` → refunded; delivered email sent → delivered; shipping email sent → shipped + carrier, tracking number and the `/track` button; otherwise "received" / "preparing and quality-checking" with the estimated ship date, "taking a little longer" once that date has passed, or the usual 1–7 business days when no date is set.
+- **Estimated ship date** (`estimated_ship_date` on `order_fulfillment` and `manual_survival_node_orders`, migration `0037`): the acknowledgment email dialog requires it (shown in the email's details box and plain text, saved on send); the **Set/Change Ship Date** button on unshipped orders changes it later without emailing (`POST /api/orders/ship-date`).
+- **Privacy**: `privacy.html` "Support chat and Ask K" names Anthropic and MiniMax, Turnstile, the order-update lookup (address not stored; a hash kept up to a day for limits) and the stored human-support chats. Update it if Ask K starts storing or sending anything else.
+- **Tests**: order-status cases in `tests/worker-email.test.mjs` (same reply for unknown addresses, email only to the matching address, statuses and ship date, narrowing, limits, fail-closed, ship-date endpoint).

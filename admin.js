@@ -28,6 +28,7 @@
     const ORDER_PREVIEW_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/preview');
     const ORDER_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/send');
     const ORDER_TRACKING_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/tracking');
+    const ORDER_SHIP_DATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/ship-date');
     const ORDER_MANUAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/manual');
     const ORDER_DELETE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/delete');
     const ORDER_BATTERY_TEST_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/battery-test');
@@ -179,6 +180,8 @@
     let orderEmailTrackingWrapEl;
     let orderEmailTrackingNumberEl;
     let orderEmailTrackingUrlEl;
+    let orderEmailShipDateWrapEl;
+    let orderEmailShipDateEl;
     let orderEmailCancelBtn;
     let orderEmailSendBtn;
     let reconYearEl;
@@ -441,6 +444,8 @@
       orderEmailTrackingWrapEl = document.getElementById('order-email-tracking-wrap');
       orderEmailTrackingNumberEl = document.getElementById('order-email-tracking-number');
       orderEmailTrackingUrlEl = document.getElementById('order-email-tracking-url');
+      orderEmailShipDateWrapEl = document.getElementById('order-email-ship-date-wrap');
+      orderEmailShipDateEl = document.getElementById('order-email-ship-date');
       orderEmailCancelBtn = document.getElementById('order-email-cancel-btn');
       orderEmailSendBtn = document.getElementById('order-email-send-btn');
       reconYearEl = document.getElementById('recon-year');
@@ -672,6 +677,7 @@
       const orderNumber = (activeOrderEmailDraft?.orderNumber || '').trim();
       const amount = (activeOrderEmailDraft?.amountDisplay || '').trim();
       const paymentDate = (activeOrderEmailDraft?.paymentDate || '').trim();
+      const estimatedShipDate = activeOrderEmailDraft?.kind === 'ack' ? (orderEmailShipDateEl?.value || '').trim() : '';
       const transactionContext = orderNumber
         ? `This is an order-related message for your Survival Node order #${orderNumber}. Eastern Shore AI, LLC builds and fulfills Survival Node orders.`
         : 'This is an order-related message for your Survival Node purchase. Eastern Shore AI, LLC builds and fulfills Survival Node orders.';
@@ -690,6 +696,7 @@
         `<strong>Order:</strong> ${escHtml(orderSummary)}`,
         amount ? `<strong>Amount:</strong> ${escHtml(amount)}` : '',
         paymentDate ? `<strong>Payment Date:</strong> ${escHtml(paymentDate)}` : '',
+        estimatedShipDate ? `<strong>Estimated Ship Date:</strong> ${escHtml(formatShipDate(estimatedShipDate))}` : '',
         trackingProvider ? `<strong>Carrier:</strong> ${escHtml(trackingProvider)}` : '',
         trackingNumber ? `<strong>Tracking Number:</strong> ${escHtml(trackingNumber)}` : ''
       ].filter(Boolean).join('<br>');
@@ -786,6 +793,66 @@
       } catch { if (saveStatusEl) saveStatusEl.textContent = 'Network error'; }
     });
 
+    // 'YYYY-MM-DD' → "Thursday, October 29, 2026" (as the emails show it).
+    function formatShipDate(iso, style = 'long') {
+      const s = String(iso || '').slice(0, 10);
+      const d = new Date(`${s}T12:00:00Z`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(s) || Number.isNaN(d.getTime())) return s;
+      const opts = style === 'short'
+        ? { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }
+        : { timeZone: 'UTC', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+      return new Intl.DateTimeFormat('en-US', opts).format(d);
+    }
+
+    // Ship Date button on an order: sets or clears the estimated ship date
+    // that Ask K's order-status emails report. No email is sent.
+    let shipDateOrderKey = '';
+    let shipDateOrderId = 0;
+
+    function openShipDateModal(orderId, orderKey, current) {
+      shipDateOrderId = orderId;
+      shipDateOrderKey = orderKey;
+      const input = document.getElementById('ship-date-input');
+      const statusEl = document.getElementById('ship-date-save-status');
+      if (input) input.value = current || '';
+      if (statusEl) statusEl.textContent = '';
+      const modal = document.getElementById('ship-date-modal');
+      if (modal) { modal.classList.add('active'); modal.setAttribute('aria-hidden', 'false'); }
+      setTimeout(() => input?.focus(), 0);
+    }
+
+    function closeShipDateModal() {
+      const modal = document.getElementById('ship-date-modal');
+      if (modal) { modal.classList.remove('active'); modal.setAttribute('aria-hidden', 'true'); }
+    }
+
+    document.getElementById('ship-date-cancel-btn')?.addEventListener('click', closeShipDateModal);
+    document.getElementById('ship-date-modal')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeShipDateModal();
+    });
+    document.getElementById('ship-date-save-btn')?.addEventListener('click', async () => {
+      const saveBtn = document.getElementById('ship-date-save-btn');
+      const statusEl = document.getElementById('ship-date-save-status');
+      const estimatedShipDate = (document.getElementById('ship-date-input')?.value || '').trim();
+      if (saveBtn) saveBtn.disabled = true;
+      if (statusEl) statusEl.textContent = 'Saving…';
+      try {
+        const res = await fetch(ORDER_SHIP_DATE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
+          body: JSON.stringify({ orderKey: shipDateOrderKey, bookingId: shipDateOrderId, estimatedShipDate })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { if (statusEl) statusEl.textContent = data.error || 'Save failed'; return; }
+        if (statusEl) statusEl.textContent = 'Saved!';
+        setTimeout(async () => { closeShipDateModal(); await refreshOrderList(); }, 600);
+      } catch {
+        if (statusEl) statusEl.textContent = 'Network error';
+      } finally {
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    });
+
     function openOrderEmailModal(draft) {
       const draftId = (globalThis.crypto && crypto.randomUUID)
         ? crypto.randomUUID()
@@ -797,6 +864,8 @@
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
       if (orderEmailTrackingWrapEl) orderEmailTrackingWrapEl.style.display = draft.kind === 'shipping' ? '' : 'none';
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
+      if (orderEmailShipDateWrapEl) orderEmailShipDateWrapEl.style.display = draft.kind === 'ack' ? '' : 'none';
+      if (orderEmailShipDateEl) orderEmailShipDateEl.value = draft.estimatedShipDate || '';
       renderOrderEmailPreview();
       orderEmailModal?.classList.add('active');
       orderEmailModal?.setAttribute('aria-hidden', 'false');
@@ -3400,6 +3469,7 @@
           const deliveredSent = !!(order.delivered_email_sent_at || '').toString().trim();
           const reviewSent = !!(order.review_email_sent_at || '').toString().trim();
           const laterEmailSent = shippingSent || deliveredSent || reviewSent;
+          const shipDate = (order.estimated_ship_date || '').toString().trim();
           return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
             <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
               <strong>${escHtml(order.order_summary || 'Order')}</strong>
@@ -3412,9 +3482,11 @@
             <div style="margin-top:.2rem; color:var(--muted);">${order.order_source === 'manual' ? `Payment Method: ${escHtml(order.payment_method || 'Not entered')}` : `Stripe: ${escHtml(order.stripe_session_id || '—')}`}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Emails — Acknowledgment: ${escHtml(formatEtTimestamp(order.ack_email_sent_at))} • Shipping: ${escHtml(formatEtTimestamp(order.shipping_email_sent_at))} • Delivered: ${escHtml(formatEtTimestamp(order.delivered_email_sent_at))} • Review request: ${escHtml(formatEtTimestamp(order.review_email_sent_at))}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? `${trackingProvider ? `${escHtml(trackingProvider)} • ` : ''}${escHtml(tracking)}` : 'Not added yet'}</div>
+            ${shippingSent ? '' : `<div style="margin-top:.2rem; color:var(--muted);">Estimated ship date: ${shipDate ? escHtml(formatShipDate(shipDate, 'short')) : 'Not set (Ask K tells the customer the usual 1–7 business days)'}</div>`}
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
               <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" ${ackSent || laterEmailSent ? `disabled title="${ackSent ? 'Acknowledgment email already sent' : 'A later email has already been sent'}"` : ''}>${ackSent ? 'Acknowledgment Sent' : laterEmailSent ? 'Acknowledgment Skipped' : 'Preview Acknowledgment'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="tracking" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}">Add/Edit Tracking</button>
+              ${shippingSent ? '' : `<button type="button" class="btn action-pop order-action-btn" data-order-action="ship-date" data-order-id="${id}" data-order-key="${orderKey}" data-ship-date="${escHtml(shipDate)}" title="Estimated ship date Ask K reports to the customer">${shipDate ? 'Change Ship Date' : 'Set Ship Date'}</button>`}
               <button type="button" class="btn action-pop order-action-btn" data-order-action="battery-test" data-order-id="${id}" data-order-key="${orderKey}" data-battery-note="${escHtml(order.battery_test_note || '')}" data-battery-has-image="${order.battery_test_image_key ? '1' : ''}">${order.battery_test_note || order.battery_test_image_key ? 'Battery Test Saved ✓' : 'Add Battery Test'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}" data-ack-sent="${ackSent ? '1' : ''}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${shippingSent ? 'disabled title="Shipping email already sent"' : !ackSent ? 'disabled title="Send acknowledgment email first"' : `title="${tracking ? 'Preview shipping email' : 'Add tracking first'}"`}>${shippingSent ? 'Shipping Sent' : 'Preview Shipping Email'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="delivered" data-order-id="${id}" data-order-key="${orderKey}" data-shipping-sent="${shippingSent ? '1' : ''}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${deliveredSent ? 'disabled title="Delivered email already sent"' : !shippingSent ? 'disabled title="Send shipping email first"' : `title="${tracking ? 'Preview delivered email' : 'Add tracking first'}"`}>${deliveredSent ? 'Delivered Sent' : 'Preview Delivered Email'}</button>
@@ -3444,7 +3516,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
-        openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || meta.trackingProvider || '', trackingNumber: data.trackingNumber || meta.trackingNumber || '', trackingUrl: data.trackingUrl || meta.trackingUrl || '', batteryTestNote: data.batteryTestNote || '', batteryTestImageKey: data.batteryTestImageKey || '' });
+        openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || meta.trackingProvider || '', trackingNumber: data.trackingNumber || meta.trackingNumber || '', trackingUrl: data.trackingUrl || meta.trackingUrl || '', estimatedShipDate: data.estimatedShipDate || '', batteryTestNote: data.batteryTestNote || '', batteryTestImageKey: data.batteryTestImageKey || '' });
       } catch (err) {
         openErrorModal(err?.message || 'Failed to prepare order email preview');
       }
@@ -3489,6 +3561,10 @@
           trackingUrl: btn.getAttribute('data-tracking-url') || '',
           forShippingEmail: false
         });
+        return;
+      }
+      if (action === 'ship-date') {
+        openShipDateModal(id, orderKey, btn.getAttribute('data-ship-date') || '');
         return;
       }
       if (action === 'battery-test') {
@@ -4111,8 +4187,14 @@
           orderEmailSubjectEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);
+          orderEmailShipDateEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailSendBtn?.addEventListener('click', async () => {
             if (!activeOrderEmailDraft || orderEmailSendInFlight) return;
+            const estimatedShipDate = activeOrderEmailDraft.kind === 'ack' ? (orderEmailShipDateEl?.value || '').trim() : '';
+            if (activeOrderEmailDraft.kind === 'ack' && !estimatedShipDate) {
+              openErrorModal('Add the estimated ship date first. It goes in this email, and Ask K uses it to tell the customer when the order will ship.');
+              return;
+            }
             const payload = {
               bookingId: activeOrderEmailDraft.bookingId,
               orderKey: activeOrderEmailDraft.orderKey || '',
@@ -4121,6 +4203,7 @@
               bodyText: orderEmailBodyEl?.value || '',
               trackingProvider: activeOrderEmailDraft.trackingProvider || '',
               trackingNumber: orderEmailTrackingNumberEl?.value || '',
+              ...(estimatedShipDate ? { estimatedShipDate } : {}),
               idempotencyKey: activeOrderEmailDraft.idempotencyKey || ''
             };
             const prevTxt = orderEmailSendBtn.textContent || 'Send Email';

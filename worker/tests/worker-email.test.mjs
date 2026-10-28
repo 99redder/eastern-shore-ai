@@ -557,3 +557,220 @@ test('without CONTACT_FROM_EMAIL these emails fall back to FROM_EMAIL', async (t
   assert.equal(res.status, 200, await res.clone().text());
   assert.equal(env.EMAIL.sent[0].from, 'noreply@easternshore.ai');
 });
+
+// ── Ask K order updates (src/order-status.js) ─────────────────
+
+const STATUS_REPLY = /If that email address has Survival Node orders from our website, I've just emailed their status and tracking to it\..*If you ordered on eBay, please reach out to us there/;
+const askKEnv = (overrides = {}) => baseEnv({ ASKK_TURNSTILE_ENFORCE: '1', TURNSTILE_SECRET_KEY: 'ts_test_only', ASKK_PASS_SECRET: 'pass-secret-test-only', ...overrides });
+const turnstileOk = { 'https://challenges.cloudflare.com/turnstile/v0/siteverify': { success: true } };
+const admin = { 'X-Admin-Password': 'admin-test-password' };
+
+// waitUntil work is collected so a test can wait for the email.
+function collectingCtx() {
+  const pending = [];
+  return { waitUntil(p) { pending.push(p); }, settle: () => Promise.all(pending.splice(0)) };
+}
+
+async function nodeOrder(env, id, email, extra = {}) {
+  const session = {
+    id, payment_intent: `pi_${id}`, amount_total: 24999,
+    customer_details: { email, name: 'Pat Buyer', address: { state: 'MD' } },
+    shipping_details: { name: 'Pat Buyer', address: { line1: '1 Main St', city: 'Salisbury', state: 'MD', postal_code: '21801', country: 'US' } },
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit', service_label: 'Survival Node Base Kit' },
+    ...extra
+  };
+  const res = await worker.fetch(await signedWebhook(checkoutCompleted(session)), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const row = env.DB.sqlite.prepare('SELECT b.id, of.order_number FROM bookings b JOIN order_fulfillment of ON of.booking_id = b.id WHERE b.stripe_session_id = ?').get(id);
+  return { bookingId: row.id, orderNumber: row.order_number };
+}
+
+async function askStatus(env, c, body) {
+  const res = await worker.fetch(post('/api/ask-k/order-status', { turnstileToken: 'tok', ...body }), env, c);
+  const data = await res.json();
+  await c.settle();
+  return { status: res.status, data };
+}
+
+test('Ask K order status: same reply for any address, email only to the address with orders', async (t) => {
+  quietConsole(t);
+  guardNetwork(t, turnstileOk);
+  const env = askKEnv();
+  const { orderNumber } = await nodeOrder(env, 'cs_status_1', 'Pat.Buyer@Example.NET');
+  env.EMAIL.sent.length = 0;
+  const c = collectingCtx();
+
+  const unknown = await askStatus(env, c, { email: 'someone-else@example.net' });
+  assert.equal(unknown.status, 200);
+  assert.match(unknown.data.reply, STATUS_REPLY);
+  assert.ok(unknown.data.pass, 'a verified visitor gets a conversation pass');
+  assert.equal(env.EMAIL.sent.length, 0);
+
+  const known = await askStatus(env, c, { email: ' pat.buyer@example.net ', pass: unknown.data.pass, turnstileToken: undefined });
+  assert.equal(known.status, 200);
+  assert.equal(known.data.reply, unknown.data.reply);
+  assert.equal(env.EMAIL.sent.length, 1);
+  const mail = env.EMAIL.sent[0];
+  assert.deepEqual(mail.to, ['pat.buyer@example.net']);
+  assert.deepEqual(mail.from, { email: 'orders@easternshore.ai', name: 'Eastern Shore AI Orders' });
+  assert.equal(mail.replyTo, 'contact@easternshore.ai');
+  assert.equal(mail.bcc, undefined);
+  assertStandardLayout(mail);
+  assert.equal(mail.subject, 'Your Survival Node order status');
+  assert.match(mail.html, new RegExp(orderNumber));
+  assert.match(mail.text, /Status: Order received\. We're getting it ready\. Orders usually ship within 1 to 2 business days/);
+  assert.doesNotMatch(mail.html, /Security reminder|wasn't you/);
+  const counted = env.DB.sqlite.prepare("SELECT SUM(questions) AS n FROM askk_daily WHERE provider = 'status'").get();
+  assert.equal(counted.n, 2);
+});
+
+test('acknowledgment saves the estimated ship date; Ask K reports it, then lateness, then tracking', async (t) => {
+  quietConsole(t);
+  guardNetwork(t, turnstileOk);
+  const env = askKEnv();
+  const { bookingId, orderNumber } = await nodeOrder(env, 'cs_status_2', 'ship@example.net');
+  env.EMAIL.sent.length = 0;
+
+  let res = await worker.fetch(post('/api/orders/send', { bookingId, kind: 'ack', idempotencyKey: 'ack-ship', estimatedShipDate: 'Nov 3' }, admin), env, ctx);
+  assert.equal(res.status, 400, 'a malformed ship date is refused');
+  res = await worker.fetch(post('/api/orders/send', { bookingId, kind: 'ack', idempotencyKey: 'ack-ship', estimatedShipDate: '2099-01-15' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const ack = env.EMAIL.sent[0];
+  assert.match(ack.html, /Estimated Ship Date/);
+  assert.match(ack.html, /Thursday, January 15, 2099/);
+  assert.match(ack.text, /^Estimated ship date: Thursday, January 15, 2099/);
+  assert.equal(env.DB.sqlite.prepare('SELECT estimated_ship_date AS d FROM order_fulfillment WHERE booking_id = ?').get(bookingId).d, '2099-01-15');
+
+  const c = collectingCtx();
+  env.EMAIL.sent.length = 0;
+  await askStatus(env, c, { email: 'ship@example.net' });
+  assert.match(env.EMAIL.sent[0].text, /We're preparing and quality-checking it now\. Estimated ship date: Thursday, January 15, 2099\./);
+
+  // The Ship Date button changes it later, without emailing the customer.
+  env.EMAIL.sent.length = 0;
+  res = await worker.fetch(post('/api/orders/ship-date', { bookingId, estimatedShipDate: '2026-01-02' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.equal(env.EMAIL.sent.length, 0);
+  const list = await (await worker.fetch(new Request('https://worker.example/api/orders', { headers: { Origin: SITE, ...admin } }), env, ctx)).json();
+  assert.equal(list.orders.find((o) => o.id === bookingId).estimated_ship_date, '2026-01-02');
+  res = await worker.fetch(post('/api/orders/ship-date', { bookingId, estimatedShipDate: '2026-02-30' }, admin), env, ctx);
+  assert.equal(res.status, 400);
+  await askStatus(env, c, { email: 'ship@example.net' });
+  assert.match(env.EMAIL.sent[0].text, /taking a little longer than our estimate \(it was due to ship by Friday, January 2, 2026\)/);
+
+  env.EMAIL.sent.length = 0;
+  res = await worker.fetch(post('/api/orders/send', { bookingId, kind: 'shipping', idempotencyKey: 'ship-1', trackingNumber: '9400100000000000000001', trackingProvider: 'usps' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  env.EMAIL.sent.length = 0;
+  await askStatus(env, c, { email: 'ship@example.net', orderNumber: `Order #${orderNumber}` });
+  const shipped = env.EMAIL.sent[0];
+  assert.equal(shipped.subject, `Your Survival Node order status (#${orderNumber})`);
+  assert.match(shipped.text, /Status: Shipped .+ by USPS\./);
+  assert.match(shipped.html, /Track on USPS/);
+  assert.match(shipped.html, /services\.easternshore\.ai\/track\?n=9400100000000000000001&amp;c=usps/);
+});
+
+test('Ask K order status: order number narrows, a wrong one gets all orders, a malformed one is refused', async (t) => {
+  quietConsole(t);
+  guardNetwork(t, turnstileOk);
+  const env = askKEnv();
+  const first = await nodeOrder(env, 'cs_status_3', 'two@example.net');
+  let res = await worker.fetch(post('/api/orders/manual', { customerName: 'Two Orders', customerEmail: 'Two@Example.net', amount: '249.99', paymentDate: '2026-10-20', paymentMethod: 'Cash', orderSummary: 'Survival Node Gen 2 (manual)' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const manualNumber = env.DB.sqlite.prepare('SELECT order_number AS n FROM manual_survival_node_orders').get().n;
+  env.EMAIL.sent.length = 0;
+  const c = collectingCtx();
+
+  await askStatus(env, c, { email: 'two@example.net' });
+  let mail = env.EMAIL.sent.pop();
+  assert.match(mail.text, /Here's the latest on your Survival Node orders/);
+  assert.match(mail.text, new RegExp(`Order Number: ${first.orderNumber}`));
+  assert.match(mail.text, new RegExp(`Order Number: ${manualNumber}`));
+  assert.match(mail.text, /Survival Node Gen 2 \(manual\)/);
+
+  await askStatus(env, c, { email: 'two@example.net', orderNumber: ` no. ${manualNumber} ` });
+  mail = env.EMAIL.sent.pop();
+  assert.equal(mail.subject, `Your Survival Node order status (#${manualNumber})`);
+  assert.doesNotMatch(mail.text, new RegExp(`Order Number: ${first.orderNumber}`));
+
+  await askStatus(env, c, { email: 'two@example.net', orderNumber: '99999' });
+  mail = env.EMAIL.sent.pop();
+  assert.match(mail.text, /We couldn't find the order number you entered/);
+  assert.doesNotMatch(mail.text, /99999/);
+  assert.match(mail.text, new RegExp(`Order Number: ${first.orderNumber}`));
+
+  const bad = await askStatus(env, c, { email: 'two@example.net', orderNumber: '12-34567-89012 <b>' });
+  assert.equal(bad.status, 400);
+  assert.match(bad.data.error, /eBay/);
+  assert.equal(env.EMAIL.sent.length, 0);
+});
+
+test('Ask K order status: a refund recorded against the order shows as refunded', async (t) => {
+  quietConsole(t);
+  guardNetwork(t, turnstileOk);
+  const env = askKEnv();
+  const { bookingId } = await nodeOrder(env, 'cs_status_4', 'refund@example.net');
+  env.DB.sqlite.prepare("INSERT INTO tax_income (income_date, source, category, amount_cents, refund_order_key) VALUES ('2026-10-25', 'Refund', 'Customer Refunds / Returns & Allowances', -24999, ?)").run(`booking:${bookingId}`);
+  env.EMAIL.sent.length = 0;
+  const c = collectingCtx();
+  await askStatus(env, c, { email: 'refund@example.net' });
+  assert.match(env.EMAIL.sent[0].text, /Status: Refunded: a refund of \$249\.99 was issued on Sunday, October 25, 2026\./);
+});
+
+test('Ask K order status: per-address limit, bot check required, fails closed without it', async (t) => {
+  quietConsole(t);
+  const calls = guardNetwork(t, { 'https://challenges.cloudflare.com/turnstile/v0/siteverify': (url, init) => ({ success: init.body.get('response') === 'tok' }) });
+  const env = askKEnv();
+  await nodeOrder(env, 'cs_status_5', 'limit@example.net');
+  env.EMAIL.sent.length = 0;
+  const c = collectingCtx();
+
+  const unverified = await askStatus(env, c, { email: 'limit@example.net', turnstileToken: 'bad' });
+  assert.equal(unverified.status, 403);
+  assert.equal(unverified.data.needsVerification, true);
+
+  for (let i = 0; i < 3; i++) assert.match((await askStatus(env, c, { email: 'limit@example.net' })).data.reply, STATUS_REPLY);
+  const fourth = await askStatus(env, c, { email: 'LIMIT@example.net' });
+  assert.equal(fourth.status, 200);
+  assert.match(fourth.data.reply, /already emailed order updates for that address recently/);
+  assert.equal(env.EMAIL.sent.length, 3);
+
+  const before = calls.length;
+  const off = askKEnv({ ASKK_TURNSTILE_ENFORCE: '0' });
+  const closed = await askStatus(off, collectingCtx(), { email: 'limit@example.net' });
+  assert.equal(closed.status, 503);
+  assert.equal(calls.length, before, 'no Turnstile call or email when the bot check is off');
+  assert.equal(off.EMAIL.sent.length, 0);
+});
+
+test('/api/ask-k: Claude answers in JSON and its lookup flag reaches the page; the backup uses the keyword check', async (t) => {
+  quietConsole(t);
+  const bodies = [];
+  guardNetwork(t, {
+    'https://api.anthropic.com/v1/models': { data: [{ type: 'model', id: 'claude-opus-5-5', display_name: 'Claude Opus 5.5', created_at: '2026-09-01T00:00:00Z' }], has_more: false, first_id: 'claude-opus-5-5', last_id: 'claude-opus-5-5' },
+    'https://api.anthropic.com/v1/messages': (url, init) => {
+      bodies.push(JSON.parse(init.body));
+      return { id: 'msg_1', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', usage: { input_tokens: 10, output_tokens: 5 },
+        content: [{ type: 'text', text: JSON.stringify({ reply: 'I can email you the latest status. Use the box below.', lookup: true }) }] };
+    },
+    'https://backup.example/v1/chat/completions': { choices: [{ message: { content: 'You can get it emailed with the box below.' } }], usage: { prompt_tokens: 5, completion_tokens: 5 } }
+  });
+  let env = baseEnv({ ANTHROPIC_API_KEY: 'sk-ant-test-only' });
+  let res = await worker.fetch(post('/api/ask-k', { message: 'Where is my order?' }), env, ctx);
+  let data = await res.json();
+  assert.equal(res.status, 200, JSON.stringify(data));
+  assert.equal(data.reply, 'I can email you the latest status. Use the box below.');
+  assert.equal(data.lookup, true);
+  const sent = bodies.at(-1);
+  assert.equal(sent.output_config.format.type, 'json_schema');
+  assert.deepEqual(sent.output_config.format.schema.required, ['reply', 'lookup']);
+  assert.match(sent.system.map((b) => b.text).join('\n'), /eBay purchase history/);
+
+  env = baseEnv({ ASKK_API_KEY: 'mm-test-only', ASKK_BASE_URL: 'https://backup.example/v1', ASKK_MODEL: 'MiniMax-M2.5' });
+  res = await worker.fetch(post('/api/ask-k', { message: 'Has my order shipped yet?' }), env, ctx);
+  data = await res.json();
+  assert.equal(data.lookup, true, JSON.stringify(data));
+  res = await worker.fetch(post('/api/ask-k', { message: 'How big is the solar battery?' }), env, ctx);
+  data = await res.json();
+  assert.equal(data.lookup, false, JSON.stringify(data));
+});

@@ -167,7 +167,15 @@ const OFF_TOPIC_PATTERNS = [
   /\b(python|javascript|typescript|java|c\+\+|c#|rust|golang|php|html|css|sql|bash|powershell)\b/i,
   /\b(homework|essay|translate|summari[sz]e this|solve for|integral|derivative)\b/i,
 ];
-const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|bags?|emp|solar|battery|batteries|charg\w*|offline|maps?|gps|ship\w*|deliver\w*|returns?|refund\w*|warranty|rma|orders?|byog|price|pricing|cost|discount|sale|phone|moto\w*|case|padlock|silica|eastern shore|prepar\w*|emergency|persona|pocketpal|qwen|llm|apps?|software|storage|ram|sim|support)\b/i;
+const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|bags?|emp|solar|battery|batteries|charg\w*|offline|maps?|gps|ship\w*|deliver\w*|returns?|refund\w*|warranty|rma|orders?|track\w*|packages?|status|byog|price|pricing|cost|discount|sale|phone|moto\w*|case|padlock|silica|eastern shore|prepar\w*|emergency|persona|pocketpal|qwen|llm|apps?|software|storage|ram|sim|support)\b/i;
+
+// Questions about an order already placed. Claude decides this itself (the
+// `lookup` field); the backup and "busy" replies use this pattern instead.
+const ORDER_STATUS_HINT = /\b(order status|status of (my|our|the) \w+|track(ing)?\b|where'?s my|where is my|(my|our) (order|package|shipment|delivery|node|kit)\b[^.?!]{0,40}\b(ship\w*|arriv\w*|deliver\w*|come|status|late)|(has|did|when (will|does|did))\b[^.?!]{0,30}\b(ship|shipped|arrive|be delivered|get here)\b|didn'?t (get|receive)\b[^.?!]{0,30}\b(order|package|node|kit|tracking))/i;
+
+export function wantsOrderStatus(question) {
+  return ORDER_STATUS_HINT.test(String(question || ''));
+}
 
 function keywordOffTopic(question) {
   const q = String(question || '');
@@ -262,6 +270,25 @@ function conversationMessages(history, question, context) {
   return out.slice(-11);
 }
 
+// Claude answers in JSON: the reply, and whether to show the order-status box.
+const ANSWER_SCHEMA = {
+  type: 'object',
+  properties: {
+    reply: { type: 'string' },
+    lookup: { type: 'boolean' },
+  },
+  required: ['reply', 'lookup'],
+  additionalProperties: false,
+};
+const ANSWER_FORMAT = 'Answer in JSON. reply is what the visitor sees. lookup is true only when your reply offers the order-status email box (the visitor asked about the status, ship date, tracking or delivery of an order they placed on this website); otherwise false.';
+
+function parseAnswer(text) {
+  let out;
+  try { out = JSON.parse(text); } catch { out = null; }
+  if (!out || typeof out !== 'object') return { text: String(text || '').trim(), lookup: false };
+  return { text: String(out.reply || '').trim(), lookup: out.lookup === true };
+}
+
 async function claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context }) {
   let models = await familyModels(env, client, CLAUDE_FAMILY, CLAUDE_FALLBACK_MODEL);
   const tried = new Set();
@@ -269,10 +296,11 @@ async function claudeAnswer(env, client, { systemPrompt, knowledge, question, hi
   let lastError;
   const params = {
     max_tokens: 4000,
-    output_config: { effort: 'low' },
+    output_config: { effort: 'low', format: { type: 'json_schema', schema: ANSWER_SCHEMA } },
     system: [
       { type: 'text', text: `GROUNDED KNOWLEDGE (Survival Node and Eastern Shore AI):\n${knowledge}`, cache_control: { type: 'ephemeral' } },
       { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: ANSWER_FORMAT },
     ],
     messages: conversationMessages(history, question, context),
   };
@@ -284,8 +312,8 @@ async function claudeAnswer(env, client, { systemPrompt, knowledge, question, hi
       const response = await createMessage(client, { ...params, model });
       await addDaily(env, 'claude', costOf(PRICE.claude, response.usage), 1);
       if (tried.size > 1) await setMeta(env, `models:${CLAUDE_FAMILY}`, JSON.stringify(models.filter(m => m === model || !tried.has(m))));
-      if (response.stop_reason === 'refusal') return OFF_TOPIC_REPLY;
-      return (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+      if (response.stop_reason === 'refusal') return { text: OFF_TOPIC_REPLY, lookup: false };
+      return parseAnswer((response.content || []).filter(b => b.type === 'text').map(b => b.text).join(''));
     } catch (e) {
       lastError = e;
       if (!(e instanceof Anthropic.NotFoundError || e instanceof Anthropic.BadRequestError)) throw e;
@@ -305,7 +333,8 @@ function claudeOutReason(e) {
  * Answer one Ask K question. `deps.minimax(question, context, history)`
  * returns { text, usage } from the OpenAI-compatible backup provider;
  * `deps.notify(env, { subject, text })` emails staff.
- * Returns { reply, provider } where provider is 'claude' | 'minimax' | 'offtopic' | 'busy'.
+ * Returns { reply, provider, lookup } where provider is 'claude' | 'minimax' |
+ * 'offtopic' | 'busy' and lookup says to show the order-status box.
  */
 export async function answerAskK(env, { question, history = [], context = {}, systemPrompt, knowledge }, deps) {
   await ensureTables(env);
@@ -329,13 +358,13 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
   }
   if (!onTopic) {
     await addDaily(env, 'offtopic', 0, 1);
-    return { reply: OFF_TOPIC_REPLY, provider: 'offtopic' };
+    return { reply: OFF_TOPIC_REPLY, provider: 'offtopic', lookup: false };
   }
 
   if (claudeOk) {
     try {
-      const text = await claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context });
-      if (text) return { reply: text, provider: 'claude' };
+      const { text, lookup } = await claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context });
+      if (text) return { reply: text, provider: 'claude', lookup };
       fallbackReason = 'error';
     } catch (e) {
       fallbackReason = claudeOutReason(e);
@@ -358,7 +387,7 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
     try {
       const { text, usage } = await deps.minimax(question, context, history);
       await addDaily(env, 'minimax', ((usage?.prompt_tokens || 0) * PRICE.minimax.input + (usage?.completion_tokens || 0) * PRICE.minimax.output) / 1e6, 1);
-      if (text) return { reply: text, provider: 'minimax' };
+      if (text) return { reply: text, provider: 'minimax', lookup: wantsOrderStatus(question) };
     } catch (e) {
       console.error('backup provider failed:', e?.message);
     }
@@ -367,10 +396,12 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
   await addDaily(env, 'busy', 0, 1);
   await notifyOnce(env, deps.notify, 'busy', 'Ask K is paused',
     `Ask K on the Survival Node page can't answer right now: ${why}, and the backup provider is over its daily budget ($${minimaxBudget.toFixed(2)}) or failing. Visitors are being shown your phone number and contact form instead.`);
-  return { reply: ASKK_BUSY_REPLY, provider: 'busy' };
+  // The order-status box needs no AI, so it still shows while K is busy.
+  return { reply: ASKK_BUSY_REPLY, provider: 'busy', lookup: wantsOrderStatus(question) };
 }
 
-// Counts a blocked request (failed bot check, rate limit) for the daily email.
+// Counts a blocked request (failed bot check, rate limit) or an order-status
+// email request ('status') for the daily email.
 export async function recordAskKBlocked(env, kind) {
   try {
     await ensureTables(env);
@@ -442,6 +473,7 @@ async function survivalNodeSummary(env, day, month) {
       `  • Failed the bot check: ${n('unverified')}`,
       `  • Hit a rate limit: ${n('ratelimited')}`,
       `"Busy, contact us" replies: ${n('busy')}`,
+      `Order-status emails requested: ${n('status')}`,
       `Claude spend so far in ${month}: about ${money(mtd?.s)}`,
     ],
   };
