@@ -1132,7 +1132,7 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 ## Survival Node User Guide app releases (added 2026-10-24)
 
 - The Android guide app is `survival-node-app/index.html`, built in WebIntoApp (app 1240101) in **HTML Files** mode so it works offline. Never the Online URL mode (1.2 was built that way by mistake and can't open offline). Full release steps, versionCode scheme (1.4 = 10400) and APK checks are in `survival-node-app/README.md`.
-- From 1.4 the guide checks `survival-node-app/latest.json` when it opens online and shows an orange update note if a newer APK exists. Point `latest.json` at a new APK only in the same push that adds the APK.
+- From 1.4 the guide checks `survival-node-app/latest.json` when it opens online and shows an orange update note if a newer APK exists. **The bundled page must never make a request while offline**: WebIntoApp's wrapper replaces the whole guide with its online error page ("Webpage not available") on any failed request, which broke 1.4–1.6 offline. From 1.7 the check only runs when `navigator.onLine`. Test each build by cold-starting it in airplane mode with Wi-Fi off before releasing. Point `latest.json` at a new APK only in the same push that adds the APK.
 - The update feature is described in the guide app, `node-setup.html` (Maintenance), `node.html` (box contents, update FAQ, software list, User Guide card), `quick-start-insert.html`, the Ask K knowledge file and the delivered-order email (`worker/src/index.js` + its preview in `admin.js`). Keep them consistent when the flow changes.
 
 ## Survival Node Ask K order updates (added 2026-10-27)

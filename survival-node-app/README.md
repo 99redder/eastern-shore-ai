@@ -31,13 +31,22 @@ uploading the file in WebIntoApp, never by pointing it at the website URL. A URL
 how a Survival Node is used. `index.html` itself needs nothing online (no external fonts, images or
 scripts), so keep it that way. Its one network request is the optional update check below.
 
+**Never let the bundled page make a request while the phone is offline.** WebIntoApp's wrapper
+handles *any* failed request (not just the page itself: its `onReceivedError` doesn't check
+`isForMainFrame`) by loading its online error page, so one failed `fetch` replaces the whole guide
+with "Webpage not available". Builds 1.4–1.6 did exactly that in airplane mode, because the update
+check fetched `latest.json` on every open. From 1.7 the check only runs when `navigator.onLine` is
+true (the app has `ACCESS_NETWORK_STATE`, so the WebView reports airplane mode correctly). Wi-Fi
+that is connected but has no internet can still trip it; there is no way to make a request the
+wrapper won't treat that way. **Test every build by cold-starting it in airplane mode with Wi-Fi off.**
+
 | Field | Value |
 |---|---|
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.6 |
-| Last built version | 1.6 (versionCode 10600, built 2026-10-27 from HTML Files — works offline) |
+| Current source version | 1.7 (in `index.html`, not built yet) |
+| Last built version | 1.6 (versionCode 10600, built 2026-10-27 from HTML Files — **does not open offline**, see above) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -99,6 +108,14 @@ scripts), so keep it that way. Its one network request is the optional update ch
   release: versionCode 10600 / 1.6, same package, bundled `index.html` identical to this folder's,
   same v2 signing certificate as 1.4 and 1.5 (`689120c5…89de7b`); tested on a phone in airplane
   mode. The update note's placeholder link was pointed at the 1.6 APK after the build.
+  **Withdrawn the same day:** it shows "Webpage not available" in airplane mode (the update check's
+  failed `fetch` trips the wrapper's error page). 1.4 and 1.5 have the same check and the same
+  wrapper, so treat them as broken offline too, whatever earlier notes say; the "tested in airplane
+  mode" lines above for 1.5 and 1.6 came from a pre-written reply, not an actual test.
+  `latest.json` was pointed back at 1.4 (so 1.4 phones aren't offered 1.5/1.6) and the 1.6 APK
+  removed from this folder.
+- **1.7** (versionCode 10700, **source only, not built yet**) — the update check makes no request
+  while `navigator.onLine` is false, so the guide opens offline. Same content as 1.6.
 
 ## Update check (1.4 and later)
 

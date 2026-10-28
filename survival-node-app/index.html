@@ -1451,14 +1451,14 @@ body {
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p>Survival Node User Guide · v1.6</p>
+  <p>Survival Node User Guide · v1.7</p>
 </div>
 
 </main>
 
 <script>
 // Bump with the footer version and latest.json on every release (see README).
-const APP_VERSION_CODE = 10600;
+const APP_VERSION_CODE = 10700;
 const LATEST_URL = 'https://www.easternshore.ai/survival-node-app/latest.json';
 
 function showUpdateNote(apkUrl, title, intro) {
@@ -1486,7 +1486,9 @@ async function fetchLatest() {
 
 // App 1.2 loads the website copy of this page and can't open offline, so on Android the website
 // copy always offers the latest APK. The copy bundled in the app checks for a newer release
-// whenever it opens with internet, and does nothing when offline.
+// whenever it opens with internet, and makes no request at all when the phone is offline:
+// WebIntoApp's wrapper treats any failed request as the page failing and swaps the guide for its
+// online error page, which offline shows only "Webpage not available" (1.4 to 1.6 did this).
 async function checkForGuideUpdate(currentCode = APP_VERSION_CODE) {
   const fromSite = /(^|\.)easternshore\.ai$/.test(location.hostname) && /Android/i.test(navigator.userAgent);
   if (fromSite || new URLSearchParams(location.search).has('update-note')) {
@@ -1495,6 +1497,7 @@ async function checkForGuideUpdate(currentCode = APP_VERSION_CODE) {
     if (latest && latest.apk) showUpdateNote(latest.apk);
     return;
   }
+  if (!navigator.onLine) return;
   const latest = await fetchLatest();
   if (latest && latest.apk && latest.versionCode > currentCode) {
     showUpdateNote(latest.apk, 'Guide update available',
