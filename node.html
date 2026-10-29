@@ -669,7 +669,7 @@
       .hero-solar-track > span::after { content: ""; padding: 0; }
     }
     .slide1-img-col { position: relative; container-type: inline-size; overflow: hidden; border-radius: 6px; }
-    .slide1-img-col img { width: 100%; display: block; border-radius: 6px; border: 1px solid var(--line); }
+    .slide1-img-col img { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid var(--line); }
     .new-sticker {
       position: absolute;
       top: clamp(18px, 4cqw, 32px);
@@ -1194,24 +1194,23 @@
       .askk-fab-label { display: none; }
       .askk-drawer { width: 100vw; right: -100vw; }
       .askk-input { font-size: 16px !important; }
-      /* 2. Inline nav bar below promo bar */
+      /* 2. Slim nav row below promo bar: two text links, 44px tall */
       .mobile-nav-bar {
         display: flex;
-        gap: .5rem;
-        padding: .45rem .8rem;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 .35rem;
         background: #0a0b10;
         border-bottom: 1px solid var(--line);
       }
       .mobile-nav-btn {
-        flex: 1;
-        text-align: center;
-        padding: .52rem .5rem;
-        font-size: .78rem;
-        color: var(--text);
+        padding: .78rem .65rem;
+        font-size: .74rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--cyan);
         text-decoration: none;
-        background: rgba(18,20,30,.9);
-        border: 1px solid var(--line);
-        border-radius: 6px;
         font-family: 'Hanken Grotesk', sans-serif;
         white-space: nowrap;
       }
@@ -1234,10 +1233,8 @@
       /* BYOG modal inputs — full-width inside narrow modal */
       #byog-modal input, #byog-modal select { width: 100%; box-sizing: border-box; }
       #byog-btn { max-width: 100% !important; width: 100%; }
-      /* Slide 1 — full-width hero image above Q&A on mobile */
-      .slide1-img-col { margin-bottom: .25rem; }
-      /* Carousel arrows — smaller on mobile */
-      .carousel-wrap { padding: 0 2rem; }
+      /* Hero runs edge to edge (the carousel arrows are switched off, so no side room for them) */
+      .carousel-wrap { padding: 0; margin: 0 -1rem; }
       .car-arrow { width: 28px; height: 28px; font-size: 1.2rem; }
       /* Software modal — collapse 2-column grid to 1 column */
       .sw-grid { grid-template-columns: 1fr !important; }
@@ -1250,23 +1247,26 @@
       .brain-col { padding: .75rem; }
       /* FAQ — tighter item spacing */
       .faq details { padding: .55rem .7rem; }
-      /* Slide 2 — stack on mobile: thumbs horizontal top, image+desc below */
-      .slide2-inner { grid-template-columns: 1fr; }
-      .thumb-strip { flex-direction: row; overflow-x: auto; gap: .4rem; padding-bottom: .2rem; }
-      .thumb-img { width: 52px; height: 52px; flex-shrink: 0; aspect-ratio: 1; }
+      /* Kit gallery — big photo first, thumbnails under it, then the description */
+      .slide2-inner { display: flex; flex-direction: column; align-items: stretch; gap: .6rem; }
+      .slide2-content { display: contents; }
+      .item-photo-gallery { order: 1; scroll-snap-type: x mandatory; }
+      .thumb-strip { order: 2; flex-direction: row; overflow-x: auto; gap: .4rem; padding-bottom: .2rem; }
+      .item-desc { order: 3; }
+      .thumb-img { width: 56px; height: 56px; flex-shrink: 0; aspect-ratio: 1; }
       /* In the sideways row the "Components" word sits mid-row; keep only its divider line */
       .thumb-group-label { width: 0; padding: 0; margin: 0 .15rem; overflow: hidden; }
-      .item-photo-gallery img { height: 120px; min-width: 110px; }
-      .slide2-content { gap: .35rem; }
-      .item-desc .item-desc-body { font-size: .82rem; }
-      .item-desc h3 { font-size: .95rem; }
+      .item-photo-gallery img { height: 250px; min-width: 0; max-width: 88%; scroll-snap-align: start; }
+      .item-photo-gallery img:only-child { max-width: 100%; margin: 0 auto; }
+      .item-desc .item-desc-body { font-size: .98rem; }
+      .item-desc h3 { font-size: 1.12rem; }
       /* Video placeholders — shorter on mobile */
       .video-ph { max-height: 160px; }
       /* Photo modal — keep X button near image corner on small screens */
       .photo-modal-close { top: -.6rem; right: -.6rem; width: 2rem; height: 2rem; font-size: 1.2rem; }
     }
 
-    /* ===== Mobile Buy FAB ===== */
+    /* ===== Mobile buy bar (pinned to the bottom; hides while the buy section is on screen) ===== */
     .mobile-buy-fab {
       display: none; /* desktop: hidden */
     }
@@ -1274,38 +1274,148 @@
       .mobile-buy-fab {
         display: flex;
         align-items: center;
-        gap: .45rem;
+        justify-content: space-between;
+        gap: .75rem;
         position: fixed;
-        bottom: 1rem;
-        left: 1rem;
+        left: 0;
+        right: 0;
+        bottom: 0;
         z-index: 7500;
-        background: linear-gradient(145deg, #ff4fd8, #c850ff);
-        box-shadow: 0 4px 18px rgba(200, 80, 255, 0.55);
-        color: #fff;
+        padding: .6rem 1rem calc(.6rem + env(safe-area-inset-bottom, 0px));
+        background: rgba(11, 13, 19, .96);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        border: 0;
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -6px 20px rgba(0, 0, 0, .45);
+        color: var(--text);
         font-family: 'Hanken Grotesk', sans-serif;
-        font-weight: 700;
-        font-size: .82rem;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        border: none;
-        border-radius: 28px;
-        padding: .65rem 1rem .65rem .8rem;
+        text-align: left;
         cursor: pointer;
         transition: opacity .25s, transform .25s;
-        white-space: nowrap;
       }
       .mobile-buy-fab.hidden {
         opacity: 0;
         pointer-events: none;
-        transform: translateY(6px);
+        transform: translateY(110%);
       }
-      .mobile-buy-fab-icon {
-        font-size: 1rem;
-        line-height: 1;
+      .mobile-buy-fab-copy { display: flex; flex-direction: column; gap: .1rem; min-width: 0; }
+      .mobile-buy-fab-price { color: var(--ok); font-size: 1.2rem; font-weight: 800; line-height: 1.15; white-space: nowrap; }
+      .mobile-buy-fab-price s { margin-left: .2rem; color: var(--muted); font-size: .82rem; font-weight: 500; }
+      .mobile-buy-fab-copy small { color: #ffc7f1; font-size: .74rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .mobile-buy-fab-copy small.regular-only { color: var(--muted); }
+      .mobile-buy-fab-cta {
+        flex-shrink: 0;
+        padding: .72rem 1.25rem;
+        border-radius: 999px;
+        background: linear-gradient(145deg, #ff4fd8, #c850ff);
+        box-shadow: 0 0 14px rgba(255, 79, 216, .45);
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
       }
-      .mobile-buy-fab-copy { display: flex; flex-direction: column; gap: .12rem; text-align: left; }
-      .mobile-buy-fab-copy small { font-size: .6rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
-      .wrap { padding-bottom: 5rem; }
+      /* Ask K sits above the bar while it's showing */
+      .askk-fab { transition: transform .2s, box-shadow .2s, bottom .25s; }
+      .mobile-buy-fab:not(.hidden) ~ .askk-fab { bottom: calc(5.1rem + env(safe-area-inset-bottom, 0px)); }
+      .wrap { padding-bottom: 1.5rem; }
+      footer { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (max-width: 360px) {
+      .mobile-buy-fab { gap: .5rem; padding-left: .8rem; padding-right: .8rem; }
+      .mobile-buy-fab-cta { padding: .72rem .95rem; }
+      .mobile-buy-fab-copy small { font-size: .7rem; }
+    }
+
+    /* ===== Phone layout (≤480px) ===== */
+    .mobile-only, .disclaimer-toggle { display: none; }
+    @media (max-width: 480px) {
+      .mobile-only { display: block; }
+      .wrap { padding-top: 0; }
+      .carousel { margin-bottom: 1rem; }
+      /* Hero: photo, then headline + price + button, then the preloaded list, solar note, Quick Answers */
+      .slide1-inner { gap: 0; padding: 0; }
+      .slide1-banner { display: none; }
+      .slide1-img-col { order: 1; max-width: none; border-radius: 0; }
+      .slide1-img-col img { border: 0; border-radius: 0; aspect-ratio: 852 / 1024; object-fit: cover; object-position: 0 50%; }
+      .mobile-hero { order: 2; padding: 1.15rem 1rem 0; }
+      .mobile-preloaded { order: 3; }
+      .hero-solar-ticker { order: 4; margin: 1rem 1rem 0; }
+      .slide1-qa-col { order: 5; padding: 1.5rem 1rem 0; }
+      .mobile-hero-kicker { margin: 0 0 .35rem; color: var(--violet); font-family: 'Hanken Grotesk', sans-serif; font-size: .74rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      .mobile-hero-title { margin: 0; color: var(--text); font-family: 'Hanken Grotesk', sans-serif; font-size: 1.85rem; font-weight: 800; line-height: 1.12; letter-spacing: -.01em; }
+      .mobile-hero-sub { margin: .45rem 0 0; color: var(--muted); font-size: 1.05rem; }
+      .mobile-hero-price { display: flex; align-items: center; flex-wrap: wrap; gap: .3rem .65rem; margin: 1rem 0 0; font-family: 'Hanken Grotesk', sans-serif; }
+      .mobile-hero-price strong { color: var(--ok); font-size: 2.1rem; line-height: 1; }
+      .mobile-hero-price s { color: var(--muted); font-size: 1.05rem; }
+      .mobile-hero-ship { color: var(--muted); font-size: .95rem; }
+      .mobile-hero .kit-offer-urgency { margin-top: .45rem; }
+      .mobile-hero-cta {
+        display: block;
+        margin-top: 1rem;
+        padding: .95rem 1rem;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #ff4fd8, #c850ff);
+        box-shadow: 0 0 18px rgba(255, 79, 216, .45);
+        color: #fff;
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+      .mobile-hero-trust { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .9rem 0 0; padding: 0; list-style: none; color: var(--muted); font-size: .8rem; line-height: 1.25; text-align: center; }
+      .mobile-hero-trust li { margin: 0; }
+      .mobile-hero-trust li span { display: block; margin-bottom: .2rem; font-size: 1.15rem; }
+      .mobile-preloaded { margin: 1.4rem 1rem 0; padding: 1rem 1rem .4rem; border: 1px solid var(--line); border-radius: 10px; background: #0d1017; }
+      .mobile-preloaded h2 { margin: 0 0 .5rem; color: #f3d38b; font-family: 'Hanken Grotesk', sans-serif; font-size: .9rem; letter-spacing: .1em; text-transform: uppercase; }
+      .mobile-preloaded ul { margin: 0; padding: 0; list-style: none; }
+      .mobile-preloaded li { position: relative; margin: 0; padding: .55rem 0 .55rem 1.6rem; border-top: 1px solid rgba(42,51,72,.6); font-size: 1rem; line-height: 1.4; color: var(--muted); }
+      .mobile-preloaded li:first-child { border-top: 0; }
+      .mobile-preloaded li::before { content: '✓'; position: absolute; left: .1rem; top: .55rem; color: #f3d38b; font-weight: 800; }
+      .mobile-preloaded li strong { color: var(--text); }
+      .mobile-preloaded li em { display: block; margin-top: .15rem; color: #f3d38b; font-style: normal; }
+      /* Solar note: a still box instead of the scrolling ticker */
+      .hero-solar-track { animation: none; width: 100%; }
+      .hero-solar-track > span:nth-child(2) { display: none; }
+      .hero-solar-track > span { padding: .65rem .85rem; white-space: normal; font-size: .9rem; line-height: 1.45; }
+      .hero-solar-track > span::after { content: ""; padding: 0; }
+      /* Quick Answers: bigger text and 44px+ rows */
+      .slide1-title { font-size: .95rem; }
+      .slide1-q { padding: .75rem 0; }
+      .slide1-q summary { font-size: 1.02rem; }
+      .slide1-answer { margin-top: .5rem; font-size: .97rem; }
+      .slide1-more-link { font-size: .95rem; padding: .4rem 0; }
+      /* Videos: keep the vertical Short from filling the whole screen */
+      .video-short-frame { max-width: 250px !important; }
+      /* Buy section */
+      .kit-head-ship { display: none !important; }
+      .kit-card { padding: 1.1rem .9rem .9rem; }
+      .acc-row { padding: .75rem 0; }
+      .acc-label { font-size: 1rem; }
+      .acc-body { font-size: .95rem; }
+      #buy-btn { flex-direction: column; gap: .1rem !important; padding: .9rem 1rem; font-family: 'Hanken Grotesk', sans-serif; }
+      #buy-btn > span:last-child { font-size: 1.08rem !important; }
+      .kit-ship-list { font-size: .97rem; }
+      /* Disclaimer: only the heading, intro and a button until the button is tapped */
+      .disclaimer-toggle {
+        display: block;
+        width: 100%;
+        padding: .8rem 1rem;
+        border: 1px solid rgba(158, 208, 255, .4);
+        border-radius: 8px;
+        background: rgba(158, 208, 255, .06);
+        color: var(--cyan);
+        font-family: 'Hanken Grotesk', sans-serif;
+        font-size: .92rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .disclaimer.is-open .disclaimer-toggle { margin-bottom: .8rem; }
+      .disclaimer:not(.is-open) > :not(h3):not(.disclaimer-intro):not(.disclaimer-toggle) { display: none; }
     }
   </style>
   <script type="application/ld+json">
@@ -1522,7 +1632,11 @@
               </div>
             </div>
             <div class="slide1-img-col">
-              <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" />
+              <picture>
+                <!-- Phones get the case side only (852px wide, 184 KB); its text panel is the list below -->
+                <source media="(max-width: 480px)" type="image/webp" srcset="images/survival-node-hero-mobile.webp" />
+                <img src="images/logo4.png" alt="Survival Node — Emergency Preparedness in the Age of AI" width="1536" height="1024" />
+              </picture>
               <span class="new-sticker" aria-label="New: Survival Node Gen 2">NEW</span>
               <div class="md-seal" aria-label="Mission Darkness Faraday bags included standard">
                 <span class="s-ico" aria-hidden="true">🛡️</span>
@@ -1532,6 +1646,36 @@
                 <span class="s-bot">Included Standard</span>
               </div>
             </div>
+            <!-- Phone hero: headline, price and buy button under the photo (desktop shows banner.png instead) -->
+            <div class="mobile-hero mobile-only">
+              <p class="mobile-hero-kicker">Off-Grid AI Emergency Kit</p>
+              <p class="mobile-hero-title">When the grid goes down, your AI stays online.</p>
+              <p class="mobile-hero-sub">No internet. No cell signal. No problem.</p>
+              <p class="mobile-hero-price">
+                <strong class="sale-only">$249.99</strong><s class="sale-only">$349.99</s><span class="kit-offer-save sale-only">Save $100</span>
+                <strong class="regular-only">$349.99</strong><span class="mobile-hero-ship regular-only">Free shipping</span>
+              </p>
+              <p class="kit-offer-urgency sale-only">Limited-time offer — while supplies last.</p>
+              <a href="#choose-kit" class="mobile-hero-cta">Buy Now</a>
+              <ul class="mobile-hero-trust">
+                <li><span aria-hidden="true">🚚</span> Free shipping</li>
+                <li><span aria-hidden="true">🛡️</span> Faraday bags included</li>
+                <li><span aria-hidden="true">🇺🇸</span> Veteran owned</li>
+              </ul>
+            </div>
+            <!-- Phone version of the photo's "Preloaded software" panel, as readable text -->
+            <section class="mobile-preloaded mobile-only" aria-labelledby="mobile-preloaded-title">
+              <h2 id="mobile-preloaded-title">Preloaded on the phone</h2>
+              <ul>
+                <li><strong>Survival AI Agent.</strong> Ask it any question: <em>“How do I catch rainwater and treat it so I can drink it?”</em></li>
+                <li><strong>Maps and directions</strong> for the entire United States</li>
+                <li><strong>Translation app</strong> for all major languages</li>
+                <li><strong>Over 10GB</strong> of medical references</li>
+                <li><strong>Over 10GB</strong> of survival references</li>
+                <li>Downloaded copy of all of <strong>Wikipedia</strong></li>
+                <li><strong>Over 60,000</strong> literary works</li>
+              </ul>
+            </section>
             <div class="slide1-qa-col">
 
               <p class="slide1-title">Quick Answers</p>
@@ -1624,8 +1768,8 @@
 
         <!-- Left: Quick Unboxing (Short — portrait) -->
         <div class="video-thumb-block">
-          <div style="position:relative; width:100%; max-width:340px; margin:0 auto; aspect-ratio:9/16; border-radius:8px; overflow:hidden; border:1px solid var(--line); background:#000;">
-            <iframe src="https://www.youtube.com/embed/9P2wfJ-fGKA" title="Quick Unboxing" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
+          <div class="video-short-frame" style="position:relative; width:100%; max-width:340px; margin:0 auto; aspect-ratio:9/16; border-radius:8px; overflow:hidden; border:1px solid var(--line); background:#000;">
+            <iframe src="https://www.youtube.com/embed/9P2wfJ-fGKA" title="Quick Unboxing" loading="lazy" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
           </div>
           <div class="video-meta">
             <div class="video-meta-title">Quick Unboxing</div>
@@ -1636,7 +1780,7 @@
         <!-- Right: Components & Testing Video (landscape) -->
         <div class="video-thumb-block">
           <div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:8px; overflow:hidden; border:1px solid var(--line); background:#000;">
-            <iframe src="https://www.youtube.com/embed/hPN2Ta5B790" title="Components & Pre-Shipment Testing" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
+            <iframe src="https://www.youtube.com/embed/hPN2Ta5B790" title="Components & Pre-Shipment Testing" loading="lazy" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:0;"></iframe>
           </div>
           <div class="video-meta">
             <div class="video-meta-title">Components &amp; Pre-Shipment Testing</div>
@@ -1683,7 +1827,7 @@
           <h2 style="margin:0;">Get Your Survival Node Now While Supplies Last</h2>
           <div style="display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;">
             <span class="pill" style="margin-bottom:0;">Secure Checkout Powered By Stripe</span>
-            <span style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08);">🚚 FREE SHIPPING</span>
+            <span class="kit-head-ship" style="display:inline-block; padding:.28rem .55rem; border:1px solid var(--line); border-radius:999px; font-size:.72rem; color:var(--ok); background:rgba(158,208,255,.08);">🚚 FREE SHIPPING</span>
           </div>
         </div>
         <div class="offerings kit-offerings-grid">
@@ -1789,7 +1933,7 @@
           </section>
         </div>
 
-        <ul style="margin-top:.8rem;">
+        <ul class="kit-ship-list" style="margin-top:.8rem;">
           <li><strong>Free shipping to all continental US states. **We cannot ship outside the continental United States.</strong></li>
           <li><strong>Processing: up to 7 business days</strong> (average 1&ndash;2 days). You'll receive an order confirmation with your estimated ship date within 24 hours of placing the order.</li>
           <li><strong>Shipping: up to 10 additional business days</strong> (average 5&ndash;7 days). Ships via USPS <strong>ground transportation only</strong> &mdash; required by federal regulations due to the lithium-ion battery.</li>
@@ -1991,7 +2135,9 @@
     <section class="card" style="margin-top:1rem;">
       <section class="disclaimer" aria-label="Warranty and Liability Disclaimer" style="margin-top:0; padding-top:0; border-top:0;">
         <h3>Warranty &amp; Liability Disclaimer</h3>
-        <p style="color:var(--muted); font-size:.88rem; margin:0 0 1rem;">The full Terms of Sale are published at <a href="/terms.html" style="color:var(--cyan)">/terms.html</a>. The disclosures below are the same content reproduced here for at-purchase visibility. By completing checkout, the buyer agrees to all terms.</p>
+        <p class="disclaimer-intro" style="color:var(--muted); font-size:.88rem; margin:0 0 1rem;">The full Terms of Sale are published at <a href="/terms.html" style="color:var(--cyan)">/terms.html</a>. The disclosures below are the same content reproduced here for at-purchase visibility. By completing checkout, the buyer agrees to all terms.</p>
+        <!-- Phones fold the sections below behind this button; wider screens never show it -->
+        <button type="button" class="disclaimer-toggle" id="disclaimer-toggle" aria-expanded="false">Read the full warranty &amp; liability terms</button>
 
         <h4 style="color:var(--cyan); margin:1.1rem 0 .5rem; font-size:1rem;">1. Battery Maintenance &amp; Storage</h4>
         <p><strong>Battery Safety &amp; Maintenance:</strong> The included lithium-ion solar battery ships with a partial charge. Upon receipt, charge to 50–70% via wall outlet before storing for long-term readiness — you may charge to 100% to verify full capacity, then bring back to 50–70% before sealing. Lithium-ion batteries self-discharge over time; recharge every 6–12 months to prevent permanent capacity loss. Do not store in extreme temperatures (above 113°F / 45°C or below 14°F / -10°C), expose to moisture, puncture, or crush. Damaged or swollen batteries must be disposed of in accordance with local regulations.</p>
@@ -3024,11 +3170,25 @@
         const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
         window.scrollTo({ top: y, behavior: 'smooth' });
       });
-      const observer = new IntersectionObserver(
-        ([entry]) => { fab.classList.toggle('hidden', entry.isIntersecting); },
-        { threshold: 0.1 }
-      );
-      observer.observe(target);
+      // Hidden while the hero's Buy Now button or the buy section itself is on screen
+      const onScreen = new Set();
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => entry.isIntersecting ? onScreen.add(entry.target) : onScreen.delete(entry.target));
+        fab.classList.toggle('hidden', onScreen.size > 0);
+      }, { threshold: 0.1 });
+      [target, document.querySelector('.mobile-hero-cta')].forEach(el => el && observer.observe(el));
+    });
+
+    // ===== Phone: fold the warranty & liability disclaimer =====
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggle = document.getElementById('disclaimer-toggle');
+      if (!toggle) return;
+      const section = toggle.closest('.disclaimer');
+      toggle.addEventListener('click', () => {
+        const open = section.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.textContent = open ? 'Hide the full warranty & liability terms' : 'Read the full warranty & liability terms';
+      });
     });
 
     // ===== Ask K Assistant =====
@@ -3741,9 +3901,9 @@
   </script>
 
   <!-- Mobile Buy FAB -->
-  <button class="mobile-buy-fab" id="mobile-buy-fab">
-    <span class="mobile-buy-fab-icon" aria-hidden="true">🛒</span>
-    <span class="mobile-buy-fab-copy"><small class="sale-only">Regularly <s>$349.99</s> · Save $100</small><span>Buy Now — <span class="sale-only">$249.99</span><span class="regular-only">$349.99</span></span><small class="fab-offer-note sale-only">Limited time · While supplies last</small><small class="regular-only">Free shipping</small></span>
+  <button class="mobile-buy-fab hidden" id="mobile-buy-fab">
+    <span class="mobile-buy-fab-copy"><span class="mobile-buy-fab-price"><span class="sale-only">$249.99 <s>$349.99</s></span><span class="regular-only">$349.99</span></span><small class="fab-offer-note sale-only">Limited time · While supplies last</small><small class="regular-only">Free shipping · Survival Node Gen 2</small></span>
+    <span class="mobile-buy-fab-cta">Buy Now</span>
   </button>
 
   <!-- Ask K Floating Button -->

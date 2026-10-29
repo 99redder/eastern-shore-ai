@@ -1082,6 +1082,14 @@ cd worker && wrangler deploy --config wrangler.toml
 - Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in both pages or visitors keep the old copy.
 - The printed flyer (`flyer/`) still says $249.99.
 
+## Survival Node page on phones (added 2026-10-29)
+
+`node.html` has its own phone layout at **≤480px** (the "Phone layout" and "Mobile buy bar" CSS blocks); 481px and up is the desktop/tablet layout and was left as it was.
+- **Hero:** `images/survival-node-hero-mobile.webp` (852×1024, the case side of `images/logo4.png`, via a `<picture>` source) runs edge to edge. If `logo4.png` is redone, re-crop it (left 852px, full height) so phones match. Under it, phone-only `.mobile-hero` (headline, price, Buy Now, trust icons) replaces `banner.png`, and `.mobile-preloaded` is the photo's "Preloaded software on the phone" panel as text. Keep that list in step with the photo.
+- **Price copy** in `.mobile-hero` and the bottom bar comes in `.sale-only` / `.regular-only` pairs like the rest of the page. They reuse `.kit-offer-save` / `.kit-offer-urgency` / `.fab-offer-note`, so `seasonal-sale.js` restyles and rewrites them during a sale.
+- **Bottom buy bar** (`#mobile-buy-fab`): hidden while the hero's Buy Now button or `#choose-kit` is on screen; Ask K sits above it while it shows. At ≤360px it tightens so "🦃 Thanksgiving Sale · Ends Nov 26" fits at 320px.
+- **Disclaimer:** phones show its heading, intro and a "Read the full warranty & liability terms" button (`#disclaimer-toggle`); the text itself is unchanged and stays in the page.
+
 ## Website Care Plan + postcard preview sites (added 2026-10-19)
 
 ### Preview sites
