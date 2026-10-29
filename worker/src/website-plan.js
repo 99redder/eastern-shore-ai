@@ -538,7 +538,7 @@ export function createWebsitePlanHandlers(deps) {
     ).bind(periodStart, periodEnd, paymentIntentId || '', client.id).run();
 
     // Books: income + Stripe fee (same pattern as invoices).
-    const incomeDate = eventCreated ? new Date(eventCreated * 1000).toISOString().slice(0, 10) : today;
+    const incomeDate = eventCreated ? unixToIso(eventCreated) : today;
     // Owner test clients: the owner paid with personal money, so it's an owner
     // contribution (equity, account 3100), not revenue. The Stripe fee is still a real expense.
     const ownerTest = Number(client.is_owner_test || 0) === 1;

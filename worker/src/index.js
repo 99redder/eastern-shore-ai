@@ -13,7 +13,7 @@ import { emailLayout, emailButton, emailButtonRow, detailsBox, callout, emailPar
 import { handleEmailEventBatch } from './email-events.js';
 import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, wantsOrderStatus, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
 import { sendOrderStatusEmail, normalizeOrderNumber, normalizeShipDate, longDate } from './order-status.js';
-import { nodePrice, nodePriceSentence } from './node-price.js';
+import { nodePrice, nodePriceSentence, easternDate } from './node-price.js';
 import ASKK_SURVIVAL_NODE_KNOWLEDGE from '../askk-survival-node-knowledge.md';
 
 let _websitePlan = null;
@@ -1473,7 +1473,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           invoiceId,
           requestedPaymentCents: amount,
           paymentEventId,
-          incomeDate: event.created ? new Date(event.created * 1000).toISOString().slice(0, 10) : undefined,
+          incomeDate: eventEasternDate(event),
           incomeSource: 'Stripe Invoice Checkout',
           incomeCategory: 'Service Revenue',
           incomeNotes: `Stripe invoice checkout completed | invoice_id=${invoiceId} | invoice_number=${session.metadata?.invoice_number || ''} | session_id=${sessionId || ''}`,
@@ -1485,7 +1485,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
            SET amount_paid_cents = COALESCE(?1, amount_paid_cents),
                balance_due_cents = COALESCE(?2, balance_due_cents),
                status = COALESCE(?3, status),
-               paid_date = CASE WHEN COALESCE(?2, balance_due_cents) = 0 THEN COALESCE(paid_date, date('now')) ELSE paid_date END,
+               paid_date = CASE WHEN COALESCE(?2, balance_due_cents) = 0 THEN COALESCE(paid_date, ?7) ELSE paid_date END,
                stripe_checkout_session_id = COALESCE(?4, stripe_checkout_session_id),
                stripe_checkout_url = COALESCE(?5, stripe_checkout_url),
                stripe_payment_status = 'paid',
@@ -1498,7 +1498,8 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           (paymentResult?.status || null),
           sessionId || null,
           session.url || null,
-          invoiceId
+          invoiceId,
+          eventEasternDate(event)
         ).run();
 
         // Auto-insert Stripe processing fee for invoice checkout (deduped by session id)
@@ -1521,7 +1522,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
           ).first();
 
           if (!existingFee?.id) {
-            const feeDate = event.created ? new Date(event.created * 1000).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+            const feeDate = eventEasternDate(event);
             const insFee = await env.DB.prepare(
               `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes)
                VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
@@ -1810,9 +1811,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         }
 
         // Use the payment event timestamp for accounting date, not the appointment date
-        const incomeDate = event.created
-          ? new Date(event.created * 1000).toISOString().slice(0, 10)
-          : new Date().toISOString().slice(0, 10);
+        const incomeDate = eventEasternDate(event);
 
         const existingIncome = await env.DB.prepare(
           `SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`
@@ -2340,7 +2339,7 @@ function normalizeOrderStatus(ackSentAt = '', shippingSentAt = '', deliveredSent
 }
 
 async function generateNextOrderNumber(db) {
-  const yy = new Date().getFullYear().toString().slice(-2);
+  const yy = easternDate().slice(2, 4);
   const yearBase = Number(`${yy}000`);
   const seqKey = 'survival_node_orders';
   await db.prepare(
@@ -4911,7 +4910,7 @@ async function handleInvoiceStatus(request, env, corsHeaders, url) {
   const id = Number(data.id || 0);
   const status = (data.status || '').toString();
   if (!id || !['draft','sent','partial','paid','void'].includes(status)) return json({ ok: false, error: 'Invalid payload' }, 400, corsHeaders);
-  const paidDate = status === 'paid' ? (data.paidDate || new Date().toISOString().slice(0,10)) : null;
+  const paidDate = status === 'paid' ? (data.paidDate || easternDate()) : null;
   await env.DB.prepare(`UPDATE invoices SET status = ?1, paid_date = COALESCE(?2, paid_date), sent_at = CASE WHEN ?1 = 'sent' AND sent_at IS NULL THEN datetime('now') ELSE sent_at END, updated_at = datetime('now') WHERE id = ?3`).bind(status, paidDate, id).run();
   return json({ ok: true, id, status }, 200, corsHeaders);
 }
@@ -4936,10 +4935,10 @@ async function syncInvoicePaidFromIncome(db, invoiceId) {
      SET amount_paid_cents = ?1,
          balance_due_cents = ?2,
          status = CASE WHEN status = 'void' THEN status ELSE ?3 END,
-         paid_date = CASE WHEN ?2 = 0 THEN COALESCE(paid_date, date('now')) ELSE paid_date END,
+         paid_date = CASE WHEN ?2 = 0 THEN COALESCE(paid_date, ?5) ELSE paid_date END,
          updated_at = datetime('now')
      WHERE id = ?4`
-  ).bind(paid, balance, status, id).run();
+  ).bind(paid, balance, status, id, easternDate()).run();
   return { paid, balance, status };
 }
 
@@ -4997,7 +4996,7 @@ async function applyInvoicePayment(db, {
   const appliedPaymentCents = Math.min(remaining, requestCents);
   if (appliedPaymentCents <= 0) throw new Error('Invoice is already fully paid');
 
-  const resolvedIncomeDate = (incomeDate || new Date().toISOString().slice(0, 10)).toString().slice(0, 10);
+  const resolvedIncomeDate = (incomeDate || easternDate()).toString().slice(0, 10);
   let resolvedNotes = (incomeNotes || `Invoice payment posted to books | invoice_id=${id} | invoice_number=${inv.invoice_number || ''} | payment_event_id=${eventId}`).toString();
   if (stripeSessionIdForBooks && !resolvedNotes.includes('stripe_session_id=')) {
     resolvedNotes += ` | stripe_session_id=${stripeSessionIdForBooks}`;
@@ -5060,10 +5059,10 @@ async function applyInvoicePayment(db, {
      SET amount_paid_cents = ?1,
          balance_due_cents = ?2,
          status = ?3,
-         paid_date = CASE WHEN ?2 = 0 THEN date('now') ELSE paid_date END,
+         paid_date = CASE WHEN ?2 = 0 THEN ?5 ELSE paid_date END,
          updated_at = datetime('now')
      WHERE id = ?4`
-  ).bind(nextPaid, nextBalance, nextStatus, id).run();
+  ).bind(nextPaid, nextBalance, nextStatus, id, resolvedIncomeDate).run();
 
   return {
     ok: true,
@@ -5222,7 +5221,7 @@ async function handleManualOrderCreate(request, env, corsHeaders, url) {
   const paymentMethod = (data.paymentMethod || '').toString().trim();
   const orderSummary = (data.orderSummary || 'Survival Node').toString().trim();
   const notes = (data.notes || '').toString().trim();
-  const paymentDate = (data.paymentDate || '').toString().trim() || new Date().toISOString().slice(0,10);
+  const paymentDate = (data.paymentDate || '').toString().trim() || easternDate();
   const amountCents = toCents(data.amount);
   if (!customerEmail) return json({ ok: false, error: 'Customer email is required' }, 400, corsHeaders);
   if (!emailRegex.test(customerEmail)) return json({ ok: false, error: 'Invalid customer email' }, 400, corsHeaders);
@@ -5395,7 +5394,7 @@ async function convertQuoteToInvoice(db, quote) {
 
   const subtotal = Number(quote.subtotal_cents || 0);
   const total = Number(quote.total_cents || 0);
-  const issueDate = new Date().toISOString().slice(0, 10);
+  const issueDate = easternDate();
   const dueDate = quote.valid_until || issueDate;
   const invoiceNumber = `INV-${Date.now()}-${quoteId}`;
 
@@ -5450,11 +5449,7 @@ async function handleQuoteCreate(request, env, corsHeaders, url) {
   let validUntil = (data.validUntil || '').toString().trim();
 
   // Default to 30 days from now if no valid date
-  if (!validUntil) {
-    const d = new Date();
-    d.setDate(d.getDate() + 30);
-    validUntil = d.toISOString().slice(0, 10);
-  }
+  if (!validUntil) validUntil = easternDate(new Date(Date.now() + 30 * 86400000));
 
   const descriptionOfWork = (data.descriptionOfWork || data.notes || '').toString().trim();
   const items = Array.isArray(data.items) ? data.items : [];
@@ -5801,10 +5796,8 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
     return new Response(htmlPage('Quote Declined', 'Quote Was Declined', 'This quote was previously declined.', false), { status: 400, headers: { 'Content-Type': 'text/html' } });
   }
 
-  // Check if expired
-  const validUntil = new Date(quote.valid_until);
-  const now = new Date();
-  if (validUntil < now) {
+  // Expired once its valid-until day has ended in Eastern time
+  if (String(quote.valid_until || '').slice(0, 10) < easternDate()) {
     return new Response(htmlPage('Quote Expired', 'Quote Expired', `This quote expired on ${quote.valid_until}. Please contact us for a new quote.`, false), { status: 400, headers: { 'Content-Type': 'text/html' } });
   }
 
@@ -5814,7 +5807,7 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
 
   // Create invoice from quote
   const invoiceNumber = `INV-${Date.now()}`;
-  const issueDate = new Date().toISOString().slice(0, 10);
+  const issueDate = easternDate();
   const dueDate = quote.valid_until;
   const subtotal = Number(quote.subtotal_cents || 0);
   const total = Number(quote.total_cents || 0);
@@ -5881,10 +5874,8 @@ async function handleQuoteDeny(request, env, corsHeaders, url) {
     return new Response(htmlPage('Already Declined', 'Quote Already Declined', 'This quote has already been declined.', true), { status: 200, headers: { 'Content-Type': 'text/html' } });
   }
 
-  // Check if expired
-  const validUntil = new Date(quote.valid_until);
-  const now = new Date();
-  if (validUntil < now) {
+  // Expired once its valid-until day has ended in Eastern time
+  if (String(quote.valid_until || '').slice(0, 10) < easternDate()) {
     return new Response(htmlPage('Quote Expired', 'Quote Expired', `This quote expired on ${quote.valid_until}.`, false), { status: 400, headers: { 'Content-Type': 'text/html' } });
   }
 
@@ -6185,6 +6176,14 @@ async function refundStripePaymentIntent(stripeSecretKey, paymentIntentId, reaso
 function estimateStripeFeeCents(amountCents) {
   if (!Number.isFinite(amountCents) || amountCents <= 0) return 0;
   return Math.round(amountCents * 0.029) + 30;
+}
+
+/**
+ * Books date for a Stripe event: the Eastern date it happened (a sale at
+ * 9 PM on the 27th belongs to the 27th, not to the 28th in UTC).
+ */
+function eventEasternDate(event) {
+  return event?.created ? easternDate(new Date(event.created * 1000)) : easternDate();
 }
 
 /**

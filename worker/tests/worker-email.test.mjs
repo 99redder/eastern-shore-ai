@@ -150,6 +150,30 @@ test('Survival Node order webhook emails staff the order details', async (t) => 
   assert.equal(env.EMAIL.sent.length, 1);
 });
 
+test('an evening sale is booked on its Eastern date, not the next UTC day', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv();
+  // 8:39 PM EDT on Oct 27 (00:39 UTC Oct 28); 11:30 PM EST on Dec 1 (04:30 UTC Dec 2).
+  for (const [id, at, day] of [['cs_test_evening_edt', '2026-10-28T00:39:54Z', '2026-10-27'], ['cs_test_evening_est', '2026-12-02T04:30:00Z', '2026-12-01']]) {
+    const session = {
+      id, payment_intent: `pi_${id}`, amount_total: 24999,
+      customer_details: { email: 'buyer@example.net', name: 'Sam Buyer', address: { state: 'MD' } },
+      shipping_details: { name: 'Sam Buyer', address: { line1: '1 Main St', city: 'Salisbury', state: 'MD', postal_code: '21801', country: 'US' } },
+      metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit', service_label: 'Survival Node Base Kit' }
+    };
+    const event = { ...checkoutCompleted(session), created: Date.parse(at) / 1000 };
+    const res = await worker.fetch(await signedWebhook(event), env, ctx);
+    assert.equal(res.status, 200, await res.clone().text());
+    const income = env.DB.sqlite.prepare('SELECT id, income_date FROM tax_income WHERE stripe_session_id = ?').get(id);
+    assert.equal(income.income_date, day, `${id}: income date`);
+    const fee = env.DB.sqlite.prepare('SELECT expense_date FROM tax_expenses WHERE notes LIKE ?').get(`%${id}`);
+    assert.equal(fee.expense_date, day, `${id}: Stripe fee date`);
+    const entry = env.DB.sqlite.prepare("SELECT entry_date FROM journal_entries WHERE source_type = 'tax_income' AND source_id = ?").get(income.id);
+    assert.equal(entry.entry_date, day, `${id}: journal date`);
+  }
+});
+
 test('lesson booking webhook emails the buyer a confirmation and staff a notice', async (t) => {
   quietConsole(t);
   guardNetwork(t);

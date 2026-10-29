@@ -719,7 +719,7 @@
     }
 
     function openManualOrderModal() {
-      if (manualOrderPaymentDateEl && !manualOrderPaymentDateEl.value) manualOrderPaymentDateEl.value = new Date().toISOString().slice(0,10);
+      if (manualOrderPaymentDateEl && !manualOrderPaymentDateEl.value) manualOrderPaymentDateEl.value = nowEtParts().date;
       manualOrderModal?.classList.add('active');
       manualOrderModal?.setAttribute('aria-hidden', 'false');
     }
@@ -2867,7 +2867,7 @@
         endpoint = INVOICE_UPDATE_API_URL;
         payload.id = Number(editingInvoiceId);
       } else {
-        payload.issueDate = new Date().toISOString().slice(0, 10);
+        payload.issueDate = nowEtParts().date;
         payload.invoiceNumber = `INV-${Date.now()}`;
         payload.status = 'draft';
       }
@@ -3187,8 +3187,8 @@
       const customerPhone = (quoteCustomerPhoneEl?.value || '').trim();
       let validUntil = quoteValidUntilEl?.value;
       if (!validUntil) {
-        const d = new Date();
-        d.setDate(d.getDate() + 30);
+        const d = new Date(`${nowEtParts().date}T12:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + 30);
         validUntil = d.toISOString().slice(0, 10);
       }
       const descriptionOfWork = (quoteDescriptionEl?.value || '').trim();
@@ -3297,7 +3297,7 @@
         const num = escHtml(q.quote_number || `Q-${id}`);
         const total = `$${(Number(q.total_cents || 0) / 100).toFixed(2)}`;
         const status = String(q.status || 'draft').toLowerCase();
-        const isExpired = new Date(q.valid_until) < new Date();
+        const isExpired = String(q.valid_until || '').slice(0, 10) < nowEtParts().date;
         const displayStatus = isExpired && !['accepted', 'denied'].includes(status) ? 'expired' : status;
 
         return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">

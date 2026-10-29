@@ -485,6 +485,8 @@ On `checkout.session.completed`, webhook now:
 Deduplication is enforced by unique index:
 - `ux_tax_income_stripe_session_id` on `tax_income(stripe_session_id)` where non-null.
 
+**Books dates are Eastern (fixed 2026-10-29).** Every ledger, journal, invoice and quote date is the `America/New_York` date: Stripe rows use `eventEasternDate(event)`, "today" is `easternDate()` in the worker and `nowEtParts().date` in `admin.js`. Never use `toISOString().slice(0, 10)` or SQLite `date('now')` for these; both are UTC, which booked every sale after 8 PM Eastern (7 PM in winter) on the next day. Timestamps (`created_at`, `paid_at`, `*_sent_at`) stay UTC and are shown in Eastern.
+
 
 ## Session Update — 2026-02-19 (Major Booking/Admin/Stripe hardening)
 
