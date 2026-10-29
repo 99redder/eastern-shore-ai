@@ -2697,8 +2697,21 @@
       const data = await res.json();
       if (!res.ok) { openErrorModal(data.error || 'Failed to load ledger data.'); return; }
 
+      // A purchase whose Maryland tax was split into its own row is one charge on the statement:
+      // fold the tax row back into its parts row (by the "expense #ID" in its note) before matching.
+      const expenses = data.expenses || [];
+      const expenseIds = new Set(expenses.map(r => Number(r.id)));
+      const splitTaxCents = new Map();
+      const splitTaxRowIds = new Set();
+      for (const r of expenses) {
+        const m = String(r.notes || '').match(/^MD sales tax on resale purchase[^(]*\(expense #(\d+)/);
+        if (m && expenseIds.has(Number(m[1]))) {
+          splitTaxCents.set(Number(m[1]), (splitTaxCents.get(Number(m[1])) || 0) + Number(r.amount_cents || 0));
+          splitTaxRowIds.add(Number(r.id));
+        }
+      }
       let ledger = [
-        ...(data.expenses || []).map(r => ({ type: 'expense', date: r.date, amountCents: Number(r.amount_cents || 0), label: `${r.category || ''} ${r.vendor || ''}`.trim() })),
+        ...expenses.filter(r => !splitTaxRowIds.has(Number(r.id))).map(r => ({ type: 'expense', date: r.date, amountCents: Number(r.amount_cents || 0) + (splitTaxCents.get(Number(r.id)) || 0), label: `${r.category || ''} ${r.vendor || ''}`.trim() })),
         ...(data.income || []).map(r => ({ type: 'income', date: r.date, amountCents: Number(r.amount_cents || 0), label: `${r.category || ''} ${r.source || ''}`.trim() }))
       ];
       if (month !== 'all') {
