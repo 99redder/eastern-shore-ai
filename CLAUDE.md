@@ -487,6 +487,8 @@ Deduplication is enforced by unique index:
 
 **Books dates are Eastern (fixed 2026-10-29).** Every ledger, journal, invoice and quote date is the `America/New_York` date: Stripe rows use `eventEasternDate(event)`, "today" is `easternDate()` in the worker and `nowEtParts().date` in `admin.js`. Never use `toISOString().slice(0, 10)` or SQLite `date('now')` for these; both are UTC, which booked every sale after 8 PM Eastern (7 PM in winter) on the next day. Timestamps (`created_at`, `paid_at`, `*_sent_at`) stay UTC and are shown in Eastern.
 
+**Stripe fee rows (added 2026-10-29), `worker/src/stripe-fees.js`.** At payment time Stripe often hasn't posted its fee yet (Klarna sales especially), so `stripeFee()` books an estimate at the rate for the method the customer used (`FEE_RATES`: card/Link/Cash App 2.9% + 30¢, Klarna 5.99% + 30¢, Affirm/Afterpay 6% + 30¢, ACH 0.8% capped at $5; unknown methods use the card rate) with an "Estimated Stripe fee for session …" or "… (estimated)" note. The daily cron's `reconcileEstimatedStripeFees()` asks Stripe for each estimated row's real fee (balance transaction), updates the amount, note and journal entry, and emails `TO_EMAIL` "Stripe fees corrected in the books" from alerts@ when an amount changed. Rows Stripe still has no fee for stay estimated and are retried the next day (25 per run, newest first). Keep both note forms in the webhooks' dedupe checks. Checkout offers whatever payment methods are on in the Stripe dashboard (no `payment_method_types`), so update `FEE_RATES` if Stripe's prices change or a new method is turned on.
+
 
 ## Session Update — 2026-02-19 (Major Booking/Admin/Stripe hardening)
 

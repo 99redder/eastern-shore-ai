@@ -174,6 +174,79 @@ test('an evening sale is booked on its Eastern date, not the next UTC day', asyn
   }
 });
 
+const feeJournalCents = (env, expenseId) => env.DB.sqlite.prepare(
+  "SELECT SUM(jl.debit_cents) AS c FROM journal_lines jl JOIN journal_entries je ON je.id = jl.entry_id WHERE je.source_type = 'tax_expense' AND je.source_id = ?"
+).get(expenseId).c;
+
+test('Klarna sale: before Stripe posts its fee, the books estimate it at the Klarna rate', async (t) => {
+  quietConsole(t);
+  guardNetwork(t, {
+    'https://api.stripe.com/v1/payment_intents/pi_klarna_1': { id: 'pi_klarna_1', latest_charge: { id: 'ch_1', payment_method_details: { type: 'klarna' }, balance_transaction: null } }
+  });
+  const env = baseEnv({ STRIPE_SECRET_KEY: 'sk_test_only' });
+  const session = {
+    id: 'cs_test_klarna_1', payment_intent: 'pi_klarna_1', amount_total: 24999,
+    customer_details: { email: 'buyer@example.net', name: 'Sam Buyer', address: { state: 'MD' } },
+    shipping_details: { name: 'Sam Buyer', address: { line1: '1 Main St', city: 'Salisbury', state: 'MD', postal_code: '21801', country: 'US' } },
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit', service_label: 'Survival Node Base Kit' }
+  };
+  const res = await worker.fetch(await signedWebhook(checkoutCompleted(session)), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const fee = env.DB.sqlite.prepare("SELECT id, amount_cents, notes FROM tax_expenses WHERE notes LIKE '%cs_test_klarna_1'").get();
+  assert.equal(fee.amount_cents, 1527); // 5.99% + 30¢ of $249.99, as Stripe charged
+  assert.equal(fee.notes, 'Estimated Stripe fee for session cs_test_klarna_1');
+  assert.equal(feeJournalCents(env, fee.id), 1527);
+});
+
+test('daily fee check: estimates become Stripe\'s real fee, and the owner is emailed what changed', async (t) => {
+  quietConsole(t);
+  const calls = guardNetwork(t, {
+    'https://api.stripe.com/v1/checkout/sessions/cs_old_klarna': { id: 'cs_old_klarna', payment_intent: 'pi_old_klarna' },
+    'https://api.stripe.com/v1/payment_intents/pi_old_klarna': { id: 'pi_old_klarna', latest_charge: { id: 'ch_2', payment_method_details: { type: 'klarna' }, balance_transaction: { id: 'txn_2', fee: 1527 } } },
+    // Website plan renewal keyed by invoice; newer API versions list its payment intent under invoice_payments.
+    'https://api.stripe.com/v1/invoices/in_plan_1': { id: 'in_plan_1' },
+    'https://api.stripe.com/v1/invoice_payments?invoice=in_plan_1': { data: [{ payment: { payment_intent: 'pi_plan_1' } }] },
+    'https://api.stripe.com/v1/payment_intents/pi_plan_1': { id: 'pi_plan_1', latest_charge: { id: 'ch_3', payment_method_details: { type: 'card' }, balance_transaction: 'txn_3' } },
+    'https://api.stripe.com/v1/balance_transactions/txn_3': { id: 'txn_3', fee: 33 },
+    // Stripe hasn't posted this one's fee yet.
+    'https://api.stripe.com/v1/checkout/sessions/cs_pending': { id: 'cs_pending', payment_intent: 'pi_pending' },
+    'https://api.stripe.com/v1/payment_intents/pi_pending': { id: 'pi_pending', latest_charge: { id: 'ch_4', payment_method_details: { type: 'card' }, balance_transaction: null } }
+  });
+  const env = baseEnv({ STRIPE_SECRET_KEY: 'sk_test_only' });
+  const insert = env.DB.sqlite.prepare("INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes) VALUES (?, 'Stripe', 'Payment Processing Fees', ?, 'stripe', ?)");
+  const klarna = insert.run('2026-10-28', 755, 'Estimated Stripe fee for session cs_old_klarna').lastInsertRowid;
+  const plan = insert.run('2026-10-19', 33, 'Auto Stripe fee for website plan in_plan_1 (estimated)').lastInsertRowid;
+  const pending = insert.run('2026-10-28', 755, 'Auto Stripe fee for invoice session cs_pending (estimated)').lastInsertRowid;
+  const done = insert.run('2026-10-27', 755, 'Auto Stripe fee for session cs_done').lastInsertRowid;
+
+  const waits = [];
+  await worker.scheduled({ cron: '0 12 * * *' }, env, { waitUntil: (p) => waits.push(p) });
+  await Promise.all(waits);
+
+  const row = (id) => env.DB.sqlite.prepare('SELECT amount_cents, notes FROM tax_expenses WHERE id = ?').get(id);
+  assert.deepEqual({ ...row(klarna) }, { amount_cents: 1527, notes: 'Auto Stripe fee for session cs_old_klarna' });
+  assert.equal(feeJournalCents(env, klarna), 1527);
+  assert.deepEqual({ ...row(plan) }, { amount_cents: 33, notes: 'Auto Stripe fee for website plan in_plan_1' });
+  assert.deepEqual({ ...row(pending) }, { amount_cents: 755, notes: 'Auto Stripe fee for invoice session cs_pending (estimated)' });
+  assert.deepEqual({ ...row(done) }, { amount_cents: 755, notes: 'Auto Stripe fee for session cs_done' });
+  assert.ok(!calls.some((c) => c.url.includes('cs_done')), 'real fees are left alone');
+
+  const mail = env.EMAIL.sent.find((m) => m.subject === 'Stripe fees corrected in the books');
+  assert.ok(mail, 'owner emailed');
+  assert.equal(mail.from, 'alerts@easternshore.ai');
+  assert.deepEqual(mail.to, ['owner@inbox.example']);
+  assert.match(mail.text, /2026-10-28 {2}klarna {2}\$7\.55 -> \$15\.27 {2}\(cs_old_klarna\)/);
+  assert.match(mail.text, /1 other estimate was already right\./);
+  assert.doesNotMatch(mail.text, /cs_pending|in_plan_1/);
+
+  // Next day: nothing changed, so no second email.
+  const sentBefore = env.EMAIL.sent.filter((m) => m.subject === 'Stripe fees corrected in the books').length;
+  const again = [];
+  await worker.scheduled({ cron: '0 12 * * *' }, env, { waitUntil: (p) => again.push(p) });
+  await Promise.all(again);
+  assert.equal(env.EMAIL.sent.filter((m) => m.subject === 'Stripe fees corrected in the books').length, sentBefore);
+});
+
 test('lesson booking webhook emails the buyer a confirmation and staff a notice', async (t) => {
   quietConsole(t);
   guardNetwork(t);

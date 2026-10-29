@@ -14,6 +14,7 @@ import { handleEmailEventBatch } from './email-events.js';
 import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, wantsOrderStatus, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
 import { sendOrderStatusEmail, normalizeOrderNumber, normalizeShipDate, longDate } from './order-status.js';
 import { nodePrice, nodePriceSentence, easternDate } from './node-price.js';
+import { stripeFee, reconcileEstimatedStripeFees } from './stripe-fees.js';
 import ASKK_SURVIVAL_NODE_KNOWLEDGE from '../askk-survival-node-knowledge.md';
 
 let _websitePlan = null;
@@ -21,7 +22,7 @@ function websitePlan() {
   if (!_websitePlan) {
     _websitePlan = createWebsitePlanHandlers({
       json, requireAdmin, escapeHtml, formatUsd, getClientIp, generateToken,
-      upsertTaxIncomeJournal, upsertTaxExpenseJournal, fetchStripeFeeCents, estimateStripeFeeCents,
+      upsertTaxIncomeJournal, upsertTaxExpenseJournal, stripeFee,
       sendStaffOperationalAlert,
     });
   }
@@ -586,9 +587,14 @@ export default {
     }
   },
 
-  // Daily Ask K summary email (cron in wrangler.toml).
+  // Daily (cron in wrangler.toml): Ask K summary email, and estimated Stripe
+  // fees in the books swapped for the real ones.
   async scheduled(event, env, ctx) {
     ctx.waitUntil(sendAskKDailySummary(env, sendAskKAlert).catch(e => console.error('Ask K daily summary failed', e)));
+    ctx.waitUntil(reconcileEstimatedStripeFees(env, {
+      upsertTaxExpenseJournal,
+      notify: ({ subject, text }) => sendStaffOperationalAlert(env, { subject, text, from: env.ALERTS_FROM_EMAIL })
+    }).catch(e => console.error('Stripe fee check failed', e)));
   },
 
   async queue(batch, env) {
@@ -1504,14 +1510,10 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
         // Auto-insert Stripe processing fee for invoice checkout (deduped by session id)
         const paymentIntentId = (session.payment_intent || '').toString().trim();
-        let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
-        let feeSource = 'actual';
-        if (!feeCents || feeCents <= 0) {
-          feeCents = estimateStripeFeeCents(amount);
-          feeSource = 'estimated';
-        }
+        const fee = await stripeFee(env.STRIPE_SECRET_KEY, paymentIntentId, amount);
+        const feeCents = fee.cents;
         if (feeCents > 0 && sessionId) {
-          const feeNote = feeSource === 'estimated'
+          const feeNote = fee.estimated
             ? `Auto Stripe fee for invoice session ${sessionId} (estimated)`
             : `Auto Stripe fee for invoice session ${sessionId}`;
           const existingFee = await env.DB.prepare(
@@ -1606,12 +1608,9 @@ async function handleStripeWebhook(request, env, corsHeaders) {
         const buyerName = session.shipping_details?.name || session.customer_details?.name || null;
         const orderTotalCents = Number(session.amount_total || 0) || 0;
 
-        let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
-        let feeSource = 'actual';
-        if (!feeCents || feeCents <= 0) {
-          feeCents = estimateStripeFeeCents(orderTotalCents);
-          feeSource = 'estimated';
-        }
+        const fee = await stripeFee(env.STRIPE_SECRET_KEY, paymentIntentId, orderTotalCents);
+        const feeCents = fee.cents;
+        const feeSource = fee.estimated ? `estimated, ${fee.method || 'card'} rate` : 'actual';
         const refundCents = Math.max(orderTotalCents - feeCents, 0);
 
         console.warn(`Non-CONUS Survival Node order rejected | session=${sessionId} | state=${shipState} | email=${buyerEmail || 'unknown'} | total=${orderTotalCents} | fee=${feeCents}(${feeSource}) | refund=${refundCents}`);
@@ -1861,14 +1860,10 @@ async function handleStripeWebhook(request, env, corsHeaders) {
 
         // Auto-insert Stripe processing fee as expense for accurate net reporting
         const paymentIntentId = (session.payment_intent || '').toString().trim();
-        let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
-        let feeWasEstimated = false;
-        if (feeCents <= 0) {
-          feeCents = estimateStripeFeeCents(amount);
-          feeWasEstimated = feeCents > 0;
-        }
+        const fee = await stripeFee(env.STRIPE_SECRET_KEY, paymentIntentId, amount);
+        const feeCents = fee.cents;
         if (feeCents > 0) {
-          const feeNote = feeWasEstimated
+          const feeNote = fee.estimated
             ? `Estimated Stripe fee for session ${sessionId}`
             : `Auto Stripe fee for session ${sessionId}`;
           const existingFee = await env.DB.prepare(
@@ -6091,47 +6086,6 @@ async function upsertTaxIncomeJournal(db, row, options = {}) {
   await db.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`).bind(entryId, debitAccountId, amount, creditAccountId).run();
 }
 
-/**
- * Fetch Stripe fee (in cents) for a payment intent id.
- * Returns 0 if not found.
- */
-async function fetchStripeFeeCents(stripeSecretKey, paymentIntentId) {
-  if (!stripeSecretKey || !paymentIntentId) return 0;
-
-  const url = `https://api.stripe.com/v1/payment_intents/${encodeURIComponent(paymentIntentId)}?expand[]=latest_charge.balance_transaction`;
-  const piRes = await fetch(url, {
-    headers: { Authorization: `Bearer ${stripeSecretKey}` }
-  });
-  const pi = await piRes.json().catch(() => ({}));
-  if (!piRes.ok) return 0;
-
-  const latestCharge = pi?.latest_charge;
-  const bt = (latestCharge && typeof latestCharge === 'object') ? latestCharge.balance_transaction : null;
-  const feeExpanded = Number(bt?.fee || 0);
-  if (Number.isFinite(feeExpanded) && feeExpanded > 0) return feeExpanded;
-
-  const chargeId = typeof latestCharge === 'string' ? latestCharge : latestCharge?.id;
-  if (chargeId) {
-    const chRes = await fetch(`https://api.stripe.com/v1/charges/${encodeURIComponent(chargeId)}`, {
-      headers: { Authorization: `Bearer ${stripeSecretKey}` }
-    });
-    const ch = await chRes.json().catch(() => ({}));
-    if (chRes.ok) {
-      const btId = ch?.balance_transaction;
-      if (btId) {
-        const btRes = await fetch(`https://api.stripe.com/v1/balance_transactions/${encodeURIComponent(btId)}`, {
-          headers: { Authorization: `Bearer ${stripeSecretKey}` }
-        });
-        const btObj = await btRes.json().catch(() => ({}));
-        const fee = Number(btObj?.fee || 0);
-        if (btRes.ok && Number.isFinite(fee) && fee > 0) return fee;
-      }
-    }
-  }
-
-  return 0;
-}
-
 const NON_CONUS_STATES = new Set(['AK','HI','PR','VI','GU','AS','MP','AE','AP','AA']);
 
 /**
@@ -6167,15 +6121,6 @@ async function refundStripePaymentIntent(stripeSecretKey, paymentIntentId, reaso
     refundId: data?.id || null,
     refundedCents: Number(data?.amount || 0) || null
   };
-}
-
-/**
- * Estimate Stripe's standard 2.9% + 30c card processing fee. Used as a
- * fallback when fetchStripeFeeCents() can't retrieve the actual fee.
- */
-function estimateStripeFeeCents(amountCents) {
-  if (!Number.isFinite(amountCents) || amountCents <= 0) return 0;
-  return Math.round(amountCents * 0.029) + 30;
 }
 
 /**

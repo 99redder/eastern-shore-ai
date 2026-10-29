@@ -99,7 +99,7 @@ function clip(v, n) {
 export function createWebsitePlanHandlers(deps) {
   const {
     json, requireAdmin, escapeHtml, formatUsd, getClientIp, generateToken,
-    upsertTaxIncomeJournal, upsertTaxExpenseJournal, fetchStripeFeeCents, estimateStripeFeeCents,
+    upsertTaxIncomeJournal, upsertTaxExpenseJournal, stripeFee,
     sendStaffOperationalAlert,
   } = deps;
 
@@ -555,9 +555,7 @@ export function createWebsitePlanHandlers(deps) {
         await upsertTaxIncomeJournal(env.DB, { id: incomeId, income_date: incomeDate, source, category, amount_cents: amount, notes, is_owner_funded: ownerTest ? 1 : 0 });
       }
     }
-    let feeCents = await fetchStripeFeeCents(env.STRIPE_SECRET_KEY, paymentIntentId);
-    let estimated = false;
-    if (!feeCents || feeCents <= 0) { feeCents = estimateStripeFeeCents(amount); estimated = true; }
+    const { cents: feeCents, estimated } = await stripeFee(env.STRIPE_SECRET_KEY, paymentIntentId, amount);
     if (feeCents > 0) {
       const base = `Auto Stripe fee for website plan ${key}`;
       const existingFee = await env.DB.prepare(`SELECT id FROM tax_expenses WHERE notes IN (?1, ?2) LIMIT 1`).bind(base, `${base} (estimated)`).first();
