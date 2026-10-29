@@ -716,6 +716,7 @@
     .slide1-q[open] summary::after { content: '−'; }
     .slide1-answer { margin: .4rem 0 .25rem; font-size: .86rem; color: var(--muted); line-height: 1.55; }
     .thumb-strip { display: flex; flex-direction: column; gap: .4rem; }
+    .thumb-group-label { display: flex; align-items: center; color: var(--muted); font-size: .62rem; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; white-space: nowrap; padding: 0 .2rem; border-right: 1px solid var(--line); margin-right: .1rem; }
     .thumb-img {
       width: 100%; aspect-ratio: 1; object-fit: contain;
       background: #0d1017; border: 1px solid var(--line); border-radius: 5px;
@@ -1253,6 +1254,8 @@
       .slide2-inner { grid-template-columns: 1fr; }
       .thumb-strip { flex-direction: row; overflow-x: auto; gap: .4rem; padding-bottom: .2rem; }
       .thumb-img { width: 52px; height: 52px; flex-shrink: 0; aspect-ratio: 1; }
+      /* In the sideways row the "Components" word sits mid-row; keep only its divider line */
+      .thumb-group-label { width: 0; padding: 0; margin: 0 .15rem; overflow: hidden; }
       .item-photo-gallery img { height: 120px; min-width: 110px; }
       .slide2-content { gap: .35rem; }
       .item-desc .item-desc-body { font-size: .82rem; }
@@ -1689,7 +1692,7 @@
             <div class="slide2-inner">
               <div class="thumb-strip">
                 <img loading="lazy" class="thumb-img active" src="images/carousel/entirenode/wholekit-gen2.jpg" alt="Survival Node Gen 2 complete kit" data-full="images/carousel/entirenode/wholekit-gen2.jpg" data-key="kit" />
-                <span style="display:flex; align-items:center; color:var(--muted); font-size:.62rem; font-family:'Hanken Grotesk',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; padding:0 .2rem; border-right:1px solid var(--line); margin-right:.1rem;">Components</span>
+                <span class="thumb-group-label">Components</span>
                 <!-- <img class="thumb-img" src="images/carousel/phone2.png" alt="Core Unit" data-full="images/carousel/phone2.png" data-key="phone" /> -->
                 <img class="thumb-img" src="images/carousel/aichat/qwen35-rainwater.jpeg" alt="Qwen3.5-4B in PocketPal answering a survival question" data-full="images/carousel/aichat/qwen35-rainwater.jpeg" data-key="ai" />
                 <img class="thumb-img" src="images/carousel/maps/phoneai3.png" alt="Offline Maps" data-full="images/carousel/maps/phoneai3.png" data-key="maps" />
