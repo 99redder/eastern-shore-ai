@@ -17,6 +17,9 @@
     const TAX_EXPORT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/export.csv');
     const TAX_RECEIPT_UPLOAD_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt/upload');
     const TAX_RECEIPT_URL = CONTACT_API_URL.replace('/api/contact', '/api/tax/receipt');
+    // Add Expense splits the Maryland tax off parts bought for resale (see syncResaleTaxField)
+    const RESALE_TAX_CATEGORY = 'Inventory - Survival Node Components';
+    const RESALE_TAX_NOTE = 'MD sales tax on resale purchase, claim on Form 202 line 35';
     const ACCOUNTS_LIST_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/list');
     const ACCOUNTS_SUMMARY_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/summary');
     const ACCOUNTS_JOURNAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/journal');
@@ -251,6 +254,8 @@
     let taxExpensePaidViaEl;
     let taxExpenseFundingSourceEl;
     let taxExpenseNotesEl;
+    let taxExpenseResaleTaxWrapEl;
+    let taxExpenseResaleTaxEl;
     let taxAddExpenseBtn;
     let taxUpdateExpenseBtn;
     let taxCancelExpenseEditBtn;
@@ -511,6 +516,8 @@
       taxExpensePaidViaEl = document.getElementById('tax-expense-paidvia');
       taxExpenseFundingSourceEl = document.getElementById('tax-expense-funding-source');
       taxExpenseNotesEl = document.getElementById('tax-expense-notes');
+      taxExpenseResaleTaxWrapEl = document.getElementById('tax-expense-resale-tax-wrap');
+      taxExpenseResaleTaxEl = document.getElementById('tax-expense-resale-tax');
       taxAddExpenseBtn = document.getElementById('tax-add-expense-btn');
       taxUpdateExpenseBtn = document.getElementById('tax-update-expense-btn');
       taxCancelExpenseEditBtn = document.getElementById('tax-cancel-expense-edit-btn');
@@ -1631,6 +1638,7 @@
     function renderCategoryOptions() {
       taxExpenseCategoryEl.innerHTML = TAX_EXPENSE_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
       taxIncomeCategoryEl.innerHTML = TAX_INCOME_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+      syncResaleTaxField();
     }
 
     function openCategoryEditModal(currentName) {
@@ -1733,6 +1741,7 @@
         taxExpensePaidViaEl.value = r.paid_via || '';
         if (taxExpenseFundingSourceEl) taxExpenseFundingSourceEl.value = r.funding_source || 'cash_bank';
         taxExpenseNotesEl.value = (r.notes || '').replace(/\s*\[owner-funded\]\s*/ig, ' ').trim();
+        syncResaleTaxField();
         taxAddExpenseBtn.style.display = 'none';
         taxUpdateExpenseBtn.style.display = '';
         taxCancelExpenseEditBtn.style.display = '';
@@ -1773,6 +1782,16 @@
       taxAddExpenseBtn.style.display = '';
       taxUpdateExpenseBtn.style.display = 'none';
       taxCancelExpenseEditBtn.style.display = 'none';
+      syncResaleTaxField();
+    }
+
+    // Parts bought for resale: Maryland tax paid on them is claimed back on Form 202 line 35,
+    // so it is booked as its own Taxes - Sales & Use row. Only offered when adding, not editing.
+    function syncResaleTaxField() {
+      if (!taxExpenseResaleTaxWrapEl) return;
+      const show = !editingExpenseId && taxExpenseCategoryEl.value === RESALE_TAX_CATEGORY;
+      taxExpenseResaleTaxWrapEl.style.display = show ? '' : 'none';
+      if (!show) taxExpenseResaleTaxEl.value = '';
     }
 
     function resetIncomeEditMode() {
@@ -2283,8 +2302,20 @@
         return;
       }
       const isEdit = !!editingExpenseId;
+      const totalCents = Math.round(Number(payload.amount) * 100);
+      const resaleTaxCents = (!isEdit && payload.category === RESALE_TAX_CATEGORY)
+        ? Math.round(Number(taxExpenseResaleTaxEl?.value || 0) * 100)
+        : 0;
+      if (!Number.isFinite(resaleTaxCents) || resaleTaxCents < 0 || (resaleTaxCents > 0 && resaleTaxCents >= totalCents)) {
+        openErrorModal('The Maryland sales tax must be less than the Amount. Enter the total you paid as the Amount.');
+        return;
+      }
+      if (resaleTaxCents > 0) payload.amount = ((totalCents - resaleTaxCents) / 100).toFixed(2);
       const proceed = await openConfirmModal(
-        isEdit ? 'Save changes to this expense record?' : 'Add this new expense record?',
+        isEdit ? 'Save changes to this expense record?'
+          : resaleTaxCents > 0
+            ? `Add this purchase as two records? $${payload.amount} to ${RESALE_TAX_CATEGORY}, and $${(resaleTaxCents / 100).toFixed(2)} Maryland sales tax to Taxes - Sales & Use, to claim back on Form 202 line 35.`
+            : 'Add this new expense record?',
         isEdit ? 'Update Expense?' : 'Add Expense?',
         isEdit ? 'Update' : 'Add'
       );
@@ -2304,11 +2335,41 @@
           await uploadReceipt('expense', data.id, receiptInput).catch(() => {});
           receiptInput.value = '';
         }
+        let taxRowError = '';
+        if (resaleTaxCents > 0) {
+          try {
+            const taxRes = await fetch(TAX_EXPENSE_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
+              body: JSON.stringify({
+                date: payload.date,
+                vendor: payload.vendor,
+                category: 'Taxes - Sales & Use',
+                amount: (resaleTaxCents / 100).toFixed(2),
+                paidVia: payload.paidVia,
+                notes: `${RESALE_TAX_NOTE} (expense #${data.id}${payload.notes ? `: ${payload.notes}` : ''})`,
+                fundingSource: payload.fundingSource
+              })
+            });
+            const taxData = await taxRes.json();
+            if (!taxRes.ok) throw new Error(taxData.error || 'Failed');
+          } catch (e) {
+            taxRowError = e.message || String(e);
+          }
+        }
         clearTaxExpenseForm();
         setTaxEntryMode('none');
         await loadTaxTransactions();
         await loadAccountsData();
-        openSuccessModal(isEdit ? 'Expense record updated successfully.' : 'Expense record added successfully.', isEdit ? 'Expense Updated ✅' : 'Expense Added ✅');
+        if (taxRowError) {
+          openErrorModal(`The ${RESALE_TAX_CATEGORY} record was added, but the Maryland tax record was not (${taxRowError}). Add it by hand: $${(resaleTaxCents / 100).toFixed(2)}, category Taxes - Sales & Use, note "${RESALE_TAX_NOTE}".`);
+          return;
+        }
+        openSuccessModal(
+          isEdit ? 'Expense record updated successfully.'
+            : resaleTaxCents > 0 ? 'Purchase added as two records: the parts and the Maryland sales tax to claim back.' : 'Expense record added successfully.',
+          isEdit ? 'Expense Updated ✅' : 'Expense Added ✅'
+        );
       } catch (e) {
         openErrorModal(`Could not save expense: ${e.message || e}`);
       }
@@ -3991,6 +4052,7 @@
           });
 
           txCategoryFilterEl.addEventListener('change', renderTxList);
+          taxExpenseCategoryEl.addEventListener('change', syncResaleTaxField);
           taxAddExpenseBtn.addEventListener('click', addTaxExpense);
           taxUpdateExpenseBtn.addEventListener('click', addTaxExpense);
           taxCancelExpenseEditBtn.addEventListener('click', clearTaxExpenseForm);

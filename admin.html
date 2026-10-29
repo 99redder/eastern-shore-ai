@@ -538,6 +538,11 @@
                       <select id="tax-expense-category"></select>
                       <label>Amount (USD)</label>
                       <input id="tax-expense-amount" type="number" step="0.01" placeholder="0.00" />
+                      <div id="tax-expense-resale-tax-wrap" style="display:none;">
+                        <label for="tax-expense-resale-tax">Maryland sales tax on this purchase <span style="font-size:0.78rem; color:var(--muted); font-weight:400;">(optional)</span></label>
+                        <input id="tax-expense-resale-tax" type="number" step="0.01" min="0" placeholder="0.00" />
+                        <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem;">Enter the total you paid as the Amount and the Maryland tax from the receipt here. The tax is booked separately under Taxes - Sales &amp; Use so it can be claimed back on Form 202 line 35.</div>
+                      </div>
                       <label>Paid via</label>
                       <input id="tax-expense-paidvia" placeholder="card, cash, bank, etc." />
                       <label>Funding source</label>
@@ -1390,7 +1395,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-10-29"></script>
+  <script src="/admin.js?v=2026-10-29b"></script>
   <script src="/admin-websites.js?v=7"></script>
 </body>
 </html>
