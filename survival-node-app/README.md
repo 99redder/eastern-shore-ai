@@ -45,8 +45,8 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.8 |
-| Last built version | 1.8 (versionCode 10800, built 2026-10-30 from HTML Files — opens offline, tested) |
+| Current source version | 1.9 |
+| Last built version | 1.9 (versionCode 10900, built 2026-10-30 from HTML Files — opens offline, tested) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -165,6 +165,8 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
    APK, in one push. Every 1.4+ install sees the update the next time it opens on Wi-Fi.
 
 - **1.8** (10800, built 2026-10-30): added Meshtastic (radio not included), corrected the Kiwix library list, AccuBattery and PocketPal wording. Same v2 signing certificate (`689120c5…89de7b`), bundled `index.html` identical to this folder's, cold-started in airplane mode with Wi-Fi off on a phone with no Play Services.
+
+- **1.9** (10900, built 2026-10-30): voice input is on Qwen 2.5 only. Same signing certificate, cold-started in airplane mode with Wi-Fi off.
 
 ### Test updates (1.7 and later)
 

@@ -1702,7 +1702,7 @@
 
               <details class="slide1-q">
                 <summary>Does the AI work without internet or cell signal?</summary>
-                <p class="slide1-answer">Entirely. Every AI model runs locally on the phone — no cloud, no Wi-Fi, no cell signal needed. Tap the mic to ask a question out loud. The custom "Survival Node" AI persona is pre-configured for direct, no-fluff answers with safety warnings called out automatically. Open the app and it's already ready to go.</p>
+                <p class="slide1-answer">Entirely. Every AI model runs locally on the phone — no cloud, no Wi-Fi, no cell signal needed. To ask a question out loud, switch to the Qwen 2.5 model and tap the mic. The custom "Survival Node" AI persona is pre-configured for direct, no-fluff answers with safety warnings called out automatically. Open the app and it's already ready to go.</p>
               </details>
 
               <details class="slide1-q">
@@ -2051,7 +2051,7 @@
             <ul style="margin:.4rem 0 .6rem; padding-left:1.2rem; line-height:1.7;">
               <li><strong>Processing power to run models locally:</strong> Most phones don't have enough RAM to run a meaningful local AI model at all. We specifically source 8GB RAM units because that's the minimum floor for loading a capable quantized LLM in memory and getting real, useful output — not a toy chatbot. Raspberry Pi builds often hit this same wall: the 8GB Pi 5 is close, but then you're back to power draw and form factor problems.</li>
               <li><strong>The perfect survival app platform:</strong> A phone already has offline maps, a GPS chip, a camera, a flashlight, a compass, Bluetooth, and a mature app ecosystem of survival and field-reference tools. A Raspberry Pi needs peripherals, a screen, a keyboard, and a case before it's even usable in the field.</li>
-              <li><strong>Ask questions with your voice:</strong> The built-in microphone lets you speak your question instead of typing it. In a field situation — hands dirty, cold, dealing with an injury or equipment problem — being able to just ask out loud is a real advantage over a keyboard.</li>
+              <li><strong>Ask questions with your voice:</strong> The built-in microphone lets you speak your question instead of typing it. In a field situation — hands dirty, cold, dealing with an injury or equipment problem — being able to just ask out loud is a real advantage over a keyboard. Voice input runs on the Qwen 2.5 model, because Qwen 3.5 needs too much memory to run alongside it.</li>
               <li><strong>Pocketable and deployable:</strong> The Survival Node fits in a cargo pocket or a pack. A Raspberry Pi build requires a bag just to carry the components. A laptop requires its own case and charger. In an emergency, form factor matters.</li>
               <li><strong>Sealed and ready:</strong> Our phone arrives with the OS hardened, software pre-loaded, maps downloaded, AI persona configured, and battery tested. A Raspberry Pi build requires flashing an OS image, wiring components, solving dependencies, and configuring everything yourself — none of which you want to be doing when you actually need it.</li>
             </ul>

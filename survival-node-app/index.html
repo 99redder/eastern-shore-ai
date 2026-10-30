@@ -673,9 +673,9 @@ body {
 <div class="update-note" id="update-note">
   <h2 id="update-title">Update to the offline version</h2>
   <p id="update-intro">This copy of the guide needs an internet connection. The latest version keeps the whole guide on your phone, so it opens with no signal. Nothing else on your phone changes.</p>
-  <a class="update-btn" id="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.8.apk">Update</a>
+  <a class="update-btn" id="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.9.apk">Update</a>
   <p>When the download finishes, tap the file (in the notification bar or <strong>Files → Downloads</strong>). If Android asks, turn on <strong>Allow from this source</strong>, go back, and tap <strong>Update</strong>.</p>
-  <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url" id="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.8.apk</span></p>
+  <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url" id="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.9.apk</span></p>
 </div>
 
 <!-- HERO -->
@@ -1078,7 +1078,7 @@ body {
         <li>Tap the <strong>Pals</strong> tab</li>
         <li>Select <strong>"Survival Node"</strong></li>
         <li>Start chatting — system prompt is applied automatically</li>
-        <li>To ask out loud, tap the mic next to the send button — works offline, can be slower than typing</li>
+        <li>To ask out loud, switch to Qwen 2.5 first (tap ↑, then the Models tab), then tap the mic next to the send button. Works offline. Voice doesn't work with Qwen 3.5 — it needs too much memory</li>
       </ol>
       <div class="callout warning">⚠️ <strong>AI Accuracy:</strong> Models can confidently state wrong information ("hallucination"). Always cross-reference against offline reference libraries for safety-critical decisions.</div>
       <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed software. Eastern Shore AI, LLC has no partnership or affiliation with the developer(s). Provided as-is, use at your own risk.</div>
@@ -1488,14 +1488,14 @@ body {
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p id="guide-version">Survival Node User Guide · v1.8<span id="test-flag"></span></p>
+  <p id="guide-version">Survival Node User Guide · v1.9<span id="test-flag"></span></p>
 </div>
 
 </main>
 
 <script>
 // Bump with the footer version and latest.json on every release (see README).
-const APP_VERSION_CODE = 10800;
+const APP_VERSION_CODE = 10900;
 const LATEST_URL = 'https://www.easternshore.ai/survival-node-app/latest.json';
 
 function showUpdateNote(apkUrl, title, intro) {

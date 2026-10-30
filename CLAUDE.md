@@ -1089,7 +1089,7 @@ cd worker && wrangler deploy --config wrangler.toml
 - **Library claims, checked against the files:** Wikipedia is the `mini` edition (the opening summary of every English article, not full text). Project Gutenberg is class A "General works": 2,931 volumes, mostly old magazines and journals, not novels. The Water Treatment Library is 7 PDFs with no videos. "Over 10GB" of medical and of survival references come from `shelf` in `LIBRARIES`, and `verify()` fails a phone if either total drops under 10 GB.
 - AccuBattery runs once per phone, before shipping, and the result is linked in the shipping email. Earlier checks are for charging, drain and function only, so don't claim repeated AccuBattery tests.
 - Meshtastic is the app only. No radio is included, and the terms and guide say so.
-- PocketPal 1.21 hides the mic on these phones until Settings > Voice input is on, then the mic downloads Whisper (82 MB, Wi-Fi once). Models and Pals survive app updates, and the app works without Play Services.
+- PocketPal 1.21 hides the mic on these phones until Settings > Voice input is on, then the mic downloads Whisper (82 MB, Wi-Fi once). Voice only works on Qwen 2.5: Qwen 3.5 gives "not enough memory", because PocketPal caps the chat model plus Whisper at 45% of RAM. The site, guide and Ask K say so. Models and Pals survive app updates, and the app works without Play Services.
 - DeepL is a web wrapper around deepl.com and needs internet. Seamless is the offline translator. Both stay on the phone.
 - `images/logo4.png` and `images/survival-node-og.jpg` carry the "Preloaded software" panel as pixels. Changing that copy means editing both images and the phone list (`.mobile-preloaded`) in `node.html`. `survival-node-hero-mobile.webp` is the case side only.
 
@@ -1170,7 +1170,7 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - **Fix (1.7):** `checkForGuideUpdate()` returns early when `navigator.onLine` is false. The app has `ACCESS_NETWORK_STATE`, so the web view reports airplane mode correctly. Offline, the guide makes no request at all. Still possible: Wi-Fi that's connected but has no internet looks "online", the fetch fails, and the error page appears. No request can be made that the wrapper won't treat this way.
 - **Test channel (1.7):** 7 quick taps on the version line at the bottom of the guide turns "test updates" on for that phone (footer reads "· test updates on"). Such phones are also offered `latest.json`'s optional `test` entry, so new builds reach Red's test phone over Wi-Fi before customers. Customers' guides ignore `test`. 1.7 itself had to be installed by hand (from the hosted APK), since 1.6 has no test channel.
 
-### Checklist for the next guide app update (1.9 = versionCode 10900)
+### Checklist for the next guide app update (2.0 = versionCode 20000)
 
 1. Edit `survival-node-app/index.html`; keep `node-setup.html` in sync. Bump `APP_VERSION_CODE` and the footer version.
 2. **Add nothing that loads from the network while offline:** no fetch, images, fonts or scripts from a URL. One failed request replaces the whole guide (above).

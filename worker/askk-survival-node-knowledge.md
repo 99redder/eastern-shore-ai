@@ -71,7 +71,7 @@ No SIM card is included (see "Calls and texts" below).
 All of it runs offline after setup except DeepL, Fennec and F-Droid, which need an internet connection.
 
 ### Using the Survival Node AI Agent
-It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left of the chat input, open the **Pals** tab, and select **Survival Node** — the system prompt is applied automatically. It's tuned for survival, field engineering and emergency response: direct answers first, critical safety warnings in bold, numbered steps. You can also tap the mic and ask out loud. The full system prompt is saved in the Documents folder and pinned to the home screen, so it can be restored or customized. The User Guide's PocketPal section has the details.
+It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left of the chat input, open the **Pals** tab, and select **Survival Node** — the system prompt is applied automatically. It's tuned for survival, field engineering and emergency response: direct answers first, critical safety warnings in bold, numbered steps. To ask out loud, switch to Qwen 2.5 first (tap the arrow, then the Models tab), then tap the mic. Voice input does not work with Qwen 3.5, which needs too much memory to run alongside it. The full system prompt is saved in the Documents folder and pinned to the home screen, so it can be restored or customized. The User Guide's PocketPal section has the details.
 
 ## Frequently asked questions
 
@@ -146,7 +146,7 @@ testing.html has pre-shipment test data for every component plus two demo videos
 **AI models:** Qwen3.5-4B-Q4_K_M is the primary (deeper answers); Qwen2.5-3B-Instruct (Q5_K_M) is the faster backup. PocketPal benchmark (PP:512, TG:128):
 - **Qwen3.5-4B (tested 9/12/2026):** 1.41 tokens/sec generation, 10.78 tokens/sec prompt processing, peak memory 5 GB of 8 GB (59.6%); 2.73 GB model, 4.21B parameters.
 - **Qwen2.5-3B (tested 3/26/2026):** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory 5 GB of 8 GB (58.9%).
-Both verified in airplane mode with data off; persona and voice input confirmed. Speeds vary with temperature, background load and battery level. When asked for benchmarks, quote these figures and say they're from the testing page.
+Both verified in airplane mode with data off; persona confirmed on both, voice input on Qwen 2.5 only. Speeds vary with temperature, background load and battery level. When asked for benchmarks, quote these figures and say they're from the testing page.
 
 **Software suite:** 51.8 GB total; maps 14.2 GB, medical wiki and references 3.8 GB, survival apps and first aid 2.3 GB, plus the 2 model files. All apps pass offline checks; average app launch under 1.8 seconds; final QC before every shipment.
 
