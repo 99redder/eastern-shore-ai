@@ -45,6 +45,7 @@ function previewLeads() {
 // GET  /api/orders              → handleOrdersList()      — Admin: list paid Stripe orders + fulfillment state
 // POST /api/orders/preview      → handleOrderEmailPreview() — Admin: build branded order/shipping email preview
 // POST /api/orders/send         → handleOrderEmailSend()  — Admin: send branded order/shipping email
+// POST /api/orders/text         → handleOrderTextDraft()  — Admin: order texts + phone to paste into Google Voice (never sends)
 // POST /api/orders/tracking     → handleOrderTrackingUpdate() — Admin: save tracking + fulfillment notes
 // POST /api/orders/ship-date    → handleOrderShipDateUpdate() — Admin: set/clear the estimated ship date Ask K reports
 // POST /api/orders/manual       → handleManualOrderCreate() — Admin: create offline/manual Survival Node order
@@ -155,7 +156,7 @@ export default {
     if (url.pathname !== '/api/stripe-webhook') {
       const isBookingsRead = ['/api/bookings', '/api/orders'].includes(url.pathname) && request.method === 'GET';
       const isAvailabilityRead = ['/api/availability', '/api/byog-location-suggest'].includes(url.pathname) && request.method === 'GET';
-      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/tracking','/api/orders/ship-date','/api/orders/manual','/api/orders/delete','/api/orders/battery-test'].includes(url.pathname) && request.method === 'POST';
+      const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/text','/api/orders/tracking','/api/orders/ship-date','/api/orders/manual','/api/orders/delete','/api/orders/battery-test'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/summary','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/ebay-sale','/api/tax/refund','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
       const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
@@ -253,6 +254,14 @@ export default {
         return await handleOrderEmailPreview(request, env, corsHeaders, url);
       } catch (err) {
         return json({ ok: false, error: err?.message || 'Order preview failed' }, 500, corsHeaders);
+      }
+    }
+
+    if (url.pathname === '/api/orders/text' && request.method === 'POST') {
+      try {
+        return await handleOrderTextDraft(request, env, corsHeaders, url);
+      } catch (err) {
+        return json({ ok: false, error: err?.message || 'Could not load the texts' }, 500, corsHeaders);
       }
     }
 
@@ -1324,6 +1333,7 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
     'metadata[product]': productCode,
     'metadata[unit_price_cents]': unitAmount,
     'metadata[checkout_type]': checkoutType,
+    'custom_text[submit][message]': 'We may text you about your order at the phone number you enter. Message and data rates may apply. Reply STOP to stop.',
     'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, APO/FPO/DPO, or international addresses will be canceled and refunded.'
   });
 
@@ -1563,7 +1573,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     const setupAt = session.metadata?.setup_at || (setupDate && setupTime ? `${setupDate}T${setupTime}` : null);
     const customerName = session.metadata?.customer_name || session.customer_details?.name || null;
     const customerEmail = session.customer_details?.email || session.customer_email || null;
-    const customerPhone = session.metadata?.customer_phone || null;
+    const customerPhone = session.metadata?.customer_phone || session.customer_details?.phone || null;
     const preferredContactMethod = (session.metadata?.preferred_contact_method || 'email').toString();
     const serviceType = (session.metadata?.service_type || 'openclaw_setup').toString();
     const serviceLabel = (session.metadata?.service_label || '').toString().trim();
@@ -2499,6 +2509,77 @@ async function orderShipTo(env, row) {
   }
 }
 
+function orderTrackProxyUrl(trackingNumber, trackingProvider) {
+  return trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
+}
+
+// The phone and ship-to saved on the order, otherwise what the buyer entered
+// at Stripe Checkout, from one lookup. Orders from before the webhook saved
+// the phone only have it at Stripe.
+async function orderTextContact(env, row) {
+  let phone = (row?.customer_phone || '').toString().trim();
+  let shipTo = (row?.ship_to || '').toString().trim();
+  const sessionId = (row?.stripe_session_id || '').toString().trim();
+  if ((phone && shipTo) || !sessionId || !env.STRIPE_SECRET_KEY) return { phone, shipTo };
+  try {
+    const session = await stripeGet(env.STRIPE_SECRET_KEY, `checkout/sessions/${encodeURIComponent(sessionId)}`);
+    phone = phone || (session?.customer_details?.phone || '').toString().trim();
+    shipTo = shipTo || formatShipTo(sessionShippingDetails(session));
+  } catch (e) {
+    console.error('Stripe contact lookup failed', e);
+  }
+  return { phone, shipTo };
+}
+
+function formatTextPhone(value) {
+  const digits = (value || '').toString().replace(/\D/g, '');
+  const national = digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
+  return national.length === 10
+    ? `(${national.slice(0, 3)}) ${national.slice(3, 6)}-${national.slice(6)}`
+    : (value || '').toString().trim();
+}
+
+// Texts for pasting into Google Voice and sending by hand. Google's policy bans
+// scripted sending, so nothing here may ever send one. One link per text at most.
+function buildOrderTexts(row, shipTo) {
+  const firstName = (row?.customer_name || '').toString().trim().split(/\s+/)[0];
+  const hi = firstName ? `Hi ${firstName}` : 'Hi';
+  const orderNumber = (row?.order_number || '').toString().trim();
+  const order = `Survival Node order${orderNumber ? ` #${orderNumber}` : ''}`;
+
+  const shipDate = normalizeShipDate(row?.estimated_ship_date);
+  const shipBy = shipDate
+    ? `It should ship by ${new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }).format(new Date(`${shipDate}T12:00:00Z`))}`
+    : '';
+  const shipLine = shipTo ? `${shipBy || 'It will ship'} to:\n${shipTo}` : (shipBy ? `${shipBy}.` : '');
+  const ack = [
+    `${hi}, this is Chris from Eastern Shore AI. Thanks for your ${order}!`,
+    shipLine,
+    `If ${shipTo ? 'that address looks wrong or ' : ''}you have any questions, just reply to this text.`,
+    '-Chris'
+  ].filter(Boolean).join('\n\n');
+
+  const trackingNumber = (row?.tracking_number || '').toString().trim();
+  const trackingProvider = (row?.tracking_provider || '').toString().trim();
+  const tracking = trackingNumber
+    ? `${trackingProvider ? `${trackingProvider.toUpperCase()} tracking` : 'Tracking'}: ${trackingNumber}\n${orderTrackProxyUrl(trackingNumber, trackingProvider)}`
+    : '';
+  const shipping = [
+    `${hi}, it's Chris from Eastern Shore AI. Your ${order} has shipped!`,
+    tracking,
+    'Reply to this text if you have any questions.',
+    '-Chris'
+  ].filter(Boolean).join('\n\n');
+
+  const delivered = [
+    `${hi}, it's Chris from Eastern Shore AI. Your ${order} shows as delivered.`,
+    'If anything\'s missing or you have any questions, just reply to this text.',
+    '-Chris'
+  ].join('\n\n');
+
+  return { ack, shipping, delivered };
+}
+
 function buildOrderEmailContent(kind, row, overrides = {}) {
   const trackingProvider = (overrides.trackingProvider ?? row?.tracking_provider ?? '').toString().trim();
   const trackingNumber = (overrides.trackingNumber ?? row?.tracking_number ?? '').toString().trim();
@@ -2531,7 +2612,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
       (batteryTestNote ? escapeHtml(batteryTestNote).replace(/\n/g, '<br>') : '')
       + (batteryTestImageKey ? `${batteryTestNote ? '<br>' : ''}<a href="https://services.easternshore.ai/api/orders/battery-image?key=${encodeURIComponent(batteryTestImageKey)}" style="color:#0E6E86;">View AccuBattery results &rarr;</a>` : ''))}</div>`
     : '';
-  const trackProxyUrl = trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
+  const trackProxyUrl = orderTrackProxyUrl(trackingNumber, trackingProvider);
   const trackButtonLabel = trackingProvider ? `Track on ${trackingProvider.toUpperCase()}` : 'Track Your Shipment';
   const trackHtml = trackProxyUrl && kind !== 'delivered' && kind !== 'review'
     ? emailButton(trackProxyUrl, trackButtonLabel) + smallPrint('Tracking opens the official carrier website.')
@@ -2842,6 +2923,39 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
     batteryTestNote: (hydratedRow.battery_test_note || '').toString(),
     batteryTestImageKey: (hydratedRow.battery_test_image_key || '').toString(),
     ...content
+  }, 200, corsHeaders);
+}
+
+// Admin: the texts for an order and the number to send them to. A later text
+// stays empty until its email has gone out, so it can't say more than the emails.
+async function handleOrderTextDraft(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+
+  const bookingId = Number(data.bookingId || data.id || 0);
+  const orderKey = (data.orderKey || '').toString().trim();
+  if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
+  const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
+  if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
+
+  const { phone, shipTo } = await orderTextContact(env, row);
+  const texts = buildOrderTexts(row, shipTo);
+  const shippingSent = Boolean(orderEmailSentAt(row, 'shipping'));
+  const deliveredSent = Boolean(orderEmailSentAt(row, 'delivered'));
+  return json({
+    ok: true,
+    customerName: (row.customer_name || '').toString(),
+    orderNumber: row.order_number || null,
+    phone: formatTextPhone(phone),
+    suggested: deliveredSent ? 'delivered' : shippingSent ? 'shipping' : 'ack',
+    texts: {
+      ack: texts.ack,
+      shipping: shippingSent ? texts.shipping : '',
+      delivered: deliveredSent ? texts.delivered : ''
+    }
   }, 200, corsHeaders);
 }
 

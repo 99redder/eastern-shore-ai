@@ -554,6 +554,109 @@ test('customer message: battery results stay out, and a manual order works from 
   assert.equal(row.fulfillment_status, 'new');
 });
 
+test('text customer: phone saved from Stripe, texts follow the emails, one link at most, nothing is sent', async (t) => {
+  quietConsole(t);
+  const session = {
+    id: 'cs_text_1', payment_intent: 'pi_text_1', amount_total: 24999,
+    customer_details: { email: 'tess@example.net', name: 'Tess Buyer', phone: '+13025551234', address: { state: 'MD' } },
+    collected_information: { shipping_details: { name: 'Tess Buyer', address: { line1: '9 Oak Ln', city: 'Easton', state: 'MD', postal_code: '21601', country: 'US' } } },
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit', service_label: 'Survival Node' }
+  };
+  const calls = guardNetwork(t, { 'https://api.stripe.com/v1/checkout/sessions/cs_text_1': session });
+  const env = baseEnv();
+  await worker.fetch(await signedWebhook(checkoutCompleted(session)), env, ctx);
+  const booking = env.DB.sqlite.prepare('SELECT id, customer_phone FROM bookings WHERE stripe_session_id = ?').get('cs_text_1');
+  assert.equal(booking.customer_phone, '+13025551234');
+
+  env.STRIPE_SECRET_KEY = 'sk_test_only';
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+  const bookingId = booking.id;
+  const texts = async () => (await worker.fetch(post('/api/orders/text', { bookingId }, admin), env, ctx)).json();
+  const send = (kind, extra = {}) => worker.fetch(post('/api/orders/send', { bookingId, kind, trackingNumber: '9400100000000000000000', trackingProvider: 'usps', ...extra }, admin), env, ctx);
+
+  assert.equal((await worker.fetch(post('/api/orders/text', { bookingId }), env, ctx)).ok, false);
+
+  let draft = await texts();
+  assert.equal(draft.phone, '(302) 555-1234');
+  assert.equal(draft.suggested, 'ack');
+  assert.deepEqual(Object.keys(draft.texts), ['ack', 'shipping', 'delivered']);
+  assert.equal(draft.texts.shipping, '');
+  assert.equal(draft.texts.delivered, '');
+  assert.match(draft.texts.ack, /^Hi Tess, this is Chris from Eastern Shore AI\./);
+  assert.match(draft.texts.ack, /It will ship to:\nTess Buyer\n9 Oak Ln\nEaston, MD 21601/);
+  assert.match(draft.texts.ack, /If that address looks wrong or you have any questions, just reply to this text\./);
+
+  assert.equal((await send('ack', { estimatedShipDate: '2026-11-03' })).status, 200);
+  draft = await texts();
+  assert.match(draft.texts.ack, /It should ship by Nov 3 to:\nTess Buyer/);
+
+  assert.equal((await send('shipping')).status, 200);
+  draft = await texts();
+  assert.equal(draft.suggested, 'shipping');
+  assert.match(draft.texts.shipping, /has shipped!\n\nUSPS tracking: 9400100000000000000000\nhttps:\/\/services\.easternshore\.ai\/track\?n=9400100000000000000000&c=usps\n\nReply to this text/);
+  assert.equal(draft.texts.delivered, '');
+
+  assert.equal((await send('delivered')).status, 200);
+  draft = await texts();
+  assert.equal(draft.suggested, 'delivered');
+  assert.match(draft.texts.delivered, /shows as delivered/);
+  for (const text of Object.values(draft.texts)) {
+    assert.ok((text.match(/https?:\/\//g) || []).length <= 1, text);
+    assert.match(text, /-Chris$/);
+  }
+
+  // Loading the texts contacts no one: no email, and only Stripe is called.
+  const mailCount = env.EMAIL.sent.length;
+  await texts();
+  assert.equal(env.EMAIL.sent.length, mailCount);
+  assert.ok(calls.every((c) => c.url.startsWith('https://api.stripe.com/v1/')));
+});
+
+test('text customer: older orders use Stripe\'s phone, manual orders the typed one, a lookup failure leaves it blank', async (t) => {
+  quietConsole(t);
+  const stripeSession = { id: 'cs_text_old', customer_details: { phone: '+14105550123' } };
+  guardNetwork(t, { 'https://api.stripe.com/v1/checkout/sessions/cs_text_old': stripeSession });
+  const env = baseEnv();
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+  const order = (id) => ({
+    id, payment_intent: `pi_${id}`, amount_total: 24999,
+    customer_details: { email: `${id}@example.net`, name: 'Old Buyer', address: { state: 'MD' } },
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit', service_label: 'Survival Node' }
+  });
+  await worker.fetch(await signedWebhook(checkoutCompleted(order('cs_text_old'))), env, ctx);
+  await worker.fetch(await signedWebhook(checkoutCompleted(order('cs_text_gone'))), env, ctx);
+  env.STRIPE_SECRET_KEY = 'sk_test_only';
+  const idOf = (sessionId) => env.DB.sqlite.prepare('SELECT id, customer_phone FROM bookings WHERE stripe_session_id = ?').get(sessionId);
+  assert.equal(idOf('cs_text_old').customer_phone, null);
+
+  const old = await (await worker.fetch(post('/api/orders/text', { bookingId: idOf('cs_text_old').id }, admin), env, ctx)).json();
+  assert.equal(old.phone, '(410) 555-0123');
+
+  // Not in the Stripe double, so the lookup throws: the text still loads.
+  const gone = await (await worker.fetch(post('/api/orders/text', { bookingId: idOf('cs_text_gone').id }, admin), env, ctx)).json();
+  assert.equal(gone.ok, true);
+  assert.equal(gone.phone, '');
+  assert.match(gone.texts.ack, /Thanks for your Survival Node order/);
+  assert.match(gone.texts.ack, /If you have any questions, just reply to this text\./);
+  assert.doesNotMatch(gone.texts.ack, /address looks wrong/);
+
+  const { orderKey } = await (await worker.fetch(post('/api/orders/manual', { customerName: 'Mo Manual', customerEmail: 'mo@example.net', customerPhone: '302.555.0147', amount: '249.99', paymentDate: '2026-10-20' }, admin), env, ctx)).json();
+  const manual = await (await worker.fetch(post('/api/orders/text', { orderKey }, admin), env, ctx)).json();
+  assert.equal(manual.phone, '(302) 555-0147');
+  assert.match(manual.texts.ack, /^Hi Mo, /);
+});
+
+test('checkout tells the buyer they may get texts about their order', async (t) => {
+  quietConsole(t);
+  const calls = guardNetwork(t, { 'https://api.stripe.com/v1/checkout/sessions': { id: 'cs_new', url: 'https://checkout.stripe.example/pay' } });
+  const env = baseEnv({ STRIPE_SECRET_KEY: 'sk_test_only' });
+  const res = await worker.fetch(post('/api/survival-node-checkout', { termsAccepted: true }, { Origin: 'https://www.easternshore.ai' }), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const sent = new URLSearchParams(calls.at(-1).init.body);
+  assert.equal(sent.get('phone_number_collection[enabled]'), 'true');
+  assert.match(sent.get('custom_text[submit][message]'), /We may text you about your order.*Reply STOP to stop\./);
+});
+
 test('admin order emails: sent once per draft, review email carries List-Unsubscribe', async (t) => {
   quietConsole(t);
   guardNetwork(t);

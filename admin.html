@@ -1145,6 +1145,36 @@
     </div>
   </div>
 
+  <div class="success-modal-overlay" id="order-text-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="order-text-title" style="width:min(560px,96vw); max-height:90vh; overflow-y:auto;">
+      <h3 id="order-text-title">Text Customer</h3>
+      <p id="order-text-to" style="margin:0 0 .6rem; color:var(--muted);"></p>
+      <div class="admin-section-tabs" id="order-text-tabs">
+        <button type="button" class="btn" data-order-text-kind="ack">Acknowledge</button>
+        <button type="button" class="btn" data-order-text-kind="shipping">Shipped</button>
+        <button type="button" class="btn" data-order-text-kind="delivered">Delivered</button>
+      </div>
+      <div style="display:grid; gap:.7rem;">
+        <div>
+          <label for="order-text-phone">Phone Number</label>
+          <div style="display:flex; gap:.4rem;">
+            <input id="order-text-phone" style="flex:1; min-width:0;" placeholder="No phone on this order. Type one if you have it." autocomplete="off" />
+            <button type="button" class="btn" id="order-text-copy-phone-btn">Copy Number</button>
+          </div>
+        </div>
+        <div>
+          <label for="order-text-body">Text</label>
+          <textarea id="order-text-body" rows="10" style="min-height:220px;"></textarea>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="button" class="btn" id="order-text-close-btn">Close</button>
+        <a class="btn" href="https://voice.google.com/messages" target="_blank" rel="noopener">Open Google Voice</a>
+        <button type="button" class="btn btn-primary" id="order-text-copy-btn">Copy Text</button>
+      </div>
+    </div>
+  </div>
+
   <div class="success-modal-overlay" id="invoice-payment-modal" aria-hidden="true">
     <div class="error-modal" role="dialog" aria-modal="true" aria-labelledby="invoice-payment-title">
       <h3 id="invoice-payment-title">Record Payment</h3>
@@ -1405,7 +1435,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-10-30c"></script>
+  <script src="/admin.js?v=2026-10-30d"></script>
   <script src="/admin-websites.js?v=7"></script>
 </body>
 </html>

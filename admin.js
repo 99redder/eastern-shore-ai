@@ -30,6 +30,7 @@
     const ORDERS_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders');
     const ORDER_PREVIEW_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/preview');
     const ORDER_SEND_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/send');
+    const ORDER_TEXT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/text');
     const ORDER_TRACKING_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/tracking');
     const ORDER_SHIP_DATE_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/ship-date');
     const ORDER_MANUAL_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/orders/manual');
@@ -190,6 +191,14 @@
     let orderEmailShipDateEl;
     let orderEmailShipToWrapEl;
     let orderEmailShipToEl;
+    let orderTextModal;
+    let orderTextToEl;
+    let orderTextTabsEl;
+    let orderTextPhoneEl;
+    let orderTextBodyEl;
+    let orderTextCopyPhoneBtn;
+    let orderTextCopyBtn;
+    let orderTextCloseBtn;
     let orderEmailCancelBtn;
     let orderEmailSendBtn;
     let reconYearEl;
@@ -461,6 +470,14 @@
       orderEmailShipDateEl = document.getElementById('order-email-ship-date');
       orderEmailShipToWrapEl = document.getElementById('order-email-ship-to-wrap');
       orderEmailShipToEl = document.getElementById('order-email-ship-to');
+      orderTextModal = document.getElementById('order-text-modal');
+      orderTextToEl = document.getElementById('order-text-to');
+      orderTextTabsEl = document.getElementById('order-text-tabs');
+      orderTextPhoneEl = document.getElementById('order-text-phone');
+      orderTextBodyEl = document.getElementById('order-text-body');
+      orderTextCopyPhoneBtn = document.getElementById('order-text-copy-phone-btn');
+      orderTextCopyBtn = document.getElementById('order-text-copy-btn');
+      orderTextCloseBtn = document.getElementById('order-text-close-btn');
       orderEmailCancelBtn = document.getElementById('order-email-cancel-btn');
       orderEmailSendBtn = document.getElementById('order-email-send-btn');
       reconYearEl = document.getElementById('recon-year');
@@ -606,6 +623,7 @@
     let activeAdminSectionTab = 'booking';
     let activeOrderEmailDraft = null;
     let orderEmailSendInFlight = false;
+    let activeOrderText = null;
     let activeTrackingDraft = null;
     let survivalNodeOrders = [];
     let blurMoneyEnabled = false;
@@ -913,6 +931,55 @@
       activeOrderEmailDraft = null;
       orderEmailModal?.classList.remove('active');
       orderEmailModal?.setAttribute('aria-hidden', 'true');
+    }
+
+    function showOrderText(kind) {
+      if (!activeOrderText) return;
+      activeOrderText.kind = kind;
+      const text = activeOrderText.texts[kind] || '';
+      orderTextTabsEl?.querySelectorAll('[data-order-text-kind]').forEach((btn) => {
+        btn.classList.toggle('active', btn.getAttribute('data-order-text-kind') === kind);
+      });
+      if (orderTextBodyEl) {
+        orderTextBodyEl.value = text;
+        orderTextBodyEl.disabled = !text;
+        orderTextBodyEl.placeholder = text ? '' : `Send the ${kind === 'delivered' ? 'delivered' : 'shipping'} email first.`;
+      }
+      if (orderTextCopyBtn) orderTextCopyBtn.disabled = !text;
+    }
+
+    // The window only copies. Texts are sent by hand from Google Voice, whose
+    // policy bans scripted sending.
+    async function openOrderTextModal(bookingId, orderKey) {
+      const res = await fetch(ORDER_TEXT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
+        body: JSON.stringify({ bookingId, orderKey })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) { openErrorModal(data.error || 'Could not load the texts.'); return; }
+      activeOrderText = { texts: { ...data.texts }, kind: data.suggested };
+      if (orderTextToEl) orderTextToEl.textContent = [data.customerName, data.orderNumber ? `Order #${data.orderNumber}` : ''].filter(Boolean).join(' • ');
+      if (orderTextPhoneEl) orderTextPhoneEl.value = data.phone || '';
+      showOrderText(data.suggested);
+      orderTextModal?.classList.add('active');
+      orderTextModal?.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeOrderTextModal() {
+      activeOrderText = null;
+      orderTextModal?.classList.remove('active');
+      orderTextModal?.setAttribute('aria-hidden', 'true');
+    }
+
+    async function copyOrderText(value, btn, label) {
+      try {
+        await navigator.clipboard.writeText(value);
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => { btn.textContent = label; }, 1500);
+      } catch {
+        openErrorModal('Could not copy. Select it and copy it by hand.');
+      }
     }
 
     function closeErrorModal() {
@@ -3597,6 +3664,7 @@
               <button type="button" class="btn action-pop order-action-btn" data-order-action="delivered" data-order-id="${id}" data-order-key="${orderKey}" data-shipping-sent="${shippingSent ? '1' : ''}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${deliveredSent ? 'disabled title="Delivered email already sent"' : !shippingSent ? 'disabled title="Send shipping email first"' : `title="${tracking ? 'Preview delivered email' : 'Add tracking first'}"`}>${deliveredSent ? 'Delivered Sent' : 'Preview Delivered Email'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="review" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-shipping-sent="${shippingSent ? '1' : ''}" data-delivered-sent="${deliveredSent ? '1' : ''}" ${reviewSent ? 'disabled title="Review email already sent"' : !deliveredSent ? 'disabled title="Send delivered email first"' : 'title="Preview review email"'}>${reviewSent ? 'Review Sent' : 'Preview Review Email'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="message" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${order.customer_email ? 'title="Send this customer a branded update with their order details"' : 'disabled title="This order has no customer email"'}>Message Customer</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="text" data-order-id="${id}" data-order-key="${orderKey}">Text Customer</button>
               ${order.order_source === 'manual' ? `<button type="button" class="btn delete order-action-btn" data-order-action="delete" data-order-id="${id}" data-order-key="${orderKey}">Delete</button>` : '<span class="order-delete-note">Stripe order — cannot delete</span>'}
             </div>
           </div>`;
@@ -3671,6 +3739,10 @@
       }
       if (action === 'ship-date') {
         openShipDateModal(id, orderKey, btn.getAttribute('data-ship-date') || '');
+        return;
+      }
+      if (action === 'text') {
+        await openOrderTextModal(id, orderKey);
         return;
       }
       if (action === 'battery-test') {
@@ -4291,6 +4363,16 @@
           orderFilterEl?.addEventListener('change', refreshOrderList);
           orderListEl?.addEventListener('click', handleOrderActionClick);
           orderEmailCancelBtn?.addEventListener('click', closeOrderEmailModal);
+          orderTextCloseBtn?.addEventListener('click', closeOrderTextModal);
+          orderTextTabsEl?.addEventListener('click', (e) => {
+            const tab = e.target.closest('[data-order-text-kind]');
+            if (tab) showOrderText(tab.getAttribute('data-order-text-kind'));
+          });
+          orderTextBodyEl?.addEventListener('input', () => {
+            if (activeOrderText) activeOrderText.texts[activeOrderText.kind] = orderTextBodyEl.value;
+          });
+          orderTextCopyPhoneBtn?.addEventListener('click', () => copyOrderText(orderTextPhoneEl?.value || '', orderTextCopyPhoneBtn, 'Copy Number'));
+          orderTextCopyBtn?.addEventListener('click', () => copyOrderText(orderTextBodyEl?.value || '', orderTextCopyBtn, 'Copy Text'));
           orderEmailSubjectEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);

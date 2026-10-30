@@ -1185,6 +1185,14 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - `/api/orders/send` refuses a blank body or the untouched template ("Write your message first").
 - Use this instead of Apple Mail when a customer email has to arrive: it goes through Cloudflare and passes DMARC.
 
+## Text Customer button (added 2026-10-30)
+
+- Every order card has **Text Customer**: a window with Acknowledge, Shipped and Delivered texts, the buyer's phone number, Copy buttons and a Google Voice link. It only copies; each text is pasted into Google Voice and sent by hand. **Never automate these.** (302) 907-9162 is a Google Voice number, Google's policy bans scripted sending, and a suspension could cost the number printed in every kit. There's deliberately no review text, and each text has one link at most.
+- `POST /api/orders/text` (`handleOrderTextDraft`) returns the phone, the suggested tab and the texts from `buildOrderTexts`. Shipped and Delivered stay empty until that email has gone out, so a text can't say more than the emails. Edits in the window aren't saved.
+- **Phone:** Stripe's `phone_number_collection` puts it in `session.customer_details.phone`. The webhook only read `metadata.customer_phone` until 2026-10-30, so older orders have none in D1 and `orderTextContact` looks them up at Stripe. Manual orders use the typed phone.
+- **Telling buyers:** the checkout notice is `custom_text[submit][message]` in `handleSurvivalNodeCheckout`; `privacy.html` and `terms.html` each have a text messages section. Keep them consistent.
+- **Opt-outs:** if a buyer asks to stop, stop and put it in that order's Internal Notes. Nothing blocks the button.
+
 ## Survival Node Ask K order updates (added 2026-10-27)
 
 Ported from Florence Mae Gifts' Ask K (`FlorenceMaeGifts.com/cloudflare/src/ask-k.js` + `orders.js`). Survival Node orders only: no invoices, no eBay.
