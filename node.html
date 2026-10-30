@@ -729,6 +729,7 @@
     .item-photo-gallery img { height: 180px; width: auto; min-width: 180px; border-radius: 6px; border: 1px solid var(--line); object-fit: cover; flex-shrink: 0; background: #0d1017; cursor: zoom-in; transition: opacity .15s; }
     .item-photo-gallery[data-item="kit"] img,
     .item-photo-gallery[data-item="solar"] img { object-fit: contain; }
+    .item-photo-gallery[data-item="phone"] img { height: 320px; min-width: 0; object-fit: contain; }
     .item-photo-gallery img:hover { opacity: .85; }
     del { color: #d93025; text-decoration-color: #d93025; }
     .photo-modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.9); align-items: center; justify-content: center; }
@@ -1842,7 +1843,7 @@
               <div class="thumb-strip">
                 <img loading="lazy" class="thumb-img active" src="images/carousel/entirenode/wholekit-gen2.jpg" alt="Survival Node Gen 2 complete kit" data-full="images/carousel/entirenode/wholekit-gen2.jpg" data-key="kit" />
                 <span class="thumb-group-label">Components</span>
-                <!-- <img class="thumb-img" src="images/carousel/phone2.png" alt="Core Unit" data-full="images/carousel/phone2.png" data-key="phone" /> -->
+                <img class="thumb-img" src="images/carousel/phone/home-screen.jpg" alt="Survival Node phone home screen with the kit's apps" data-full="images/carousel/phone/home-screen.jpg" data-key="phone" />
                 <img class="thumb-img" src="images/carousel/aichat/qwen35-rainwater.jpeg" alt="Qwen3.5-4B in PocketPal answering a survival question" data-full="images/carousel/aichat/qwen35-rainwater.jpeg" data-key="ai" />
                 <img class="thumb-img" src="images/carousel/maps/phoneai3.png" alt="Offline Maps" data-full="images/carousel/maps/phoneai3.png" data-key="maps" />
                 <img class="thumb-img" src="images/carousel/usersguide/guide3.png" alt="Users Guide App" data-full="images/carousel/usersguide/guide3.png" data-key="usersguide" />
@@ -2487,14 +2488,14 @@
         },
         phone: {
           photos: [
-            'images/carousel/phone1.png',
-            'images/carousel/phone2.png',
-            'images/carousel/phone3.png',
+            'images/carousel/phone/home-screen.jpg',
+            'images/carousel/phone/background.jpg',
           ],
           label: 'The brain of the system',
           title: 'Survival Node 8GB Core Unit',
           body: `<p>A Motorola Moto G Power (2024) with 8GB RAM and 90GB+ internal storage — brand new or open box. Every unit is hand-vetted for battery life, memory performance, and overall suitability, and gets one AccuBattery health test before shipping.</p>
-                 <p>8GB RAM is the minimum floor to run a capable local AI model. The de-bloated OS strips out all bloatware and background processes — freeing RAM and battery for what actually matters. Everything else in the kit either powers or protects this phone.</p>
+                 <p>8GB RAM is the minimum floor to run a capable local AI model. The de-bloated OS strips out known bloatware and background processes — freeing RAM and battery for what actually matters. Everything else in the kit either powers or protects this phone.</p>
+                 <p>Every app sits on one home screen, in order, over the Survival Node background. Settings is in the dock, and the phone's everyday tools are together in one Tools folder.</p>
                  <p>De-bloated Android OS optimized for performance and longevity, 50GB+ survival software suite, 2 offline AI models, shockproof phone case.</p>`
         },
         solar: {
