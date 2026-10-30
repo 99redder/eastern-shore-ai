@@ -36,7 +36,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 ## What's in the box
 
 1. **Survival Node 8GB Core Unit** — Motorola Moto G Power (2024), brand new or open box, hand-vetted for battery life, memory performance and overall suitability. 8GB RAM, 128GB storage (90GB+ available for the software suite after the OS).
-   - De-bloated Android OS, optimized for performance and longevity (tracking, carrier apps and battery-draining software removed)
+   - De-bloated Android OS, optimized for performance and longevity (Google Play Services, carrier apps and known tracking and battery-draining software removed or disabled)
    - 50GB+ survival software suite with 2 offline LLMs and the pre-configured "Survival Node" AI Agent
    - Shockproof protective phone case
    - Wall charger and USB-C charging cable
@@ -54,20 +54,21 @@ No SIM card is included (see "Calls and texts" below).
 - **Fennec Browser** — privacy-focused Firefox, no telemetry
 - **F-Droid** — open-source app store, no Google account needed
 - **Survival Manual** — US Army Field Manual FM 3-05.70, offline
-- **Kiwix** offline libraries: WikiMed Medical Encyclopedia (full), Knots, Wikipedia (full), Water Treatment Library (with videos), Learning Self Reliance, Survivor Library, Food for Preppers, Project Gutenberg (9GB, 60,000+ books), iFixit repair guides
+- **Kiwix** offline libraries: WikiMed Medical Encyclopedia (full), MDWiki Medical Encyclopedia, MedlinePlus, Project Gutenberg Medicine, Medicine LibreTexts, Surviving Residency, Military Medicine, Medical Library, NHS Medicines A to Z, CDC Travelers' Health, Libre Pathology, Medical Sciences Q&A, WikiVet, Knots, Wikipedia (summaries: the opening summary of every English article, not the full text), Water Treatment Library (PDF guides), Learning Self Reliance, Appropedia, Survivor Library, Food for Preppers, Project Gutenberg General Works (9GB: over 2,900 public domain volumes, mostly classic magazines and journals, not novels), iFixit repair guides
 - **Seamless** — on-device voice translation (Meta's model), no internet needed
-- **DeepL** — text translation, 30+ languages
+- **DeepL** — text translation, 30+ languages (needs an internet connection; Seamless is the offline translator)
 - **Morse** — Morse code encoder/decoder
 - **SOS Flashlight** — SOS beacon
 - **Battery Bot Pro** — battery monitoring and charge alarms
 - **AccuBattery** — battery health and capacity diagnostics
 - **Exodus Privacy** — tracker auditor
 - **Briar** — encrypted Bluetooth/Wi-Fi mesh messenger, no internet or cell needed
+- **Meshtastic** — app for LoRa mesh radios: text messages and GPS locations with no internet or cell service. Only the app is preinstalled. No radio is included; it needs a separate Meshtastic-compatible radio, sold separately, to send or receive anything
 - **LocalSend** — off-grid file transfer over local Wi-Fi
 - **Fossify File Manager** — private file manager
 - **Eastern Shore AI Users Guide** — the full User Guide as an app; works offline and checks for guide updates on Wi-Fi
 
-All of it runs fully offline after setup.
+All of it runs offline after setup except DeepL, Fennec and F-Droid, which need an internet connection.
 
 ### Using the Survival Node AI Agent
 It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left of the chat input, open the **Pals** tab, and select **Survival Node** — the system prompt is applied automatically. It's tuned for survival, field engineering and emergency response: direct answers first, critical safety warnings in bold, numbered steps. You can also tap the mic and ask out loud. The full system prompt is saved in the Documents folder and pinned to the home screen, so it can be restored or customized. The User Guide's PocketPal section has the details.
@@ -96,11 +97,11 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **Why not just put AI on my everyday phone?** You can, and should. But your daily phone's battery is worn from constant charging, local AI is battery-heavy, and the 50GB+ suite needs storage most phones don't have free. The Survival Node sits in storage with a preserved battery, a hardened OS, Faraday protection, and the AI Agent already set up.
 
-**Why not buy the parts on Amazon?** You're paying for sourcing, battery-testing, the deep debloat (which requires unlocking the bootloader and can brick a phone if done wrong), loading and verifying 50GB+ of software, the custom AI Agent, and components chosen to work together — plus 30 days of direct support. DIY is viable for the technically inclined; BYOG is the middle option.
+**Why not buy the parts on Amazon?** You're paying for sourcing, battery-testing, the deep debloat (not a beginner job, and it can mess up a phone if it isn't done correctly), loading and verifying 50GB+ of software, the custom AI Agent, and components chosen to work together — plus 30 days of direct support. DIY is viable for the technically inclined; BYOG is the middle option.
 
 **What about Raspberry Pi, laptop or tablet builds?** Power is the problem: laptops draw 30–80W+ and tablets much more than a phone, so they're hard to keep charged by solar. A phone is the most power-efficient platform for running a local AI, has GPS, mic, camera and flashlight built in, and fits in a pocket. 8GB RAM is the practical minimum for a capable local model.
 
-**What phone is it, and is it new?** Motorola Moto G Power (2024), brand new or open box. Minor cosmetic wear on open-box units is normal. Each phone's battery is checked with Battery Bot Pro at intake, after OS install and before shipment, plus an AccuBattery discharge test before shipment.
+**What phone is it, and is it new?** Motorola Moto G Power (2024), brand new or open box. Minor cosmetic wear on open-box units is normal. Each phone is checked for normal charging, battery drain and overall function when it arrives and again before debloating, then gets one AccuBattery health test before shipping. The result is linked in the shipping email.
 
 ## Warranty, support and returns
 
@@ -117,6 +118,8 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 **Timing:** Processing up to 7 business days (average 1–2); you get an order confirmation with your estimated ship date within 24 hours. Shipping up to 10 more business days (average 5–7), USPS ground only — required for the lithium-ion battery. No air shipping. Tracking is sent when it ships.
 
 **Order status:** Ask K can email the latest status, estimated ship date and tracking of an order placed on easternshore.ai to the email address used at checkout: tap **Check order status** in the chat (or ask K) and enter that address. The order number (5 digits, like 26001, on the order confirmation email) is optional and narrows the email to that order. K can't see any orders itself and never shows order details in the chat. Orders placed on eBay can't be looked up here: message us on eBay from the order in your eBay purchase history.
+
+We may text order updates from (302) 907-9162. Customers can reply to those texts with questions, or reply STOP to end them.
 
 **Packaging:** Ships in a standard cardboard box that may carry another company's logo; that implies no affiliation.
 

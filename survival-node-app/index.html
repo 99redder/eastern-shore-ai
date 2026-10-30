@@ -652,6 +652,7 @@ body {
   <a href="#deepl" onclick="toggleMenu()">DeepL</a>
   <a href="#morse" onclick="toggleMenu()">Morse Code</a>
   <a href="#briar" onclick="toggleMenu()">Briar Messenger</a>
+  <a href="#meshtastic" onclick="toggleMenu()">Meshtastic</a>
   <a href="#localsend" onclick="toggleMenu()">LocalSend</a>
   <a href="#sos" onclick="toggleMenu()">SOS Flashlight</a>
   <a href="#fennec" onclick="toggleMenu()">Fennec Browser</a>
@@ -672,9 +673,9 @@ body {
 <div class="update-note" id="update-note">
   <h2 id="update-title">Update to the offline version</h2>
   <p id="update-intro">This copy of the guide needs an internet connection. The latest version keeps the whole guide on your phone, so it opens with no signal. Nothing else on your phone changes.</p>
-  <a class="update-btn" id="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.7.apk">Update</a>
+  <a class="update-btn" id="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.8.apk">Update</a>
   <p>When the download finishes, tap the file (in the notification bar or <strong>Files → Downloads</strong>). If Android asks, turn on <strong>Allow from this source</strong>, go back, and tap <strong>Update</strong>.</p>
-  <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url" id="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.7.apk</span></p>
+  <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url" id="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.8.apk</span></p>
 </div>
 
 <!-- HERO -->
@@ -810,11 +811,11 @@ body {
       <ol class="steps">
         <li>Connect the phone to Wi-Fi</li>
         <li>Open the <strong>PocketPal</strong> app</li>
-        <li>Tap the <strong>Models</strong> tab at the bottom</li>
+        <li>Tap the menu (☰) at the top left, then <strong>Models</strong></li>
         <li>Browse available models — look for updated versions or newer options at similar sizes</li>
         <li>Tap <strong>Download</strong> on any model you want to add</li>
-        <li>Open a new chat and select the new model to confirm it loads</li>
-        <li>Delete old version: tap Models → long-press old model → Delete</li>
+        <li>Tap <strong>Load</strong> on the model to confirm it loads</li>
+        <li>Delete old version: menu (☰) → Models → tap the Delete icon on the old model</li>
       </ol>
       <div class="callout tip">💡 Swap like-for-like by size — replace small with new small, medium with new medium. Keeps storage balanced.</div>
     </div></div>
@@ -1077,6 +1078,7 @@ body {
         <li>Tap the <strong>Pals</strong> tab</li>
         <li>Select <strong>"Survival Node"</strong></li>
         <li>Start chatting — system prompt is applied automatically</li>
+        <li>To ask out loud, tap the mic next to the send button — works offline, can be slower than typing</li>
       </ol>
       <div class="callout warning">⚠️ <strong>AI Accuracy:</strong> Models can confidently state wrong information ("hallucination"). Always cross-reference against offline reference libraries for safety-critical decisions.</div>
       <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed software. Eastern Shore AI, LLC has no partnership or affiliation with the developer(s). Provided as-is, use at your own risk.</div>
@@ -1126,13 +1128,26 @@ body {
       <h4>Pre-Loaded Libraries</h4>
       <ul>
         <li><strong>WikiMed Medical Encyclopedia</strong> — thousands of articles on anatomy, diseases, symptoms, medications, emergency care</li>
-        <li><strong>Knots</strong> — comprehensive illustrated knot reference</li>
-        <li><strong>Wikipedia (Full)</strong> — broad reference: history, science, geography, tech</li>
-        <li><strong>Water Treatment Library</strong> — purification methods with instructional videos</li>
+        <li><strong>MDWiki Medical Encyclopedia</strong> — healthcare articles curated by WikiProjectMed</li>
+        <li><strong>MedlinePlus</strong> — trusted health information on conditions, tests, and medications</li>
+        <li><strong>Project Gutenberg Medicine</strong> — classic public domain medical books</li>
+        <li><strong>Medicine LibreTexts</strong> — medical courses and textbooks</li>
+        <li><strong>Surviving Residency</strong> — quick guides for medicine</li>
+        <li><strong>Military Medicine</strong> — doctrinal and instructional field manuals</li>
+        <li><strong>Medical Library</strong> — books on field and emergency medicine</li>
+        <li><strong>NHS Medicines A to Z</strong> — how medicines work and how to take them</li>
+        <li><strong>CDC Travelers' Health</strong> — disease prevention advice</li>
+        <li><strong>Libre Pathology</strong> — a pathology knowledge base</li>
+        <li><strong>Medical Sciences Q&amp;A</strong> — questions and answers on medicine and health</li>
+        <li><strong>WikiVet</strong> — a free veterinary medicine encyclopedia</li>
+        <li><strong>Knots</strong> — illustrated knot reference</li>
+        <li><strong>Wikipedia (Summaries)</strong> — the opening summary of every English article</li>
+        <li><strong>Water Treatment Library</strong> — purification methods, in PDF guides</li>
         <li><strong>Learning Self Reliance</strong> — food storage, homesteading, gardening</li>
+        <li><strong>Appropedia</strong> — shared knowledge for sustainable, practical living</li>
         <li><strong>Survivor Library</strong> — pre-industrial skills, trades, and technical knowledge</li>
         <li><strong>Food for Preppers</strong> — long-term food storage and preservation</li>
-        <li><strong>Project Gutenberg (9GB)</strong> — 60,000+ public domain literary works</li>
+        <li><strong>Project Gutenberg General Works (9GB)</strong> — over 2,900 public domain volumes, mostly classic magazines and journals</li>
         <li><strong>iFixit</strong> — repair guides for thousands of devices</li>
       </ul>
       <ol class="steps">
@@ -1200,7 +1215,7 @@ body {
     </button>
     <div class="card-body"><div class="card-content">
       <p>High-accuracy text translation for 30+ languages. Best for translating written text, documents, signs, and longer passages where natural phrasing matters.</p>
-      <div class="callout warning">⚠️ DeepL may require an internet connection for full functionality. Use <strong>Seamless</strong> for fully offline voice translation.</div>
+      <div class="callout warning">⚠️ DeepL needs an internet connection. Use <strong>Seamless</strong> for fully offline voice translation.</div>
       <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
     </div></div>
   </div>
@@ -1237,6 +1252,27 @@ body {
         <li>Tap a contact to chat — messages deliver when in range</li>
       </ol>
       <div class="callout warning">⚠️ Add your key contacts <strong>before</strong> an emergency — exchange requires both devices present to scan QR codes.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="meshtastic">
+  <div class="card" data-search="meshtastic lora mesh radio off-grid text messages">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📡</span>
+      <span>Meshtastic — Radio Messaging</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Open-source app for <strong>LoRa mesh radios</strong>. Paired with a radio over Bluetooth, it sends text messages and GPS locations with no cell service or internet.</p>
+      <div class="callout danger">🔴 <strong>Radio not included.</strong> Only the app is preinstalled. It needs a separate Meshtastic-compatible LoRa radio to send or receive, and the people you message need radios too.</div>
+      <ol class="steps">
+        <li>Turn on your radio, and turn on Bluetooth on the phone</li>
+        <li>Open Meshtastic and connect to your radio over Bluetooth</li>
+        <li>Set the radio's region to the United States — it can't communicate over the mesh until this is set</li>
+        <li>Send a message to other radios in range</li>
+      </ol>
       <div class="disclaimer">Third-Party Software Disclaimer: Open-source, independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
     </div></div>
   </div>
@@ -1355,7 +1391,7 @@ body {
       <span class="arrow">▼</span>
     </button>
     <div class="card-body"><div class="card-content">
-      <p><strong>AccuBattery</strong> was used by Eastern Shore AI during pre-shipment health checks. Your phone has already been verified. Remains installed for your use.</p>
+      <p><strong>AccuBattery</strong> was used by Eastern Shore AI for your phone's one pre-shipment battery health test. The result is linked in your shipping email. Remains installed for your use.</p>
       <h4>Battery Bot Pro — Recommended Settings</h4>
       <ul>
         <li>Set charge full alarm at <strong>85%</strong></li>
@@ -1436,6 +1472,7 @@ body {
       <div class="callout info" style="font-family:var(--mono);font-size:12px;">Eastern Shore AI, LLC<br>PO BOX 317<br>Parsonsburg, MD 21849</div>
       <div class="callout warning">⚠️ Items with physical damage caused after receipt (drops, water, puncture) are not eligible for return.</div>
       <h4>Additional Notices</h4>
+      <p><strong>Meshtastic radio not included.</strong> Only the app is preinstalled. It needs a separate compatible radio, sold separately. Eastern Shore AI, LLC does not sell, support, or warrant radio hardware.</p>
       <ul>
         <li><strong>Shipping:</strong> USPS ground transportation only (lithium battery regulations). Allow up to 7 business days processing + up to 10 business days transit. Continental US only.</li>
         <li><strong>Payment:</strong> Processed securely through Stripe. No payment card info is stored.</li>
@@ -1451,14 +1488,14 @@ body {
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p id="guide-version">Survival Node User Guide · v1.7<span id="test-flag"></span></p>
+  <p id="guide-version">Survival Node User Guide · v1.8<span id="test-flag"></span></p>
 </div>
 
 </main>
 
 <script>
 // Bump with the footer version and latest.json on every release (see README).
-const APP_VERSION_CODE = 10700;
+const APP_VERSION_CODE = 10800;
 const LATEST_URL = 'https://www.easternshore.ai/survival-node-app/latest.json';
 
 function showUpdateNote(apkUrl, title, intro) {
