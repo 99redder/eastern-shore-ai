@@ -1180,6 +1180,7 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 
 - Every order card in admin has **Message Customer**: a free-form branded email, kind `message` on `/api/orders/preview` and `/api/orders/send`, built by `buildOrderEmailContent` like the other order emails and sent the same way (orders@, replies to contact@, BCC to `BCC_EMAIL`).
 - It shows the order details, Ship To, the estimated ship date until the order ships, and carrier, tracking and the track button once they exist. Battery results stay out. The dialog shows who it's going to, because customers sometimes write from a different address than the one on the order.
+- The **CC** box takes up to 5 addresses, separated by commas or spaces. It's only on this dialog; `/api/orders/send` ignores `cc` on other kinds.
 - It can go out at any time and any number of times, and changes nothing on the order except a corrected Ship To. Nothing in D1 records that a message was sent; the BCC copy and Cloudflare's log are the record.
 - `/api/orders/send` refuses a blank body or the untouched template ("Write your message first").
 - Use this instead of Apple Mail when a customer email has to arrive: it goes through Cloudflare and passes DMARC.

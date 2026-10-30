@@ -2469,6 +2469,16 @@ function orderEmailShowsShipTo(kind) {
   return kind === 'ack' || kind === 'shipping' || kind === 'message';
 }
 
+// The CC box on a customer message: one or more addresses. The customer is
+// already on the To line, so they aren't copied as well.
+function parseOrderEmailCc(value, customerEmail) {
+  const addresses = (value || '').toString().split(/[\s,;]+/).filter(Boolean);
+  const invalid = addresses.find((address) => !isValidEmail(address));
+  const cc = [...new Set(addresses.map((address) => address.toLowerCase()))]
+    .filter((address) => address !== customerEmail.toLowerCase());
+  return { cc, invalid };
+}
+
 // A customer message carries the estimated ship date until the order ships.
 function orderEmailShowsShipDate(kind, row) {
   return kind === 'ack' || (kind === 'message' && !row?.shipping_email_sent_at);
@@ -3158,11 +3168,16 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   // next email. A box cleared on purpose leaves the address out of this one.
   const shipTo = orderEmailShowsShipTo(kind) ? normalizeShipTo(data.shipTo ?? await orderShipTo(env, hydratedRow)) : '';
   // A customer message needs words of its own, not the untouched template.
+  let cc = [];
   if (kind === 'message') {
     const typed = (data.bodyText || '').toString().replace(/\s+/g, '');
     if (!typed || typed === defaultOrderEmailBody(kind, hydratedRow).replace(/\s+/g, '')) {
       return json({ ok: false, error: 'Write your message first' }, 400, corsHeaders);
     }
+    const parsed = parseOrderEmailCc(data.cc, customerEmail);
+    if (parsed.invalid) return json({ ok: false, error: `Check the CC address: ${parsed.invalid}` }, 400, corsHeaders);
+    if (parsed.cc.length > 5) return json({ ok: false, error: 'CC up to 5 addresses' }, 400, corsHeaders);
+    cc = parsed.cc;
   }
 
   const content = buildOrderEmailContent(kind, hydratedRow, {
@@ -3181,6 +3196,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const emailPayload = {
     from: fromIdentity,
     to: [customerEmail],
+    ...(cc.length ? { cc } : {}),
     ...(bccEmail ? { bcc: [bccEmail] } : {}),
     subject: content.subject,
     html: content.html,

@@ -498,6 +498,41 @@ test('customer message: branded email with order details, sent any time, changes
   assert.equal(orderState().fulfillment_status, 'shipped');
 });
 
+test('customer message: CC goes to each address, a bad one stops the send, other emails ignore it', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv();
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+  const { orderKey } = await (await worker.fetch(post('/api/orders/manual', { customerName: 'Cy Copy', customerEmail: 'cy@example.net', amount: '249.99', paymentDate: '2026-10-20' }, admin), env, ctx)).json();
+  const send = (extra) => worker.fetch(post('/api/orders/send', { orderKey, kind: 'message', bodyText: 'Hi Cy,\n\nAn update.', ...extra }, admin), env, ctx);
+
+  // Without a CC the email has none, as before.
+  let res = await send({ cc: '  ', idempotencyKey: 'cc-0' });
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.equal(env.EMAIL.sent[0].cc, undefined);
+
+  // Commas or spaces both work; repeats and the customer's own address drop out.
+  res = await send({ cc: 'Other@Example.net, partner@example.net;other@example.net CY@example.net', idempotencyKey: 'cc-1' });
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.deepEqual(env.EMAIL.sent[1].to, ['cy@example.net']);
+  assert.deepEqual(env.EMAIL.sent[1].cc, ['other@example.net', 'partner@example.net']);
+  assert.deepEqual(env.EMAIL.sent[1].bcc, ['emailconfirm@easternshore.ai']);
+
+  // A typo stops the send instead of quietly dropping that person.
+  res = await send({ cc: 'good@example.net, not-an-address', idempotencyKey: 'cc-2' });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /Check the CC address: not-an-address/);
+  res = await send({ cc: 'a@x.net b@x.net c@x.net d@x.net e@x.net f@x.net', idempotencyKey: 'cc-3' });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /up to 5/);
+  assert.equal(env.EMAIL.sent.length, 2);
+
+  // Only the customer message takes a CC.
+  res = await worker.fetch(post('/api/orders/send', { orderKey, kind: 'ack', cc: 'other@example.net', idempotencyKey: 'cc-ack' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.equal(env.EMAIL.sent[2].cc, undefined);
+});
+
 test('customer message: battery results stay out, and a manual order works from a typed address', async (t) => {
   quietConsole(t);
   guardNetwork(t);

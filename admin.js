@@ -178,6 +178,8 @@
     let orderEmailModal;
     let orderEmailTitleEl;
     let orderEmailToEl;
+    let orderEmailCcWrapEl;
+    let orderEmailCcEl;
     let orderEmailSubjectEl;
     let orderEmailBodyEl;
     let orderEmailPreviewEl;
@@ -447,6 +449,8 @@
       orderEmailModal = document.getElementById('order-email-modal');
       orderEmailTitleEl = document.getElementById('order-email-title');
       orderEmailToEl = document.getElementById('order-email-to');
+      orderEmailCcWrapEl = document.getElementById('order-email-cc-wrap');
+      orderEmailCcEl = document.getElementById('order-email-cc');
       orderEmailSubjectEl = document.getElementById('order-email-subject');
       orderEmailBodyEl = document.getElementById('order-email-body');
       orderEmailPreviewEl = document.getElementById('order-email-preview');
@@ -884,6 +888,8 @@
       activeOrderEmailDraft = { ...draft, idempotencyKey: draft.idempotencyKey || draftId };
       if (orderEmailTitleEl) orderEmailTitleEl.textContent = draft.kind === 'shipping' ? 'Preview Shipping Email' : draft.kind === 'delivered' ? 'Preview Delivered Email' : draft.kind === 'review' ? 'Preview Review Email' : draft.kind === 'message' ? 'Message Customer' : 'Preview Order Acknowledgment';
       if (orderEmailToEl) orderEmailToEl.textContent = draft.customerEmail ? `To: ${draft.customerEmail}` : '';
+      if (orderEmailCcWrapEl) orderEmailCcWrapEl.style.display = draft.kind === 'message' ? '' : 'none';
+      if (orderEmailCcEl) orderEmailCcEl.value = '';
       if (orderEmailSubjectEl) orderEmailSubjectEl.value = draft.subject || '';
       if (orderEmailBodyEl) orderEmailBodyEl.value = draft.bodyText || '';
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
@@ -4307,6 +4313,7 @@
               trackingNumber: orderEmailTrackingNumberEl?.value || '',
               ...(estimatedShipDate ? { estimatedShipDate } : {}),
               ...(orderEmailShowsShipTo(activeOrderEmailDraft.kind) ? { shipTo: orderEmailShipToEl?.value || '' } : {}),
+              ...(activeOrderEmailDraft.kind === 'message' ? { cc: orderEmailCcEl?.value || '' } : {}),
               idempotencyKey: activeOrderEmailDraft.idempotencyKey || ''
             };
             const prevTxt = orderEmailSendBtn.textContent || 'Send Email';

@@ -1099,6 +1099,10 @@
       <h3 id="order-email-title">Preview Order Email</h3>
       <p id="order-email-to" style="margin:0 0 .6rem; color:var(--muted);"></p>
       <div style="display:grid; gap:.7rem;">
+        <div id="order-email-cc-wrap" style="display:none;">
+          <label for="order-email-cc">CC (optional)</label>
+          <input id="order-email-cc" placeholder="name@example.com" autocomplete="off" />
+        </div>
         <div>
           <label for="order-email-subject">Subject</label>
           <input id="order-email-subject" />
@@ -1401,7 +1405,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-10-30b"></script>
+  <script src="/admin.js?v=2026-10-30c"></script>
   <script src="/admin-websites.js?v=7"></script>
 </body>
 </html>
