@@ -47,7 +47,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 
 No SIM card is included (see "Calls and texts" below).
 
-## The pre-loaded software suite (as of 9/12/2026; versions may vary)
+## The pre-loaded software suite (as of 10/30/2026; versions may vary)
 
 - **Organic Maps** — full United States offline navigation, pre-downloaded
 - **PocketPal** — offline AI chat with 2 pre-loaded LLMs and the pre-configured "Survival Node" Pal
