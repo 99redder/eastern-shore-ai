@@ -177,6 +177,7 @@
     let trackingSaveBtn;
     let orderEmailModal;
     let orderEmailTitleEl;
+    let orderEmailToEl;
     let orderEmailSubjectEl;
     let orderEmailBodyEl;
     let orderEmailPreviewEl;
@@ -445,6 +446,7 @@
       trackingSaveBtn = document.getElementById('tracking-save-btn');
       orderEmailModal = document.getElementById('order-email-modal');
       orderEmailTitleEl = document.getElementById('order-email-title');
+      orderEmailToEl = document.getElementById('order-email-to');
       orderEmailSubjectEl = document.getElementById('order-email-subject');
       orderEmailBodyEl = document.getElementById('order-email-body');
       orderEmailPreviewEl = document.getElementById('order-email-preview');
@@ -679,7 +681,7 @@
     }
 
     function orderEmailShowsShipTo(kind) {
-      return kind === 'ack' || kind === 'shipping';
+      return kind === 'ack' || kind === 'shipping' || kind === 'message';
     }
 
     function renderOrderEmailPreview() {
@@ -692,7 +694,9 @@
       const orderNumber = (activeOrderEmailDraft?.orderNumber || '').trim();
       const amount = (activeOrderEmailDraft?.amountDisplay || '').trim();
       const paymentDate = (activeOrderEmailDraft?.paymentDate || '').trim();
-      const estimatedShipDate = activeOrderEmailDraft?.kind === 'ack' ? (orderEmailShipDateEl?.value || '').trim() : '';
+      const estimatedShipDate = activeOrderEmailDraft?.kind === 'ack'
+        ? (orderEmailShipDateEl?.value || '').trim()
+        : activeOrderEmailDraft?.kind === 'message' ? (activeOrderEmailDraft.estimatedShipDate || '') : '';
       const shipTo = orderEmailShowsShipTo(activeOrderEmailDraft?.kind) ? (orderEmailShipToEl?.value || '').trim() : '';
       const transactionContext = orderNumber
         ? `This is an order-related message for your Survival Node order #${orderNumber}. Eastern Shore AI, LLC builds and fulfills Survival Node orders.`
@@ -704,7 +708,9 @@
           ? 'Your order is on the way.'
           : activeOrderEmailDraft?.kind === 'review'
             ? 'We\'d love to hear what you think!'
-            : 'Your items are currently being quality checked';
+            : activeOrderEmailDraft?.kind === 'message'
+              ? 'A quick update on your order.'
+              : 'Your items are currently being quality checked';
       const blocks = body ? body.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean) : [];
       const bodyHtml = blocks.map((part) => `<p style="margin:0 0 20px;color:#d8dce8;white-space:pre-wrap;line-height:1.7;">${escHtml(part)}</p>`).join('') || '<p style="margin:0 0 20px;color:#d8dce8;">&nbsp;</p>';
       const detailLines = [
@@ -719,9 +725,10 @@
       ].filter(Boolean).join('<br>');
       const isDelivered = activeOrderEmailDraft?.kind === 'delivered';
       const isReview = activeOrderEmailDraft?.kind === 'review';
+      const isMessage = activeOrderEmailDraft?.kind === 'message';
       const batteryTestNote = (activeOrderEmailDraft?.batteryTestNote || '').trim();
       const batteryTestImageKey = (activeOrderEmailDraft?.batteryTestImageKey || '').trim();
-      const batteryHtml = !isDelivered && !isReview && (batteryTestNote || batteryTestImageKey)
+      const batteryHtml = !isDelivered && !isReview && !isMessage && (batteryTestNote || batteryTestImageKey)
         ? `<div style="margin:20px 0;padding:16px 20px;background:#101923;border:1px solid #26364a;border-left:4px solid #00e5ff;border-radius:6px;"><div style="font-weight:700;color:#00e5ff;margin-bottom:8px;">Battery Test Results</div>${batteryTestNote ? `<div style="color:#d8dce8;white-space:pre-wrap;">${escHtml(batteryTestNote)}</div>` : ''}${batteryTestImageKey ? `<div style="margin-top:10px;"><a href="https://services.easternshore.ai/api/orders/battery-image?key=${encodeURIComponent(batteryTestImageKey)}" style="color:#9ed0ff;">View AccuBattery results &rarr;</a></div>` : ''}</div>`
         : '';
       const shippingGuideHtml = isDelivered
@@ -875,7 +882,8 @@
         ? crypto.randomUUID()
         : `order-email-${Date.now()}-${Math.random().toString(16).slice(2)}`;
       activeOrderEmailDraft = { ...draft, idempotencyKey: draft.idempotencyKey || draftId };
-      if (orderEmailTitleEl) orderEmailTitleEl.textContent = draft.kind === 'shipping' ? 'Preview Shipping Email' : draft.kind === 'delivered' ? 'Preview Delivered Email' : draft.kind === 'review' ? 'Preview Review Email' : 'Preview Order Acknowledgment';
+      if (orderEmailTitleEl) orderEmailTitleEl.textContent = draft.kind === 'shipping' ? 'Preview Shipping Email' : draft.kind === 'delivered' ? 'Preview Delivered Email' : draft.kind === 'review' ? 'Preview Review Email' : draft.kind === 'message' ? 'Message Customer' : 'Preview Order Acknowledgment';
+      if (orderEmailToEl) orderEmailToEl.textContent = draft.customerEmail ? `To: ${draft.customerEmail}` : '';
       if (orderEmailSubjectEl) orderEmailSubjectEl.value = draft.subject || '';
       if (orderEmailBodyEl) orderEmailBodyEl.value = draft.bodyText || '';
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
@@ -888,6 +896,11 @@
       renderOrderEmailPreview();
       orderEmailModal?.classList.add('active');
       orderEmailModal?.setAttribute('aria-hidden', 'false');
+      if (draft.kind === 'message' && orderEmailBodyEl) {
+        const gap = orderEmailBodyEl.value.indexOf('\n\n') + 2;
+        orderEmailBodyEl.focus();
+        orderEmailBodyEl.setSelectionRange(gap, gap);
+      }
     }
 
     function closeOrderEmailModal() {
@@ -3577,6 +3590,7 @@
               <button type="button" class="btn action-pop order-action-btn" data-order-action="shipping" data-order-id="${id}" data-order-key="${orderKey}" data-ack-sent="${ackSent ? '1' : ''}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${shippingSent ? 'disabled title="Shipping email already sent"' : !ackSent ? 'disabled title="Send acknowledgment email first"' : `title="${tracking ? 'Preview shipping email' : 'Add tracking first'}"`}>${shippingSent ? 'Shipping Sent' : 'Preview Shipping Email'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="delivered" data-order-id="${id}" data-order-key="${orderKey}" data-shipping-sent="${shippingSent ? '1' : ''}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${deliveredSent ? 'disabled title="Delivered email already sent"' : !shippingSent ? 'disabled title="Send shipping email first"' : `title="${tracking ? 'Preview delivered email' : 'Add tracking first'}"`}>${deliveredSent ? 'Delivered Sent' : 'Preview Delivered Email'}</button>
               <button type="button" class="btn action-pop order-action-btn" data-order-action="review" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-shipping-sent="${shippingSent ? '1' : ''}" data-delivered-sent="${deliveredSent ? '1' : ''}" ${reviewSent ? 'disabled title="Review email already sent"' : !deliveredSent ? 'disabled title="Send delivered email first"' : 'title="Preview review email"'}>${reviewSent ? 'Review Sent' : 'Preview Review Email'}</button>
+              <button type="button" class="btn action-pop order-action-btn" data-order-action="message" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" data-tracking-provider="${escHtml(order.tracking_provider || '')}" data-tracking-number="${escHtml(order.tracking_number || '')}" data-tracking-url="${escHtml(order.tracking_url || '')}" ${order.customer_email ? 'title="Send this customer a branded update with their order details"' : 'disabled title="This order has no customer email"'}>Message Customer</button>
               ${order.order_source === 'manual' ? `<button type="button" class="btn delete order-action-btn" data-order-action="delete" data-order-id="${id}" data-order-key="${orderKey}">Delete</button>` : '<span class="order-delete-note">Stripe order — cannot delete</span>'}
             </div>
           </div>`;
@@ -3602,7 +3616,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
-        openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || meta.trackingProvider || '', trackingNumber: data.trackingNumber || meta.trackingNumber || '', trackingUrl: data.trackingUrl || meta.trackingUrl || '', estimatedShipDate: data.estimatedShipDate || '', shipTo: data.shipTo || '', batteryTestNote: data.batteryTestNote || '', batteryTestImageKey: data.batteryTestImageKey || '' });
+        openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || meta.trackingProvider || '', trackingNumber: data.trackingNumber || meta.trackingNumber || '', trackingUrl: data.trackingUrl || meta.trackingUrl || '', estimatedShipDate: data.estimatedShipDate || '', shipTo: data.shipTo || '', customerEmail: data.customerEmail || '', batteryTestNote: data.batteryTestNote || '', batteryTestImageKey: data.batteryTestImageKey || '' });
       } catch (err) {
         openErrorModal(err?.message || 'Failed to prepare order email preview');
       }
@@ -4314,14 +4328,18 @@
                   ? 'Delivered email sent and order marked delivered.'
                   : draft.kind === 'review'
                     ? 'Review request email sent to customer.'
-                    : 'Acknowledgment email sent.';
+                    : draft.kind === 'message'
+                      ? 'Your message was sent to the customer.'
+                      : 'Acknowledgment email sent.';
               const successTitle = draft.kind === 'shipping'
                 ? 'Shipment Email Sent ✅'
                 : draft.kind === 'delivered'
                   ? 'Delivered Email Sent ✅'
                   : draft.kind === 'review'
                     ? 'Review Email Sent ✅'
-                    : 'Acknowledgment Sent ✅';
+                    : draft.kind === 'message'
+                      ? 'Message Sent ✅'
+                      : 'Acknowledgment Sent ✅';
               try { closeOrderEmailModal(); } catch {}
               try { openSuccessModal(successText, successTitle); } catch (err) { alert(successTitle + '\n\n' + successText); }
               try { await refreshOrderList(); } catch {}

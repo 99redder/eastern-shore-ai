@@ -1171,10 +1171,18 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 
 ## Ship-to address in order emails (added 2026-10-30)
 
-- The acknowledgment and shipping emails show a **Ship To** row (details box and plain text). Delivered, review and Ask K status emails don't.
+- The acknowledgment, shipping and customer message emails show a **Ship To** row (details box and plain text). Delivered, review and Ask K status emails don't.
 - The **Ship To** box in the admin email dialog is what goes out. `/api/orders/preview` fills it with the order's saved `ship_to`, otherwise from the Stripe Checkout Session (`orderShipTo`), so it covers orders placed before this was added. Manual orders have no session, so it's typed in. A blank box leaves the row out.
 - `/api/orders/send` saves the box to `ship_to` (`order_fulfillment` and `manual_survival_node_orders`, migration `0038`), so a correction made on the acknowledgment carries to the shipping email.
 - Read Stripe's address with `sessionShippingDetails()`. API versions from 2025-03-31 moved `shipping_details` to `collected_information.shipping_details`, and webhooks follow the endpoint's version, which we don't pin. `customer_details.address` is billing, not shipping.
+
+## Message Customer button (added 2026-10-30)
+
+- Every order card in admin has **Message Customer**: a free-form branded email, kind `message` on `/api/orders/preview` and `/api/orders/send`, built by `buildOrderEmailContent` like the other order emails and sent the same way (orders@, replies to contact@, BCC to `BCC_EMAIL`).
+- It shows the order details, Ship To, the estimated ship date until the order ships, and carrier, tracking and the track button once they exist. Battery results stay out. The dialog shows who it's going to, because customers sometimes write from a different address than the one on the order.
+- It can go out at any time and any number of times, and changes nothing on the order except a corrected Ship To. Nothing in D1 records that a message was sent; the BCC copy and Cloudflare's log are the record.
+- `/api/orders/send` refuses a blank body or the untouched template ("Write your message first").
+- Use this instead of Apple Mail when a customer email has to arrive: it goes through Cloudflare and passes DMARC.
 
 ## Survival Node Ask K order updates (added 2026-10-27)
 

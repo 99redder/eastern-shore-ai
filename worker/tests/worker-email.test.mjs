@@ -412,6 +412,113 @@ test('ship-to: a manual order uses the address typed in the dialog and keeps it 
   assert.match(env.EMAIL.sent[1].text, /Ship to:\nMo Manual\n<7> Bay Rd\nDover, DE 19901/);
 });
 
+test('customer message: branded email with order details, sent any time, changes nothing on the order', async (t) => {
+  quietConsole(t);
+  guardNetwork(t, {
+    'https://api.stripe.com/v1/checkout/sessions/cs_msg_1': { id: 'cs_msg_1', collected_information: { shipping_details: { name: 'Mia Buyer', address: { line1: '8 Bay Ln', city: 'Easton', state: 'MD', postal_code: '21601', country: 'US' } } } }
+  });
+  const env = baseEnv();
+  const session = {
+    id: 'cs_msg_1', payment_intent: 'pi_msg_1', amount_total: 24999,
+    customer_details: { email: 'mia@example.net', name: 'Mia Buyer', address: { state: 'MD' } },
+    collected_information: { shipping_details: { name: 'Mia Buyer', address: { line1: '8 Bay Ln', city: 'Easton', state: 'MD', postal_code: '21601', country: 'US' } } },
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit', service_label: 'Survival Node' }
+  };
+  await worker.fetch(await signedWebhook(checkoutCompleted(session)), env, ctx);
+  env.EMAIL.sent.length = 0;
+  env.STRIPE_SECRET_KEY = 'sk_test_only';
+  const bookingId = env.DB.sqlite.prepare('SELECT id FROM bookings WHERE stripe_session_id = ?').get('cs_msg_1').id;
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+  const preview = async () => (await worker.fetch(post('/api/orders/preview', { bookingId, kind: 'message' }, admin), env, ctx)).json();
+  const send = (extra) => worker.fetch(post('/api/orders/send', { bookingId, kind: 'message', ...extra }, admin), env, ctx);
+  const orderState = () => env.DB.sqlite.prepare('SELECT ack_email_sent_at, shipping_email_sent_at, fulfillment_status FROM order_fulfillment WHERE booking_id = ?').get(bookingId);
+
+  // Available before any other email has gone out.
+  const draft = await preview();
+  assert.equal(draft.ok, true);
+  assert.equal(draft.subject, 'An update on your Survival Node order');
+  assert.equal(draft.customerEmail, 'mia@example.net');
+  assert.equal(draft.shipTo, 'Mia Buyer\n8 Bay Ln\nEaston, MD 21601');
+  assert.ok(draft.bodyText.startsWith('Hi Mia Buyer,\n\n'));
+
+  // The untouched template and an empty body don't go out.
+  for (const bodyText of [draft.bodyText, draft.bodyText.replace(/\n/g, '\n\n'), '', '   ']) {
+    const refused = await send({ subject: draft.subject, bodyText, shipTo: draft.shipTo });
+    assert.equal(refused.status, 400);
+    assert.match((await refused.json()).error, /Write your message/);
+  }
+  assert.equal(env.EMAIL.sent.length, 0);
+
+  const message = draft.bodyText.replace('\n\n\n\n', '\n\nThe Meshtastic app is on your phone already.\n\n');
+  let res = await send({ subject: 'A note about your kit', bodyText: message, shipTo: draft.shipTo, idempotencyKey: 'msg-1' });
+  assert.equal(res.status, 200, await res.clone().text());
+  const [mail] = env.EMAIL.sent;
+  assert.deepEqual(mail.to, ['mia@example.net']);
+  assert.deepEqual(mail.from, { email: 'orders@easternshore.ai', name: 'Eastern Shore AI Orders' });
+  assert.equal(mail.replyTo, 'contact@easternshore.ai');
+  assert.equal(mail.subject, 'A note about your kit');
+  assertStandardLayout(mail);
+  assert.match(mail.html, /The Meshtastic app is on your phone already\./);
+  assert.match(mail.html, /Order Number<\/td>/);
+  assert.match(mail.html, /\$249\.99/);
+  assert.match(mail.html, /Mia Buyer<br>8 Bay Ln<br>Easton, MD 21601/);
+  assert.match(mail.text, /The Meshtastic app is on your phone already\./);
+  assert.match(mail.text, /Ship to:\nMia Buyer\n8 Bay Ln\nEaston, MD 21601/);
+
+  // Nothing on the order moved, so the normal emails still run in order.
+  assert.equal(orderState().ack_email_sent_at, null);
+  assert.equal(orderState().fulfillment_status, 'new');
+
+  // A second message is fine, and an address fixed in it is kept.
+  const fixed = 'Mia Buyer\n8 Bay Ln Apt 3\nEaston, MD 21601';
+  res = await send({ bodyText: 'Hi Mia,\n\nOne more thing.', shipTo: fixed, idempotencyKey: 'msg-2' });
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.equal(env.EMAIL.sent.length, 2);
+  assert.equal((await preview()).shipTo, fixed);
+
+  // The same draft submitted twice still sends once.
+  res = await send({ bodyText: 'Hi Mia,\n\nOne more thing.', shipTo: fixed, idempotencyKey: 'msg-2' });
+  assert.equal((await res.json()).duplicateSuppressed, true);
+  assert.equal(env.EMAIL.sent.length, 2);
+
+  // The estimated ship date shows until the order ships, then tracking does.
+  const ack = await worker.fetch(post('/api/orders/send', { bookingId, kind: 'ack', estimatedShipDate: '2026-11-03', idempotencyKey: 'msg-ack' }, admin), env, ctx);
+  assert.equal(ack.status, 200, await ack.clone().text());
+  assert.equal((await preview()).estimatedShipDate, '2026-11-03');
+  await send({ bodyText: 'Hi Mia,\n\nStill on track.', idempotencyKey: 'msg-3' });
+  assert.match(env.EMAIL.sent.at(-1).html, /Estimated Ship Date/);
+  const shipped = await worker.fetch(post('/api/orders/send', { bookingId, kind: 'shipping', trackingNumber: '9400100000000000000000', trackingProvider: 'usps', idempotencyKey: 'msg-ship' }, admin), env, ctx);
+  assert.equal(shipped.status, 200, await shipped.clone().text());
+  assert.equal((await preview()).estimatedShipDate, '');
+  await send({ bodyText: 'Hi Mia,\n\nIt left today.', idempotencyKey: 'msg-4' });
+  const afterShip = env.EMAIL.sent.at(-1);
+  assert.doesNotMatch(afterShip.html, /Estimated Ship Date/);
+  assert.match(afterShip.html, /Tracking Number<\/td>/);
+  assert.match(afterShip.html, /Track on USPS/);
+  assert.equal(orderState().fulfillment_status, 'shipped');
+});
+
+test('customer message: battery results stay out, and a manual order works from a typed address', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv();
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+  const { orderKey } = await (await worker.fetch(post('/api/orders/manual', { customerName: 'Mo Manual', customerEmail: 'mo@example.net', amount: '249.99', paymentDate: '2026-10-20' }, admin), env, ctx)).json();
+  env.DB.sqlite.prepare("UPDATE manual_survival_node_orders SET battery_test_note = 'Health 98%'").run();
+
+  const draft = await (await worker.fetch(post('/api/orders/preview', { orderKey, kind: 'message' }, admin), env, ctx)).json();
+  assert.equal(draft.shipTo, '');
+  const res = await worker.fetch(post('/api/orders/send', { orderKey, kind: 'message', bodyText: 'Hi Mo,\n\nA quick update.', shipTo: 'Mo Manual\n7 Bay Rd\nDover, DE 19901' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const [mail] = env.EMAIL.sent;
+  assert.match(mail.html, /Mo Manual<br>7 Bay Rd<br>Dover, DE 19901/);
+  assert.doesNotMatch(mail.html, /Battery Test Results/);
+  const row = env.DB.sqlite.prepare('SELECT ship_to, ack_email_sent_at, fulfillment_status FROM manual_survival_node_orders').get();
+  assert.equal(row.ship_to, 'Mo Manual\n7 Bay Rd\nDover, DE 19901');
+  assert.equal(row.ack_email_sent_at, null);
+  assert.equal(row.fulfillment_status, 'new');
+});
+
 test('admin order emails: sent once per draft, review email carries List-Unsubscribe', async (t) => {
   quietConsole(t);
   guardNetwork(t);

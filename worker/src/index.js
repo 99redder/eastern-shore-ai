@@ -2378,6 +2378,7 @@ function orderSummaryFromRow(row) {
 }
 
 function defaultOrderEmailSubject(kind, row) {
+  if (kind === 'message') return 'An update on your Survival Node order';
   if (kind === 'delivered') return 'Your Survival Node Order Has Been Delivered';
   if (kind === 'shipping') return 'Your Survival Node Order Has Shipped';
   if (kind === 'review') return 'How Did We Do? Leave Us a Review';
@@ -2385,12 +2386,26 @@ function defaultOrderEmailSubject(kind, row) {
 }
 
 const GOOGLE_REVIEW_URL = 'https://www.easternshore.ai/review';
+const ORDER_EMAIL_KINDS = ['ack', 'shipping', 'delivered', 'review', 'message'];
 
 function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber = '', trackingUrl = '') {
   const customerName = (row?.customer_name || 'there').toString().trim() || 'there';
   const summary = orderSummaryFromRow(row);
   const amount = formatUsd(Number(row?.amount_cents || 0));
   const orderDate = (row?.payment_date || row?.paid_at || row?.created_at || '').toString().slice(0, 10);
+  // Blank lines kept: the dialog opens with the cursor in the gap for the message.
+  if (kind === 'message') {
+    return [
+      `Hi ${customerName},`,
+      '',
+      '',
+      '',
+      'If you have any questions, just reply to this message.',
+      '',
+      '-Chris',
+      'Founder of Eastern Shore AI'
+    ].join('\n');
+  }
   if (kind === 'shipping') {
     return [
       `Hi ${customerName},`,
@@ -2451,7 +2466,12 @@ function normalizeShipTo(value) {
 }
 
 function orderEmailShowsShipTo(kind) {
-  return kind === 'ack' || kind === 'shipping';
+  return kind === 'ack' || kind === 'shipping' || kind === 'message';
+}
+
+// A customer message carries the estimated ship date until the order ships.
+function orderEmailShowsShipDate(kind, row) {
+  return kind === 'ack' || (kind === 'message' && !row?.shipping_email_sent_at);
 }
 
 // The ship-to saved on the order, otherwise what the buyer entered at Stripe
@@ -2478,7 +2498,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const summary = orderSummaryFromRow(row);
   const orderNumber = (row?.order_number || '').toString().trim();
   // The acknowledgment shows the estimated ship date (also what Ask K reports).
-  const estimatedShipDate = kind === 'ack' ? normalizeShipDate(overrides.estimatedShipDate ?? row?.estimated_ship_date) : '';
+  const estimatedShipDate = orderEmailShowsShipDate(kind, row) ? normalizeShipDate(overrides.estimatedShipDate ?? row?.estimated_ship_date) : '';
   const shipTo = orderEmailShowsShipTo(kind) ? normalizeShipTo(overrides.shipTo ?? row?.ship_to) : '';
   const transactionContext = orderNumber
     ? `This is an order-related message for your Survival Node order #${orderNumber}. Eastern Shore AI, LLC builds and fulfills Survival Node orders.`
@@ -2490,10 +2510,12 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
       ? 'Your order is on the way.'
       : kind === 'review'
         ? 'We\'d love to hear what you think!'
-        : 'Your items are currently being quality checked';
+        : kind === 'message'
+          ? 'A quick update on your order.'
+          : 'Your items are currently being quality checked';
   const batteryTestNote = (overrides.batteryTestNote ?? row?.battery_test_note ?? '').toString().trim();
   const batteryTestImageKey = (overrides.batteryTestImageKey ?? row?.battery_test_image_key ?? '').toString().trim();
-  const showBattery = (batteryTestNote || batteryTestImageKey) && kind !== 'delivered' && kind !== 'review';
+  const showBattery = (batteryTestNote || batteryTestImageKey) && kind !== 'delivered' && kind !== 'review' && kind !== 'message';
   const batteryHtml = showBattery
     ? `<div style="margin:0 0 16px;">${callout('Battery Test Results',
       (batteryTestNote ? escapeHtml(batteryTestNote).replace(/\n/g, '<br>') : '')
@@ -2530,6 +2552,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
 }
 
 function orderEmailSentAt(row, kind) {
+  if (kind === 'message') return ''; // Can go out any number of times.
   if (kind === 'shipping') return (row?.shipping_email_sent_at || '').toString().trim();
   if (kind === 'delivered') return (row?.delivered_email_sent_at || '').toString().trim();
   if (kind === 'review') return (row?.review_email_sent_at || '').toString().trim();
@@ -2766,7 +2789,7 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
   if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
-  if (!['ack','shipping','delivered','review'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+  if (!ORDER_EMAIL_KINDS.includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
@@ -2803,7 +2826,8 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
     orderSummary: orderSummaryFromRow(hydratedRow),
     amountCents: Number(hydratedRow.amount_cents || 0),
     paymentDate: (hydratedRow.payment_date || '').toString(),
-    estimatedShipDate: normalizeShipDate(hydratedRow.estimated_ship_date),
+    customerEmail: (hydratedRow.customer_email || '').toString(),
+    estimatedShipDate: kind === 'message' && !orderEmailShowsShipDate(kind, hydratedRow) ? '' : normalizeShipDate(hydratedRow.estimated_ship_date),
     shipTo,
     batteryTestNote: (hydratedRow.battery_test_note || '').toString(),
     batteryTestImageKey: (hydratedRow.battery_test_image_key || '').toString(),
@@ -3096,7 +3120,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   const orderKey = (data.orderKey || '').toString().trim();
   const kind = (data.kind || '').toString().trim().toLowerCase();
   if (!bookingId && !orderKey) return json({ ok: false, error: 'Invalid order id' }, 400, corsHeaders);
-  if (!['ack','shipping','delivered','review'].includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
+  if (!ORDER_EMAIL_KINDS.includes(kind)) return json({ ok: false, error: 'Invalid email kind' }, 400, corsHeaders);
 
   const row = await getOrderRowByKey(env.DB, orderKey, bookingId);
   if (!row) return json({ ok: false, error: 'Order not found' }, 404, corsHeaders);
@@ -3133,6 +3157,13 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   // What's in the dialog goes out and is saved, so a correction carries to the
   // next email. A box cleared on purpose leaves the address out of this one.
   const shipTo = orderEmailShowsShipTo(kind) ? normalizeShipTo(data.shipTo ?? await orderShipTo(env, hydratedRow)) : '';
+  // A customer message needs words of its own, not the untouched template.
+  if (kind === 'message') {
+    const typed = (data.bodyText || '').toString().replace(/\s+/g, '');
+    if (!typed || typed === defaultOrderEmailBody(kind, hydratedRow).replace(/\s+/g, '')) {
+      return json({ ok: false, error: 'Write your message first' }, 400, corsHeaders);
+    }
+  }
 
   const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
@@ -3182,7 +3213,16 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     return json({ ok: false, error: sendJson?.message || sendJson?.error || 'Failed to send order email' }, 502, corsHeaders);
   }
 
-  if (row.order_source === 'manual') {
+  // A message changes nothing on the order except a corrected address.
+  if (kind === 'message') {
+    if (shipTo) {
+      await env.DB.prepare(
+        row.order_source === 'manual'
+          ? `UPDATE manual_survival_node_orders SET ship_to = ?1, updated_at = datetime('now') WHERE id = ?2`
+          : `UPDATE order_fulfillment SET ship_to = ?1, updated_at = datetime('now') WHERE booking_id = ?2`
+      ).bind(shipTo, row.id).run();
+    }
+  } else if (row.order_source === 'manual') {
     if (kind === 'shipping') {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders

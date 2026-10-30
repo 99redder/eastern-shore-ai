@@ -1097,6 +1097,7 @@
   <div class="success-modal-overlay" id="order-email-modal" aria-hidden="true">
     <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="order-email-title" style="width:min(920px,96vw); max-height:90vh; overflow-y:auto;">
       <h3 id="order-email-title">Preview Order Email</h3>
+      <p id="order-email-to" style="margin:0 0 .6rem; color:var(--muted);"></p>
       <div style="display:grid; gap:.7rem;">
         <div>
           <label for="order-email-subject">Subject</label>
@@ -1126,7 +1127,7 @@
         <div id="order-email-ship-to-wrap" style="display:none;">
           <label for="order-email-ship-to">Ship To</label>
           <textarea id="order-email-ship-to" rows="4" style="min-height:0;" placeholder="Name&#10;Street address&#10;City, ST ZIP"></textarea>
-          <p style="margin:.35rem 0 0; font-size:.85rem; color:var(--muted);">Website orders fill in from Stripe; type it in for manual orders. Edit it if the customer sends a correction, and it carries to the shipping email. Leave it blank to keep the address out of this email.</p>
+          <p style="margin:.35rem 0 0; font-size:.85rem; color:var(--muted);">Website orders fill in from Stripe; type it in for manual orders. Edit it if the customer sends a correction, and it carries to later emails. Leave it blank to keep the address out of this email.</p>
         </div>
         <div>
           <div style="font-weight:700; margin-bottom:.35rem;">Preview</div>
@@ -1400,7 +1401,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-10-30a"></script>
+  <script src="/admin.js?v=2026-10-30b"></script>
   <script src="/admin-websites.js?v=7"></script>
 </body>
 </html>
