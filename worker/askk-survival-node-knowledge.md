@@ -42,7 +42,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
    - Wall charger and USB-C charging cable
    - Survival Node User Guide — installed as an app on the home screen (works offline, and checks for guide updates whenever it's opened on Wi-Fi); a standard PDF copy is in Files → Downloads
 2. **Premium Solar Battery with attached cables** — 24,000 mAh (manufacturer rating), about 3 full phone charges in practice. 3 attached cables (2× USB-C, 1× iOS) plus a USB-A output on the side. Rugged impact-resistant ABS shell with silicone corner bumpers; drop-, dust- and splash-resistant; noticeably tougher than the Gen 1 battery. Built-in dual LED flashlight (steady / strobe / SOS), thermometer, carabiner clip, 4-LED charge indicator. Recharges by solar or wall (USB-C, USB-A or iOS input). Do not charge and discharge it at the same time.
-3. **(2) Mission Darkness Faraday bags** — one for the phone, one for the solar battery. Premium EMP-rated TitanRF shielding; blocks RF and electromagnetic interference when properly sealed.
+3. **(2) Mission Darkness Faraday bags** — one for the phone, one for the solar battery. Premium EMP-rated TitanRF shielding; blocks RF and electromagnetic interference when properly sealed. Manufacturer-rated (Mission Darkness, independent lab tested to MIL-STD-188-125-2 and IEEE 299-2006): 80+ dB attenuation, low MHz to 40 GHz. Those are Mission Darkness's own published ratings, not Eastern Shore AI test results (source: https://mosequipment.com/pages/testing-certifications).
 4. **Weatherproof hard case with padlock** — IP67, secure latches, pressure-relief valve, custom foam interior. Reusable indicator silica gel packs included to absorb moisture. The case, latches and padlock may look slightly different from the photos (multiple suppliers); function is the same.
 
 No SIM card is included (see "Calls and texts" below).
@@ -91,7 +91,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **Can solar keep it charged indefinitely?** Not for all-day normal use. Under emergency use, solar plus the large battery reserve can sustain the kit for a very long time; the founder has run his on solar only for over a year. The daily solar routine: during daylight, leave the solar battery panel-up in direct sun to charge; use the phone for 30 minutes at most; charge the phone back to about 60% from the solar battery; then power the phone off and seal it back in its Faraday bag. Use wall power whenever available.
 
-**What does EMP-hardened mean?** An electromagnetic pulse (nuclear detonation, high-powered microwave weapon, or extreme solar flare) can fry unshielded electronics. The two Mission Darkness Faraday bags isolate the phone and battery from it. Protection only works when the bags are fully sealed per the instructions (roll-fold, 2 folds minimum). No guarantee against any specific event.
+**What does EMP-hardened mean?** An electromagnetic pulse (nuclear detonation, high-powered microwave weapon, or extreme solar flare) can fry unshielded electronics. The two Mission Darkness Faraday bags isolate the phone and battery from it. Manufacturer-rated (Mission Darkness, independent lab tested to MIL-STD-188-125-2 and IEEE 299-2006): 80+ dB attenuation, low MHz to 40 GHz. Protection only works when the bags are fully sealed per the instructions (roll-fold, 2 folds minimum). No guarantee against any specific event.
 
 **Can I trust the AI in an emergency?** Use it as a knowledgeable reference, not a replacement for professionals. Cross-check critical decisions against the medical wiki, first-aid guides and survival manuals on the device.
 
@@ -127,13 +127,13 @@ We may text order updates from (302) 907-9162. Customers can reply to those text
 
 ## BYOG (Bring Your Own Gear) Setup — $69.99
 
-For residents of **Maryland's Eastern Shore only**, with a compatible Android phone (50GB+ free storage, 8GB+ RAM; no iPhones or Windows phones). We wipe the phone, do the deep Android debloat, and install the full 50GB+ suite with both offline LLMs and the Survival Node AI Agent. Software only — no battery, bags, case or other hardware. You must back up your data first (the phone is wiped). Book a date and 2-hour time block and enter your Eastern Shore address; service towns include Salisbury, Fruitland, Ocean City, Easton, Cambridge, Berlin and others in the booking list. BYOG buyers are added to the Survival Node newsletter (unsubscribe any time).
+For residents of **Maryland's Eastern Shore only**, with a compatible Android phone (65GB+ free storage, 8GB+ RAM; no iPhones or Windows phones). We wipe the phone, do the deep Android debloat, and install the full 50GB+ suite with both offline LLMs and the Survival Node AI Agent. Software only — no battery, bags, case or other hardware. You must back up your data first (the phone is wiped). Book a date and 2-hour time block and enter your Eastern Shore address; service towns include Salisbury, Fruitland, Ocean City, Easton, Cambridge, Berlin and others in the booking list. BYOG buyers are added to the Survival Node newsletter (unsubscribe any time).
 
 ## Test results (testing.html)
 
 testing.html has pre-shipment test data for every component plus two demo videos (Quick Unboxing; Components & Pre-Shipment Testing). Mention it for questions about testing or proof.
 
-**Core unit:** 5,000 mAh rated battery; average measured 4,890 mAh (97.8%); minimum acceptance threshold 88% (units below it are rejected); nearly every unit tested so far has measured 95% or higher. 8GB LPDDR4X RAM and 128GB storage confirmed; about 57GB free after the OS and software. GPS lock and microphone confirmed. 0 carrier apps, background data disabled. Cold boot 28 seconds; the Survival Node Pal loads on boot.
+**Core unit:** 5,000 mAh rated battery; average measured 4,890 mAh (97.8%); minimum acceptance threshold 88% (units below it are rejected); nearly every unit tested so far has measured 95% or higher. 8GB LPDDR4X RAM and 128GB storage confirmed; about 45GB free after the OS and software. GPS lock and microphone confirmed. 0 carrier apps, background data disabled. Cold boot 28 seconds; the Survival Node Pal loads on boot.
 
 **Hard case:** model 342413, IP67, 0.565 cu ft. Interior 340 × 235 × 126 mm (13.39 × 9.25 × 4.96 in); exterior 380 × 300 × 140 mm (14.96 × 11.81 × 5.51 in); 1.8 kg (3.97 lb). Water test: submerged 2 ft for 5 minutes, no moisture inside. Drop test: 6 ft onto concrete, 4 drops, no cracks, latches held. Tested on one case of the same model (3/10/2026); every case is inspected before shipping.
 
@@ -141,14 +141,14 @@ testing.html has pre-shipment test data for every component plus two demo videos
 
 **Faraday bags:** phone shows no signal inside a sealed bag; roll-fold seal (2 folds minimum) passes a leak-down test; no pinholes or delamination; the phone fits inside with its case on.
 
-**Offline maps:** all 50 states, about 14.2 GB, street-level zoom (z16), cross-checked against USGS data. GPS cold lock 6–9 seconds, warm under 3 seconds, ±4 m accuracy in open sky; works in airplane mode (GPS uses satellites, not internet). Offline turn-by-turn routing, place search and waypoints all work.
+**Offline maps:** all 50 states, about 14.7 GB, street-level zoom (z16), cross-checked against USGS data. GPS cold lock 6–9 seconds, warm under 3 seconds, ±4 m accuracy in open sky; works in airplane mode (GPS uses satellites, not internet). Offline turn-by-turn routing, place search and waypoints all work.
 
 **AI models:** Qwen3.5-4B-Q4_K_M is the primary (deeper answers); Qwen2.5-3B-Instruct (Q5_K_M) is the faster backup. PocketPal benchmark (PP:512, TG:128):
 - **Qwen3.5-4B (tested 9/12/2026):** 1.41 tokens/sec generation, 10.78 tokens/sec prompt processing, peak memory 5 GB of 8 GB (59.6%); 2.73 GB model, 4.21B parameters.
 - **Qwen2.5-3B (tested 3/26/2026):** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory 5 GB of 8 GB (58.9%).
 Both verified in airplane mode with data off; persona confirmed on both, voice input on Qwen 2.5 only. Speeds vary with temperature, background load and battery level. When asked for benchmarks, quote these figures and say they're from the testing page.
 
-**Software suite:** 51.8 GB total; maps 14.2 GB, medical wiki and references 3.8 GB, survival apps and first aid 2.3 GB, plus the 2 model files. All apps pass offline checks; average app launch under 1.8 seconds; final QC before every shipment.
+**Software suite:** about 64 GB total; maps 14.7 GB, Wikipedia summaries 13.8 GB, medical references 10.4 GB, survival references 11.2 GB, Project Gutenberg General Works 9.7 GB, and the 2 model files (5.2 GB). All apps pass offline checks; average app launch under 1.8 seconds; final QC before every shipment.
 
 ## Contact
 
