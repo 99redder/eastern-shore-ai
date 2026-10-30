@@ -185,6 +185,8 @@
     let orderEmailTrackingUrlEl;
     let orderEmailShipDateWrapEl;
     let orderEmailShipDateEl;
+    let orderEmailShipToWrapEl;
+    let orderEmailShipToEl;
     let orderEmailCancelBtn;
     let orderEmailSendBtn;
     let reconYearEl;
@@ -451,6 +453,8 @@
       orderEmailTrackingUrlEl = document.getElementById('order-email-tracking-url');
       orderEmailShipDateWrapEl = document.getElementById('order-email-ship-date-wrap');
       orderEmailShipDateEl = document.getElementById('order-email-ship-date');
+      orderEmailShipToWrapEl = document.getElementById('order-email-ship-to-wrap');
+      orderEmailShipToEl = document.getElementById('order-email-ship-to');
       orderEmailCancelBtn = document.getElementById('order-email-cancel-btn');
       orderEmailSendBtn = document.getElementById('order-email-send-btn');
       reconYearEl = document.getElementById('recon-year');
@@ -674,6 +678,10 @@
       errorModal.setAttribute('aria-hidden', 'false');
     }
 
+    function orderEmailShowsShipTo(kind) {
+      return kind === 'ack' || kind === 'shipping';
+    }
+
     function renderOrderEmailPreview() {
       if (!orderEmailPreviewEl) return;
       const subject = (orderEmailSubjectEl?.value || '').trim();
@@ -685,6 +693,7 @@
       const amount = (activeOrderEmailDraft?.amountDisplay || '').trim();
       const paymentDate = (activeOrderEmailDraft?.paymentDate || '').trim();
       const estimatedShipDate = activeOrderEmailDraft?.kind === 'ack' ? (orderEmailShipDateEl?.value || '').trim() : '';
+      const shipTo = orderEmailShowsShipTo(activeOrderEmailDraft?.kind) ? (orderEmailShipToEl?.value || '').trim() : '';
       const transactionContext = orderNumber
         ? `This is an order-related message for your Survival Node order #${orderNumber}. Eastern Shore AI, LLC builds and fulfills Survival Node orders.`
         : 'This is an order-related message for your Survival Node purchase. Eastern Shore AI, LLC builds and fulfills Survival Node orders.';
@@ -704,6 +713,7 @@
         amount ? `<strong>Amount:</strong> ${escHtml(amount)}` : '',
         paymentDate ? `<strong>Payment Date:</strong> ${escHtml(paymentDate)}` : '',
         estimatedShipDate ? `<strong>Estimated Ship Date:</strong> ${escHtml(formatShipDate(estimatedShipDate))}` : '',
+        shipTo ? `<strong>Ship To:</strong><br>${escHtml(shipTo).replace(/\n+/g, '<br>')}` : '',
         trackingProvider ? `<strong>Carrier:</strong> ${escHtml(trackingProvider)}` : '',
         trackingNumber ? `<strong>Tracking Number:</strong> ${escHtml(trackingNumber)}` : ''
       ].filter(Boolean).join('<br>');
@@ -873,6 +883,8 @@
       if (orderEmailTrackingNumberEl) orderEmailTrackingNumberEl.value = draft.trackingNumber || '';
       if (orderEmailShipDateWrapEl) orderEmailShipDateWrapEl.style.display = draft.kind === 'ack' ? '' : 'none';
       if (orderEmailShipDateEl) orderEmailShipDateEl.value = draft.estimatedShipDate || '';
+      if (orderEmailShipToWrapEl) orderEmailShipToWrapEl.style.display = orderEmailShowsShipTo(draft.kind) ? '' : 'none';
+      if (orderEmailShipToEl) orderEmailShipToEl.value = draft.shipTo || '';
       renderOrderEmailPreview();
       orderEmailModal?.classList.add('active');
       orderEmailModal?.setAttribute('aria-hidden', 'false');
@@ -3590,7 +3602,7 @@
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) { openErrorModal(data.error || 'Failed to prepare order email preview'); return; }
-        openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || meta.trackingProvider || '', trackingNumber: data.trackingNumber || meta.trackingNumber || '', trackingUrl: data.trackingUrl || meta.trackingUrl || '', estimatedShipDate: data.estimatedShipDate || '', batteryTestNote: data.batteryTestNote || '', batteryTestImageKey: data.batteryTestImageKey || '' });
+        openOrderEmailModal({ bookingId: id, orderKey, kind, orderNumber: data.orderNumber || '', orderSummary: meta.orderSummary || '', amountDisplay: meta.amountDisplay || '', paymentDate: meta.paymentDate || '', subject: data.subject || '', bodyText: data.bodyText || '', trackingProvider: data.trackingProvider || meta.trackingProvider || '', trackingNumber: data.trackingNumber || meta.trackingNumber || '', trackingUrl: data.trackingUrl || meta.trackingUrl || '', estimatedShipDate: data.estimatedShipDate || '', shipTo: data.shipTo || '', batteryTestNote: data.batteryTestNote || '', batteryTestImageKey: data.batteryTestImageKey || '' });
       } catch (err) {
         openErrorModal(err?.message || 'Failed to prepare order email preview');
       }
@@ -4263,6 +4275,7 @@
           orderEmailBodyEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailTrackingNumberEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailShipDateEl?.addEventListener('input', renderOrderEmailPreview);
+          orderEmailShipToEl?.addEventListener('input', renderOrderEmailPreview);
           orderEmailSendBtn?.addEventListener('click', async () => {
             if (!activeOrderEmailDraft || orderEmailSendInFlight) return;
             const estimatedShipDate = activeOrderEmailDraft.kind === 'ack' ? (orderEmailShipDateEl?.value || '').trim() : '';
@@ -4279,6 +4292,7 @@
               trackingProvider: activeOrderEmailDraft.trackingProvider || '',
               trackingNumber: orderEmailTrackingNumberEl?.value || '',
               ...(estimatedShipDate ? { estimatedShipDate } : {}),
+              ...(orderEmailShowsShipTo(activeOrderEmailDraft.kind) ? { shipTo: orderEmailShipToEl?.value || '' } : {}),
               idempotencyKey: activeOrderEmailDraft.idempotencyKey || ''
             };
             const prevTxt = orderEmailSendBtn.textContent || 'Send Email';

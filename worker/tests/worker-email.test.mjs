@@ -295,6 +295,123 @@ test('non-CONUS order: refund issued and the buyer is emailed why', async (t) =>
   assert.match(env.EMAIL.sent[0].text, /Refund issued: \$/);
 });
 
+test('non-CONUS order: newer Stripe API shape is judged by the shipping state, not billing', async (t) => {
+  quietConsole(t);
+  const calls = guardNetwork(t, {
+    'https://api.stripe.com/v1/payment_intents/': { latest_charge: { balance_transaction: { fee: 1477 } } },
+    'https://api.stripe.com/v1/refunds': { id: 're_test_2', status: 'succeeded' }
+  });
+  const env = baseEnv({ STRIPE_SECRET_KEY: 'sk_test_only' });
+  const session = {
+    id: 'cs_test_node_hi', payment_intent: 'pi_test_hi', amount_total: 49900,
+    customer_details: { email: 'gift@example.net', name: 'Gi Fter', address: { state: 'MD' } },
+    collected_information: { shipping_details: { name: 'Island Friend', address: { state: 'HI', city: 'Hilo', country: 'US' } } },
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit' }
+  };
+  const res = await worker.fetch(await signedWebhook(checkoutCompleted(session)), env, ctx);
+  assert.equal(res.status, 200);
+  assert.ok(calls.some((c) => c.url === 'https://api.stripe.com/v1/refunds'));
+});
+
+test('ship-to: read from Stripe, shown on the acknowledgment and shipping emails only, corrections carry over', async (t) => {
+  quietConsole(t);
+  const newShape = { collected_information: { shipping_details: { name: 'Dee Buyer', address: { line1: '5 Pine Ct', line2: 'Apt 2', city: 'Easton', state: 'MD', postal_code: '21601', country: 'US' } } } };
+  const calls = guardNetwork(t, { 'https://api.stripe.com/v1/checkout/sessions/cs_ship_1': { id: 'cs_ship_1', ...newShape } });
+  const env = baseEnv();
+  const session = {
+    id: 'cs_ship_1', payment_intent: 'pi_ship_1', amount_total: 24999,
+    customer_details: { email: 'dee@example.net', name: 'Dee Buyer', address: { state: 'MD' } },
+    ...newShape,
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit', service_label: 'Survival Node' }
+  };
+  await worker.fetch(await signedWebhook(checkoutCompleted(session)), env, ctx);
+  // The staff order email reads the same address.
+  assert.match(env.EMAIL.sent.find((m) => m.subject.includes('New Survival Node order')).text, /Ship to:\nDee Buyer\n5 Pine Ct\nApt 2\nEaston, MD, 21601/);
+  env.EMAIL.sent.length = 0;
+  env.STRIPE_SECRET_KEY = 'sk_test_only';
+  const bookingId = env.DB.sqlite.prepare('SELECT id FROM bookings WHERE stripe_session_id = ?').get('cs_ship_1').id;
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+  const preview = async (kind) => (await worker.fetch(post('/api/orders/preview', { bookingId, kind }, admin), env, ctx)).json();
+  const send = (kind, extra = {}) => worker.fetch(post('/api/orders/send', { bookingId, kind, trackingNumber: '9400100000000000000000', trackingProvider: 'usps', ...extra }, admin), env, ctx);
+
+  // Filled from Stripe for the dialog, in the order a label would read.
+  const draft = await preview('ack');
+  assert.equal(draft.shipTo, 'Dee Buyer\n5 Pine Ct\nApt 2\nEaston, MD 21601');
+
+  // The customer's apartment correction is typed into the dialog before sending.
+  const corrected = 'Dee Buyer\n5 Pine Ct\nApt 2B\nEaston, MD 21601';
+  assert.equal((await send('ack', { shipTo: `${corrected}\r\n\r\n` })).status, 200);
+  const [ack] = env.EMAIL.sent;
+  assert.match(ack.html, /Ship To<\/td>/);
+  assert.match(ack.html, /Dee Buyer<br>5 Pine Ct<br>Apt 2B<br>Easton, MD 21601/);
+  assert.match(ack.text, /Ship to:\nDee Buyer\n5 Pine Ct\nApt 2B\nEaston, MD 21601\n/);
+
+  // The shipping email uses the corrected address, without asking Stripe again.
+  const lookups = calls.length;
+  assert.equal((await preview('shipping')).shipTo, corrected);
+  assert.equal((await send('shipping')).status, 200);
+  assert.equal(calls.length, lookups);
+  assert.match(env.EMAIL.sent[1].html, /Apt 2B/);
+  assert.match(env.EMAIL.sent[1].text, /Ship to:\nDee Buyer/);
+
+  // Delivered and review emails leave it out.
+  assert.equal((await preview('delivered')).shipTo, '');
+  assert.equal((await send('delivered')).status, 200);
+  assert.equal((await send('review')).status, 200);
+  for (const mail of env.EMAIL.sent.slice(2)) {
+    assert.doesNotMatch(mail.html, /Ship To|Pine Ct/);
+    assert.doesNotMatch(mail.text, /Ship to|Pine Ct/);
+  }
+});
+
+test('ship-to: a box cleared in the dialog keeps the address out; a Stripe outage leaves the box empty', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv();
+  const session = {
+    id: 'cs_ship_2', payment_intent: 'pi_ship_2', amount_total: 24999,
+    customer_details: { email: 'lee@example.net', name: 'Lee Buyer', address: { state: 'MD' } },
+    shipping_details: { name: 'Lee Buyer', address: { line1: '6 Oak Ct', city: 'Easton', state: 'MD', postal_code: '21601', country: 'US' } },
+    metadata: { checkout_type: 'base_kit', product: 'survival_node_base_kit' }
+  };
+  await worker.fetch(await signedWebhook(checkoutCompleted(session)), env, ctx);
+  env.EMAIL.sent.length = 0;
+  env.STRIPE_SECRET_KEY = 'sk_test_only';
+  const bookingId = env.DB.sqlite.prepare('SELECT id FROM bookings WHERE stripe_session_id = ?').get('cs_ship_2').id;
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+
+  // guardNetwork throws on the Stripe call, as a network failure would.
+  const draft = await (await worker.fetch(post('/api/orders/preview', { bookingId, kind: 'ack' }, admin), env, ctx)).json();
+  assert.equal(draft.ok, true);
+  assert.equal(draft.shipTo, '');
+
+  const res = await worker.fetch(post('/api/orders/send', { bookingId, kind: 'ack', shipTo: '' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.doesNotMatch(env.EMAIL.sent[0].html, /Ship To/);
+  assert.doesNotMatch(env.EMAIL.sent[0].text, /Ship to/);
+});
+
+test('ship-to: a manual order uses the address typed in the dialog and keeps it for the shipping email', async (t) => {
+  quietConsole(t);
+  guardNetwork(t);
+  const env = baseEnv({ STRIPE_SECRET_KEY: 'sk_test_only' });
+  const admin = { 'X-Admin-Password': 'admin-test-password' };
+  const created = await (await worker.fetch(post('/api/orders/manual', { customerName: 'Mo Manual', customerEmail: 'mo@example.net', amount: '249.99', paymentDate: '2026-10-20' }, admin), env, ctx)).json();
+  const { orderKey } = created;
+  const preview = async (kind) => (await worker.fetch(post('/api/orders/preview', { orderKey, kind }, admin), env, ctx)).json();
+
+  assert.equal((await preview('ack')).shipTo, '');
+  let res = await worker.fetch(post('/api/orders/send', { orderKey, kind: 'ack', shipTo: 'Mo Manual\n<7> Bay Rd\nDover, DE 19901' }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.match(env.EMAIL.sent[0].html, /Mo Manual<br>&lt;7&gt; Bay Rd<br>Dover, DE 19901/);
+
+  const shipping = await preview('shipping');
+  assert.equal(shipping.shipTo, 'Mo Manual\n<7> Bay Rd\nDover, DE 19901');
+  res = await worker.fetch(post('/api/orders/send', { orderKey, kind: 'shipping', trackingNumber: '1Z999', trackingProvider: 'ups', shipTo: shipping.shipTo }, admin), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.match(env.EMAIL.sent[1].text, /Ship to:\nMo Manual\n<7> Bay Rd\nDover, DE 19901/);
+});
+
 test('admin order emails: sent once per draft, review email carries List-Unsubscribe', async (t) => {
   quietConsole(t);
   guardNetwork(t);

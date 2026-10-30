@@ -25,7 +25,7 @@ export function estimateStripeFeeCents(amountCents, method = 'card') {
   return rate.max ? Math.min(fee, rate.max) : fee;
 }
 
-async function stripeGet(secretKey, path) {
+export async function stripeGet(secretKey, path) {
   const res = await fetch(`https://api.stripe.com/v1/${path}`, { headers: { Authorization: `Bearer ${secretKey}` } });
   const data = await res.json().catch(() => ({}));
   return res.ok ? data : null;

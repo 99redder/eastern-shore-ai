@@ -1123,6 +1123,11 @@
           </div>
           <p style="margin:.35rem 0 0; font-size:.85rem; color:var(--muted);">Shown in this email and saved on the order, so Ask K can tell the customer when it ships. Change it later with the order's Ship Date button.</p>
         </div>
+        <div id="order-email-ship-to-wrap" style="display:none;">
+          <label for="order-email-ship-to">Ship To</label>
+          <textarea id="order-email-ship-to" rows="4" style="min-height:0;" placeholder="Name&#10;Street address&#10;City, ST ZIP"></textarea>
+          <p style="margin:.35rem 0 0; font-size:.85rem; color:var(--muted);">Website orders fill in from Stripe; type it in for manual orders. Edit it if the customer sends a correction, and it carries to the shipping email. Leave it blank to keep the address out of this email.</p>
+        </div>
         <div>
           <div style="font-weight:700; margin-bottom:.35rem;">Preview</div>
           <div id="order-email-preview" class="admin-list" style="max-height:none; min-height:220px; background:#fff; color:#111827;"></div>
@@ -1395,7 +1400,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-10-29c"></script>
+  <script src="/admin.js?v=2026-10-30a"></script>
   <script src="/admin-websites.js?v=7"></script>
 </body>
 </html>

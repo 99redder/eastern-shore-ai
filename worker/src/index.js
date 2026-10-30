@@ -14,7 +14,7 @@ import { handleEmailEventBatch } from './email-events.js';
 import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, wantsOrderStatus, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
 import { sendOrderStatusEmail, normalizeOrderNumber, normalizeShipDate, longDate } from './order-status.js';
 import { nodePrice, nodePriceSentence, easternDate } from './node-price.js';
-import { stripeFee, reconcileEstimatedStripeFees } from './stripe-fees.js';
+import { stripeFee, stripeGet, reconcileEstimatedStripeFees } from './stripe-fees.js';
 import ASKK_SURVIVAL_NODE_KNOWLEDGE from '../askk-survival-node-knowledge.md';
 
 let _websitePlan = null;
@@ -1580,7 +1580,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     // MINUS the Stripe processing fee (Stripe keeps the fee on refunds and
     // does not return it to the seller, so the buyer absorbs it).
     if (isShippableNodeSale) {
-      const shipState = (session.shipping_details?.address?.state || session.customer_details?.address?.state || '').toString().trim().toUpperCase();
+      const shipState = (sessionShippingDetails(session)?.address?.state || session.customer_details?.address?.state || '').toString().trim().toUpperCase();
       if (!shipState) {
         await sendStaffOperationalAlert(env, {
           subject: '[ACTION NEEDED] Survival Node order missing shipping state',
@@ -1589,7 +1589,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
             '',
             `Stripe session: ${sessionId || 'n/a'}`,
             `Payment intent: ${(session.payment_intent || '').toString() || 'n/a'}`,
-            `Customer: ${customerName || session.shipping_details?.name || '(not provided)'}`,
+            `Customer: ${customerName || sessionShippingDetails(session)?.name || '(not provided)'}`,
             `Email: ${customerEmail || session.customer_details?.email || session.customer_email || '(not provided)'}`,
             `Amount: ${formatUsd(Number(session.amount_total || 0))}`,
             '',
@@ -1605,7 +1605,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
       if (shipState && NON_CONUS_STATES.has(shipState)) {
         const paymentIntentId = (session.payment_intent || '').toString().trim();
         const buyerEmail = session.customer_details?.email || session.customer_email || null;
-        const buyerName = session.shipping_details?.name || session.customer_details?.name || null;
+        const buyerName = sessionShippingDetails(session)?.name || session.customer_details?.name || null;
         const orderTotalCents = Number(session.amount_total || 0) || 0;
 
         const fee = await stripeFee(env.STRIPE_SECRET_KEY, paymentIntentId, orderTotalCents);
@@ -1920,7 +1920,7 @@ async function handleStripeWebhook(request, env, corsHeaders) {
               productLabel: serviceLabel || 'Survival Node kit order',
               productCode: productCode || checkoutType || serviceType,
               amountCents: amount,
-              shippingDetails: session.shipping_details || null
+              shippingDetails: sessionShippingDetails(session)
             });
           }
         } else if (isNewIncome) {
@@ -2425,10 +2425,49 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
     '',
     'We’ll send another email as soon as it ships.',
     '',
-    'If you have any questions in the meantime, just reply to this message.'
+    'If you have any questions in the meantime, or your shipping address needs a correction, just reply to this message.'
   ].filter(Boolean).join('\n');
 }
 
+// The name and address the buyer entered at Stripe Checkout. API versions from
+// 2025-03-31 put them under collected_information, older ones on the session.
+function sessionShippingDetails(session) {
+  return session?.collected_information?.shipping_details || session?.shipping_details || null;
+}
+
+function formatShipTo(shipping) {
+  const address = shipping?.address || {};
+  return [
+    shipping?.name,
+    address.line1,
+    address.line2,
+    [[address.city, address.state].filter(Boolean).join(', '), address.postal_code].filter(Boolean).join(' ')
+  ].map((line) => (line || '').toString().trim()).filter(Boolean).join('\n');
+}
+
+// One line of the address per line, as typed into the admin email dialog.
+function normalizeShipTo(value) {
+  return (value || '').toString().split(/\r?\n/).map((line) => line.trim()).filter(Boolean).join('\n').slice(0, 500);
+}
+
+function orderEmailShowsShipTo(kind) {
+  return kind === 'ack' || kind === 'shipping';
+}
+
+// The ship-to saved on the order, otherwise what the buyer entered at Stripe
+// Checkout. Empty for a manual order until it's typed into the email dialog.
+async function orderShipTo(env, row) {
+  if (row?.ship_to) return row.ship_to;
+  const sessionId = (row?.stripe_session_id || '').toString().trim();
+  if (!sessionId || !env.STRIPE_SECRET_KEY) return '';
+  try {
+    const session = await stripeGet(env.STRIPE_SECRET_KEY, `checkout/sessions/${encodeURIComponent(sessionId)}`);
+    return formatShipTo(sessionShippingDetails(session));
+  } catch (e) {
+    console.error('Stripe ship-to lookup failed', e);
+    return '';
+  }
+}
 
 function buildOrderEmailContent(kind, row, overrides = {}) {
   const trackingProvider = (overrides.trackingProvider ?? row?.tracking_provider ?? '').toString().trim();
@@ -2440,6 +2479,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const orderNumber = (row?.order_number || '').toString().trim();
   // The acknowledgment shows the estimated ship date (also what Ask K reports).
   const estimatedShipDate = kind === 'ack' ? normalizeShipDate(overrides.estimatedShipDate ?? row?.estimated_ship_date) : '';
+  const shipTo = orderEmailShowsShipTo(kind) ? normalizeShipTo(overrides.shipTo ?? row?.ship_to) : '';
   const transactionContext = orderNumber
     ? `This is an order-related message for your Survival Node order #${orderNumber}. Eastern Shore AI, LLC builds and fulfills Survival Node orders.`
     : 'This is an order-related message for your Survival Node purchase. Eastern Shore AI, LLC builds and fulfills Survival Node orders.';
@@ -2468,7 +2508,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const gettingStarted = kind === 'delivered'
     ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime. It works offline, and whenever you open it on Wi-Fi it checks for a newer version of the guide.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
     : '';
-  const text = `${estimatedShipDate ? `Estimated ship date: ${longDate(estimatedShipDate)}\n\n` : ''}${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — ${BUSINESS_LOCATION}\nhttps://www.easternshore.ai`;
+  const text = `${estimatedShipDate ? `Estimated ship date: ${longDate(estimatedShipDate)}\n\n` : ''}${shipTo ? `Ship to:\n${shipTo}\n\n` : ''}${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — ${BUSINESS_LOCATION}\nhttps://www.easternshore.ai`;
   const html = emailLayout({
     heading: subject,
     preheader,
@@ -2479,6 +2519,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
       ['Amount', formatUsd(Number(row?.amount_cents || 0))],
       ['Payment Date', row?.payment_date ? String(row.payment_date).slice(0, 10) : ''],
       ['Estimated Ship Date', estimatedShipDate ? longDate(estimatedShipDate) : ''],
+      ['Ship To', shipTo ? { html: escapeHtml(shipTo).replace(/\n/g, '<br>') } : ''],
       ['Carrier', trackingProvider ? trackingProvider.toUpperCase() : ''],
       ['Tracking Number', trackingNumber]
     ]) + emailParagraphs(bodyText) + batteryHtml + trackHtml + reviewHtml,
@@ -2525,6 +2566,7 @@ async function getOrderRowByBookingId(db, bookingId) {
        of.delivered_email_sent_at,
        of.shipped_at,
        of.estimated_ship_date,
+       of.ship_to,
        of.battery_test_note,
        of.battery_test_image_key,
        of.review_email_sent_at
@@ -2581,6 +2623,7 @@ async function getManualOrderRowById(db, manualOrderId) {
        review_email_body,
        shipped_at,
        estimated_ship_date,
+       ship_to,
        battery_test_note,
        battery_test_image_key,
        created_at,
@@ -2740,12 +2783,14 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const trackingProvider = (data.trackingProvider ?? hydratedRow.tracking_provider ?? row.tracking_provider ?? '').toString().trim();
   const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
+  const shipTo = orderEmailShowsShipTo(kind) ? await orderShipTo(env, hydratedRow) : '';
   const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
     bodyText: data.bodyText,
     trackingProvider,
     trackingNumber,
-    trackingUrl
+    trackingUrl,
+    shipTo
   });
   return json({
     ok: true,
@@ -2759,6 +2804,7 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
     amountCents: Number(hydratedRow.amount_cents || 0),
     paymentDate: (hydratedRow.payment_date || '').toString(),
     estimatedShipDate: normalizeShipDate(hydratedRow.estimated_ship_date),
+    shipTo,
     batteryTestNote: (hydratedRow.battery_test_note || '').toString(),
     batteryTestImageKey: (hydratedRow.battery_test_image_key || '').toString(),
     ...content
@@ -3084,6 +3130,9 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
   if (kind === 'ack' && (data.estimatedShipDate || '').toString().trim() && !estimatedShipDate) {
     return json({ ok: false, error: 'Invalid estimated ship date' }, 400, corsHeaders);
   }
+  // What's in the dialog goes out and is saved, so a correction carries to the
+  // next email. A box cleared on purpose leaves the address out of this one.
+  const shipTo = orderEmailShowsShipTo(kind) ? normalizeShipTo(data.shipTo ?? await orderShipTo(env, hydratedRow)) : '';
 
   const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
@@ -3091,7 +3140,8 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     trackingProvider,
     trackingNumber,
     trackingUrl,
-    estimatedShipDate: estimatedShipDate || hydratedRow.estimated_ship_date
+    estimatedShipDate: estimatedShipDate || hydratedRow.estimated_ship_date,
+    shipTo
   });
 
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();
@@ -3144,9 +3194,10 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
              shipping_email_subject = ?4,
              shipping_email_body = ?5,
              shipped_at = COALESCE(shipped_at, datetime('now')),
+             ship_to = COALESCE(?7, ship_to),
              updated_at = datetime('now')
          WHERE id = ?6`
-      ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+      ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id, shipTo || null).run();
     } else if (kind === 'delivered') {
       await env.DB.prepare(
         `UPDATE manual_survival_node_orders
@@ -3176,9 +3227,10 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
              ack_email_subject = ?1,
              ack_email_body = ?2,
              estimated_ship_date = COALESCE(?4, estimated_ship_date),
+             ship_to = COALESCE(?5, ship_to),
              updated_at = datetime('now')
          WHERE id = ?3`
-      ).bind(content.subject, content.bodyText, row.id, estimatedShipDate || null).run();
+      ).bind(content.subject, content.bodyText, row.id, estimatedShipDate || null, shipTo || null).run();
     }
   } else if (kind === 'shipping') {
     await env.DB.prepare(
@@ -3191,9 +3243,10 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
            shipping_email_subject = ?4,
            shipping_email_body = ?5,
            shipped_at = COALESCE(shipped_at, datetime('now')),
+           ship_to = COALESCE(?7, ship_to),
            updated_at = datetime('now')
        WHERE booking_id = ?6`
-    ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id).run();
+    ).bind(trackingProvider || null, trackingNumber || null, trackingUrl || null, content.subject, content.bodyText, row.id, shipTo || null).run();
   } else if (kind === 'delivered') {
     await env.DB.prepare(
       `UPDATE order_fulfillment
@@ -3223,9 +3276,10 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
            ack_email_subject = ?1,
            ack_email_body = ?2,
            estimated_ship_date = COALESCE(?4, estimated_ship_date),
+           ship_to = COALESCE(?5, ship_to),
            updated_at = datetime('now')
        WHERE booking_id = ?3`
-    ).bind(content.subject, content.bodyText, row.id, estimatedShipDate || null).run();
+    ).bind(content.subject, content.bodyText, row.id, estimatedShipDate || null, shipTo || null).run();
   }
 
   return json({ ok: true, orderKey: row.order_key, kind, emailId: sendJson?.id || null }, 200, corsHeaders);

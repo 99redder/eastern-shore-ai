@@ -1169,6 +1169,13 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 6. Red **cold-starts it in airplane mode with Wi-Fi off** (swipe it out of recent apps first) and says what they saw. Wrap-up buttons must never pre-write a test result; ask what happened on the phone.
 7. Release in one push: move the `test` values to the top-level fields and delete `test`, remove the old APK, point the update note's fallback link in `index.html` at the new APK, update the README table and history. Then check the live `latest.json` and that the live APK's hash matches the tested build.
 
+## Ship-to address in order emails (added 2026-10-30)
+
+- The acknowledgment and shipping emails show a **Ship To** row (details box and plain text). Delivered, review and Ask K status emails don't.
+- The **Ship To** box in the admin email dialog is what goes out. `/api/orders/preview` fills it with the order's saved `ship_to`, otherwise from the Stripe Checkout Session (`orderShipTo`), so it covers orders placed before this was added. Manual orders have no session, so it's typed in. A blank box leaves the row out.
+- `/api/orders/send` saves the box to `ship_to` (`order_fulfillment` and `manual_survival_node_orders`, migration `0038`), so a correction made on the acknowledgment carries to the shipping email.
+- Read Stripe's address with `sessionShippingDetails()`. API versions from 2025-03-31 moved `shipping_details` to `collected_information.shipping_details`, and webhooks follow the endpoint's version, which we don't pin. `customer_details.address` is billing, not shipping.
+
 ## Survival Node Ask K order updates (added 2026-10-27)
 
 Ported from Florence Mae Gifts' Ask K (`FlorenceMaeGifts.com/cloudflare/src/ask-k.js` + `orders.js`). Survival Node orders only: no invoices, no eBay.
