@@ -111,7 +111,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 - **Warranty:** 30-day Eastern Shore AI, LLC limited warranty covering defects in hardware function and software configuration as delivered. The OS modification voids any manufacturer warranty; components are otherwise sold "as is."
 - **Support:** 30 days of direct support. After 30 days there's no standard repair, replacement or ongoing service; customers can contact us to ask about options case by case.
-- **Returns:** within 30 days of confirmed delivery; after that all sales are final. Get an RMA number first through the website contact form — returns without one aren't accepted. The device must be in original functional condition with the OS not further modified. Buyer pays return shipping. No restocking fee. Refunds go to the original payment method within 10 business days after the return is received and inspected. No exchanges. Damage after delivery isn't eligible.
+- **Returns:** within 30 days of confirmed delivery; after that all sales are final. Get an RMA number first by email (support@easternshore.ai) or through the website contact form — returns without one aren't accepted. The device must be in original functional condition with the OS not further modified. Buyer pays return shipping. No restocking fee. Refunds go to the original payment method within 10 business days after the return is received and inspected. No exchanges. Damage after delivery isn't eligible.
 
 ## Ordering, shipping and payment
 

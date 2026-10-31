@@ -6841,7 +6841,7 @@ function fallbackAskKAnswer(question, context) {
     return 'Shipping is free to continental U.S. destinations, and orders ship by ground due to lithium battery rules. Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not currently supported.';
   }
   if (q.includes('return') || q.includes('refund') || q.includes('warranty')) {
-    return 'Returns are accepted within 30 days of delivery with an RMA number from our contact form, if the device is in original functional condition and the OS has not been further modified. Buyer pays return shipping; no restocking fee. The kit also includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration, with 30 days of direct support.';
+    return 'Returns are accepted within 30 days of delivery with an RMA number, which you can request by email or through our contact form, if the device is in original functional condition and the OS has not been further modified. Buyer pays return shipping; no restocking fee. The kit also includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration, with 30 days of direct support.';
   }
   if (q.includes('byog') || q.includes('bring your own gear') || q.includes('current phone')) {
     return 'The BYOG setup service is for compatible Android phones on Maryland’s Eastern Shore. It includes a full device wipe, deep Android debloat, the full Survival Node software suite, and the pre-configured Survival Node AI persona for $69.99.';
