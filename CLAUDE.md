@@ -1087,6 +1087,7 @@ cd worker && wrangler deploy --config wrangler.toml
 - New phones are prepared by the `survival-node-prep` skill (`~/.claude/skills/survival-node-prep/`): one script, run on the laptop Alamo, where the phone is plugged in. **The website is its spec.** If the software list, Kiwix libraries or debloat claims change on the site, change `APP_LIST`, `LIBRARIES` or `verify()` too, and the reverse.
 - The debloat is `pm uninstall --user 0` over USB debugging. No bootloader is unlocked, so don't say one is. A factory reset brings the removed apps back.
 - **Library claims, checked against the files:** Wikipedia is the `mini` edition (the opening summary of every English article, not full text). Project Gutenberg is class A "General works": 2,931 volumes, mostly old magazines and journals, not novels. The Water Treatment Library is 7 PDFs with no videos. "Over 10GB" of medical and of survival references come from `shelf` in `LIBRARIES`, and `verify()` fails a phone if either total drops under 10 GB.
+- **Play Services:** say "removed or disabled", never "not installed". Android 14 phones have it removed. Android 15 phones keep it installed but disabled, because Android 15 mounts its data folder into every app it starts (`app-data-isolation-whitelisted-app` in `/product/etc/sysconfig/google.xml`). Uninstalling it there leaves a black screen and dead storage until it's restored.
 - A run removes or disables Motorola's system updater, so a phone stays on the build it had. `node.html` (FAQ, JSON-LD, on-page terms), `terms.html` and the Ask K knowledge file all say it gets no Android or security updates. Red doesn't wait for updates before a run: on these 2024 phones they take days per phone.
 - AccuBattery runs once per phone, before shipping, and the result is linked in the shipping email. Earlier checks are for charging, drain and function only, so don't claim repeated AccuBattery tests.
 - Meshtastic is the app only. No radio is included, and the terms and guide say so.
@@ -1198,6 +1199,8 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - It can go out at any time and any number of times, and changes nothing on the order except a corrected Ship To. Nothing in D1 records that a message was sent; the BCC copy and Cloudflare's log are the record.
 - `/api/orders/send` refuses a blank body or the untouched template ("Write your message first").
 - Use this instead of Apple Mail when a customer email has to arrive: it goes through Cloudflare and passes DMARC.
+- The review request can also go out more than once: the button reads **Send Review Again** after the first, and `orderEmailSentAt` returns nothing for `message` and `review`. `review_email_sent_at` keeps the latest.
+- Order buttons that can't run yet use `aria-disabled` and `data-blocked` (`blockedBy()` in `admin.js`), not `disabled`, so they look grayed out and a click explains why.
 
 ## Text Customer button (added 2026-10-30)
 

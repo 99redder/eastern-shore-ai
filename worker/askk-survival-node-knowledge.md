@@ -85,7 +85,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **Does it get Android updates?** No. We remove or disable Motorola's system updater during setup, so the phone stays on the Android version it had when we prepared it and won't receive Android or security updates. It's built to be used offline, and this matters most if you go online with it. Apps, maps and AI models can still be updated over Wi-Fi.
 
-**Can I add apps or update the AI models and maps?** Yes. You can side-load APKs (no Google Play Services installed). PocketPal can download new or larger model files, and Organic Maps can re-download updated maps, whenever you have Wi-Fi. The User Guide's Maintenance section walks through it.
+**Can I add apps or update the AI models and maps?** Yes. You can side-load APKs (Google Play Services is removed or disabled). PocketPal can download new or larger model files, and Organic Maps can re-download updated maps, whenever you have Wi-Fi. The User Guide's Maintenance section walks through it.
 
 **How do I update the User Guide app?** It checks for itself. Open the User Guide app while the phone is on Wi-Fi; if a newer guide exists, an orange "Guide update available" note appears at the top. Tap Update, tap the downloaded file (notification bar or Files → Downloads), allow installs from that source if Android asks, then tap Update. It installs over the old guide and nothing else on the phone changes. No note means the guide is already current. Offline, the guide opens as usual. Guide apps on older kits may not have the automatic check; those owners can contact the team for the latest version. The version number is at the bottom of the guide.
 

@@ -358,6 +358,10 @@ test('ship-to: read from Stripe, shown on the acknowledgment and shipping emails
   assert.equal((await preview('delivered')).shipTo, '');
   assert.equal((await send('delivered')).status, 200);
   assert.equal((await send('review')).status, 200);
+  // A customer who hasn't left one yet can be asked again.
+  const reviewsSent = env.EMAIL.sent.length;
+  assert.equal((await send('review')).status, 200);
+  assert.equal(env.EMAIL.sent.length, reviewsSent + 1);
   for (const mail of env.EMAIL.sent.slice(2)) {
     assert.doesNotMatch(mail.html, /Ship To|Pine Ct/);
     assert.doesNotMatch(mail.text, /Ship to|Pine Ct/);

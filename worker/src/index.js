@@ -2643,10 +2643,9 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
 }
 
 function orderEmailSentAt(row, kind) {
-  if (kind === 'message') return ''; // Can go out any number of times.
+  if (kind === 'message' || kind === 'review') return ''; // Can go out any number of times.
   if (kind === 'shipping') return (row?.shipping_email_sent_at || '').toString().trim();
   if (kind === 'delivered') return (row?.delivered_email_sent_at || '').toString().trim();
-  if (kind === 'review') return (row?.review_email_sent_at || '').toString().trim();
   return (row?.ack_email_sent_at || '').toString().trim();
 }
 
