@@ -729,7 +729,10 @@
     .item-photo-gallery img { height: 180px; width: auto; min-width: 180px; border-radius: 6px; border: 1px solid var(--line); object-fit: cover; flex-shrink: 0; background: #0d1017; cursor: zoom-in; transition: opacity .15s; }
     .item-photo-gallery[data-item="kit"] img,
     .item-photo-gallery[data-item="solar"] img { object-fit: contain; }
-    .item-photo-gallery[data-item="phone"] img { height: 320px; min-width: 0; object-fit: contain; }
+    .item-photo-gallery[data-item="phone"] img,
+    .item-photo-gallery[data-item="usersguide"] img,
+    .item-photo-gallery[data-item="maps"] img,
+    .item-photo-gallery[data-item="ai"] img { height: 320px; min-width: 0; object-fit: contain; }
     .item-photo-gallery img:hover { opacity: .85; }
     del { color: #d93025; text-decoration-color: #d93025; }
     .photo-modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.9); align-items: center; justify-content: center; }
@@ -1844,9 +1847,9 @@
                 <img loading="lazy" class="thumb-img active" src="images/carousel/entirenode/wholekit-gen2.jpg" alt="Survival Node Gen 2 complete kit" data-full="images/carousel/entirenode/wholekit-gen2.jpg" data-key="kit" />
                 <span class="thumb-group-label">Components</span>
                 <img class="thumb-img" src="images/carousel/phone/home-screen.jpg" alt="Survival Node phone home screen with the kit's apps" data-full="images/carousel/phone/home-screen.jpg" data-key="phone" />
-                <img class="thumb-img" src="images/carousel/aichat/qwen35-rainwater.jpeg" alt="Qwen3.5-4B in PocketPal answering a survival question" data-full="images/carousel/aichat/qwen35-rainwater.jpeg" data-key="ai" />
-                <img class="thumb-img" src="images/carousel/maps/phoneai3.png" alt="Offline Maps" data-full="images/carousel/maps/phoneai3.png" data-key="maps" />
-                <img class="thumb-img" src="images/carousel/usersguide/guide3.png" alt="Users Guide App" data-full="images/carousel/usersguide/guide3.png" data-key="usersguide" />
+                <img class="thumb-img" src="images/carousel/aichat/rainwater-chat.jpg" alt="Qwen3.5-4B in PocketPal answering a survival question" data-full="images/carousel/aichat/rainwater-chat.jpg" data-key="ai" />
+                <img class="thumb-img" src="images/carousel/maps/map-delmarva.jpg" alt="Offline Maps" data-full="images/carousel/maps/map-delmarva.jpg" data-key="maps" />
+                <img class="thumb-img" src="images/carousel/usersguide/guide-home.jpg" alt="Users Guide App" data-full="images/carousel/usersguide/guide-home.jpg" data-key="usersguide" />
                 <img class="thumb-img" src="images/carousel/solarbattery/solar-battery-gen2.jpg" alt="Survival Node Gen 2 solar battery" data-full="images/carousel/solarbattery/solar-battery-gen2.jpg" data-key="solar" />
                 <img class="thumb-img" src="images/carousel/case/case3.jpg" alt="Hard Storage Case" data-full="images/carousel/case/case3.jpg" data-key="case" />
                 <img class="thumb-img" src="images/carousel/upgrades/faraday2.jpg" alt="Mission Darkness Faraday Bags" data-full="images/carousel/upgrades/faraday2.jpg" data-key="faraday" />
@@ -2512,9 +2515,9 @@
         },
         usersguide: {
           photos: [
-            'images/carousel/usersguide/guide3.png',
-            'images/carousel/usersguide/guide2.png',
-            'images/carousel/usersguide/guide1.png',
+            'images/carousel/usersguide/guide-home.jpg',
+            'images/carousel/usersguide/guide-first-steps.jpg',
+            'images/carousel/usersguide/guide-6-month.jpg',
             'images/carousel/usersguide/guide4.png',
           ],
           label: 'App on the home screen',
@@ -2526,7 +2529,8 @@
         },
         maps: {
           photos: [
-            'images/carousel/maps/phoneai3.png',
+            'images/carousel/maps/map-delmarva.jpg',
+            'images/carousel/maps/map-salisbury.jpg',
           ],
           label: 'Pre-loaded on the core unit',
           title: 'Offline Maps — All 50 States',
@@ -2536,7 +2540,7 @@
         },
         ai: {
           photos: [
-            'images/carousel/aichat/qwen35-rainwater.jpeg',
+            'images/carousel/aichat/rainwater-chat.jpg',
           ],
           label: 'The core capability',
           title: 'Offline AI Models',
