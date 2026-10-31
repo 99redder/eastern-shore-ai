@@ -8,7 +8,7 @@ This folder holds the source for the **Survival Node User Guide** Android app.
   WebIntoApp's 256 KB limit). ESAI neon logo, same as the support-chat PWA. Upload this in the
   WebIntoApp icon field. Master source: `/icons/support-chat/icon-source.png` (1254×1254).
 - `Survival-Node-Users-Guide-v1.2.pdf` — the printable Users Guide PDF (standard letter format).
-  Ships pre-loaded on each phone (Files → Downloads) and serves as the offline-shareable / printable
+  Ships pre-loaded on each phone (File Manager → Download) and serves as the offline-shareable / printable
   full copy (e.g. LocalSend to another device in an emergency). **It is generated from
   `/node-setup.html`**, not authored separately — use its "🖨️ Print PDF" button and Save as PDF, or
   headless Chrome against node-setup.html. Regenerate whenever the guide content changes.
@@ -45,8 +45,8 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.10 |
-| Last built version | 1.10 (versionCode 11000, built 2026-10-30 from HTML Files — opens offline, tested) |
+| Current source version | 1.11 |
+| Last built version | 1.11 (versionCode 11100, built 2026-10-30 from HTML Files — opens offline, tested) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -169,6 +169,7 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 - **1.9** (10900, built 2026-10-30): voice input is on Qwen 2.5 only. Same signing certificate, cold-started in airplane mode with Wi-Fi off.
 
 - **1.10** (11000, built 2026-10-30): Mission Darkness manufacturer ratings, shown as plain text with no link because a failed link offline would replace the guide with an error page. Same signing certificate, cold-started in airplane mode.
+- **1.11** (11100, built 2026-10-30): the copy pass. Home screen instead of app drawer, File Manager and the Download folder for the PDF, a note on the one-screen layout, no Android updates, offline wording that leaves out DeepL, Fennec and F-Droid, and "install or turn on" for Play Services. Same signing certificate. Red updated a finished phone from 1.10 over Wi-Fi through the test channel, then cold-started it in airplane mode, and it opened.
 
 ### Test updates (1.7 and later)
 

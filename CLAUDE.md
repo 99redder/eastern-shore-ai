@@ -1176,7 +1176,7 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - **Fix (1.7):** `checkForGuideUpdate()` returns early when `navigator.onLine` is false. The app has `ACCESS_NETWORK_STATE`, so the web view reports airplane mode correctly. Offline, the guide makes no request at all. Still possible: Wi-Fi that's connected but has no internet looks "online", the fetch fails, and the error page appears. No request can be made that the wrapper won't treat this way.
 - **Test channel (1.7):** 7 quick taps on the version line at the bottom of the guide turns "test updates" on for that phone (footer reads "· test updates on"). Such phones are also offered `latest.json`'s optional `test` entry, so new builds reach Red's test phone over Wi-Fi before customers. Customers' guides ignore `test`. 1.7 itself had to be installed by hand (from the hosted APK), since 1.6 has no test channel.
 
-### Checklist for the next guide app update (1.11 = versionCode 11100)
+### Checklist for the next guide app update (1.12 = versionCode 11200)
 
 1. Edit `survival-node-app/index.html`; keep `node-setup.html` in sync. Bump `APP_VERSION_CODE` and the footer version.
 2. **Add nothing that loads from the network while offline:** no fetch, images, fonts or scripts from a URL, and no tappable outside links (write the address as plain text). One failed request replaces the whole guide (above).
