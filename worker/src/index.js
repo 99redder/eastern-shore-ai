@@ -2619,7 +2619,7 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
     : '';
   const reviewHtml = kind === 'review' ? emailButton(GOOGLE_REVIEW_URL, 'Leave a Google Review \u2605') : '';
   const gettingStarted = kind === 'delivered'
-    ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime. It works offline, and whenever you open it on Wi-Fi it checks for a newer version of the guide.<br><br>Your case also includes two inserts: one walks you through the <strong>first steps</strong> to get set up, and the other covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
+    ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime. It works offline, and whenever you open it on Wi-Fi it checks for a newer version of the guide.<br><br>Your box also includes printed inserts: one walks you through the <strong>first steps</strong> to get set up, and another covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
     : '';
   const text = `${estimatedShipDate ? `Estimated ship date: ${longDate(estimatedShipDate)}\n\n` : ''}${shipTo ? `Ship to:\n${shipTo}\n\n` : ''}${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — ${BUSINESS_LOCATION}\nhttps://www.easternshore.ai`;
   const html = emailLayout({
@@ -6835,7 +6835,7 @@ function fallbackAskKAnswer(question, context) {
     return `The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. ${nodePriceSentence()}, with free shipping to the continental U.S. ${contextBits.join(' ')}`.trim();
   }
   if (q.includes('offline') || q.includes('internet') || q.includes('cell')) {
-    return 'Yes — the Survival Node is designed to work fully offline. The AI, maps, apps, and reference libraries run locally on the phone with no internet, no Wi‑Fi, and no cell signal required.';
+    return 'Yes — the Survival Node is designed for offline use. The AI, maps, and reference libraries run locally on the phone with no internet, no Wi‑Fi, and no cell signal required. DeepL, Fennec and F-Droid are the exceptions, since they need an internet connection.';
   }
   if (q.includes('ship') || q.includes('shipping')) {
     return 'Shipping is free to continental U.S. destinations, and orders ship by ground due to lithium battery rules. Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not currently supported.';
