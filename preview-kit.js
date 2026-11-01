@@ -223,19 +223,19 @@
     if (a) { e.preventDefault(); showStart(); }
   });
 
-  // Show the pill only after they've had a moment with the site: 12 seconds, or once they scroll a third of the page.
+  // Show the pill soon: 4 seconds in, or once they scroll 15% of the page (Chris, 11/1: less friction to move forward).
   var shown = false;
   function reveal() {
     if (shown || store(dismissedKey) === '1') return;
     shown = true; pill.hidden = false; requestAnimationFrame(function () { pill.classList.add('show'); });
     window.removeEventListener('scroll', onScroll);
   }
-  function onScroll() { var h = document.documentElement; if (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) > 0.33) reveal(); }
+  function onScroll() { var h = document.documentElement; if (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) > 0.15) reveal(); }
   // Step aside at the very bottom so the pill never covers the footer.
   window.addEventListener('scroll', function () {
     var h = document.documentElement, left = h.scrollHeight - (window.scrollY || h.scrollTop) - window.innerHeight;
     pill.classList.toggle('away', left < 240);
   }, { passive: true });
-  setTimeout(reveal, 12000);
+  setTimeout(reveal, 4000);
   window.addEventListener('scroll', onScroll, { passive: true });
 })();
