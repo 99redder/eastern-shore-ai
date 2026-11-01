@@ -22,6 +22,9 @@ export const PREVIEW_SITES = {
   keepsake: { name: 'Keepsake Art & Framing', phone: '(410) 749-6663', email: 'keepsakeframing@gmail.com' },
   alexandersmarine: { name: 'Alexanders Marine Service', phone: '(443) 669-4825', email: 'alexandersmarineservice@hotmail.com' },
   nicholstrees: { name: 'Nichols Tree Farm', phone: '(443) 523-2217', email: 'sabine@wildblue.net' },
+  campbells: { name: "Campbell's Auto Body", phone: '(410) 677-3332', email: 'campbells_collision@yahoo.com' },
+  salisburybarbershop: { name: 'Salisbury Barber Shop', phone: '(443) 366-0611', email: '' },
+  seasonsbest: { name: 'Seasons Best Antiques', phone: '(410) 860-8988', email: '' },
 };
 
 const SITE = 'https://www.easternshore.ai';
