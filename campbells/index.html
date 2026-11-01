@@ -89,6 +89,11 @@ p, li, blockquote { text-wrap: pretty; }
 .stars small { color: #C9D0DA; font-size: 1.02rem; }
 .hero-photo { position: relative; margin: 0; }
 .hero-photo img { position: relative; z-index: 2; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 8px; border: 1px solid #3A414E; box-shadow: 0 28px 50px -26px rgba(0,0,0,.9); }
+.hero-ba { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hero-ba figure { margin: 0; position: relative; }
+.hero-ba img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 8px; border: 1px solid #3A414E; box-shadow: 0 28px 50px -26px rgba(0,0,0,.9); display: block; }
+.hero-ba .tag { position: absolute; top: 12px; left: 12px; font: 700 .9rem/1 var(--label); letter-spacing: .16em; text-transform: uppercase; padding: 7px 11px; border-radius: 4px; background: var(--tape); color: var(--ink); }
+.hero-ba figure + figure .tag { background: var(--sky); }
 .hero-photo figcaption { position: relative; z-index: 2; margin-top: 12px; font: 500 .95rem/1.4 var(--body); color: #BFC7D2; }
 .fan { position: absolute; z-index: 1; left: -34px; bottom: 64px; width: 120px; height: 210px; pointer-events: none; }
 .fan i { position: absolute; left: 0; bottom: 0; width: 64px; height: 190px; border-radius: 6px 6px 4px 4px; transform-origin: 50% 96%; box-shadow: 0 6px 14px -6px rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.12); }
@@ -253,7 +258,7 @@ footer a { color: #fff; }
   /* Mobile hero */
   .m-hero { background: #0E1015; color: #FFFFFF; }
   .m-photo { position: relative; margin: 0; }
-  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 40%; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 55%; }
   .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #0E1015, transparent); }
   .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
   .m-photo + .m-body { margin-top: -38px; }
@@ -324,7 +329,7 @@ footer a { color: #fff; }
 <main id="top">
 <!-- m-layer:hero -->
 <section class="m-hero m-only" aria-label="Campbell&#x27;s Auto Body">
-  <figure class="m-photo"><img src="img/cab_0.webp" alt="Campbell&#x27;s Auto Body storefront with its blue sign and flower boxes"></figure>
+  <figure class="m-photo"><img src="img/cab_2.webp" alt="A customer’s black Suburban after Campbell’s repaired its rear bumper"></figure>
   <div class="m-body">
     <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
     <h1 class="m-title">Auto body repair & painting in Salisbury.</h1>
@@ -352,8 +357,11 @@ footer a { color: #fff; }
       </div>
       <figure class="hero-photo">
         <div class="fan" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-        <img src="img/cab_0.webp" width="1024" height="682" alt="Campbell's Auto Body storefront: a cream block building with a blue Campbell's Auto Body sign, a glass door, and flower boxes along the sidewalk">
-        <figcaption>The shop at 312 N Salisbury Blvd. Look for the blue sign and the flower boxes.</figcaption>
+        <div class="hero-ba">
+          <figure><img src="img/cab_1.webp" width="840" height="992" style="object-position: 50% 28%" alt="Before: the rear corner of a black Chevrolet Suburban with the bumper cover crushed in below the tail light"><span class="tag">Before</span></figure>
+          <figure><img src="img/cab_2.webp" width="840" height="1120" alt="After: the same black Suburban from behind with the rear bumper repaired and glossy, license plate blurred"><span class="tag">After</span></figure>
+        </div>
+        <figcaption>A customer’s Suburban, before and after. Photos from their <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review.</figcaption>
       </figure>
     </div>
   </section>
@@ -405,12 +413,7 @@ footer a { color: #fff; }
     <div class="wrap">
       <h2>Before &amp; after</h2>
       <span class="pass" aria-hidden="true"></span>
-      <p class="sub">Real repairs, in photos shared by customers and by the shop.</p>
-      <div class="ba">
-        <figure><img src="img/cab_1.webp" width="840" height="992" loading="lazy" style="object-position: 50% 28%" alt="Before: the rear corner of a black Chevrolet Suburban with the bumper cover crushed in below the tail light"><span class="tag">Before</span></figure>
-        <figure><img src="img/cab_2.webp" width="840" height="1120" loading="lazy" style="object-position: 50% 50%" alt="After: the same black Suburban from behind with the rear bumper repaired and glossy, license plate blurred"><span class="tag">After</span></figure>
-      </div>
-      <p class="ba-cap">A black Chevy Suburban with a crushed rear bumper corner, then repaired. Customer photos from a <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review.</p>
+      <p class="sub">More repairs, in photos shared by a customer and by the shop.</p>
       <div class="more">
         <figure><img src="img/cab_3.webp" width="840" height="1119" loading="lazy" alt="A white Mercedes Sprinter van seen from behind, its plate covered with a white box" style="object-position: 50% 45%"><figcaption><b>Vans too</b>A customer’s Mercedes Sprinter, from their <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review.</figcaption></figure>
         <figure><img src="img/cab_5.webp" width="900" height="900" loading="lazy" alt="Before and after photos of a dark grey Honda Accord, the after shot taken outdoors with a glossy finish"><figcaption><b>A Honda Accord, before and after</b>Posted by the shop on its Campbell’s Collision Facebook page.</figcaption></figure>
