@@ -4388,5 +4388,29 @@
     })();
   </script>
 
+<script>
+  // Daily visit count for the 8 AM summary email (no per-visit emails). Skips Chris's own
+  // browser: open any page once with ?me=1 to mark it, ?me=0 to undo (same flag as the preview sites).
+  (function () {
+    try {
+      var q = new URLSearchParams(location.search), mine = false;
+      try {
+        if (q.get('me') === '1') localStorage.setItem('esai_me', '1');
+        if (q.get('me') === '0') localStorage.removeItem('esai_me');
+        mine = localStorage.getItem('esai_me') === '1';
+      } catch (e) {}
+      if (mine) return;
+      var ref = '';
+      try { ref = document.referrer ? new URL(document.referrer).hostname : ''; } catch (e) {}
+      var src = q.get('gclid') || q.get('gbraid') || q.get('wbraid') ? 'google ads'
+        : q.get('rdt_cid') ? 'reddit ads'
+        : q.get('fbclid') ? 'facebook/instagram'
+        : (q.get('utm_source') || '').slice(0, 40);
+      var base = (window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact').replace('/api/contact', '/api/page/visit');
+      fetch(base, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, keepalive: true,
+        body: JSON.stringify({ page: 'node', ref: ref, src: src }) }).catch(function () {});
+    } catch (e) {}
+  })();
+</script>
 </body>
 </html>

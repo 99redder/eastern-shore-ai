@@ -17,6 +17,7 @@
 // or pausing emails staff once per day per reason.
 
 import Anthropic from '@anthropic-ai/sdk';
+import { pageVisitSummary } from './page-visits.js';
 
 const CLAUDE_FAMILY = 'claude-opus-';
 const CLAUDE_FALLBACK_MODEL = 'claude-opus-5-5';
@@ -566,6 +567,11 @@ export async function sendAskKDailySummary(env, notify, now = new Date(), { time
   const left = sections.filter(s => s.status);
   if (left.length) lines.push(`Not counted: ${left.map(s => s.name).join(', ')}`);
   lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k): platform.claude.com → Usage.');
+
+  // Page visits (node.html) ride along in the same morning email.
+  let visits = null;
+  try { visits = await pageVisitSummary(env, day); } catch (e) { console.error('page visit summary failed', e); }
+  if (visits) lines.push('', `Website visits yesterday — ${day}`, '', ...visits.lines);
 
   const failed = sections.filter(s => s.failed).map(s => s.name);
   const subject = `Ask K yesterday: ${answers} answered, about ${money(spent)}; ${month} so far ${money(claudeMtd)} of $${limit}`
