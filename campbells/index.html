@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Campbell's Auto Body | Salisbury, MD</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Auto body repair and painting for cars, trucks and vans at 312 N Salisbury Blvd in Salisbury, Maryland. Rated 4.8 stars by customers on Google.">
+<link rel="icon" type="image/png" sizes="32x32" href="/campbells/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/campbells/img/icon-192.png">
+<link rel="apple-touch-icon" href="/campbells/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>/* Design idea: the paint booth. A fan deck of paint chips for the services, masking-tape strips that get a spray pass, and the light-blue car swoosh and gloss black of Campbell's own sign. */
+:root {
+  --ink: #0E1015;        /* gloss black, from the sign artwork */
+  --ink-2: #181C24;
+  --sky: #8FC7F2;        /* the light-blue car swoosh */
+  --blue: #1D5C93;       /* swoosh blue, darkened for text on light */
+  --navy: #10233F;       /* the "Collision" logo navy */
+  --teal: #178A9C;       /* the "Collision" logo teal */
+  --chrome: #C3CCD6;
+  --primer: #DCE1E7;
+  --tape: #E8DCB5;       /* masking tape */
+  --paper: #F4F6F9;
+  --text: #1A1F28;
+  --muted: #4A5361;
+  --line: #D9DEE5;
+  --display: "Archivo Black", "Arial Black", Impact, sans-serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --label: "Barlow Condensed", "Arial Narrow", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--text); font: 400 18px/1.6 var(--body); }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: -.005em; }
+p, li, blockquote { text-wrap: pretty; }
+.g-nw { white-space: nowrap; color: inherit; letter-spacing: inherit; font-size: inherit; font-weight: inherit; text-transform: inherit; }
+.g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; flex: none; }
+.dark .g-logo, .hero .g-logo, .strip .g-logo { background: #fff; border-radius: 50%; padding: .12em; box-sizing: content-box; vertical-align: -.26em; }
+
+/* Header */
+.top { background: var(--ink); color: #fff; position: sticky; top: 0; z-index: 20; border-bottom: 1px solid #262B35; }
+.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand .mark { width: 54px; height: 30px; color: var(--sky); flex: none; }
+.brand b { font: 400 1.35rem/1 var(--display); display: block; letter-spacing: .01em; }
+.brand small { display: block; font: 600 .82rem/1 var(--label); letter-spacing: .22em; text-transform: uppercase; color: var(--chrome); margin-top: 5px; }
+.nav { margin-left: auto; display: flex; gap: 24px; align-items: center; }
+.nav a { text-decoration: none; font-weight: 600; color: #DCE2EA; }
+.nav a:hover { color: var(--sky); }
+.nav a.call { background: var(--sky); color: var(--ink); padding: 10px 16px; border-radius: 6px; font-weight: 700; }
+.nav a.call:hover { background: #B4DAF7; color: var(--ink); }
+
+/* Buttons */
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font: 700 1.05rem/1.2 var(--body); padding: 14px 22px; min-height: 54px; border-radius: 6px; border: 2px solid transparent; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-sky { background: var(--sky); color: var(--ink); border-color: var(--sky); }
+.btn-sky:hover { background: #B4DAF7; border-color: #B4DAF7; }
+.btn-line { background: transparent; color: #fff; border-color: rgba(255,255,255,.55); }
+.btn-line:hover { border-color: #fff; background: rgba(255,255,255,.06); }
+.btn-ink { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn-ink:hover { background: #232835; border-color: #232835; }
+.btn-out { background: #fff; color: var(--ink); border-color: var(--ink); }
+.btn-out:hover { background: var(--primer); }
+
+/* Hero: gloss-black panel with a paint-chip fan behind the photo */
+.hero { background: radial-gradient(120% 90% at 85% 10%, #222836 0%, var(--ink) 55%) var(--ink); color: #fff; overflow: hidden; }
+.hero .wrap { display: grid; grid-template-columns: 1.02fr 1fr; gap: 56px; align-items: center; padding-block: 60px 72px; }
+.badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92rem; padding: 6px 12px; border-radius: 999px; background: #E3F5EA; color: #145C34; }
+.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #1FA45B; }
+.badge.shut { background: #E9ECF1; color: #3D4553; }
+.badge.shut::before { background: #8A93A2; }
+.hero h1 { font-size: clamp(2.4rem, 4.6vw, 3.7rem); margin: 18px 0 16px; }
+.hero h1 em { font-style: normal; color: var(--sky); }
+.hero .lead { font-size: 1.2rem; color: #D5DBE4; margin: 0 0 22px; max-width: 36ch; }
+.stars { display: flex; align-items: center; gap: 12px; margin: 0 0 28px; flex-wrap: wrap; }
+.stars b { font: 400 2rem/1 var(--display); }
+.stars > span { color: #F4C04E; letter-spacing: 2px; font-size: 1.2rem; }
+.stars small { color: #C9D0DA; font-size: 1.02rem; }
+.hero-photo { position: relative; margin: 0; }
+.hero-photo img { position: relative; z-index: 2; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 8px; border: 1px solid #3A414E; box-shadow: 0 28px 50px -26px rgba(0,0,0,.9); }
+.hero-photo figcaption { position: relative; z-index: 2; margin-top: 12px; font: 500 .95rem/1.4 var(--body); color: #BFC7D2; }
+.fan { position: absolute; z-index: 1; left: -34px; bottom: 64px; width: 120px; height: 210px; pointer-events: none; }
+.fan i { position: absolute; left: 0; bottom: 0; width: 64px; height: 190px; border-radius: 6px 6px 4px 4px; transform-origin: 50% 96%; box-shadow: 0 6px 14px -6px rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.12); }
+.fan i::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: 6px; height: 34px; background: #fff; border-radius: 2px; opacity: .92; }
+.fan i:nth-child(1) { background: var(--teal); transform: rotate(-24deg); }
+.fan i:nth-child(2) { background: var(--navy); transform: rotate(-14deg); }
+.fan i:nth-child(3) { background: var(--chrome); transform: rotate(-4deg); }
+.fan i:nth-child(4) { background: var(--sky); transform: rotate(6deg); }
+
+/* Stat strip */
+.strip { background: var(--ink-2); color: #fff; border-top: 1px solid #2A303C; }
+.strip ul { list-style: none; margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; padding-block: 0; }
+.strip li { display: flex; align-items: center; gap: 14px; padding: 22px 18px; border-left: 1px solid #2A303C; }
+.strip li:first-child { border-left: 0; padding-left: 0; }
+.strip .ico { width: 42px; height: 42px; flex: none; display: grid; place-items: center; border-radius: 50%; background: #232936; color: var(--sky); }
+.strip .ico svg { width: 24px; height: 24px; }
+.strip .ico .g-logo { width: 22px; height: 22px; margin: 0; padding: 3px; vertical-align: 0; }
+.strip b { display: block; font: 700 1.08rem/1.2 var(--body); }
+.strip small { display: block; color: #BCC4CF; font-size: .95rem; line-height: 1.3; margin-top: 2px; }
+
+/* Section heads + the masking-tape spray pass */
+.block { padding-block: 76px; }
+.block h2 { font-size: clamp(1.9rem, 3.4vw, 2.6rem); color: var(--ink); }
+.pass { display: block; position: relative; width: 132px; height: 12px; margin: 16px 0 0; background: var(--tape); border-radius: 1px; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+.pass::after { content: ""; position: absolute; inset: 0; background: var(--pass, var(--blue)); border-radius: 1px; }
+.pass::before { content: ""; position: absolute; z-index: 1; top: -9px; left: 0; width: 30px; height: 30px; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle, var(--pass, var(--blue)) 0 1.2px, transparent 1.6px) 0 0 / 7px 7px, radial-gradient(circle, var(--pass, var(--blue)) 0 1px, transparent 1.4px) 3px 4px / 9px 9px;
+  -webkit-mask: radial-gradient(closest-side, #000 30%, transparent); mask: radial-gradient(closest-side, #000 30%, transparent); }
+.sub { color: var(--muted); max-width: 60ch; margin: 16px 0 36px; font-size: 1.12rem; }
+.dark { background: var(--ink); color: #fff; }
+.dark h2 { color: #fff; }
+.dark .pass { --pass: var(--sky); }
+.dark .sub { color: #C3CAD4; }
+
+/* Paint-chip services */
+.chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.chip { background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 24px -20px rgba(14,16,21,.5); }
+.sw { position: relative; height: 104px; background: var(--primer); color: #fff; display: flex; align-items: flex-end; justify-content: space-between; padding: 14px 16px; }
+.sw::before { content: ""; position: absolute; inset: 0; background: var(--c); }
+.sw::after { content: ""; position: absolute; z-index: 1; top: 18px; left: 0; width: 70px; height: 70px; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle, var(--c) 0 1.6px, transparent 2px) 0 0 / 8px 8px, radial-gradient(circle, var(--c) 0 1.2px, transparent 1.6px) 4px 3px / 11px 11px;
+  -webkit-mask: radial-gradient(closest-side, #000 25%, transparent); mask: radial-gradient(closest-side, #000 25%, transparent); }
+.sw svg { position: relative; z-index: 2; width: 46px; height: 46px; }
+.sw span { position: relative; z-index: 2; font: 600 .82rem/1 var(--label); letter-spacing: .18em; text-transform: uppercase; opacity: .9; }
+.sw.lt { color: var(--ink); }
+.chip .txt { padding: 18px 20px 22px; flex: 1; }
+.chip h3 { font-size: 1.28rem; color: var(--ink); margin-bottom: 8px; }
+.chip p { margin: 0; color: #343B47; }
+
+/* Before & after + gallery */
+.ba { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 980px; }
+.ba figure, .more figure { margin: 0; position: relative; }
+.ba img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; }
+.ba .tag { position: absolute; top: 14px; left: 14px; font: 700 .95rem/1 var(--label); letter-spacing: .16em; text-transform: uppercase; padding: 8px 12px; border-radius: 4px; background: var(--tape); color: var(--ink); }
+.ba figure + figure .tag { background: var(--sky); }
+.ba-cap { margin: 14px 0 0; color: #C3CAD4; font-size: 1rem; }
+.more { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 44px; max-width: 980px; }
+.more figure { background: var(--ink-2); border: 1px solid #2A303C; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+.more img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
+.more figcaption { padding: 14px 18px 16px; color: #D2D8E0; font-size: 1rem; flex: 1; }
+.more figcaption b { display: block; color: #fff; font-size: 1.08rem; }
+
+/* Reviews */
+.rgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.rgrid figure { margin: 0; padding: 24px 24px 20px; background: #fff; border: 1px solid var(--line); border-radius: 8px; display: flex; flex-direction: column; position: relative; }
+.rgrid figure::before { content: ""; position: absolute; left: 24px; top: 0; width: 46px; height: 5px; background: var(--blue); border-radius: 0 0 2px 2px; }
+.rgrid figure:nth-child(3n+2)::before { background: var(--teal); }
+.rgrid figure:nth-child(3n)::before { background: var(--navy); }
+.rgrid .rs { color: #D99A0B; letter-spacing: 2px; }
+.rgrid blockquote { margin: 10px 0 16px; font-size: 1.06rem; color: #202631; flex: 1; }
+.rgrid figcaption { color: var(--muted); font-size: .95rem; font-weight: 600; }
+.rgrid figcaption a { color: inherit; text-underline-offset: 3px; }
+
+/* Visit */
+.visit .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.visit address { font-style: normal; font: 400 1.5rem/1.25 var(--display); margin: 22px 0 12px; color: var(--ink); }
+.visit .look { margin: 0 0 18px; color: #343B47; max-width: 46ch; }
+.flowers { margin: 0 0 26px; padding: 14px 18px; border-left: 4px solid var(--teal); background: #fff; border-radius: 0 6px 6px 0; max-width: 48ch; }
+.flowers blockquote { margin: 0 0 6px; font-style: italic; color: #2A303B; }
+.flowers figcaption { font-size: .92rem; color: var(--muted); font-weight: 600; }
+.flowers figcaption a { color: inherit; text-underline-offset: 3px; }
+.moved { display: flex; gap: 14px; align-items: flex-start; margin-top: 26px; padding: 16px 18px; background: var(--ink); color: #fff; border-radius: 8px; max-width: 520px; }
+.moved svg { width: 34px; height: 34px; color: var(--sky); flex: none; margin-top: 2px; }
+.moved b { display: block; font: 400 1.05rem/1.25 var(--display); margin-bottom: 4px; text-wrap: balance; }
+.moved p { margin: 0; color: #D2D8E0; font-size: 1rem; }
+.hours { width: 100%; border-collapse: collapse; font-size: 1.06rem; background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.hlabel { margin: 0 0 12px; font: 600 .9rem/1 var(--label); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.hours td { padding: 12px 18px; border-bottom: 1px solid var(--line); }
+.hours tr:last-child td { border-bottom: 0; }
+.hours td:last-child { text-align: right; font-weight: 600; }
+.hours tr.closed td:last-child { color: var(--muted); font-weight: 400; }
+.hours tr.today td { background: #E6F1FB; font-weight: 700; }
+.hours tr.today td:first-child::after { content: "Today"; display: inline-block; margin-left: 12px; color: var(--blue); font: 700 .8rem/1 var(--label); text-transform: uppercase; letter-spacing: .14em; }
+.access { margin: 14px 0 0; color: var(--muted); font-size: .98rem; display: flex; gap: 8px; align-items: center; }
+.access svg { width: 20px; height: 20px; color: var(--blue); flex: none; }
+
+footer { background: var(--ink); color: #BCC4CF; font-size: .95rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 24px calc(24px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: #fff; }
+
+@media (max-width: 900px) {
+  .hero .wrap, .visit .wrap { grid-template-columns: 1fr; }
+  .hero .wrap { gap: 40px; }
+  .fan { display: none; }
+  .chips, .rgrid { grid-template-columns: 1fr 1fr; }
+  .strip ul { grid-template-columns: 1fr 1fr; }
+  .strip li:nth-child(3) { border-left: 0; padding-left: 0; }
+  .strip li:nth-child(n+3) { border-top: 1px solid #2A303C; }
+  .nav a:not(.call) { display: none; }
+}
+@media (max-width: 700px) {
+  .hours tr.today td:first-child::after { display: block; margin: 4px 0 0; }
+  /* the phone hero already shows the rating and address */
+  .strip li.m-dup { display: none; }
+  .strip li.m-dup + li { border-top: 0; }
+  .access { display: none; }
+}
+@media (min-width: 601px) and (max-width: 700px) {
+  .strip li:nth-child(2) { border-left: 0; padding-left: 0; }
+  .strip li:nth-child(3) { border-left: 1px solid #2A303C; padding-left: 18px; border-top: 0; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .block { padding-block: 56px; }
+  .chips, .rgrid, .more { grid-template-columns: 1fr; }
+  .strip ul { grid-template-columns: 1fr; }
+  .strip li, .strip li:first-child, .strip li:nth-child(3) { border-left: 0; padding: 16px 0; }
+  .strip li + li { border-top: 1px solid #2A303C; }
+  .ba { gap: 10px; }
+  .ba .tag { top: 10px; left: 10px; font-size: .82rem; padding: 6px 9px; }
+  .brand b { font-size: 1.1rem; }
+  .brand .mark { width: 44px; height: 24px; }
+  .actions > * { flex: 1 1 100%; }
+  .visit address { font-size: 1.3rem; }
+  .sw { height: 92px; }
+}
+
+/* Signature: a spray pass over the masking tape and paint chips as they scroll into view */
+@media (prefers-reduced-motion: no-preference) {
+  .sig-on .pass::after, .sig-on .sw::before { transform: scaleX(0); transform-origin: left center; }
+  .sig-on .pass.in::after, .sig-on .sw.in::before { transform: scaleX(1); transition: transform .9s cubic-bezier(.45,.05,.3,1) var(--d, 0ms); }
+  .sig-on .pass.in::before { animation: mist-a .9s cubic-bezier(.45,.05,.3,1) var(--d, 0ms) both; }
+  .sig-on .sw.in::after { animation: mist-b .9s cubic-bezier(.45,.05,.3,1) var(--d, 0ms) both; }
+  @keyframes mist-a { 0% { opacity: 0; transform: translateX(-14px); } 15% { opacity: .9; } 85% { opacity: .8; } 100% { opacity: 0; transform: translateX(118px); } }
+  @keyframes mist-b { 0% { opacity: 0; transform: translateX(-35px); } 15% { opacity: .95; } 85% { opacity: .8; } 100% { opacity: 0; transform: translateX(var(--w, 300px)); } }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #0E1015; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #0E1015; color: #FFFFFF; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 40%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #0E1015, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #8FC7F2; color: #0E1015; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:400; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #8FC7F2; color: #0E1015; border-radius: 6px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 6px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #0E1015; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 6px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #8FC7F2; color: #0E1015; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .top a.call { display: none; } .top .wrap { padding-block: 10px; } .m-hero .g-logo { background: #fff; border-radius: 50%; padding: .12em; box-sizing: content-box; vertical-align: -.26em; }
+}
+</style>
+<!-- /m-layer:css -->
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Campbell's Auto Body, home">
+      <svg class="mark" viewBox="0 0 54 30" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M11 15.5c4.5-7.5 15-10.5 24-6 3 1.5 5.5 3.6 7.6 6"/><path d="M3 19c13-4.2 33-4.6 48-.6"/><path d="M9.5 23.5c2.4-2.6 6.4-2.6 8.8 0M35.5 23.5c2.4-2.6 6.4-2.6 8.8 0"/></svg>
+      <span><b>Campbell’s</b><small>Auto Body</small></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#services">What we do</a>
+      <a href="#work">Before &amp; after</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#visit">Hours</a>
+      <a class="call" href="tel:+14106773332">(410) 677-3332</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="Campbell&#x27;s Auto Body">
+  <figure class="m-photo"><img src="img/cab_0.webp" alt="Campbell&#x27;s Auto Body storefront with its blue sign and flower boxes"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text">Hours below</span></span>
+    <h1 class="m-title">Auto body repair & painting in Salisbury.</h1>
+    <p class="m-lead">Randy and his team fix collision damage on cars, trucks and vans. 4.8 stars on <span class="m-g"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>.</p>
+    <a class="m-call" href="tel:+14106773332"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 677-3332</a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Campbell%27s%20Auto%20Body%2C%20Inc.&amp;query_place_id=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener">Directions</a>
+      <a href="#work">Before & after</a>
+    </div>
+    <p class="m-addr">312 N Salisbury Blvd, Salisbury, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="badge" id="open-now" hidden>Open now</span>
+        <h1>Auto body repair and <em>painting</em> in Salisbury.</h1>
+        <p class="lead">Randy and his team fix collision damage and repaint cars, trucks and vans at 312 N Salisbury Blvd. Formerly Campbell’s Collision.</p>
+        <div class="stars"><b>4.8</b><span aria-hidden="true">★★★★★</span><small>from 30 <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</small></div>
+        <div class="actions">
+          <a class="btn btn-sky" href="tel:+14106773332"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (410) 677-3332</a>
+          <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&amp;query=Campbell%27s%20Auto%20Body%2C%20Inc.&amp;query_place_id=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+        </div>
+      </div>
+      <figure class="hero-photo">
+        <div class="fan" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <img src="img/cab_0.webp" width="1024" height="682" alt="Campbell's Auto Body storefront: a cream block building with a blue Campbell's Auto Body sign, a glass door, and flower boxes along the sidewalk">
+        <figcaption>The shop at 312 N Salisbury Blvd. Look for the blue sign and the flower boxes.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="strip" aria-label="At a glance">
+    <ul class="wrap">
+      <li class="m-dup"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3-4.6-4.4 6.3-.9z"/></svg></span><span><b>4.8 stars on <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></b><small>From 30 reviews</small></span></li>
+      <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.2"/></svg></span><span><b>Monday to Saturday</b><small>Closed Sundays</small></span></li>
+      <li><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="3.8" r="1.8"/><path d="M11 7v6.5h5.5l2.5 5.5"/><path d="M11 10h5"/><path d="M8.2 10.6A5.6 5.6 0 1 0 15.6 18"/></svg></span><span><b>Wheelchair accessible</b><small>Entrance and parking lot</small></span></li>
+      <li class="m-dup"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 10c0 5.5-7 11.5-7 11.5S5 15.5 5 10a7 7 0 0 1 14 0z"/><circle cx="12" cy="10" r="2.6"/></svg></span><span><b>312 N Salisbury Blvd</b><small>Moved from Fruitland in 2022</small></span></li>
+    </ul>
+  </section>
+
+  <section class="block" id="services">
+    <div class="wrap">
+      <h2>What we do</h2>
+      <span class="pass" aria-hidden="true"></span>
+      <p class="sub">Auto body repair and painting, plus the things customers keep mentioning in their reviews.</p>
+      <div class="chips">
+        <article class="chip">
+          <div class="sw" style="--c: var(--ink); --d: 0ms"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 31v-5l5-8.5a3 3 0 0 1 2.6-1.5h13.8a3 3 0 0 1 2.2 1l6.4 7 6.2 2a2 2 0 0 1 1.3 1.9V31"/><circle cx="14" cy="33" r="3.6"/><circle cx="35" cy="33" r="3.6"/><path d="M17.6 33h13.8M5 31v1.5a.5.5 0 0 0 .5.5h4.9M38.6 33h3.4a.5.5 0 0 0 .5-.5V31"/><path d="M40 8l-1.5 5M45 12l-4.5 3M33.5 9.5l1.6 4.4"/></svg><span>Gloss black</span></div>
+          <div class="txt"><h3>Collision &amp; body repair</h3><p>Bumpers, doors, mirrors and trim, after a hit-and-run, a deer or any other collision.</p></div>
+        </article>
+        <article class="chip">
+          <div class="sw lt" style="--c: var(--sky); --d: 120ms"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 13h17a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4H8z"/><path d="M29 17.5h5"/><path d="M14 13V8h8v5"/><path d="M15 22l-2 16h6l2-16"/><path d="M22.5 22.5c1 2.6.6 4.6-1 6"/><circle cx="39" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="42.5" cy="17.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="39" cy="23" r="1.3" fill="currentColor" stroke="none"/><circle cx="44" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="44.5" cy="25" r="1" fill="currentColor" stroke="none"/></svg><span>Sky blue</span></div>
+          <div class="txt"><h3>Painting</h3><p>Repainting after the repair. Customers say their cars come back “looking brand new.”</p></div>
+        </article>
+        <article class="chip">
+          <div class="sw" style="--c: var(--navy); --d: 240ms"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 33V14a3 3 0 0 1 3-3h22l8 9 5 1.6a2 2 0 0 1 1.4 1.9V33"/><path d="M29 11v9h8"/><path d="M4 16h21"/><circle cx="13" cy="34" r="4"/><circle cx="35" cy="34" r="4"/><path d="M17 34h14M4 33v1h5M39 34h4.4"/></svg><span>Navy</span></div>
+          <div class="txt"><h3>Trucks, SUVs &amp; vans</h3><p>Not just cars. Customers have brought in trucks, SUVs and vans.</p></div>
+        </article>
+        <article class="chip">
+          <div class="sw" style="--c: var(--teal); --d: 360ms"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 5h17l9 9v29H11z"/><path d="M28 5v9h9"/><path d="M17 28l5 5 9-10"/></svg><span>Teal</span></div>
+          <div class="txt"><h3>Help with insurance</h3><p>Brooklyn says Randy “handled all the mess with the insurance.”</p></div>
+        </article>
+        <article class="chip">
+          <div class="sw lt" style="--c: var(--chrome); --d: 480ms"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="5" width="18" height="38" rx="3.5"/><path d="M16 37h4"/><path d="M33 17a8 8 0 0 1 0 12"/><path d="M38 12.5a15 15 0 0 1 0 21"/></svg><span>Chrome</span></div>
+          <div class="txt"><h3>Updates along the way</h3><p>Phone calls with updates, so you know where your car stands every step of the way.</p></div>
+        </article>
+        <article class="chip">
+          <div class="sw lt" style="--c: var(--primer); --d: 600ms"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 6l3.4 9.6L35 19l-9.6 3.4L22 32l-3.4-9.6L9 19l9.6-3.4z"/><path d="M37 29l1.6 4.4L43 35l-4.4 1.6L37 41l-1.6-4.4L31 35l4.4-1.6z"/><path d="M10 33l1 2.8 2.8 1-2.8 1L10 40.6l-1-2.8-2.8-1 2.8-1z"/></svg><span>Primer</span></div>
+          <div class="txt"><h3>Cleaned up for pickup</h3><p>Customers say their cars came back cleaned inside and out after the repair.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block dark" id="work">
+    <div class="wrap">
+      <h2>Before &amp; after</h2>
+      <span class="pass" aria-hidden="true"></span>
+      <p class="sub">Real repairs, in photos shared by customers and by the shop.</p>
+      <div class="ba">
+        <figure><img src="img/cab_1.webp" width="840" height="992" loading="lazy" style="object-position: 50% 28%" alt="Before: the rear corner of a black Chevrolet Suburban with the bumper cover crushed in below the tail light"><span class="tag">Before</span></figure>
+        <figure><img src="img/cab_2.webp" width="840" height="1120" loading="lazy" style="object-position: 50% 50%" alt="After: the same black Suburban from behind with the rear bumper repaired and glossy, license plate blurred"><span class="tag">After</span></figure>
+      </div>
+      <p class="ba-cap">A black Chevy Suburban with a crushed rear bumper corner, then repaired. Customer photos from a <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review.</p>
+      <div class="more">
+        <figure><img src="img/cab_3.webp" width="840" height="1119" loading="lazy" alt="A white Mercedes Sprinter van seen from behind, its plate covered with a white box" style="object-position: 50% 45%"><figcaption><b>Vans too</b>A customer’s Mercedes Sprinter, from their <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review.</figcaption></figure>
+        <figure><img src="img/cab_5.webp" width="900" height="900" loading="lazy" alt="Before and after photos of a dark grey Honda Accord, the after shot taken outdoors with a glossy finish"><figcaption><b>A Honda Accord, before and after</b>Posted by the shop on its Campbell’s Collision Facebook page.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="reviews">
+    <div class="wrap">
+      <h2>4.8 stars from 30 <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</h2>
+      <span class="pass" aria-hidden="true"></span>
+      <p class="sub">What customers say about Randy and the team.</p>
+      <div class="rgrid">
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Had the best experience at Campbell’s. My car was returned looking brand new and I could not be happier. They took great care of my car and the communication throughout the process was amazing. Would definitely recommend to anyone.</blockquote>
+          <figcaption>Natalie · <a href="https://search.google.com/local/reviews?placeid=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Randy the owner is top tier he has phenomenal customer service, he stayed connected to me every step of the way with my car. … The repair of my door that a deer damaged the mirror and paint job was excellent. I highly recommend his services. …</blockquote>
+          <figcaption>Kischa · <a href="https://search.google.com/local/reviews?placeid=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Fair, fast and friendly! What a great experience. Randy and his team went above and beyond my expectations. If you ever have need for auto body repair, make Campbell Auto Body your first call. You won’t regret it!</blockquote>
+          <figcaption>Cheryl · <a href="https://search.google.com/local/reviews?placeid=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>…It just got fixed and repainted, and honestly, it looks better than it did the day I bought it from the dealer. The whole process was quick and easy, and the best part was that he handled all the mess with the insurance. Highly recommend!</blockquote>
+          <figcaption>Brooklyn · <a href="https://search.google.com/local/reviews?placeid=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Randy and his team did an excellent job getting my truck back on the road. His team was professional and courteous. He saved me money by recommending different options and got me in and out quickly. Great customer service!</blockquote>
+          <figcaption>Robert · <a href="https://search.google.com/local/reviews?placeid=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Great experience! Campbell Collision fixed my car in just 3 hours, cleaned it inside and out beautifully after the repairs, and even fixed one of my lights. Affordable prices, excellent customer service, and top-quality work. …</blockquote>
+          <figcaption>Leeny · <a href="https://search.google.com/local/reviews?placeid=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block visit" id="visit">
+    <div class="wrap">
+      <div>
+        <h2>Stop by or call</h2>
+        <span class="pass" aria-hidden="true"></span>
+        <address>312 N Salisbury Blvd<br>Salisbury, MD 21801</address>
+        <p class="look">Look for the blue Campbell’s sign and the flower boxes out front. Even passers-by notice them:</p>
+        <figure class="flowers">
+          <blockquote>“…the absolutely beautiful and stunning flower display they have outside…”</blockquote>
+          <figcaption>Moriah · <a href="https://search.google.com/local/reviews?placeid=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <div class="actions">
+          <a class="btn btn-ink" href="tel:+14106773332">Call (410) 677-3332</a>
+          <a class="btn btn-out" href="https://www.google.com/maps/search/?api=1&amp;query=Campbell%27s%20Auto%20Body%2C%20Inc.&amp;query_place_id=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener">Get directions</a>
+        </div>
+        <div class="moved">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 20.5h18"/><path d="M5 20.5V9.5l7-5 7 5v11"/><path d="M10 20.5v-6h4v6"/></svg>
+          <div><b>Same great service, new location.</b><p>Campbell’s moved from Fruitland to 312 N Salisbury Blvd in March 2022.</p></div>
+        </div>
+      </div>
+      <div>
+        <p class="hlabel" aria-hidden="true">Hours</p>
+        <table class="hours" id="hours" aria-label="Hours">
+          <tr data-d="1"><td>Monday</td><td>8:00 am – 4:30 pm</td></tr>
+          <tr data-d="2"><td>Tuesday</td><td>8:00 am – 4:30 pm</td></tr>
+          <tr data-d="3"><td>Wednesday</td><td>8:00 am – 4:30 pm</td></tr>
+          <tr data-d="4"><td>Thursday</td><td>8:00 am – 4:30 pm</td></tr>
+          <tr data-d="5"><td>Friday</td><td>8:00 am – 4:30 pm</td></tr>
+          <tr data-d="6"><td>Saturday</td><td>8:00 am – 12:00 pm</td></tr>
+          <tr data-d="0" class="closed"><td>Sunday</td><td>Closed</td></tr>
+        </table>
+        <p class="access"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="3.8" r="1.8"/><path d="M11 7v6.5h5.5l2.5 5.5"/><path d="M11 10h5"/><path d="M8.2 10.6A5.6 5.6 0 1 0 15.6 18"/></svg>Wheelchair accessible entrance and parking lot.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Campbell’s Auto Body, Inc., Salisbury, Maryland</span> <!-- legal-links --><span class="legal-links" style="display:inline-flex;gap:14px;flex-wrap:wrap"><a href="privacy.html">Privacy</a><a href="cookies.html">Cookies</a><a href="terms.html">Terms</a></span><!-- /legal-links -->
+    <span>Preview site made for Campbell's Auto Body by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var HOURS = { 1: [8, 16.5], 2: [8, 16.5], 3: [8, 16.5], 4: [8, 16.5], 5: [8, 16.5], 6: [8, 12] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var badge = document.getElementById('open-now');
+    var span = HOURS[d];
+    var open = !!(span && h >= span[0] && h < span[1]);
+    badge.textContent = open ? 'Open now' : 'Closed now';
+    if (!open) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+})();
+// Spray pass: paint the tape strips and chips as they come into view.
+(function () {
+  if (!('IntersectionObserver' in window) || !window.matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+  document.documentElement.classList.add('sig-on');
+  var els = document.querySelectorAll('.pass, .sw');
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.style.setProperty('--w', e.target.offsetWidth + 'px');
+      e.target.classList.add('in'); io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function (el) { io.observe(el); });
+})();
+</script>
+
+<script src="/preview-contact.js?v=4" defer data-name="Campbell's Auto Body" data-slot="#visit .actions" data-accent="var(--ink)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="#fff" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:400"></script>
+<script src="/preview-kit.js?v=4" data-slug="campbells" defer></script>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+14106773332"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=Campbell%27s%20Auto%20Body%2C%20Inc.&amp;query_place_id=ChIJ7ZwWgD0DuYkRveJkIZdlcIg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Hours</a>
+</nav>
+<!-- /m-layer:bar -->
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"1": [8, 16.5], "2": [8, 16.5], "3": [8, 16.5], "4": [8, 16.5], "5": [8, 16.5], "6": [8, 12]};
+  var SEASON = null;
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      if (SEASON) { var mo = now.getMonth() + 1; if (mo < SEASON[0] || mo > SEASON[1]) { txt.textContent = SEASON[2] || 'Closed for the season'; el.classList.add('shut'); return; } }
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    var wrapEl = document.createElement('div'); wrapEl.className = 'm-hours-wrap';
+    table.parentNode.insertBefore(wrapEl, table); wrapEl.appendChild(table); wrapEl.appendChild(btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>

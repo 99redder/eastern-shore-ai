@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Salisbury Barber Shop | Salisbury, MD</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Fades, beard trims, kids' cuts and designs at 817 S Salisbury Blvd in Salisbury, MD. Walk-ins welcome, open 7 days. Cortes, fades y diseños.">
+<link rel="icon" type="image/png" sizes="32x32" href="/salisburybarbershop/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/salisburybarbershop/img/icon-192.png">
+<link rel="apple-touch-icon" href="/salisburybarbershop/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Razor part lines on black: the shop's black walls and LED-blue stripe, the shaved part lines from their own fades, and a hero that skin-fades into the page. Bilingual. */
+:root {
+  --black: #0D1015;
+  --panel: #161B23;
+  --blue: #1B56C4;
+  --blue-hi: #4C8DFF;
+  --glow: #7FB0FF;
+  --paper: #F3F5F8;
+  --card: #FFFFFF;
+  --ink: #10141B;
+  --muted: #4A5463;
+  --line: #D5DBE4;
+  --chrome: #AEB8C6;
+  --display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 80px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--body); }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--blue-hi); outline-offset: 3px; }
+h1, h2, h3 { text-wrap: balance; }
+p, li, blockquote { text-wrap: pretty; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+#site[data-lang="en"] [lang="es"] { display: none !important; }
+#site[data-lang="es"] [lang="en"] { display: none !important; }
+
+/* Google G */
+.g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; flex: none; }
+.g-nw { white-space: nowrap; color: inherit; letter-spacing: inherit; font-size: inherit; font-weight: inherit; text-transform: inherit; }
+.dark .g-logo { background: #fff; border-radius: 50%; padding: .12em; box-sizing: content-box; vertical-align: -0.26em; }
+
+/* Header */
+.top { position: sticky; top: 0; z-index: 30; background: var(--black); color: #fff; border-bottom: 3px solid var(--blue); }
+.top .wrap { display: flex; align-items: center; gap: 22px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-width: 0; }
+.brand .mark { width: 38px; height: 38px; flex: none; color: #fff; }
+.brand .mark .acc { fill: var(--blue-hi); }
+.brand b { display: block; font: 800 1.42rem/1 var(--display); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; }
+.brand small { display: block; font-size: .8rem; color: var(--chrome); letter-spacing: .04em; margin-top: 3px; white-space: nowrap; }
+.nav { display: flex; gap: 22px; margin-left: auto; }
+.nav a { text-decoration: none; font-weight: 600; font-size: .98rem; color: #E6EBF2; }
+.nav a:hover { color: var(--glow); }
+.langs { display: inline-flex; border: 1.5px solid #3A4352; border-radius: 999px; overflow: hidden; flex: none; }
+.langs button { appearance: none; -webkit-appearance: none; border: 0; background: transparent; color: #E6EBF2; font: 700 .88rem/1 var(--body); padding: 8px 13px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: #fff; color: var(--black); }
+.langs .ab { display: none; }
+.top a.call { flex: none; text-decoration: none; font-weight: 700; background: var(--blue); color: #fff; padding: 10px 16px; border-radius: 999px; white-space: nowrap; }
+.top a.call:hover { background: #2563EB; }
+
+/* Hero */
+.hero { position: relative; background: var(--black); color: #fff; overflow: hidden; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: 1.08fr .92fr; gap: 48px; align-items: center; padding-block: 56px 30px; }
+.hero .copy { position: relative; z-index: 1; padding: 8px 0 12px; }
+.open-now { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .92rem; padding: 6px 13px; border-radius: 999px; background: #123323; color: #BDF2CF; margin-bottom: 18px; }
+.open-now::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #3BD27A; box-shadow: 0 0 0 3px rgba(59,210,122,.25); }
+.open-now.shut { background: #3A1A1A; color: #FFD0C8; }
+.open-now.shut::before { background: #F06A55; box-shadow: 0 0 0 3px rgba(240,106,85,.25); }
+.kicker { display: flex; align-items: center; gap: 12px; font: 800 1.05rem/1 var(--display); text-transform: uppercase; letter-spacing: .14em; color: var(--glow); margin: 0 0 14px; }
+.hero h1 { font: 900 clamp(3rem, 5.8vw, 5rem)/.92 var(--display); text-transform: uppercase; letter-spacing: .005em; margin: 0; }
+.hero h1 em { font-style: normal; color: var(--blue-hi); }
+.hero .lead { font-size: 1.14rem; color: #D6DCE5; max-width: 46ch; margin: 22px 0 18px; }
+.rating { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 26px; color: #D6DCE5; }
+.rating b { font: 900 1.9rem/1 var(--display); color: #fff; }
+.rating .stars { color: #FFC83D; letter-spacing: 2px; font-size: 1.1rem; }
+.btns { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 0 24px; border-radius: 999px; font: 700 1.04rem/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-main { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn-main:hover { background: #2563EB; border-color: #2563EB; }
+.btn-ghost { background: transparent; color: inherit; border-color: currentColor; }
+.dark .btn-ghost:hover { background: #fff; color: var(--black); }
+.light .btn-ghost { color: var(--ink); }
+.light .btn-ghost:hover { background: var(--ink); color: #fff; }
+
+.shot { position: relative; z-index: 0; isolation: isolate; margin: 0; justify-self: end; width: min(100%, 440px); }
+.shot::after { content: ""; position: absolute; z-index: -1; left: -60px; width: 100vw; top: 56%; height: 10px; background: var(--blue); box-shadow: 0 0 22px rgba(76,141,255,.55); }
+.shot::before { content: ""; position: absolute; z-index: -1; width: 230px; height: 230px; right: -64px; top: -52px; border-radius: 50%; border: 12px solid #F4F7FF; box-shadow: 0 0 34px 6px rgba(255,255,255,.35), inset 0 0 24px rgba(255,255,255,.35); }
+.shot img { position: relative; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 40%; border-radius: 16px; border: 3px solid #2A3240; }
+.shot figcaption { position: absolute; right: -22px; bottom: 26px; background: #fff; color: var(--ink); font-weight: 700; font-size: .95rem; padding: 10px 16px; border-radius: 10px; box-shadow: 0 14px 28px -16px rgba(0,0,0,.7); border-left: 6px solid var(--blue); max-width: 80%; }
+
+/* Etched part lines (signature motif) */
+.etch { display: inline-block; flex: none; }
+.etch path { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+.kicker .etch { width: 46px; height: 18px; color: var(--blue-hi); }
+.kicker .etch path { stroke-width: 2.6; }
+.hero-etch { position: absolute; z-index: -1; left: -190px; bottom: -6px; width: 280px; height: 140px; color: #2E3B55; }
+.hero-etch path { stroke-width: 5; }
+
+/* Skin-fade edge: black hero thins out into the page like a fade */
+.fade { height: 74px; background: repeating-linear-gradient(90deg, var(--black) 0 2px, transparent 2px 5px), linear-gradient(to bottom, var(--black) 0, var(--black) 18%, transparent 70%); -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.85) 40%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0%, rgba(0,0,0,.85) 40%, transparent 100%); }
+
+/* Stat strip */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 4px 0 0; padding: 0; list-style: none; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+.stats li { display: flex; align-items: center; gap: 14px; padding: 20px 20px; border-right: 1px solid var(--line); }
+.stats li:last-child { border-right: 0; }
+.stats li > svg { width: 42px; height: 42px; flex: none; color: var(--ink); }
+.stats li > svg .acc { fill: var(--blue-hi); }
+.stats b { display: block; font: 800 1.45rem/1.05 var(--display); text-transform: uppercase; letter-spacing: .02em; }
+.stats li div > span { display: block; color: var(--muted); font-size: .95rem; }
+
+/* Sections */
+.block { padding-block: 76px; }
+.block.tight { padding-block: 40px 0; }
+#reviews { padding-bottom: 36px; }
+.head { max-width: 760px; margin-bottom: 34px; }
+.head h2 { font: 900 clamp(2.3rem, 4.6vw, 3.4rem)/.98 var(--display); text-transform: uppercase; letter-spacing: .01em; margin: 0; }
+.head p { color: var(--muted); font-size: 1.08rem; margin: 14px 0 0; }
+.head p.kicker { margin: 0 0 14px; color: var(--blue); }
+.dark .head p.kicker { color: var(--glow); }
+.dark { background: var(--black); color: #fff; }
+.dark .head p { color: #C3CBD6; }
+
+.svcs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.svc { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px 22px 24px; position: relative; overflow: hidden; }
+.svc::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--blue); }
+.svc svg { width: 52px; height: 52px; color: var(--ink); margin-bottom: 14px; }
+.svc svg .acc { fill: var(--blue-hi); }
+.svc h3 { font: 800 1.5rem/1.05 var(--display); text-transform: uppercase; letter-spacing: .02em; margin: 0 0 8px; }
+.svc p { margin: 0; color: var(--muted); }
+
+.gal { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.gal figure { margin: 0; background: var(--panel); border-radius: 16px; overflow: hidden; border: 1px solid #262E3B; display: flex; flex-direction: column; }
+.gal img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.gal figcaption { padding: 14px 18px 16px; color: #D6DCE5; font-size: .98rem; border-top: 3px solid var(--blue); flex: 1; }
+
+.pull { background: var(--blue); color: #fff; }
+.pull .wrap { display: flex; align-items: center; gap: 28px; padding-block: 46px; }
+.pull .etch { width: 120px; height: 60px; color: #fff; opacity: .85; }
+.pull .etch path { stroke-width: 4; }
+.pull blockquote { margin: 0; max-width: 22ch; text-wrap: balance; font: 900 clamp(2rem, 4.4vw, 3.3rem)/1 var(--display); text-transform: uppercase; letter-spacing: .01em; }
+.pull figure { margin: 0; }
+.pull figcaption { margin-top: 12px; font-weight: 600; }
+.pull figcaption a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.pull .g-logo { background: #fff; border-radius: 50%; padding: .12em; box-sizing: content-box; vertical-align: -0.26em; }
+
+.rgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.rgrid figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 24px 18px; display: flex; flex-direction: column; }
+.rgrid .rs { color: #E2A50E; letter-spacing: 2px; font-size: 1.05rem; }
+.rgrid blockquote { margin: 10px 0 16px; font-size: 1.06rem; line-height: 1.55; flex: 1; }
+.rgrid figcaption { font-size: .92rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.rgrid figcaption a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rgrid figcaption a:hover { text-decoration-thickness: 2px; }
+.rgrid figcaption b { color: var(--ink); }
+
+/* Visit */
+.visit-grid { display: grid; grid-template-columns: .82fr 1fr 1fr; gap: 34px; align-items: start; }
+.store { margin: 0; }
+.store img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 30%; border-radius: 16px; }
+.store figcaption { font-size: .92rem; color: var(--muted); margin-top: 8px; text-wrap: balance; }
+address { font-style: normal; font: 800 1.9rem/1.05 var(--display); text-transform: uppercase; letter-spacing: .01em; margin: 0 0 12px; }
+.where p { margin: 0 0 12px; color: var(--muted); }
+.where .note { display: flex; gap: 10px; align-items: flex-start; }
+.where .note svg { width: 24px; height: 24px; flex: none; margin-top: 2px; color: var(--blue); }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.where .actions { flex-direction: column; align-items: stretch; max-width: 340px; }
+.hours-box h3 { font: 800 1.6rem/1 var(--display); text-transform: uppercase; letter-spacing: .02em; margin: 0 0 6px; }
+.hours { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.hours td { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.hours td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
+.hours tr.today td { background: #E3ECFF; font-weight: 700; }
+.hours tr.today td:first-child { padding-left: 10px; }
+.hours tr.today td:last-child { padding-right: 10px; }
+.hours tr.today td:first-child::after { content: "Today"; display: inline-block; margin-left: 12px; font: 800 .78rem/1 var(--body); text-transform: uppercase; letter-spacing: .1em; color: #fff; background: var(--blue); padding: 4px 7px; border-radius: 4px; vertical-align: 2px; }
+#site[data-lang="es"] .hours tr.today td:first-child::after { content: "Hoy"; }
+.hours-note { color: var(--muted); font-size: .95rem; margin: 10px 0 0; }
+
+footer { background: var(--black); color: #C3CBD6; font-size: .95rem; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: #fff; }
+
+/* Signature animation: part lines etched in like a razor */
+@media (prefers-reduced-motion: no-preference) {
+  .etch-on .etch path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .etch-on .etch.in path { stroke-dashoffset: 0; transition: stroke-dashoffset .7s cubic-bezier(.6,.05,.3,1); }
+  .etch-on .etch.in path:nth-child(2) { transition-delay: .18s; }
+  .etch-on .etch.in path:nth-child(3) { transition-delay: .36s; }
+}
+
+@media (max-width: 1060px) {
+  .nav { display: none; }
+  .langs { margin-left: auto; }
+}
+@media (max-width: 900px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: 36px; }
+  .shot { justify-self: center; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stats li:nth-child(2) { border-right: 0; }
+  .stats li:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .svcs { grid-template-columns: 1fr 1fr; }
+  .gal { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .rgrid { grid-template-columns: 1fr 1fr; }
+  .visit-grid { grid-template-columns: 1fr 1fr; }
+  .store { grid-column: 1 / -1; }
+  .store img { aspect-ratio: 16 / 9; object-position: 50% 42%; }
+  .pull .wrap { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .top .wrap { gap: 12px; padding-block: 10px; }
+  .brand .mark { width: 32px; height: 32px; }
+  .brand b { font-size: 1.2rem; }
+  .brand small { font-size: .74rem; }
+  .langs .full { display: none; }
+  .langs .ab { display: inline; }
+  .langs button { padding: 8px 11px; }
+  .block { padding-block: 54px; }
+  .block.tight { padding-top: 26px; }
+  #reviews { padding-bottom: 20px; }
+  .stats li { padding: 16px 14px; gap: 10px; flex-direction: column; align-items: flex-start; }
+  .stats li > svg { width: 36px; height: 36px; }
+  .stats b { font-size: 1.25rem; }
+  .stats li div > span { font-size: .9rem; }
+  .svcs { grid-template-columns: 1fr; gap: 14px; }
+  .svc { display: grid; grid-template-columns: 52px 1fr; column-gap: 16px; padding: 22px 18px 20px; }
+  .svc svg { grid-row: span 2; margin: 0; width: 48px; height: 48px; }
+  .gal { grid-template-columns: 1fr; gap: 16px; }
+  .gal img { aspect-ratio: 1 / 1; }
+  .visit-grid { grid-template-columns: 1fr; gap: 26px; }
+  .store img { aspect-ratio: 4 / 3; }
+  .actions > * { flex: 1 1 100%; }
+  .where .actions { max-width: none; }
+  .hours tr.today td:first-child::after { display: block; width: max-content; margin: 6px 0 0; }
+  .pull .etch { width: 84px; height: 42px; }
+}
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #0D1015; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #0D1015; color: #FFFFFF; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 38%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #0D1015, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #FFFFFF; color: #0D1015; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:900; text-transform:uppercase; letter-spacing:.005em; font-size: clamp(2.5rem, 12vw, 3.3rem) !important; line-height:.94 !important; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #1B56C4; color: #FFFFFF; border-radius: 999px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 999px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #0D1015; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 999px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #1B56C4; color: #FFFFFF; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .top a.call { display: none; } .m-g .g-logo { background: #fff; border-radius: 50%; padding: .12em; box-sizing: content-box; vertical-align: -0.26em; } .m-photo img { border-bottom: 4px solid #1B56C4; } .m-photo::after { display: none; } .m-photo + .m-body { margin-top: 0; padding-top: 20px; } .m-lead { color: #D6DCE5; opacity: 1; } .m-sub a { border-width: 2px; } .m-addr { color: #C3CBD6; opacity: 1; }
+}
+</style>
+<!-- /m-layer:css -->
+</head>
+<body>
+<div id="site" data-lang="en">
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path class="acc" d="M11 6.5h18v6H11z" stroke="none"/><path d="M11 6.5h18v6H11z"/><path d="M13 3.5v3M17 3.5v3M21 3.5v3M25 3.5v3"/><path d="M12 12.5h16l-1.6 19.5a4 4 0 0 1-4 3.5h-4.8a4 4 0 0 1-4-3.5z"/><rect x="17.5" y="16.5" width="5" height="9" rx="2.5" fill="currentColor" stroke="none"/><path d="M15 30.5h10" stroke-width="1.8"/></svg>
+      <span><b>Salisbury Barber Shop</b><small>Waverly Shopping Center</small></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#services"><span lang="en">Services</span><span lang="es">Servicios</span></a>
+      <a href="#photos"><span lang="en">Photos</span><span lang="es">Fotos</span></a>
+      <a href="#reviews"><span lang="en">Reviews</span><span lang="es">Reseñas</span></a>
+      <a href="#visit"><span lang="en">Hours</span><span lang="es">Horario</span></a>
+    </nav>
+    <div class="langs" role="group" aria-label="Language / Idioma">
+      <button type="button" id="btn-en" aria-pressed="true" aria-label="English"><span class="full">English</span><span class="ab">EN</span></button>
+      <button type="button" id="btn-es" aria-pressed="false" aria-label="Español"><span class="full">Español</span><span class="ab">ES</span></button>
+    </div>
+    <a class="call" href="tel:+14433660611">(443) 366-0611</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="Salisbury Barber Shop">
+  <figure class="m-photo"><img src="img/sbs_2.jpg" alt="A barber&#x27;s gloved hand on a fresh skin fade with two diagonal part lines cut in"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text"><span lang="en">Hours below</span><span lang="es">Horario abajo</span></span></span>
+    <h1 class="m-title"><span lang="en">Fades, beards &amp; designs. <span style="color:#4C8DFF">Open 7 days.</span></span><span lang="es">Fades, barbas y diseños. <span style="color:#4C8DFF">Abierto 7 días.</span></span></h1>
+    <p class="m-lead"><span lang="en">Walk-ins welcome at the Waverly Shopping Center. 4.8 stars from 430 <span class="m-g"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews.</span><span lang="es">Venga sin cita o con cita, en el Waverly Shopping Center. 4.8 estrellas en 430 reseñas de <span class="m-g"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>.</span></p>
+    <a class="m-call" href="tel:+14433660611"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span lang="en">Call (443) 366-0611</span><span lang="es">Llame al (443) 366-0611</span></a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Salisbury%20Barber%20Shop&amp;query_place_id=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en">Directions</span><span lang="es">Cómo llegar</span></a>
+      <a href="#services"><span lang="en">Services</span><span lang="es">Servicios</span></a>
+    </div>
+    <p class="m-addr">817 S Salisbury Blvd, Salisbury, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero dark">
+    <div class="wrap">
+      <div class="copy">
+        <span class="open-now" id="open-now" hidden></span>
+        <p class="kicker"><svg class="etch" viewBox="0 0 46 18" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 15 L16 3 L44 3"/><path pathLength="1" d="M2 15 L44 15"/></svg><span lang="en">Salisbury, Maryland</span><span lang="es">Salisbury, Maryland</span></p>
+        <h1 lang="en">Fades, beard work and designs, done with an <em>eye for detail.</em></h1>
+        <h1 lang="es">Fades, barbas y diseños, con atención a <em>cada detalle.</em></h1>
+        <p class="lead" lang="en">A barber shop in the Waverly Shopping Center on South Salisbury Boulevard. Walk in or make an appointment, seven days a week. Cuts for men, young men and kids.</p>
+        <p class="lead" lang="es">Una barbería en el Waverly Shopping Center, en South Salisbury Boulevard. Venga sin cita o haga una cita, los siete días de la semana. Cortes para hombres, jóvenes y niños.</p>
+        <p class="rating"><b>4.8</b><span class="stars" aria-hidden="true">★★★★★</span><span lang="en">from 430 <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</span><span lang="es">en 430 reseñas de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span></p>
+        <div class="btns">
+          <a class="btn btn-main" href="tel:+14433660611"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span lang="en">Call (443) 366-0611</span><span lang="es">Llame al (443) 366-0611</span></a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Salisbury%20Barber%20Shop&amp;query_place_id=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span lang="en">Directions</span><span lang="es">Cómo llegar</span></a>
+        </div>
+      </div>
+      <figure class="shot">
+        <svg class="etch hero-etch" viewBox="0 0 300 150" aria-hidden="true" focusable="false"><path pathLength="1" d="M8 112 L150 30 L292 30"/><path pathLength="1" d="M8 138 L150 56 L250 56"/><path pathLength="1" d="M40 146 L160 78 L210 78"/></svg>
+        <img src="img/sbs_2.jpg" alt="A barber's gloved hand on a fresh skin fade with two diagonal part lines cut in, seen from behind">
+        <figcaption><span lang="en">Skin fade with part lines</span><span lang="es">Skin fade con líneas</span></figcaption>
+      </figure>
+    </div>
+  </section>
+  <div class="fade" aria-hidden="true"></div>
+
+  <section class="block tight" aria-label="At a glance">
+    <div class="wrap">
+      <ul class="stats">
+        <li><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"><path class="acc" d="M24 5l5.6 11.6 12.7 1.7-9.3 8.8 2.3 12.6L24 33.6l-11.3 6.1 2.3-12.6-9.3-8.8 12.7-1.7z"/></svg><div><b><span lang="en">4.8 stars</span><span lang="es">4.8 estrellas</span></b><span><span lang="en">on <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span lang="es">en <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span></span></div></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9h34a3 3 0 0 1 3 3v19a3 3 0 0 1-3 3H22l-9 8v-8H7a3 3 0 0 1-3-3V12a3 3 0 0 1 3-3z"/><path class="acc" stroke="none" d="M15 16.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5zM33 16.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5zM24 16.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z"/></svg><div><b><span lang="en">430 reviews</span><span lang="es">430 reseñas</span></b><span><span lang="en">from customers</span><span lang="es">de clientes</span></span></div></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="9" width="38" height="34" rx="4"/><path class="acc" stroke="none" d="M6.5 10.5h35v8h-35z"/><path d="M5 19h38M15 5v8M33 5v8"/><g fill="currentColor" stroke="none"><circle cx="13" cy="27" r="2.2"/><circle cx="21" cy="27" r="2.2"/><circle cx="29" cy="27" r="2.2"/><circle cx="37" cy="27" r="2.2"/><circle cx="13" cy="35" r="2.2"/><circle cx="21" cy="35" r="2.2"/><circle cx="29" cy="35" r="2.2"/></g></svg><div><b><span lang="en">Open 7 days</span><span lang="es">Abierto 7 días</span></b><span><span lang="en">Sunday to Saturday</span><span lang="es">de domingo a sábado</span></span></div></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 43V7h20v36"/><path class="acc" d="M28 7l12 4v32l-12-0z"/><path d="M4 43h40"/><circle cx="23" cy="26" r="1.8" fill="currentColor" stroke="none"/></svg><div><b><span lang="en">Walk-ins welcome</span><span lang="es">Sin cita previa</span></b><span><span lang="en">Appointments too</span><span lang="es">o con cita, como prefiera</span></span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="services">
+    <div class="wrap">
+      <div class="head">
+        <p class="kicker"><svg class="etch" viewBox="0 0 46 18" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 15 L16 3 L44 3"/><path pathLength="1" d="M2 15 L44 15"/></svg><span lang="en">Services</span><span lang="es">Servicios</span></p>
+        <h2 lang="en">What we do</h2>
+        <h2 lang="es">Lo que hacemos</h2>
+        <p lang="en">From a regular haircut to a full design, tell your barber exactly what you want.</p>
+        <p lang="es">Desde un corte normal hasta un diseño completo, dígale a su barbero exactamente lo que quiere.</p>
+      </div>
+      <div class="svcs">
+        <div class="svc">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path class="acc" stroke="none" d="M11 24c0-10 6-17 13-17s13 7 13 17c-4-2.5-8.5-3.5-13-3.5S15 21.5 11 24z"/><path d="M11 25c0-11 6-18 13-18s13 7 13 18c0 7-3 12-7 15H18c-4-3-7-8-7-15z"/><path d="M15 30h18M16.5 34.5h15M19 39h10" stroke-width="2.2"/></svg>
+          <h3 lang="en">Haircuts &amp; fades</h3><h3 lang="es">Cortes y fades</h3>
+          <p lang="en">Skin fades, tapers and regular cuts, finished with a sharp lineup.</p>
+          <p lang="es">Skin fades, tapers y cortes clásicos, con un perfilado bien definido.</p>
+        </div>
+        <div class="svc">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path class="acc" d="M12 22c0 11 5 20 12 20s12-9 12-20c-3 3-7 4.5-12 4.5S15 25 12 22z"/><path d="M12 24v-8c0-6 5-10 12-10s12 4 12 10v8"/><path d="M18.5 29c2-1.6 3.8-1.6 5.5 0 1.7-1.6 3.5-1.6 5.5 0"/><path d="M19 18h2M27 18h2"/></svg>
+          <h3 lang="en">Beard trims &amp; shape-ups</h3><h3 lang="es">Barba y perfilado</h3>
+          <p lang="en">Beard trims and complete beard shape-ups.</p>
+          <p lang="es">Recorte de barba y perfilado completo de barba.</p>
+        </div>
+        <div class="svc">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="22" cy="19" r="8"/><path d="M19 11.5c1-3 4-4.5 7-3"/><path d="M8 43c0-8 6-13 14-13s14 5 14 13"/><path class="acc" stroke-width="2" d="M38 5l1.9 3.9 4.3.6-3.1 3 .7 4.3-3.8-2-3.8 2 .7-4.3-3.1-3 4.3-.6z"/></svg>
+          <h3 lang="en">Kids&#8217; cuts</h3><h3 lang="es">Cortes para niños</h3>
+          <p lang="en">Kids are welcome, toddlers included. Parents say our barbers are patient with nervous little ones.</p>
+          <p lang="es">Los niños son bienvenidos, incluso los más pequeños. Los padres dicen que nuestros barberos tienen paciencia con los niños nerviosos.</p>
+        </div>
+        <div class="svc">
+          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path class="acc" d="M20 26L38 8l4 4-17 18z"/><path d="M20 26l-11 11a3.5 3.5 0 0 0 5 5l11-12"/><path d="M6 20l8-5M8 26l9-5.5" stroke-width="2.4"/></svg>
+          <h3 lang="en">Designs &amp; part lines</h3><h3 lang="es">Diseños y líneas</h3>
+          <p lang="en">Part lines, lightning bolts and freehand designs cut right into the fade.</p>
+          <p lang="es">Líneas, rayos y diseños a mano alzada, hechos directamente en el fade.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block dark" id="photos">
+    <div class="wrap">
+      <div class="head">
+        <p class="kicker"><svg class="etch" viewBox="0 0 46 18" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 15 L16 3 L44 3"/><path pathLength="1" d="M2 15 L44 15"/></svg><span lang="en">Photos</span><span lang="es">Fotos</span></p>
+        <h2 lang="en">Fresh out of the chair</h2>
+        <h2 lang="es">Recién salidos de la silla</h2>
+        <p lang="en">Recent cuts, from customer photos on <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>.</p>
+        <p lang="es">Cortes recientes, de fotos de clientes en <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>.</p>
+      </div>
+      <div class="gal">
+        <figure><img src="img/sbs_3.jpg" alt="Side view of a man's fade with a curly top, curved part lines and a full beard" loading="lazy" style="object-position:50% 35%"><figcaption><span lang="en">Curly top, part lines and a full beard</span><span lang="es">Rizos arriba, líneas y barba completa</span></figcaption></figure>
+        <figure><img src="img/sbs_5.jpg" alt="Back of a young client's head with a freehand heart and heartbeat line cut into the fade" loading="lazy" style="object-position:50% 40%"><figcaption><span lang="en">A freehand heart design</span><span lang="es">Un diseño de corazón a mano alzada</span></figcaption></figure>
+        <figure><img src="img/sbs_6.jpg" alt="A barber in a blue shirt and headphones cutting a young client's hair in a black barber chair, ring lights behind" loading="lazy" style="object-position:50% 30%"><figcaption><span lang="en">A barber at work with a young client</span><span lang="es">Un barbero trabajando con un cliente joven</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="pull" aria-label="Customer quote">
+    <div class="wrap">
+      <svg class="etch" viewBox="0 0 120 60" aria-hidden="true" focusable="false"><path pathLength="1" d="M4 54 L60 8 L116 8"/><path pathLength="1" d="M4 54 L116 54"/><path pathLength="1" d="M30 54 L66 25 L100 25"/></svg>
+      <figure>
+        <blockquote>&#8220;Best barbershop on the shore hands down&#8221;</blockquote>
+        <figcaption>Kodee · <a href="https://search.google.com/local/reviews?placeid=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</span><span lang="es">reseña de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span aria-hidden="true"> ↗</span></a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="block" id="reviews">
+    <div class="wrap">
+      <div class="head">
+        <p class="kicker"><svg class="etch" viewBox="0 0 46 18" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 15 L16 3 L44 3"/><path pathLength="1" d="M2 15 L44 15"/></svg><span lang="en">Reviews</span><span lang="es">Reseñas</span></p>
+        <h2 lang="en">4.8 stars from 430 reviews</h2>
+        <h2 lang="es">4.8 estrellas en 430 reseñas</h2>
+        <p lang="en">A few words from customers on <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>. Some are in Spanish, quoted as written.</p>
+        <p lang="es">Algunas palabras de nuestros clientes en <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>. Algunas están en inglés, tal como se escribieron.</p>
+      </div>
+      <div class="rgrid">
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>I had a great experience with Enrique. He gave me one of the cleanest cuts I’ve gotten, paid attention to every detail, and made sure everything was exactly how I wanted it. …</blockquote>
+          <figcaption><b>Eliezer</b> · <a href="https://search.google.com/local/reviews?placeid=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</span><span lang="es">reseña de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote lang="es-US">Luis es uno de los mejores Barbero que he conocido. La Barberia es de excelente servicio y calidad. Lo recomiendo. Puedes hacer citas o simplemente ir.</blockquote>
+          <figcaption><b>Carmen</b> · <a href="https://search.google.com/local/reviews?placeid=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</span><span lang="es">reseña de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>…we were lucky enough to have Jhonatan as our barber. My son was a little nervous at first, but Jhonatan was incredibly patient, kind, and gentle with him from start to finish.</blockquote>
+          <figcaption><b>Taylor</b> · <a href="https://search.google.com/local/reviews?placeid=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</span><span lang="es">reseña de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Manio did a great job. Took his time was thorough and is an excellent barber. One of the best cuts I’ve had in a decade. …</blockquote>
+          <figcaption><b>Jeff</b> · <a href="https://search.google.com/local/reviews?placeid=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</span><span lang="es">reseña de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote lang="es-US">Muy acogedora esta barber, el servicio mucho mejor, pregunta por Enrique tremendo barbero, no se arrepentirá…</blockquote>
+          <figcaption><b>Damian</b> · <a href="https://search.google.com/local/reviews?placeid=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</span><span lang="es">reseña de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+        <figure>
+          <div class="rs" aria-label="5 stars">★★★★★</div>
+          <blockquote>Been coming here since I was in middle school and I am now a junior in college. Highly recommend!!</blockquote>
+          <figcaption><b>Tyler</b> · <a href="https://search.google.com/local/reviews?placeid=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</span><span lang="es">reseña de <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span></span><span aria-hidden="true"> ↗</span></a></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="visit">
+    <div class="wrap">
+      <div class="head">
+        <p class="kicker"><svg class="etch" viewBox="0 0 46 18" aria-hidden="true" focusable="false"><path pathLength="1" d="M2 15 L16 3 L44 3"/><path pathLength="1" d="M2 15 L44 15"/></svg><span lang="en">Visit</span><span lang="es">Visítenos</span></p>
+        <h2 lang="en">Come see us</h2>
+        <h2 lang="es">Lo esperamos</h2>
+      </div>
+      <div class="visit-grid light">
+        <figure class="store">
+          <img src="img/sbs_1.jpg" alt="Salisbury Barber Shop storefront under a blue metal awning in the Waverly Shopping Center, seen from the parking lot" loading="lazy">
+          <figcaption><span lang="en">Under the blue awning in the Waverly Shopping Center</span><span lang="es">Bajo el toldo azul en el Waverly Shopping Center</span></figcaption>
+        </figure>
+        <div class="where">
+          <address>817 S Salisbury Blvd<br>Salisbury, MD 21801</address>
+          <p lang="en">In the Waverly Shopping Center. Look for the blue awning with the Barber Shop sign.</p>
+          <p lang="es">En el Waverly Shopping Center. Busque el toldo azul con el letrero Barber Shop.</p>
+          <p class="note"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><path d="M11 7v6h6l3 6"/><path d="M15 17.5a5.5 5.5 0 1 1-6.5-6.2"/></svg><span lang="en">Wheelchair-accessible entrance, parking and restroom.</span><span lang="es">Entrada, estacionamiento y baño accesibles para sillas de ruedas.</span></p>
+          <p class="note"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V3h11v18"/><path d="M15 3l5 2v16h-5"/><path d="M2 21h20"/></svg><span lang="en">Walk-ins welcome, or call ahead to make an appointment.</span><span lang="es">Venga sin cita, o llame antes para hacer una cita.</span></p>
+          <div class="actions">
+            <a class="btn btn-main" href="tel:+14433660611"><span lang="en">Call (443) 366-0611</span><span lang="es">Llame al (443) 366-0611</span></a>
+            <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Salisbury%20Barber%20Shop&amp;query_place_id=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><span lang="en">Get directions</span><span lang="es">Cómo llegar</span></a>
+          </div>
+        </div>
+        <div class="hours-box">
+          <h3 lang="en">Hours</h3><h3 lang="es">Horario</h3>
+          <table class="hours" id="hours" aria-label="Hours">
+            <tr data-d="0"><td><span lang="en">Sunday</span><span lang="es">Domingo</span></td><td>8:00 am – 3:00 pm</td></tr>
+            <tr data-d="1"><td><span lang="en">Monday</span><span lang="es">Lunes</span></td><td>9:00 am – 7:00 pm</td></tr>
+            <tr data-d="2"><td><span lang="en">Tuesday</span><span lang="es">Martes</span></td><td>9:00 am – 7:00 pm</td></tr>
+            <tr data-d="3"><td><span lang="en">Wednesday</span><span lang="es">Miércoles</span></td><td>9:00 am – 7:00 pm</td></tr>
+            <tr data-d="4"><td><span lang="en">Thursday</span><span lang="es">Jueves</span></td><td>9:00 am – 6:00 pm</td></tr>
+            <tr data-d="5"><td><span lang="en">Friday</span><span lang="es">Viernes</span></td><td>8:00 am – 7:00 pm</td></tr>
+            <tr data-d="6"><td><span lang="en">Saturday</span><span lang="es">Sábado</span></td><td>8:00 am – 7:00 pm</td></tr>
+          </table>
+          <p class="hours-note" lang="en">Open every day. Thursdays close at 6.</p>
+          <p class="hours-note" lang="es">Abierto todos los días. Los jueves cerramos a las 6.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Salisbury Barber Shop, Salisbury, Maryland</span> <!-- legal-links --><span class="legal-links" style="display:inline-flex;gap:14px;flex-wrap:wrap"><a href="privacy.html"><span lang="en">Privacy</span><span lang="es">Privacidad</span></a><a href="cookies.html"><span lang="en">Cookies</span><span lang="es">Cookies</span></a><a href="terms.html"><span lang="en">Terms</span><span lang="es">Términos</span></a></span><!-- /legal-links -->
+    <span><span lang="en">Preview site made for Salisbury Barber Shop by Chris at</span><span lang="es">Sitio de muestra hecho para Salisbury Barber Shop por Chris de</span> <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+14433660611"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><span lang="en">Call</span><span lang="es">Llamar</span></a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=Salisbury%20Barber%20Shop&amp;query_place_id=ChIJRZ6EqOwDuYkRxJQTsMb_pNI" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg><span lang="en">Directions</span><span lang="es">Llegar</span></a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span lang="en">Hours</span><span lang="es">Horario</span></a>
+</nav>
+<!-- /m-layer:bar -->
+</div>
+
+<script>
+(function () {
+  var site = document.getElementById('site');
+  var en = document.getElementById('btn-en');
+  var es = document.getElementById('btn-es');
+  var badge = document.getElementById('open-now');
+  var isOpen = null;
+  function paintBadge(l) {
+    if (isOpen === null) return;
+    badge.textContent = isOpen ? (l === 'es' ? 'Abierto ahora' : 'Open now') : (l === 'es' ? 'Cerrado ahora' : 'Closed now');
+  }
+  function setLang(l) {
+    site.setAttribute('data-lang', l);
+    en.setAttribute('aria-pressed', l === 'en');
+    es.setAttribute('aria-pressed', l === 'es');
+    document.documentElement.lang = l;
+    paintBadge(l);
+    try { localStorage.setItem('salisburybarbershop-lang', l); } catch (e) {}
+  }
+  en.addEventListener('click', function () { setLang('en'); });
+  es.addEventListener('click', function () { setLang('es'); });
+
+  var HOURS = { 0: [8, 15], 1: [9, 19], 2: [9, 19], 3: [9, 19], 4: [9, 18], 5: [8, 19], 6: [8, 19] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var span = HOURS[d];
+    isOpen = !!(span && h >= span[0] && h < span[1]);
+    if (!isOpen) badge.classList.add('shut');
+    badge.hidden = false;
+  } catch (e) {}
+
+  var start = 'en';
+  try { start = localStorage.getItem('salisburybarbershop-lang') || start; } catch (e) {}
+  if (location.hash === '#es') start = 'es';
+  if (location.hash === '#en') start = 'en';
+  setLang(start);
+
+  // Signature: part lines etch in like a razor as they scroll into view
+  var etches = document.querySelectorAll('.etch');
+  if ('IntersectionObserver' in window && window.matchMedia && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    document.documentElement.classList.add('etch-on');
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.4 });
+    etches.forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
+<script src="/preview-contact.js?v=4" defer data-name="Salisbury Barber Shop" data-slot="#visit .actions" data-accent="var(--blue)" data-accent-fg="#fff" data-ink="var(--ink)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:800;text-transform:uppercase"></script>
+<script src="/preview-kit.js?v=4" data-slug="salisburybarbershop" defer></script>
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {"0": [8, 15], "1": [9, 19], "2": [9, 19], "3": [9, 19], "4": [9, 18], "5": [8, 19], "6": [8, 19]};
+  var SEASON = null;
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      if (SEASON) { var mo = now.getMonth() + 1; if (mo < SEASON[0] || mo > SEASON[1]) { txt.textContent = SEASON[2] || 'Closed for the season'; el.classList.add('shut'); return; } }
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    var wrapEl = document.createElement('div'); wrapEl.className = 'm-hours-wrap';
+    table.parentNode.insertBefore(wrapEl, table); wrapEl.appendChild(table); wrapEl.appendChild(btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>
