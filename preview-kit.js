@@ -229,13 +229,19 @@
     if (shown || store(dismissedKey) === '1') return;
     shown = true; pill.hidden = false; requestAnimationFrame(function () { pill.classList.add('show'); });
     window.removeEventListener('scroll', onScroll);
+    // On phones the pill sits over the bottom of the page: give the footer room so it never hides the links.
+    var foot = document.querySelector('footer');
+    if (foot && !document.getElementById('esai-pill-room')) {
+      var room = document.createElement('div'); room.id = 'esai-pill-room'; room.setAttribute('aria-hidden', 'true');
+      room.style.cssText = 'height:0;transition:height .3s';
+      foot.appendChild(room);
+      var fit = function () { room.style.height = window.innerWidth < 900 && !pill.hidden ? '64px' : '0'; };
+      fit(); window.addEventListener('resize', fit);
+      pill.addEventListener('transitionend', fit);
+    }
   }
   function onScroll() { var h = document.documentElement; if (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight) > 0.15) reveal(); }
-  // Step aside at the very bottom so the pill never covers the footer.
-  window.addEventListener('scroll', function () {
-    var h = document.documentElement, left = h.scrollHeight - (window.scrollY || h.scrollTop) - window.innerHeight;
-    pill.classList.toggle('away', left < 240);
-  }, { passive: true });
+  // The pill stays up all the way to the bottom (Chris, 11/1): the end of the page is when people are ready to act.
   setTimeout(reveal, 4000);
   window.addEventListener('scroll', onScroll, { passive: true });
 })();
