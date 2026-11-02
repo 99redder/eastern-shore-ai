@@ -19,9 +19,11 @@ test('sale price only inside a sale window, by Eastern date', () => {
     ['2026-11-25T00:00:30-05:00', 24999, 'thanksgiving'],
     ['2026-11-27T00:00:30-05:00', 24999, 'thanksgiving'],
     ['2026-11-30T23:59:00-05:00', 24999, 'thanksgiving'],
-    ['2026-12-01T00:00:30-05:00', 24999, 'christmas'],
-    ['2026-12-25T23:59:00-05:00', 24999, 'christmas'],
-    ['2026-12-26T00:00:30-05:00', 34999, null]
+    ['2026-12-01T00:00:30-05:00', 34999, null],
+    ['2026-12-11T23:59:00-05:00', 34999, null],
+    ['2026-12-12T00:00:30-05:00', 24999, 'christmas'],
+    ['2026-12-18T23:59:00-05:00', 24999, 'christmas'],
+    ['2026-12-19T00:00:30-05:00', 34999, null]
   ];
   for (const [when, cents, key] of cases) {
     const { cents: got, sale } = nodePrice(new Date(when));

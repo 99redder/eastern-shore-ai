@@ -1,7 +1,7 @@
 // ===== Seasonal Sale Themes + price (node.html + buynode.html) =====
 // Picks the active sale from the date in America/New_York. During a sale the
 // price is $249.99 and the page is dressed for it; outside every window (the
-// break Nov 1–24, and after Christmas) it's the regular $349.99.
+// breaks Nov 1–24 and Dec 1–11, and after Christmas) it's the regular $349.99.
 // Start and end dates are inclusive, so a sale runs until midnight Eastern at
 // the end of its end date.
 // Loaded without defer in <head> so <html data-price="sale|regular"> is set
@@ -28,8 +28,8 @@
       accent: '#f0c987', accentInk: '#2b1606', glow: 'rgba(217, 142, 74, .55)'
     },
     {
-      key: 'christmas', name: 'Christmas Sale', start: '2026-12-01', end: '2026-12-25',
-      endsLong: 'December 25', endsShort: 'Dec 25', icon: '🎄',
+      key: 'christmas', name: 'Christmas Sale', start: '2026-12-12', end: '2026-12-18',
+      endsLong: 'December 18', endsShort: 'Dec 18', icon: '🎄',
       drift: ['❄️', '❄️', '🎄', '🎁'],
       banner: '#e5383b',
       accent: '#7fe0a0', accentInk: '#06210f', glow: 'rgba(255, 107, 107, .5)'

@@ -11,7 +11,7 @@ export const NODE_SALE_CENTS = 24999;
 export const NODE_SALES = [
   { key: 'halloween', name: 'Halloween Sale', start: '2026-10-01', end: '2026-10-31', endsLong: 'October 31' },
   { key: 'thanksgiving', name: 'Thanksgiving Sale', start: '2026-11-25', end: '2026-11-30', endsLong: 'November 30' },
-  { key: 'christmas', name: 'Christmas Sale', start: '2026-12-01', end: '2026-12-25', endsLong: 'December 25' }
+  { key: 'christmas', name: 'Christmas Sale', start: '2026-12-12', end: '2026-12-18', endsLong: 'December 18' }
 ];
 
 // en-CA formats as YYYY-MM-DD, which compares correctly as a string
