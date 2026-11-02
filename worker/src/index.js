@@ -2555,9 +2555,9 @@ function buildOrderTexts(row, shipTo) {
     : '';
   const shipLine = shipTo ? `${shipBy || 'It will ship'} to:\n${shipTo}` : (shipBy ? `${shipBy}.` : '');
   const ack = [
-    `${hi}, this is Chris from Eastern Shore AI. Thanks for your ${order}!`,
+    `${hi}, this is Chris from Eastern Shore AI. Thanks for your ${order}.`,
     shipLine,
-    `If ${shipTo ? 'that address looks wrong or ' : ''}you have any questions, just reply to this text.`,
+    `If ${shipTo ? 'that address looks wrong or if ' : ''}you have any questions, just reply to this text. Thanks again.`,
     '-Chris'
   ].filter(Boolean).join('\n\n');
 
@@ -2567,15 +2567,15 @@ function buildOrderTexts(row, shipTo) {
     ? `${trackingProvider ? `${trackingProvider.toUpperCase()} tracking` : 'Tracking'}: ${trackingNumber}\n${orderTrackProxyUrl(trackingNumber, trackingProvider)}`
     : '';
   const shipping = [
-    `${hi}, it's Chris from Eastern Shore AI. Your ${order} has shipped!`,
+    `${hi}, it's Chris from Eastern Shore AI. Your ${order} has shipped.`,
     tracking,
-    'Reply to this text if you have any questions.',
+    'If you have any questions, just reply to this text. Thanks again.',
     '-Chris'
   ].filter(Boolean).join('\n\n');
 
   const delivered = [
     `${hi}, it's Chris from Eastern Shore AI. Your ${order} shows as delivered.`,
-    'If anything\'s missing or you have any questions, just reply to this text.',
+    'If anything\'s missing or if you have any questions, just reply to this text. Thanks again.',
     '-Chris'
   ].join('\n\n');
 

@@ -586,9 +586,9 @@ test('text customer: phone saved from Stripe, texts follow the emails, one link 
   assert.deepEqual(Object.keys(draft.texts), ['ack', 'shipping', 'delivered']);
   assert.equal(draft.texts.shipping, '');
   assert.equal(draft.texts.delivered, '');
-  assert.match(draft.texts.ack, /^Hi Tess, this is Chris from Eastern Shore AI\./);
+  assert.match(draft.texts.ack, /^Hi Tess, this is Chris from Eastern Shore AI\. Thanks for your Survival Node order #\d+\.\n/);
   assert.match(draft.texts.ack, /It will ship to:\nTess Buyer\n9 Oak Ln\nEaston, MD 21601/);
-  assert.match(draft.texts.ack, /If that address looks wrong or you have any questions, just reply to this text\./);
+  assert.match(draft.texts.ack, /If that address looks wrong or if you have any questions, just reply to this text\. Thanks again\.\n\n-Chris$/);
 
   assert.equal((await send('ack', { estimatedShipDate: '2026-11-03' })).status, 200);
   draft = await texts();
@@ -597,13 +597,14 @@ test('text customer: phone saved from Stripe, texts follow the emails, one link 
   assert.equal((await send('shipping')).status, 200);
   draft = await texts();
   assert.equal(draft.suggested, 'shipping');
-  assert.match(draft.texts.shipping, /has shipped!\n\nUSPS tracking: 9400100000000000000000\nhttps:\/\/services\.easternshore\.ai\/track\?n=9400100000000000000000&c=usps\n\nReply to this text/);
+  assert.match(draft.texts.shipping, /has shipped\.\n\nUSPS tracking: 9400100000000000000000\nhttps:\/\/services\.easternshore\.ai\/track\?n=9400100000000000000000&c=usps\n\nIf you have any questions, just reply to this text\. Thanks again\./);
   assert.equal(draft.texts.delivered, '');
 
   assert.equal((await send('delivered')).status, 200);
   draft = await texts();
   assert.equal(draft.suggested, 'delivered');
   assert.match(draft.texts.delivered, /shows as delivered/);
+  assert.match(draft.texts.delivered, /If anything's missing or if you have any questions, just reply to this text\. Thanks again\./);
   for (const text of Object.values(draft.texts)) {
     assert.ok((text.match(/https?:\/\//g) || []).length <= 1, text);
     assert.match(text, /-Chris$/);
@@ -641,7 +642,7 @@ test('text customer: older orders use Stripe\'s phone, manual orders the typed o
   assert.equal(gone.ok, true);
   assert.equal(gone.phone, '');
   assert.match(gone.texts.ack, /Thanks for your Survival Node order/);
-  assert.match(gone.texts.ack, /If you have any questions, just reply to this text\./);
+  assert.match(gone.texts.ack, /If you have any questions, just reply to this text\. Thanks again\./);
   assert.doesNotMatch(gone.texts.ack, /address looks wrong/);
 
   const { orderKey } = await (await worker.fetch(post('/api/orders/manual', { customerName: 'Mo Manual', customerEmail: 'mo@example.net', customerPhone: '302.555.0147', amount: '249.99', paymentDate: '2026-10-20' }, admin), env, ctx)).json();
