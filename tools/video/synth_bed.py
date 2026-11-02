@@ -21,8 +21,10 @@ def hz(m): return 440 * 2 ** ((m - 69) / 12)
 def lp(x, fc): return sosfilt(butter(2, fc, 'low', fs=SR, output='sos'), x)
 def hp(x, fc): return sosfilt(butter(2, fc, 'high', fs=SR, output='sos'), x)
 def env_ar(n, a, r):
-    e = np.ones(n); a = int(a * SR); r = int(r * SR)
-    e[:a] = np.linspace(0, 1, a); e[-r:] = np.minimum(e[-r:], np.linspace(1, 0, r)); return e
+    e = np.ones(n); a = min(int(a * SR), n); r = min(int(r * SR), n)
+    e[:a] = np.linspace(0, 1, a)
+    if r: e[n - r:] = np.minimum(e[n - r:], np.linspace(1, 0, r))
+    return e
 
 L = np.zeros(N); R = np.zeros(N)
 

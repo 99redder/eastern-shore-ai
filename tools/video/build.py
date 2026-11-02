@@ -273,6 +273,116 @@ def build_short():
     finish(inputs, fl, "[vsub]", a, SN + "out/survival_node_battery_test_short.mp4",
            extra_audio={"file": SN + "music/short_bed.wav", "gain": -9})
 
+C3 = "/mnt/user-data/uploads/IMG_7115.MOV"
+C4 = "/mnt/user-data/uploads/IMG_7116.MOV"
+
+def av_segment(name, vparts, aparts, ovs=(), center=(540, 960)):
+    """vparts: ("clip", src, a, b, zoom) | ("fast", src, a, b, speed) | ("freeze", src, t, secs, z0, z1)
+    aparts: (src, a, b) | ("sil", secs). Audio is padded/trimmed to the video length. ovs in segment seconds."""
+    out = SEG + name + ".mov"
+    if os.environ.get("REUSE") and os.path.exists(out): return out
+    inputs, fl, vl, al = [], [], [], []
+    def add(src, a=None, d=None):
+        if a is not None: inputs.extend(["-ss", f"{a}"])
+        if d is not None: inputs.extend(["-t", f"{d:.3f}"])
+        inputs.extend(["-i", src]); return inputs.count("-i") - 1
+    vt = 0.0
+    for k, p in enumerate(vparts):
+        if p[0] == "clip":
+            _, src, a, b, z = p
+            i = add(src, a, b - a)
+            w, h = int(1080 / z) // 2 * 2, int(1920 / z) // 2 * 2
+            fl.append(f"[{i}:v]setpts=PTS-STARTPTS,crop={w}:{h}:{(1080-w)//2}:{max(0,min(1920-h,center[1]-h//2))},scale=1080:1920:flags=lanczos,setsar=1,fps={FPS}[v{k}]")
+            vt += b - a
+        elif p[0] == "fast":
+            _, src, a, b, sp = p
+            i = add(src, a, b - a)
+            fl.append(f"[{i}:v]setpts=(PTS-STARTPTS)/{sp},fps={FPS},setsar=1[v{k}]")
+            vt += (b - a) / sp
+        else:
+            _, src, t, secs, z0, z1 = p
+            i = add(src, t)
+            n = int(secs * FPS)
+            fl.append(f"[{i}:v]trim=end_frame=1,scale=2160:3840,zoompan=z='{z0}+({z1}-{z0})*on/{n}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={n}:s=1080x1920:fps={FPS},setsar=1[v{k}]")
+            vt += secs
+        vl.append(f"[v{k}]")
+    for k, p in enumerate(aparts):
+        if p[0] == "sil":
+            fl.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{p[1]}[a{k}]")
+        else:
+            src, a, b = p
+            i = add(src, a, b - a)
+            fl.append(f"[{i}:a]asetpts=PTS-STARTPTS,aresample=48000,afade=t=in:d=0.02,afade=t=out:st={b-a-0.03:.3f}:d=0.03[a{k}]")
+        al.append(f"[a{k}]")
+    fl.append("".join(vl) + f"concat=n={len(vl)}:v=1:a=0[cv]")
+    fl.append("".join(al) + f"concat=n={len(al)}:v=0:a=1,apad,atrim=0:{vt:.3f}[ca]")
+    n0 = inputs.count("-i")
+    for png, *_ in ovs:
+        inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{vt:.3f}", "-i", OV + png + ".png"]
+    parts, last = overlay_chain("cv", ovs, n0, vt)
+    fl += parts + [f"[{last}]null[vo]"]
+    run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(fl), "-map", "[vo]", "-map", "[ca]", *VENC, *AENC, "-t", f"{vt:.3f}", out])
+    return out
+
+def words_in(jsonf, a, b, off):
+    ws = [w for s in json.load(open(jsonf)) for w in s["words"]]
+    out = []
+    for w in ws:
+        if w["w"].strip() == "%" and out and a <= w["s"] <= b + 0.1:
+            out[-1]["w"] += "%"; continue
+        if w["s"] >= a - 0.05 and w["s"] <= b - 0.05:
+            out.append({"w": w["w"].strip(), "s": w["s"] - a + off, "e": min(w["e"], b, w["s"] + 0.9) - a + off})
+    return out
+
+def build_unbox():
+    J3, J4 = SN + "audio/7115.json", SN + "audio/7116.json"
+    # (name, vparts, aparts, overlays[(png, start, end) in segment seconds])
+    beats = [
+        ("U01", [("clip", C3, 2.20, 9.50, 1.0)], [(C3, 2.20, 9.50)], []),
+        ("U02", [("clip", C3, 10.25, 11.50, 1.0), ("clip", C3, 13.65, 22.25, 1.0)], [(C3, 10.25, 11.50), (C3, 13.65, 22.25)], [("ub_faraday", 1.4, 9.5)]),
+        ("U03", [("clip", C3, 24.05, 24.42, 1.0), ("clip", C3, 24.95, 26.00, 1.0), ("clip", C3, 26.65, 29.95, 1.0)],
+                [(C3, 24.05, 24.42), (C3, 24.95, 26.00), (C3, 26.65, 29.95)], [("ub_case", 0.2, 4.2)]),
+        ("U04", [("clip", C3, 33.50, 36.40, 1.0), ("freeze", C3, 35.0, 3.30, 1.0, 1.10)],
+                [(C3, 31.05, 32.39), (C3, 34.70, 38.35), (C3, 39.20, 40.45)], [("ub_dothis", 0.5, 5.85)]),
+        ("U05", [("clip", C3, 41.65, 42.85, 1.0), ("fast", C3, 42.85, 50.0, 2.0)], [(C3, 41.65, 42.85), ("sil", 3.6)], []),
+        ("U06", [("clip", C3, 50.20, 52.95, 1.0), ("clip", C3, 54.55, 55.60, 1.0)], [(C3, 50.20, 52.95), (C3, 54.55, 55.60)], [("ub_solar", 1.2, 3.65)]),
+        ("U07", [("clip", C3, 56.80, 60.60, 1.0)], [(C3, 56.80, 60.60)], [("ub_desiccant", 0.6, 3.65)]),
+        ("U08", [("clip", C3, 65.15, 70.50, 1.0), ("clip", C3, 71.05, 73.65, 1.0)], [(C3, 65.15, 70.50), (C3, 71.05, 73.65)], [("ub_bluebox", 0.3, 7.3)]),
+        ("U09", [("clip", C3, 78.40, 80.40, 1.0), ("clip", C3, 80.90, 82.40, 1.0)], [(C3, 75.70, 76.50), ("sil", 1.2), (C3, 80.90, 82.40)], [("ub_lock", 0.1, 1.95), ("ub_block", 2.05, 3.5)]),
+        ("U10", [("clip", C3, 83.80, 87.75, 1.0)], [(C3, 83.80, 87.75)], [("ub_toss", 0.3, 3.6)]),
+        ("U11", [("clip", C3, 88.60, 90.85, 1.0)], [(C3, 88.60, 90.85)], [("ub_phone", 0.2, 2.05)]),
+        ("U12", [("clip", C3, 91.50, 96.40, 1.0), ("clip", C3, 97.10, 101.00, 1.0)], [(C3, 91.50, 96.40), (C3, 97.10, 101.00)], [("ub_inserts", 0.5, 8.2)]),
+        ("U13", [("clip", C4, 1.00, 6.10, 1.0), ("clip", C4, 6.75, 12.45, 1.0), ("clip", C4, 12.85, 17.30, 1.0)],
+                [(C4, 1.00, 6.10), (C4, 6.75, 12.45), (C4, 12.85, 17.30)], [("ub_off", 5.4, 13.9)]),
+        ("U14", [("clip", C4, 17.40, 20.75, 1.0), ("clip", C4, 24.40, 31.60, 1.0)], [(C4, 17.40, 20.75), (C4, 24.40, 31.60)],
+                [("ub_battvid", 0.2, 3.1), ("ub_guide", 5.0, 10.35)]),
+    ]
+    segs, words, t = [], [], 0.0
+    title_d, end_d = 3.5, 4.5
+    segs.append(card_segment("U00_title", "ub_title", title_d))
+    t = title_d - 0.4  # xfade into first beat
+    for name, vp, ap, ovs in beats:
+        f = av_segment(name, vp, ap, ovs)
+        # caption words: map each audio piece onto the beat's timeline
+        off = t
+        for p in ap:
+            if p[0] == "sil": off += p[1]; continue
+            src, a, b = p
+            words += words_in(J3 if src == C3 else J4, a, b, off)
+            off += b - a
+        segs.append(f); t += dur(f)
+    total = t + end_d - 0.5
+    segs.append(card_segment("U99_end", "ub_end", end_d))
+    for w in words:
+        w["w"] = {"2.": "2."}.get(w["w"], w["w"])
+    write_ass(words, SN + "ub_caps.ass", cap_end=t - 0.4)
+    subprocess.run(["python3", SN + "music/synth_bed.py", SN + "music/ub_bed.wav", f"{total+0.6:.2f}", f"{t - 0.5 + 0.3:.3f}", "9.6"], check=True)
+    tr = [("fade", 0.4)] + [("fade", 0)] * (len(beats) - 1) + [("fade", 0.5)]
+    inputs, fl, v, a, _ = join(segs, tr, None)
+    fl.append(f"{v}subtitles={SN}ub_caps.ass:fontsdir=/usr/share/fonts/opentype/inter[vsub]")
+    finish(inputs, fl, "[vsub]", a, SN + "out/survival_node_unboxing.mp4",
+           extra_audio={"file": SN + "music/ub_bed.wav", "gain": -13})
+
 if __name__ == "__main__":
     os.makedirs(SN + "out", exist_ok=True)
-    {"long": build_long, "short": build_short}[sys.argv[1]]()
+    {"long": build_long, "short": build_short, "unbox": build_unbox}[sys.argv[1]]()

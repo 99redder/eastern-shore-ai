@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Render brand overlay PNGs (1080x1920 RGBA) for the Survival Node battery videos."""
-import os
+import os, sys
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 W, H = 1080, 1920
@@ -152,15 +152,15 @@ def card_bg(src_frame):
     bg.alpha_composite(sl)
     return bg
 
-def title_card(name, frame):
+def title_card(name, frame, sub="Battery Health Test", sub2="How every phone is checked before it ships"):
     img = card_bg(frame)
     d = ImageDraw.Draw(img)
     glow_text(img, (W // 2, 760), "SURVIVAL NODE", ORB(92), WHITE + (255,), CYAN, radius=18, anchor="mm")
     glow_text(img, (W // 2, 870), "GEN 2", ORB(70), PINK + (255,), PINK, radius=16, anchor="mm", strength=1)
     d = ImageDraw.Draw(img)
     d.line((240, 960, W - 240, 960), fill=CYAN + (200,), width=3)
-    d.text((W // 2, 1040), "Battery Health Test", font=HXB(76), fill=WHITE + (255,), anchor="mm")
-    d.text((W // 2, 1130), "How every phone is checked before it ships", font=HMD(42), fill=MUTED + (255,), anchor="mm")
+    d.text((W // 2, 1040), sub, font=HXB(76), fill=WHITE + (255,), anchor="mm")
+    d.text((W // 2, 1130), sub2, font=HMD(42), fill=MUTED + (255,), anchor="mm")
     img.convert("RGB").save(OUT + name + ".png")
 
 def inter_card(name, frame):
@@ -172,7 +172,7 @@ def inter_card(name, frame):
     d.text((W // 2, 1220), "A few hours later…", font=HMD(46), fill=MUTED + (255,), anchor="mm")
     img.convert("RGB").save(OUT + name + ".png")
 
-def end_card(name, frame):
+def end_card(name, frame, tag="Tested before it ships."):
     img = card_bg(frame)
     icon = Image.open("/home/claude/eastern-shore-ai/survival-node-app/icon-512-app.png").convert("RGBA").resize((380, 380))
     m = Image.new("L", icon.size, 0)
@@ -184,11 +184,38 @@ def end_card(name, frame):
     img.alpha_composite(icon, (350, 470))
     glow_text(img, (W // 2, 1000), "SURVIVAL NODE GEN 2", ORB(66), WHITE + (255,), CYAN, radius=14, anchor="mm")
     d = ImageDraw.Draw(img)
-    d.text((W // 2, 1090), "Tested before it ships.", font=HXB(58), fill=WHITE + (255,), anchor="mm")
+    d.text((W // 2, 1090), tag, font=HXB(58), fill=WHITE + (255,), anchor="mm")
     glow_text(img, (W // 2, 1230), "easternshore.ai", ORB(60), PINK + (255,), PINK, radius=12, anchor="mm", strength=1)
     d = ImageDraw.Draw(img)
     d.text((W // 2, 1320), "Veteran-owned  ·  Maryland's Eastern Shore", font=HMD(40), fill=MUTED + (255,), anchor="mm")
     img.convert("RGB").save(OUT + name + ".png")
+
+def unboxing():
+    fr = "/home/claude/sn/frames/"
+    items = {
+        "ub_faraday": ("IN THE SHIPPING BOX", "Mission Darkness Faraday bags"),
+        "ub_case": ("THE CASE", "Waterproof hard case"),
+        "ub_dothis": ("ON TOP OF THE CASE", "Do This Now: 4-step setup sheet"),
+        "ub_solar": ("IN THE CASE", "Solar battery"),
+        "ub_desiccant": ("IN THE CASE", "Premium reusable desiccant"),
+        "ub_bluebox": ("SMALL BLUE BOX", "Charging cable +\nscreen protector"),
+        "ub_lock": ("IN THE CASE", "Padlock with 2 keys"),
+        "ub_block": ("IN THE CASE", "Charging block"),
+        "ub_toss": ("SHIPPING ONLY", "Small desiccant: throw it away"),
+        "ub_phone": ("MIDDLE ENVELOPE", "The Survival Node phone"),
+        "ub_inserts": ("AT THE BOTTOM", "3 inserts: deployment,\nwarranty + case manual"),
+        "ub_off": ("SHIPS POWERED OFF", "Under 30% charge for\nlithium shipping rules"),
+        "ub_battvid": ("SEE THE BATTERY TEST", "Video on our testing page"),
+        "ub_guide": ("PRELOADED", "User Guide app: every how-to"),
+    }
+    for k, (a, b) in items.items():
+        lower_third(k, a, b)
+    title_card("ub_title", fr + "ub_bg.jpg", "Unboxing", "Everything that comes in the box")
+    end_card("ub_end", fr + "ub_bg.jpg", "Everything you need, in one case.")
+    print("unboxing overlays done")
+
+if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "unboxing":
+    unboxing(); sys.exit()
 
 if __name__ == "__main__":
     fr = "/home/claude/sn/frames/"
