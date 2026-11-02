@@ -276,7 +276,7 @@ def build_short():
 C3 = "/mnt/user-data/uploads/IMG_7115.MOV"
 C4 = "/mnt/user-data/uploads/IMG_7116.MOV"
 
-def av_segment(name, vparts, aparts, ovs=(), center=(540, 960)):
+def av_segment(name, vparts, aparts, ovs=(), center=(540, 960), blur=None):
     """vparts: ("clip", src, a, b, zoom) | ("fast", src, a, b, speed) | ("freeze", src, t, secs, z0, z1)
     aparts: (src, a, b) | ("sil", secs). Audio is padded/trimmed to the video length. ovs in segment seconds."""
     out = SEG + name + ".mov"
@@ -314,7 +314,13 @@ def av_segment(name, vparts, aparts, ovs=(), center=(540, 960)):
             i = add(src, a, b - a)
             fl.append(f"[{i}:a]asetpts=PTS-STARTPTS,aresample=48000,afade=t=in:d=0.02,afade=t=out:st={b-a-0.03:.3f}:d=0.03[a{k}]")
         al.append(f"[a{k}]")
-    fl.append("".join(vl) + f"concat=n={len(vl)}:v=1:a=0[cv]")
+    if blur:
+        bx, by, bw, bh = blur
+        fl.append("".join(vl) + f"concat=n={len(vl)}:v=1:a=0,split[cv0][cvb]")
+        fl.append(f"[cvb]crop={bw}:{bh}:{bx}:{by},boxblur=28:3[bl]")
+        fl.append(f"[cv0][bl]overlay={bx}:{by}[cv]")
+    else:
+        fl.append("".join(vl) + f"concat=n={len(vl)}:v=1:a=0[cv]")
     fl.append("".join(al) + f"concat=n={len(al)}:v=0:a=1,apad,atrim=0:{vt:.3f}[ca]")
     n0 = inputs.count("-i")
     for png, *_ in ovs:
@@ -354,15 +360,15 @@ def build_unbox():
         ("U12", [("clip", C3, 91.50, 96.40, 1.0), ("clip", C3, 97.10, 101.00, 1.0)], [(C3, 91.50, 96.40), (C3, 97.10, 101.00)], [("ub_inserts", 0.5, 8.2)]),
         ("U13", [("clip", C4, 1.00, 6.10, 1.0), ("clip", C4, 6.75, 12.45, 1.0), ("clip", C4, 12.85, 17.30, 1.0)],
                 [(C4, 1.00, 6.10), (C4, 6.75, 12.45), (C4, 12.85, 17.30)], [("ub_off", 5.4, 13.9)]),
-        ("U14", [("clip", C4, 17.40, 20.75, 1.0), ("clip", C4, 24.40, 31.60, 1.0)], [(C4, 17.40, 20.75), (C4, 24.40, 31.60)],
-                [("ub_battvid", 0.2, 3.1), ("ub_guide", 5.0, 10.35)]),
+        ("U14", [("clip", C4, 24.40, 31.60, 1.0)], [(C4, 24.40, 31.60)], [("ub_guide", 1.4, 7.2)]),
     ]
     segs, words, t = [], [], 0.0
     title_d, end_d = 3.5, 4.5
     segs.append(card_segment("U00_title", "ub_title", title_d))
     t = title_d - 0.4  # xfade into first beat
+    blurs = {"U13": (0, 0, 860, 430)}  # receipt (order number, amount, date) at the top of clip 2
     for name, vp, ap, ovs in beats:
-        f = av_segment(name, vp, ap, ovs)
+        f = av_segment(name, vp, ap, ovs, blur=blurs.get(name))
         # caption words: map each audio piece onto the beat's timeline
         off = t
         for p in ap:
