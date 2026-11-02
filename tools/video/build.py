@@ -340,17 +340,41 @@ def words_in(jsonf, a, b, off):
             out.append({"w": w["w"].strip(), "s": w["s"] - a + off, "e": min(w["e"], b, w["s"] + 0.9) - a + off})
     return out
 
+def wide_segment(name, src, a, b, crop, z0=1.0, z1=1.07, ovs=()):
+    """Horizontal clip shown in the vertical frame over a blurred, darkened copy of itself, slow push-in, muted."""
+    out = SEG + name + ".mov"
+    if os.environ.get("REUSE") and os.path.exists(out): return out
+    d = b - a; n = int(d * FPS)
+    cx, cy, cw, ch = crop
+    fh = int(1080 * ch / cw) // 2 * 2
+    fl = [f"[0:v]crop={cw}:{ch}:{cx}:{cy},setpts=PTS-STARTPTS,fps={FPS},split[s1][s2]",
+          f"[s1]scale=-2:1920,crop=1080:1920,boxblur=40:4,eq=brightness=-0.18:saturation=0.7[bg]",
+          f"[s2]scale=2160:-2,zoompan=z='{z0}+({z1}-{z0})*on/{n}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1080x{fh}:fps={FPS}[fg]",
+          f"[bg][fg]overlay=0:(H-h)/2-60,setsar=1,trim=duration={d:.3f}[cv]",
+          f"anullsrc=r=48000:cl=stereo,atrim=0:{d:.3f}[ca]"]
+    inputs = ["-ss", str(a), "-t", f"{d:.3f}", "-i", src]
+    n0 = 1
+    for png, *_ in ovs:
+        inputs += ["-loop", "1", "-framerate", str(FPS), "-t", f"{d:.3f}", "-i", OV + png + ".png"]
+    parts, last = overlay_chain("cv", ovs, n0, d)
+    fl += parts + [f"[{last}]null[vo]"]
+    run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(fl), "-map", "[vo]", "-map", "[ca]", *VENC, *AENC, "-t", f"{d:.3f}", out])
+    return out
+
+C5 = "/mnt/user-data/uploads/50712818-IMG_7131.MOV"   # wide, case open (drinks at right edge -> cropped)
+C6 = "/mnt/user-data/uploads/e491e4eb-IMG_7130.MOV"   # wide, close, case closed
+
 def build_unbox():
     J3, J4 = SN + "audio/7115.json", SN + "audio/7116.json"
     # (name, vparts, aparts, overlays[(png, start, end) in segment seconds])
     beats = [
         ("U01", [("clip", C3, 2.20, 9.50, 1.0)], [(C3, 2.20, 9.50)], []),
-        ("U02", [("clip", C3, 10.25, 11.50, 1.0), ("clip", C3, 13.65, 22.25, 1.0)], [(C3, 10.25, 11.50), (C3, 13.65, 22.25)], [("ub_faraday", 1.4, 9.5)]),
+        ("U02", [("clip", C3, 13.65, 22.25, 1.0)], [(C3, 13.65, 22.25)], [("ub_faraday", 0.3, 8.3)]),
         ("U03", [("clip", C3, 24.05, 24.42, 1.0), ("clip", C3, 24.95, 26.00, 1.0), ("clip", C3, 26.65, 29.95, 1.0)],
                 [(C3, 24.05, 24.42), (C3, 24.95, 26.00), (C3, 26.65, 29.95)], [("ub_case", 0.2, 4.2)]),
         ("U04", [("clip", C3, 33.50, 36.40, 1.0), ("freeze", C3, 35.0, 3.30, 1.0, 1.10)],
                 [(C3, 31.05, 32.39), (C3, 34.70, 38.35), (C3, 39.20, 40.45)], [("ub_dothis", 0.5, 5.85)]),
-        ("U05", [("clip", C3, 41.65, 42.85, 1.0), ("fast", C3, 42.85, 50.0, 2.0)], [(C3, 41.65, 42.85), ("sil", 3.6)], []),
+        ("U05", [("clip", C3, 41.65, 42.85, 1.0), ("fast", C3, 44.55, 50.0, 2.0)], [(C3, 41.65, 42.85), ("sil", 2.75)], []),
         ("U06", [("clip", C3, 50.20, 52.95, 1.0), ("clip", C3, 54.55, 55.60, 1.0)], [(C3, 50.20, 52.95), (C3, 54.55, 55.60)], [("ub_solar", 1.2, 3.65)]),
         ("U07", [("clip", C3, 56.80, 60.60, 1.0)], [(C3, 56.80, 60.60)], [("ub_desiccant", 0.6, 3.65)]),
         ("U08", [("clip", C3, 65.15, 70.50, 1.0), ("clip", C3, 71.05, 73.65, 1.0)], [(C3, 65.15, 70.50), (C3, 71.05, 73.65)], [("ub_bluebox", 0.3, 7.3)]),
@@ -366,7 +390,7 @@ def build_unbox():
     title_d, end_d = 3.5, 4.5
     segs.append(card_segment("U00_title", "ub_title", title_d))
     t = title_d - 0.4  # xfade into first beat
-    blurs = {"U13": (0, 0, 860, 430)}  # receipt (order number, amount, date) at the top of clip 2
+    blurs = {}  # receipt blur removed at Chris's request (no name on it)
     for name, vp, ap, ovs in beats:
         f = av_segment(name, vp, ap, ovs, blur=blurs.get(name))
         # caption words: map each audio piece onto the beat's timeline
@@ -377,13 +401,18 @@ def build_unbox():
             words += words_in(J3 if src == C3 else J4, a, b, off)
             off += b - a
         segs.append(f); t += dur(f)
+    hit_at = t
+    segs.append(wide_segment("U15_kitopen", C5, 2.0, 5.5, (0, 0, 1740, 1080), 1.0, 1.05, ovs=[("ub_kit", 0.6, 3.5)]))
+    t += dur(segs[-1])
+    segs.append(wide_segment("U16_kitclose", C6, 2.5, 7.0, (0, 0, 1920, 1080), 1.0, 1.08))
+    t += dur(segs[-1])
     total = t + end_d - 0.5
     segs.append(card_segment("U99_end", "ub_end", end_d))
     for w in words:
         w["w"] = {"2.": "2."}.get(w["w"], w["w"])
     write_ass(words, SN + "ub_caps.ass", cap_end=t - 0.4)
-    subprocess.run(["python3", SN + "music/synth_bed.py", SN + "music/ub_bed.wav", f"{total+0.6:.2f}", f"{t - 0.5 + 0.3:.3f}", "9.6"], check=True)
-    tr = [("fade", 0.4)] + [("fade", 0)] * (len(beats) - 1) + [("fade", 0.5)]
+    subprocess.run(["python3", SN + "music/synth_bed.py", SN + "music/ub_bed.wav", f"{total+0.6:.2f}", f"{hit_at:.3f}", "9.6"], check=True)
+    tr = [("fade", 0.4)] + [("fade", 0)] * (len(beats) - 1) + [("fade", 0), ("fade", 0.4), ("fade", 0.5)]
     inputs, fl, v, a, _ = join(segs, tr, None)
     fl.append(f"{v}subtitles={SN}ub_caps.ass:fontsdir=/usr/share/fonts/opentype/inter[vsub]")
     finish(inputs, fl, "[vsub]", a, SN + "out/survival_node_unboxing.mp4",
