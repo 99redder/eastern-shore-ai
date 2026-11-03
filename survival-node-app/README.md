@@ -45,8 +45,8 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.12 |
-| Last built version | 1.12 (versionCode 11200, built 2026-11-03 from HTML Files — opens offline, tested) |
+| Current source version | 1.13 |
+| Last built version | 1.13 (versionCode 11300, built 2026-11-03 from HTML Files — opens offline, tested) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):
@@ -171,6 +171,7 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 - **1.10** (11000, built 2026-10-30): Mission Darkness manufacturer ratings, shown as plain text with no link because a failed link offline would replace the guide with an error page. Same signing certificate, cold-started in airplane mode.
 - **1.11** (11100, built 2026-10-30): the copy pass. Home screen instead of app drawer, File Manager and the Download folder for the PDF, a note on the one-screen layout, no Android updates, offline wording that leaves out DeepL, Fennec and F-Droid, and "install or turn on" for Play Services. Same signing certificate. Red updated a finished phone from 1.10 over Wi-Fi through the test channel, then cold-started it in airplane mode, and it opened.
 - **1.12** (11200, built 2026-11-03): the "No Android updates" notice became "Android updates. Motorola may install Android updates when the phone is on Wi-Fi. Only connect to Wi-Fi you trust.", matching the site, because Motorola's updater can't be removed and prepped phones took updates on Wi-Fi. Same signing certificate (`689120c5…89de7b`), bundled `index.html` identical to this folder's. Red installed it over 1.11 through the test channel on ZY22KMQ8D3, then cold-started it in airplane mode, and it opened. The update note's fallback link was pointed at the 1.12 APK after the build; the 1.11 APK was removed.
+- **1.13** (11300, built 2026-11-03): fuller "Update This Guide" steps and update note for first-time Android users (the download runs in the background, swipe down for the file, the unknown-apps screen's Settings button, "Do you want to update this app?"), a warning that "Webpage not available" on Wi-Fi means no working internet, and a line that the PDF is a dated copy and this app has the current terms. Same signing certificate, bundled `index.html` identical to this folder's. Red installed it over 1.12 through the test channel and cold-started it in airplane mode, and it opened. The update note's fallback link was pointed at the 1.13 APK after the build; the 1.12 APK was removed.
 
 ### Test updates (1.7 and later)
 
