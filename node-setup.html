@@ -161,6 +161,7 @@
       .pdf-title-rule { width: 52px; height: 2px; background: #222; margin: 0 auto 1.8rem; }
       .pdf-contact p { margin: 0 0 5px; font-size: 14px; color: #555; font-family: 'Titillium Web', sans-serif; }
       .pdf-contact .pdf-contact-name { color: #000; font-size: 17px; font-weight: 700; font-family: 'Hanken Grotesk', sans-serif; margin-bottom: 10px; }
+      .pdf-snapshot { max-width: 420px; margin: 2.2rem auto 0; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 12.5px; line-height: 1.5; color: #555; font-family: 'Titillium Web', sans-serif; }
 
       /* ── Section pages ── */
       .pdf-page { page-break-before: always; padding: 20px 0 26px; }
@@ -941,6 +942,7 @@ Operational Rules:
 
       const container = document.createElement('div');
       container.id = 'pdf-print-content';
+      const madeOn = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       if (phoneFriendly) container.classList.add('phone-friendly');
 
       container.innerHTML =
@@ -955,6 +957,9 @@ Operational Rules:
             '<p>www.easternshore.ai</p>' +
             '<p>PO BOX 317 &middot; Parsonsburg, MD 21849</p>' +
           '</div>' +
+          '<p class="pdf-snapshot">This PDF is a copy made on ' + madeOn + ' and doesn\u2019t update. ' +
+            'For the current warranty, terms and instructions, use the Survival Node User Guide app on the phone, ' +
+            'which offers updates when the phone is online, or visit www.easternshore.ai/terms.html.</p>' +
         '</div>';
 
       sections.forEach(function(section, idx) {
