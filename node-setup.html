@@ -84,7 +84,13 @@
       cursor: pointer;
       border-radius: 6px;
       line-height: 1.25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .45rem;
     }
+    .topic-icon { width: 22px; height: 22px; flex: none; border-radius: 50%; }
+    .topic-emoji { width: 22px; flex: none; font-size: 1rem; line-height: 1; text-align: center; }
     .topic-btn.active {
       border-color: rgba(168,200,74,.7);
       box-shadow: 0 0 0 1px rgba(168,200,74,.22) inset;
@@ -246,6 +252,18 @@
   <script>
     const appDisclaimer = `<p style="margin-top:1.2rem; padding-top:.75rem; border-top:1px solid rgba(158,208,255,.12); font-size:.78rem; color:var(--muted); line-height:1.65;"><strong style="color:var(--text);">Third-Party Software Disclaimer:</strong> This application is open-source, independently developed software. Eastern Shore AI, LLC has no partnership, affiliation, sponsorship, or arrangement of any kind with the developer(s) or vendor(s) of this software. All product names, brand names, and trademarks are the property of their respective owners and are referenced here solely for informational and identification purposes. This software is provided as-is; your use of it is entirely at your own risk. Eastern Shore AI, LLC makes no warranties — express or implied — regarding the accuracy, reliability, or fitness of any third-party application for any particular purpose.</p>`;
 
+    // The User Guide app's update steps, shown under Maintenance and in the User Guide App section.
+    const guideUpdateSteps = `<ol>
+                 <li>Connect the phone to Wi-Fi that has working internet, then open the <strong>User Guide</strong> app.</li>
+                 <li>If a newer version exists, an orange <strong>Guide update available</strong> note appears at the top. Tap <strong>Update</strong>. The download takes a few seconds and runs in the background.</li>
+                 <li>Swipe down from the top of the screen and tap the downloaded file. You can also open <strong>File Manager → Download</strong> and tap it there.</li>
+                 <li>If Android says it isn't allowed to install unknown apps from this source, tap <strong>Settings</strong>, turn on <strong>Allow from this source</strong>, then tap the back arrow.</li>
+                 <li>When Android asks "Do you want to update this app?", tap <strong>Update</strong>, then <strong>Open</strong>.</li>
+                 <li>Check the version number at the bottom of the guide.</li>
+               </ol>
+               <p style="color:var(--muted); font-size:.9rem;"><em>The update installs over your current guide; nothing else on your phone changes. If no note appears, you already have the latest guide.</em></p>
+               <p><strong>If the guide shows "Webpage not available" on Wi-Fi:</strong> that Wi-Fi has no working internet. Turn Wi-Fi off and open the guide again; it opens normally. Try the update later on a working connection.</p>`;
+
     const sections = [
       {
         title: 'Initial Setup',
@@ -325,14 +343,7 @@
                </ol>
                <p><strong>Update the User Guide App</strong></p>
                <p>The User Guide app keeps the whole guide on your phone, so it works fully offline. Whenever you open it while connected to Wi-Fi, it checks for a newer version of the guide. Offline, it simply opens as usual.</p>
-               <ol>
-                 <li>Connect the phone to Wi-Fi and open the <strong>User Guide</strong> app.</li>
-                 <li>If a newer version exists, an orange <strong>Guide update available</strong> note appears at the top. Tap <strong>Update</strong>.</li>
-                 <li>When the download finishes, tap the file in the notification bar or in <strong>File Manager → Download</strong>.</li>
-                 <li>If Android asks, turn on <strong>Allow from this source</strong>, go back, and tap <strong>Update</strong>.</li>
-                 <li>Open the guide again. The version number is at the bottom of the page.</li>
-               </ol>
-               <p style="color:var(--muted); font-size:.9rem;"><em>The update installs over your current guide; nothing else on your phone changes. If no note appears, you already have the latest guide.</em></p>
+               ${guideUpdateSteps}
                <p style="color:var(--muted); font-size:.9rem;"><em>Note: Only connect to a trusted private Wi-Fi network (your home network) during maintenance. Avoid public Wi-Fi when updating your Survival Node.</em></p>`
       },
       {
@@ -430,6 +441,14 @@
                  <li>Set a <strong>temperature alarm at 105°F (40°C)</strong> to catch overheating before it causes damage</li>
                  <li>Enable <strong>battery logging</strong> so you have a health record for the device over time</li>
                </ul>`
+      },
+      {
+        title: 'Survival Node User Guide App',
+        html: `<p><strong>What it is:</strong> The Survival Node User Guide app is this guide, installed on the phone's home screen. It keeps the whole guide on the phone, so it works fully offline, and it is where to find the current warranty, terms and instructions.</p>
+               <p>The PDF in the phone's Download folder is a dated copy that doesn't update. When the two differ, go by the app.</p>
+               <p><strong>Update the User Guide App</strong></p>
+               <p>Whenever you open the app while connected to Wi-Fi, it checks for a newer version of the guide. Offline, it simply opens as usual. These steps are also under Maintenance (6-Month Rule).</p>
+               ${guideUpdateSteps}`
       },
       {
         title: 'Fennec Browser',
@@ -901,13 +920,46 @@ Operational Rules:
 
     let i = 0;
 
+    // App tiles use the app's icon from the phone's home screen (images/guide-icons); the rest get an emoji.
+    const topicIcons = {
+      'Initial Setup': '🚀', 'Maintenance (6-Month Rule)': '🗓️', 'Emergency Deployment': '🚨',
+      'Power & Solar Charging': '☀️', 'Battery Management': '🔋', 'Survival Node User Guide App': 'user-guide',
+      'Fennec Browser': 'fennec', 'Organic Maps': 'organic-maps', 'PocketPal': 'pocketpal',
+      'F-Droid App Marketplace': 'fdroid', 'Survival Manual App': 'survival-manual', 'Kiwix': 'kiwix',
+      'Seamless': 'seamless', 'DeepL': 'deepl', 'Morse': 'morse', 'Exodus Privacy': 'exodus',
+      'Briar Messenger': 'briar', 'Meshtastic': 'meshtastic', 'LocalSend': 'localsend',
+      'SOS Flashlight': 'sos-flashlight', 'Fossify File Manager': 'file-manager', 'iFixit': '🔩',
+      'AccuBattery': 'accubattery', 'EMP Protocol': '🛡️', 'Troubleshooting': '🔧', 'Warranty, Legal & Support': '📋',
+    };
+
+    function topicIcon(title) {
+      const icon = topicIcons[title];
+      if (!icon) return null;
+      if (/^[a-z-]+$/.test(icon)) {
+        const img = document.createElement('img');
+        img.className = 'topic-icon';
+        img.src = `/images/guide-icons/${icon}.webp`;
+        img.alt = '';
+        return img;
+      }
+      const span = document.createElement('span');
+      span.className = 'topic-emoji';
+      span.setAttribute('aria-hidden', 'true');
+      span.textContent = icon;
+      return span;
+    }
+
     function renderTopics() {
       topicsEl.innerHTML = '';
       sections.forEach((s, idx) => {
         const b = document.createElement('button');
         b.className = 'topic-btn' + (idx === i ? ' active' : '');
         b.type = 'button';
-        b.textContent = s.title;
+        const icon = topicIcon(s.title);
+        if (icon) b.appendChild(icon);
+        const label = document.createElement('span');
+        label.textContent = s.title;
+        b.appendChild(label);
         b.addEventListener('click', () => {
           i = idx;
           render();
