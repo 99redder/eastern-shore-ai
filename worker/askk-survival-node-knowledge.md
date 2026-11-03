@@ -85,7 +85,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **Can I use normal apps like banking or streaming?** Some mainstream apps (banking, DRM streaming, Google-dependent apps) may not work. We recommend using it only for emergencies.
 
-**Does it get Android updates?** No. We remove or disable Motorola's system updater during setup, so the phone stays on the Android version it had when we prepared it and won't receive Android or security updates. It's built to be used offline, and this matters most if you go online with it. Apps, maps and AI models can still be updated over Wi-Fi.
+**Does it get Android updates?** It can. Motorola doesn't allow its system updater to be removed, so when the phone is on Wi-Fi, Motorola may install Android and security updates. We don't control or test those updates, and one can change settings or bring back some built-in system apps. If the phone acts up after an update, contact us before resetting it: a factory reset erases the preloaded libraries, maps and AI models. The kit is built to be used offline, and apps, maps and AI models can still be updated over Wi-Fi.
 
 **Can I add apps or update the AI models and maps?** Yes. You can side-load APKs (Google Play Services is removed or disabled). PocketPal can download new or larger model files, and Organic Maps can re-download updated maps, whenever you have Wi-Fi. The User Guide's Maintenance section walks through it.
 
