@@ -850,6 +850,22 @@
       return new Intl.DateTimeFormat('en-US', opts).format(d);
     }
 
+    // Review requests wait a week after the delivered email, so the buyer has
+    // charged the battery and tried the kit. The card only flags it; nothing sends.
+    const REVIEW_WAIT_DAYS = 7;
+    function reviewRequestTiming(order) {
+      const delivered = (order?.delivered_email_sent_at || '').toString().trim();
+      if (!delivered || (order?.review_email_sent_at || '').toString().trim()) return null;
+      const iso = delivered.includes('T') ? delivered : delivered.replace(' ', 'T');
+      const sent = new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(iso) ? iso : `${iso}Z`);
+      if (Number.isNaN(sent.getTime())) return null;
+      const deliveredDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(sent);
+      const dayMs = 86400000;
+      const daysSince = Math.round((Date.parse(`${nowEtParts().date}T00:00:00Z`) - Date.parse(`${deliveredDate}T00:00:00Z`)) / dayMs);
+      const dueDate = new Date(Date.parse(`${deliveredDate}T00:00:00Z`) + REVIEW_WAIT_DAYS * dayMs).toISOString().slice(0, 10);
+      return { due: daysSince >= REVIEW_WAIT_DAYS, daysSince, dueDate };
+    }
+
     // Ship Date button on an order: sets or clears the estimated ship date
     // that Ask K's order-status emails report. No email is sent.
     let shipDateOrderKey = '';
@@ -3628,8 +3644,12 @@
         const rows = status === 'all'
           ? survivalNodeOrders
           : survivalNodeOrders.filter((order) => order.fulfillment_status === status);
-        if (!rows.length) { orderListEl.innerHTML = '<div style="color:var(--muted);">No orders found for this filter.</div>'; return; }
-        orderListEl.innerHTML = rows.map((order) => {
+        const reviewsDue = survivalNodeOrders.filter((order) => reviewRequestTiming(order)?.due).length;
+        const reviewsDueNote = reviewsDue
+          ? `<div style="margin-bottom:.4rem; padding:.4rem .6rem; border:1px solid #f59e0b; border-radius:6px; color:#f59e0b; font-weight:700;">⏰ ${reviewsDue} review request${reviewsDue === 1 ? '' : 's'} due (${REVIEW_WAIT_DAYS}+ days since the delivered email)${status !== 'all' && status !== 'delivered' ? '. Switch the filter to Delivered to see them.' : ''}</div>`
+          : '';
+        if (!rows.length) { orderListEl.innerHTML = `${reviewsDueNote}<div style="color:var(--muted);">No orders found for this filter.</div>`; return; }
+        orderListEl.innerHTML = reviewsDueNote + rows.map((order) => {
           const id = Number(order.id || 0);
           const orderKey = escHtml(order.order_key || `booking:${id}`);
           const statusBadge = orderStatusBadge(order.fulfillment_status || 'new');
@@ -3642,6 +3662,11 @@
           const reviewSent = !!(order.review_email_sent_at || '').toString().trim();
           const laterEmailSent = shippingSent || deliveredSent || reviewSent;
           const shipDate = (order.estimated_ship_date || '').toString().trim();
+          const reviewTiming = reviewRequestTiming(order);
+          const reviewTimingLine = !reviewTiming ? ''
+            : reviewTiming.due
+              ? `<div style="margin-top:.2rem; color:#f59e0b; font-weight:700;">⏰ Review request due: delivered email went out ${reviewTiming.daysSince} days ago</div>`
+              : `<div style="margin-top:.2rem; color:var(--muted);">Review request: wait until ${escHtml(formatShipDate(reviewTiming.dueDate, 'short'))} (${REVIEW_WAIT_DAYS} days after the delivered email)</div>`;
           // Not the disabled attribute: a disabled button ignores clicks, so it just looks broken.
           const blockedBy = (reason) => `aria-disabled="true" data-blocked="${escHtml(reason)}" title="${escHtml(reason)}"`;
           return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
@@ -3656,6 +3681,7 @@
             <div style="margin-top:.2rem; color:var(--muted);">${order.order_source === 'manual' ? `Payment Method: ${escHtml(order.payment_method || 'Not entered')}` : `Stripe: ${escHtml(order.stripe_session_id || '—')}`}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Emails — Acknowledgment: ${escHtml(formatEtTimestamp(order.ack_email_sent_at))} • Shipping: ${escHtml(formatEtTimestamp(order.shipping_email_sent_at))} • Delivered: ${escHtml(formatEtTimestamp(order.delivered_email_sent_at))} • Review request: ${escHtml(formatEtTimestamp(order.review_email_sent_at))}</div>
             <div style="margin-top:.2rem; color:var(--muted);">Tracking: ${tracking ? `${trackingProvider ? `${escHtml(trackingProvider)} • ` : ''}${escHtml(tracking)}` : 'Not added yet'}</div>
+            ${reviewTimingLine}
             ${shippingSent ? '' : `<div style="margin-top:.2rem; color:var(--muted);">Estimated ship date: ${shipDate ? escHtml(formatShipDate(shipDate, 'short')) : 'Not set (Ask K tells the customer the usual 1–7 business days)'}</div>`}
             <div style="display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.35rem;">
               <button type="button" class="btn action-pop order-action-btn" data-order-action="ack" data-order-id="${id}" data-order-key="${orderKey}" data-order-summary="${escHtml(order.order_summary || '')}" data-order-amount="${escHtml(amount)}" data-order-payment-date="${escHtml(order.payment_date || '')}" ${ackSent || laterEmailSent ? blockedBy(ackSent ? 'Acknowledgment email already sent.' : 'A later email has already been sent, so the acknowledgment was skipped.') : ''}>${ackSent ? 'Acknowledgment Sent' : laterEmailSent ? 'Acknowledgment Skipped' : 'Preview Acknowledgment'}</button>
