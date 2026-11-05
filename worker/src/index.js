@@ -2429,7 +2429,7 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
     return [
       `Hi ${customerName},`,
       '',
-      'Your Survival Node has arrived.',
+      'Your Survival Node has arrived. Your Mission Darkness Faraday bags are located beneath the weatherproof hard case in your shipping box.',
       '',
       'If you have technical support questions, reach out anytime at contact@easternshore.ai'
     ].filter(Boolean).join('\n');
