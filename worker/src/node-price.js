@@ -1,4 +1,4 @@
-// Survival Node Gen 2 price by date: $249.99 during a seasonal sale, $349.99
+// Survival Node Gen 2 price by date: $299.99 during a seasonal sale, $349.99
 // the rest of the time (the breaks between sales, and after the last one).
 // Dates are Eastern and inclusive, so a sale ends at midnight after its end date.
 // KEEP IN SYNC with SALES in /seasonal-sale.js (tests/node-price.test.mjs checks).
@@ -6,7 +6,7 @@
 // merchant-feed.xml on the right price (run daily by .github/workflows/node-price.yml).
 
 export const NODE_REGULAR_CENTS = 34999;
-export const NODE_SALE_CENTS = 24999;
+export const NODE_SALE_CENTS = 29999;
 
 export const NODE_SALES = [
   { key: 'halloween', name: 'Halloween Sale', start: '2026-10-01', end: '2026-10-31', endsLong: 'October 31' },
@@ -35,6 +35,6 @@ export function currentOrNextSale(now = new Date()) {
 export function nodePriceSentence(now = new Date()) {
   const { sale } = nodePrice(now);
   return sale
-    ? `Survival Node Gen 2 is regularly $349.99, now $249.99 in the ${sale.name} through ${sale.endsLong} (save $100), while supplies last`
+    ? `Survival Node Gen 2 is regularly $349.99, now $299.99 in the ${sale.name} through ${sale.endsLong} (save $50), while supplies last`
     : 'Survival Node Gen 2 is $349.99';
 }

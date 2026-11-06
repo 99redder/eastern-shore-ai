@@ -1312,7 +1312,7 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
   const successUrl = `${siteOrigin}/node.html?paid=1&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${siteOrigin}/node-payment-cancelled.html`;
 
-  // $249.99 during a seasonal sale, $349.99 between sales (src/node-price.js)
+  // $299.99 during a seasonal sale, $349.99 between sales (src/node-price.js)
   const unitAmount = isByogSetup ? '6999' : String(nodePrice().cents);
   const productName = isByogSetup
     ? 'Survival Node BYOG Setup-Only Service'

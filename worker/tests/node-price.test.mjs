@@ -13,16 +13,16 @@ const read = (name) => readFileSync(new URL(name, root), 'utf8');
 
 test('sale price only inside a sale window, by Eastern date', () => {
   const cases = [
-    ['2026-10-31T23:59:00-04:00', 24999, 'halloween'],
+    ['2026-10-31T23:59:00-04:00', 29999, 'halloween'],
     ['2026-11-01T00:00:30-04:00', 34999, null],
     ['2026-11-24T23:59:00-05:00', 34999, null],
-    ['2026-11-25T00:00:30-05:00', 24999, 'thanksgiving'],
-    ['2026-11-27T00:00:30-05:00', 24999, 'thanksgiving'],
-    ['2026-11-30T23:59:00-05:00', 24999, 'thanksgiving'],
+    ['2026-11-25T00:00:30-05:00', 29999, 'thanksgiving'],
+    ['2026-11-27T00:00:30-05:00', 29999, 'thanksgiving'],
+    ['2026-11-30T23:59:00-05:00', 29999, 'thanksgiving'],
     ['2026-12-01T00:00:30-05:00', 34999, null],
     ['2026-12-11T23:59:00-05:00', 34999, null],
-    ['2026-12-12T00:00:30-05:00', 24999, 'christmas'],
-    ['2026-12-18T23:59:00-05:00', 24999, 'christmas'],
+    ['2026-12-12T00:00:30-05:00', 29999, 'christmas'],
+    ['2026-12-18T23:59:00-05:00', 29999, 'christmas'],
     ['2026-12-19T00:00:30-05:00', 34999, null]
   ];
   for (const [when, cents, key] of cases) {
@@ -41,7 +41,7 @@ test('seasonal-sale.js uses the same sale windows as checkout', () => {
   assert.deepEqual(page, NODE_SALES);
 });
 
-test('checkout charges $249.99 in a sale and $349.99 between sales', async (t) => {
+test('checkout charges $299.99 in a sale and $349.99 between sales', async (t) => {
   const amounts = [];
   const original = globalThis.fetch;
   globalThis.fetch = async (input, init = {}) => {
@@ -62,7 +62,7 @@ test('checkout charges $249.99 in a sale and $349.99 between sales', async (t) =
     assert.equal(res.status, 200);
     mock.timers.reset();
   }
-  assert.deepEqual(amounts, ['34999', '24999', '34999']);
+  assert.deepEqual(amounts, ['34999', '29999', '34999']);
 });
 
 function offerOf(html) {
@@ -86,11 +86,12 @@ test('node-price-pages switches node.html between sale and regular price', () =>
   assert.equal(regularOffer.availability, 'https://schema.org/InStock');
 
   assert.match(sale, /<html lang="en" data-price="sale">/);
-  assert.match(sale, /<meta property="product:price:amount" content="249.99" \/>/);
+  assert.match(sale, /<meta property="product:price:amount" content="299.99" \/>/);
   const saleOffer = offerOf(sale);
-  assert.equal(saleOffer.price, '249.99');
+  assert.equal(saleOffer.price, '299.99');
   assert.equal(saleOffer.priceValidUntil, '2026-11-30');
   assert.equal(saleOffer.priceSpecification.price, '349.99');
+  assert.match(saleOffer.description, /Now \$299\.99 .* save \$50\.$/);
 
   assert.match(applyBuyPage(read('buynode.html'), null), /<html lang="en" data-price="regular">/);
 });
@@ -99,7 +100,7 @@ test('node-price-pages gives the feed the running or next sale window', () => {
   const feed = read('merchant-feed.xml');
   const [halloween, thanksgiving] = NODE_SALES;
   const inSale = applyFeed(feed, halloween);
-  assert.match(inSale, /<g:price>349\.99 USD<\/g:price>\n {6}<g:sale_price>249\.99 USD<\/g:sale_price>\n {6}<g:sale_price_effective_date>2026-10-01T00:00-0400\/2026-10-31T23:59-0400<\/g:sale_price_effective_date>\n/);
+  assert.match(inSale, /<g:price>349\.99 USD<\/g:price>\n {6}<g:sale_price>299\.99 USD<\/g:sale_price>\n {6}<g:sale_price_effective_date>2026-10-01T00:00-0400\/2026-10-31T23:59-0400<\/g:sale_price_effective_date>\n/);
   assert.match(applyFeed(inSale, thanksgiving), /<g:sale_price_effective_date>2026-11-25T00:00-0500\/2026-11-30T23:59-0500<\/g:sale_price_effective_date>/);
   const none = applyFeed(inSale, null);
   assert.doesNotMatch(none, /<g:sale_price/);

@@ -1,6 +1,6 @@
 // ===== Seasonal Sale Themes + price (node.html + buynode.html) =====
 // Picks the active sale from the date in America/New_York. During a sale the
-// price is $249.99 and the page is dressed for it; outside every window (the
+// price is $299.99 and the page is dressed for it; outside every window (the
 // breaks Nov 1–24 and Dec 1–11, and after Christmas) it's the regular $349.99.
 // Start and end dates are inclusive, so a sale runs until midnight Eastern at
 // the end of its end date.
@@ -127,7 +127,7 @@
     const urgency = `${sale.icon} ${sale.name} — ends ${sale.endsLong}, while supplies last.`;
     const shortNote = `${sale.icon} ${sale.name} · Ends ${sale.endsShort}`;
     setText('.kit-offer-urgency, .offer-urgency', urgency);
-    setText('.checkout-offer-note', `${sale.name}: save $100 through ${sale.endsLong} — while supplies last.`);
+    setText('.checkout-offer-note', `${sale.name}: save $50 through ${sale.endsLong} — while supplies last.`);
 
     // node.html promo banner
     const banner = document.getElementById('promo-banner');
@@ -135,10 +135,10 @@
       banner.style.background = sale.banner;
       const icon = banner.querySelector('.promo-header > span[aria-hidden]');
       if (icon) { icon.textContent = sale.icon; icon.title = sale.name; }
-      setText('#promo-banner .promo-short', `${sale.name} — Save $100`);
+      setText('#promo-banner .promo-short', `${sale.name} — Save $50`);
       setText('#promo-banner .promo-long', ` | Ends ${sale.endsLong}`);
       const copy = banner.querySelector('.promo-copy > p');
-      if (copy) copy.innerHTML = `Regularly <s>$349.99</s> — <strong>now $249.99</strong> through ${sale.endsLong}, while supplies last.`;
+      if (copy) copy.innerHTML = `Regularly <s>$349.99</s> — <strong>now $299.99</strong> through ${sale.endsLong}, while supplies last.`;
     }
 
     // node.html floating buy button + mobile FAB
@@ -146,7 +146,7 @@
     if (floatNote) floatNote.textContent = shortNote;
     const fab = document.getElementById('mobile-buy-fab');
     if (fab) {
-      fab.setAttribute('aria-label', `Buy Survival Node Gen 2 — ${sale.name}, regularly $349.99, now $249.99 through ${sale.endsLong}`);
+      fab.setAttribute('aria-label', `Buy Survival Node Gen 2 — ${sale.name}, regularly $349.99, now $299.99 through ${sale.endsLong}`);
       const fabNote = fab.querySelector('.fab-offer-note');
       if (fabNote) fabNote.textContent = shortNote;
     }
@@ -156,7 +156,7 @@
     if (buyCard) {
       const ribbon = document.createElement('div');
       ribbon.className = 'sale-ribbon';
-      ribbon.innerHTML = `${sale.icon} ${sale.name} — Save $100<small>Ends ${sale.endsLong} · While supplies last</small>`;
+      ribbon.innerHTML = `${sale.icon} ${sale.name} — Save $50<small>Ends ${sale.endsLong} · While supplies last</small>`;
       buyCard.insertBefore(ribbon, buyCard.firstChild);
     }
   }

@@ -16,6 +16,7 @@ import { nodePrice, currentOrNextSale, NODE_REGULAR_CENTS, NODE_SALE_CENTS } fro
 
 const REGULAR = (NODE_REGULAR_CENTS / 100).toFixed(2);
 const SALE = (NODE_SALE_CENTS / 100).toFixed(2);
+const SAVE = (NODE_REGULAR_CENTS - NODE_SALE_CENTS) / 100;
 
 function replaceOnce(text, pattern, replacement, what) {
   if (!pattern.test(text)) throw new Error(`node-price-pages: couldn't find ${what}`);
@@ -33,7 +34,7 @@ export function applyNodePage(html, sale) {
   html = replaceOnce(html, /<meta property="product:price:amount" content="[\d.]+" \/>/, `<meta property="product:price:amount" content="${price}" />`, 'product:price:amount');
   const offer = sale
     ? [
-        `"description": "Regularly $${REGULAR}. Now $${SALE} for a limited time while supplies last — save $100.",`,
+        `"description": "Regularly $${REGULAR}. Now $${SALE} for a limited time while supplies last — save $${SAVE}.",`,
         `"price": "${SALE}",`,
         '"priceCurrency": "USD",',
         `"priceValidUntil": "${sale.end}",`,

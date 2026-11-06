@@ -26,7 +26,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 
 | Product | Price |
 |---|---|
-| Survival Node Gen 2 | **$349.99**, or **$249.99** during a seasonal sale (**save $100**). Today's price is given in your instructions. |
+| Survival Node Gen 2 | **$349.99**, or **$299.99** during a seasonal sale (**save $50**). Today's price is given in your instructions. |
 | BYOG Setup Service (Eastern Shore of Maryland only) | **$69.99** |
 
 - **Free shipping** to the continental U.S.
