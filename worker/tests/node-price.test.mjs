@@ -15,8 +15,8 @@ test('sale price only inside a sale window, by Eastern date', () => {
   const cases = [
     ['2026-10-31T23:59:00-04:00', 29999, 'halloween'],
     ['2026-11-01T00:00:30-04:00', 34999, null],
-    ['2026-11-24T23:59:00-05:00', 34999, null],
-    ['2026-11-25T00:00:30-05:00', 29999, 'thanksgiving'],
+    ['2026-11-19T23:59:00-05:00', 34999, null],
+    ['2026-11-20T00:00:30-05:00', 29999, 'thanksgiving'],
     ['2026-11-27T00:00:30-05:00', 29999, 'thanksgiving'],
     ['2026-11-30T23:59:00-05:00', 29999, 'thanksgiving'],
     ['2026-12-01T00:00:30-05:00', 34999, null],
@@ -56,7 +56,7 @@ test('checkout charges $299.99 in a sale and $349.99 between sales', async (t) =
     body: JSON.stringify({ termsAccepted: true })
   }), env, { waitUntil() {} });
 
-  for (const when of ['2026-11-24T15:00:00-05:00', '2026-11-25T15:00:00-05:00', '2026-12-26T15:00:00-05:00']) {
+  for (const when of ['2026-11-19T15:00:00-05:00', '2026-11-20T15:00:00-05:00', '2026-12-26T15:00:00-05:00']) {
     mock.timers.enable({ apis: ['Date'], now: Date.parse(when) });
     const res = await checkout();
     assert.equal(res.status, 200);
@@ -101,7 +101,7 @@ test('node-price-pages gives the feed the running or next sale window', () => {
   const [halloween, thanksgiving] = NODE_SALES;
   const inSale = applyFeed(feed, halloween);
   assert.match(inSale, /<g:price>349\.99 USD<\/g:price>\n {6}<g:sale_price>299\.99 USD<\/g:sale_price>\n {6}<g:sale_price_effective_date>2026-10-01T00:00-0400\/2026-10-31T23:59-0400<\/g:sale_price_effective_date>\n/);
-  assert.match(applyFeed(inSale, thanksgiving), /<g:sale_price_effective_date>2026-11-25T00:00-0500\/2026-11-30T23:59-0500<\/g:sale_price_effective_date>/);
+  assert.match(applyFeed(inSale, thanksgiving), /<g:sale_price_effective_date>2026-11-20T00:00-0500\/2026-11-30T23:59-0500<\/g:sale_price_effective_date>/);
   const none = applyFeed(inSale, null);
   assert.doesNotMatch(none, /<g:sale_price/);
   assert.match(none, /<g:price>349\.99 USD<\/g:price>/);
