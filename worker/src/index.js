@@ -160,8 +160,8 @@ export default {
       const isAdminBlockWrite = ['/api/admin/block-slot','/api/admin/block-day','/api/admin/bookings/cleanup-pending','/api/orders/preview','/api/orders/send','/api/orders/text','/api/orders/tracking','/api/orders/ship-date','/api/orders/manual','/api/orders/delete','/api/orders/battery-test'].includes(url.pathname) && request.method === 'POST';
       const isTaxRead = ['/api/tax/transactions','/api/tax/summary','/api/tax/export.csv','/api/tax/receipt'].includes(url.pathname) && request.method === 'GET';
       const isTaxWrite = ['/api/tax/expense','/api/tax/income','/api/tax/ebay-sale','/api/tax/refund','/api/tax/owner-transfer','/api/tax/expense/update','/api/tax/income/update','/api/tax/expense/delete','/api/tax/income/delete','/api/tax/receipt/upload'].includes(url.pathname) && request.method === 'POST';
-      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
-      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
+      const isAccountsRead = ['/api/accounts/list','/api/accounts/summary','/api/accounts/journal','/api/accounts/statements','/api/accounts/inventory-count','/api/accounts/invoices','/api/accounts/invoices/detail','/api/accounts/quotes','/api/accounts/quotes/detail'].includes(url.pathname) && request.method === 'GET';
+      const isAccountsWrite = ['/api/accounts/journal','/api/accounts/rebuild-auto-journal','/api/accounts/year-close','/api/accounts/inventory-count','/api/accounts/inventory-count/delete','/api/accounts/invoices','/api/accounts/invoices/update','/api/accounts/invoices/status','/api/accounts/invoices/payment','/api/accounts/invoices/payment-link','/api/accounts/invoices/send','/api/accounts/invoices/delete','/api/accounts/quotes','/api/accounts/quotes/update','/api/accounts/quotes/delete','/api/accounts/quotes/send','/api/accounts/quotes/convert'].includes(url.pathname) && request.method === 'POST';
       const isQuotePublic = ['/api/quote/accept','/api/quote/deny'].includes(url.pathname) && request.method === 'GET';
       const isInvoicePublic = ['/invoice/payment-success','/invoice/payment-cancelled'].includes(url.pathname) && request.method === 'GET';
       const isBatteryImagePublic = url.pathname === '/api/orders/battery-image' && request.method === 'GET';
@@ -499,6 +499,16 @@ export default {
 
     if (url.pathname === '/api/accounts/year-close' && request.method === 'POST') {
       return handleAccountsYearClose(request, env, corsHeaders, url);
+    }
+
+    if (url.pathname === '/api/accounts/inventory-count' && request.method === 'GET') {
+      return handleAccountsRequest('inventory count read', () => handleInventoryCountGet(request, env, corsHeaders, url), corsHeaders);
+    }
+    if (url.pathname === '/api/accounts/inventory-count' && request.method === 'POST') {
+      return handleAccountsRequest('inventory count save', () => handleInventoryCountSave(request, env, corsHeaders, url), corsHeaders);
+    }
+    if (url.pathname === '/api/accounts/inventory-count/delete' && request.method === 'POST') {
+      return handleAccountsRequest('inventory count delete', () => handleInventoryCountDelete(request, env, corsHeaders, url), corsHeaders);
     }
 
 
@@ -3688,10 +3698,18 @@ async function handleTaxSummary(request, env, corsHeaders, url) {
     ).bind(year).first(),
   ]);
   // incomeCents is revenue only: owner-funded rows are left out (reported as ownerFundedCents).
+  // expenseCents follows the year-end parts counts: parts on hand at the start of the year are
+  // added and parts still on hand at its end are taken out (cost of goods sold), the same as the
+  // journal pair each saved count posts.
   const incomeCents = Number(incomeTotal?.total_cents || 0);
   const ownerFundedCents = Number(incomeTotal?.owner_funded_cents || 0);
-  const expenseCents = Number(expenseTotal?.total_cents || 0);
-  return json({ ok: true, year, incomeCents, expenseCents, netCents: incomeCents - expenseCents, ownerFundedCents }, 200, corsHeaders);
+  const ledgerExpenseCents = Number(expenseTotal?.total_cents || 0);
+  const inventory = await inventoryAdjustment(env.DB, year);
+  const expenseCents = ledgerExpenseCents + inventory.beginningCents - inventory.endingCents;
+  return json({
+    ok: true, year, incomeCents, expenseCents, netCents: incomeCents - expenseCents, ownerFundedCents,
+    ledgerExpenseCents, partsOnHand: { startOfYearCents: inventory.beginningCents, endOfYearCents: inventory.endingCents }
+  }, 200, corsHeaders);
 }
 
 /**
@@ -4941,9 +4959,16 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
       COALESCE(SUM(jl.credit_cents),0) AS credit_total
     FROM accounts a
     LEFT JOIN journal_lines jl ON jl.account_id = a.id
-    LEFT JOIN journal_entries je ON je.id = jl.entry_id AND je.entry_date >= ?1 AND je.entry_date <= ?2
+      AND jl.entry_id IN (
+        SELECT id FROM journal_entries
+        WHERE entry_date >= ?1 AND entry_date <= ?2
+          AND NOT (source_type = 'year_close' AND source_id = ?3)
+      )
     GROUP BY a.id, a.code, a.name, a.account_type, a.normal_side
-    ORDER BY a.code ASC`).bind(from, to).all();
+    ORDER BY a.code ASC`).bind(from, to, Number(year)).all();
+  // Only this year's lines count, and this year's own earlier close entries are left out, so a
+  // re-run replaces the close instead of netting it to zero. (Until 2026-11-08 the date test sat
+  // on the entries join, so lines from every year were summed.)
 
   const accounts = (rows.results || []).map((r) => {
     const debits = Number(r.debit_total || 0);
@@ -4961,8 +4986,11 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
   const incomeSummaryId = await ensureAccountByCode(env.DB, '3900', 'Income Summary', 'equity', 'credit');
   const ownerEquityId = await ensureAccountByCode(env.DB, '3000', 'Owner Equity', 'equity', 'credit');
 
+  await ensureInventoryCountsTable(env.DB);
+  const partsCount = await env.DB.prepare(`SELECT total_cents, count_date FROM inventory_counts WHERE year = ?1`).bind(Number(year)).first();
   const preview = {
     year,
+    partsCount: partsCount ? { saved: true, totalCents: Number(partsCount.total_cents || 0), countDate: partsCount.count_date } : { saved: false },
     steps: [
       { step: 1, title: 'Close revenue accounts to Income Summary', amount_cents: incomeTotal },
       { step: 2, title: 'Close expense accounts to Income Summary', amount_cents: expenseTotal },
@@ -5028,6 +5056,169 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
   }
 
   return json({ ok: true, preview, applied: true }, 200, corsHeaders);
+}
+
+// ===== Year-end parts count =====
+// Survival Node parts are booked as expenses (5210) when bought. Parts still on hand at the end
+// of a year aren't that year's expense, so a saved count posts, for its year Y:
+//   Y-12-31      Dr 1200 Parts on hand   Cr 5210 Inventory   (takes them out of Y's expenses)
+//   (Y+1)-01-01  Dr 5210 Inventory       Cr 1200 Parts on hand (puts them into Y+1's, when they sell)
+// That is cost of goods sold = parts on hand Jan 1 + parts bought - parts on hand Dec 31.
+// /api/tax/summary applies the same adjustment (inventoryAdjustment).
+const INVENTORY_ACCOUNT = { code: '1200', name: 'Parts on Hand (Survival Node inventory)', type: 'asset', side: 'debit' };
+const INVENTORY_EXPENSE_CODE = '5210';
+
+async function ensureInventoryCountsTable(db) {
+  await db.prepare(`CREATE TABLE IF NOT EXISTS inventory_counts (
+    year INTEGER PRIMARY KEY,
+    count_date TEXT NOT NULL,
+    lines_json TEXT NOT NULL,
+    total_cents INTEGER NOT NULL,
+    notes TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  )`).run();
+}
+
+/** Parts on hand carried in (last year's count) and carried out (this year's count), in cents. */
+async function inventoryAdjustment(db, year) {
+  await ensureInventoryCountsTable(db);
+  const rows = await db.prepare(`SELECT year, total_cents FROM inventory_counts WHERE year IN (?1, ?2)`).bind(Number(year) - 1, Number(year)).all();
+  let beginningCents = 0;
+  let endingCents = 0;
+  for (const r of (rows.results || [])) {
+    if (Number(r.year) === Number(year)) endingCents = Number(r.total_cents || 0);
+    else beginningCents = Number(r.total_cents || 0);
+  }
+  return { beginningCents, endingCents };
+}
+
+function inventoryCountView(row) {
+  if (!row) return null;
+  let lines = [];
+  try { lines = JSON.parse(row.lines_json || '[]'); } catch { lines = []; }
+  return {
+    year: Number(row.year),
+    countDate: row.count_date,
+    lines,
+    totalCents: Number(row.total_cents || 0),
+    notes: row.notes || '',
+    updatedAt: row.updated_at
+  };
+}
+
+async function deleteInventoryCountJournal(db, year) {
+  const rows = await db.prepare(`SELECT id FROM journal_entries WHERE source_type = 'inventory_count' AND source_id = ?1`).bind(Number(year)).all();
+  for (const r of (rows.results || [])) {
+    await db.prepare(`DELETE FROM journal_lines WHERE entry_id = ?1`).bind(r.id).run();
+    await db.prepare(`DELETE FROM journal_entries WHERE id = ?1`).bind(r.id).run();
+  }
+}
+
+async function yearCloseApplied(db, year) {
+  const row = await db.prepare(`SELECT COUNT(*) AS n FROM journal_entries WHERE source_type = 'year_close' AND source_id = ?1`).bind(Number(year)).first();
+  return Number(row?.n || 0) > 0;
+}
+
+/** GET /api/accounts/inventory-count?year=YYYY — the saved count (or null) and last year's total. */
+async function handleInventoryCountGet(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  const year = (url.searchParams.get('year') || '').trim();
+  if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Missing/invalid year' }, 400, corsHeaders);
+  await ensureInventoryCountsTable(env.DB);
+  const [row, prev] = await Promise.all([
+    env.DB.prepare(`SELECT * FROM inventory_counts WHERE year = ?1`).bind(Number(year)).first(),
+    env.DB.prepare(`SELECT total_cents FROM inventory_counts WHERE year = ?1`).bind(Number(year) - 1).first()
+  ]);
+  const accountingReady = await accountingTablesReady(env.DB);
+  return json({
+    ok: true,
+    year: Number(year),
+    count: inventoryCountView(row),
+    previousYearCents: prev ? Number(prev.total_cents || 0) : 0,
+    yearCloseApplied: accountingReady ? await yearCloseApplied(env.DB, year) : false
+  }, 200, corsHeaders);
+}
+
+/**
+ * POST /api/accounts/inventory-count — save (or replace) a year's count and re-post its journal pair.
+ * Body: { year, countDate: 'YYYY-MM-DD', lines: [{ item, qty, unitCents }], notes? }
+ */
+async function handleInventoryCountSave(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  const accountingReady = await ensureAccountingSetup(env.DB);
+  if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
+
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const year = String(data.year || '').trim();
+  if (!/^\d{4}$/.test(year) || Number(year) < 2000 || Number(year) > 2100) return json({ ok: false, error: 'Invalid year' }, 400, corsHeaders);
+  const countDate = String(data.countDate || `${year}-12-31`).trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(countDate) || Number.isNaN(Date.parse(`${countDate}T00:00:00Z`))) {
+    return json({ ok: false, error: 'Invalid count date' }, 400, corsHeaders);
+  }
+  if (!Array.isArray(data.lines) || data.lines.length > 100) return json({ ok: false, error: 'Send up to 100 count lines' }, 400, corsHeaders);
+
+  const lines = [];
+  for (const raw of data.lines) {
+    const item = String(raw?.item || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    const qty = Number(raw?.qty);
+    const unitCents = Number(raw?.unitCents);
+    if (!item) return json({ ok: false, error: 'Every line needs a part name' }, 400, corsHeaders);
+    if (!Number.isFinite(qty) || qty < 0 || qty > 100000) return json({ ok: false, error: `Invalid quantity for ${item}` }, 400, corsHeaders);
+    if (!Number.isInteger(unitCents) || unitCents < 0 || unitCents > 10000000) return json({ ok: false, error: `Invalid unit cost for ${item}` }, 400, corsHeaders);
+    if (qty === 0) continue;
+    const roundedQty = Math.round(qty * 100) / 100;
+    lines.push({ item, qty: roundedQty, unitCents, valueCents: Math.round(roundedQty * unitCents) });
+  }
+  const totalCents = lines.reduce((sum, l) => sum + l.valueCents, 0);
+  const notes = String(data.notes || '').trim().slice(0, 1000);
+
+  await ensureInventoryCountsTable(env.DB);
+  await env.DB.prepare(`INSERT INTO inventory_counts (year, count_date, lines_json, total_cents, notes)
+      VALUES (?1, ?2, ?3, ?4, ?5)
+      ON CONFLICT(year) DO UPDATE SET count_date = excluded.count_date, lines_json = excluded.lines_json,
+        total_cents = excluded.total_cents, notes = excluded.notes, updated_at = datetime('now')`)
+    .bind(Number(year), countDate, JSON.stringify(lines), totalCents, notes || null).run();
+
+  await deleteInventoryCountJournal(env.DB, year);
+  if (totalCents > 0) {
+    const inventoryId = await ensureAccountByCode(env.DB, INVENTORY_ACCOUNT.code, INVENTORY_ACCOUNT.name, INVENTORY_ACCOUNT.type, INVENTORY_ACCOUNT.side);
+    const expenseId = await ensureAccountByCode(env.DB, INVENTORY_EXPENSE_CODE, 'Inventory - Survival Node Components', 'expense', 'debit');
+    const nextYear = Number(year) + 1;
+    const post = async (date, memo, debitId, creditId) => {
+      const ins = await env.DB.prepare(`INSERT INTO journal_entries (entry_date, memo, source_type, source_id) VALUES (?1, ?2, 'inventory_count', ?3)`)
+        .bind(date, memo, Number(year)).run();
+      const entryId = Number(ins.meta?.last_row_id || 0);
+      await env.DB.prepare(`INSERT INTO journal_lines (entry_id, account_id, debit_cents, credit_cents) VALUES (?1, ?2, ?3, 0), (?1, ?4, 0, ?3)`)
+        .bind(entryId, debitId, totalCents, creditId).run();
+    };
+    await post(`${year}-12-31`, `Parts on hand at the end of ${year} (year-end count, ${countDate})`, inventoryId, expenseId);
+    await post(`${nextYear}-01-01`, `Parts on hand carried into ${nextYear} (from the ${year} year-end count)`, expenseId, inventoryId);
+  }
+
+  const row = await env.DB.prepare(`SELECT * FROM inventory_counts WHERE year = ?1`).bind(Number(year)).first();
+  return json({ ok: true, count: inventoryCountView(row), yearCloseApplied: await yearCloseApplied(env.DB, year) }, 200, corsHeaders);
+}
+
+/** POST /api/accounts/inventory-count/delete — remove a year's count and its journal pair. Body: { year } */
+async function handleInventoryCountDelete(request, env, corsHeaders, url) {
+  if (!env.DB) return json({ ok: false, error: 'DB binding missing' }, 500, corsHeaders);
+  const auth = await requireAdmin(request, env, corsHeaders, url);
+  if (!auth.ok) return auth.res;
+  let data;
+  try { data = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders); }
+  const year = String(data.year || '').trim();
+  if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Invalid year' }, 400, corsHeaders);
+  await ensureInventoryCountsTable(env.DB);
+  await env.DB.prepare(`DELETE FROM inventory_counts WHERE year = ?1`).bind(Number(year)).run();
+  const accountingReady = await accountingTablesReady(env.DB);
+  if (accountingReady) await deleteInventoryCountJournal(env.DB, year);
+  return json({ ok: true, yearCloseApplied: accountingReady ? await yearCloseApplied(env.DB, year) : false }, 200, corsHeaders);
 }
 
 async function handleInvoiceCreate(request, env, corsHeaders, url) {

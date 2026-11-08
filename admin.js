@@ -114,6 +114,134 @@
       return data;
     }
 
+    // ===== Parts count pricing =====
+    // Prices the Year-End Parts Count (Year-End Close tab) from the parts purchases in the ledger
+    // (expense category "Inventory - ..."). Each purchase note is sorted into a part by keyword and
+    // its quantity read from "(7)", "12 locks", "4 pack", "pack of 2" or "Two"; a refund cancels the
+    // purchase it matches by amount. Units on hand are valued first in, first out: they're taken to
+    // be the newest ones bought, so they're priced from the newest purchases.
+    const PARTS_COUNT_ITEMS = [
+      { key: 'phone', label: 'Phones (Moto G Power)' },
+      { key: 'hardCase', label: 'Hard cases' },
+      { key: 'faraday', label: 'Faraday bags' },
+      { key: 'solar', label: 'Solar batteries / power banks' },
+      { key: 'charger', label: 'Charging blocks' },
+      { key: 'lock', label: 'Locks' },
+      { key: 'phoneCase', label: 'Phone cases' },
+      { key: 'desiccant', label: 'Desiccant / silica packs' },
+      { key: 'cable', label: 'Cables' },
+      { key: 'node', label: 'Finished nodes (built, not sold)' }
+    ];
+    // A finished node's suggested cost is one of each of these at its newest price.
+    const PARTS_PER_NODE = ['phone', 'hardCase', 'faraday', 'solar', 'charger', 'lock', 'phoneCase', 'desiccant'];
+    // First match wins, so order matters: "(5) Moto G Power Phone Cases" is phone cases and
+    // "12 locks for Survival Node hard cases" is locks.
+    const PART_RULES = [
+      ['phoneCase', /phone\s+(heavy\s+duty\s+)?cases?\b|case\s+for\s+(moto|oneplus)/i],
+      ['lock', /\b(pad\s*)?locks?\b/i],
+      ['hardCase', /hard\s+cases?\b|vevor|jack\s+boss|meijia/i],
+      ['faraday', /faraday|mission\s+darkness/i],
+      ['solar', /solar\s+batter|power\s+banks?/i],
+      ['charger', /charging\s+blocks?/i],
+      ['desiccant', /dess?icc?ant|silica/i],
+      ['cable', /\bcables?\b/i],
+      ['phone', /moto\s*g|oneplus|tracfone|\bphones?\b/i]
+    ];
+    const PART_WORD_NUMBERS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
+    const stripPartTags = (text) => String(text || '').replace(/\s*\[[^\]]*\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+
+    function classifyPartPurchase(text) {
+      const t = stripPartTags(text);
+      const hits = [...new Set(PART_RULES.filter(([, re]) => re.test(t)).map(([key]) => key))];
+      if (!hits.length) return { key: null };
+      // "Solar Battery and 4 Charging Blocks" is one price for two kinds of part, so it can't price either.
+      if (hits.length > 1 && /\band\b|&|\+/i.test(t)) return { key: null, mixed: hits };
+      return { key: hits[0] };
+    }
+
+    function partPurchaseQty(text) {
+      const t = stripPartTags(text);
+      let m = t.match(/\((\d{1,4})\)/);
+      if (m) return Number(m[1]);
+      m = t.match(/\b(?:pack|set|box)\s+of\s+(\d{1,4})\b/i);
+      if (m) return Number(m[1]);
+      m = t.match(/\b(\d{1,4})\s*-?\s*(?:pack|pk|count|ct)\b/i);
+      if (m) return Number(m[1]);
+      m = t.match(/^(?:purchased\s+|bought\s+)?(\d{1,3})\s+(?!gb\b)/i);
+      if (m && Number(m[1]) > 0) return Number(m[1]);
+      m = t.match(/^(?:purchased\s+|bought\s+)?(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/i);
+      if (m) return PART_WORD_NUMBERS[m[1].toLowerCase()];
+      return 1;
+    }
+
+    /** Ledger rows → { lots: { partKey: [newest lot first] }, skipped: [rows it couldn't use] }. */
+    function buildPartLots(rows) {
+      const purchases = [];
+      const refunds = [];
+      const skipped = [];
+      for (const r of (rows || [])) {
+        const cents = Number(r.amount_cents || 0);
+        if (!cents) continue;
+        const raw = String(r.notes || '').trim() || String(r.vendor || '');
+        const { key, mixed } = classifyPartPurchase(raw);
+        const entry = { id: Number(r.id || 0), date: String(r.date || r.expense_date || ''), cents, text: stripPartTags(raw), key };
+        if (cents < 0) { refunds.push(entry); continue; }
+        if (!key) { skipped.push({ ...entry, reason: mixed ? 'more than one kind of part in one price' : 'part not recognised' }); continue; }
+        const qty = partPurchaseQty(raw);
+        purchases.push({ ...entry, qty, unitCents: cents / qty });
+      }
+      const byDate = (a, b) => a.date.localeCompare(b.date) || a.id - b.id;
+      for (const ref of refunds.sort(byDate)) {
+        const amount = Math.abs(ref.cents);
+        const open = purchases.filter(p => !p.refunded && p.cents === amount).sort(byDate);
+        const before = open.filter(p => p.date <= ref.date);
+        const pool = before.length ? before : open;
+        const match = [...pool].reverse().find(p => ref.key && p.key === ref.key) || pool[pool.length - 1];
+        if (match) match.refunded = true;
+        else skipped.push({ ...ref, reason: 'refund that matches no purchase' });
+      }
+      const lots = {};
+      for (const p of purchases) {
+        if (p.refunded) continue;
+        (lots[p.key] = lots[p.key] || []).push(p);
+      }
+      for (const key of Object.keys(lots)) lots[key].sort((a, b) => byDate(b, a));
+      return { lots, skipped };
+    }
+
+    /** Value of `qty` units on hand, taken from the newest lots first. */
+    function fifoPartValue(lots, qty) {
+      const list = lots || [];
+      let left = Math.max(0, Number(qty) || 0);
+      let cents = 0;
+      const used = [];
+      for (const lot of list) {
+        if (left <= 0) break;
+        const take = Math.min(left, lot.qty);
+        cents += take * lot.unitCents;
+        used.push({ qty: take, unitCents: lot.unitCents, date: lot.date, text: lot.text });
+        left -= take;
+      }
+      const short = left;
+      if (short > 0) {
+        // More on hand than the purchases found: price the rest at the average of every lot.
+        const totalQty = list.reduce((s, l) => s + l.qty, 0);
+        const totalCents = list.reduce((s, l) => s + l.cents, 0);
+        cents += short * (totalQty ? totalCents / totalQty : 0);
+      }
+      const n = Math.max(0, Number(qty) || 0);
+      return { cents: Math.round(cents), unitCents: n > 0 ? Math.round(cents / n) : 0, used, short };
+    }
+
+    /** Suggested unit cost for a part (or a finished node) at a given count. */
+    function suggestPartUnitCents(lots, key, qty) {
+      if (key === 'node') {
+        return PARTS_PER_NODE.reduce((sum, k) => sum + (lots[k] ? fifoPartValue(lots[k], 1).unitCents : 0), 0);
+      }
+      if (!lots[key]) return 0;
+      return fifoPartValue(lots[key], qty > 0 ? qty : 1).unitCents;
+    }
+
     // ===== DOM Refs =====
     let adminLock;
     let adminControls;
@@ -1176,10 +1304,264 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Preview failed');
         const steps = data.preview?.steps || [];
-        yearCloseStepsEl.innerHTML = steps.map((s) => `<div style="padding:.35rem 0; border-bottom:1px dashed var(--line);"><strong>Step ${s.step}:</strong> ${escHtml(s.title)} <span style="float:right;">$${(Number(s.amount_cents||0)/100).toFixed(2)}</span></div>`).join('') || 'No close steps found.';
+        // The close should come after the year-end parts count, so say whether there is one.
+        const parts = data.preview?.partsCount;
+        const partsNote = !parts ? '' : parts.saved
+          ? `<div class="parts-count-status saved" style="margin:0 0 .5rem;">Includes the ${escHtml(year)} parts count: ${formatPartsMoney(parts.totalCents)} on hand (counted ${escHtml(parts.countDate || '')}).</div>`
+          : `<div class="parts-count-status warn" style="margin:0 0 .5rem;">No parts count is saved for ${escHtml(year)}. Save the Year-End Parts Count above first, or unsold parts stay in this year's expenses.</div>`;
+        yearCloseStepsEl.innerHTML = partsNote + (steps.map((s) => `<div style="padding:.35rem 0; border-bottom:1px dashed var(--line);"><strong>Step ${s.step}:</strong> ${escHtml(s.title)} <span style="float:right;">$${(Number(s.amount_cents||0)/100).toFixed(2)}</span></div>`).join('') || 'No close steps found.');
       } catch (e) {
         yearCloseStepsEl.textContent = `Could not load year-close preview: ${e.message || e}`;
       }
+    }
+
+    // ===== Year-End Parts Count =====
+    // The Year-End Close tab's parts count: quantities on hand at the end of a year, priced from the
+    // ledger's parts purchases (see "Parts count pricing" above), saved to /api/accounts/inventory-count.
+    // The worker posts the Dec 31 adjustment and its Jan 1 reversal, and /api/tax/summary (the Tax
+    // Planning tab) uses the saved total.
+    const INVENTORY_COUNT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/inventory-count');
+    const partsCountState = { year: null, lots: {}, skipped: [], rows: [], loading: false };
+    const formatPartsMoney = (cents) => `$${(Number(cents || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const partsEl = (id) => document.getElementById(id);
+
+    function defaultPartsCountYear() {
+      const now = nowEtParts();
+      const y = Number(now.date.slice(0, 4));
+      return Number(now.date.slice(5, 7)) <= 3 ? y - 1 : y; // Jan–Mar: still finishing last year
+    }
+
+    function fillPartsCountYears() {
+      const sel = partsEl('parts-count-year');
+      if (!sel || sel.options.length) return;
+      const thisYear = Number(nowEtParts().date.slice(0, 4));
+      for (let y = thisYear; y >= 2026; y -= 1) sel.add(new Option(String(y), String(y)));
+      sel.value = String(Math.max(2026, defaultPartsCountYear()));
+    }
+
+    function setPartsCountStatus(html, kind = '') {
+      const el = partsEl('parts-count-status');
+      if (!el) return;
+      el.className = `parts-count-status${kind ? ` ${kind}` : ''}`;
+      el.innerHTML = html;
+    }
+
+    function partsRowSuggested(row) {
+      return row.key ? suggestPartUnitCents(partsCountState.lots, row.key, row.qty) : 0;
+    }
+
+    function renderPartsCountRows() {
+      const body = partsEl('parts-count-rows');
+      if (!body) return;
+      body.innerHTML = partsCountState.rows.map((row, i) => {
+        const suggested = partsRowSuggested(row);
+        const unit = row.unitEdited ? row.unitCents : suggested;
+        row.unitCents = unit;
+        const value = Math.round((Number(row.qty) || 0) * unit);
+        const hint = !row.key ? ''
+          : row.unitEdited && unit !== suggested
+            ? `<span class="pc-hint edited">your price · suggested ${formatPartsMoney(suggested)} <a href="#" data-pc-reset="${i}">use it</a></span>`
+            : `<span class="pc-hint">${suggested ? (row.key === 'node' ? 'one of each part, newest prices' : 'newest purchases first') : 'no purchases found'}</span>`;
+        const name = row.custom
+          ? `<input type="text" data-pc-name="${i}" value="${escHtml(row.label)}" placeholder="Part name" aria-label="Part name" />`
+          : escHtml(row.label);
+        return `<tr>
+          <td>${name}</td>
+          <td class="num"><input class="pc-qty" type="number" min="0" step="1" inputmode="numeric" data-pc-qty="${i}" value="${row.qty ? escHtml(String(row.qty)) : ''}" placeholder="0" aria-label="${escHtml(row.label || 'Part')} on hand" /></td>
+          <td class="num"><input class="pc-unit" type="number" min="0" step="0.01" inputmode="decimal" data-pc-unit="${i}" value="${(unit / 100).toFixed(2)}" aria-label="${escHtml(row.label || 'Part')} unit cost" />${hint}</td>
+          <td class="num money-blur-target" data-pc-value="${i}">${formatPartsMoney(value)}</td>
+          <td>${row.custom ? `<button type="button" class="btn pc-remove" data-pc-remove="${i}">Remove</button>` : ''}</td>
+        </tr>`;
+      }).join('');
+      updatePartsCountTotal();
+    }
+
+    function updatePartsCountTotal() {
+      let total = 0;
+      partsCountState.rows.forEach((row, i) => {
+        const value = Math.round((Number(row.qty) || 0) * (Number(row.unitCents) || 0));
+        total += value;
+        const cell = document.querySelector(`[data-pc-value="${i}"]`);
+        if (cell) cell.textContent = formatPartsMoney(value);
+      });
+      const totalEl = partsEl('parts-count-total');
+      if (totalEl) totalEl.textContent = formatPartsMoney(total);
+      return total;
+    }
+
+    function renderPartsPricing() {
+      const el = partsEl('parts-count-pricing');
+      if (!el) return;
+      const parts = PARTS_COUNT_ITEMS.filter(item => item.key !== 'node' && partsCountState.lots[item.key]);
+      const lines = parts.map((item) => {
+        const lots = partsCountState.lots[item.key];
+        const bought = lots.reduce((s, l) => s + l.qty, 0);
+        const list = lots.slice(0, 6).map(l => `${l.qty} × ${formatPartsMoney(Math.round(l.unitCents))} (${escHtml(l.date)}: ${escHtml(l.text)})`).join('; ');
+        return `<li><strong>${escHtml(item.label)}</strong>: ${bought} bought. Newest first: ${list}${lots.length > 6 ? '; …' : ''}</li>`;
+      });
+      const skipped = partsCountState.skipped.map(s => `<li>${escHtml(s.date)} ${formatPartsMoney(Math.abs(s.cents))}: ${escHtml(s.text)} (${escHtml(s.reason)})</li>`);
+      el.innerHTML = (lines.length ? `<ul>${lines.join('')}</ul>` : '<p>No parts purchases found in the ledger.</p>')
+        + (skipped.length ? `<p style="margin:.5rem 0 0;">Not used for prices (still counted as purchases):</p><ul>${skipped.join('')}</ul>` : '')
+        + '<p style="margin:.5rem 0 0;">Quantities are read from the purchase notes, e.g. "(7) Moto G Power Phones" or "12 locks". If a price looks wrong, type your own.</p>';
+    }
+
+    async function fetchPartsCount(year) {
+      const res = await fetch(`${INVENTORY_COUNT_API_URL}?year=${encodeURIComponent(String(year))}`, { headers: { 'X-Admin-Session': adminSessionToken } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Could not load the parts count');
+      return data;
+    }
+
+    async function loadPartsCount() {
+      if (!adminSessionActive || !partsEl('parts-count-section') || partsCountState.loading) return;
+      fillPartsCountYears();
+      const year = Number(partsEl('parts-count-year')?.value || defaultPartsCountYear());
+      partsCountState.loading = true;
+      setPartsCountStatus('Loading…');
+      try {
+        const [countData, thisYear, lastYear] = await Promise.all([
+          fetchPartsCount(year),
+          loadTaxYear(year),
+          loadTaxYear(year - 1)
+        ]);
+        const cutoff = `${year}-12-31`;
+        const partRows = [...(lastYear.expenses || []), ...(thisYear.expenses || [])]
+          .filter(r => /^inventory\b/i.test(String(r.category || '')) && String(r.date || '') <= cutoff);
+        const { lots, skipped } = buildPartLots(partRows);
+        partsCountState.year = year;
+        partsCountState.lots = lots;
+        partsCountState.skipped = skipped;
+
+        const saved = countData.count;
+        const savedLines = [...(saved?.lines || [])];
+        partsCountState.rows = PARTS_COUNT_ITEMS.map((item) => {
+          const idx = savedLines.findIndex(l => l.item === item.label);
+          const line = idx >= 0 ? savedLines.splice(idx, 1)[0] : null;
+          return { key: item.key, label: item.label, custom: false, qty: line ? line.qty : 0, unitCents: line ? line.unitCents : 0, unitEdited: !!line };
+        });
+        for (const line of savedLines) {
+          partsCountState.rows.push({ key: null, label: line.item, custom: true, qty: line.qty, unitCents: line.unitCents, unitEdited: true });
+        }
+        const dateEl = partsEl('parts-count-date');
+        if (dateEl) dateEl.value = saved?.countDate || `${year}-12-31`;
+        const deleteBtn = partsEl('parts-count-delete-btn');
+        if (deleteBtn) deleteBtn.hidden = !saved;
+        renderPartsCountRows();
+        renderPartsPricing();
+
+        const carriedIn = Number(countData.previousYearCents || 0)
+          ? ` ${formatPartsMoney(countData.previousYearCents)} of parts carried in from the ${year - 1} count.` : '';
+        if (saved) {
+          const closeNote = countData.yearCloseApplied
+            ? ` The ${year} Year-End Close has been run; if you change this count, run it again.` : '';
+          setPartsCountStatus(`Saved: <strong>${formatPartsMoney(saved.totalCents)}</strong> on hand at the end of ${year} (counted ${escHtml(saved.countDate)}). It's in the books as a Dec 31 adjustment and carried into ${year + 1}.${carriedIn}${closeNote}`, 'saved');
+        } else {
+          setPartsCountStatus(`No count saved for ${year} yet. Enter how many of each you have on hand, then Save.${carriedIn}`);
+        }
+      } catch (e) {
+        setPartsCountStatus(`Could not load the parts count: ${escHtml(e.message || String(e))}`, 'warn');
+      } finally {
+        partsCountState.loading = false;
+      }
+    }
+
+    async function savePartsCount() {
+      const year = partsCountState.year;
+      if (!year) return;
+      const lines = partsCountState.rows
+        .filter(r => Number(r.qty) > 0)
+        .map(r => ({ item: String(r.label || '').trim(), qty: Number(r.qty), unitCents: Math.round(Number(r.unitCents) || 0) }));
+      if (lines.some(l => !l.item)) { openErrorModal('Give every extra line a part name.'); return; }
+      const countDate = partsEl('parts-count-date')?.value || `${year}-12-31`;
+      const btn = partsEl('parts-count-save-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch(INVENTORY_COUNT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
+          body: JSON.stringify({ year, countDate, lines })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Save failed');
+        await loadPartsCount();
+        if (data.yearCloseApplied) {
+          setPartsCountStatus(`Saved: <strong>${formatPartsMoney(data.count?.totalCents)}</strong> on hand at the end of ${year}. The ${year} Year-End Close was already run, so run the Year-End Close Wizard again to include this count.`, 'warn');
+        }
+        openSuccessModal(`Parts count saved: ${formatPartsMoney(data.count?.totalCents)} on hand at the end of ${year}.`, 'Parts Count Saved ✅');
+      } catch (e) {
+        openErrorModal(`Could not save the parts count: ${e.message || e}`);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function deletePartsCount() {
+      const year = partsCountState.year;
+      if (!year) return;
+      const ok = await openConfirmModal(`Delete the ${year} parts count? Its Dec 31 adjustment and Jan 1 carry-in come out of the books, so every part bought in ${year} counts as a ${year} expense again.`, 'Delete Parts Count?', 'Delete');
+      if (!ok) return;
+      try {
+        const res = await fetch(`${INVENTORY_COUNT_API_URL}/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
+          body: JSON.stringify({ year })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Delete failed');
+        await loadPartsCount();
+      } catch (e) {
+        openErrorModal(`Could not delete the parts count: ${e.message || e}`);
+      }
+    }
+
+    function bindPartsCount() {
+      const body = partsEl('parts-count-rows');
+      if (!body || body.dataset.bound) return;
+      body.dataset.bound = '1';
+      body.addEventListener('input', (e) => {
+        const t = e.target;
+        if (t.dataset.pcQty !== undefined) {
+          const row = partsCountState.rows[Number(t.dataset.pcQty)];
+          row.qty = Math.max(0, Number(t.value) || 0);
+          if (!row.unitEdited && row.key) {
+            row.unitCents = partsRowSuggested(row);
+            const unitInput = body.querySelector(`[data-pc-unit="${t.dataset.pcQty}"]`);
+            if (unitInput) unitInput.value = (row.unitCents / 100).toFixed(2);
+          }
+          updatePartsCountTotal();
+        } else if (t.dataset.pcUnit !== undefined) {
+          const row = partsCountState.rows[Number(t.dataset.pcUnit)];
+          row.unitCents = Math.max(0, Math.round((Number(t.value) || 0) * 100));
+          row.unitEdited = true;
+          updatePartsCountTotal();
+        } else if (t.dataset.pcName !== undefined) {
+          partsCountState.rows[Number(t.dataset.pcName)].label = t.value;
+        }
+      });
+      // Re-render after a price edit so its hint shows "your price · suggested …".
+      body.addEventListener('change', (e) => { if (e.target.dataset.pcUnit !== undefined) renderPartsCountRows(); });
+      body.addEventListener('click', (e) => {
+        const reset = e.target.closest('[data-pc-reset]');
+        if (reset) {
+          e.preventDefault();
+          partsCountState.rows[Number(reset.dataset.pcReset)].unitEdited = false;
+          renderPartsCountRows();
+          return;
+        }
+        const remove = e.target.closest('[data-pc-remove]');
+        if (remove) {
+          partsCountState.rows.splice(Number(remove.dataset.pcRemove), 1);
+          renderPartsCountRows();
+        }
+      });
+      partsEl('parts-count-add-btn')?.addEventListener('click', () => {
+        partsCountState.rows.push({ key: null, label: '', custom: true, qty: 0, unitCents: 0, unitEdited: true });
+        renderPartsCountRows();
+        body.querySelector(`[data-pc-name="${partsCountState.rows.length - 1}"]`)?.focus();
+      });
+      partsEl('parts-count-save-btn')?.addEventListener('click', savePartsCount);
+      partsEl('parts-count-delete-btn')?.addEventListener('click', deletePartsCount);
+      partsEl('parts-count-year')?.addEventListener('change', loadPartsCount);
     }
 
     function closeYearCloseWizard() {
@@ -2374,10 +2756,15 @@
       try {
         // allowIncomplete: the ledger still lists what did load, but the snapshot shows a red
         // warning in place of its quiet "checked" line.
-        const [data, summaryData] = await Promise.all([
+        const [data, summaryData, partsCount] = await Promise.all([
           loadTaxYear(year, { allowIncomplete: true }),
-          summaryYear === year ? null : loadTaxYear(summaryYear, { allowIncomplete: true })
-        ]).then(([d, sd]) => [d, sd || d]);
+          summaryYear === year ? null : loadTaxYear(summaryYear, { allowIncomplete: true }),
+          fetchPartsCount(summaryYear).catch(() => null)
+        ]).then(([d, sd, pc]) => [d, sd || d, pc]);
+        // Year-end parts counts (Year-End Close tab): parts carried in from last year's count are
+        // this year's expense, and parts still on hand at this year's end are not.
+        const partsStartCents = Number(partsCount?.previousYearCents || 0);
+        const partsEndCents = Number(partsCount?.count?.totalCents || 0);
 
         const items = [
           ...(data.income || []).map(r => ({ type: 'income', ...r })),
@@ -2427,9 +2814,12 @@
             : `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
           : '<div class="tax-summary-line"><span>No income entries</span><strong>$0.00</strong></div>';
 
-        const expenseRows = sortedExpense.length
+        const expenseRows = (sortedExpense.length
           ? sortedExpense.map(([cat, cents]) => `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
-          : '<div class="tax-summary-line"><span>No expense entries</span><strong>$0.00</strong></div>';
+          : '<div class="tax-summary-line"><span>No expense entries</span><strong>$0.00</strong></div>')
+          + (partsStartCents ? `<div class="tax-summary-line"><span>Parts carried in from the ${Number(summaryYear) - 1} count</span><strong>+$${(partsStartCents/100).toFixed(2)}</strong></div>` : '')
+          + (partsEndCents ? `<div class="tax-summary-line"><span>Parts still on hand at year-end (${escHtml(String(summaryYear))} count)</span><strong>&minus;$${(partsEndCents/100).toFixed(2)}</strong></div>` : '');
+        expenseTotal += partsStartCents - partsEndCents;
 
         taxSummaryListEl.innerHTML = `
           <div class="tax-summary-col">
@@ -3922,6 +4312,7 @@
       if (tab === 'websites' && adminSessionActive && window.refreshWebsiteClients) window.refreshWebsiteClients();
       if (tab === 'invoices' && adminSessionActive) refreshInvoiceList();
       if (tab === 'quotes' && adminSessionActive) refreshQuoteList();
+      if (tab === 'year-close' && adminSessionActive) loadPartsCount();
       updateInvoiceFabVisibility();
       updateQuoteFabVisibility();
     }
@@ -4147,6 +4538,7 @@
       if (adminControlListenersBound) return;
       adminControlListenersBound = true;
       adminSectionTabBtns.forEach((btn) => btn.addEventListener('click', () => setAdminSectionTab(btn.getAttribute('data-admin-tab'))));
+      bindPartsCount();
       quoteModeAddBtn?.addEventListener('click', () => { resetQuoteForm(); openQuoteCreateModal(); });
       quoteModeViewBtn?.addEventListener('click', refreshQuoteList);
       quoteRefreshBtn?.addEventListener('click', refreshQuoteList);

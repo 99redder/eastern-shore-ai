@@ -216,6 +216,31 @@
     .ledger-check { margin:.5rem 0 0; font-size:.85rem; color:var(--muted); }
     .ledger-check.bad { margin:.5rem 0; padding:.6rem .75rem; border:1px solid #ff4d4d; border-radius:2px; background:rgba(255,77,77,.12); color:var(--text); font-size:.95rem; }
     .ledger-check.bad strong { color:#ff6b6b; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    /* ===== Year-End Parts Count (Year-End Close tab) ===== */
+    .parts-count-controls { gap:.6rem; flex-wrap:wrap; align-items:flex-end; margin:.2rem 0 .6rem; }
+    .parts-count-controls > div { min-width:140px; }
+    .parts-count-status { margin:.2rem 0 .6rem; font-size:.95rem; color:var(--muted); }
+    .parts-count-status.saved { color:var(--text); }
+    .parts-count-status.warn { padding:.55rem .7rem; border:1px solid #ffb84d; background:rgba(255,184,77,.1); color:var(--text); }
+    .parts-count-table-wrap { overflow-x:auto; border:1px solid var(--line); background:#10121a; }
+    .parts-count-table { width:100%; border-collapse:collapse; font-size:.95rem; }
+    .parts-count-table th { text-align:left; color:var(--muted); font-weight:600; padding:.45rem .5rem; border-bottom:1px solid var(--line); white-space:nowrap; }
+    .parts-count-table td { padding:.35rem .5rem; border-bottom:1px solid var(--line); vertical-align:middle; color:var(--text); }
+    .parts-count-table td.num, .parts-count-table th.num { text-align:right; white-space:nowrap; }
+    .parts-count-table input { padding:.4rem .5rem; }
+    .parts-count-table input.pc-qty { width:5.5rem; }
+    .parts-count-table input.pc-unit { width:7rem; text-align:right; }
+    .parts-count-table .pc-hint { display:block; font-size:.8rem; color:var(--muted); margin-top:.15rem; }
+    .parts-count-table .pc-hint.edited { color:#ffb84d; }
+    .parts-count-table tfoot td { font-weight:700; border-bottom:0; }
+    .parts-count-table .pc-remove { padding:.3rem .55rem; font-size:.85rem; }
+    .parts-count-actions { gap:.5rem; flex-wrap:wrap; margin-top:.65rem; }
+    .parts-count-pricing { margin-top:.65rem; color:var(--muted); font-size:.9rem; }
+    .parts-count-pricing summary { cursor:pointer; color:var(--text); }
+    .parts-count-pricing ul { margin:.4rem 0 0; padding-left:1.1rem; }
+    .parts-count-pricing li { margin:.15rem 0; }
+    @media (max-width:760px) { .parts-count-table input { font-size:16px; } }
     .tax-summary-details > summary { list-style:none; cursor:pointer; }
     .tax-summary-details > summary::-webkit-details-marker { display:none; }
     .tax-summary-details > summary span::after { content:'▸'; margin-left:.4em; color:var(--cyan); }
@@ -920,6 +945,42 @@
           <button type="button" class="btn" id="year-close-collapse-btn" aria-expanded="false">Expand</button>
         </div>
         <div id="year-close-body" class="admin-collapsible-body-collapsed">
+          <section class="admin-calendar-wrap" id="parts-count-section" style="margin-top:.5rem; grid-column:1 / -1;">
+            <div class="admin-calendar-title">Year-End Parts Count</div>
+            <p style="margin:.35rem 0 .65rem; color:var(--text); line-height:1.45;">
+              Count the Survival Node parts and finished nodes on hand at the end of the year, then save, before running the close.
+              Parts are booked as expenses when they're bought, but the ones not sold yet aren't that year's expense:
+              saving the count moves their cost into next year, when those nodes sell. Each line is priced from your newest purchases first
+              (first in, first out); edit any price that looks wrong.
+            </p>
+            <div class="admin-row parts-count-controls">
+              <div>
+                <label for="parts-count-year">Year</label>
+                <select id="parts-count-year"></select>
+              </div>
+              <div>
+                <label for="parts-count-date">Counted on</label>
+                <input type="date" id="parts-count-date" />
+              </div>
+            </div>
+            <div id="parts-count-status" class="parts-count-status" role="status">Loading…</div>
+            <div class="parts-count-table-wrap">
+              <table class="parts-count-table">
+                <thead><tr><th>Part</th><th class="num">On hand</th><th class="num">Unit cost</th><th class="num">Value</th><th><span class="sr-only">Remove</span></th></tr></thead>
+                <tbody id="parts-count-rows"></tbody>
+                <tfoot><tr><td colspan="3">Total on hand</td><td class="num" id="parts-count-total">$0.00</td><td></td></tr></tfoot>
+              </table>
+            </div>
+            <div class="admin-row parts-count-actions">
+              <button type="button" class="btn" id="parts-count-add-btn">Add a line</button>
+              <button type="button" class="btn btn-primary" id="parts-count-save-btn">Save count</button>
+              <button type="button" class="btn" id="parts-count-delete-btn" hidden>Delete count</button>
+            </div>
+            <details class="parts-count-pricing">
+              <summary>How the prices were worked out</summary>
+              <div id="parts-count-pricing"></div>
+            </details>
+          </section>
           <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
             <p style="margin:.2rem 0 .65rem; color:var(--text); line-height:1.45;">
               Use this once per year (after final reconciliation) to create formal closing entries.
@@ -1441,7 +1502,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-11-08b"></script>
+  <script src="/admin.js?v=2026-11-08c"></script>
   <script src="/admin-websites.js?v=7"></script>
 </body>
 </html>
