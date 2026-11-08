@@ -158,7 +158,7 @@ test('year-end close sums only its own year and a re-run replaces it', async (t)
   // 2026 only: $800 revenue; $1,050 expenses less $200 of parts on hand. 2027's rows and the
   // Jan 1 carry-in are not part of the 2026 close.
   assert.deepEqual(steps, { 1: 80000, 2: 85000, 3: -5000 });
-  assert.deepEqual(r.body.preview.partsCount, { saved: true, totalCents: 20000, countDate: '2026-12-31' });
+  assert.deepEqual(r.body.preview.partsCount, { saved: true, required: true, totalCents: 20000, countDate: '2026-12-31' });
 
   for (let i = 0; i < 2; i++) {
     r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2026', apply: true }));
@@ -248,4 +248,38 @@ test('refunds cancel their purchase and units on hand are priced newest first', 
   assert.equal(suggestPartUnitCents(lots, 'phone', 0), 5388);
   assert.equal(suggestPartUnitCents(lots, 'lock', 0), Math.round(3799 / 12));
   assert.equal(suggestPartUnitCents(lots, 'cable', 1), 0, 'no purchases, no suggestion');
+});
+
+test('a year that bought parts cannot be closed until its parts count is saved', async (t) => {
+  quietConsole(t);
+  const env = baseEnv();
+  await seedBooks(env);
+  const closeEntries = () => env.DB.sqlite.prepare("SELECT COUNT(*) AS n FROM journal_entries WHERE source_type = 'year_close'").get().n;
+
+  let r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2026', apply: false }));
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.body.preview.partsCount, { saved: false, required: true });
+
+  r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2026', apply: true }));
+  assert.equal(r.status, 409, JSON.stringify(r.body));
+  assert.match(r.body.error, /Save the 2026 Year-End Parts Count first/);
+  assert.equal(closeEntries(), 0, 'nothing written');
+
+  // Nothing on the shelf: a count of 0 is enough.
+  r = await read(await call(env, 'POST', '/api/accounts/inventory-count', { year: 2026, lines: [{ item: 'Phones (Moto G Power)', qty: 0, unitCents: 5000 }] }));
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(r.body.count.totalCents, 0);
+  r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2026', apply: true }));
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.ok(closeEntries() > 0);
+
+  // 2027 carries in the 2026 count, so it needs its own count too (here: 2027 also bought parts).
+  r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2027', apply: false }));
+  assert.deepEqual(r.body.preview.partsCount, { saved: false, required: true });
+
+  // A year with no parts bought and nothing carried in closes without one.
+  r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2025', apply: false }));
+  assert.deepEqual(r.body.preview.partsCount, { saved: false, required: false });
+  r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2025', apply: true }));
+  assert.equal(r.status, 200, JSON.stringify(r.body));
 });

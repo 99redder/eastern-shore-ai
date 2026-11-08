@@ -1291,6 +1291,7 @@
       yearCloseModal?.classList.add('active');
       yearCloseModal?.setAttribute('aria-hidden', 'false');
       yearCloseStepsEl.textContent = 'Loading preview…';
+      if (yearCloseApplyBtn) yearCloseApplyBtn.disabled = true; // until the preview says it can run
       try {
         const res = await fetch(ACCOUNTS_YEAR_CLOSE_API_URL, {
           method: 'POST',
@@ -1300,14 +1301,20 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Preview failed');
         const steps = data.preview?.steps || [];
-        // The close should come after the year-end parts count, so say whether there is one.
+        // The close has to come after the year-end parts count: Apply stays off until one is saved
+        // (the worker refuses it too), for any year that bought parts or carried some in.
         const parts = data.preview?.partsCount;
+        const blocked = !!(parts && parts.required && !parts.saved);
+        if (yearCloseApplyBtn) yearCloseApplyBtn.disabled = blocked;
         const partsNote = !parts ? '' : parts.saved
           ? `<div class="parts-count-status saved" style="margin:0 0 .5rem;">Includes the ${escHtml(year)} parts count: ${formatPartsMoney(parts.totalCents)} on hand (counted ${escHtml(parts.countDate || '')}).</div>`
-          : `<div class="parts-count-status warn" style="margin:0 0 .5rem;">No parts count is saved for ${escHtml(year)}. Save the Year-End Parts Count above first, or unsold parts stay in this year's expenses.</div>`;
+          : blocked
+            ? `<div class="parts-count-status warn" style="margin:0 0 .5rem;" role="alert"><strong>Can't close ${escHtml(year)} yet:</strong> no parts count is saved. Save the Year-End Parts Count on the Year-End Close tab first (enter 0 for anything not on hand), then come back.</div>`
+            : '';
         yearCloseStepsEl.innerHTML = partsNote + (steps.map((s) => `<div style="padding:.35rem 0; border-bottom:1px dashed var(--line);"><strong>Step ${s.step}:</strong> ${escHtml(s.title)} <span style="float:right;">$${(Number(s.amount_cents||0)/100).toFixed(2)}</span></div>`).join('') || 'No close steps found.');
       } catch (e) {
         yearCloseStepsEl.textContent = `Could not load year-close preview: ${e.message || e}`;
+        if (yearCloseApplyBtn) yearCloseApplyBtn.disabled = false; // the worker still checks the parts count
       }
     }
 
@@ -1494,7 +1501,7 @@
     async function deletePartsCount() {
       const year = partsCountState.year;
       if (!year) return;
-      const ok = await openConfirmModal(`Delete the ${year} parts count? Its Dec 31 adjustment and Jan 1 carry-in come out of the books, so every part bought in ${year} counts as a ${year} expense again.`, 'Delete Parts Count?', 'Delete');
+      const ok = await openConfirmModal(`Delete the ${year} parts count? Its Dec 31 adjustment and Jan 1 carry-in come out of the books, so every part bought in ${year} counts as a ${year} expense again, and the ${year} Year-End Close can't be run again until a new count is saved.`, 'Delete Parts Count?', 'Delete');
       if (!ok) return;
       try {
         const res = await fetch(`${INVENTORY_COUNT_API_URL}/delete`, {

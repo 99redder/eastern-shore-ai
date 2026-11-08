@@ -4986,11 +4986,10 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
   const incomeSummaryId = await ensureAccountByCode(env.DB, '3900', 'Income Summary', 'equity', 'credit');
   const ownerEquityId = await ensureAccountByCode(env.DB, '3000', 'Owner Equity', 'equity', 'credit');
 
-  await ensureInventoryCountsTable(env.DB);
-  const partsCount = await env.DB.prepare(`SELECT total_cents, count_date FROM inventory_counts WHERE year = ?1`).bind(Number(year)).first();
+  const partsCount = await yearPartsCountStatus(env.DB, year);
   const preview = {
     year,
-    partsCount: partsCount ? { saved: true, totalCents: Number(partsCount.total_cents || 0), countDate: partsCount.count_date } : { saved: false },
+    partsCount,
     steps: [
       { step: 1, title: 'Close revenue accounts to Income Summary', amount_cents: incomeTotal },
       { step: 2, title: 'Close expense accounts to Income Summary', amount_cents: expenseTotal },
@@ -4999,6 +4998,16 @@ async function handleAccountsYearClose(request, env, corsHeaders, url) {
   };
 
   if (!apply) return json({ ok: true, preview }, 200, corsHeaders);
+
+  // No closing a year that bought parts (or carried some in) until its parts count is saved, or
+  // unsold parts would be closed out as that year's expense. A count of 0 on hand is fine.
+  if (partsCount.required && !partsCount.saved) {
+    return json({
+      ok: false,
+      error: `Save the ${year} Year-End Parts Count first (enter 0 for anything not on hand), then run the close.`,
+      preview
+    }, 409, corsHeaders);
+  }
 
   const existing = await env.DB.prepare(`SELECT id FROM journal_entries WHERE source_type = 'year_close' AND source_id = ?1`).bind(Number(year)).all();
   for (const r of (existing.results || [])) {
@@ -5113,6 +5122,23 @@ async function deleteInventoryCountJournal(db, year) {
     await db.prepare(`DELETE FROM journal_lines WHERE entry_id = ?1`).bind(r.id).run();
     await db.prepare(`DELETE FROM journal_entries WHERE id = ?1`).bind(r.id).run();
   }
+}
+
+/**
+ * Whether a year needs a parts count before it can be closed (it bought parts, or carried some in
+ * from last year's count) and whether one is saved.
+ */
+async function yearPartsCountStatus(db, year) {
+  await ensureInventoryCountsTable(db);
+  const [row, carriedIn, bought] = await Promise.all([
+    db.prepare(`SELECT total_cents, count_date FROM inventory_counts WHERE year = ?1`).bind(Number(year)).first(),
+    db.prepare(`SELECT 1 AS found FROM inventory_counts WHERE year = ?1`).bind(Number(year) - 1).first(),
+    db.prepare(`SELECT COUNT(*) AS n FROM tax_expenses WHERE substr(expense_date, 1, 4) = ?1 AND category LIKE 'Inventory%'`).bind(String(year)).first()
+  ]);
+  const required = Number(bought?.n || 0) > 0 || !!carriedIn;
+  return row
+    ? { saved: true, required, totalCents: Number(row.total_cents || 0), countDate: row.count_date }
+    : { saved: false, required };
 }
 
 async function yearCloseApplied(db, year) {
