@@ -120,18 +120,20 @@
     // its quantity read from "(7)", "12 locks", "4 pack", "pack of 2" or "Two"; a refund cancels the
     // purchase it matches by amount. Units on hand are valued first in, first out: they're taken to
     // be the newest ones bought, so they're priced from the newest purchases.
+    // The parts worth counting (about 90% of the value on the shelf). Small parts are left off on
+    // purpose: locks, charging blocks, desiccant, shipping silica packets and cables (around $100 on
+    // hand in all) are simply expensed when bought. They're still recognised below, so a bundle
+    // that includes one is spotted and they never land on another line. No finished-nodes line
+    // either: nodes are put together only once they're sold. Anything else, such as a returned
+    // node, can go on an "Add a line" row.
     const PARTS_COUNT_ITEMS = [
       { key: 'phone', label: 'Phones (Moto G Power)' },
       { key: 'hardCase', label: 'Hard cases' },
-      { key: 'faraday', label: 'Faraday bags' },
-      { key: 'solar', label: 'Solar batteries / power banks' },
-      { key: 'charger', label: 'Charging blocks' },
-      { key: 'lock', label: 'Locks' },
-      { key: 'phoneCase', label: 'Phone cases' },
-      { key: 'desiccant', label: 'Desiccant / silica packs' },
-      { key: 'cable', label: 'Cables' }
-      // No finished-nodes line: nodes are put together only once they're sold, so none are ever on
-      // hand at year-end. A returned node or anything else can go on an "Add a line" row.
+      { key: 'solarGen2', label: 'Solar batteries, Gen 2' },
+      { key: 'solarGen1', label: 'Solar batteries, Gen 1 / power banks' },
+      { key: 'faradayMD', label: 'Faraday bags, Mission Darkness' },
+      { key: 'faradayStd', label: 'Faraday bags, standard (Gen 1)' },
+      { key: 'phoneCase', label: 'Phone cases (with screen protector)' }
     ];
     // First match wins, so order matters: "(5) Moto G Power Phone Cases" is phone cases and
     // "12 locks for Survival Node hard cases" is locks.
@@ -173,7 +175,17 @@
       return 1;
     }
 
-    /** Ledger rows → { lots: { partKey: [newest lot first] }, skipped: [rows it couldn't use] }. */
+    // Batteries and Faraday bags each come in two kinds at very different prices, so each kind is
+    // its own line. Gen 2 batteries: the note says "Gen 2", or they cost $30+ each (Gen 1 batteries
+    // and the early power banks were $11-26). Mission Darkness bags vs the standard bags and sets in
+    // Gen 1 kits. Writing "Gen 2" in a battery purchase's note keeps this right if prices change.
+    function countLineKey(purchase) {
+      if (purchase.key === 'solar') return /gen\s*2/i.test(purchase.text) || purchase.unitCents >= 3000 ? 'solarGen2' : 'solarGen1';
+      if (purchase.key === 'faraday') return /mission\s+darkness/i.test(purchase.text) ? 'faradayMD' : 'faradayStd';
+      return purchase.key;
+    }
+
+    /** Ledger rows → { lots: { countLineKey: [newest lot first] }, skipped: [rows it couldn't use] }. */
     function buildPartLots(rows) {
       const purchases = [];
       const refunds = [];
@@ -202,7 +214,8 @@
       const lots = {};
       for (const p of purchases) {
         if (p.refunded) continue;
-        (lots[p.key] = lots[p.key] || []).push(p);
+        const line = countLineKey(p);
+        (lots[line] = lots[line] || []).push(p);
       }
       for (const key of Object.keys(lots)) lots[key].sort((a, b) => byDate(b, a));
       return { lots, skipped };

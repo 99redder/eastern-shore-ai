@@ -283,3 +283,24 @@ test('a year that bought parts cannot be closed until its parts count is saved',
   r = await read(await call(env, 'POST', '/api/accounts/year-close', { year: '2025', apply: true }));
   assert.equal(r.status, 200, JSON.stringify(r.body));
 });
+
+test('batteries and Faraday bags each split into their two kinds', () => {
+  const { buildPartLots, fifoPartValue } = pricing();
+  const rows = [
+    { id: 1, date: '2026-03-01', amount_cents: 5200, notes: 'Pack of 2 Power Banks [owner-funded]' },
+    { id: 2, date: '2026-03-06', amount_cents: 4380, notes: '(4) Standard Solar Batteries [owner-funded]' },
+    { id: 3, date: '2026-03-09', amount_cents: 19790, notes: '10 Solar Batteries [owner-funded]' },
+    { id: 4, date: '2026-09-11', amount_cents: 7398, notes: 'Two Solar Batteries (Gen 2)' },
+    { id: 5, date: '2026-11-02', amount_cents: 7398, notes: '2 Solar Batteries' }, // Gen 2 by price
+    { id: 6, date: '2026-03-06', amount_cents: 3526, notes: '(2) Standard Faraday Bag Sets [owner-funded]' },
+    { id: 7, date: '2026-11-01', amount_cents: 9000, notes: '4 pack of Mission Darkness Faraday Bags' }
+  ];
+  const { lots } = buildPartLots(rows);
+  assert.deepEqual(lots.solarGen2.map(l => l.id), [5, 4]);
+  assert.deepEqual(lots.solarGen1.map(l => l.id), [3, 2, 1]);
+  assert.deepEqual(lots.faradayMD.map(l => l.id), [7]);
+  assert.deepEqual(lots.faradayStd.map(l => l.id), [6]);
+  assert.equal(lots.solar, undefined);
+  // 8 Gen 1 batteries left are priced as Gen 1, not at the newer Gen 2 price.
+  assert.equal(fifoPartValue(lots.solarGen1, 8).cents, 8 * 1979);
+});
