@@ -3695,7 +3695,10 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
   const type = (url.searchParams.get('type') || 'all').trim();
   if (!/^\d{4}$/.test(year)) return json({ ok: false, error: 'Missing/invalid year' }, 400, corsHeaders);
 
-  const limit = Math.max(1, Math.min(10000, Number(url.searchParams.get('limit') || 200)));
+  // Every caller sums these rows (snapshot, CSV, reconciliation, audit package), so the default is
+  // the whole year, and `totals` lets the admin check it got every row (loadTaxYear in admin.js).
+  // Added 2026-11-08 after FMG's copy of this endpoint, capped at 500, hid ~560 expenses.
+  const limit = parseRowLimit(url.searchParams.get('limit'), TAX_TX_MAX_ROWS);
 
   const expensesP = (type === 'all' || type === 'expense')
     ? env.DB.prepare(
@@ -3717,14 +3720,44 @@ async function handleTaxTransactions(request, env, corsHeaders, url) {
       ).bind(year, limit).all()
     : Promise.resolve({ results: [] });
 
-  const [expenses, income] = await Promise.all([expensesP, incomeP]);
+  const totalsP = env.DB.prepare(
+    `SELECT 'expenses' AS kind, COUNT(*) AS count, COALESCE(SUM(amount_cents), 0) AS cents
+       FROM tax_expenses WHERE substr(expense_date,1,4) = ?1
+     UNION ALL
+     SELECT 'income', COUNT(*), COALESCE(SUM(amount_cents), 0)
+       FROM tax_income WHERE substr(income_date,1,4) = ?1`
+  ).bind(year).all();
+
+  const [expenses, income, totalsRes] = await Promise.all([expensesP, incomeP, totalsP]);
+  const expenseRows = expenses.results || [];
+  const incomeRows = income.results || [];
+  const totals = {};
+  for (const r of (totalsRes.results || [])) {
+    totals[r.kind] = { count: Number(r.count || 0), cents: Number(r.cents || 0) };
+  }
+  const complete = {
+    expenses: type === 'income' || expenseRows.length === totals.expenses.count,
+    income: type === 'expense' || incomeRows.length === totals.income.count
+  };
 
   return json({
     ok: true,
     year,
-    expenses: expenses.results || [],
-    income: income.results || []
+    expenses: expenseRows,
+    income: incomeRows,
+    totals,
+    complete
   }, 200, corsHeaders);
+}
+
+// Highest row count the admin ledger and journal lists return in one response.
+const TAX_TX_MAX_ROWS = 50000;
+
+/** Parse a `limit` query value: blank means `max`, anything else is clamped to 1..max. */
+function parseRowLimit(raw, max) {
+  const n = Number(raw);
+  if (raw === null || raw === '' || !Number.isFinite(n)) return max;
+  return Math.max(1, Math.min(max, Math.floor(n)));
 }
 
 /**
@@ -4620,7 +4653,9 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
   const accountingReady = await ensureAccountingSetup(env.DB);
   if (!accountingReady) return json({ ok: false, error: 'Accounting tables are not migrated yet. Run D1 migrations with --remote.' }, 503, corsHeaders);
 
-  const limit = Math.max(1, Math.min(500, Number(url.searchParams.get('limit') || 200)));
+  // Blank limit = every entry in the period (the audit package's journal CSV needs them all);
+  // the Accounts tab asks for the newest 200 and shows "N of total".
+  const limit = parseRowLimit(url.searchParams.get('limit'), TAX_TX_MAX_ROWS);
   const year = (url.searchParams.get('year') || '').trim();
   const from = (url.searchParams.get('from') || '').trim();
   const to = (url.searchParams.get('to') || '').trim();
@@ -4631,9 +4666,14 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
   else if (/^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to)) { where = 'WHERE entry_date >= ?1 AND entry_date <= ?2'; binds.push(from, to); }
 
   const entriesQ = env.DB.prepare(`SELECT id, entry_date, memo, source_type, source_id, created_at FROM journal_entries ${where} ORDER BY entry_date DESC, id DESC LIMIT ?${binds.length + 1}`);
-  const entries = await entriesQ.bind(...binds, limit).all();
+  const countQ = env.DB.prepare(`SELECT COUNT(*) AS n FROM journal_entries ${where}`);
+  const [entries, countRow] = await Promise.all([
+    entriesQ.bind(...binds, limit).all(),
+    (binds.length ? countQ.bind(...binds) : countQ).first()
+  ]);
+  const totalEntries = Number(countRow?.n || 0);
   const entryIds = (entries.results || []).map(e => Number(e.id)).filter(Boolean);
-  if (!entryIds.length) return json({ ok: true, entries: [] }, 200, corsHeaders);
+  if (!entryIds.length) return json({ ok: true, entries: [], total_entries: totalEntries, complete: totalEntries === 0 }, 200, corsHeaders);
 
   const joinedQ = env.DB.prepare(`
     WITH selected_entries AS (
@@ -4701,7 +4741,7 @@ async function handleAccountsJournal(request, env, corsHeaders, url) {
 
   const out = entryIds.map(id => byEntry.get(id)).filter(Boolean);
 
-  return json({ ok: true, entries: out }, 200, corsHeaders);
+  return json({ ok: true, entries: out, total_entries: totalEntries, complete: out.length === totalEntries }, 200, corsHeaders);
 }
 
 async function handleAccountsStatements(request, env, corsHeaders, url) {

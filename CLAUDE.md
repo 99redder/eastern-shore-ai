@@ -1235,3 +1235,10 @@ Ported from Florence Mae Gifts' Ask K (`FlorenceMaeGifts.com/cloudflare/src/ask-
 - **No per-visit email** (the page gets ad and shopping traffic). `sendAskKDailySummary` appends a "Website visits yesterday" section from `pageVisitSummary()`: visitors (distinct hashes) and page views, sources, devices, top towns, referring sites. Buy clicks already alert on their own.
 - To count another page, add it to `PAGES` and give that page the same snippet with its own `page` value. `privacy.html`'s "site usage logs" line covers this.
 - Tests: `worker/tests/page-visits.test.mjs`. The suite needs Node 23.6+ (`--import ./tests/text-imports.mjs` uses `module.register` hooks for the `.md` file): `npx -y node@24 --import ./tests/text-imports.mjs --test tests/*.test.mjs`.
+
+## 2026-11-08 Update (Ledger completeness check)
+
+- Florence Mae Gifts' copy of this admin silently lost its oldest tax-ledger rows to a 500-row cap on `/api/tax/transactions`. ESA's ledger endpoint was capped at 10,000 (admin asked for 5,000) and its `/api/accounts/journal` at 500; ESA's 2026 books were under both, so nothing was missing, but the same silent cut-off would have hit later.
+- Both endpoints now return the whole period by default (`limit` still honoured, max 50,000). `/api/tax/transactions` also returns `totals` (row count and cents per list, from SQL) and `complete`; the journal returns `total_entries` and `complete`.
+- Everything in `admin.js` that sums ledger rows (Tax Ledger snapshot, CSV export, reconciliation, receipts ZIP, audit package and its journal CSV) loads through `loadTaxYear()` / `loadFullJournal()`, which compare the rows received with those totals and throw `TaxDataIncompleteError` on a mismatch. The snapshot shows "✓ Checked against the database" or a red warning; the Accounts tab journal says "Showing the newest 200 of N". Don't add a direct `fetch` of `/api/tax/transactions` for sums.
+- `worker/tests/ledger-limits.test.mjs` runs a 5,200-row year through the worker and through the loader block copied out of `admin.js` (found between the `Complete-ledger loading` and `DOM Refs` comments, so keep those).
