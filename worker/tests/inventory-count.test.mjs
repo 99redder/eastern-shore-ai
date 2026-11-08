@@ -246,5 +246,6 @@ test('refunds cancel their purchase and units on hand are priced newest first', 
   assert.equal(over.short, 2);
   assert.equal(over.cents, 3799 + Math.round(2 * 3799 / 12));
   assert.equal(suggestPartUnitCents(lots, 'phone', 0), 5388);
-  assert.equal(suggestPartUnitCents(lots, 'node', 1), 5388 + Math.round(3799 / 12));
+  assert.equal(suggestPartUnitCents(lots, 'lock', 0), Math.round(3799 / 12));
+  assert.equal(suggestPartUnitCents(lots, 'cable', 1), 0, 'no purchases, no suggestion');
 });

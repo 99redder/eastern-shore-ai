@@ -129,11 +129,10 @@
       { key: 'lock', label: 'Locks' },
       { key: 'phoneCase', label: 'Phone cases' },
       { key: 'desiccant', label: 'Desiccant / silica packs' },
-      { key: 'cable', label: 'Cables' },
-      { key: 'node', label: 'Finished nodes (built, not sold)' }
+      { key: 'cable', label: 'Cables' }
+      // No finished-nodes line: nodes are put together only once they're sold, so none are ever on
+      // hand at year-end. A returned node or anything else can go on an "Add a line" row.
     ];
-    // A finished node's suggested cost is one of each of these at its newest price.
-    const PARTS_PER_NODE = ['phone', 'hardCase', 'faraday', 'solar', 'charger', 'lock', 'phoneCase', 'desiccant'];
     // First match wins, so order matters: "(5) Moto G Power Phone Cases" is phone cases and
     // "12 locks for Survival Node hard cases" is locks.
     const PART_RULES = [
@@ -233,11 +232,8 @@
       return { cents: Math.round(cents), unitCents: n > 0 ? Math.round(cents / n) : 0, used, short };
     }
 
-    /** Suggested unit cost for a part (or a finished node) at a given count. */
+    /** Suggested unit cost for a part at a given count. */
     function suggestPartUnitCents(lots, key, qty) {
-      if (key === 'node') {
-        return PARTS_PER_NODE.reduce((sum, k) => sum + (lots[k] ? fifoPartValue(lots[k], 1).unitCents : 0), 0);
-      }
       if (!lots[key]) return 0;
       return fifoPartValue(lots[key], qty > 0 ? qty : 1).unitCents;
     }
@@ -1361,7 +1357,7 @@
         const hint = !row.key ? ''
           : row.unitEdited && unit !== suggested
             ? `<span class="pc-hint edited">your price · suggested ${formatPartsMoney(suggested)} <a href="#" data-pc-reset="${i}">use it</a></span>`
-            : `<span class="pc-hint">${suggested ? (row.key === 'node' ? 'one of each part, newest prices' : 'newest purchases first') : 'no purchases found'}</span>`;
+            : `<span class="pc-hint">${suggested ? 'newest purchases first' : 'no purchases found'}</span>`;
         const name = row.custom
           ? `<input type="text" data-pc-name="${i}" value="${escHtml(row.label)}" placeholder="Part name" aria-label="Part name" />`
           : escHtml(row.label);
@@ -1392,7 +1388,7 @@
     function renderPartsPricing() {
       const el = partsEl('parts-count-pricing');
       if (!el) return;
-      const parts = PARTS_COUNT_ITEMS.filter(item => item.key !== 'node' && partsCountState.lots[item.key]);
+      const parts = PARTS_COUNT_ITEMS.filter(item => partsCountState.lots[item.key]);
       const lines = parts.map((item) => {
         const lots = partsCountState.lots[item.key];
         const bought = lots.reduce((s, l) => s + l.qty, 0);
