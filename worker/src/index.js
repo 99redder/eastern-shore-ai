@@ -99,7 +99,11 @@ const _adminAuthKeyFailures = new Map();
 const _contactRateLimits = new Map();
 const _askKRateLimits = new Map();
 const _chatRateLimits = new Map();
-const ADMIN_SESSION_TTL_SECONDS = 60 * 60 * 12;
+// Admin logins (password + authenticator code) end after 12 hours without
+// using admin, and 7 days after logging in at the latest.
+const ADMIN_SESSION_IDLE_SECONDS = 60 * 60 * 12;
+const ADMIN_SESSION_MAX_SECONDS = 60 * 60 * 24 * 7;
+const ADMIN_SESSION_EXTEND_EVERY_MS = 5 * 60 * 1000;
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://easternshore.ai',
   'https://www.easternshore.ai',
@@ -173,7 +177,7 @@ export default {
       const isPlannerRoute = (url.pathname === '/api/planner/items' && request.method === 'GET') || ['/api/planner/items', '/api/planner/items/toggle', '/api/planner/items/delete', '/api/planner/items/reschedule'].includes(url.pathname);
       const isChatPublic = (['/api/chat/session', '/api/chat/message', '/api/chat/typing'].includes(url.pathname) && request.method === 'POST') || (['/api/chat/session', '/api/chat/messages', '/api/chat/push-config'].includes(url.pathname) && request.method === 'GET');
       const isChatAdmin = (['/api/chat/sessions', '/api/chat/alerts', '/api/chat/push-status'].includes(url.pathname) && request.method === 'GET') || (['/api/chat/session/close','/api/chat/sessions/purge-old','/api/chat/push-subscribe','/api/chat/push-unsubscribe','/api/chat/push-ack'].includes(url.pathname) && request.method === 'POST');
-      const isAdminAuthRoute = (url.pathname === '/api/admin/login' && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
+      const isAdminAuthRoute = (['/api/admin/login', '/api/admin/logout'].includes(url.pathname) && request.method === 'POST') || (url.pathname === '/api/admin/session' && request.method === 'GET');
       const isWebsitePlanPublic = (url.pathname === '/api/website-agreement' && request.method === 'GET') || (['/api/website-agreement/sign', '/api/website-agreement/checkout', '/api/website-agreement/portal', '/api/website-agreement/autopay', '/api/website-plan/find'].includes(url.pathname) && request.method === 'POST');
       const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/stop-autopay', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
       const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead', '/api/page/visit'].includes(url.pathname) && request.method === 'POST');
@@ -191,6 +195,10 @@ export default {
 
     if (url.pathname === '/api/admin/login' && request.method === 'POST') {
       return handleAdminLogin(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/api/admin/logout' && request.method === 'POST') {
+      return handleAdminLogout(request, env, corsHeaders);
     }
 
     if (url.pathname === '/api/admin/session' && request.method === 'GET') {
@@ -2075,14 +2083,25 @@ async function handleAdminLogin(request, env, corsHeaders) {
   const tokenHash = await hashRateLimitKey(token);
   const passwordVersion = await hashRateLimitKey(expected);
   const userAgentHash = await hashRateLimitKey(request.headers.get('User-Agent') || '');
-  const expiresAt = Date.now() + (ADMIN_SESSION_TTL_SECONDS * 1000);
+  const expiresAt = Date.now() + (ADMIN_SESSION_IDLE_SECONDS * 1000);
   await env.DB.prepare(`DELETE FROM admin_sessions WHERE expires_at <= ?1`).bind(Date.now()).run();
   await env.DB.prepare(
     `INSERT INTO admin_sessions (token_hash, password_version, user_agent_hash, created_at, expires_at)
      VALUES (?1, ?2, ?3, datetime('now'), ?4)`
   ).bind(tokenHash, passwordVersion, userAgentHash, expiresAt).run();
 
-  return json({ ok: true, sessionToken: token, expiresIn: ADMIN_SESSION_TTL_SECONDS }, 200, corsHeaders);
+  return json({ ok: true, sessionToken: token, expiresIn: ADMIN_SESSION_IDLE_SECONDS }, 200, corsHeaders);
+}
+
+/** Log Out button: ends this admin login on the server. Always answers ok. */
+async function handleAdminLogout(request, env, corsHeaders) {
+  const token = String(request.headers.get('X-Admin-Session') || '').trim();
+  if (token && env.DB) {
+    const tokenHash = await hashRateLimitKey(token);
+    await env.DB.prepare(`DELETE FROM admin_sessions WHERE token_hash = ?1`).bind(tokenHash).run()
+      .catch(e => console.error('Admin logout failed', e));
+  }
+  return json({ ok: true }, 200, corsHeaders);
 }
 
 async function hasValidAdminSession(request, env) {
@@ -2090,15 +2109,33 @@ async function hasValidAdminSession(request, env) {
   if (!token || !env.DB || !env.ADMIN_PASSWORD) return false;
   const tokenHash = await hashRateLimitKey(token);
   const session = await env.DB.prepare(
-    `SELECT password_version, user_agent_hash, expires_at FROM admin_sessions WHERE token_hash = ?1 LIMIT 1`
+    `SELECT password_version, user_agent_hash, created_at, expires_at FROM admin_sessions WHERE token_hash = ?1 LIMIT 1`
   ).bind(tokenHash).first();
   if (!session || Number(session.expires_at || 0) <= Date.now()) return false;
   const [passwordVersion, userAgentHash] = await Promise.all([
     hashRateLimitKey(String(env.ADMIN_PASSWORD || '').trim()),
     hashRateLimitKey(request.headers.get('User-Agent') || '')
   ]);
-  return await timingSafeEqual(session.password_version, passwordVersion)
+  const valid = await timingSafeEqual(session.password_version, passwordVersion)
     && await timingSafeEqual(session.user_agent_hash || '', userAgentHash);
+  if (valid) await extendAdminSession(env.DB, tokenHash, session);
+  return valid;
+}
+
+/**
+ * Each use of admin pushes the login's end to 12 hours from now, never past
+ * 7 days after it started. Written at most every 5 minutes per login.
+ */
+async function extendAdminSession(db, tokenHash, session) {
+  const createdMs = Date.parse(`${String(session.created_at || '').trim().replace(' ', 'T')}Z`);
+  if (!Number.isFinite(createdMs)) return;
+  const target = Math.min(
+    Date.now() + ADMIN_SESSION_IDLE_SECONDS * 1000,
+    createdMs + ADMIN_SESSION_MAX_SECONDS * 1000
+  );
+  if (target - Number(session.expires_at || 0) < ADMIN_SESSION_EXTEND_EVERY_MS) return;
+  await db.prepare(`UPDATE admin_sessions SET expires_at = ?1 WHERE token_hash = ?2`).bind(target, tokenHash).run()
+    .catch(e => console.error('Admin session extend failed', e));
 }
 
 /** Validate an admin session, with X-Admin-Password retained for legacy admin clients. */

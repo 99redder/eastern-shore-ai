@@ -51,6 +51,7 @@
     const QUOTE_CONVERT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/accounts/quotes/convert');
     const ADMIN_LOGIN_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/login');
     const ADMIN_SESSION_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/session');
+    const ADMIN_LOGOUT_API_URL = CONTACT_API_URL.replace('/api/contact', '/api/admin/logout');
 
     // ===== Complete-ledger loading =====
     // Every screen that adds up ledger rows (Tax Ledger snapshot, CSV export, reconciliation,
@@ -809,8 +810,6 @@
     // ===== State =====
     let adminSessionActive = false;
     let adminSessionToken = '';
-    let adminInactivityTimer = null;
-    const ADMIN_SESSION_IDLE_MS = 30 * 60 * 1000;
     let adminCalendarCursor = null;
     let allTxItems = [];
     let loadedTaxData = { income: [], expenses: [] };
@@ -1905,8 +1904,6 @@
       adminSessionToken = '';
       if (adminKeyEl) adminKeyEl.value = '';
       if (adminTotpEl) adminTotpEl.value = '';
-      clearTimeout(adminInactivityTimer);
-      adminInactivityTimer = null;
       adminSessionActive = false;
       adminControlListenersBound = false;
       clearAdminAuthenticatedSession();
@@ -4383,6 +4380,20 @@
       try { sessionStorage.removeItem(ADMIN_LOGIN_GUARD_KEY); } catch {}
     }
 
+    // The login lives in localStorage so every admin tab shares it and it
+    // survives closing the tab or Chrome. The server decides when it ends
+    // (12 hours without use, 7 days at most).
+    function readAdminSessionToken() {
+      try { return localStorage.getItem(ADMIN_SESSION_TOKEN_KEY) || sessionStorage.getItem(ADMIN_SESSION_TOKEN_KEY) || ''; } catch { return ''; }
+    }
+
+    function saveAdminSessionToken(token) {
+      try {
+        localStorage.setItem(ADMIN_SESSION_TOKEN_KEY, token);
+        sessionStorage.removeItem(ADMIN_SESSION_TOKEN_KEY);
+      } catch {}
+    }
+
     function setAdminAuthenticatedSession(on) {
       try {
         if (on) {
@@ -4390,6 +4401,7 @@
         } else {
           sessionStorage.removeItem(ADMIN_AUTH_SESSION_KEY);
           sessionStorage.removeItem(ADMIN_SESSION_TOKEN_KEY);
+          localStorage.removeItem(ADMIN_SESSION_TOKEN_KEY);
         }
       } catch {}
     }
@@ -4411,23 +4423,49 @@
       return next;
     }
 
-    function armAdminSessionClearTimer() {
-      clearTimeout(adminInactivityTimer);
-      adminInactivityTimer = setTimeout(() => {
-        if (adminSessionToken) {
-          removeAdminControls();
-          openErrorModal('Admin session expired after 30 minutes away. Please log in again.');
-        }
-      }, ADMIN_SESSION_IDLE_MS);
+    // Coming back to the tab asks the server whether the login is still good
+    // (at most every 5 minutes), so an ended login shows the login form right
+    // away instead of failing on the next button.
+    let lastAdminSessionCheck = 0;
+    async function checkAdminSessionStillValid() {
+      if (!adminSessionToken || Date.now() - lastAdminSessionCheck < 5 * 60 * 1000) return;
+      lastAdminSessionCheck = Date.now();
+      const token = adminSessionToken;
+      let res;
+      try {
+        res = await fetch(ADMIN_SESSION_API_URL, { headers: { 'X-Admin-Session': token } });
+      } catch {
+        return;
+      }
+      if (res.status === 401 && adminSessionToken === token) {
+        removeAdminControls();
+        openErrorModal('Your admin login ended (12 hours without using admin, or 7 days since you logged in). Please log in again.');
+      }
     }
 
     document.addEventListener('visibilitychange', () => {
-      if (!adminSessionToken) return;
-      if (document.hidden) {
-        armAdminSessionClearTimer();
-      } else {
-        clearTimeout(adminInactivityTimer);
+      if (!document.hidden) checkAdminSessionStillValid();
+    });
+    window.addEventListener('focus', checkAdminSessionStillValid);
+
+    // Logging in or out in one admin tab does the same in the others.
+    window.addEventListener('storage', (e) => {
+      if (e.key !== ADMIN_SESSION_TOKEN_KEY) return;
+      if (e.newValue) {
+        if (adminSessionToken) adminSessionToken = e.newValue;
+        else restoreAdminSession();
+      } else if (adminSessionToken) {
+        removeAdminControls();
       }
+    });
+
+    document.getElementById('admin-logout-btn')?.addEventListener('click', async () => {
+      const token = adminSessionToken;
+      removeAdminControls();
+      if (!token) return;
+      try {
+        await fetch(ADMIN_LOGOUT_API_URL, { method: 'POST', headers: { 'X-Admin-Session': token } });
+      } catch {}
     });
 
     function disableAdminLoginForRetryAfter(seconds) {
@@ -4523,7 +4561,8 @@
         if (!data.sessionToken) throw new Error('The server did not return an admin session');
         clearAdminLoginGuard();
         adminSessionToken = data.sessionToken;
-        try { sessionStorage.setItem(ADMIN_SESSION_TOKEN_KEY, adminSessionToken); } catch {}
+        lastAdminSessionCheck = Date.now();
+        saveAdminSessionToken(adminSessionToken);
         adminKeyEl.value = '';
         if (adminTotpEl) adminTotpEl.value = '';
         await enterAdminDashboard();
@@ -5036,16 +5075,26 @@
     }
 
     async function restoreAdminSession() {
-      let savedToken = '';
-      try { savedToken = sessionStorage.getItem(ADMIN_SESSION_TOKEN_KEY) || ''; } catch {}
+      const savedToken = readAdminSessionToken();
       if (!savedToken) return;
-      adminSessionToken = savedToken;
+      let res;
       try {
-        const res = await fetch(ADMIN_SESSION_API_URL, {
-          headers: { 'X-Admin-Session': adminSessionToken }
+        res = await fetch(ADMIN_SESSION_API_URL, {
+          headers: { 'X-Admin-Session': savedToken }
         });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error('Session expired');
+      } catch {
+        // Offline or the server didn't answer: keep the saved login for the next try.
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        if (res.status === 401) removeAdminControls();
+        return;
+      }
+      adminSessionToken = savedToken;
+      lastAdminSessionCheck = Date.now();
+      saveAdminSessionToken(savedToken);
+      try {
         await enterAdminDashboard();
       } catch {
         removeAdminControls();

@@ -459,6 +459,7 @@ When moving from test to live:
 
 - Lives at `/admin.html` — dedicated standalone page, no public booking content.
 - Password lock on page load; unlock reveals all admin controls.
+- **Login length (changed 2026-11-08):** password + Microsoft Authenticator code (`TOTP_SECRET`) gives a session in D1 `admin_sessions`. Each use pushes its end to 12 hours out (`ADMIN_SESSION_IDLE_SECONDS`, written at most every 5 min), never past 7 days after login (`ADMIN_SESSION_MAX_SECONDS`); it's tied to the browser's User-Agent, so a Chrome version update also ends it. The page keeps the token in `localStorage`, so all admin tabs share it and it survives closing Chrome; logging in or out in one tab does the same in the others. Before this the token was in `sessionStorage` (one tab) and the page logged itself out after 30 minutes hidden. **Log Out** (header) calls `POST /api/admin/logout`, which deletes the session. Tests: `worker/tests/admin-session.test.mjs`.
 - No header bar — goes straight to the admin lock/content.
 - Booking admin includes:
   - block/unblock individual 2-hour slots
