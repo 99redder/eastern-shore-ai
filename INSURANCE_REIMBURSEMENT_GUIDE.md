@@ -1,47 +1,38 @@
 # Shipping Insurance Reimbursement Accounting
 
-## Situation
+## Rule
 
-Before the LLC was approved, personal credit card was used for business expenses. A Survival Node package shipped using personal funds was lost in mail. USPS insurance claim will issue a check payable to you personally.
+A USPS (or other carrier) claim payment for a lost or damaged business shipment is **business income**, even when the check is made out to Chris personally or the label was bought with personal funds.
 
-## How to Handle
+Why: the business already deducted what the claim pays back (the label as a shipping expense, the parts in the box as inventory expense), so the recovery goes back into income.
+- IRS Publication 547, "Loss of inventory": when the loss runs through cost of goods sold, "include any insurance or other reimbursement you receive for the loss in gross income."
+- IRS Publication 334, "Recovery of items previously deducted": "include the recovery in income on Schedule C."
+- A single-member LLC is "disregarded as separate from its owner" for income tax, so a check payable to the owner doesn't make it personal money, and costs from just before the LLC was approved are reported on the same Schedule C.
 
-### 1. Deposit Location
-Deposit the check into your **business bank account** (LLC's account). Even though made payable to you personally, since the loss was for a business asset (Survival Node inventory), the proceeds belong to the business.
+It is **not** an owner contribution: that would leave the deducted costs in place and keep the recovery out of income.
 
-### 2. Accounting in admin.html
+## How to book it in admin.html
 
-**Important:** The `Shipping Insurance Reimbursement` category is in the expense list, which means it will **reduce your Net Income**. This is correct if you want to track it as an expense recovery.
+1. Deposit the check into Bluevine.
+2. Tax Ledger > Add Income:
+   - **Category:** `Shipping Insurance Reimbursement`
+   - **Source:** the carrier (e.g. `USPS`)
+   - **Amount:** the full check (insurance + any postage refund), positive
+   - **Date:** the deposit date
+   - **Notes:** what was lost, the label's expense #, the reship expense #, and that it was deposited to Bluevine
+   - Owner funded: **off**
+3. Book it as one row for the whole check, so it matches the single deposit in Reconciliation.
 
-However, since this is a reimbursement (not new income), it should **not affect your taxable income**. For proper tax treatment, consider one of these options:
+Don't use the `Shipping Insurance Reimbursement` *expense* category for a claim payment: a positive expense lowers profit, the opposite of a recovery.
 
-**Option 1 (Current approach - Expense Category):**
-- **Category:** `Shipping Insurance Reimbursement`
-- **Notes:** "USPS insurance reimbursement for lost Survival Node shipment - [Date of lost shipment] [Tracking # if known]"
-- **Amount:** The reimbursement amount from USPS (positive)
-- **Date:** Date of deposit/receipt
-- **Paid via:** Check (or specify "insurance reimbursement")
-- **Effect:** Reduces Net Income (expense recovery)
+Form 202 isn't affected: line 3 counts direct sales only.
 
-**Option 2 (Recommended - Owner Contribution):**
-- Go to **Owner Contributions** section
-- Enter the reimbursement amount
-- **Effect:** No impact on Net Income/taxable income; just tracks the money you put back into the business
+## History
 
-### 3. Why This Works
+- 2026-04-14: USPS paid $119.97 ($100 standard insurance + $19.97 postage) for the first Survival Node shipment (label expense #61 on Mar 15, paid personally a few days before the LLC was approved; reshipped by UPS, expense #70). The check was made out to Chris and deposited to Bluevine. It was first booked as an owner transfer (journal #333).
+- 2026-11-08: Rebooked as income #29 (`Shipping Insurance Reimbursement`, $119.97), with manual journal #3056 reversing transfer #333. Owner Contributions went from $6,188.92 to $6,068.95, and 2026 profit rose $119.97. Bluevine's cash didn't change.
 
-- The original expense was a business expense (product cost + shipping)
-- The insurance reimbursement is simply recovering that business expense
-- It's **not revenue** - it's a return of capital that was spent for business purposes
-- The LLC category "Shipping Insurance Reimbursement" tracks these recoveries separately
+## Documents to keep
 
-### 4. Documentation to Keep
-
-- Copy of the USPS insurance claim approval
-- Copy of the check deposit confirmation
-- Original shipping receipt showing the business shipment
-- Any USPS tracking information showing the package was lost
-
----
-
-*Created: 2026-04-12*
+- The USPS claim approval and the check (or deposit confirmation)
+- The original label receipt and tracking showing the package was lost
