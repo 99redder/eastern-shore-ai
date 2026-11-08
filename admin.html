@@ -219,6 +219,10 @@
     .btn:disabled, .btn-primary:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     /* ===== Year-End Parts Count (Year-End Close tab) ===== */
+    .count-rules { margin:0 0 .8rem; padding:.75rem .9rem; border:1px solid var(--cyan); border-left:5px solid var(--cyan); background:rgba(0,229,255,.08); }
+    .count-rules p { margin:.2rem 0; color:var(--text); font-size:1.02rem; line-height:1.5; }
+    .count-rules-label { display:inline-block; min-width:5.6rem; margin-right:.35rem; padding:.05rem .45rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:.82rem; color:#0a0b10; background:var(--cyan); text-align:center; }
+    .count-rules-label.leave { background:#ff4fd8; }
     .parts-count-controls { gap:.6rem; flex-wrap:wrap; align-items:flex-end; margin:.2rem 0 .6rem; }
     .parts-count-controls > div { min-width:140px; }
     .parts-count-status { margin:.2rem 0 .6rem; font-size:.95rem; color:var(--muted); }
@@ -955,10 +959,10 @@
               (first in, first out); edit any price that looks wrong. Small parts (locks, charging blocks, desiccant) aren't counted:
               they're expensed when bought.
             </p>
-            <p style="margin:0 0 .65rem; color:var(--text); line-height:1.45;">
-              <strong>Count:</strong> usable parts on the shelf, plus parts you've paid for that are still on the way.
-              <strong>Leave out:</strong> anything broken or thrown away, and phones you keep for testing.
-            </p>
+            <div class="count-rules" role="note">
+              <p><span class="count-rules-label">Count</span> usable parts on the shelf, <strong>plus parts you've paid for that are still on the way</strong>.</p>
+              <p><span class="count-rules-label leave">Leave out</span> anything broken or thrown away, and phones you keep for testing.</p>
+            </div>
             <div class="admin-row parts-count-controls">
               <div>
                 <label for="parts-count-year">Year</label>
