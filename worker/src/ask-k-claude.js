@@ -539,7 +539,7 @@ async function remoteSummary(env, remote, day, month, timeoutMs) {
 export async function sendAskKDailySummary(env, notify, now = new Date(), { timeoutMs = REMOTE_SUMMARY_TIMEOUT_MS } = {}) {
   const day = easternDay(new Date(now.getTime() - 24 * 3600 * 1000));
   const month = new Date(`${day}T12:00:00Z`).toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
-  const limit = budget(env, 'ASKK_ORG_MONTHLY_LIMIT', 200);
+  const limit = budget(env, 'ASKK_ORG_MONTHLY_LIMIT', 100);
   const sources = [
     { name: 'Survival Node', load: () => survivalNodeSummary(env, day, month) },
     ...REMOTE_ASKK.map(r => ({ name: r.name, load: () => remoteSummary(env, r, day, month, timeoutMs) })),

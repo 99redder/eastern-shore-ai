@@ -863,13 +863,13 @@ test('daily Ask K summary covers all four deployments, emailed from the alerts a
   const [email] = env.EMAIL.sent;
   assert.equal(email.from, 'alerts@easternshore.ai');
   assert.deepEqual(email.to, ['owner@inbox.example']);
-  assert.match(email.subject, /^Ask K yesterday: 11 answered, about \$1\.10; \w+ so far \$11\.00 of \$200$/);
+  assert.match(email.subject, /^Ask K yesterday: 11 answered, about \$1\.10; \w+ so far \$11\.00 of \$100$/);
   assert.match(email.text, /── Survival Node ──\nAnswered: 5\n  • Claude: 4 answers, about \$0\.50/);
   assert.match(email.text, /Blocked: 2/);
   assert.match(email.text, /── Just In Case ──\nAnswered: 3\nErrors: 1\nSpend: about \$0\.40\nClaude spend so far in \w+: about \$8\.00\nK's credit: OK, \$32\.00 left of \$40\.00 loaded/);
   assert.match(email.text, /── Florence Mae Gifts ──\nAnswered: 2\nErrors: 0\nSpend: about \$0\.12\nClaude spend so far in \w+: about \$1\.85\nMonthly Ask K budget: \$1\.85 spent of \$20\.00, OK\n/);
   assert.match(email.text, /── iDesign ──\nAnswered: 1\nErrors: 0\nSpend: about \$0\.07\nClaude spend so far in \w+: about \$0\.65\nMonthly Ask K budget: \$0\.65 spent of \$40\.00, OK\n/);
-  assert.match(email.text, /── All four ──\nAnswered: 11\nSpend: about \$1\.10\nClaude spend so far in \w+: about \$11\.00 of the \$200 monthly org limit \(6%\)\n/);
+  assert.match(email.text, /── All four ──\nAnswered: 11\nSpend: about \$1\.10\nClaude spend so far in \w+: about \$11\.00 of the \$100 monthly org limit \(11%\)\n/);
   assert.doesNotMatch(email.text, /Not counted/);
   assert.doesNotMatch(email.text, /fmg-test-token|summary-test-token|idesign-test-token/);
   assert.match(email.text, /idesign-ask-k\): platform\.claude\.com/);
@@ -904,7 +904,7 @@ test('daily Ask K summary still sends when the other Ask K workers fail or hang'
   await sendAskKDailySummary(env, (_env, message) => sent.push(message), new Date(Date.now() + 24 * 3600 * 1000), { timeoutMs: 20 });
 
   assert.equal(sent.length, 1);
-  assert.match(sent[0].subject, /^Ask K yesterday: 2 answered, about \$0\.25; \w+ so far \$0\.25 of \$200 \(Just In Case, Florence Mae Gifts couldn't fetch\)$/);
+  assert.match(sent[0].subject, /^Ask K yesterday: 2 answered, about \$0\.25; \w+ so far \$0\.25 of \$100 \(Just In Case, Florence Mae Gifts couldn't fetch\)$/);
   assert.match(sent[0].text, /── Survival Node ──\nAnswered: 2/);
   assert.match(sent[0].text, /\nJust In Case: couldn't fetch \(no reply in 0\.02 s\)\n/);
   assert.match(sent[0].text, /\nFlorence Mae Gifts: couldn't fetch \(HTTP 404\)\n/);

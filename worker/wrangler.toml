@@ -36,7 +36,7 @@ ASKK_CLAUDE_DAILY_BUDGET = "3"
 ASKK_MINIMAX_DAILY_BUDGET = "1"
 # Anthropic org monthly spend limit; the daily Ask K email shows month-to-date
 # Claude spend for all three Ask K deployments against it.
-ASKK_ORG_MONTHLY_LIMIT = "200"
+ASKK_ORG_MONTHLY_LIMIT = "100"
 # Where the daily Ask K email reads iDesign's usage (see the iDesign note by [[services]]).
 IDESIGN_ASKK_URL = "https://idesignas.com/internal/daily-summary"
 # "1" = require the Turnstile bot check (node.html must have TURNSTILE_SITE_KEY set)
