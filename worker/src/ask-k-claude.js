@@ -414,23 +414,26 @@ export async function recordAskKBlocked(env, kind) {
 
 // ── Daily summary email ────────────────────────────────────────
 // One email (cron in wrangler.toml) covering yesterday, in Eastern time, for
-// all three Ask K deployments. No AI calls. Survival Node's numbers come from
-// this worker's D1. Just In Case and Florence Mae Gifts are asked through a
-// service binding: POST /internal/daily-summary { day } with that
-// deployment's token secret (the same value as SUMMARY_TOKEN on its worker),
-// answered with { day, answers, errors, est_spent, mtd_est_spent,
-// credit: { loaded, spent, level } }. A deployment that fails, times out or
-// isn't bound yet gets a one-line note and is left out of the totals; it
-// never stops the email.
+// every Ask K deployment. No AI calls. Survival Node's numbers come from
+// this worker's D1. The others answer POST /internal/daily-summary { day }
+// with that deployment's token secret (the same value as SUMMARY_TOKEN on its
+// side), with { day, answers, errors, est_spent, mtd_est_spent,
+// credit: { loaded, spent, level } }. Just In Case and Florence Mae Gifts are
+// Workers, reached through a service binding; iDesign is a Pages project
+// (service bindings can't reach those), reached over HTTPS at the address in
+// its `url` var. A deployment that fails, times out or isn't set up yet gets a
+// one-line note and is left out of the totals; it never stops the email.
 //
-// `credit` is prepaid credit for Just In Case. Florence Mae Gifts has no
-// prepaid balance, so its `credit` is the monthly Ask K budget instead
-// (loaded = the cap, spent = this month's estimate).
+// `credit` is prepaid credit for Just In Case. Florence Mae Gifts and iDesign
+// have no prepaid balance, so their `credit` is the monthly Ask K budget
+// instead (loaded = the cap, spent = this month's estimate).
 
 const REMOTE_ASKK = [
   { name: 'Just In Case', binding: 'JIC_ASKK', service: 'just-in-case-askk', token: 'SUMMARY_TOKEN', credit: 'prepaid' },
   { name: 'Florence Mae Gifts', binding: 'FMG_ASKK', service: 'fmg-stripe-api', token: 'FMG_ASKK_SUMMARY_TOKEN', credit: 'monthly' },
+  { name: 'iDesign', url: 'IDESIGN_ASKK_URL', token: 'IDESIGN_ASKK_SUMMARY_TOKEN', credit: 'monthly' },
 ];
+const COUNT_WORDS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
 const REMOTE_SUMMARY_TIMEOUT_MS = 10000;
 
 // creditLevel in both remote Ask K workers (low = 20% or less left,
@@ -481,14 +484,16 @@ async function survivalNodeSummary(env, day, month) {
 }
 
 async function remoteSummary(env, remote, day, month, timeoutMs) {
-  const service = env[remote.binding];
+  // A service binding, or the public fetch for a deployment with a `url` var.
+  const service = remote.url ? (env[remote.url] ? { fetch: (u, init) => fetch(u, init) } : null) : env[remote.binding];
   if (!service) return { status: 'not live yet' };
   const token = env[remote.token];
   if (!token) throw new Error(`${remote.token} not set`);
+  const address = remote.url ? env[remote.url] : `https://${remote.service}/internal/daily-summary`;
   const ask = async () => {
-    // The host is ignored by service bindings. X-Summary-Token is what both
+    // The host is ignored by service bindings. X-Summary-Token is what the
     // remote workers read; Authorization is the agreed contract.
-    const res = await service.fetch(`https://${remote.service}/internal/daily-summary`, {
+    const res = await service.fetch(address, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -559,14 +564,14 @@ export async function sendAskKDailySummary(env, notify, now = new Date(), { time
     lines.push(...(s.status ? [`${s.name}: ${s.status}`] : [`── ${s.name} ──`, ...s.lines]), '');
   }
   lines.push(
-    '── All three ──',
+    `── All ${COUNT_WORDS[sections.length] || sections.length} ──`,
     `Answered: ${answers}`,
     `Spend: about ${money(spent)}`,
     `Claude spend so far in ${month}: about ${money(claudeMtd)} of the $${limit} monthly org limit (${limit > 0 ? Math.round(claudeMtd / limit * 100) : 0}%)`,
   );
   const left = sections.filter(s => s.status);
   if (left.length) lines.push(`Not counted: ${left.map(s => s.name).join(', ')}`);
-  lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k): platform.claude.com → Usage.');
+  lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k, idesign-ask-k): platform.claude.com → Usage.');
 
   // Page visits (node.html) ride along in the same morning email.
   let visits = null;

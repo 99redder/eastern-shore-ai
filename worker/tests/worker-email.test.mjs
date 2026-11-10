@@ -803,14 +803,19 @@ async function seedAskKDay(env, day, rows) {
 
 const fmgSummary = (day) => ({ day, answers: 2, errors: 0, est_spent: 0.12, mtd_est_spent: 1.85, credit: { loaded: 20, spent: 1.85, level: 'ok' } });
 
-test('daily Ask K summary covers all three deployments, emailed from the alerts address', async (t) => {
+const IDESIGN_URL = 'https://idesignas.com/internal/daily-summary';
+const idesignSummary = (day) => ({ day, answers: 1, errors: 0, est_spent: 0.07, mtd_est_spent: 0.65, credit: { loaded: 40, spent: 0.65, level: 'ok' } });
+
+test('daily Ask K summary covers all four deployments, emailed from the alerts address', async (t) => {
   quietConsole(t);
-  guardNetwork(t);
+  const idesignCalls = guardNetwork(t, { [IDESIGN_URL]: (_url, init) => idesignSummary(JSON.parse(init.body).day) });
   const jicCalls = [];
   const fmgCalls = [];
   const env = baseEnv({
     SUMMARY_TOKEN: 'summary-test-token',
     FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token',
+    IDESIGN_ASKK_URL: IDESIGN_URL,
+    IDESIGN_ASKK_SUMMARY_TOKEN: 'idesign-test-token',
     JIC_ASKK: {
       async fetch(url, init) {
         jicCalls.push({ url, init });
@@ -846,18 +851,28 @@ test('daily Ask K summary covers all three deployments, emailed from the alerts 
   assert.doesNotMatch(JSON.stringify(fmgCalls[0].init.headers), /summary-test-token/);
   assert.deepEqual(JSON.parse(fmgCalls[0].init.body), { day: yesterday });
 
+  // iDesign is a Pages project: fetched over HTTPS with its own token.
+  assert.equal(idesignCalls.length, 1);
+  assert.equal(idesignCalls[0].url, IDESIGN_URL);
+  assert.equal(idesignCalls[0].init.method, 'POST');
+  assert.equal(idesignCalls[0].init.headers['X-Summary-Token'], 'idesign-test-token');
+  assert.doesNotMatch(JSON.stringify(idesignCalls[0].init.headers), /summary-test-token|fmg-test-token/);
+  assert.deepEqual(JSON.parse(idesignCalls[0].init.body), { day: yesterday });
+
   assert.equal(env.EMAIL.sent.length, 1);
   const [email] = env.EMAIL.sent;
   assert.equal(email.from, 'alerts@easternshore.ai');
   assert.deepEqual(email.to, ['owner@inbox.example']);
-  assert.match(email.subject, /^Ask K yesterday: 10 answered, about \$1\.03; \w+ so far \$10\.35 of \$200$/);
+  assert.match(email.subject, /^Ask K yesterday: 11 answered, about \$1\.10; \w+ so far \$11\.00 of \$200$/);
   assert.match(email.text, /── Survival Node ──\nAnswered: 5\n  • Claude: 4 answers, about \$0\.50/);
   assert.match(email.text, /Blocked: 2/);
   assert.match(email.text, /── Just In Case ──\nAnswered: 3\nErrors: 1\nSpend: about \$0\.40\nClaude spend so far in \w+: about \$8\.00\nK's credit: OK, \$32\.00 left of \$40\.00 loaded/);
   assert.match(email.text, /── Florence Mae Gifts ──\nAnswered: 2\nErrors: 0\nSpend: about \$0\.12\nClaude spend so far in \w+: about \$1\.85\nMonthly Ask K budget: \$1\.85 spent of \$20\.00, OK\n/);
-  assert.match(email.text, /── All three ──\nAnswered: 10\nSpend: about \$1\.03\nClaude spend so far in \w+: about \$10\.35 of the \$200 monthly org limit \(5%\)\n/);
+  assert.match(email.text, /── iDesign ──\nAnswered: 1\nErrors: 0\nSpend: about \$0\.07\nClaude spend so far in \w+: about \$0\.65\nMonthly Ask K budget: \$0\.65 spent of \$40\.00, OK\n/);
+  assert.match(email.text, /── All four ──\nAnswered: 11\nSpend: about \$1\.10\nClaude spend so far in \w+: about \$11\.00 of the \$200 monthly org limit \(6%\)\n/);
   assert.doesNotMatch(email.text, /Not counted/);
-  assert.doesNotMatch(email.text, /fmg-test-token|summary-test-token/);
+  assert.doesNotMatch(email.text, /fmg-test-token|summary-test-token|idesign-test-token/);
+  assert.match(email.text, /idesign-ask-k\): platform\.claude\.com/);
   assert.match(email.text, /platform\.claude\.com → Usage/);
   assert.doesNotMatch(email.text, /console\.anthropic\.com/);
 });
@@ -924,6 +939,37 @@ test('daily Ask K summary still sends when FMG errors, has no token, or is not b
   assert.match(unbound.text, /\nFlorence Mae Gifts: not live yet\n/);
   assert.match(unbound.text, /Not counted: Just In Case, Florence Mae Gifts/);
   assert.doesNotMatch(unbound.subject, /couldn't fetch/);
+});
+
+test('daily Ask K summary still sends when iDesign errors, has no token, or has no address', async (t) => {
+  quietConsole(t);
+  const run = async (extra) => {
+    const env = baseEnv({ JIC_ASKK: undefined, ...extra });
+    await seedAskKDay(env, easternDay(Date.now()), [['claude', 0.25, 2]]);
+    const sent = [];
+    await sendAskKDailySummary(env, (_env, message) => sent.push(message), new Date(Date.now() + 24 * 3600 * 1000), { timeoutMs: 50 });
+    assert.equal(sent.length, 1);
+    assert.match(sent[0].text, /── Survival Node ──\nAnswered: 2/);
+    return sent[0];
+  };
+
+  const original = globalThis.fetch;
+  t.after(() => { globalThis.fetch = original; });
+  globalThis.fetch = async () => new Response('Not Found', { status: 404 });
+  const notFound = await run({ IDESIGN_ASKK_URL: IDESIGN_URL, IDESIGN_ASKK_SUMMARY_TOKEN: 'idesign-test-token' });
+  assert.match(notFound.text, /\niDesign: couldn't fetch \(HTTP 404\)\n/);
+  assert.match(notFound.subject, /\(iDesign couldn't fetch\)$/);
+
+  let called = false;
+  globalThis.fetch = async () => { called = true; return Response.json({}); };
+  const noToken = await run({ IDESIGN_ASKK_URL: IDESIGN_URL });
+  assert.equal(called, false);
+  assert.match(noToken.text, /\niDesign: couldn't fetch \(IDESIGN_ASKK_SUMMARY_TOKEN not set\)\n/);
+
+  const noAddress = await run({ IDESIGN_ASKK_SUMMARY_TOKEN: 'idesign-test-token' });
+  assert.equal(called, false);
+  assert.match(noAddress.text, /\niDesign: not live yet\n/);
+  assert.doesNotMatch(noAddress.subject, /couldn't fetch/);
 });
 
 test('email events queue: a bounced customer email alerts the owner from the alerts address', async (t) => {
