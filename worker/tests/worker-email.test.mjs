@@ -872,7 +872,7 @@ test('daily Ask K summary covers all four deployments, emailed from the alerts a
   assert.match(email.text, /── All four ──\nAnswered: 11\nSpend: about \$1\.10\nClaude spend so far in \w+: about \$11\.00 of the \$100 monthly org limit \(11%\)\n/);
   assert.doesNotMatch(email.text, /Not counted/);
   assert.doesNotMatch(email.text, /fmg-test-token|summary-test-token|idesign-test-token/);
-  assert.match(email.text, /idesign-ask-k\): platform\.claude\.com/);
+  assert.match(email.text, /idesignas\): platform\.claude\.com/);
   assert.match(email.text, /platform\.claude\.com → Usage/);
   assert.doesNotMatch(email.text, /console\.anthropic\.com/);
 });

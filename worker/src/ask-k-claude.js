@@ -571,7 +571,7 @@ export async function sendAskKDailySummary(env, notify, now = new Date(), { time
   );
   const left = sections.filter(s => s.status);
   if (left.length) lines.push(`Not counted: ${left.map(s => s.name).join(', ')}`);
-  lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k, idesign-ask-k): platform.claude.com → Usage.');
+  lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k, idesignas): platform.claude.com → Usage.');
 
   // Page visits (node.html) ride along in the same morning email.
   let visits = null;
