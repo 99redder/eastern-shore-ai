@@ -631,7 +631,7 @@ export default {
     if (batch.queue === EMAIL_EVENTS_QUEUE) {
       return handleEmailEventBatch(batch, {
         notify: ({ subject, text }) => sendStaffOperationalAlert(env, { subject, text, from: env.ALERTS_FROM_EMAIL }),
-        internalAddresses: [env.TO_EMAIL, env.CC_EMAIL, env.BCC_EMAIL, env.FROM_EMAIL, env.ORDERS_FROM_EMAIL, env.ALERTS_FROM_EMAIL, 'contact@easternshore.ai']
+        internalAddresses: [env.TO_EMAIL, env.BCC_EMAIL, env.FROM_EMAIL, env.ORDERS_FROM_EMAIL, env.ALERTS_FROM_EMAIL, 'contact@easternshore.ai']
       });
     }
     for (const message of batch.messages) {
@@ -710,9 +710,6 @@ async function handleContact(request, env, corsHeaders) {
     reply_to: email
   };
 
-  if (env.CC_EMAIL) {
-    emailPayload.cc = [env.CC_EMAIL];
-  }
   if (env.BCC_EMAIL) {
     emailPayload.bcc = [env.BCC_EMAIL];
   }
@@ -5898,7 +5895,6 @@ async function handleInvoiceSend(request, env, corsHeaders, url) {
     text: textLines.join('\n'),
     reply_to: CONTACT_ADDRESS
   };
-  if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
   if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
 
   const sendRes = await sendEmail(env, emailPayload);
@@ -6180,7 +6176,6 @@ async function handleQuoteSend(request, env, corsHeaders, url) {
     text: textLines.join('\n'),
     reply_to: CONTACT_ADDRESS
   };
-  if (env.CC_EMAIL) emailPayload.cc = [env.CC_EMAIL];
   if (env.BCC_EMAIL) emailPayload.bcc = [env.BCC_EMAIL];
 
   const sendRes = await sendEmail(env, emailPayload);
@@ -6373,7 +6368,6 @@ async function handleQuoteAccept(request, env, corsHeaders, url) {
       html: notifyHtml,
       text: `Quote Accepted!\n\nQuote: ${quote.quote_number || `Q-${quote.id}`}\nCustomer: ${quote.customer_name} (${quote.customer_email})\nTotal: ${formatUsd(total)}\nInvoice Created: ${invoiceNumber}\n\nLog in to the admin panel to review and send the invoice.`
     };
-    if (env.CC_EMAIL) notifyPayload.cc = [env.CC_EMAIL];
 
     await sendEmail(env, notifyPayload).catch(e => console.error('Quote accept admin notification failed', e));
   }

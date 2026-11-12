@@ -42,7 +42,6 @@ function baseEnv(overrides = {}) {
     EMAIL: fakeEmail(),
     ALLOWED_ORIGINS: 'https://easternshore.ai,https://www.easternshore.ai',
     TO_EMAIL: 'owner@inbox.example',
-    CC_EMAIL: 'k@agent.example',
     FROM_EMAIL: 'noreply@easternshore.ai',
     CONTACT_FROM_EMAIL: 'Eastern Shore AI <contact@easternshore.ai>',
     ORDERS_FROM_EMAIL: 'orders@easternshore.ai',
@@ -108,7 +107,7 @@ const post = (path, body, headers = {}) => new Request(`https://worker.example${
   method: 'POST', headers: { Origin: SITE, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body)
 });
 
-test('contact form emails the owner with reply-to, CC and BCC', async (t) => {
+test('contact form emails the owner with reply-to and BCC, no CC', async (t) => {
   quietConsole(t);
   guardNetwork(t);
   const env = baseEnv();
@@ -118,7 +117,7 @@ test('contact form emails the owner with reply-to, CC and BCC', async (t) => {
   assert.equal(env.EMAIL.sent.length, 1);
   assert.equal(mail.from, 'noreply@easternshore.ai');
   assert.deepEqual(mail.to, ['owner@inbox.example']);
-  assert.deepEqual(mail.cc, ['k@agent.example']);
+  assert.equal(mail.cc, undefined);
   assert.deepEqual(mail.bcc, ['emailconfirm@easternshore.ai']);
   assert.equal(mail.replyTo, 'pat@buyer.example');
   assert.match(mail.text, /Do you ship to Maine\?/);
@@ -1004,7 +1003,7 @@ test('support push queue still goes to its own handler', async (t) => {
 const contactSender = { email: 'contact@easternshore.ai', name: 'Eastern Shore AI' };
 const adminHeaders = { 'X-Admin-Password': 'admin-test-password' };
 
-test('invoice email comes from contact@, replies go to contact@, Officer K still copied', async (t) => {
+test('invoice email comes from contact@, replies go to contact@, no CC', async (t) => {
   quietConsole(t);
   guardNetwork(t);
   const env = baseEnv();
@@ -1017,7 +1016,7 @@ test('invoice email comes from contact@, replies go to contact@, Officer K still
   assert.deepEqual(mail.from, contactSender);
   assert.deepEqual(mail.to, ['dana@client.example']);
   assert.equal(mail.replyTo, 'contact@easternshore.ai');
-  assert.deepEqual(mail.cc, ['k@agent.example']);
+  assert.equal(mail.cc, undefined);
   assert.deepEqual(mail.bcc, ['emailconfirm@easternshore.ai']);
   assertStandardLayout(mail);
   assert.match(mail.html, /Website setup/);
