@@ -94,8 +94,8 @@ Response shape: `{ ok: boolean, error?: string }`
 2. **Bot check**: Cloudflare Turnstile on `node.html` (`TURNSTILE_SITE_KEY` in the page; `TURNSTILE_SECRET_KEY` secret). A verified token gets a signed conversation pass (HMAC with `ASKK_PASS_SECRET`, 2 h) sent back as `pass`. Skipped while the secret isn't set, and for `/api/admin/ask-k`.
 3. **Topic gate**: keyword rules, then a tiny newest-Claude-Haiku call answering ON/OFF. Off-topic requests get a canned reply and never reach Opus.
 4. **Answer**: newest `claude-opus-*` (Models API, cached daily in `askk_meta`; next newest if one is retired), effort `low`, knowledge cached as the first system block, server-side refusal fallback.
-5. **Backup**: if Claude is out of credit, over `ASKK_CLAUDE_DAILY_BUDGET`, or failing, `generateAskKAnswer` (MiniMax via `ASKK_*` secrets) answers under `ASKK_MINIMAX_DAILY_BUDGET`; past both, a "busy, call us" reply. Staff get one email per day per reason (`sendStaffOperationalAlert`).
-6. **Spend**: estimated per answer from token usage (priced high), per Eastern day in `askk_daily` (`claude`, `minimax`, plus `offtopic` / `busy` / `unverified` / `ratelimited` counters).
+5. **No backup AI (since 2026-11-12)**: if Claude is out of credit, over `ASKK_CLAUDE_DAILY_BUDGET`, its key is missing or rejected, or it's failing, visitors get the "busy, call us" reply (the order-status box still shows) and staff get one "Ask K is paused" email per day per reason (`sendAskKAlert`, from alerts@). The MiniMax backup (`generateAskKAnswer`, `ASKK_API_KEY` / `ASKK_BASE_URL` / `ASKK_MODEL`, `ASKK_MINIMAX_DAILY_BUDGET`) was removed that day; FMG, JIC and iDesign were already Claude-only. Stock Stickies' Ask K (Sticky-Notes repo, personal app) stays on MiniMax by Red's choice; leave it alone.
+6. **Spend**: estimated per answer from token usage (priced high), per Eastern day in `askk_daily` (`claude`, plus `offtopic` / `busy` / `unverified` / `ratelimited` / `status` counters; old `minimax` rows are from before 2026-11-12 and no longer counted).
 7. **Daily email**: `sendAskKDailySummary` (the worker's `scheduled` handler, cron `0 12 * * *` = 8 AM EDT / 7 AM EST) emails `TO_EMAIL` one summary of yesterday (Eastern) for all four Ask K deployments, then combined totals and month-to-date Claude spend against `ASKK_ORG_MONTHLY_LIMIT` ($100 since 2026-11-10, the Anthropic org's monthly limit shared by every Ask K workspace; each workspace also has its own Console limit so one abused site can't drain it: survival-node $40, idesignas $40, fmg-ask-k $30, jic-ask-k $20, homeschool to be set; set 2026-11-10, was org $200 / survival-node $140 / jic-ask-k $75. The limits add up to more than $100 on purpose, so quiet sites leave room for busy ones; the org $100 is the backstop). No AI calls. (The account is on Workers Paid, which allows 250 cron triggers; it used to be the 5th of the Free plan's five.)
    - **Survival Node**: from `askk_daily` here.
    - **Just In Case** (`JIC_ASKK` → `just-in-case-askk`) and **Florence Mae Gifts** (`FMG_ASKK` → `fmg-stripe-api`, FMG's main API worker, live since 2026-10-27): `POST /internal/daily-summary {day}` through the service binding, sent as `Authorization: Bearer` and as `X-Summary-Token` (what both workers read). Reply: `{ day, answers, errors, est_spent, mtd_est_spent, credit: { loaded, spent, level } }`; 404 means the token is missing or wrong.
@@ -140,14 +140,10 @@ Important UX behavior:
 
 ### Ask K backend (`worker/src/index.js`)
 
-The worker now supports the same Ask K provider pattern used on FMG:
-- `ASKK_API_KEY`
-- `ASKK_BASE_URL`
-- `ASKK_MODEL`
-- base URL normalization to `/chat/completions`
-- `<think>...</think>` stripping from model replies
+Ask K answers with Claude only (`worker/src/ask-k-claude.js`, `ANTHROPIC_API_KEY`):
 - intent-first behavior (question > page context)
 - explain-only role constraints
+- no backup AI provider: the MiniMax backup (`generateAskKAnswer`, `ASKK_API_KEY` / `ASKK_BASE_URL` / `ASKK_MODEL`, `ASKK_MINIMAX_DAILY_BUDGET`) was removed 2026-11-12. When Claude can't answer, visitors get the "busy, call us" reply. Don't add another provider without asking; `privacy.html` names Anthropic as the only one.
 
 Grounding file:
 - `worker/askk-survival-node-knowledge.md`
@@ -156,11 +152,9 @@ That file is the project-specific read-only knowledge base for Survival Node Ask
 
 ### Provider configuration
 
-If using MiniMax (same pattern as FMG):
+Claude only, from the survival-node workspace in the Eastern Shore AI Anthropic account:
 ```bash
-wrangler secret put ASKK_API_KEY
-wrangler secret put ASKK_BASE_URL   # https://api.minimax.io/v1
-wrangler secret put ASKK_MODEL      # MiniMax-M2.5
+npx wrangler secret put ANTHROPIC_API_KEY --config wrangler.toml
 ```
 
 Optional staff escalation secret:
@@ -1225,12 +1219,12 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 Ported from Florence Mae Gifts' Ask K (`FlorenceMaeGifts.com/cloudflare/src/ask-k.js` + `orders.js`). Survival Node orders only: no invoices, no eBay.
 
 - **Visitors**: "Check my order status" (first quick-action chip, and the CHECK ORDER STATUS button beside TALK TO A HUMAN) or a question K recognises opens a box in the chat: "Email you ordered with" + optional order number. The status is emailed to that address, never shown in the chat. eBay buyers are told to message us from the order in their eBay purchase history (eBay sales are only in the tax ledger, not order rows).
-- **Trigger**: Claude answers in JSON (`reply`, `lookup`; `ANSWER_SCHEMA` in `ask-k-claude.js`) and `lookup: true` shows the box. MiniMax and the "busy" reply use `wantsOrderStatus()` (a regex) instead. `/api/ask-k` returns `lookup`.
+- **Trigger**: Claude answers in JSON (`reply`, `lookup`; `ANSWER_SCHEMA` in `ask-k-claude.js`) and `lookup: true` shows the box. The "busy" and error replies use `wantsOrderStatus()` (a regex) instead. `/api/ask-k` returns `lookup`.
 - **Endpoint** `POST /api/ask-k/order-status` `{ email, orderNumber?, pass | turnstileToken }` (`handleAskKOrderStatus` in `index.js`, email built in `src/order-status.js`). Same reply whether or not the address has orders; the email goes out after the response (`ctx.waitUntil`). Fails closed (503) unless the Turnstile check is on (`ASKK_TURNSTILE_ENFORCE`, `TURNSTILE_SECRET_KEY`, `ASKK_PASS_SECRET`). Limits (`rate_limits` table): 6 per IP per hour, 3 per address per hour and 6 per day (keyed by a SHA-256 of the address), 4 per chat. Over a limit: an "already emailed recently" reply. Counted as `status` in `askk_daily` and shown in the daily Ask K email.
 - **Which orders**: the same Stripe orders as the admin Orders tab (minus BYOG setups) plus `manual_survival_node_orders`, matched on `lower(trim(customer_email))`. The order number is read however it's typed ("Order #26001" → `26001`); a number that doesn't match gets all of the address's orders with a "couldn't find that number" line, and what was typed is never put in the email. Orders on their way come first; finished ones over 90 days old fold into "Plus N older orders"; at most 10.
 - **Status wording** (`orderState`): refund row in `tax_income.refund_order_key` → refunded; delivered email sent → delivered; shipping email sent → shipped + carrier, tracking number and the `/track` button; otherwise "received" / "preparing and quality-checking" with the estimated ship date, "taking a little longer" once that date has passed, or the usual 1–7 business days when no date is set.
 - **Estimated ship date** (`estimated_ship_date` on `order_fulfillment` and `manual_survival_node_orders`, migration `0037`): the acknowledgment email dialog requires it (shown in the email's details box and plain text, saved on send); the **Set/Change Ship Date** button on unshipped orders changes it later without emailing (`POST /api/orders/ship-date`).
-- **Privacy**: `privacy.html` "Support chat and Ask K" names Anthropic and MiniMax, Turnstile, the order-update lookup (address not stored; a hash kept up to a day for limits) and the stored human-support chats. Update it if Ask K starts storing or sending anything else.
+- **Privacy**: `privacy.html` "Support chat and Ask K" names Anthropic (the only AI provider since 2026-11-12), Turnstile, the order-update lookup (address not stored; a hash kept up to a day for limits) and the stored human-support chats. Update it if Ask K starts storing or sending anything else.
 - **Tests**: order-status cases in `tests/worker-email.test.mjs` (same reply for unknown addresses, email only to the matching address, statuses and ship date, narrowing, limits, fail-closed, ship-date endpoint).
 
 ## node.html visit counts in the morning email (added 2026-11-01)

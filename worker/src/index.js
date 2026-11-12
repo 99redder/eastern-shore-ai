@@ -3170,7 +3170,7 @@ async function sendStaffOperationalAlert(env, { subject, text, from }) {
   return { ok: true };
 }
 
-// Ask K's emails (daily summary, backup / busy alerts) come from the alerts
+// Ask K's emails (daily summary, "Ask K is paused" alerts) come from the alerts
 // address rather than the orders one.
 function sendAskKAlert(env, message) {
   return sendStaffOperationalAlert(env, { ...message, from: env.ALERTS_FROM_EMAIL });
@@ -6832,7 +6832,7 @@ function escapeHtml(input) {
 /**
  * POST /api/ask-k — AI assistant for Survival Node product questions
  * @param {Request} request - JSON body: { message, history, context }
- * @param {Object} env - Worker env (ASKK_API_KEY, ASKK_BASE_URL, ASKK_MODEL)
+ * @param {Object} env - Worker env (ANTHROPIC_API_KEY; see src/ask-k-claude.js)
  * @returns {Response} { ok: true, reply } or { ok: false, error }
  */
 async function handleAskK(request, env, corsHeaders, url, { admin = false } = {}) {
@@ -6900,7 +6900,6 @@ async function handleAskK(request, env, corsHeaders, url, { admin = false } = {}
       systemPrompt: askKSystemPrompt(),
       knowledge: clipAskKKnowledge(ASKK_SURVIVAL_NODE_KNOWLEDGE, 20000),
     }, {
-      minimax: (q, c, h) => generateAskKAnswer(env, q, c, h),
       notify: sendAskKAlert,
     });
     return json({ ok: true, reply, lookup: !!lookup, ...(pass ? { pass } : {}), ...(admin ? { provider } : {}) }, 200, corsHeaders);
@@ -6996,66 +6995,6 @@ function askKSystemPrompt() {
   ].join(' ');
 }
 
-// Backup provider (OpenAI-compatible; MiniMax). Called by answerAskK when
-// Claude is out of credit, over its daily budget, or down. Returns
-// { text, usage } so the backup's own daily budget can be tracked.
-async function generateAskKAnswer(env, question, context, history = []) {
-  const apiKey = (env.ASKK_API_KEY || env.OPENAI_API_KEY || '').trim();
-  if (!apiKey) throw new Error('Backup AI not configured');
-  const configuredBaseUrl = (env.ASKK_BASE_URL || 'https://api.openai.com/v1').trim();
-  const baseUrl = normalizeAskKChatCompletionsUrl(configuredBaseUrl);
-  const model = (env.ASKK_MODEL || 'gpt-4o-mini').trim();
-
-  const systemPrompt = askKSystemPrompt();
-
-  const groundedKnowledge = clipAskKKnowledge(ASKK_SURVIVAL_NODE_KNOWLEDGE, 20000);
-  const trimmedHistory = history
-    .filter((msg) => msg && (msg.role === 'user' || msg.role === 'assistant'))
-    .map((msg) => ({ role: msg.role, content: String(msg.content || '').slice(0, 1200) }))
-    .slice(-10);
-
-  const userPrompt = JSON.stringify({
-    question,
-    context,
-    history: trimmedHistory,
-    groundedKnowledge
-  }, null, 2);
-
-  const response = await fetch(baseUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.3,
-      max_tokens: 1200,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
-  });
-
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const providerMessage = data?.error?.message || data?.error || data?.message || '';
-    const safeUrl = baseUrl.replace(/\/chat\/completions$/, '');
-    const detail = [
-      `Provider error (${response.status})`,
-      providerMessage ? `message: ${providerMessage}` : null,
-      `base_url: ${safeUrl}`,
-      `model: ${model}`
-    ].filter(Boolean).join(' | ');
-    throw new Error(detail);
-  }
-
-  const text = data?.choices?.[0]?.message?.content;
-  const cleaned = typeof text === 'string' ? stripThinkBlocks(text).trim() : '';
-  return { text: cleaned || fallbackAskKAnswer(question, context), usage: data?.usage || {} };
-}
-
 function getAskKCannedTestingReply(question, context = {}) {
   const q = String(question || '').toLowerCase();
   const url = String(context?.url || '').toLowerCase();
@@ -7106,49 +7045,6 @@ function getAskKCannedTestingReply(question, context = {}) {
 function clipAskKKnowledge(text, max = 20000) {
   const s = String(text || '').trim();
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
-}
-
-function stripThinkBlocks(text) {
-  return String(text || '')
-    .replace(/<think>[\s\S]*?<\/think>/gi, '')
-    .replace(/\n{3,}/g, '\n\n');
-}
-
-function normalizeAskKChatCompletionsUrl(rawUrl) {
-  const trimmed = String(rawUrl || '').trim();
-  if (!trimmed) return 'https://api.openai.com/v1/chat/completions';
-  if (trimmed.endsWith('/chat/completions')) return trimmed;
-  if (trimmed.endsWith('/v1')) return `${trimmed}/chat/completions`;
-  if (trimmed.endsWith('/v1/')) return `${trimmed}chat/completions`;
-  return `${trimmed.replace(/\/$/, '')}/chat/completions`;
-}
-
-function fallbackAskKAnswer(question, context) {
-  const q = String(question || '').toLowerCase();
-  const visibleSections = Array.isArray(context?.visibleSections) ? context.visibleSections.slice(0, 8) : [];
-  const expandedFaqs = Array.isArray(context?.expandedFAQs) ? context.expandedFAQs.slice(0, 6) : [];
-  const selectedUpgrades = Array.isArray(context?.selectedUpgrades) ? context.selectedUpgrades.slice(0, 6) : [];
-  const contextBits = [];
-  if (visibleSections.length) contextBits.push(`Visible sections: ${visibleSections.join(', ')}.`);
-  if (expandedFaqs.length) contextBits.push(`Open FAQs: ${expandedFaqs.join(', ')}.`);
-  if (selectedUpgrades.length) contextBits.push(`Selected upgrades: ${selectedUpgrades.join(', ')}.`);
-
-  if (q.includes('what') && q.includes('included')) {
-    return `The Survival Node includes a vetted 8GB smartphone core unit, a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI persona, a solar battery, two Mission Darkness Faraday bags, a shockproof phone case, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. ${nodePriceSentence()}, with free shipping to the continental U.S. ${contextBits.join(' ')}`.trim();
-  }
-  if (q.includes('offline') || q.includes('internet') || q.includes('cell')) {
-    return 'Yes — the Survival Node is designed for offline use. The AI, maps, and reference libraries run locally on the phone with no internet, no Wi‑Fi, and no cell signal required. DeepL, Fennec and F-Droid are the exceptions, since they need an internet connection.';
-  }
-  if (q.includes('ship') || q.includes('shipping')) {
-    return 'Shipping is free to continental U.S. destinations, and orders ship by ground due to lithium battery rules. Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not currently supported.';
-  }
-  if (q.includes('return') || q.includes('refund') || q.includes('warranty')) {
-    return 'Returns are accepted within 30 days of delivery with an RMA number, which you can request by email or through our contact form, if the device is in original functional condition and the OS has not been further modified. Buyer pays return shipping; no restocking fee. The kit also includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration, with 30 days of direct support.';
-  }
-  if (q.includes('byog') || q.includes('bring your own gear') || q.includes('current phone')) {
-    return 'The BYOG setup service is for compatible Android phones on Maryland’s Eastern Shore. It includes a full device wipe, deep Android debloat, the full Survival Node software suite, and the pre-configured Survival Node AI persona for $69.99.';
-  }
-  return `I can help explain the Survival Node, what’s included, how offline AI works, shipping, returns, warranty, BYOG setup, and checkout. ${contextBits.join(' ')}`.trim();
 }
 
 /**

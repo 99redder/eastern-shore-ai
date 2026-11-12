@@ -32,7 +32,6 @@ BCC_EMAIL = "emailconfirm@easternshore.ai"
 VAPID_SUBJECT = "mailto:contact@easternshore.ai"
 # Ask K daily spend caps in dollars (estimated from token usage; see src/ask-k-claude.js)
 ASKK_CLAUDE_DAILY_BUDGET = "3"
-ASKK_MINIMAX_DAILY_BUDGET = "1"
 # Anthropic org monthly spend limit; the daily Ask K email shows month-to-date
 # Claude spend for all three Ask K deployments against it.
 ASKK_ORG_MONTHLY_LIMIT = "100"
@@ -97,16 +96,14 @@ service = "fmg-stripe-api"
 # binding can't reach, so the daily email fetches IDESIGN_ASKK_URL ([vars] above) over
 # HTTPS with the IDESIGN_ASKK_SUMMARY_TOKEN secret (= SUMMARY_TOKEN on the Pages project).
 
-# Ask K Assistant (src/ask-k-claude.js): Claude first (newest Opus), MiniMax backup.
+# Ask K Assistant (src/ask-k-claude.js): Claude only (newest Opus); no backup AI provider.
+# When Claude can't answer, visitors get a "busy, call us" reply and staff get an email.
 # DEPLOY WITH `npx wrangler deploy --config wrangler.toml` — without --config,
 # wrangler finds the parent folder's wrangler.jsonc (the static site) first.
 # Secrets: ANTHROPIC_API_KEY (Eastern Shore AI Anthropic account),
 #          TURNSTILE_SECRET_KEY (bot check), ASKK_PASS_SECRET (signs conversation passes),
 #          SUMMARY_TOKEN / FMG_ASKK_SUMMARY_TOKEN / IDESIGN_ASKK_SUMMARY_TOKEN (daily
 #          email's calls to the Just In Case / Florence Mae Gifts / iDesign Ask K).
-# Backup provider secrets (set via `wrangler secret put`):
-# - ASKK_API_KEY: API key for the LLM provider (required)
-# - ASKK_BASE_URL: provider base URL (optional, defaults to https://api.openai.com/v1)
-# - ASKK_MODEL: model identifier (optional, defaults to gpt-4o-mini)
+# Other secrets (set via `wrangler secret put`):
 # - ASKK_STAFF_WEBHOOK_URL: webhook URL for escalation notifications (optional)
 # - SUPPORT_NOTIFY_TOKEN: dedicated read-only Mac notifier credential

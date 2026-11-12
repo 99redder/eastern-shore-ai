@@ -1,4 +1,4 @@
-// Ask K on the Claude API, with abuse safeguards and a MiniMax backup.
+// Ask K on the Claude API, with abuse safeguards. Claude is the only AI.
 //
 // Order of checks for a public question (handleAskK in index.js does the
 // per-address rate limits first):
@@ -9,12 +9,13 @@
 //      requests ("write me a Python script") get a canned reply and never
 //      reach the main model. Falls back to a keyword check if Claude is down.
 //   3. Answer: the newest Claude Opus (picked from the Models API daily). If
-//      Claude's credit is gone, its daily budget is spent, or it's down, the
-//      existing OpenAI-compatible provider (MiniMax) answers instead, under its
-//      own daily budget. If both are unavailable: a "busy, contact us" reply.
+//      Claude's credit is gone, its daily budget is spent, its key is missing
+//      or rejected, or it's down, visitors get a "busy, contact us" reply.
+//      There is no second AI provider (the MiniMax backup was removed
+//      2026-11-12).
 // Spend is estimated from each response's token usage (priced on the high
-// side) and kept per Eastern day in D1 (askk_daily). Switching to the backup
-// or pausing emails staff once per day per reason.
+// side) and kept per Eastern day in D1 (askk_daily). Pausing emails staff once
+// per day per reason.
 
 import Anthropic from '@anthropic-ai/sdk';
 import { pageVisitSummary } from './page-visits.js';
@@ -29,7 +30,6 @@ const MODEL_REFRESH_SECS = 24 * 3600;
 const PRICE = {
   claude: { input: 5, output: 25, cacheWrite: 6.25, cacheRead: 0.5 },
   topic: { input: 1, output: 5, cacheWrite: 1.25, cacheRead: 0.1 },
-  minimax: { input: 0.5, output: 2 },
 };
 
 export const ASKK_CONVERSATION_LIMIT = 20;
@@ -83,8 +83,9 @@ async function setMeta(env, key, value) {
     .bind(key, String(value)).run();
 }
 
-// provider: 'claude' (answers + topic checks), 'minimax', or a counter such
-// as 'offtopic' / 'busy' / 'unverified' / 'ratelimited' (questions only).
+// provider: 'claude' (answers + topic checks), or a counter such as
+// 'offtopic' / 'busy' / 'unverified' / 'ratelimited' (questions only).
+// Rows named 'minimax' are from the old backup provider (before 2026-11-12).
 async function addDaily(env, provider, cost = 0, questions = 0) {
   try {
     await env.DB.prepare(`INSERT INTO askk_daily (day, provider, spent, questions) VALUES (?, ?, ?, ?)
@@ -171,7 +172,7 @@ const OFF_TOPIC_PATTERNS = [
 const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|bags?|emp|solar|battery|batteries|charg\w*|offline|maps?|gps|ship\w*|deliver\w*|returns?|refund\w*|warranty|rma|orders?|track\w*|packages?|status|byog|price|pricing|cost|discount|sale|phone|moto\w*|case|padlock|silica|eastern shore|prepar\w*|emergency|persona|pocketpal|qwen|llm|apps?|software|storage|ram|sim|support)\b/i;
 
 // Questions about an order already placed. Claude decides this itself (the
-// `lookup` field); the backup and "busy" replies use this pattern instead.
+// `lookup` field); the "busy" reply and the error reply use this pattern.
 const ORDER_STATUS_HINT = /\b(order status|status of (my|our|the) \w+|track(ing)?\b|where'?s my|where is my|(my|our) (order|package|shipment|delivery|node|kit)\b[^.?!]{0,40}\b(ship\w*|arriv\w*|deliver\w*|come|status|late)|(has|did|when (will|does|did))\b[^.?!]{0,30}\b(ship|shipped|arrive|be delivered|get here)\b|didn'?t (get|receive)\b[^.?!]{0,30}\b(order|package|node|kit|tracking))/i;
 
 export function wantsOrderStatus(question) {
@@ -205,7 +206,7 @@ async function claudeTopicCheck(env, client, question, history) {
   return !text.startsWith('OFF');
 }
 
-// ── 3. Answer: Claude, then MiniMax ────────────────────────────
+// ── 3. Answer: Claude ──────────────────────────────────────────
 
 function anthropicClient(env) {
   return new Anthropic({ apiKey: String(env.ANTHROPIC_API_KEY || '').trim(), maxRetries: 2 });
@@ -331,20 +332,17 @@ function claudeOutReason(e) {
 }
 
 /**
- * Answer one Ask K question. `deps.minimax(question, context, history)`
- * returns { text, usage } from the OpenAI-compatible backup provider;
- * `deps.notify(env, { subject, text })` emails staff.
- * Returns { reply, provider, lookup } where provider is 'claude' | 'minimax' |
- * 'offtopic' | 'busy' and lookup says to show the order-status box.
+ * Answer one Ask K question. `deps.notify(env, { subject, text })` emails staff.
+ * Returns { reply, provider, lookup } where provider is 'claude' | 'offtopic' |
+ * 'busy' and lookup says to show the order-status box.
  */
 export async function answerAskK(env, { question, history = [], context = {}, systemPrompt, knowledge }, deps) {
   await ensureTables(env);
   const hasClaude = !!String(env.ANTHROPIC_API_KEY || '').trim();
   const client = hasClaude ? anthropicClient(env) : null;
   const claudeBudget = budget(env, 'ASKK_CLAUDE_DAILY_BUDGET', 3);
-  const minimaxBudget = budget(env, 'ASKK_MINIMAX_DAILY_BUDGET', 1);
   let claudeOk = hasClaude && (await spentToday(env, 'claude')) < claudeBudget;
-  let fallbackReason = !hasClaude ? 'key' : claudeOk ? null : 'budget';
+  let outReason = !hasClaude ? 'key' : claudeOk ? null : 'budget';
 
   // Topic check (cheap). Claude when available, keyword rules otherwise.
   let onTopic = !keywordOffTopic(question);
@@ -353,7 +351,7 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
       onTopic = await claudeTopicCheck(env, client, question, history);
     } catch (e) {
       const reason = claudeOutReason(e);
-      if (reason !== 'error') { claudeOk = false; fallbackReason = reason; }
+      if (reason !== 'error') { claudeOk = false; outReason = reason; }
       console.error('topic check failed, using keyword rules:', e?.message);
     }
   }
@@ -366,37 +364,29 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
     try {
       const { text, lookup } = await claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context });
       if (text) return { reply: text, provider: 'claude', lookup };
-      fallbackReason = 'error';
+      outReason = 'error';
     } catch (e) {
-      fallbackReason = claudeOutReason(e);
-      console.error('Claude answer failed, using backup:', e?.message);
+      outReason = claudeOutReason(e);
+      console.error('Claude answer failed:', e?.message);
     }
   }
 
+  // No backup AI: visitors get the "busy, contact us" reply and staff get one
+  // email per day per reason.
   const why = {
     credit: "Claude's prepaid credit has run out",
-    key: 'the Claude API key is missing or was rejected',
+    key: 'the Claude API key (ANTHROPIC_API_KEY) is missing or was rejected',
     budget: `Claude's daily budget ($${claudeBudget.toFixed(2)}) was reached`,
     error: 'Claude returned an error or is down',
-  }[fallbackReason] || 'Claude was unavailable';
-  if (hasClaude || fallbackReason !== 'key') {
-    await notifyOnce(env, deps.notify, `fallback-${fallbackReason}`, 'Ask K switched to the backup AI',
-      `Ask K on the Survival Node page is answering with the backup provider (MiniMax) because ${why}. It switches back to Claude automatically${fallbackReason === 'budget' ? ' tomorrow' : ' once Claude works again'}.${fallbackReason === 'credit' ? '\n\nAdd credit in the Eastern Shore AI Anthropic account: console.anthropic.com → Billing.' : ''}`);
-  }
-
-  if ((await spentToday(env, 'minimax')) < minimaxBudget) {
-    try {
-      const { text, usage } = await deps.minimax(question, context, history);
-      await addDaily(env, 'minimax', ((usage?.prompt_tokens || 0) * PRICE.minimax.input + (usage?.completion_tokens || 0) * PRICE.minimax.output) / 1e6, 1);
-      if (text) return { reply: text, provider: 'minimax', lookup: wantsOrderStatus(question) };
-    } catch (e) {
-      console.error('backup provider failed:', e?.message);
-    }
-  }
-
+  }[outReason] || 'Claude was unavailable';
+  const back = outReason === 'budget' ? 'tomorrow, when the daily budget resets' : 'once Claude works again';
+  const fix = {
+    credit: '\n\nAdd credit in the Eastern Shore AI Anthropic account: platform.claude.com → Billing.',
+    key: '\n\nCheck the survival-node key in the Eastern Shore AI Anthropic account, then: cd worker && npx wrangler secret put ANTHROPIC_API_KEY --config wrangler.toml',
+  }[outReason] || '';
   await addDaily(env, 'busy', 0, 1);
-  await notifyOnce(env, deps.notify, 'busy', 'Ask K is paused',
-    `Ask K on the Survival Node page can't answer right now: ${why}, and the backup provider is over its daily budget ($${minimaxBudget.toFixed(2)}) or failing. Visitors are being shown your phone number and contact form instead.`);
+  await notifyOnce(env, deps.notify, `busy-${outReason || 'unknown'}`, 'Ask K is paused',
+    `Ask K on the Survival Node page can't answer right now because ${why}. Visitors are being shown your phone number and contact form instead. It starts answering again automatically ${back}.${fix}`);
   // The order-status box needs no AI, so it still shows while K is busy.
   return { reply: ASKK_BUSY_REPLY, provider: 'busy', lookup: wantsOrderStatus(question) };
 }
@@ -463,15 +453,14 @@ async function survivalNodeSummary(env, day, month) {
   const n = (k) => Number(by[k]?.questions || 0);
   const spent = (k) => Number(by[k]?.spent || 0);
   const mtd = await env.DB.prepare("SELECT SUM(spent) AS s FROM askk_daily WHERE provider = 'claude' AND substr(day, 1, 7) = ?").bind(day.slice(0, 7)).first();
-  const answers = n('claude') + n('minimax');
+  const answers = n('claude');
   return {
     answers,
-    spent: spent('claude') + spent('minimax'),
+    spent: spent('claude'),
     claudeMtd: Number(mtd?.s || 0),
     lines: [
       `Answered: ${answers}`,
       `  • Claude: ${n('claude')} answers, about ${money(spent('claude'))} (daily cap ${money(budget(env, 'ASKK_CLAUDE_DAILY_BUDGET', 3))})`,
-      `  • MiniMax backup: ${n('minimax')} answers, about ${money(spent('minimax'))}`,
       `Blocked: ${n('offtopic') + n('unverified') + n('ratelimited')}`,
       `  • Off-topic requests refused: ${n('offtopic')}`,
       `  • Failed the bot check: ${n('unverified')}`,

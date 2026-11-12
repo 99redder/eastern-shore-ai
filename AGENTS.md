@@ -118,14 +118,10 @@ Important UX behavior:
 
 ### Ask K backend (`worker/src/index.js`)
 
-The worker now supports the same Ask K provider pattern used on FMG:
-- `ASKK_API_KEY`
-- `ASKK_BASE_URL`
-- `ASKK_MODEL`
-- base URL normalization to `/chat/completions`
-- `<think>...</think>` stripping from model replies
+Ask K answers with Claude only (`worker/src/ask-k-claude.js`, `ANTHROPIC_API_KEY`):
 - intent-first behavior (question > page context)
 - explain-only role constraints
+- no backup AI provider: the MiniMax backup (`generateAskKAnswer`, `ASKK_API_KEY` / `ASKK_BASE_URL` / `ASKK_MODEL`, `ASKK_MINIMAX_DAILY_BUDGET`) was removed 2026-11-12. When Claude can't answer, visitors get the "busy, call us" reply. Don't add another provider without asking; `privacy.html` names Anthropic as the only one.
 
 Grounding file:
 - `worker/askk-survival-node-knowledge.md`
@@ -134,11 +130,9 @@ That file is the project-specific read-only knowledge base for Survival Node Ask
 
 ### Provider configuration
 
-If using MiniMax (same pattern as FMG):
+Claude only, from the survival-node workspace in the Eastern Shore AI Anthropic account:
 ```bash
-wrangler secret put ASKK_API_KEY
-wrangler secret put ASKK_BASE_URL   # https://api.minimax.io/v1
-wrangler secret put ASKK_MODEL      # MiniMax-M2.5
+npx wrangler secret put ANTHROPIC_API_KEY --config wrangler.toml
 ```
 
 Optional staff escalation secret:

@@ -829,7 +829,7 @@ test('daily Ask K summary covers all four deployments, emailed from the alerts a
     }
   });
   const yesterday = easternDay(Date.now() - 24 * 3600 * 1000);
-  await seedAskKDay(env, yesterday, [['claude', 0.5, 4], ['minimax', 0.01, 1], ['offtopic', 0, 2]]);
+  await seedAskKDay(env, yesterday, [['claude', 0.5, 5], ['offtopic', 0, 2]]);
   const pending = [];
   await worker.scheduled({ cron: '0 12 * * *', scheduledTime: Date.now() }, env, { waitUntil: (p) => pending.push(p) });
   await Promise.all(pending);
@@ -862,13 +862,14 @@ test('daily Ask K summary covers all four deployments, emailed from the alerts a
   const [email] = env.EMAIL.sent;
   assert.equal(email.from, 'alerts@easternshore.ai');
   assert.deepEqual(email.to, ['owner@inbox.example']);
-  assert.match(email.subject, /^Ask K yesterday: 11 answered, about \$1\.10; \w+ so far \$11\.00 of \$100$/);
-  assert.match(email.text, /── Survival Node ──\nAnswered: 5\n  • Claude: 4 answers, about \$0\.50/);
+  assert.match(email.subject, /^Ask K yesterday: 11 answered, about \$1\.09; \w+ so far \$11\.00 of \$100$/);
+  assert.match(email.text, /── Survival Node ──\nAnswered: 5\n  • Claude: 5 answers, about \$0\.50/);
+  assert.doesNotMatch(email.text, /MiniMax|backup/i);
   assert.match(email.text, /Blocked: 2/);
   assert.match(email.text, /── Just In Case ──\nAnswered: 3\nErrors: 1\nSpend: about \$0\.40\nClaude spend so far in \w+: about \$8\.00\nK's credit: OK, \$32\.00 left of \$40\.00 loaded/);
   assert.match(email.text, /── Florence Mae Gifts ──\nAnswered: 2\nErrors: 0\nSpend: about \$0\.12\nClaude spend so far in \w+: about \$1\.85\nMonthly Ask K budget: \$1\.85 spent of \$20\.00, OK\n/);
   assert.match(email.text, /── iDesign ──\nAnswered: 1\nErrors: 0\nSpend: about \$0\.07\nClaude spend so far in \w+: about \$0\.65\nMonthly Ask K budget: \$0\.65 spent of \$40\.00, OK\n/);
-  assert.match(email.text, /── All four ──\nAnswered: 11\nSpend: about \$1\.10\nClaude spend so far in \w+: about \$11\.00 of the \$100 monthly org limit \(11%\)\n/);
+  assert.match(email.text, /── All four ──\nAnswered: 11\nSpend: about \$1\.09\nClaude spend so far in \w+: about \$11\.00 of the \$100 monthly org limit \(11%\)\n/);
   assert.doesNotMatch(email.text, /Not counted/);
   assert.doesNotMatch(email.text, /fmg-test-token|summary-test-token|idesign-test-token/);
   assert.match(email.text, /idesignas\): platform\.claude\.com/);
@@ -1252,17 +1253,16 @@ test('Ask K order status: per-address limit, bot check required, fails closed wi
   assert.equal(off.EMAIL.sent.length, 0);
 });
 
-test('/api/ask-k: Claude answers in JSON and its lookup flag reaches the page; the backup uses the keyword check', async (t) => {
+test('/api/ask-k: Claude answers in JSON and its lookup flag reaches the page; without Claude the busy reply uses the keyword check', async (t) => {
   quietConsole(t);
   const bodies = [];
-  guardNetwork(t, {
+  const calls = guardNetwork(t, {
     'https://api.anthropic.com/v1/models': { data: [{ type: 'model', id: 'claude-opus-5-5', display_name: 'Claude Opus 5.5', created_at: '2026-09-01T00:00:00Z' }], has_more: false, first_id: 'claude-opus-5-5', last_id: 'claude-opus-5-5' },
     'https://api.anthropic.com/v1/messages': (url, init) => {
       bodies.push(JSON.parse(init.body));
       return { id: 'msg_1', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', usage: { input_tokens: 10, output_tokens: 5 },
         content: [{ type: 'text', text: JSON.stringify({ reply: 'I can email you the latest status. Use the box below.', lookup: true }) }] };
-    },
-    'https://backup.example/v1/chat/completions': { choices: [{ message: { content: 'You can get it emailed with the box below.' } }], usage: { prompt_tokens: 5, completion_tokens: 5 } }
+    }
   });
   let env = baseEnv({ ANTHROPIC_API_KEY: 'sk-ant-test-only' });
   let res = await worker.fetch(post('/api/ask-k', { message: 'Where is my order?' }), env, ctx);
@@ -1275,11 +1275,33 @@ test('/api/ask-k: Claude answers in JSON and its lookup flag reaches the page; t
   assert.deepEqual(sent.output_config.format.schema.required, ['reply', 'lookup']);
   assert.match(sent.system.map((b) => b.text).join('\n'), /eBay purchase history/);
 
+  // No Claude key: no other AI is tried. Visitors get the busy reply (the
+  // order-status box still shows, from the keyword check) and staff get one
+  // "Ask K is paused" email for the day, even when old MiniMax secrets linger.
+  const before = calls.length;
   env = baseEnv({ ASKK_API_KEY: 'mm-test-only', ASKK_BASE_URL: 'https://backup.example/v1', ASKK_MODEL: 'MiniMax-M2.5' });
   res = await worker.fetch(post('/api/ask-k', { message: 'Has my order shipped yet?' }), env, ctx);
   data = await res.json();
+  assert.equal(res.status, 200, JSON.stringify(data));
+  assert.match(data.reply, /Ask K is busy right now/);
   assert.equal(data.lookup, true, JSON.stringify(data));
   res = await worker.fetch(post('/api/ask-k', { message: 'How big is the solar battery?' }), env, ctx);
   data = await res.json();
+  assert.match(data.reply, /Ask K is busy right now/);
   assert.equal(data.lookup, false, JSON.stringify(data));
+  assert.equal(calls.length, before, calls.slice(before).map((c) => c.url).join(', '));
+  assert.equal(env.EMAIL.sent.length, 1);
+  assert.equal(env.EMAIL.sent[0].subject, 'Ask K is paused');
+  assert.equal(env.EMAIL.sent[0].from, 'alerts@easternshore.ai');
+  assert.match(env.EMAIL.sent[0].text, /ANTHROPIC_API_KEY\) is missing or was rejected/);
+  assert.doesNotMatch(env.EMAIL.sent[0].text, /MiniMax|backup/i);
+
+  // Daily budget spent: Claude isn't called either, and the email says when it comes back.
+  env = baseEnv({ ANTHROPIC_API_KEY: 'sk-ant-test-only', ASKK_CLAUDE_DAILY_BUDGET: '0' });
+  res = await worker.fetch(post('/api/ask-k', { message: 'How big is the solar battery?' }), env, ctx);
+  data = await res.json();
+  assert.match(data.reply, /Ask K is busy right now/);
+  assert.equal(calls.length, before);
+  assert.equal(env.EMAIL.sent.length, 1);
+  assert.match(env.EMAIL.sent[0].text, /daily budget \(\$0\.00\) was reached.*tomorrow/s);
 });
