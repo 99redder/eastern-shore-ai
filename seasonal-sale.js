@@ -1,7 +1,7 @@
 // ===== Seasonal Sale Themes + price (node.html + buynode.html) =====
 // Picks the active sale from the date in America/New_York. During a sale the
 // price is $299.99 and the page is dressed for it; outside every window (the
-// breaks Nov 1–19 and Dec 1–11, and after Christmas) it's the regular $349.99.
+// breaks Nov 1–26 and Dec 1–11, and after Christmas) it's the regular $349.99.
 // Start and end dates are inclusive, so a sale runs until midnight Eastern at
 // the end of its end date.
 // Loaded without defer in <head> so <html data-price="sale|regular"> is set
@@ -9,7 +9,7 @@
 // The static data-price in the HTML is the fallback without JS, kept current
 // by tools/node-price-pages.mjs. KEEP the windows IN SYNC with
 // worker/src/node-price.js, which sets what checkout charges.
-// Preview any theme with ?sale=halloween|thanksgiving|christmas, or the
+// Preview any theme with ?sale=halloween|blackfriday|christmas, or the
 // regular price with ?sale=none
 (function() {
   const SALES = [
@@ -21,9 +21,9 @@
       accent: '#ff8a1f', accentInk: '#1a0d00', glow: 'rgba(255, 138, 31, .55)'
     },
     {
-      key: 'thanksgiving', name: 'Thanksgiving Sale', start: '2026-11-20', end: '2026-11-30',
-      endsLong: 'November 30', endsShort: 'Nov 30', icon: '🦃',
-      drift: ['🍂', '🍁', '🦃', '🌽'],
+      key: 'blackfriday', name: 'Black Friday Sale', start: '2026-11-27', end: '2026-11-30',
+      endsLong: 'November 30', endsShort: 'Nov 30', icon: '🛍️',
+      drift: ['🛍️', '🏷️', '🍂', '🍁'],
       banner: '#b5743a',
       accent: '#f0c987', accentInk: '#2b1606', glow: 'rgba(217, 142, 74, .55)'
     },

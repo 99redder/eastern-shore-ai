@@ -10,7 +10,7 @@ export const NODE_SALE_CENTS = 29999;
 
 export const NODE_SALES = [
   { key: 'halloween', name: 'Halloween Sale', start: '2026-10-01', end: '2026-10-31', endsLong: 'October 31' },
-  { key: 'thanksgiving', name: 'Thanksgiving Sale', start: '2026-11-20', end: '2026-11-30', endsLong: 'November 30' },
+  { key: 'blackfriday', name: 'Black Friday Sale', start: '2026-11-27', end: '2026-11-30', endsLong: 'November 30' },
   { key: 'christmas', name: 'Christmas Sale', start: '2026-12-12', end: '2026-12-18', endsLong: 'December 18' }
 ];
 

@@ -31,7 +31,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 
 - **Free shipping** to the continental U.S.
 - There are no add-ons or upgrades to choose at checkout; it's one kit.
-- Sales run for set dates (for example a Thanksgiving Sale or Christmas Sale). Between sales the price is the regular $349.99.
+- Sales run for set dates (for example a Black Friday Sale or Christmas Sale). Between sales the price is the regular $349.99.
 
 ## What's in the box
 

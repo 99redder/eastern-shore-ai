@@ -15,10 +15,10 @@ test('sale price only inside a sale window, by Eastern date', () => {
   const cases = [
     ['2026-10-31T23:59:00-04:00', 29999, 'halloween'],
     ['2026-11-01T00:00:30-04:00', 34999, null],
-    ['2026-11-19T23:59:00-05:00', 34999, null],
-    ['2026-11-20T00:00:30-05:00', 29999, 'thanksgiving'],
-    ['2026-11-27T00:00:30-05:00', 29999, 'thanksgiving'],
-    ['2026-11-30T23:59:00-05:00', 29999, 'thanksgiving'],
+    ['2026-11-20T12:00:00-05:00', 34999, null],
+    ['2026-11-26T23:59:00-05:00', 34999, null],
+    ['2026-11-27T00:00:30-05:00', 29999, 'blackfriday'],
+    ['2026-11-30T23:59:00-05:00', 29999, 'blackfriday'],
     ['2026-12-01T00:00:30-05:00', 34999, null],
     ['2026-12-11T23:59:00-05:00', 34999, null],
     ['2026-12-12T00:00:30-05:00', 29999, 'christmas'],
@@ -30,7 +30,7 @@ test('sale price only inside a sale window, by Eastern date', () => {
     assert.equal(got, cents, when);
     assert.equal(sale?.key ?? null, key, when);
   }
-  assert.equal(currentOrNextSale(new Date('2026-11-03T12:00:00-05:00')).key, 'thanksgiving');
+  assert.equal(currentOrNextSale(new Date('2026-11-03T12:00:00-05:00')).key, 'blackfriday');
   assert.equal(currentOrNextSale(new Date('2026-12-26T12:00:00-05:00')), null);
 });
 
@@ -53,7 +53,7 @@ test('checkout charges $299.99 in a sale and $349.99 between sales', async (t) =
     body: JSON.stringify({ termsAccepted: true })
   }), env, { waitUntil() {} });
 
-  for (const when of ['2026-11-19T15:00:00-05:00', '2026-11-20T15:00:00-05:00', '2026-12-26T15:00:00-05:00']) {
+  for (const when of ['2026-11-26T15:00:00-05:00', '2026-11-27T15:00:00-05:00', '2026-12-26T15:00:00-05:00']) {
     mock.timers.enable({ apis: ['Date'], now: Date.parse(when) });
     const res = await checkout();
     assert.equal(res.status, 200);
@@ -69,9 +69,9 @@ function offerOf(html) {
 }
 
 test('node-price-pages switches node.html between sale and regular price', () => {
-  const thanksgiving = NODE_SALES.find((s) => s.key === 'thanksgiving');
+  const blackFriday = NODE_SALES.find((s) => s.key === 'blackfriday');
   const regular = applyNodePage(read('node.html'), null);
-  const sale = applyNodePage(regular, thanksgiving);
+  const sale = applyNodePage(regular, blackFriday);
   assert.equal(applyNodePage(sale, null), regular, 'round trip');
 
   assert.match(regular, /<html lang="en" data-price="regular">/);
@@ -95,12 +95,12 @@ test('node-price-pages switches node.html between sale and regular price', () =>
 
 test('node-price-pages gives the feed the running or next sale window', () => {
   const feed = read('merchant-feed.xml');
-  const [halloween, thanksgiving] = NODE_SALES;
+  const [halloween, blackFriday] = NODE_SALES;
   const inSale = applyFeed(feed, halloween);
   assert.match(inSale, /<g:price>349\.99 USD<\/g:price>\n {6}<g:sale_price>299\.99 USD<\/g:sale_price>\n {6}<g:sale_price_effective_date>2026-10-01T00:00-0400\/2026-10-31T23:59-0400<\/g:sale_price_effective_date>\n/);
-  assert.match(applyFeed(inSale, thanksgiving), /<g:sale_price_effective_date>2026-11-20T00:00-0500\/2026-11-30T23:59-0500<\/g:sale_price_effective_date>/);
+  assert.match(applyFeed(inSale, blackFriday), /<g:sale_price_effective_date>2026-11-27T00:00-0500\/2026-11-30T23:59-0500<\/g:sale_price_effective_date>/);
   const none = applyFeed(inSale, null);
   assert.doesNotMatch(none, /<g:sale_price/);
   assert.match(none, /<g:price>349\.99 USD<\/g:price>/);
-  assert.equal((applyFeed(applyFeed(inSale, thanksgiving), thanksgiving).match(/<g:sale_price>/g) || []).length, 1);
+  assert.equal((applyFeed(applyFeed(inSale, blackFriday), blackFriday).match(/<g:sale_price>/g) || []).length, 1);
 });
