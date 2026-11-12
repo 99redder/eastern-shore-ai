@@ -2193,7 +2193,7 @@
         <h4 style="color:var(--cyan); margin:1.1rem 0 .5rem; font-size:1rem;">7. Independent Seller, Trademarks &amp; Additional Legal Notices</h4>
         <p><strong>Independent Seller &amp; Trademarks:</strong> Eastern Shore AI, LLC is an independent seller of curated goods and is not an authorized dealer, affiliate, or partner of any device or component manufacturer. All product names, brand names, and trademarks referenced are the property of their respective owners and are cited solely for product identification purposes.</p>
         <p><strong>California Proposition 65 Notice:</strong> This product may expose you to chemicals known to the State of California to cause cancer and birth defects or other reproductive harm. For more information, visit <a href="https://www.p65warnings.ca.gov" target="_blank" rel="noopener" style="color:var(--cyan)">www.P65Warnings.ca.gov</a>.</p>
-        <p><strong>Privacy:</strong> Please review our <a href="privacy.html" style="color:var(--cyan)">Privacy Policy</a> for information about how customer and support data is handled.</p>
+        <p><strong>Privacy:</strong> Please review our <a href="/privacy.html" style="color:var(--cyan)">Privacy Policy</a> for information about how customer and support data is handled.</p>
       </section>
     </section>
 
@@ -3870,7 +3870,7 @@
         <div class="footer-row">
           <a href="#" id="contact-link" class="footer-link sn-contact-trigger">Contact Us</a>
           <a href="#" id="about-link" class="footer-link">About Us</a>
-          <a href="#" id="privacy-link" class="footer-link">Privacy Policy</a>
+          <a href="/privacy.html" class="footer-link">Privacy Policy</a>
         </div>
         <p style="margin: 0.45rem 0 0; font-size: 0.8rem; color: var(--muted); letter-spacing: 0.04em;">🇺🇸 Veteran-Owned Business</p>
       </div>
@@ -3887,21 +3887,6 @@
         <p><strong>Eastern Shore AI, LLC</strong> builds and installs practical AI-powered automations, tools, products, and small business web applications.</p>
         <p>Founded in February 2026 by Chris Gorham, a resident of Fruitland, MD and retired Navy veteran 🇺🇸.</p>
         <img src="/images/red.jpg" alt="Chris Gorham — Founder, Eastern Shore AI" style="width:50%; border-radius:4px; margin-top:.75rem; display:block;" />
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="privacy-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 1rem;">
-    <div class="modal" style="background: var(--card); border: 1px solid var(--line); border-radius: 0; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;">
-      <div style="padding: 1.5rem; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin: 0; font-size: 1.25rem; color: var(--text);">Privacy Policy</h2>
-        <button class="modal-close privacy-close" style="background: none; border: none; color: var(--muted); font-size: 1.5rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
-      </div>
-      <div style="padding: 1.5rem;">
-        <p>We collect only the information you voluntarily submit through forms (such as name, email, and message details) to respond to inquiries and provide requested services.</p>
-        <p>Submitted information is used for communication and project-related follow-up. We do not sell your personal data. We may use trusted service providers to process form delivery and email notifications.</p>
-        <p>If you want your submitted information corrected or deleted, contact us and we will handle it promptly, subject to legal or operational retention requirements.</p>
-        <p>Contact: <a href="mailto:contact@easternshore.ai" style="color: var(--cyan);">contact@easternshore.ai</a></p>
       </div>
     </div>
   </div>
@@ -3939,14 +3924,6 @@
     });
     document.querySelector('.about-close').addEventListener('click', () => aboutModal.style.display = 'none');
     aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.style.display = 'none'; });
-
-    const privacyModal = document.getElementById('privacy-modal');
-    document.getElementById('privacy-link').addEventListener('click', function(e) {
-      e.preventDefault();
-      privacyModal.style.display = 'flex';
-    });
-    document.querySelector('.privacy-close').addEventListener('click', () => privacyModal.style.display = 'none');
-    privacyModal.addEventListener('click', (e) => { if (e.target === privacyModal) privacyModal.style.display = 'none'; });
 
     // Contact Us opens the branded Survival Node contact modal
     // (bound via the .sn-contact-trigger class in the contact modal script)

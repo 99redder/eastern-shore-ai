@@ -1,29 +1,137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://www.redditstatic.com https://sibforms.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://sibforms.com https://assets.brevo.com; font-src 'self' data: https://fonts.gstatic.com https://assets.brevo.com; img-src 'self' data: https:; connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://googleads.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai https://www.redditstatic.com https://alb.reddit.com https://pixel-config.reddit.com https://www.reddit.com https://sibforms.com https://b893ca94.sibforms.com; frame-src https://js.stripe.com https://www.youtube.com; object-src 'none'; base-uri 'self'; form-action 'self' https://b893ca94.sibforms.com;">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Privacy Policy | Eastern Shore AI</title>
-  <meta name="description" content="How Eastern Shore AI, LLC collects, uses, and protects information from website visitors, service clients, and Survival Node customers." />
+  <meta name="description" content="What Eastern Shore AI collects through its website, Survival Node checkout, order texts, analytics and Ask K chat, how it is used, and who it is shared with." />
   <link rel="canonical" href="https://www.easternshore.ai/privacy.html" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="robots" content="index,follow" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/fonts.css" />
   <style>
     :root {
-      --bg: #0b0d13; --card: #131926; --line: #2a3348; --text: #edf3ff; --muted: #a7b4c7; --cyan:#9ed0ff;
+      --bg: #0b0d13;
+      --card: #131926;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #d8c2ff;
     }
     * { box-sizing: border-box; }
-    body { margin:0; background:linear-gradient(180deg,#121723 0%,#0b0d13 100%); color:var(--text); font-family:'Titillium Web',sans-serif; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 3rem; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:1.25rem 1.25rem 1.5rem; box-shadow:0 16px 40px rgba(0,0,0,.25); }
-    h1,h2 { font-family:'Hanken Grotesk',sans-serif; color:var(--cyan); }
-    h1 { margin:.2rem 0 .5rem; font-size:2rem; }
-    h2 { margin:1.2rem 0 .45rem; font-size:1.15rem; }
-    p, li { line-height:1.7; color:var(--text); }
-    .muted { color:var(--muted); }
-    a { color:var(--cyan); }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(190, 220, 255, 0.16), transparent 35%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 58%, #090b11 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    a { color: var(--cyan); }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+    .topnav {
+      display:flex; flex-wrap:wrap; gap:.65rem; justify-content:center; margin-bottom:1.2rem;
+      padding: .9rem 1rem; border-bottom:1px solid var(--line);
+      background: rgba(10,12,18,0.8);
+      position: sticky; top:0; z-index:20; backdrop-filter: blur(8px);
+    }
+    .topnav a, .print-btn {
+      text-decoration:none; color:var(--text); padding:.45rem .75rem; border:1px solid var(--line);
+      border-radius:8px; font-family:'Hanken Grotesk',sans-serif; font-size:.88rem;
+      background: rgba(19,25,38,.65);
+      cursor: pointer;
+    }
+    .topnav a:hover, .print-btn:hover { border-color: var(--cyan); }
+    .hero {
+      background: rgba(19,25,38,.92); border:1px solid var(--line); border-radius:16px;
+      padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 12px 30px rgba(0,0,0,.25);
+    }
+    .hero h1 { margin:.1rem 0 .45rem; font-size:2rem; color: var(--cyan); }
+    .hero p { margin:.35rem 0; color: var(--muted); }
+    .hero-actions { display:flex; gap:.65rem; flex-wrap:wrap; margin-top:1rem; }
+    .last-updated {
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .82rem;
+      letter-spacing: .04em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin: 0 0 .25rem;
+    }
+
+    .summary-box {
+      background: linear-gradient(145deg, rgba(158,208,255,.08), rgba(199,166,255,.06));
+      border: 1px solid rgba(158,208,255,.32);
+      border-radius: 14px;
+      padding: 1.25rem 1.4rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 18px rgba(158,208,255,.08);
+    }
+    .summary-box h2 {
+      margin: 0 0 .6rem;
+      color: var(--cyan);
+      font-family: 'Hanken Grotesk', sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: .02em;
+    }
+    .summary-box ul { margin: .25rem 0 0; padding-left: 1.2rem; }
+    .summary-box li {
+      margin: .35rem 0;
+      font-size: .95rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .card {
+      background: rgba(19,25,38,.92); border:1px solid var(--line); border-radius:16px;
+      padding: 1.35rem; margin-bottom: 1rem; box-shadow: 0 12px 30px rgba(0,0,0,.22);
+      scroll-margin-top: 5rem;
+    }
+    h2 { margin:.1rem 0 .85rem; color: var(--cyan); font-size:1.35rem; }
+    h3 { margin:1.2rem 0 .5rem; color: var(--violet); font-size:1.05rem; scroll-margin-top: 5rem; }
+    p, li { line-height: 1.6; font-size: .98rem; }
+    ul { padding-left: 1.2rem; }
+    li { margin: .3rem 0; }
+    .card p { color: #c4cedf; }
+    .card li { color: #c4cedf; }
+    .card strong { color: var(--text); }
+    .eyebrow {
+      display:inline-block; padding:.22rem .55rem; border:1px solid rgba(158,208,255,.4); border-radius:4px;
+      font-size:.67rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--cyan);
+      background:rgba(158,208,255,.08); font-family:'Hanken Grotesk',sans-serif; margin-bottom:.55rem;
+    }
+
+    .back-row {
+      display:flex; justify-content:center; gap:.7rem; flex-wrap:wrap;
+      margin-top: 1.5rem;
+    }
+    .back-link {
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:.6rem 1.1rem; border-radius:8px;
+      border:1px solid var(--line); background: rgba(19,25,38,.7);
+      text-decoration:none; color: var(--text);
+      font-family:'Hanken Grotesk', sans-serif; font-size:.92rem; font-weight:700;
+    }
+    .back-link:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    footer { margin-top:1.5rem; color:var(--muted); font-size:.9rem; text-align:center; }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      .topnav, .hero-actions, .back-row { display: none !important; }
+      .wrap { max-width: none; padding: 0; }
+      .hero, .card, .summary-box { background: #fff; color: #000; box-shadow: none; border: 1px solid #ccc; }
+      .hero h1, h2, h3, a, .eyebrow, .summary-box h2 { color: #000 !important; }
+      p, li, footer, .card strong { color: #000 !important; }
+    }
+
+    @media (max-width: 720px) {
+      .hero h1 { font-size: 1.5rem; }
+      .summary-box { padding: 1rem 1.1rem; }
+      .card { padding: 1.1rem; }
+    }
   </style>
   <!-- Reddit Pixel -->
   <script>
@@ -33,56 +141,525 @@
   </script>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <p class="muted">Eastern Shore AI</p>
+  <nav class="topnav" aria-label="Primary">
+    <a href="/">Home</a>
+    <a href="/node.html">Survival Node</a>
+    <a href="/testing.html">Testing</a>
+    <a href="/terms.html">Terms of Sale</a>
+    <a href="#" class="sn-contact-trigger">Contact</a>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero">
+      <span class="eyebrow">Eastern Shore AI</span>
       <h1>Privacy Policy</h1>
-      <p class="muted">Last updated: October 30, 2026</p>
+      <p class="last-updated">Last updated: November 11, 2026</p>
+      <p>This page explains what information Eastern Shore AI, LLC collects through this website, our Survival Node checkout, our support tools, and the web design and AI services we provide; what we do with it; who helps us handle it; and how to reach us about it.</p>
+      <div class="hero-actions">
+        <button class="print-btn" type="button" data-print-button>Print This Page</button>
+      </div>
+    </section>
 
-      <p>This Privacy Policy explains what information Eastern Shore AI collects through this website, checkout, support tools, and customer communication channels, how that information is used, and how to contact us with questions.</p>
-
-      <h2>Information we collect</h2>
+    <section class="summary-box" aria-label="Privacy summary">
+      <h2>The short version</h2>
       <ul>
-        <li>Contact information you provide, such as your name, email address, phone number, and shipping address.</li>
-        <li>Order and transaction information needed to fulfill purchases.</li>
-        <li>Messages you send through contact forms, Ask K chat, or human support chat.</li>
-        <li>Basic technical information such as browser/device data and site usage logs used for site operations, fraud prevention, and troubleshooting.</li>
+        <li>We collect what you give us through forms, checkout and chat, plus basic technical information from your browser.</li>
+        <li><strong>We do not sell your personal information.</strong></li>
+        <li>Payments are handled by Stripe. We never see or store your card number.</li>
+        <li>We may text you about your order from (302) 907-9162. These texts are not marketing. Reply STOP to stop them.</li>
+        <li>Google Analytics and the Reddit Pixel measure visits and ad results, and they use cookies.</li>
+        <li>Ask K's answers are written by an AI service. We don't save Ask K chats.</li>
+        <li>To correct or delete your information, email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>.</li>
       </ul>
+    </section>
 
-      <h2>How we use information</h2>
+    <section class="card" id="who-we-are">
+      <h2>Who we are</h2>
+      <p>Eastern Shore AI, LLC is a small business in Fruitland, Maryland. We build websites for local businesses, set up AI tools, and sell the Survival Node. This policy covers our pages at www.easternshore.ai and the orders, emails, texts and support that come from them. Purchases made through other sites, such as eBay, are covered by those sites' own privacy policies.</p>
+    </section>
+
+    <section class="card" id="information-you-give-us">
+      <h2>Information you give us</h2>
+
+      <h3 id="forms">Contact, website request and quote forms</h3>
+      <p>Our forms ask for your name and email address and, depending on the form, your phone number, business name, current website, preferred way and time to be contacted, the device or system you use, your order number, and your message.</p>
+      <p>When you send a form, our server emails it to our business inbox. Form messages are not saved in our database. The emails are sent through Cloudflare Email Sending, with Resend as a backup, and our inbox is hosted by Google (Gmail). A copy also goes to a second inbox we use, hosted by AgentMail. We use what you send to answer you and follow up on the work you asked about.</p>
+
+      <h3 id="newsletter">Newsletter</h3>
+      <p>Some pages have a newsletter sign-up form run by Brevo, our email newsletter service. The email address you enter there goes straight to Brevo. The newsletter box on the home page, the AI Automation page and the Survival Node page instead sends your email address to our inbox as a sign-up request. You can unsubscribe at any time using the link in any newsletter email, or by asking us.</p>
+
+      <h3 id="survival-node-orders">Survival Node purchases</h3>
+      <p>Checkout takes place on a secure page run by Stripe. Stripe collects your name, email address, phone number, billing address, shipping address and payment card, and shares everything except your full card details with us so we can fill your order. Your card details go straight to Stripe: we never see or store your card number or security code. Stripe shows us only basic card information, such as the card brand and last four digits. We also record that you agreed to the Terms of Sale, along with the version and the time.</p>
+      <p>We keep your order in our order system, a database hosted by Cloudflare. It holds your name, email address, phone number, shipping address, order number, estimated ship date, tracking number and the battery test result for your phone. We use it to ship your order, email you about it (order confirmation, shipping, delivery and a request for a review), answer your questions, handle returns and refunds, and keep business and tax records.</p>
+      <p>To ship your order, we give your name, shipping address and email address to Pirate Ship, the service we use to buy shipping labels, and your package goes by USPS. Pirate Ship may email you tracking details when the label is created.</p>
+      <p>If you book our bring-your-own-gear setup service, we also collect the setup address and the date and time you choose.</p>
+
+      <h3 id="text-messages">Text messages</h3>
+      <p>Checkout asks for your phone number. We may text that number about your order, such as to confirm your shipping address, tell you it has shipped or been delivered, or answer a question. These texts come from a person at Eastern Shore AI at (302) 907-9162 and are not marketing. Message and data rates may apply. To stop, reply STOP or tell us by phone or email, and we will stop texting you. Stopping texts does not affect your order.</p>
+      <p>We send these texts by hand using Google Voice, so Google handles those messages. We do not share your mobile number with anyone for their marketing.</p>
+
+      <h3 id="services">Bookings, Website Care Plan, invoices and quotes</h3>
       <ul>
-        <li>To process and fulfill orders.</li>
-        <li>To text you about your order, such as to confirm your shipping address or share shipping and delivery updates.</li>
-        <li>To respond to support requests and product questions.</li>
-        <li>To operate and improve the website, checkout flow, and support tools.</li>
-        <li>To maintain security, prevent abuse, and troubleshoot technical problems.</li>
+        <li><strong>Setup and lesson bookings:</strong> when you book an OpenClaw setup or AI lessons, we collect your name, email address, phone number (optional), preferred contact method, and the date and time you pick. Payment is made through Stripe Checkout, and we keep the booking in our database.</li>
+        <li><strong>Website Care Plan:</strong> when you sign the plan agreement online, we record your name, title and email address, the exact agreement text you signed, the time, and your IP address and browser details, as a record of your signature. Payments are handled by Stripe. If you choose automatic renewal, Stripe keeps your card on file and runs the yearly charge, and you can manage it through Stripe's billing page. The Find my plan page emails your plan link only to an address that matches a client.</li>
+        <li><strong>Invoices and quotes:</strong> we use your name, email address, phone number, and the work and prices involved to prepare them. They are emailed to you, and invoices can be paid through a Stripe payment link.</li>
       </ul>
+    </section>
 
-      <h2>Payments</h2>
-      <p>Payments are processed by Stripe. Eastern Shore AI does not store or directly access your full payment card details. Your use of checkout is also subject to Stripe’s terms and privacy practices.</p>
-
-      <h2>Support chat and Ask K</h2>
-      <p>Ask K's answers are written by an AI service: Anthropic's Claude, or MiniMax as a backup when Claude is unavailable. To write each answer, your question, the recent messages in that chat, and basic page context (such as which part of the page you are viewing) are sent to that provider. We don't save Ask K chats on our servers; we keep only daily counts, such as how many questions were answered.</p>
+    <section class="card" id="ask-k">
+      <h2>Ask K and live support chat</h2>
+      <p>Ask K is the AI assistant on the Survival Node page.</p>
+      <p>Ask K's answers are written by an AI service: Anthropic's Claude, or MiniMax as a backup when Claude is unavailable. To write each answer, your question, the recent messages in that chat, and basic page context (such as which part of the page you are viewing) are sent to that provider. A quick check that your question is about the Survival Node is also sent to Claude. These providers handle that information under their own terms and privacy policies. We don't save Ask K chats on our servers; we keep only daily counts, such as how many questions were answered. Please don't type passwords, payment details or other sensitive information into the chat.</p>
       <p>To prevent abuse, Ask K uses Cloudflare Turnstile, a security check that may look at browser and device signals, and we count requests from each IP address for a short time to limit how many can be sent.</p>
       <p>If you ask Ask K for an order update, the email address (and optional order number) you enter is used only to look up Survival Node orders placed with that address on our website and to email their status to that same address. Order details are never shown in the chat or sent to the AI provider. We don't store the address you enter; a one-way code made from it is kept for up to a day so we can limit how many updates are sent to one address.</p>
-      <p>If you choose Talk to a human, that conversation is stored so our team can reply and follow up, and alerts about it may be sent through third-party services we use for notifications.</p>
+      <p>If you choose Talk to a human, that conversation is stored in our database, hosted by Cloudflare, so our team can reply and follow up. Your recent Ask K messages are copied into it so we can see what you already asked. Our team is notified through Discord, and that notification includes the page you were on and a short excerpt of the conversation. Support chats are kept until we delete them.</p>
+    </section>
 
-      <h2>Text messages</h2>
-      <p>Checkout asks for your phone number. We may text that number about your order, such as to confirm your shipping address, share shipping and delivery updates, or answer a question. A person at Eastern Shore AI sends these texts from (302) 907-9162 using Google Voice, so Google handles those messages. They are not marketing, and we do not share your mobile number with anyone for their marketing. Message and data rates may apply. To stop, reply STOP or tell us by phone or email, and we will stop texting you.</p>
+    <section class="card" id="cookies">
+      <h2>Analytics, ads, cookies and other services on our pages</h2>
+      <ul>
+        <li><strong>Google Analytics:</strong> most of our pages use Google Analytics to count visits and see how people find and use the site. It records things like the pages you view, the site or ad that sent you, your device and browser, and your approximate location, and it uses cookies. When a Survival Node order is completed, the page also sends Google Analytics the order total and the Stripe order reference (not your name, email or address) so we can tell whether our ads lead to sales.</li>
+        <li><strong>Reddit Pixel:</strong> most of our pages load the Reddit Pixel, which tells Reddit when someone visits a page, views the Survival Node, or completes a purchase (with the order total and order reference), so we can measure our Reddit ads. Reddit uses cookies and information from your browser to do this.</li>
+        <li><strong>Our own visit count:</strong> the Survival Node page sends our server a short note on each visit. We store the date, the site or ad that sent you, your device type (phone, tablet or computer), the town, region and country your internet connection points to, and a one-way code made from your IP address and browser. The code lets us count unique visitors without keeping your IP address. Our team sees these counts in a daily summary.</li>
+        <li><strong>YouTube videos:</strong> the Survival Node and Testing pages show videos from YouTube. When a video player loads, YouTube (Google) may set cookies and collect information under Google's privacy policy.</li>
+        <li><strong>Hosting and fonts:</strong> our pages are hosted on GitHub Pages and delivered through Cloudflare, which see your IP address and browser details to serve pages and protect the site. Most pages use fonts stored on our own site; a few load fonts from Google Fonts, which means your browser contacts Google.</li>
+        <li><strong>Stripe and Turnstile:</strong> Stripe's checkout page and Cloudflare Turnstile (Ask K's security check) may use their own cookies and device signals to prevent fraud and abuse.</li>
+        <li><strong>Our own browser storage:</strong> we don't set our own cookies. After a Survival Node checkout, the page saves a small note in your browser so the same purchase isn't reported to analytics twice.</li>
+      </ul>
+      <p>You can block or delete cookies in your browser settings, or use a browser extension that blocks trackers. Most of the site works without analytics and ad cookies; Ask K needs the Turnstile check to work.</p>
+    </section>
 
-      <h2>Sharing of information</h2>
-      <p>We do not sell your personal information. We may share information with service providers that help us operate the site and business, including payment processors (Stripe), hosting, security and email delivery providers (Cloudflare, with Resend as a backup for email), the AI providers that write Ask K's answers (Anthropic and MiniMax), the phone service we use for texts (Google Voice), and support/infrastructure vendors, only as needed to provide those services.</p>
+    <section class="card" id="security">
+      <h2>Security and abuse prevention</h2>
+      <p>To stop spam and abuse, our forms and chat count requests from each IP address for a short time (up to a day) to limit how many can be sent, and some forms have hidden fields that catch bots. Our servers keep technical logs for about a week so we can find and fix problems. Our pages and forms use encrypted (HTTPS) connections, and our admin tools require a password and a sign-in code.</p>
+    </section>
 
-      <h2>Retention</h2>
-      <p>We retain information for as long as reasonably necessary to fulfill orders, provide support, keep business records, and meet legal or operational requirements.</p>
+    <section class="card" id="sharing">
+      <h2>Who we share information with</h2>
+      <p><strong>We do not sell your personal information</strong>, and we don't share your contact details with anyone for their own marketing. We share information only with the services that help us run the business, and only what each one needs:</p>
+      <ul>
+        <li><strong>Stripe:</strong> payments, saved cards for automatic renewals, and the billing page</li>
+        <li><strong>Cloudflare:</strong> our servers and database, email sending, site delivery and security checks</li>
+        <li><strong>GitHub:</strong> hosts the website's pages</li>
+        <li><strong>Resend:</strong> backup email delivery</li>
+        <li><strong>Google:</strong> our business email inbox (Gmail), order texts (Google Voice), Google Analytics, YouTube videos, and fonts on some pages</li>
+        <li><strong>Reddit:</strong> ad measurement (Reddit Pixel)</li>
+        <li><strong>Anthropic and MiniMax:</strong> write Ask K's answers</li>
+        <li><strong>Discord:</strong> notifies our team about live support chats</li>
+        <li><strong>Brevo:</strong> our newsletter list</li>
+        <li><strong>Pirate Ship and USPS:</strong> shipping labels and delivery</li>
+        <li><strong>AgentMail:</strong> hosts a second inbox that receives copies of contact form messages, invoices and quotes</li>
+      </ul>
+      <p>We may also share information when the law requires it, or to protect our customers or our business from fraud.</p>
+    </section>
 
+    <section class="card" id="retention">
+      <h2>How long we keep information</h2>
+      <ul>
+        <li><strong>Orders, bookings, invoices, payments and signed agreements:</strong> as long as we need them for business and tax records.</li>
+        <li><strong>Contact form messages:</strong> in our email inbox until we delete them.</li>
+        <li><strong>Live support chats:</strong> until we delete them.</li>
+        <li><strong>Ask K chats:</strong> not saved. We keep only daily counts.</li>
+        <li><strong>Request counts by IP address, and the one-way code from an order-update lookup:</strong> up to a day.</li>
+        <li><strong>Server logs:</strong> about a week.</li>
+        <li><strong>Visit counts:</strong> kept as statistics. They don't include IP addresses.</li>
+      </ul>
+    </section>
+
+    <section class="card" id="your-choices">
       <h2>Your choices</h2>
-      <p>If you would like to request deletion or correction of personal information you have provided to us, contact us using the information below. We will review and respond as appropriate.</p>
+      <ul>
+        <li><strong>Correction or deletion:</strong> to have information you've given us corrected or deleted, email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>. We'll handle it promptly, though we may need to keep some records, such as orders and payments, for legal, tax or operational reasons.</li>
+        <li><strong>Texts:</strong> reply STOP, or tell us by phone or email.</li>
+        <li><strong>Newsletter:</strong> use the unsubscribe link in any newsletter email, or ask us.</li>
+        <li><strong>Cookies:</strong> block or delete them in your browser settings.</li>
+      </ul>
+    </section>
 
+    <section class="card" id="children">
+      <h2>Children</h2>
+      <p>Our site and products are meant for adults. Survival Node buyers must be 18 or older, and we don't knowingly collect information from children.</p>
+    </section>
+
+    <section class="card" id="changes">
+      <h2>Changes to this policy</h2>
+      <p>If we change this policy, we'll post the new version on this page and update the date at the top.</p>
+    </section>
+
+    <section class="card" id="contact">
       <h2>Contact</h2>
-      <p>Email: <a href="mailto:support@easternshore.ai">support@easternshore.ai</a><br>
+      <p><strong>Eastern Shore AI, LLC</strong><br>
+      Fruitland, Maryland<br>
+      Email: <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a><br>
       Phone: <a href="tel:+13029079162">(302) 907-9162</a></p>
+    </section>
+
+    <div class="back-row">
+      <a class="back-link" href="/">&larr; Back to Home</a>
+      <a class="back-link" href="/node.html">Survival Node</a>
+    </div>
+
+    <footer>
+      <p>Questions? <a href="#" class="sn-contact-trigger">Contact us</a> or review the <a href="/terms.html">Terms of Sale</a>.</p>
+    </footer>
+  </main>
+
+  <script>
+    document.querySelectorAll("[data-print-button]").forEach(btn => {
+      btn.addEventListener("click", () => window.print());
+    });
+  </script>
+  <!-- ===== Survival Node Contact Modal ===== -->
+  <style>
+    .sn-contact-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9500;
+      background: rgba(0,0,0,0.82); backdrop-filter: blur(3px);
+      align-items: center; justify-content: center; padding: 1rem;
+      overflow-y: auto; overscroll-behavior: contain;
+    }
+    .sn-contact-overlay.open { display: flex; }
+    .sn-contact-card {
+      background: var(--card, #131926); border: 1px solid var(--line, #2a3348);
+      box-shadow: 0 0 34px rgba(0, 229, 255, 0.16);
+      max-width: 520px; width: 100%; color: var(--text, #eaf1ff);
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    .sn-contact-head {
+      padding: 1.1rem 1.35rem; border-bottom: 1px solid var(--line, #2a3348);
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      position: sticky; top: 0; z-index: 2; background: var(--card, #131926);
+    }
+    .sn-contact-head h2 {
+      margin: 0; font-size: 1.15rem; letter-spacing: .04em;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif; color: var(--cyan, #9ed0ff);
+    }
+    .sn-contact-head .sn-contact-eyebrow {
+      display: block; font-size: .7rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted, #a5b1c8); margin-bottom: .25rem;
+    }
+    .sn-contact-close {
+      background: none; border: none; color: var(--muted, #a5b1c8);
+      font-size: 1.6rem; line-height: 1; cursor: pointer;
+      padding: .25rem; margin: -.25rem; min-width: 44px; min-height: 44px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sn-contact-close:hover { color: var(--text, #eaf1ff); }
+    .sn-contact-body { padding: 1.35rem; }
+    .sn-contact-intro { margin: 0 0 1rem; color: var(--muted, #a5b1c8); font-size: .92rem; }
+    .sn-contact-form { display: flex; flex-direction: column; gap: .9rem; }
+    .sn-contact-form label {
+      display: block; margin-bottom: .4rem; font-size: .85rem; color: var(--muted, #a5b1c8);
+      font-family: 'Hanken Grotesk', system-ui, sans-serif; letter-spacing: .03em;
+    }
+    .sn-contact-form input,
+    .sn-contact-form select,
+    .sn-contact-form textarea {
+      width: 100%; padding: .7rem; background: var(--bg, #0b0d13);
+      border: 1px solid var(--line, #2a3348); border-radius: 6px;
+      color: var(--text, #eaf1ff); font-size: 1rem;
+      font-family: 'Titillium Web', system-ui, sans-serif;
+    }
+    .sn-contact-form textarea { resize: vertical; }
+    .sn-contact-form input:focus,
+    .sn-contact-form select:focus,
+    .sn-contact-form textarea:focus {
+      outline: none; border-color: var(--cyan, #9ed0ff);
+      box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.15);
+    }
+    .sn-contact-submit {
+      width: 100%; padding: .85rem 1rem; border: none; cursor: pointer;
+      background: linear-gradient(145deg, var(--cyan, #9ed0ff), #6ef4ff); color: #071219;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: 1rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      border-radius: 6px; box-shadow: 0 4px 18px rgba(158, 208, 255, 0.4);
+    }
+    .sn-contact-submit:disabled { opacity: .6; cursor: default; }
+    .sn-contact-status { margin: 0; font-size: .9rem; min-height: 1.2em; }
+    .sn-contact-status.err { color: #ff8ab5; }
+
+    /* Success panel — replaces the form once the message is sent */
+    .sn-contact-success { display: none; text-align: center; padding: 1rem 0 .5rem; }
+    .sn-contact-success.show { display: block; animation: sn-contact-pop .3s ease-out both; }
+    .sn-contact-success-icon {
+      width: 84px; height: 84px; margin: .25rem auto 1.15rem; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.7rem; line-height: 1; color: #071219;
+      background: linear-gradient(145deg, var(--cyan, #9ed0ff), #6ef4ff);
+      box-shadow: 0 0 0 10px rgba(158, 208, 255, .10), 0 0 30px rgba(158, 208, 255, .5);
+      animation: sn-contact-pulse 2s ease-out .2s infinite;
+    }
+    .sn-contact-success h3 {
+      margin: 0 0 .6rem; font-size: 1.45rem; letter-spacing: .03em;
+      font-family: 'Hanken Grotesk', system-ui, sans-serif; color: var(--cyan, #9ed0ff);
+    }
+    .sn-contact-success p { margin: 0 0 .6rem; color: var(--muted, #a5b1c8); font-size: .95rem; line-height: 1.55; }
+    .sn-contact-success strong { color: var(--text, #eaf1ff); }
+    .sn-contact-success-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1.3rem; }
+    .sn-contact-success-actions > button { flex: 1 1 150px; }
+    .sn-contact-secondary {
+      padding: .85rem 1rem; cursor: pointer; border-radius: 6px;
+      background: transparent; color: var(--cyan, #9ed0ff);
+      border: 1px solid var(--line, #2a3348);
+      font-family: 'Hanken Grotesk', system-ui, sans-serif;
+      font-size: .95rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .sn-contact-secondary:hover { border-color: var(--cyan, #9ed0ff); }
+    @keyframes sn-contact-pop {
+      from { opacity: 0; transform: scale(.94); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes sn-contact-pulse {
+      0%   { box-shadow: 0 0 0 10px rgba(158, 208, 255, .10), 0 0 30px rgba(158, 208, 255, .5); }
+      50%  { box-shadow: 0 0 0 16px rgba(158, 208, 255, .04), 0 0 38px rgba(158, 208, 255, .62); }
+      100% { box-shadow: 0 0 0 10px rgba(158, 208, 255, .10), 0 0 30px rgba(158, 208, 255, .5); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sn-contact-success.show { animation: none; }
+      .sn-contact-success-icon { animation: none; }
+    }
+    .sn-contact-alt {
+      margin: 1rem 0 0; padding-top: .9rem; border-top: 1px solid var(--line, #2a3348);
+      font-size: .85rem; color: var(--muted, #a5b1c8);
+    }
+    .sn-contact-alt a { color: var(--cyan, #9ed0ff); }
+    @media (max-width: 560px) {
+      .sn-contact-overlay { padding: 0; align-items: flex-start; }
+      .sn-contact-card {
+        max-height: 100vh; max-height: 100dvh;
+        min-height: 100vh; min-height: 100dvh;
+        border: none; border-radius: 0;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .sn-contact-head { padding: 1rem 1.1rem; padding-top: max(1rem, env(safe-area-inset-top)); }
+      .sn-contact-body { padding: 1.1rem; }
+      .sn-contact-form input,
+      .sn-contact-form select,
+      .sn-contact-form textarea { font-size: 16px; padding: .8rem; }
+      .sn-contact-submit { padding: .95rem 1rem; }
+    }
+  </style>
+
+  <div class="sn-contact-overlay" id="sn-contact-modal" role="dialog" aria-modal="true" aria-labelledby="sn-contact-title" aria-hidden="true">
+    <div class="sn-contact-card">
+      <div class="sn-contact-head">
+        <div>
+          <span class="sn-contact-eyebrow">Eastern Shore AI</span>
+          <h2 id="sn-contact-title">Contact Us</h2>
+        </div>
+        <button type="button" class="sn-contact-close" id="sn-contact-close" aria-label="Close contact form">&times;</button>
+      </div>
+      <div class="sn-contact-body">
+        <p class="sn-contact-intro">Questions about this policy, or want information you've given us corrected or deleted? Send us a message and we'll get back to you within 24 hours.</p>
+        <form class="sn-contact-form" id="sn-contact-form" novalidate>
+          <div>
+            <label for="sn-contact-name">Name *</label>
+            <input type="text" id="sn-contact-name" name="name" required autocomplete="name">
+          </div>
+          <div>
+            <label for="sn-contact-email">Email *</label>
+            <input type="email" id="sn-contact-email" name="email" required autocomplete="email">
+          </div>
+          <div>
+            <label for="sn-contact-phone">Phone Number (optional)</label>
+            <input type="tel" id="sn-contact-phone" name="phone" autocomplete="tel">
+          </div>
+          <div>
+            <label for="sn-contact-topic">What's this about?</label>
+            <select id="sn-contact-topic" name="topic">
+              <option value="Privacy Request">Privacy Question or Request</option>
+              <option value="General Question">General Question</option>
+              <option value="Order Status">Order Status</option>
+              <option value="Shipping">Shipping</option>
+              <option value="Return / Warranty (RMA)">Return / Warranty (RMA)</option>
+              <option value="Technical Support">Technical Support</option>
+              <option value="Bulk / Reseller Inquiry">Bulk / Reseller Inquiry</option>
+            </select>
+          </div>
+          <div>
+            <label for="sn-contact-order">Order Number (if you have one)</label>
+            <input type="text" id="sn-contact-order" name="order-number">
+          </div>
+          <div>
+            <label for="sn-contact-message">Message *</label>
+            <textarea id="sn-contact-message" name="message" rows="4" required placeholder="Tell us what you need help with"></textarea>
+          </div>
+          <div>
+            <label for="sn-contact-method">Preferred Contact Method</label>
+            <select id="sn-contact-method" name="contact-method">
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+            </select>
+          </div>
+          <!-- honeypot -->
+          <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" aria-hidden="true">
+          <p class="sn-contact-status" id="sn-contact-status" role="status" aria-live="polite"></p>
+          <button type="submit" class="sn-contact-submit" id="sn-contact-submit">Send Message</button>
+        </form>
+        <div class="sn-contact-success" id="sn-contact-success" role="status" aria-live="polite">
+          <div class="sn-contact-success-icon" aria-hidden="true">&#10003;</div>
+          <h3>Message Sent</h3>
+          <p id="sn-contact-success-line">Thanks &mdash; your message is on its way to the Eastern Shore AI team.</p>
+          <p>We reply to every message within <strong>24 hours</strong>. Need something urgent? Call <a href="tel:+13029079162">(302) 907-9162</a>.</p>
+          <div class="sn-contact-success-actions">
+            <button type="button" class="sn-contact-secondary" id="sn-contact-again">Send Another</button>
+            <button type="button" class="sn-contact-submit" id="sn-contact-done">Done</button>
+          </div>
+        </div>
+        <p class="sn-contact-alt">Prefer direct? <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> &nbsp;·&nbsp; <a href="tel:+13029079162">(302) 907-9162</a></p>
+      </div>
     </div>
   </div>
+
+  <script>
+    (function () {
+      const SN_CONTACT_API = window.CONTACT_API_URL || 'https://eastern-shore-ai-contact.99redder.workers.dev/api/contact';
+      const overlay = document.getElementById('sn-contact-modal');
+      if (!overlay) return;
+      const form = document.getElementById('sn-contact-form');
+      const statusEl = document.getElementById('sn-contact-status');
+      const submitBtn = document.getElementById('sn-contact-submit');
+      const successEl = document.getElementById('sn-contact-success');
+      const successLine = document.getElementById('sn-contact-success-line');
+      const introEl = document.querySelector('.sn-contact-intro');
+      const altEl = document.querySelector('.sn-contact-alt');
+      const titleEl = document.getElementById('sn-contact-title');
+      const cardEl = overlay.querySelector('.sn-contact-card');
+
+      function showFormView() {
+        successEl.classList.remove('show');
+        form.style.display = '';
+        introEl.style.display = '';
+        altEl.style.display = '';
+        titleEl.textContent = 'Contact Us';
+        statusEl.textContent = '';
+        statusEl.className = 'sn-contact-status';
+      }
+
+      function showSuccessView(email) {
+        form.style.display = 'none';
+        introEl.style.display = 'none';
+        altEl.style.display = 'none';
+        titleEl.textContent = 'Message Sent';
+        successLine.innerHTML = email
+          ? 'Thanks &mdash; your message is on its way. We\'ll reply to <strong>' + email.replace(/[<>&"]/g, '') + '</strong>.'
+          : 'Thanks &mdash; your message is on its way to the Eastern Shore AI team.';
+        successEl.classList.add('show');
+        cardEl.scrollTop = 0;
+      }
+
+      let scrollLockY = 0;
+
+      function lockScroll() {
+        scrollLockY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.position = 'fixed';
+        document.body.style.top = '-' + scrollLockY + 'px';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+      }
+      function unlockScroll() {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        window.scrollTo(0, scrollLockY);
+      }
+
+      function openModal() {
+        showFormView();
+        lockScroll();
+        overlay.classList.add('open');
+        overlay.setAttribute('aria-hidden', 'false');
+        overlay.scrollTop = 0;
+        overlay.querySelector('.sn-contact-card').scrollTop = 0;
+        // Skip autofocus on touch/narrow screens so the keyboard doesn't
+        // immediately cover the form and scroll the header out of view.
+        const isTouch = window.matchMedia('(hover: none), (max-width: 560px)').matches;
+        if (!isTouch) setTimeout(() => document.getElementById('sn-contact-name').focus(), 40);
+      }
+      function closeModal() {
+        overlay.classList.remove('open');
+        overlay.setAttribute('aria-hidden', 'true');
+        unlockScroll();
+      }
+      window.openSurvivalNodeContact = openModal;
+
+      document.getElementById('sn-contact-close').addEventListener('click', closeModal);
+      document.getElementById('sn-contact-done').addEventListener('click', closeModal);
+      document.getElementById('sn-contact-again').addEventListener('click', () => {
+        showFormView();
+        cardEl.scrollTop = 0;
+        document.getElementById('sn-contact-name').focus();
+      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+      });
+
+      document.querySelectorAll('.sn-contact-trigger').forEach(el => {
+        el.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = new FormData(form);
+        if (data.get('company')) return; // honeypot tripped
+
+        const name = (data.get('name') || '').trim();
+        const email = (data.get('email') || '').trim();
+        const body = (data.get('message') || '').trim();
+
+        if (!name || !email || !body) {
+          statusEl.textContent = 'Please fill in your name, email, and message.';
+          statusEl.className = 'sn-contact-status err';
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          statusEl.textContent = 'Please enter a valid email address.';
+          statusEl.className = 'sn-contact-status err';
+          return;
+        }
+
+        const message =
+          'Request Type: Privacy Policy Page Inquiry\n' +
+          'Topic: ' + (data.get('topic') || 'Privacy Request') + '\n' +
+          'Name: ' + name + '\n' +
+          'Email: ' + email + '\n' +
+          'Phone: ' + ((data.get('phone') || '').trim() || 'Not provided') + '\n' +
+          'Order Number: ' + ((data.get('order-number') || '').trim() || 'Not provided') + '\n' +
+          'Preferred Contact: ' + (data.get('contact-method') || 'email') + '\n' +
+          'Page: ' + window.location.pathname + '\n' +
+          '\nMessage:\n' + body;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+        statusEl.textContent = '';
+        statusEl.className = 'sn-contact-status';
+
+        try {
+          const res = await fetch(SN_CONTACT_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'contact', name, email, message })
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok || !json.ok) throw new Error(json.error || 'Submit failed');
+          form.reset();
+          showSuccessView(email);
+        } catch (err) {
+          statusEl.textContent = 'Could not send right now. Please email contact@easternshore.ai or try again.';
+          statusEl.className = 'sn-contact-status err';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      });
+    })();
+  </script>
+
 </body>
 </html>

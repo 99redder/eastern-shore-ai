@@ -601,7 +601,7 @@
           <a href="#" class="footer-link" id="contact-link">Contact Us</a>
           <a href="#" class="footer-link" id="about-link">About Us</a>
           <a href="#" class="footer-link" id="terms-link">Terms of Use</a>
-          <a href="#" class="footer-link" id="privacy-link">Privacy Policy</a>
+          <a href="/privacy.html" class="footer-link">Privacy Policy</a>
         </div>
       </div>
     </footer>
@@ -647,18 +647,6 @@
     </div>
   </div>
 
-  <div class="success-modal-overlay" id="privacy-modal" aria-hidden="true">
-    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
-      <h3 id="privacy-title">Privacy Policy</h3>
-      <p>We collect only information you voluntarily submit through forms (such as name, email, and message details) to respond to inquiries and provide requested services.</p>
-      <p>Submitted information is used for communication and project follow-up. We do not sell personal data. Trusted service providers may process form delivery and email notifications.</p>
-      <p>If you want submitted information corrected or deleted, contact us and we’ll handle it promptly, subject to legal or operational retention requirements.</p>
-      <p>Contact: <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a></p>
-      <div class="simple-modal-actions">
-        <button type="button" class="btn btn-primary" id="privacy-close-btn">Close</button>
-      </div>
-    </div>
-  </div>
 
   <!-- ===== SECTION: OpenClaw Info Modal ===== -->
   <div class="success-modal-overlay" id="openclaw-info-modal" aria-hidden="true">
@@ -747,7 +735,7 @@
     //                  renderTimeOptions() — Rebuild time dropdown based on selected date + availability
     // Booking:         (inline) — Form submit handler creates Stripe checkout session
     // Modals:          openSuccessModal(text) / closeSuccessModal() — Post-payment success modal
-    //                  openSimpleModal(el) / closeSimpleModal(el) — About/Terms/Privacy/Contact modals
+    //                  openSimpleModal(el) / closeSimpleModal(el) — About/Terms/Contact modals
 
     // ===== KEY DOM ELEMENTS =====
     // #setup-date              — Date picker for booking
@@ -759,7 +747,7 @@
     // .back-btn                — Home navigation link (in first card)
     // #success-modal           — Post-payment success overlay
     // #success-date, #success-time — Confirmation details in success modal
-    // #about-modal, #contact-modal, #terms-modal, #privacy-modal — Info modals
+    // #about-modal, #contact-modal, #terms-modal — Info modals
 
     document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -800,18 +788,15 @@
     const contactLink = document.getElementById('contact-link');
     const aboutLink = document.getElementById('about-link');
     const termsLink = document.getElementById('terms-link');
-    const privacyLink = document.getElementById('privacy-link');
 
     const contactModal = document.getElementById('contact-modal');
     const aboutModal = document.getElementById('about-modal');
     const termsModal = document.getElementById('terms-modal');
-    const privacyModal = document.getElementById('privacy-modal');
 
     const contactGoBtn = document.getElementById('contact-go-btn');
     const contactCloseBtn = document.getElementById('contact-close-btn');
     const aboutCloseBtn = document.getElementById('about-close-btn');
     const termsCloseBtn = document.getElementById('terms-close-btn');
-    const privacyCloseBtn = document.getElementById('privacy-close-btn');
 
     const successModal = document.getElementById('success-modal');
     const successTitle = document.getElementById('success-title');
@@ -893,11 +878,6 @@
       openSimpleModal(termsModal);
     });
 
-    privacyLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      openSimpleModal(privacyModal);
-    });
-
     contactGoBtn.addEventListener('click', () => {
       closeSimpleModal(contactModal);
       document.getElementById('setup-page-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -905,7 +885,6 @@
     contactCloseBtn.addEventListener('click', () => closeSimpleModal(contactModal));
     aboutCloseBtn.addEventListener('click', () => closeSimpleModal(aboutModal));
     termsCloseBtn.addEventListener('click', () => closeSimpleModal(termsModal));
-    privacyCloseBtn.addEventListener('click', () => closeSimpleModal(privacyModal));
 
     contactModal.addEventListener('click', (e) => {
       if (e.target === contactModal) closeSimpleModal(contactModal);
@@ -915,9 +894,6 @@
     });
     termsModal.addEventListener('click', (e) => {
       if (e.target === termsModal) closeSimpleModal(termsModal);
-    });
-    privacyModal.addEventListener('click', (e) => {
-      if (e.target === privacyModal) closeSimpleModal(privacyModal);
     });
 
     successCloseBtn.addEventListener('click', closeSuccessModal);
@@ -1063,7 +1039,6 @@
       if (e.key === 'Escape' && contactModal.classList.contains('active')) closeSimpleModal(contactModal);
       if (e.key === 'Escape' && aboutModal.classList.contains('active')) closeSimpleModal(aboutModal);
       if (e.key === 'Escape' && termsModal.classList.contains('active')) closeSimpleModal(termsModal);
-      if (e.key === 'Escape' && privacyModal.classList.contains('active')) closeSimpleModal(privacyModal);
       if (e.key === 'Escape' && successModal.classList.contains('active')) closeSuccessModal();
     });
 
