@@ -723,6 +723,7 @@
         <form id="newsletter-form" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
           <input type="email" placeholder="your@email.com" required style="flex: 1; min-width: 200px; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--text); font-size: 1rem;">
           <button type="submit" class="btn btn-primary">Subscribe</button>
+          <input type="text" name="email_address_check" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;">
         </form>
       </div>
       
@@ -1085,24 +1086,29 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
     // Newsletter form
     document.getElementById('newsletter-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const email = this.querySelector('input[type="email"]').value;
+      // Same Brevo sign-up form as newsletter.html, so the address lands in Brevo Contacts.
+      const email = this.querySelector('input[type="email"]').value.trim();
+      // Brevo answers "success" even for a malformed address, so check it here first.
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        window.showStatusModal('Check Your Email', 'Please enter a valid email address.');
+        return;
+      }
+      const button = this.querySelector('button[type="submit"]');
+      button.disabled = true;
       try {
-        const res = await fetch(CONTACT_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: 'newsletter',
-            name: 'Newsletter Signup',
-            email,
-            message: 'Please add this email to the newsletter list.'
-          })
-        });
+        const body = new FormData();
+        body.append('EMAIL', email);
+        body.append('email_address_check', this.querySelector('input[name="email_address_check"]').value); // honeypot: bots fill it, Brevo drops them
+        body.append('locale', 'en');
+        const res = await fetch('https://b893ca94.sibforms.com/serve/MUIFAFHNpDgPU-nDfEV3TZttituEiSyIy4p0twQYehCWbO2QZjGgiYIf52Tzi8BjJZHKZaEdmpJZ8wZjawIvJ54EGnqgFvTS-rjUbDTxDA5ftlMluW-n-7ML1FaJ098ByQDvenhzBTDbOJfcfDg1fBs0YLFY3Jvggh62UAvuUmlC3dv5iF1pqPDzqeODqH3UpQhEaJF7yQfUR4bGrA==?isAjax=1', { method: 'POST', body });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Submit failed');
-        window.showStatusModal('Subscribed ✅', 'Subscribed — thanks! We will get back to you within 24 hours if follow-up is needed.');
+        if (!res.ok || !data.success) throw new Error(data.message || 'Submit failed');
+        window.showStatusModal('Subscribed ✅', "You're subscribed! Welcome to the Eastern Shore AI newsletter.");
         this.reset();
       } catch (err) {
-        window.showStatusModal('Signup Failed', 'Could not submit newsletter signup right now. Please try again.');
+        window.showStatusModal('Signup Failed', 'Your subscription could not be saved. Please try again.');
+      } finally {
+        button.disabled = false;
       }
     });
 

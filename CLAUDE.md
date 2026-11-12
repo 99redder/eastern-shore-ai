@@ -564,6 +564,7 @@ Both booking pages now share the same modal architecture:
 ## Session Update — 2026-02-20 (Footer newsletter, homepage polish)
 
 ### Brevo newsletter embed — all 4 pages (`index.html`, `book-lessons.html`, `openclaw-setup.html`, `ai-agent-repair.html`)
+- **Current state (2026-11-11):** the Brevo embed is on `newsletter.html`, `book-lessons.html`, `openclaw-setup.html` and `ai-agent-repair.html`. `index.html`, `ai-automation.html` and `node.html` have a plain "Our Newsletter" box (`#newsletter-form`) that posts to the same Brevo form endpoint with `fetch` (`<action>?isAjax=1`, fields `EMAIL`, `email_address_check` honeypot, `locale`; Brevo replies `{ success }`), so every sign-up lands in Brevo Contacts. Before 2026-11-11 that box went to the worker's `/api/contact` (`mode: 'newsletter'`), which only emailed Red ("General Inquiry", "Mode: newsletter") and never reached Brevo. Brevo answers `success` even for a malformed address, so the box validates the email first. If the Brevo form is ever recreated, update its action URL in all 7 pages.
 - Replaced placeholder footer content with Brevo (Sendinblue) HTML form embed
 - Form styled to match site branding:
   - Container background `#141620`, border `#222438`, no default Brevo padding (`padding: 0.7rem !important`)
