@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildFeed, saleEffectiveDate, COLUMNS } from '../../tools/meta-catalog.mjs';
+import { buildFeed, saleEffectiveDate, COLUMNS, META_IMAGES, metaImageUrls, imageInfo, productFromPage } from '../../tools/meta-catalog.mjs';
 import { NODE_SALES } from '../src/node-price.js';
 
 const root = new URL('../../', import.meta.url);
@@ -47,13 +47,37 @@ test('feed item matches the Commerce Manager item and node.html', () => {
   assert.equal(row.brand, 'Eastern Shore AI');
   assert.equal(row.fb_product_category, 'Sporting Goods > Emergency Preparedness > Emergency Tools & Kits');
   assert.equal(row.image_link, 'https://www.easternshore.ai/images/carousel/entirenode/wholekit-gen2.jpg');
-  assert.deepEqual(row.additional_image_link.split(', '), [
-    'https://www.easternshore.ai/images/carousel/solarbattery/solar-battery-gen2.jpg',
-    'https://www.easternshore.ai/images/carousel/upgrades/faraday2.jpg',
-    'https://www.easternshore.ai/images/carousel/case/case3.jpg'
-  ]);
+  const additional = row.additional_image_link.split(', ');
+  assert.equal(additional.length, 14);
+  assert.deepEqual(additional, META_IMAGES.slice(1).map((p) => `https://www.easternshore.ai/${p}`));
+  assert.equal(additional[0], 'https://www.easternshore.ai/images/carousel/entirenode/survival-node-kit-closed-white.jpg');
+  assert.equal(additional[13], 'https://www.easternshore.ai/images/carousel/phone/background.jpg');
   assert.match(row.description, /^A hardened smartphone pre-loaded with offline AI/);
   assert.doesNotMatch(row.description, /<|https?:/);
+});
+
+test('every Meta photo exists and is within Meta\'s limits', () => {
+  assert.equal(META_IMAGES.length, 15);
+  assert.equal(new Set(META_IMAGES).size, 15, 'no duplicates');
+  assert.equal(metaImageUrls().length, 15);
+  const kit = imageInfo(readFileSync(new URL(META_IMAGES[0], root)));
+  assert.deepEqual(kit, { type: 'jpeg', width: 1329, height: 1600 });
+});
+
+test('a missing or undersized photo stops the feed instead of shipping it', () => {
+  assert.throws(() => metaImageUrls(['images/carousel/entirenode/wholekit-gen2.jpg', 'images/carousel/nope.jpg']), /nope\.jpg: file not found/);
+  assert.throws(() => metaImageUrls(['images/carousel/entirenode/wholekit-gen2.jpg', 'images/carousel/case/case1.png']), /case1\.png: 422x345, under 500 x 500/);
+});
+
+test('Google is untouched: node.html JSON-LD photos still match merchant-feed.xml', () => {
+  const jsonLd = productFromPage(nodeHtml).image;
+  const feed = read('merchant-feed.xml');
+  const google = [
+    ...[...feed.matchAll(/<g:image_link>([^<]+)<\/g:image_link>/g)].map((m) => m[1]),
+    ...[...feed.matchAll(/<g:additional_image_link>([^<]+)<\/g:additional_image_link>/g)].map((m) => m[1])
+  ];
+  assert.deepEqual(jsonLd, google);
+  assert.equal(google.length, 4);
 });
 
 test('sale columns carry the running or next sale, blank after the last one', () => {
