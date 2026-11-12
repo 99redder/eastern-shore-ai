@@ -9,10 +9,19 @@
 //   node tools/node-price-pages.mjs                     apply today's price
 //   node tools/node-price-pages.mjs --date 2026-11-01   apply that day's price
 //   node tools/node-price-pages.mjs --check             exit 1 if out of date
+//   node tools/node-price-pages.mjs --check-windows     exit 1 if seasonal-sale.js's
+//                                                       sale windows differ from node-price.js
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { nodePrice, currentOrNextSale, NODE_REGULAR_CENTS, NODE_SALE_CENTS } from '../worker/src/node-price.js';
+import { nodePrice, currentOrNextSale, NODE_REGULAR_CENTS, NODE_SALE_CENTS, NODE_SALES } from '../worker/src/node-price.js';
+
+// The sale windows in seasonal-sale.js, the browser's hand-kept copy of NODE_SALES
+// (it has to set the price before the page draws, so it can't load them).
+export function seasonalSaleWindows(src) {
+  return [...src.matchAll(/key: '([^']+)', name: '([^']+)', start: '([^']+)', end: '([^']+)',\s*endsLong: '([^']+)'/g)]
+    .map(([, key, name, start, end, endsLong]) => ({ key, name, start, end, endsLong }));
+}
 
 const REGULAR = (NODE_REGULAR_CENTS / 100).toFixed(2);
 const SALE = (NODE_SALE_CENTS / 100).toFixed(2);
@@ -86,6 +95,18 @@ export function applyFeed(xml, upcoming) {
 
 function main() {
   const args = process.argv.slice(2);
+  if (args.includes('--check-windows')) {
+    const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+    const page = seasonalSaleWindows(readFileSync(join(root, 'seasonal-sale.js'), 'utf8'));
+    if (JSON.stringify(page) === JSON.stringify(NODE_SALES)) {
+      console.log('Sale windows: seasonal-sale.js matches worker/src/node-price.js.');
+      return;
+    }
+    console.error('Sale windows DIFFER. Make SALES in seasonal-sale.js match NODE_SALES in worker/src/node-price.js:');
+    console.error(`  seasonal-sale.js: ${JSON.stringify(page)}`);
+    console.error(`  node-price.js:    ${JSON.stringify(NODE_SALES)}`);
+    process.exit(1);
+  }
   const check = args.includes('--check');
   const dateArg = args[args.indexOf('--date') + 1];
   // midday UTC is the same calendar day in Eastern time

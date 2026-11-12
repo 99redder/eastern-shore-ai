@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import worker from '../src/index.js';
 import { nodePrice, currentOrNextSale, NODE_SALES } from '../src/node-price.js';
-import { applyNodePage, applyBuyPage, applyFeed } from '../../tools/node-price-pages.mjs';
+import { applyNodePage, applyBuyPage, applyFeed, seasonalSaleWindows } from '../../tools/node-price-pages.mjs';
 
 const root = new URL('../../', import.meta.url);
 const read = (name) => readFileSync(new URL(name, root), 'utf8');
@@ -35,10 +35,7 @@ test('sale price only inside a sale window, by Eastern date', () => {
 });
 
 test('seasonal-sale.js uses the same sale windows as checkout', () => {
-  const src = read('seasonal-sale.js');
-  const page = [...src.matchAll(/key: '([^']+)', name: '([^']+)', start: '([^']+)', end: '([^']+)',\s*endsLong: '([^']+)'/g)]
-    .map(([, key, name, start, end, endsLong]) => ({ key, name, start, end, endsLong }));
-  assert.deepEqual(page, NODE_SALES);
+  assert.deepEqual(seasonalSaleWindows(read('seasonal-sale.js')), NODE_SALES);
 });
 
 test('checkout charges $299.99 in a sale and $349.99 between sales', async (t) => {

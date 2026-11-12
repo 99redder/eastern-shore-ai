@@ -1,8 +1,10 @@
-# Keeps the Survival Node price that Google and no-JS visitors read (node.html
-# JSON-LD and meta, <html data-price>, merchant-feed.xml sale dates) on the
-# sale schedule in worker/src/node-price.js. Runs just after midnight Eastern
-# and commits only when something changed. Visitors with JS and checkout switch
-# at midnight on their own.
+# Keeps the Survival Node price that Google, Meta and no-JS visitors read
+# (node.html JSON-LD and meta, <html data-price>, merchant-feed.xml sale dates,
+# meta-catalog.csv sale dates) on the sale schedule in worker/src/node-price.js.
+# Runs just after midnight Eastern and commits only when something changed.
+# Visitors with JS and checkout switch at midnight on their own.
+# The last step fails the run (GitHub emails the repo owner) if seasonal-sale.js's
+# copy of the sale windows no longer matches node-price.js.
 name: Survival Node price
 
 on:
@@ -25,10 +27,15 @@ jobs:
         with:
           node-version: 22
       - run: node tools/node-price-pages.mjs
+      - run: node tools/meta-catalog.mjs
       - name: Commit if changed
         run: |
-          if git diff --quiet; then exit 0; fi
+          files="node.html buynode.html merchant-feed.xml meta-catalog.csv"
+          if [ -z "$(git status --porcelain -- $files)" ]; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -am "Survival Node price for $(TZ=America/New_York date +%F)"
+          git add -- $files
+          git commit -m "Survival Node price and Meta feed for $(TZ=America/New_York date +%F)"
           git push
+      - name: Check seasonal-sale.js has the same sale windows
+        run: node tools/node-price-pages.mjs --check-windows
