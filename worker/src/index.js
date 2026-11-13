@@ -15,6 +15,7 @@ import { handlePageVisit } from './page-visits.js';
 import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, wantsOrderStatus, ASKK_CONVERSATION_LIMIT } from './ask-k-claude.js';
 import { sendOrderStatusEmail, normalizeOrderNumber, normalizeShipDate, longDate } from './order-status.js';
 import { nodePrice, nodePriceSentence, easternDate } from './node-price.js';
+import { runNodePriceDispatch, runNodePriceFeedCheck, DISPATCH_CRONS, FEED_CHECK_CRONS } from './node-price-dispatch.js';
 import { stripeFee, stripeGet, reconcileEstimatedStripeFees } from './stripe-fees.js';
 import ASKK_SURVIVAL_NODE_KNOWLEDGE from '../askk-survival-node-knowledge.md';
 
@@ -619,6 +620,20 @@ export default {
   // Daily (cron in wrangler.toml): Ask K summary email, and estimated Stripe
   // fees in the books swapped for the real ones.
   async scheduled(event, env, ctx) {
+    // Midnight-Eastern crons: start the Survival Node price workflow on sale-change
+    // nights and check the feed half an hour later (src/node-price-dispatch.js).
+    const notifyAlert = ({ subject, text }) => sendStaffOperationalAlert(env, { subject, text, from: env.ALERTS_FROM_EMAIL });
+    if (DISPATCH_CRONS.includes(event.cron)) {
+      ctx.waitUntil(runNodePriceDispatch(env, { now: new Date(event.scheduledTime || Date.now()), notify: notifyAlert })
+        .catch(e => console.error('Survival Node price dispatch failed', e)));
+      return;
+    }
+    if (FEED_CHECK_CRONS.includes(event.cron)) {
+      ctx.waitUntil(runNodePriceFeedCheck(env, { now: new Date(event.scheduledTime || Date.now()), notify: notifyAlert })
+        .catch(e => console.error('Survival Node feed check failed', e)));
+      return;
+    }
+    // Daily 12:00 UTC cron.
     ctx.waitUntil(sendAskKDailySummary(env, sendAskKAlert).catch(e => console.error('Ask K daily summary failed', e)));
     ctx.waitUntil(reconcileEstimatedStripeFees(env, {
       upsertTaxExpenseJournal,

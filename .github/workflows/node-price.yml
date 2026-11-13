@@ -10,8 +10,9 @@
 # copy of the sale windows no longer matches node-price.js.
 #
 # GitHub starts scheduled runs late, sometimes by hours (in Nov 2026 this one
-# started 6 to 8.5 hours late every day), so a start that has to beat Meta's
-# 1:00 AM fetch needs an on-time workflow_dispatch from outside GitHub.
+# started 6 to 8.5 hours late every day), so on sale-change nights the API
+# worker starts this workflow by workflow_dispatch at 12:01 AM Eastern
+# (worker/src/node-price-dispatch.js). The schedule below is the backup.
 name: Survival Node price
 
 on:

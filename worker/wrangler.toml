@@ -11,8 +11,12 @@ enabled = true
 service = "worker-error-alerts"
 
 # Daily Ask K summary email at 12:00 UTC (8 AM EDT / 7 AM EST).
+# Survival Node price switch (src/node-price-dispatch.js): :01 starts the
+# node-price.yml GitHub Action on sale-change nights and checks the GitHub token
+# every night; :31 checks the live Meta feed on those nights. Each is listed at
+# 04:00 and 05:00 UTC, and the code keeps the one that is midnight Eastern.
 [triggers]
-crons = ["0 12 * * *"]
+crons = ["0 12 * * *", "1 4 * * *", "1 5 * * *", "31 4 * * *", "31 5 * * *"]
 
 # Lets src/index.js import askk-survival-node-knowledge.md as text.
 [[rules]]
@@ -107,3 +111,5 @@ service = "fmg-stripe-api"
 # Other secrets (set via `wrangler secret put`):
 # - ASKK_STAFF_WEBHOOK_URL: webhook URL for escalation notifications (optional)
 # - SUPPORT_NOTIFY_TOKEN: dedicated read-only Mac notifier credential
+# - GITHUB_DISPATCH_TOKEN: fine-grained GitHub token (99redder/eastern-shore-ai, Actions: read and write)
+#   that starts node-price.yml at midnight Eastern on sale-change nights (src/node-price-dispatch.js)
