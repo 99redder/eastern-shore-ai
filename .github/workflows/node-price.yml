@@ -1,16 +1,23 @@
 # Keeps the Survival Node price that Google, Meta and no-JS visitors read
 # (node.html JSON-LD and meta, <html data-price>, merchant-feed.xml sale dates,
-# meta-catalog.csv sale dates) on the sale schedule in worker/src/node-price.js.
-# Runs just after midnight Eastern and commits only when something changed.
+# meta-catalog.csv sale columns) on the sale schedule in worker/src/node-price.js.
+# Runs just after midnight Eastern every day and commits only when something
+# changed, which is on each sale's first day (meta-catalog.csv gains the sale
+# price) and on the day after its last (the sale price comes out again). Meta
+# fetches meta-catalog.csv at 1:00 AM Eastern, so the run has to land before then.
 # Visitors with JS and checkout switch at midnight on their own.
 # The last step fails the run (GitHub emails the repo owner) if seasonal-sale.js's
 # copy of the sale windows no longer matches node-price.js.
+#
+# GitHub starts scheduled runs late, sometimes by hours (in Nov 2026 this one
+# started 6 to 8.5 hours late every day), so a start that has to beat Meta's
+# 1:00 AM fetch needs an on-time workflow_dispatch from outside GitHub.
 name: Survival Node price
 
 on:
   schedule:
-    - cron: '5 4 * * *'   # 00:05 EDT
-    - cron: '5 5 * * *'   # 00:05 EST
+    - cron: '5 4 * * *'   # 00:05 EDT (11:05 PM the evening before in EST)
+    - cron: '5 5 * * *'   # 00:05 EST (1:05 AM in EDT)
   workflow_dispatch:
 
 permissions:
@@ -22,7 +29,11 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     steps:
+      # ref: main takes the branch tip when the job starts, not the commit the
+      # run was queued on, so a late or queued run sees the last run's commit.
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -36,6 +47,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -- $files
           git commit -m "Survival Node price and Meta feed for $(TZ=America/New_York date +%F)"
-          git push
+          git pull --rebase origin main
+          git push origin HEAD:main
       - name: Check seasonal-sale.js has the same sale windows
         run: node tools/node-price-pages.mjs --check-windows

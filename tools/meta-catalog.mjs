@@ -6,11 +6,16 @@
 // the same source checkout and tools/node-price-pages.mjs use. The description
 // comes from the Product JSON-LD in node.html. The photos are META_IMAGES below,
 // Meta's own list: node.html's JSON-LD keeps the 4 photos Google reads (and
-// merchant-feed.xml mirrors), so adding photos there would change Google. Meta takes one sale
-// window per item, so the feed carries the running sale or the next one, and
-// leaves both sale columns blank once the last sale has ended. Meta switches
-// prices on the dates itself; the feed only changes when a window passes.
-// .github/workflows/node-price.yml runs this just after midnight Eastern.
+// merchant-feed.xml mirrors), so adding photos there would change Google.
+//
+// sale_price and sale_price_effective_date are filled in only while a sale is
+// running (today's Eastern date is inside a window) and left blank at every
+// other time, including before a sale starts. Meta is meant to wait for the
+// effective date, but Facebook's "Shop This Photo" card showed a future sale
+// price (Nov 13, 2026, for a sale starting Nov 27) while checkout charged the
+// regular price, so the feed never announces a sale early.
+// .github/workflows/node-price.yml runs this just after midnight Eastern, so the
+// file changes on each sale's first day and on the day after its last.
 //
 // Columns follow Meta's catalog field reference:
 // https://developers.facebook.com/docs/commerce-platform/catalog/fields/
@@ -21,7 +26,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { currentOrNextSale, NODE_REGULAR_CENTS, NODE_SALE_CENTS } from '../worker/src/node-price.js';
+import { nodePrice, NODE_REGULAR_CENTS, NODE_SALE_CENTS } from '../worker/src/node-price.js';
 
 // Same values as the item first added by hand in Commerce Manager. Meta ignores
 // every copy of an id that appears more than once in a catalog, so delete the
@@ -151,10 +156,15 @@ function csvField(value) {
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
+// The sale running now (Eastern date), or null between sales and after the last.
+export function activeSale(now = new Date()) {
+  return nodePrice(now).sale;
+}
+
 export function buildFeed(html, now = new Date()) {
   const description = descriptionFromPage(html);
   const images = metaImageUrls();
-  const sale = currentOrNextSale(now);
+  const sale = activeSale(now);
   const row = {
     ...ITEM,
     description,
@@ -178,8 +188,8 @@ function main() {
   const feedPath = join(ROOT, 'meta-catalog.csv');
   const after = buildFeed(readFileSync(join(ROOT, 'node.html'), 'utf8'), now);
   const before = existsSync(feedPath) ? readFileSync(feedPath, 'utf8') : '';
-  const sale = currentOrNextSale(now);
-  const state = sale ? `${sale.name} ${saleEffectiveDate(sale)}` : 'no sale price (no sale running or coming up)';
+  const sale = activeSale(now);
+  const state = sale ? `${sale.name} running, ${saleEffectiveDate(sale)}` : 'no sale running, sale columns blank';
 
   if (after === before) {
     console.log(`Meta catalog feed: ${state}. Already up to date.`);

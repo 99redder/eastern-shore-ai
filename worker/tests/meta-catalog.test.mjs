@@ -1,10 +1,10 @@
 // Meta catalog feed (tools/meta-catalog.mjs -> meta-catalog.csv): the columns
 // Meta reads, the item values that match the hand-made Commerce Manager item,
-// and sale dates that follow the schedule in src/node-price.js.
+// and sale columns that are filled only while a sale in src/node-price.js is running.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildFeed, saleEffectiveDate, COLUMNS, META_IMAGES, metaImageUrls, imageInfo, productFromPage } from '../../tools/meta-catalog.mjs';
+import { buildFeed, activeSale, saleEffectiveDate, COLUMNS, META_IMAGES, metaImageUrls, imageInfo, productFromPage } from '../../tools/meta-catalog.mjs';
 import { NODE_SALES } from '../src/node-price.js';
 
 const root = new URL('../../', import.meta.url);
@@ -80,15 +80,22 @@ test('Google is untouched: node.html JSON-LD photos still match merchant-feed.xm
   assert.equal(google.length, 4);
 });
 
-test('sale columns carry the running or next sale, blank after the last one', () => {
+test('sale columns are filled only while a sale is running, blank before, between and after', () => {
+  const blackFriday = '2026-11-27T00:00-05:00/2026-11-30T23:59-05:00';
+  const christmas = '2026-12-12T00:00-05:00/2026-12-18T23:59-05:00';
   const cases = [
-    ['2026-11-12', '2026-11-27T00:00-05:00/2026-11-30T23:59-05:00'],
-    ['2026-11-26', '2026-11-27T00:00-05:00/2026-11-30T23:59-05:00'],
-    ['2026-11-27', '2026-11-27T00:00-05:00/2026-11-30T23:59-05:00'],
-    ['2026-11-30', '2026-11-27T00:00-05:00/2026-11-30T23:59-05:00'],
-    ['2026-12-01', '2026-12-12T00:00-05:00/2026-12-18T23:59-05:00'],
-    ['2026-12-18', '2026-12-12T00:00-05:00/2026-12-18T23:59-05:00'],
-    ['2026-12-19', '']
+    ['2026-10-31', '2026-10-01T00:00-04:00/2026-10-31T23:59-04:00'],
+    ['2026-11-01', ''],
+    ['2026-11-13', ''],
+    ['2026-11-26', ''],
+    ['2026-11-27', blackFriday],
+    ['2026-11-30', blackFriday],
+    ['2026-12-01', ''],
+    ['2026-12-11', ''],
+    ['2026-12-12', christmas],
+    ['2026-12-18', christmas],
+    ['2026-12-19', ''],
+    ['2027-03-01', '']
   ];
   for (const [day, dates] of cases) {
     const row = feedOn(day);
@@ -96,6 +103,20 @@ test('sale columns carry the running or next sale, blank after the last one', ()
     assert.equal(row.sale_price, dates ? '299.99 USD' : '', day);
     assert.equal(row.price, '349.99 USD', day);
   }
+});
+
+test('sale columns switch at midnight Eastern, not midnight UTC', () => {
+  const salePrice = (iso) => {
+    const [header, item] = parseCsv(buildFeed(nodeHtml, new Date(iso)));
+    return item[header.indexOf('sale_price')];
+  };
+  // 11:59 PM EST on Nov 26 is already Nov 27 in UTC: still no sale
+  assert.equal(salePrice('2026-11-26T23:59:00-05:00'), '');
+  assert.equal(salePrice('2026-11-27T00:00:00-05:00'), '299.99 USD');
+  assert.equal(salePrice('2026-11-30T23:59:00-05:00'), '299.99 USD');
+  assert.equal(salePrice('2026-12-01T00:00:00-05:00'), '');
+  assert.equal(activeSale(new Date('2026-12-12T00:05:00-05:00')).key, 'christmas');
+  assert.equal(activeSale(new Date('2026-12-19T00:05:00-05:00')), null);
 });
 
 test('effective dates use the Eastern offset for each end (EDT in October)', () => {
