@@ -16,6 +16,7 @@
     deliverStart: `${BASE}/api/film/deliver/start`,
     deliverPart: `${BASE}/api/film/deliver/part`,
     deliverComplete: `${BASE}/api/film/deliver/complete`,
+    staffLink: `${BASE}/api/film/staff-link`,
   };
   const $ = (id) => document.getElementById(id);
   let projects = [];
@@ -148,7 +149,8 @@
         ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
         <div class="web-row-actions">
           <button type="button" class="btn action-pop" data-film-action="toggle" data-film-id="${id}">${isOpen ? 'Hide Details' : 'Details & Files'}</button>
-          ${paid ? `<button type="button" class="btn action-pop" data-film-action="copy" data-film-id="${id}">Copy Dashboard Link</button>
+          ${paid ? `<button type="button" class="btn action-pop" data-film-action="staff" data-film-id="${id}">Open Dashboard (staff)</button>
+          <button type="button" class="btn action-pop" data-film-action="copy" data-film-id="${id}">Copy Dashboard Link</button>
           <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="welcome" data-film-id="${id}">Resend Dashboard Link</button>
           <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="demo" data-film-id="${id}">Email Demo Ready</button>
           <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="final" data-film-id="${id}">Email Final Film</button>
@@ -252,6 +254,13 @@
     try {
       if (action === 'toggle') {
         if (open.has(id)) { open.delete(id); renderList(); } else { open.add(id); renderList(); loadDetail(id); }
+      } else if (action === 'staff') {
+        // Open the window now (still inside the click) so pop-up blockers allow it, then send it to the one-time link.
+        const w = window.open('', '_blank');
+        try {
+          const r = await call(API.staffLink, { id });
+          if (w) w.location.href = r.url; else prompt('Open this link within 10 minutes (it works once):', r.url);
+        } catch (err) { if (w) w.close(); throw err; }
       } else if (action === 'copy') {
         try { await navigator.clipboard.writeText(p.dashboard_url); openSuccessModal('Dashboard link copied.', 'Copied'); } catch { prompt('Copy the dashboard link:', p.dashboard_url); }
       } else if (action === 'email') {

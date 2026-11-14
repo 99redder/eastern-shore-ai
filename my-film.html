@@ -135,6 +135,9 @@
     .people .pe { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .people .pe b { color: var(--ivory); font-weight: 600; }
     .people .pe span { color: var(--muted); font-size: 14px; }
+    .staff-bar { background: #2a2216; border-bottom: 1px solid var(--gold); color: var(--gold2); font-size: 14px; line-height: 1.45; }
+    .staff-bar .wrap { padding-top: 9px; padding-bottom: 9px; }
+    .staff-bar b { color: var(--ivory); }
     .people .tag { font-size: 12px; color: var(--gold2); border: 1px solid var(--gold); border-radius: 999px; padding: 2px 9px; }
     .people button { background: none; border: 0; color: var(--dim); font-size: 14px; cursor: pointer; text-decoration: underline; }
     .people button:hover { color: var(--err); }
@@ -174,6 +177,7 @@
       <span class="pill" id="status-pill" hidden></span>
     </div>
   </header>
+  <div class="staff-bar" id="staff-bar" role="status" hidden><div class="wrap"><b>Staff view.</b> You're signed in as Chris. The customer sees everything you do here: chat messages go to them from Chris and email them like console replies, and adding a person emails that person an invitation.</div></div>
 
   <main class="wrap">
     <header class="hero">
@@ -402,6 +406,7 @@
     const params = new URLSearchParams(location.search);
     const token = params.get('t') || '';
     const sessionId = params.get('session_id') || '';
+    const staffCode = params.get('staff') || '';   // one-time link from admin -> staff view
     const $ = (id) => document.getElementById(id);
     let project = null;
     let saveTimer = null;
@@ -416,7 +421,8 @@
     try { device = localStorage.getItem(DKEY) || ''; } catch {}
     function saveDevice(t) { device = t || ''; try { if (device) localStorage.setItem(DKEY, device); else localStorage.removeItem(DKEY); } catch {} }
     // The address bar keeps only the film link (the Stripe session id stays in memory for the first load).
-    if (sessionId) history.replaceState(null, '', `${location.pathname}?t=${encodeURIComponent(token)}`);
+    if (sessionId || staffCode) history.replaceState(null, '', `${location.pathname}?t=${encodeURIComponent(token)}${params.get('local') === '1' ? '&local=1' : ''}`);
+    const isStaff = () => !!(project && project.me && project.me.isStaff);
 
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const sizeText = (b) => b >= 1073741824 ? `${(b / 1073741824).toFixed(1)} GB` : b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : b >= 1024 ? `${Math.round(b / 1024)} KB` : `${b} bytes`;
@@ -458,7 +464,8 @@
       const p = project;
       $('chat').hidden = !p.chat;
       $('notes-card').hidden = !p.chat;
-      $('people-card').hidden = !(p.me && p.me.isOwner && p.status !== 'canceled');
+      $('people-card').hidden = !(p.me && (p.me.isOwner || p.me.isStaff) && p.status !== 'canceled');
+      $('staff-bar').hidden = !isStaff();
       $('keepsakes-card').hidden = !p.chat;
       if (p.people) renderPeople(p.people);
       if (p.chat && document.activeElement !== $('notes')) $('notes').value = p.notes || '';
@@ -843,7 +850,7 @@
       if (m.id && m.id <= lastMsgId) return;
       if (m.id) lastMsgId = m.id;
       $('chat-empty')?.remove();
-      const mine = m.role === 'user';
+      const mine = isStaff() ? m.role === 'staff' : m.role === 'user';
       const b = document.createElement('div');
       b.className = `bubble ${mine ? 'me' : 'them'}`;
       b.innerHTML = `${mine ? '' : `<span class="who">${esc(m.sender_name || 'Chris')}</span>`}${esc(m.content)}<span class="when">${esc(fmtTime(m.created_at))}</span>`;
@@ -951,7 +958,7 @@
 
     // ----- people with access (the buyer only) -----
     function renderPeople(list) {
-      $('people-list').innerHTML = list.map((p) => `<li><div class="pe"><b>${esc(p.name || p.email)}</b>${p.name ? ` <span>${esc(p.email)}</span>` : ''}</div>${p.isOwner ? '<span class="tag">You</span>' : `<button type="button" data-remove="${esc(p.email)}">Remove</button>`}</li>`).join('');
+      $('people-list').innerHTML = list.map((p) => `<li><div class="pe"><b>${esc(p.name || p.email)}</b>${p.name ? ` <span>${esc(p.email)}</span>` : ''}</div>${p.isOwner ? `<span class="tag">${isStaff() ? 'Buyer' : 'You'}</span>` : `<button type="button" data-remove="${esc(p.email)}">Remove</button>`}</li>`).join('');
     }
     $('people-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -986,6 +993,11 @@
         return;
       }
       try {
+        if (staffCode && attempt === 0) {
+          // Trade the admin link's one-time code for a staff sign-in in this browser.
+          const s = await api('/api/film/access/staff', { t: token, code: staffCode });
+          saveDevice(s.deviceToken);
+        }
         const q = sessionId && !device ? `&session_id=${encodeURIComponent(sessionId)}` : '';
         const d = await api(`/api/film/dashboard?t=${encodeURIComponent(token)}${q}`);
         if (d.deviceToken) saveDevice(d.deviceToken);

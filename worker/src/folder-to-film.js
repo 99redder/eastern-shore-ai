@@ -22,7 +22,7 @@ import { easternDate } from './node-price.js';
 
 export const FILM_PRICE_CENTS = 19999;
 export const FILM_TAX_CODE = 'txcd_10402100'; // Digital Audio Visual Works - downloaded - non subscription - with permanent rights
-export const FILM_TERMS_VERSION = '2026-11-14.5';
+export const FILM_TERMS_VERSION = '2026-11-14.6';
 export const FILM_CHANGE_ROUNDS = 2;   // included in the price (folder-to-film.html, terms sections 2 and 10) // folder-to-film-terms.html; bump both together
 export const FILM_PART_BYTES = 20 * 1024 * 1024; // R2 multipart: every part but the last must be this size
 const MAX_FILE_BYTES = 50 * 1024 * 1024 * 1024; // 50 GB per file
@@ -155,6 +155,12 @@ export function createFilmHandlers(deps) {
   // browser needs a 6-digit code, which is only ever emailed to the buyer or to
   // a person the buyer added. Trust lasts DEVICE_DAYS in that browser.
   const DEVICE_DAYS = 90;
+  // Staff (Red) open any film's dashboard from admin with a one-time link; they're
+  // the "staff" person, their chat messages go out as Chris, and their sign-in lasts a week.
+  const STAFF_ID = 'staff';
+  const STAFF_NAME = 'Chris';
+  const STAFF_DEVICE_DAYS = 7;
+  const STAFF_LINK_MINUTES = 10;
   const CODE_MINUTES = 15;
   const MAX_PEOPLE = 10;
 
@@ -178,6 +184,7 @@ export function createFilmHandlers(deps) {
   async function personFor(env, row, email) {
     const e = normEmail(email);
     if (!e) return null;
+    if (e === STAFF_ID) return { email: STAFF_ID, name: STAFF_NAME, isOwner: false, isStaff: true };
     if (e === normEmail(row.customer_email)) return { email: e, name: row.customer_name || '', isOwner: true };
     const p = await env.DB.prepare(`SELECT email, name FROM film_people WHERE project_id = ?1 AND email = ?2`).bind(row.id, e).first();
     return p ? { email: p.email, name: p.name || '', isOwner: false } : null;
@@ -200,8 +207,9 @@ export function createFilmHandlers(deps) {
 
   async function issueDevice(env, row, email) {
     const tok = generateToken() + generateToken();
+    const days = normEmail(email) === STAFF_ID ? STAFF_DEVICE_DAYS : DEVICE_DAYS;
     await env.DB.prepare(`INSERT INTO film_devices (project_id, device_hash, email, expires_at) VALUES (?1, ?2, ?3, datetime('now', ?4))`)
-      .bind(row.id, await sha256Hex(tok), normEmail(email), `+${DEVICE_DAYS} days`).run();
+      .bind(row.id, await sha256Hex(tok), normEmail(email), `+${days} days`).run();
     return tok;
   }
 
@@ -550,7 +558,7 @@ export function createFilmHandlers(deps) {
     const view = customerView(row, uploads);
     Object.assign(view, await mediaFor(env, row, new URL(request.url).origin));
     view.me = person;
-    if (person.isOwner) view.people = await peopleFor(env, row);
+    if (person.isOwner || person.isStaff) view.people = await peopleFor(env, row);
     return json({ ok: true, project: view, ...(deviceToken ? { deviceToken } : {}) }, 200, corsHeaders);
   }
 
@@ -593,7 +601,7 @@ export function createFilmHandlers(deps) {
     const row = await getByToken(env.DB, d.t);
     const email = normEmail(d.email);
     const code = clip(d.code, 12).replace(/\D/g, '');
-    if (!row || code.length !== 6) return json({ ok: false, error: "That code isn't right. Check the email and try again." }, 400, corsHeaders);
+    if (!row || code.length !== 6 || email === STAFF_ID) return json({ ok: false, error: "That code isn't right. Check the email and try again." }, 400, corsHeaders);
     const c = await env.DB.prepare(`SELECT * FROM film_codes WHERE project_id = ?1 AND email = ?2 AND expires_at > datetime('now') ORDER BY id DESC LIMIT 1`).bind(row.id, email).first();
     if (!c) return json({ ok: false, error: 'That code has expired. Ask for a new one.' }, 400, corsHeaders);
     if (Number(c.attempts) >= 5) return json({ ok: false, error: 'Too many tries. Ask for a new code.' }, 429, corsHeaders);
@@ -612,7 +620,7 @@ export function createFilmHandlers(deps) {
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const a = await access(env, request, corsHeaders, d.t);
     if (a.res) return a.res;
-    if (!a.person.isOwner) return json({ ok: false, error: 'Only the person who ordered the film can add people.' }, 403, corsHeaders);
+    if (!a.person.isOwner && !a.person.isStaff) return json({ ok: false, error: 'Only the person who ordered the film can add people.' }, 403, corsHeaders);
     const email = normEmail(d.email);
     if (!validEmail(email)) return json({ ok: false, error: 'Please enter a valid email address.' }, 400, corsHeaders);
     if (email === normEmail(a.row.customer_email)) return json({ ok: false, error: "That's your own email; you already have access." }, 400, corsHeaders);
@@ -621,7 +629,7 @@ export function createFilmHandlers(deps) {
     const name = clip(d.name, 80);
     const ins = await env.DB.prepare(`INSERT OR IGNORE INTO film_people (project_id, email, name) VALUES (?1, ?2, ?3)`).bind(a.row.id, email, name || null).run();
     if (Number(ins.meta?.changes || 0) && d.invite !== false) {
-      const owner = a.row.customer_name || a.row.customer_email;
+      const owner = a.row.customer_name || a.row.customer_email;   // invitations always come in the buyer's name
       const film = a.row.project_name ? `"${a.row.project_name}"` : 'a Folder to Film project';
       const link = dashboardUrl(a.row.token);
       const hi = name ? `Hi ${name.split(/\s+/)[0]},` : 'Hi,';
@@ -641,7 +649,7 @@ export function createFilmHandlers(deps) {
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const a = await access(env, request, corsHeaders, d.t);
     if (a.res) return a.res;
-    if (!a.person.isOwner) return json({ ok: false, error: 'Only the person who ordered the film can remove people.' }, 403, corsHeaders);
+    if (!a.person.isOwner && !a.person.isStaff) return json({ ok: false, error: 'Only the person who ordered the film can remove people.' }, 403, corsHeaders);
     const email = normEmail(d.email);
     if (email === normEmail(a.row.customer_email)) return json({ ok: false, error: "You can't remove yourself." }, 400, corsHeaders);
     for (const table of ['film_people', 'film_devices', 'film_codes']) {
@@ -1155,14 +1163,14 @@ export function createFilmHandlers(deps) {
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
     if (bad) return bad;
-    await env.DB.prepare(`UPDATE film_projects SET customer_seen_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
+    if (!a.person.isStaff) await env.DB.prepare(`UPDATE film_projects SET customer_seen_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
     if (!row.chat_session_id) return json({ ok: true, messages: [], typing: false }, 200, corsHeaders);
     const after = Math.max(0, Math.round(Number(url.searchParams.get('after') || 0)));
     const msgs = (await env.DB.prepare(
       `SELECT id, role, content, sender_name, created_at FROM chat_messages WHERE session_id = ?1 AND id > ?2 AND role IN ('user', 'staff') ORDER BY id ASC LIMIT 200`
     ).bind(row.chat_session_id, after).all()).results || [];
     const since = new Date(Date.now() - 5000).toISOString();
-    const typing = await env.DB.prepare(`SELECT sender_name FROM chat_typing WHERE session_id = ?1 AND role = 'staff' AND updated_at > ?2`).bind(row.chat_session_id, since).first();
+    const typing = await env.DB.prepare(`SELECT sender_name FROM chat_typing WHERE session_id = ?1 AND role = ?3 AND updated_at > ?2`).bind(row.chat_session_id, since, a.person.isStaff ? 'user' : 'staff').first();
     return json({ ok: true, messages: msgs, typing: typing ? (typing.sender_name || 'Chris') : false }, 200, corsHeaders);
   }
 
@@ -1180,6 +1188,19 @@ export function createFilmHandlers(deps) {
     if (!content) return json({ ok: false, error: 'Type a message first.' }, 400, corsHeaders);
     const session = await ensureChat(env, row);
     const now = new Date().toISOString();
+    if (a.person.isStaff) {
+      // Staff writing from the customer's dashboard: the same as replying from the console.
+      const insStaff = await env.DB.prepare(`INSERT INTO chat_messages (session_id, role, content, sender_name, created_at) VALUES (?1, 'staff', ?2, ?3, ?4)`)
+        .bind(session.id, content, STAFF_NAME, now).run();
+      await env.DB.prepare(`UPDATE chat_sessions SET last_activity_at = ?1 WHERE id = ?2`).bind(now, session.id).run();
+      await env.DB.prepare(`DELETE FROM chat_typing WHERE session_id = ?1 AND role = 'staff'`).bind(session.id).run();
+      try {
+        await env.DB.prepare(`INSERT INTO support_push_state (session_id, acknowledged_at, updated_at) VALUES (?1, ?2, datetime('now'))
+          ON CONFLICT(session_id) DO UPDATE SET acknowledged_at = excluded.acknowledged_at, updated_at = datetime('now')`).bind(session.id, Math.floor(Date.now() / 1000)).run();
+      } catch {}
+      try { await onStaffReply(env, session.id, content, STAFF_NAME); } catch (e) { console.error('film staff reply email', e); }
+      return json({ ok: true, message: { id: Number(insStaff.meta?.last_row_id || 0), role: 'staff', content, sender_name: STAFF_NAME, created_at: now } }, 200, corsHeaders);
+    }
     const ins = await env.DB.prepare(`INSERT INTO chat_messages (session_id, role, content, sender_name, created_at) VALUES (?1, 'user', ?2, ?3, ?4)`)
       .bind(session.id, content, who, now).run();
     // A closed console chat reopens when the customer writes again.
@@ -1217,13 +1238,14 @@ export function createFilmHandlers(deps) {
     const bad = chatGuard(row, corsHeaders);
     if (bad) return bad;
     if (!row.chat_session_id) return json({ ok: true }, 200, corsHeaders);
+    const role = a.person.isStaff ? 'staff' : 'user';
     if (d.typing === false) {
-      await env.DB.prepare(`DELETE FROM chat_typing WHERE session_id = ?1 AND role = 'user'`).bind(row.chat_session_id).run();
+      await env.DB.prepare(`DELETE FROM chat_typing WHERE session_id = ?1 AND role = ?2`).bind(row.chat_session_id, role).run();
     } else {
       await env.DB.prepare(
-        `INSERT INTO chat_typing (session_id, role, sender_name, updated_at) VALUES (?1, 'user', ?2, ?3)
+        `INSERT INTO chat_typing (session_id, role, sender_name, updated_at) VALUES (?1, ?2, ?3, ?4)
          ON CONFLICT(session_id, role) DO UPDATE SET sender_name = excluded.sender_name, updated_at = excluded.updated_at`
-      ).bind(row.chat_session_id, a.person.name || a.person.email, new Date().toISOString()).run();
+      ).bind(row.chat_session_id, role, a.person.name || a.person.email, new Date().toISOString()).run();
     }
     return json({ ok: true }, 200, corsHeaders);
   }
@@ -1404,7 +1426,36 @@ export function createFilmHandlers(deps) {
     return new Response(obj.body, { headers: { ...headers, 'Content-Length': String(size) } });
   }
 
+  // POST /api/film/staff-link {id} (admin) -> a one-time link that opens the dashboard as staff
+  async function handleStaffLink(request, env, corsHeaders, url) {
+    const auth = await adminGuard(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+    const d = await readJson(request);
+    const row = await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(Number(d?.id || 0)).first();
+    if (!row) return json({ ok: false, error: 'Project not found' }, 404, corsHeaders);
+    if (row.status === 'pending_payment') return json({ ok: false, error: 'This checkout was never paid.' }, 400, corsHeaders);
+    const code = generateToken() + generateToken();
+    await env.DB.prepare(`INSERT INTO film_codes (project_id, email, code_hash, expires_at) VALUES (?1, ?2, ?3, datetime('now', ?4))`)
+      .bind(row.id, STAFF_ID, await sha256Hex(`${row.id}:${STAFF_ID}:${code}`), `+${STAFF_LINK_MINUTES} minutes`).run();
+    return json({ ok: true, url: `${dashboardUrl(row.token)}&staff=${code}` }, 200, corsHeaders);
+  }
+
+  // POST /api/film/access/staff {t, code} -> { deviceToken } (the one-time link from admin)
+  async function handleStaffAccess(request, env, corsHeaders) {
+    const d = await readJson(request);
+    const row = d ? await getByToken(env.DB, d.t) : null;
+    const code = clip(d?.code, 80);
+    const fail = json({ ok: false, error: 'This staff link has expired or was already used. Open the dashboard again from admin.' }, 403, corsHeaders);
+    if (!row || code.length < 40) return fail;
+    const c = await env.DB.prepare(`SELECT * FROM film_codes WHERE project_id = ?1 AND email = ?2 AND code_hash = ?3 AND expires_at > datetime('now')`)
+      .bind(row.id, STAFF_ID, await sha256Hex(`${row.id}:${STAFF_ID}:${code}`)).first();
+    if (!c) return fail;
+    await env.DB.prepare(`DELETE FROM film_codes WHERE id = ?1`).bind(c.id).run();
+    return json({ ok: true, deviceToken: await issueDevice(env, row, STAFF_ID) }, 200, corsHeaders);
+  }
+
   return {
+    handleStaffLink, handleStaffAccess,
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove,
     handleChatGet, handleChatSend, handleChatTyping, handleNotes, onStaffReply,

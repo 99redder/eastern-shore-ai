@@ -727,6 +727,7 @@
         <details><summary>Who can see it, and what happens to my photos?</summary><p>Only people you send the link to. Your files are stored privately for your project only and never sold or used in our marketing. Your finished film and dashboard stay up for as long as you want them; the original uploads are deleted 12 months after your final film, or sooner if you ask. If you'd like the film on YouTube, we'll post it as private, unlisted or public. The details are in our <a href="folder-to-film-terms.html#privacy">privacy notice</a>.</p></details>
         <details><summary>Do you use AI?</summary><p>Yes, and we'll always tell you where. Narrators are AI voices unless you record it yourself, and the illustrations are AI-generated watercolors. AI also helps us sort your materials and draft the script. A person checks every name, date and picture, and nothing is final until you approve it.</p></details>
         <details><summary>What if something's wrong in the demo?</summary><p>Tell us. Two rounds of changes are included: after each one we send you a new version, and the final arrives the next business day after you approve. More rounds are available if the story keeps growing.</p></details>
+        <details><summary>Is there anything you won't make?</summary><p>We don't make illegal, sexual or adult, hateful, or political campaign films, or films from material you don't have the rights to. You must be 18 or older to order. If a project breaks our terms, we stop and refund what you paid minus Stripe's processing fee (about $6 on a card). The details are in our <a href="folder-to-film-terms.html#t-content">terms</a>.</p></details>
         <details><summary>Who owns the finished film?</summary><p>It's yours to keep, share and show. Your photos and materials stay yours too; you just need to have the right to share what you send us.</p></details>
       </div>
     </div>
@@ -744,7 +745,7 @@
           <li><b>Your dashboard opens</b><span>Name your project, tell us whose story it is and when you need it, and answer the 12 quick questions.</span></li>
           <li><b>Upload everything</b><span>Any file type, over as many days as you like. Press Start production when you're done.</span></li>
         </ol>
-        <label class="start-terms"><input type="checkbox" id="start-terms" /> <span>I've read and agree to the <a href="folder-to-film-terms.html" target="_blank" rel="noopener">Folder to Film Terms and Privacy Notice</a>, including how my photos and files are used and kept, and I'll only upload materials I own or have permission to use.</span></label>
+        <label class="start-terms"><input type="checkbox" id="start-terms" /> <span>I'm 18 or older. I've read and agree to the <a href="folder-to-film-terms.html" target="_blank" rel="noopener">Folder to Film Terms and Privacy Notice</a>, including how my photos and files are used and kept and what you won't make, and I'll only upload materials I own or have permission to use.</span></label>
         <div class="start-foot">
           <button class="btn btn-primary" type="button" id="start-checkout">Start my film · $199.99</button>
           <small>Add a book, children's book or audiobook any time from your dashboard.</small>
@@ -825,7 +826,7 @@
         btn.disabled = true;
         setStatus('Opening secure checkout…');
         try {
-          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.5' }) });
+          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.6' }) });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok || !data.checkoutUrl) throw new Error(data.error || 'Checkout failed');
           window.location.href = data.checkoutUrl;

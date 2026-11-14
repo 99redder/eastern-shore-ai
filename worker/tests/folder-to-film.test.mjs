@@ -24,9 +24,11 @@ function createDb() {
   return DB;
 }
 
+// Every email from every test, for the BCC check at the end of the file.
+const ALL_SENT = [];
 function fakeEmail() {
   const sent = [];
-  return { sent, async send(message) { sent.push(message); return { messageId: `cf-${sent.length}` }; } };
+  return { sent, async send(message) { sent.push(message); ALL_SENT.push(message); return { messageId: `cf-${sent.length}` }; } };
 }
 
 // In-memory R2 bucket with the multipart calls the module uses.
@@ -163,7 +165,7 @@ const call = async (env, req) => {
 };
 
 async function checkout(env) {
-  const r = await call(env, post('/api/film/checkout', { termsAccepted: true, termsVersion: '2026-11-14.5' }));
+  const r = await call(env, post('/api/film/checkout', { termsAccepted: true, termsVersion: '2026-11-14.6' }));
   assert.equal(r.status, 200, JSON.stringify(r.data));
   const row = env.DB.sqlite.prepare('SELECT * FROM film_projects ORDER BY id DESC LIMIT 1').get();
   return { ...r.data, row };
@@ -479,7 +481,7 @@ test('checkout needs the terms; retention purge, link reset', async (t) => {
   assert.equal(refused.status, 400);
   assert.match(refused.data.error, /Terms and Privacy/);
   const c = await checkout(env);
-  assert.equal(c.row.terms_version, '2026-11-14.5');
+  assert.equal(c.row.terms_version, '2026-11-14.6');
   assert.ok(c.row.terms_accepted_at);
 
   // Raw uploads go 12 months after the final film; the project (film, dashboard) stays.
@@ -715,4 +717,82 @@ test('delivery: admin uploads the final film; dashboard and share page play it w
   await call(env, post('/api/film/project/update', { id, status: 'canceled' }, ADMIN));
   await call(env, post('/api/film/project/delete', { id }, ADMIN));
   assert.equal([...env.FILMS.objects.keys()].filter((k) => k.startsWith('deliverables/')).length, 0);
+});
+
+test('staff view: admin opens any dashboard with a one-time link; staff messages go out as Chris and email the customer', async (t) => {
+  quietConsole(t);
+  const env = baseEnv();
+  const { token, id } = await paidProject(t, env);
+  const db = env.DB.sqlite;
+  const buyer = DEVICE;
+
+  // Only admin can make the link; it carries a one-time code.
+  assert.notEqual((await call(env, post('/api/film/staff-link', { id }))).status, 200);
+  const link = await call(env, post('/api/film/staff-link', { id }, ADMIN));
+  assert.equal(link.status, 200, JSON.stringify(link.data));
+  const u = new URL(link.data.url);
+  assert.equal(u.origin + u.pathname, `${SITE}/my-film.html`);
+  assert.equal(u.searchParams.get('t'), token);
+  const code = u.searchParams.get('staff');
+  assert.ok(code && code.length >= 40);
+
+  // A new browser trades it for a staff sign-in, once; a wrong code gets nothing.
+  DEVICE = null;
+  assert.equal((await call(env, post('/api/film/access/staff', { t: token, code: 'f'.repeat(48) }))).status, 403);
+  const ok = await call(env, post('/api/film/access/staff', { t: token, code }));
+  assert.equal(ok.status, 200, JSON.stringify(ok.data));
+  assert.ok(ok.data.deviceToken);
+  assert.equal((await call(env, post('/api/film/access/staff', { t: token, code }))).status, 403, 'the link works once');
+  const dev = db.prepare(`SELECT * FROM film_devices WHERE project_id = ? AND email = 'staff'`).get(id);
+  assert.ok(dev);
+  assert.ok(db.prepare(`SELECT ? <= datetime('now', '+7 days', '+1 minute') AS ok`).get(dev.expires_at).ok, 'staff sign-in lasts a week');
+  // The customer code form can't be used to become staff.
+  assert.equal((await call(env, post('/api/film/access/verify', { t: token, email: 'staff', code: '123456' }))).status, 400);
+
+  DEVICE = ok.data.deviceToken;
+  const dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(dash.status, 200, JSON.stringify(dash.data));
+  assert.equal(dash.data.project.me.isStaff, true);
+  assert.ok(Array.isArray(dash.data.project.people), 'staff see the people list');
+
+  // Staff message from the dashboard = a console reply: role staff, from Chris, emails the customer, no staff alert.
+  db.prepare(`UPDATE film_projects SET customer_seen_at = datetime('now', '-10 minutes') WHERE id = ?`).run(id);
+  const seenBefore = db.prepare('SELECT customer_seen_at FROM film_projects WHERE id = ?').get(id).customer_seen_at;
+  env.EMAIL.sent.length = 0;
+  let r = await call(env, post('/api/film/chat', { t: token, content: 'Hi! Testing the chat from your dashboard.' }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.message.role, 'staff');
+  assert.equal(r.data.message.sender_name, 'Chris');
+  assert.equal(env.EMAIL.sent.filter((m) => /^Film chat: /.test(m.subject)).length, 0);
+  const toCustomer = env.EMAIL.sent.filter((m) => m.subject === 'Chris replied about your film');
+  assert.equal(toCustomer.length, 1);
+  assert.deepEqual(toCustomer[0].to, ['pat@family.example']);
+  // Staff reading the chat doesn't count as the customer being there.
+  await call(env, get(`/api/film/chat?t=${token}`));
+  assert.equal(db.prepare('SELECT customer_seen_at FROM film_projects WHERE id = ?').get(id).customer_seen_at, seenBefore);
+  // Staff typing shows to the customer as Chris.
+  await call(env, post('/api/film/chat/typing', { t: token, typing: true }));
+  DEVICE = buyer;
+  r = await call(env, get(`/api/film/chat?t=${token}`));
+  assert.equal(r.data.typing, 'Chris');
+  assert.deepEqual(r.data.messages.map((m) => [m.role, m.sender_name]), [['staff', 'Chris']]);
+
+  // Staff can add people for the buyer.
+  DEVICE = ok.data.deviceToken;
+  r = await call(env, post('/api/film/people', { t: token, email: 'sam@family.example', name: 'Sam' }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+
+  // A new dashboard link signs staff out too.
+  await call(env, post('/api/film/project/update', { id, rotateToken: true }, ADMIN));
+  assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM film_devices WHERE project_id = ?`).get(id).n, 0);
+});
+
+// Keep last: node:test runs this file's tests in order.
+test('every email to a customer or someone they added is BCCed to the business, like Survival Node order emails', () => {
+  const toCustomers = ALL_SENT.filter((m) => /contact@easternshore\.ai/.test(JSON.stringify(m.from)) && !(m.to || []).includes('owner@inbox.example'));
+  const subjects = toCustomers.map((m) => m.subject).join(' | ');
+  for (const pattern of [/^Your film dashboard|dashboard/i, /Folder to Film code/, /invited you to help/, /replied about your film/]) {
+    assert.match(subjects, pattern);
+  }
+  for (const m of toCustomers) assert.deepEqual(m.bcc, ['emailconfirm@easternshore.ai'], m.subject);
 });

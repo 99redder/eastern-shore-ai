@@ -45,6 +45,14 @@ Read-only grounding for Ask K on folder-to-film.html. Keep it in step with the p
 - Uploaded files are stored privately for that project only. The share page is private by default and kept out of search engines; only people with the link can see it.
 - The customer owns the finished film and keeps their own photos and materials. They need to have the right to share what they send.
 
+## Rules and refunds
+
+- Customers must be 18 or older to order; they confirm it at checkout.
+- We don't make: anything illegal; sexual or adult content; political advertising or campaign content (made to support or oppose a candidate, party, ballot question or law, or to raise money for one; a family film about someone who held public office is fine); hate, harassment or threats; false or harmful claims about real people; deceptive fakes of real people; material the customer doesn't have the rights to.
+- If a project breaks the terms, we stop at any stage and refund what was paid minus Stripe's processing fee (Stripe keeps it on refunds; about $6 on a card payment). Sales tax is refunded in full.
+- Otherwise: full refund before the customer presses Start production; after that, payments aren't refundable, but two rounds of changes are included. If we can't deliver, a full refund.
+- Full terms: easternshore.ai/folder-to-film-terms.html
+
 ## Talking to a person
 
 - Every film's dashboard has a **project chat** with Chris, the person making the film: questions, ideas, a photo they just remembered. Replies usually come within an hour during the day, and we email the customer when we reply, so they don't have to keep checking.
