@@ -341,6 +341,11 @@ test('details, any-file multipart uploads, and Start production with a business-
   assert.equal((await call(env, post('/api/film/dashboard', { t: token, projectName: 'Changed' }))).status, 409);
   assert.equal((await call(env, post('/api/film/upload/start', { t: token, name: 'late.jpg', size: 10 }))).status, 409);
   assert.equal((await call(env, post('/api/film/start', { t: token }))).status, 409);
+  // Notes lock too; the locked messages point to the project chat.
+  const lateNotes = await call(env, post('/api/film/notes', { t: token, notes: 'One more thing' }));
+  assert.equal(lateNotes.status, 409);
+  assert.match(lateNotes.data.error, /project chat/);
+  assert.match((await call(env, post('/api/film/dashboard', { t: token, projectName: 'x' }))).data.error, /project chat/);
 });
 
 test('demo date skips weekends and closing days', () => {

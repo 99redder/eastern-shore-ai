@@ -97,7 +97,7 @@
       <div><b>Files (${d.uploads.filter((u) => u.status === 'done').length})</b><br>${files}<div class="web-muted" style="margin-top:.2rem;">Download links last one hour.</div></div>
       <div><b>Rounds of changes:</b> ${Number(p.change_rounds || 0)} of ${Number(p.rounds_included || 2)} used</div>
       ${p.feedback ? `<div><b>Customer feedback</b><pre style="white-space:pre-wrap; font-family:inherit; margin:.2rem 0 0;">${escHtml(p.feedback)}</pre></div>` : ''}
-      <div><b>Notes for Chris</b>${p.customer_notes ? ` <span class="web-muted">(updated ${day(p.customer_notes_at)})</span><pre style="white-space:pre-wrap; font-family:inherit; margin:.2rem 0 0;">${escHtml(p.customer_notes)}</pre>` : ' <span class="web-muted">None yet.</span>'}</div>
+      <div><b>Customer notes</b>${p.customer_notes ? ` <span class="web-muted">(updated ${day(p.customer_notes_at)})</span><pre style="white-space:pre-wrap; font-family:inherit; margin:.2rem 0 0;">${escHtml(p.customer_notes)}</pre>` : ' <span class="web-muted">None yet.</span>'}</div>
       <div><b>People with access</b> <span class="web-muted">(codes go only to these addresses)</span>${(d.people || []).map((pp) => {
         const dv = (d.devices || []).find((x) => x.email === pp.email);
         return `<div>${escHtml(pp.name || pp.email)}${pp.name ? ` <span class="web-muted">${escHtml(pp.email)}</span>` : ''}${pp.isOwner ? ' <span class="web-muted">(buyer)</span>' : ''} <span class="web-muted">&bull; ${dv ? `signed in on ${dv.n} browser${dv.n === 1 ? '' : 's'}${dv.seen ? `, last seen ${day(dv.seen)}` : ''}` : 'not signed in'}</span></div>`;

@@ -91,6 +91,13 @@
     .file .x:hover { color: var(--err); }
     .file.err .meta { color: var(--err); }
     .totals { margin-top: 12px; font-size: 14px; color: var(--muted); }
+    .jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 4px; }
+    .jump a { display: inline-flex; align-items: center; gap: 6px; padding: 8px 15px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ivory); text-decoration: none; font-size: 14.5px; font-weight: 600; line-height: 1.2; }
+    .jump a:hover { border-color: var(--gold); }
+    .jump a.hl { border-color: var(--gold); color: var(--gold2); }
+    main section[id], main .card { scroll-margin-top: 84px; }
+    .lock-note { margin-top: 16px; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; color: var(--muted); font-size: 15px; }
+    .lock-note b { color: var(--ivory); }
     .skip-note { margin: 14px 0 0; font-size: 14.5px; color: var(--gold2); background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; overflow-wrap: anywhere; }
 
     .qs { display: grid; gap: 22px; }
@@ -214,6 +221,8 @@
       </ol>
     </header>
 
+    <nav class="jump" id="jump-nav" aria-label="Jump to a section" hidden></nav>
+
     <!-- Loading / payment confirming / errors -->
     <section class="card" id="state-loading" style="text-align:center;">
       <div class="spinner" aria-hidden="true"></div>
@@ -241,7 +250,7 @@
 
     <!-- Collecting: details, uploads, questions, start -->
     <div id="state-collecting" hidden>
-      <section class="card">
+      <section class="card" id="step-about">
         <div class="eyebrow">Step 1</div>
         <h2>About your film</h2>
         <p class="lead">A few words is plenty. Everything saves as you type.</p>
@@ -256,7 +265,7 @@
         <div class="save-state" id="save-state" role="status" aria-live="polite"></div>
       </section>
 
-      <section class="card">
+      <section class="card" id="step-upload">
         <div class="eyebrow">Step 2</div>
         <h2>Upload everything</h2>
         <p class="lead">Any type of file, as many as you like, over as many days as you need. Big videos are fine. No need to sort, rename or convert anything.</p>
@@ -282,17 +291,17 @@
         <div class="totals" id="totals"></div>
       </section>
 
-      <section class="card">
+      <section class="card" id="step-questions">
         <div class="eyebrow">Step 3</div>
         <h2>12 quick questions</h2>
         <p class="lead">Skip any of them and our experts will pick for you.</p>
         <div class="qs" id="questions"></div>
       </section>
 
-      <section class="card">
+      <section class="card" id="step-start">
         <div class="eyebrow">Step 4</div>
         <h2>Ready when you are</h2>
-        <p class="lead">When you've added everything, press Start production. We'll email you right away with the date your demo will be ready.</p>
+        <p class="lead">When you've added everything, press Start production. We'll email you right away with the date your demo will be ready. After that, your details, uploads, answers and notes lock, and anything new goes through the <a href="#chat">project chat</a>.</p>
         <ul class="checklist" id="checklist">
           <li data-check="name">Your project has a name</li>
           <li data-check="about">A few words about the story</li>
@@ -313,7 +322,7 @@
       <p class="muted">We're going through everything you sent, writing the script, and choosing the narration and music. We'll email you the moment your demo is ready, and you'll watch it right here.</p>
       <p class="muted" id="done-line" hidden style="margin:0 0 14px;"></p>
       <div class="note" id="sent-summary"></div>
-      <p class="small muted" style="margin-top:16px;">Found another photo or thought of something? Reply to any of our emails and attach it.</p>
+      <p class="lock-note">🔒 <b>Your details, uploads and answers are locked</b> now that production has started. Found another photo or thought of something? Tell us in the <a href="#chat">project chat</a>. If you have more files to send, we can reopen uploads for you there.</p>
     </section>
 
     <!-- Demo -->
@@ -349,8 +358,8 @@
     <!-- Project chat + notes (any time after paying) -->
     <section class="card" id="chat" hidden>
       <div class="eyebrow">Project chat</div>
-      <h2>Talk with Chris</h2>
-      <p class="lead">Questions, ideas, a photo you just remembered: ask here, any time. We usually reply within an hour during the day, and we'll email you when we do.</p>
+      <h2>Talk with the Eastern Shore AI team</h2>
+      <p class="lead">Folder to Film is run by Eastern Shore AI, based in Fruitland, Maryland. Chris, who's making your film, answers here. Ask questions, share ideas, or tell us about a photo you just remembered, any time. We usually reply within an hour during the day, and we'll email you when we do. Once production starts, this chat is where to send anything new.</p>
       <div class="chat-log" id="chat-log" aria-live="polite"><div class="chat-empty" id="chat-empty">No messages yet. Say hi, or ask us anything about your film.</div></div>
       <div class="chat-typing" id="chat-typing" hidden></div>
       <form class="chat-form" id="chat-form">
@@ -362,9 +371,10 @@
     </section>
 
     <section class="card" id="notes-card" hidden>
-      <div class="eyebrow">Notes for Chris</div>
+      <div class="eyebrow">Notes for our team</div>
       <h2>Anything we should remember</h2>
-      <p class="lead">Spellings, nicknames, people or photos to leave out, a song that matters, the feeling you're going for. It saves as you type, and we read it before and during production.</p>
+      <p class="lock-note" id="notes-lock" hidden style="margin:0 0 14px;">🔒 <b>Production has started, so your notes are locked.</b> We have them. Send anything new in the <a href="#chat">project chat</a>.</p>
+      <p class="lead" id="notes-lead">Spellings, nicknames, people or photos to leave out, a song that matters, the feeling you're going for. It saves as you type, and we read it before and during production.</p>
       <textarea id="notes" maxlength="20000" style="min-height:130px;" placeholder="e.g. Everyone calls Grandma 'Yiayia'. Please leave out the photos from 2009. The ending should feel hopeful."></textarea>
       <div class="save-state" id="notes-state" role="status" aria-live="polite"></div>
     </section>
@@ -416,7 +426,7 @@
   <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="box">
       <h3 id="confirm-title">Is that everything?</h3>
-      <p>Once production starts, uploads close and your details lock. (You can still email us anything you forget.)</p>
+      <p>Once production starts, your details, uploads, answers and notes lock. If you forget something, send it to us in the project chat.</p>
       <div class="row">
         <button type="button" class="btn btn-primary" id="confirm-yes">Yes, start production</button>
         <button type="button" class="btn btn-ghost" id="confirm-no">Not yet</button>
@@ -479,7 +489,7 @@
 
     function show(id) {
       ['state-loading', 'state-signin', 'state-collecting', 'state-production', 'state-demo', 'state-final', 'state-canceled'].forEach((s) => { $(s).hidden = s !== id; });
-      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'keepsakes-card'].forEach((s) => { $(s).hidden = true; });
+      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'keepsakes-card', 'jump-nav'].forEach((s) => { $(s).hidden = true; });
     }
 
     function setTimeline(status) {
@@ -495,7 +505,12 @@
     function render() {
       const p = project;
       $('chat').hidden = !p.chat;
-      $('notes-card').hidden = !p.chat;
+      const locked = p.status !== 'collecting';
+      // Notes lock with everything else once production starts (shown read-only if there are any).
+      $('notes-card').hidden = !p.chat || (locked && !(p.notes || '').trim());
+      $('notes').readOnly = locked;
+      $('notes-lock').hidden = !locked;
+      $('notes-lead').hidden = locked;
       $('people-card').hidden = !(p.me && (p.me.isOwner || p.me.isStaff) && p.status !== 'canceled');
       $('staff-bar').hidden = !isStaff();
       $('keepsakes-card').hidden = !p.chat;
@@ -545,6 +560,19 @@
       } else if (p.status === 'canceled') {
         show('state-canceled');
       }
+      renderJump();
+    }
+
+    // Links to every section on screen, since the chat and keepsakes sit far down the page.
+    const JUMPS = [
+      ['step-about', '1. About your film'], ['step-upload', '2. Upload'], ['step-questions', '3. Questions'], ['step-start', '4. Start production'],
+      ['state-production', 'Demo date'], ['state-demo', 'Your demo'], ['state-final', 'Your film'],
+      ['chat', '💬 Talk with us', true], ['notes-card', 'Notes'], ['keepsakes-card', '🎁 Keepsakes'], ['people-card', '👪 People with access'],
+    ];
+    function renderJump() {
+      const on = JUMPS.filter(([id]) => $(id) && !$(id).closest('[hidden]'));
+      $('jump-nav').innerHTML = on.map(([id, label, hl]) => `<a href="#${id}"${hl ? ' class="hl"' : ''}>${esc(label)}</a>`).join('');
+      $('jump-nav').hidden = on.length < 2;
     }
 
     function mountPlayer(el, url) {
@@ -926,7 +954,7 @@
     });
 
 
-    // ----- notes for Chris -----
+    // ----- notes for our team (locked once production starts) -----
     let notesTimer = null;
     $('notes').addEventListener('input', () => {
       $('notes-state').className = 'save-state';
@@ -952,7 +980,8 @@
       const mine = isStaff() ? m.role === 'staff' : m.role === 'user';
       const b = document.createElement('div');
       b.className = `bubble ${mine ? 'me' : 'them'}`;
-      b.innerHTML = `${mine ? '' : `<span class="who">${esc(m.sender_name || 'Chris')}</span>`}${esc(m.content)}<span class="when">${esc(fmtTime(m.created_at))}</span>`;
+      const who = m.role === 'staff' ? `${m.sender_name || 'Chris'} · Eastern Shore AI` : (m.sender_name || '');
+      b.innerHTML = `${mine || !who ? '' : `<span class="who">${esc(who)}</span>`}${esc(m.content)}<span class="when">${esc(fmtTime(m.created_at))}</span>`;
       const log = $('chat-log');
       const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
       log.appendChild(b);

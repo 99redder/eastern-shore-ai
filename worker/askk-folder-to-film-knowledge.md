@@ -56,7 +56,8 @@ Read-only grounding for Ask K on folder-to-film.html. Keep it in step with the p
 ## Talking to a person
 
 - Every film's dashboard has a **project chat** with Chris, the person making the film: questions, ideas, a photo they just remembered. Replies usually come within an hour during the day, and we email the customer when we reply, so they don't have to keep checking.
-- The dashboard also has a **Notes for Chris** box for spellings, nicknames, people or photos to leave out, and the feeling they want.
+- The dashboard also has a **Notes** box for spellings, nicknames, people or photos to leave out, and the feeling they want.
+- The customer starts production themselves with the Start production button on the dashboard. From then on their details, uploads, answers and notes are locked; anything new (a photo they found, a correction) goes through the project chat, and we can reopen uploads if they have more files.
 - Before ordering, people can call or text (302) 907-9162 or email contact@easternshore.ai. Ask K is for quick questions; it can't see orders or chats.
 
 ## Order status and the dashboard

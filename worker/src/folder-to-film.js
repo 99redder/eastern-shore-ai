@@ -665,7 +665,7 @@ export function createFilmHandlers(deps) {
     const a = await access(env, request, corsHeaders, d.t);
     if (a.res) return a.res;
     const row = a.row;
-    if (!editable(row)) return json({ ok: false, error: row.status === 'pending_payment' ? 'Payment is still confirming. Try again in a moment.' : 'Production has started, so these details are locked. Reply to any of our emails to change something.' }, 409, corsHeaders);
+    if (!editable(row)) return json({ ok: false, error: row.status === 'pending_payment' ? 'Payment is still confirming. Try again in a moment.' : 'Production has started, so these details are locked. Send any changes in the project chat.' }, 409, corsHeaders);
     const answers = {};
     const src = d.answers && typeof d.answers === 'object' ? d.answers : {};
     for (const q of FILM_QUESTIONS) {
@@ -696,7 +696,7 @@ export function createFilmHandlers(deps) {
     const a = await access(env, request, corsHeaders, token);
     if (a.res) return { res: a.res };
     const row = a.row;
-    if (!editable(row)) return { res: json({ ok: false, error: 'Production has started, so uploads are closed. Reply to any of our emails and attach anything else.' }, 409, corsHeaders) };
+    if (!editable(row)) return { res: json({ ok: false, error: 'Production has started, so uploads are closed. Tell us in the project chat; we can reopen uploads if you have more files.' }, 409, corsHeaders) };
     return { row, person: a.person };
   }
 
@@ -1284,6 +1284,8 @@ export function createFilmHandlers(deps) {
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
     if (bad) return bad;
+    // Notes lock with the details and uploads when production starts; after that, the chat is for anything new.
+    if (!editable(row)) return json({ ok: false, error: 'Production has started, so notes are locked. Send anything new in the project chat.' }, 409, corsHeaders);
     await env.DB.prepare(`UPDATE film_projects SET customer_notes = ?1, customer_notes_at = datetime('now'), updated_at = datetime('now') WHERE id = ?2`)
       .bind(clip(d.notes, 20000) || null, row.id).run();
     return json({ ok: true }, 200, corsHeaders);
