@@ -16,6 +16,11 @@
 // Spend is estimated from each response's token usage (priced on the high
 // side) and kept per Eastern day in D1 (askk_daily). Pausing emails staff once
 // per day per reason.
+//
+// Two deployments run here, each with its own key, budget, wording and
+// counters: Survival Node (node.html; counters have no prefix, as before) and
+// Folder to Film (folder-to-film.html; FILM_ANTHROPIC_API_KEY, counters
+// prefixed film_). Both share the bot check and the model list cache.
 
 import Anthropic from '@anthropic-ai/sdk';
 import { pageVisitSummary } from './page-visits.js';
@@ -175,41 +180,75 @@ const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|bags?|emp|solar|battery|batt
 // `lookup` field); the "busy" reply and the error reply use this pattern.
 const ORDER_STATUS_HINT = /\b(order status|status of (my|our|the) \w+|track(ing)?\b|where'?s my|where is my|(my|our) (order|package|shipment|delivery|node|kit)\b[^.?!]{0,40}\b(ship\w*|arriv\w*|deliver\w*|come|status|late)|(has|did|when (will|does|did))\b[^.?!]{0,30}\b(ship|shipped|arrive|be delivered|get here)\b|didn'?t (get|receive)\b[^.?!]{0,30}\b(order|package|node|kit|tracking))/i;
 
-export function wantsOrderStatus(question) {
-  return ORDER_STATUS_HINT.test(String(question || ''));
+// ── Deployments ────────────────────────────────────────────────
+
+export const ASKK_SURVIVAL_NODE = {
+  id: 'node',
+  name: 'Survival Node',
+  prefix: '',
+  apiKeyEnv: 'ANTHROPIC_API_KEY',
+  budgetEnv: 'ASKK_CLAUDE_DAILY_BUDGET',
+  budgetDefault: 3,
+  workspace: 'survival-node',
+  page: 'the Survival Node page',
+  knowledgeLabel: 'Survival Node and Eastern Shore AI',
+  offTopicReply: OFF_TOPIC_REPLY,
+  onTopicHint: ON_TOPIC_HINT,
+  orderHint: ORDER_STATUS_HINT,
+  topicSystem: 'You screen messages sent to the shopping assistant on the Survival Node product page of Eastern Shore AI (an offline emergency-preparedness phone kit with offline AI, maps, solar power and Faraday bags; the company also does local AI setup services). Reply ON if the latest message is something a shopper or owner could reasonably ask that assistant: the product, its contents or specs, offline AI, power, maps, EMP protection, emergency preparedness, pricing, ordering, shipping, returns, warranty, setup, the company, or a greeting, thanks or follow-up. Reply OFF if it asks for unrelated work or chat: writing or fixing code, essays, homework, translations, other products, general knowledge, or using the assistant for something else. If you are unsure, reply ON. Reply with exactly one word: ON or OFF.',
+};
+
+export const ASKK_FOLDER_TO_FILM = {
+  id: 'film',
+  name: 'Folder to Film',
+  prefix: 'film_',
+  apiKeyEnv: 'FILM_ANTHROPIC_API_KEY',
+  budgetEnv: 'FILM_ASKK_DAILY_BUDGET',
+  budgetDefault: 2,
+  workspace: 'folder-to-film',
+  page: 'the Folder to Film page',
+  knowledgeLabel: 'Folder to Film by Eastern Shore AI',
+  offTopicReply: "I can only help with questions about Folder to Film: how it works, what you can upload, film styles, timing, pricing, keepsakes and your order. What would you like to know?",
+  onTopicHint: /\b(film|films|video|videos|movie|documentary|folder|story|stories|upload\w*|photos?|pictures?|scans?|files?|music|song|narrat\w*|voice|style|styles|cartoon|animated|trailer|storybook|scrapbook|news|wedding|retire\w*|send-?off|goodbye|coworker|tribute|memorial|funeral|anniversar\w*|birthday|trip|vacation|demo|final|changes?|revision\w*|book|audiobook|prints?|plaque|price|pricing|cost|order\w*|status|dashboard|production|refund\w*|youtube|share|download|eastern shore|tax|illustrat\w*|church|family|gift)\b/i,
+  orderHint: /\b(order status|status of (my|our|the) \w+|where'?s my|where is my|(my|our) (order|film|video|movie|demo|project)\b[^.?!]{0,40}\b(ready|done|status|finish\w*|late|come|coming|start\w*)|when (will|is|does|do)\b[^.?!]{0,30}\b(my|our|the) (film|video|demo|movie|project|final)|(film|video|demo|project)\b[^.?!]{0,20}\b(ready yet|done yet|status)|(lost|can'?t find|need)\b[^.?!]{0,20}\b(dashboard|my link|the link))/i,
+  topicSystem: 'You screen messages sent to Ask K, the assistant on the Folder to Film page of Eastern Shore AI (a service that turns a customer\'s photos, videos, audio and files into a narrated short film: family histories, trips, funny family stories, retirements, coworker send-offs, weddings, tributes; with keepsakes like books and audiobooks). Reply ON if the latest message is something a shopper or customer could reasonably ask that assistant: the service, how it works, uploads and file types, film styles, narration, music, timing, pricing, sales tax, changes, sharing, privacy, AI use, keepsakes, their order or dashboard, the company, or a greeting, thanks or follow-up. Reply OFF if it asks for unrelated work or chat: writing or fixing code, essays, homework, writing their story or script for them in the chat, translations, other products, general knowledge. If you are unsure, reply ON. Reply with exactly one word: ON or OFF.',
+};
+
+export function wantsOrderStatus(question, dep = ASKK_SURVIVAL_NODE) {
+  return dep.orderHint.test(String(question || ''));
 }
 
-function keywordOffTopic(question) {
+function keywordOffTopic(question, dep) {
   const q = String(question || '');
-  return !ON_TOPIC_HINT.test(q) && OFF_TOPIC_PATTERNS.some(p => p.test(q));
+  return !dep.onTopicHint.test(q) && OFF_TOPIC_PATTERNS.some(p => p.test(q));
 }
 
 // Messages that name the product or its topics skip the model check: a
 // wrongly refused customer question costs more than an occasional stray one,
 // and Opus still declines off-topic requests itself.
-function clearlyOnTopic(question) {
-  return ON_TOPIC_HINT.test(String(question || ''));
+function clearlyOnTopic(question, dep) {
+  return dep.onTopicHint.test(String(question || ''));
 }
 
-async function claudeTopicCheck(env, client, question, history) {
+async function claudeTopicCheck(env, client, question, history, dep) {
   const lastUser = [...history].reverse().find(m => m && m.role === 'user' && m.content !== question);
   const models = await familyModels(env, client, TOPIC_FAMILY, TOPIC_FALLBACK_MODEL);
   const response = await client.messages.create({
     model: models[0],
     max_tokens: 5,
     thinking: { type: 'disabled' },
-    system: 'You screen messages sent to the shopping assistant on the Survival Node product page of Eastern Shore AI (an offline emergency-preparedness phone kit with offline AI, maps, solar power and Faraday bags; the company also does local AI setup services). Reply ON if the latest message is something a shopper or owner could reasonably ask that assistant: the product, its contents or specs, offline AI, power, maps, EMP protection, emergency preparedness, pricing, ordering, shipping, returns, warranty, setup, the company, or a greeting, thanks or follow-up. Reply OFF if it asks for unrelated work or chat: writing or fixing code, essays, homework, translations, other products, general knowledge, or using the assistant for something else. If you are unsure, reply ON. Reply with exactly one word: ON or OFF.',
+    system: dep.topicSystem,
     messages: [{ role: 'user', content: `${lastUser ? `Previous message: ${String(lastUser.content).slice(0, 300)}\n` : ''}Latest message: ${String(question).slice(0, 1000)}` }],
   });
-  await addDaily(env, 'claude', costOf(PRICE.topic, response.usage), 0);
+  await addDaily(env, `${dep.prefix}claude`, costOf(PRICE.topic, response.usage), 0);
   const text = (response.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim().toUpperCase();
   return !text.startsWith('OFF');
 }
 
 // ── 3. Answer: Claude ──────────────────────────────────────────
 
-function anthropicClient(env) {
-  return new Anthropic({ apiKey: String(env.ANTHROPIC_API_KEY || '').trim(), maxRetries: 2 });
+function anthropicClient(env, dep) {
+  return new Anthropic({ apiKey: String(env[dep.apiKeyEnv] || '').trim(), maxRetries: 2 });
 }
 
 function costOf(price, usage) {
@@ -291,7 +330,7 @@ function parseAnswer(text) {
   return { text: String(out.reply || '').trim(), lookup: out.lookup === true };
 }
 
-async function claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context }) {
+async function claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context }, dep) {
   let models = await familyModels(env, client, CLAUDE_FAMILY, CLAUDE_FALLBACK_MODEL);
   const tried = new Set();
   let refreshed = false;
@@ -300,7 +339,7 @@ async function claudeAnswer(env, client, { systemPrompt, knowledge, question, hi
     max_tokens: 4000,
     output_config: { effort: 'low', format: { type: 'json_schema', schema: ANSWER_SCHEMA } },
     system: [
-      { type: 'text', text: `GROUNDED KNOWLEDGE (Survival Node and Eastern Shore AI):\n${knowledge}`, cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: `GROUNDED KNOWLEDGE (${dep.knowledgeLabel}):\n${knowledge}`, cache_control: { type: 'ephemeral' } },
       { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
       { type: 'text', text: ANSWER_FORMAT },
     ],
@@ -312,9 +351,9 @@ async function claudeAnswer(env, client, { systemPrompt, knowledge, question, hi
     tried.add(model);
     try {
       const response = await createMessage(client, { ...params, model });
-      await addDaily(env, 'claude', costOf(PRICE.claude, response.usage), 1);
+      await addDaily(env, `${dep.prefix}claude`, costOf(PRICE.claude, response.usage), 1);
       if (tried.size > 1) await setMeta(env, `models:${CLAUDE_FAMILY}`, JSON.stringify(models.filter(m => m === model || !tried.has(m))));
-      if (response.stop_reason === 'refusal') return { text: OFF_TOPIC_REPLY, lookup: false };
+      if (response.stop_reason === 'refusal') return { text: dep.offTopicReply, lookup: false };
       return parseAnswer((response.content || []).filter(b => b.type === 'text').map(b => b.text).join(''));
     } catch (e) {
       lastError = e;
@@ -336,19 +375,20 @@ function claudeOutReason(e) {
  * Returns { reply, provider, lookup } where provider is 'claude' | 'offtopic' |
  * 'busy' and lookup says to show the order-status box.
  */
-export async function answerAskK(env, { question, history = [], context = {}, systemPrompt, knowledge }, deps) {
+export async function answerAskK(env, { question, history = [], context = {}, systemPrompt, knowledge, deployment = ASKK_SURVIVAL_NODE }, deps) {
+  const dep = deployment;
   await ensureTables(env);
-  const hasClaude = !!String(env.ANTHROPIC_API_KEY || '').trim();
-  const client = hasClaude ? anthropicClient(env) : null;
-  const claudeBudget = budget(env, 'ASKK_CLAUDE_DAILY_BUDGET', 3);
-  let claudeOk = hasClaude && (await spentToday(env, 'claude')) < claudeBudget;
+  const hasClaude = !!String(env[dep.apiKeyEnv] || '').trim();
+  const client = hasClaude ? anthropicClient(env, dep) : null;
+  const claudeBudget = budget(env, dep.budgetEnv, dep.budgetDefault);
+  let claudeOk = hasClaude && (await spentToday(env, `${dep.prefix}claude`)) < claudeBudget;
   let outReason = !hasClaude ? 'key' : claudeOk ? null : 'budget';
 
   // Topic check (cheap). Claude when available, keyword rules otherwise.
-  let onTopic = !keywordOffTopic(question);
-  if (claudeOk && onTopic && !clearlyOnTopic(question)) {
+  let onTopic = !keywordOffTopic(question, dep);
+  if (claudeOk && onTopic && !clearlyOnTopic(question, dep)) {
     try {
-      onTopic = await claudeTopicCheck(env, client, question, history);
+      onTopic = await claudeTopicCheck(env, client, question, history, dep);
     } catch (e) {
       const reason = claudeOutReason(e);
       if (reason !== 'error') { claudeOk = false; outReason = reason; }
@@ -356,13 +396,13 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
     }
   }
   if (!onTopic) {
-    await addDaily(env, 'offtopic', 0, 1);
-    return { reply: OFF_TOPIC_REPLY, provider: 'offtopic', lookup: false };
+    await addDaily(env, `${dep.prefix}offtopic`, 0, 1);
+    return { reply: dep.offTopicReply, provider: 'offtopic', lookup: false };
   }
 
   if (claudeOk) {
     try {
-      const { text, lookup } = await claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context });
+      const { text, lookup } = await claudeAnswer(env, client, { systemPrompt, knowledge, question, history, context }, dep);
       if (text) return { reply: text, provider: 'claude', lookup };
       outReason = 'error';
     } catch (e) {
@@ -375,28 +415,28 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
   // email per day per reason.
   const why = {
     credit: "Claude's prepaid credit has run out",
-    key: 'the Claude API key (ANTHROPIC_API_KEY) is missing or was rejected',
+    key: `the Claude API key (${dep.apiKeyEnv}) is missing or was rejected`,
     budget: `Claude's daily budget ($${claudeBudget.toFixed(2)}) was reached`,
     error: 'Claude returned an error or is down',
   }[outReason] || 'Claude was unavailable';
   const back = outReason === 'budget' ? 'tomorrow, when the daily budget resets' : 'once Claude works again';
   const fix = {
     credit: '\n\nAdd credit in the Eastern Shore AI Anthropic account: platform.claude.com → Billing.',
-    key: '\n\nCheck the survival-node key in the Eastern Shore AI Anthropic account, then: cd worker && npx wrangler secret put ANTHROPIC_API_KEY --config wrangler.toml',
+    key: `\n\nCheck the ${dep.workspace} key in the Eastern Shore AI Anthropic account, then: cd worker && npx wrangler secret put ${dep.apiKeyEnv} --config wrangler.toml`,
   }[outReason] || '';
-  await addDaily(env, 'busy', 0, 1);
-  await notifyOnce(env, deps.notify, `busy-${outReason || 'unknown'}`, 'Ask K is paused',
-    `Ask K on the Survival Node page can't answer right now because ${why}. Visitors are being shown your phone number and contact form instead. It starts answering again automatically ${back}.${fix}`);
+  await addDaily(env, `${dep.prefix}busy`, 0, 1);
+  await notifyOnce(env, deps.notify, `${dep.prefix}busy-${outReason || 'unknown'}`, dep.id === 'node' ? 'Ask K is paused' : `Ask K is paused (${dep.name})`,
+    `Ask K on ${dep.page} can't answer right now because ${why}. Visitors are being shown your phone number and contact form instead. It starts answering again automatically ${back}.${fix}`);
   // The order-status box needs no AI, so it still shows while K is busy.
-  return { reply: ASKK_BUSY_REPLY, provider: 'busy', lookup: wantsOrderStatus(question) };
+  return { reply: ASKK_BUSY_REPLY, provider: 'busy', lookup: wantsOrderStatus(question, dep) };
 }
 
 // Counts a blocked request (failed bot check, rate limit) or an order-status
 // email request ('status') for the daily email.
-export async function recordAskKBlocked(env, kind) {
+export async function recordAskKBlocked(env, kind, dep = ASKK_SURVIVAL_NODE) {
   try {
     await ensureTables(env);
-    await addDaily(env, kind, 0, 1);
+    await addDaily(env, `${dep.prefix}${kind}`, 0, 1);
   } catch (e) {
     console.error('askk blocked count failed:', e);
   }
@@ -423,7 +463,7 @@ const REMOTE_ASKK = [
   { name: 'Florence Mae Gifts', binding: 'FMG_ASKK', service: 'fmg-stripe-api', token: 'FMG_ASKK_SUMMARY_TOKEN', credit: 'monthly' },
   { name: 'iDesign', url: 'IDESIGN_ASKK_URL', token: 'IDESIGN_ASKK_SUMMARY_TOKEN', credit: 'monthly' },
 ];
-const COUNT_WORDS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+const COUNT_WORDS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 const REMOTE_SUMMARY_TIMEOUT_MS = 10000;
 
 // creditLevel in both remote Ask K workers (low = 20% or less left,
@@ -446,21 +486,24 @@ const BUDGET_LEVELS = {
 
 const money = (v) => `$${(Number(v) || 0).toFixed(2)}`;
 
-async function survivalNodeSummary(env, day, month) {
+async function localSummary(env, day, month, dep) {
   await ensureTables(env);
   const rows = await env.DB.prepare('SELECT provider, spent, questions FROM askk_daily WHERE day = ?').bind(day).all();
   const by = Object.fromEntries((rows.results || []).map(r => [r.provider, r]));
-  const n = (k) => Number(by[k]?.questions || 0);
-  const spent = (k) => Number(by[k]?.spent || 0);
-  const mtd = await env.DB.prepare("SELECT SUM(spent) AS s FROM askk_daily WHERE provider = 'claude' AND substr(day, 1, 7) = ?").bind(day.slice(0, 7)).first();
+  const n = (k) => Number(by[dep.prefix + k]?.questions || 0);
+  const spent = (k) => Number(by[dep.prefix + k]?.spent || 0);
+  const mtd = await env.DB.prepare('SELECT SUM(spent) AS s FROM askk_daily WHERE provider = ? AND substr(day, 1, 7) = ?').bind(`${dep.prefix}claude`, day.slice(0, 7)).first();
   const answers = n('claude');
+  if (dep.id !== 'node' && !String(env[dep.apiKeyEnv] || '').trim() && !answers && !n('busy') && !n('status')) {
+    return { status: `not live yet (${dep.apiKeyEnv} not set)` };
+  }
   return {
     answers,
     spent: spent('claude'),
     claudeMtd: Number(mtd?.s || 0),
     lines: [
       `Answered: ${answers}`,
-      `  • Claude: ${n('claude')} answers, about ${money(spent('claude'))} (daily cap ${money(budget(env, 'ASKK_CLAUDE_DAILY_BUDGET', 3))})`,
+      `  • Claude: ${n('claude')} answers, about ${money(spent('claude'))} (daily cap ${money(budget(env, dep.budgetEnv, dep.budgetDefault))})`,
       `Blocked: ${n('offtopic') + n('unverified') + n('ratelimited')}`,
       `  • Off-topic requests refused: ${n('offtopic')}`,
       `  • Failed the bot check: ${n('unverified')}`,
@@ -530,7 +573,8 @@ export async function sendAskKDailySummary(env, notify, now = new Date(), { time
   const month = new Date(`${day}T12:00:00Z`).toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
   const limit = budget(env, 'ASKK_ORG_MONTHLY_LIMIT', 100);
   const sources = [
-    { name: 'Survival Node', load: () => survivalNodeSummary(env, day, month) },
+    { name: ASKK_SURVIVAL_NODE.name, load: () => localSummary(env, day, month, ASKK_SURVIVAL_NODE) },
+    { name: ASKK_FOLDER_TO_FILM.name, load: () => localSummary(env, day, month, ASKK_FOLDER_TO_FILM) },
     ...REMOTE_ASKK.map(r => ({ name: r.name, load: () => remoteSummary(env, r, day, month, timeoutMs) })),
   ];
   const sections = await Promise.all(sources.map(async ({ name, load }) => {
@@ -560,7 +604,7 @@ export async function sendAskKDailySummary(env, notify, now = new Date(), { time
   );
   const left = sections.filter(s => s.status);
   if (left.length) lines.push(`Not counted: ${left.map(s => s.name).join(', ')}`);
-  lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, jic-ask-k, fmg-ask-k, idesignas): platform.claude.com → Usage.');
+  lines.push('', 'Amounts are estimates from token counts, priced slightly high. Exact spend per workspace (survival-node, folder-to-film, jic-ask-k, fmg-ask-k, idesignas): platform.claude.com → Usage.');
 
   // Page visits (node.html) ride along in the same morning email.
   let visits = null;

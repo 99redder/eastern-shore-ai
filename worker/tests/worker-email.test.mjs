@@ -805,12 +805,13 @@ const fmgSummary = (day) => ({ day, answers: 2, errors: 0, est_spent: 0.12, mtd_
 const IDESIGN_URL = 'https://idesignas.com/internal/daily-summary';
 const idesignSummary = (day) => ({ day, answers: 1, errors: 0, est_spent: 0.07, mtd_est_spent: 0.65, credit: { loaded: 40, spent: 0.65, level: 'ok' } });
 
-test('daily Ask K summary covers all four deployments, emailed from the alerts address', async (t) => {
+test('daily Ask K summary covers every deployment, emailed from the alerts address', async (t) => {
   quietConsole(t);
   const idesignCalls = guardNetwork(t, { [IDESIGN_URL]: (_url, init) => idesignSummary(JSON.parse(init.body).day) });
   const jicCalls = [];
   const fmgCalls = [];
   const env = baseEnv({
+    FILM_ANTHROPIC_API_KEY: 'sk-ant-film-test-only',
     SUMMARY_TOKEN: 'summary-test-token',
     FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token',
     IDESIGN_ASKK_URL: IDESIGN_URL,
@@ -829,7 +830,7 @@ test('daily Ask K summary covers all four deployments, emailed from the alerts a
     }
   });
   const yesterday = easternDay(Date.now() - 24 * 3600 * 1000);
-  await seedAskKDay(env, yesterday, [['claude', 0.5, 5], ['offtopic', 0, 2]]);
+  await seedAskKDay(env, yesterday, [['claude', 0.5, 5], ['offtopic', 0, 2], ['film_claude', 0.1, 1], ['film_status', 0, 2]]);
   const pending = [];
   await worker.scheduled({ cron: '0 12 * * *', scheduledTime: Date.now() }, env, { waitUntil: (p) => pending.push(p) });
   await Promise.all(pending);
@@ -862,14 +863,15 @@ test('daily Ask K summary covers all four deployments, emailed from the alerts a
   const [email] = env.EMAIL.sent;
   assert.equal(email.from, 'alerts@easternshore.ai');
   assert.deepEqual(email.to, ['owner@inbox.example']);
-  assert.match(email.subject, /^Ask K yesterday: 11 answered, about \$1\.09; \w+ so far \$11\.00 of \$100$/);
+  assert.match(email.subject, /^Ask K yesterday: 12 answered, about \$1\.19; \w+ so far \$11\.10 of \$100$/);
   assert.match(email.text, /── Survival Node ──\nAnswered: 5\n  • Claude: 5 answers, about \$0\.50/);
   assert.doesNotMatch(email.text, /MiniMax|backup/i);
   assert.match(email.text, /Blocked: 2/);
   assert.match(email.text, /── Just In Case ──\nAnswered: 3\nErrors: 1\nSpend: about \$0\.40\nClaude spend so far in \w+: about \$8\.00\nK's credit: OK, \$32\.00 left of \$40\.00 loaded/);
   assert.match(email.text, /── Florence Mae Gifts ──\nAnswered: 2\nErrors: 0\nSpend: about \$0\.12\nClaude spend so far in \w+: about \$1\.85\nMonthly Ask K budget: \$1\.85 spent of \$20\.00, OK\n/);
   assert.match(email.text, /── iDesign ──\nAnswered: 1\nErrors: 0\nSpend: about \$0\.07\nClaude spend so far in \w+: about \$0\.65\nMonthly Ask K budget: \$0\.65 spent of \$40\.00, OK\n/);
-  assert.match(email.text, /── All four ──\nAnswered: 11\nSpend: about \$1\.09\nClaude spend so far in \w+: about \$11\.00 of the \$100 monthly org limit \(11%\)\n/);
+  assert.match(email.text, /── Folder to Film ──\nAnswered: 1\n  • Claude: 1 answers, about \$0\.10 \(daily cap \$2\.00\)\n[\s\S]*?Order-status emails requested: 2\n/);
+  assert.match(email.text, /── All five ──\nAnswered: 12\nSpend: about \$1\.19\nClaude spend so far in \w+: about \$11\.10 of the \$100 monthly org limit \(11%\)\n/);
   assert.doesNotMatch(email.text, /Not counted/);
   assert.doesNotMatch(email.text, /fmg-test-token|summary-test-token|idesign-test-token/);
   assert.match(email.text, /idesignas\): platform\.claude\.com/);
@@ -908,7 +910,7 @@ test('daily Ask K summary still sends when the other Ask K workers fail or hang'
   assert.match(sent[0].text, /── Survival Node ──\nAnswered: 2/);
   assert.match(sent[0].text, /\nJust In Case: couldn't fetch \(no reply in 0\.02 s\)\n/);
   assert.match(sent[0].text, /\nFlorence Mae Gifts: couldn't fetch \(HTTP 404\)\n/);
-  assert.match(sent[0].text, /Not counted: Just In Case, Florence Mae Gifts/);
+  assert.match(sent[0].text, /Not counted: Folder to Film, Just In Case, Florence Mae Gifts/);
 });
 
 test('daily Ask K summary still sends when FMG errors, has no token, or is not bound', async (t) => {
@@ -937,7 +939,7 @@ test('daily Ask K summary still sends when FMG errors, has no token, or is not b
 
   const unbound = await run({ FMG_ASKK_SUMMARY_TOKEN: 'fmg-test-token' });
   assert.match(unbound.text, /\nFlorence Mae Gifts: not live yet\n/);
-  assert.match(unbound.text, /Not counted: Just In Case, Florence Mae Gifts/);
+  assert.match(unbound.text, /Not counted: Folder to Film, Just In Case, Florence Mae Gifts/);
   assert.doesNotMatch(unbound.subject, /couldn't fetch/);
 });
 

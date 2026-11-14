@@ -13,6 +13,7 @@ export const TAGLINES = {
   websites: 'Websites for local businesses',
   survivalNode: 'Survival Node',
   services: 'AI lessons and setup',
+  films: 'Folder to Film story films',
   general: 'Websites, AI setup and Survival Nodes'
 };
 

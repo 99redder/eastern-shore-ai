@@ -4315,6 +4315,7 @@
       show('tax-ledger-card', tab === 'tax');
       show('orders-card', tab === 'orders');
       show('websites-card', tab === 'websites');
+      show('films-card', tab === 'films');
       show('accounts-card', tab === 'accounts');
       show('reconciliation-card', tab === 'reconciliation');
       show('invoices-card', tab === 'invoices');
@@ -4323,6 +4324,7 @@
       show('audit-package-card', tab === 'audit-package');
       if (tab === 'orders' && adminSessionActive) refreshOrderList();
       if (tab === 'websites' && adminSessionActive && window.refreshWebsiteClients) window.refreshWebsiteClients();
+      if (tab === 'films' && adminSessionActive && window.refreshStoryFilms) window.refreshStoryFilms();
       if (tab === 'invoices' && adminSessionActive) refreshInvoiceList();
       if (tab === 'quotes' && adminSessionActive) refreshQuoteList();
       if (tab === 'year-close' && adminSessionActive) loadPartsCount();

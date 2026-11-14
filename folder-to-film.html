@@ -1,0 +1,987 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://eastern-shore-ai-contact.99redder.workers.dev https://services.easternshore.ai; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VDFQV9B1J"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3VDFQV9B1J');
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Not launched yet: kept out of search and not linked from the rest of the site. -->
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Folder to Film: Your Story, Told as a Short Film | Eastern Shore AI</title>
+  <meta name="description" content="Hand us the folder: trip photos, a retirement, the family story everyone tells, a hundred years of history. In 2–3 business days you get a narrated short film, funny or heartfelt. From $199.99." />
+  <meta property="og:title" content="Folder to Film: hand us the folder, we'll turn it into a film." />
+  <meta property="og:description" content="Trips, retirements, family legends and histories, turned into narrated short films from the photos and files you already have. Demo in 2–3 business days. From $199.99." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://www.easternshore.ai/images/story-video/cbf-poster.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="images/story-video/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="images/story-video/icon-180.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Hanken+Grotesk:wght@400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #12100d; --bg2: #19150f; --card: #1f1a14; --line: #352c22;
+      --ivory: #ece4d4; --muted: #a99d88; --dim: #7d725f;
+      --gold: #c9a96e; --gold2: #e3c58e; --paper: #f4efe4; --ink: #2e261d;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ivory); font-family: var(--sans);
+      font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(ellipse at 50% -10%, rgba(201,169,110,0.10), transparent 60%);
+    }
+    img { max-width: 100%; display: block; }
+    a { color: var(--gold2); }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+    .eyebrow { font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.08; margin: 0; color: var(--ivory); }
+    h1 { font-size: clamp(44px, 6.4vw, 84px); letter-spacing: -0.01em; }
+    h2 { font-size: clamp(34px, 4.4vw, 56px); }
+    h3 { font-size: 28px; }
+    h1 em, h2 em { color: var(--gold2); font-style: italic; font-weight: 500; }
+    .lede { font-size: 20px; color: #d9cfbd; max-width: 34em; }
+    section { padding: 96px 0; }
+    .section-head { max-width: 760px; margin: 0 auto 56px; text-align: center; }
+    .section-head p { color: var(--muted); margin: 18px auto 0; max-width: 40em; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 16px 28px; border-radius: 999px;
+      font-family: var(--sans); font-weight: 700; font-size: 17px; text-decoration: none; cursor: pointer;
+      border: 1px solid transparent; transition: transform .15s ease, box-shadow .15s ease, background .15s;
+    }
+    .btn-primary { background: linear-gradient(180deg, #e3c58e, #c9a96e); color: #241c12; box-shadow: 0 8px 30px rgba(201,169,110,0.25); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 34px rgba(201,169,110,0.35); }
+    .btn-ghost { border-color: var(--line); color: var(--ivory); background: rgba(255,255,255,0.02); }
+    .btn-ghost:hover { border-color: var(--gold); }
+
+    /* Top bar */
+    .topbar { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(10px); background: rgba(18,16,13,0.78); border-bottom: 1px solid rgba(53,44,34,0.6); }
+    .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+    .brand { font-family: var(--serif); font-size: 24px; color: var(--ivory); text-decoration: none; font-weight: 600; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; }
+    .brand-mark { width: 44px; height: auto; flex: none; }
+    .brand-text { display: block; color: var(--ivory); font-style: normal; font-weight: 600; }
+    .brand-text span { color: var(--gold); font-style: italic; font-weight: 500; }
+    .brand { line-height: 1.05; }
+    .brand small { display: block; font-family: var(--sans); font-size: 10.5px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--dim); font-style: normal; font-weight: 600; margin-top: 3px; }
+    .topbar .btn { padding: 10px 20px; font-size: 15px; }
+
+    /* Hero */
+    .hero { padding: 72px 0 88px; }
+    .hero-grid { display: grid; grid-template-columns: 1.02fr 1fr; gap: 56px; align-items: center; }
+    .hero h1 { margin: 18px 0 22px; }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin: 30px 0 18px; }
+    .hero-fine { color: var(--muted); font-size: 15px; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+    .hero-fine span::before { content: "✓"; color: var(--gold); margin-right: 7px; }
+    .player { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 16/9;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(201,169,110,0.18); }
+    .player img, .player video, .player iframe { width: 100%; height: 100%; object-fit: cover; border: 0; display: block; }
+    .player button.play { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,0.45), rgba(0,0,0,0.05)); border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .play-disc { width: 86px; height: 86px; border-radius: 50%; background: rgba(236,228,212,0.94); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: transform .15s; }
+    .player button.play:hover .play-disc { transform: scale(1.06); }
+    .play-disc::after { content: ""; border-left: 26px solid #241c12; border-top: 16px solid transparent; border-bottom: 16px solid transparent; margin-left: 7px; }
+    .player-note { margin-top: 14px; font-size: 14px; color: var(--dim); text-align: center; }
+
+    /* Messy in, polished out */
+    .messy { background: var(--bg2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .messy-grid { display: grid; grid-template-columns: 1.15fr auto 1fr; gap: 36px; align-items: center; }
+    .pile { position: relative; height: 600px; }
+    .bit { position: absolute; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px; box-shadow: 0 14px 34px rgba(0,0,0,0.45); }
+    .bit img { border-radius: 4px; }
+    .bit .tag { display: block; font-size: 12.5px; color: var(--muted); margin-top: 8px; letter-spacing: 0.02em; }
+    .bit.paper { background: var(--paper); color: var(--ink); font-family: Georgia, serif; font-size: 13.5px; line-height: 1.5; }
+    .bit.paper .tag { color: #7b6d57; font-family: var(--sans); }
+    .bit.chat { background: #24303b; border-color: #34424f; color: #eaf1f7; font-size: 15px; border-radius: 18px 18px 18px 4px; padding: 12px 16px; }
+    .bit.chat .tag { color: #a9b8c6; }
+    .b1 { left: 2%; top: 4%; width: 46%; transform: rotate(-5deg); }
+    .b2 { left: 50%; top: 0; width: 34%; transform: rotate(4deg); }
+    .b3 { left: 4%; top: 40%; width: 42%; transform: rotate(3deg); }
+    .b4 { left: 52%; top: 36%; width: 44%; transform: rotate(-3deg); }
+    .b5 { left: 18%; top: 77%; width: 46%; transform: rotate(-1.5deg); }
+    .b6 { left: 70%; top: 64%; width: 28%; transform: rotate(6deg); }
+    .arrow { font-family: var(--serif); font-size: 56px; color: var(--gold); line-height: 1; text-align: center; }
+    .arrow small { display: block; font-family: var(--sans); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+    .result img { border-radius: 10px; box-shadow: 0 24px 60px rgba(0,0,0,0.55); }
+    .result h3 { margin: 22px 0 8px; }
+    .result p { color: var(--muted); margin: 0; font-size: 16px; }
+    .messy-note { text-align: center; color: var(--dim); font-size: 15px; margin-top: 46px; }
+
+    /* Steps */
+    .steps { display: grid; gap: 28px; }
+    .step { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 40px; }
+    .step:nth-child(even) .step-visual { order: -1; }
+    .step-num { font-family: var(--serif); font-size: 64px; color: var(--gold); line-height: 0.9; font-style: italic; }
+    .step h3 { font-size: 36px; margin: 10px 0 12px; }
+    .step p { color: #d2c8b6; margin: 0 0 10px; }
+    .step .small { color: var(--muted); font-size: 15px; }
+    .step-visual img { border-radius: 10px; box-shadow: 0 18px 44px rgba(0,0,0,0.5); }
+    .price-card { background: linear-gradient(160deg, #2a2219, #1b1610); border: 1px solid #4a3c2b; border-radius: 16px; padding: 34px; max-width: 420px; margin: 0 auto; }
+    .price-card .amount { font-family: var(--serif); font-size: 64px; color: var(--ivory); line-height: 1; }
+    .price-card ul { list-style: none; padding: 0; margin: 20px 0 0; }
+    .price-card li { padding: 8px 0; border-top: 1px solid #3a2f23; color: #d2c8b6; font-size: 16px; }
+    .price-card li::before { content: "✓"; color: var(--gold); margin-right: 10px; }
+    .quiz { background: var(--paper); color: var(--ink); border-radius: 14px; padding: 26px; box-shadow: 0 18px 44px rgba(0,0,0,0.5); }
+    .quiz .q { margin-bottom: 18px; }
+    .quiz .q:last-child { margin-bottom: 0; }
+    .quiz .q b { display: block; font-size: 15px; margin-bottom: 8px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip { font-size: 13.5px; padding: 6px 12px; border-radius: 999px; border: 1px solid #cfc3ac; color: #5b4f3e; background: #fbf8f1; }
+    .chip.on { background: #2e261d; color: #f4efe4; border-color: #2e261d; }
+    .chip.expert { border-style: dashed; }
+    .uploads { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .uploads span { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; }
+    .stack { position: relative; }
+    .stack img:nth-child(2) { width: 62%; position: absolute; right: -4%; bottom: -12%; border: 6px solid var(--card); }
+    .collab { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 40px; }
+    .collab h2 { font-size: 44px; margin: 10px 0 14px; }
+    .collab p { color: #d2c8b6; margin: 0 0 12px; }
+    .collab ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--muted); }
+    .collab li { margin: 5px 0; }
+    .chat-mock { background: #15110d; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+    .chat-mock .mock-head { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+    .chat-mock .dot { width: 9px; height: 9px; border-radius: 50%; background: #6ad08a; box-shadow: 0 0 8px rgba(106,208,138,.7); }
+    .chat-mock .who { display: block; font-size: 12px; font-weight: 700; opacity: .7; margin-bottom: 3px; }
+    .chat-mock .typing { color: var(--dim); font-size: 13.5px; font-style: italic; }
+    .thread { display: flex; flex-direction: column; gap: 12px; }
+    .bubble { max-width: 86%; padding: 13px 17px; border-radius: 18px; font-size: 16px; line-height: 1.45; }
+    .bubble.them { background: #24303b; color: #eaf1f7; border-bottom-left-radius: 4px; }
+    .bubble.us { background: linear-gradient(180deg, #e3c58e, #c9a96e); color: #241c12; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 500; }
+    .bubble img { border-radius: 8px; margin-top: 8px; max-width: 220px; }
+    .phone { width: min(300px, 80%); margin: 0 auto; border-radius: 38px; padding: 12px; background: #0b0a08; border: 1px solid #3b3227; box-shadow: 0 26px 60px rgba(0,0,0,0.6); }
+    .phone-screen { border-radius: 28px; overflow: hidden; background: #171310; }
+    .phone-screen img { aspect-ratio: 16/9; object-fit: cover; }
+    .phone-body { padding: 16px 16px 22px; }
+    .phone-body .t { font-family: var(--serif); font-size: 22px; line-height: 1.15; }
+    .phone-body .s { font-size: 12.5px; color: var(--muted); margin: 4px 0 14px; }
+    .share { display: flex; align-items: center; gap: 8px; background: #241e17; border: 1px solid #3b3227; border-radius: 10px; padding: 8px 10px; font-size: 12px; color: var(--muted); }
+    .share b { margin-left: auto; color: var(--gold2); font-weight: 600; }
+    .phone-chips { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+    .phone-chips span { font-size: 11.5px; border: 1px solid #3b3227; border-radius: 999px; padding: 4px 9px; color: #cfc4b1; }
+
+    /* Illustrations */
+    .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .gallery figure { margin: 0; background: var(--paper); padding: 10px 10px 12px; border-radius: 4px; box-shadow: 0 16px 36px rgba(0,0,0,0.45); }
+    .gallery figure:nth-child(odd) { transform: rotate(-1deg); }
+    .gallery figure:nth-child(even) { transform: rotate(0.8deg); }
+    .gallery figcaption { color: #6f624e; font-family: Georgia, serif; font-style: italic; font-size: 14px; margin-top: 9px; text-align: center; }
+
+    .maps-row { display: grid; grid-template-columns: 0.9fr 1.3fr; gap: 40px; align-items: center; margin-top: 64px; }
+    .maps-copy h3 { font-size: 34px; margin: 10px 0 12px; }
+    .maps-copy p { color: var(--muted); margin: 0; font-size: 16.5px; }
+    .maps-pair { margin: 0; position: relative; }
+    .maps-pair img { border-radius: 10px; box-shadow: 0 18px 44px rgba(0,0,0,0.5); }
+    .maps-pair img:nth-child(2) { width: 52%; position: absolute; right: -3%; bottom: -14%; border: 6px solid var(--bg); }
+    @media (max-width: 960px) {
+      .maps-row { grid-template-columns: 1fr; }
+      .maps-pair img:nth-child(2) { position: static; width: 100%; margin-top: 14px; border: 0; }
+    }
+
+    /* Sound */
+    .sound { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 34px; }
+    .panel h3 { margin-bottom: 8px; }
+    .panel p { color: var(--muted); margin: 0 0 18px; font-size: 16px; }
+    audio { width: 100%; margin-top: 4px; }
+    .panel .chips .chip { background: transparent; color: #d2c8b6; border-color: var(--line); }
+    .panel .chips .chip.on { background: var(--gold); color: #241c12; border-color: var(--gold); }
+
+    /* Keepsakes */
+    .keepsakes { background: var(--bg2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .products { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
+    .product img { aspect-ratio: 4/3; object-fit: cover; }
+    .product img.fit { object-fit: contain; background: #100e0b; }
+    .product .body { padding: 24px 24px 28px; }
+    .product .price { font-size: 14px; color: var(--gold); font-weight: 700; letter-spacing: 0.04em; }
+    .product h3 { font-size: 27px; margin: 6px 0 8px; }
+    .product p { color: var(--muted); margin: 0; font-size: 15.5px; }
+    .product.wide { grid-column: span 2; }
+    .product.wide img { aspect-ratio: 16/8; object-position: center; }
+    .icon-tile { aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, #2c241b, #1a1510); font-family: var(--serif); font-size: 74px; color: var(--gold); }
+    .bundle { background: linear-gradient(160deg, #2c2318, #1e1811); border-color: #5a4930; }
+    .bundle .icon-tile { font-size: 30px; font-family: var(--sans); font-weight: 700; letter-spacing: .08em; color: var(--gold2); text-align: center; line-height: 1.5; padding: 20px; }
+    .keepsake-note { text-align: center; color: var(--muted); margin-top: 34px; font-size: 16px; }
+
+    /* Who it's for */
+    .who { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .who div { border-top: 2px solid var(--gold); padding-top: 18px; }
+    .who h3 { font-size: 26px; margin-bottom: 8px; }
+    .who p { color: var(--muted); margin: 0; font-size: 15.5px; }
+    .stories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .story { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 22px; display: flex; flex-direction: column; gap: 10px; }
+    .story .kind { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    .story h3 { font-size: 27px; }
+    .story blockquote { margin: 0; font-family: var(--serif); font-style: italic; font-size: 19px; line-height: 1.35; color: var(--gold2); }
+    .story p { margin: 0; color: var(--muted); font-size: 15px; }
+
+    /* Ask K */
+    .askk-fab { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px 8px 8px; border-radius: 999px; border: 1px solid #4a3c2b; background: #1f1a14; color: var(--ivory); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 14px 40px rgba(0,0,0,.5); }
+    .askk-fab img { width: 40px; height: 40px; border-radius: 10px; }
+    .askk-fab:hover { border-color: var(--gold); }
+    .askk-drawer { position: fixed; right: 18px; bottom: 18px; z-index: 61; width: min(420px, calc(100vw - 24px)); height: min(640px, calc(100vh - 36px)); display: none; flex-direction: column; background: #17130f; border: 1px solid #4a3c2b; border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,.6); overflow: hidden; }
+    .askk-drawer.on { display: flex; }
+    .askk-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: #1f1a14; }
+    .askk-head img { width: 38px; height: 38px; border-radius: 9px; }
+    .askk-head b { display: block; font-size: 16px; }
+    .askk-head span { font-size: 12.5px; color: var(--muted); }
+    .askk-close { margin-left: auto; background: none; border: 0; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; padding: 4px 8px; }
+    .askk-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .askk-msg { max-width: 88%; padding: 10px 14px; border-radius: 14px; font-size: 15px; line-height: 1.5; }
+    .askk-msg.k { background: #241e17; border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .askk-msg.me { background: var(--gold); color: #1a1510; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .askk-msg.k strong { color: var(--gold2); }
+    .askk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .askk-chips button { font-family: var(--sans); font-size: 13.5px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: #15110d; color: var(--ivory); cursor: pointer; }
+    .askk-chips button:hover { border-color: var(--gold); }
+    .askk-status { background: #241e17; border: 1px solid var(--gold); border-radius: 14px; padding: 12px 14px; display: grid; gap: 8px; font-size: 14.5px; }
+    .askk-status input { font-size: 16px; padding: 10px 12px; }
+    .askk-status .btn { padding: 10px 16px; font-size: 15px; width: auto; }
+    .askk-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); background: #1f1a14; }
+    .askk-form textarea { flex: 1; min-height: 44px; max-height: 120px; resize: none; font-size: 16px; padding: 10px 12px; }
+    .askk-form button { border-radius: 12px; padding: 0 16px; width: auto; }
+    #askk-turnstile { display: flex; justify-content: center; }
+    .askk-typing { color: var(--muted); font-size: 14px; font-style: italic; }
+    @media (max-width: 560px) { .askk-drawer { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; } .askk-fab { right: 12px; bottom: 12px; } }
+    .styles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .style-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+    .style-card img { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; background: #241e17; }
+    .style-card .body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; }
+    .style-card h3 { font-size: 28px; }
+    .style-card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .style-card .best { font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    .styles-note { text-align: center; color: var(--muted); max-width: 44em; margin: 28px auto 0; }
+    .stories-note { text-align: center; color: var(--muted); max-width: 44em; margin: 30px auto 0; }
+
+    /* FAQ */
+    .faq { max-width: 820px; margin: 0 auto; }
+    details { border-bottom: 1px solid var(--line); padding: 20px 4px; }
+    summary { cursor: pointer; font-family: var(--serif); font-size: 25px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 20px; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: var(--gold); font-family: var(--sans); font-weight: 400; }
+    details[open] summary::after { content: "–"; }
+    details p { color: #cfc5b3; margin: 12px 0 0; font-size: 16.5px; }
+
+    /* Start form */
+    .start { text-align: center; }
+    .start-card { max-width: 720px; margin: 0 auto; background: var(--card); border: 1px solid #4a3c2b; border-radius: 22px; padding: 48px; text-align: left; box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
+    .start-card h2 { text-align: center; }
+    .start-card > p { text-align: center; color: var(--muted); margin: 14px 0 30px; }
+    .start-steps { list-style: none; counter-reset: st; margin: 0 0 30px; padding: 0; display: grid; gap: 14px; }
+    .start-steps li { counter-increment: st; display: grid; grid-template-columns: 44px 1fr; column-gap: 14px; align-items: start; }
+    .start-steps li::before { content: counter(st); grid-row: span 2; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold2); font-family: var(--serif); font-size: 24px; font-style: italic; display: flex; align-items: center; justify-content: center; }
+    .start-steps b { color: var(--ivory); font-size: 17px; }
+    .start-steps span { color: var(--muted); font-size: 15.5px; }
+    .start-foot { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+    .start-foot small { color: var(--dim); font-size: 13.5px; max-width: 22em; }
+    .start-terms { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; margin: 0 0 18px; color: var(--muted); font-size: 15px; text-align: left; cursor: pointer; }
+    .start-terms input { width: 20px; height: 20px; margin: 3px 0 0; accent-color: var(--gold); }
+    .start-help { text-align: center; color: var(--dim); font-size: 14.5px; margin: 6px 0 0; }
+    .form-status { margin-top: 16px; font-size: 15px; min-height: 1.4em; }
+    .form-status.ok { color: #9fd7a5; }
+    .form-status.err { color: #f0a49a; }
+
+    footer { border-top: 1px solid var(--line); padding: 34px 0 calc(34px + env(safe-area-inset-bottom)); color: var(--dim); font-size: 14px; }
+    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    footer a { color: var(--muted); text-decoration: none; }
+
+    @media (max-width: 960px) {
+      section { padding: 72px 0; }
+      .hero-grid, .messy-grid, .step, .sound, .collab { grid-template-columns: 1fr; }
+      .hero { padding-top: 40px; }
+      .step:nth-child(even) .step-visual { order: 0; }
+      .arrow { transform: rotate(90deg); margin: 0 auto; }
+      .arrow small { transform: rotate(-90deg); }
+      .products { grid-template-columns: 1fr 1fr; }
+      .product.wide { grid-column: span 2; }
+      .who, .stories, .styles { grid-template-columns: 1fr 1fr; }
+      .gallery { grid-template-columns: 1fr 1fr; }
+      .stack img:nth-child(2) { position: static; width: 100%; margin-top: 14px; border: 0; }
+    }
+    @media (max-width: 760px) {
+      .pile { height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .bit { position: static; width: auto !important; transform: none !important; }
+      .arrow { transform: none; }
+      .arrow small { transform: none; }
+    }
+    @media (max-width: 560px) {
+      body { font-size: 17px; }
+      .wrap { padding: 0 16px; }
+      .topbar .btn { padding: 9px 14px; font-size: 14px; }
+      .brand { font-size: 21px; gap: 9px; }
+      .brand-mark { width: 36px; }
+      .step, .collab { padding: 26px 20px; gap: 26px; }
+      .collab h2 { font-size: 34px; }
+      .step h3 { font-size: 30px; }
+      .products, .who, .gallery, .stories, .styles { grid-template-columns: 1fr; }
+      .product.wide { grid-column: auto; }
+      .start-card { padding: 30px 20px; }
+      .btn { width: 100%; justify-content: center; }
+      .topbar .btn { width: auto; }
+      input, textarea { font-size: 16px; }
+      .pile { grid-template-columns: 1fr; }
+    }
+    .brand small .esai { font-family: 'Orbitron', var(--sans); font-style: normal; font-weight: 700; letter-spacing: .1em; background: linear-gradient(90deg, #00e5ff, #ff4fd8); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; text-shadow: none; }
+  </style>
+</head>
+<body id="top">
+
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="#top"><img class="brand-mark" src="images/story-video/logo-mark.svg" alt="" width="44" height="36" /><span class="brand-text">Folder <span>to Film</span><small>by <span class="esai">Eastern Shore AI</span></small></span></a>
+      <a class="btn btn-primary" href="#start">Start your story</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow">Folder to Film · from $199.99</div>
+        <h1>Hand us the folder. We'll turn it into a <em>film.</em></h1>
+        <p class="lede">The beach trip, Mom's retirement, the story Grandpa tells every Thanksgiving, a hundred years of your church: upload the photos, videos and notes you have, just as they are. In 2–3 business days you'll have a narrated short film, as funny or as heartfelt as the story.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#start">Start your story · $199.99</a>
+          <a class="btn btn-ghost" href="#how">See how it works</a>
+        </div>
+        <div class="hero-fine"><span>Demo in 2–3 business days</span><span>2 rounds of changes</span><span>A real person, usually within the hour</span></div>
+      </div>
+      <div>
+        <div class="player" id="demo-player">
+          <img src="images/story-video/cbf-poster.jpg" alt="Christian Believers Fellowship: Our Story, 1925 to 2025" />
+          <button class="play" type="button" aria-label="Play the example video"><span class="play-disc"></span></button>
+        </div>
+        <p class="player-note" id="player-note">Example: the 100-year history of a small New Hampshire church. 45-second excerpt.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Story types -->
+  <section class="story-types">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">What's your story?</div>
+        <h2>Big, small, funny or serious. <em>It all makes a film.</em></h2>
+        <p>Some opening lines, to show the range. You pick the tone; we write it that way.</p>
+      </div>
+      <div class="stories">
+        <article class="story"><div class="kind">Adventure</div><h3>The family trip</h3>
+          <blockquote>“It was supposed to be a quiet week at the lake. Then Dad rented the pontoon boat.”</blockquote>
+          <p>Everyone's phone photos and videos, cut together, with a map that follows the route.</p></article>
+        <article class="story"><div class="kind">Funny</div><h3>The story everyone tells</h3>
+          <blockquote>“Every Thanksgiving, Uncle Ray tells the one about the turkey and the fire department. This year, it's a movie.”</blockquote>
+          <p>Send a voice memo of it being told. We illustrate the parts nobody photographed.</p></article>
+        <article class="story"><div class="kind">Heartfelt or a roast</div><h3>A retirement</h3>
+          <blockquote>“Thirty-four years, eight thousand early mornings, and one coffee mug nobody else was allowed to touch.”</blockquote>
+          <p>For Mom or Dad's retirement party, the last day at work, or the gift from the whole team.</p></article>
+        <article class="story"><div class="kind">At work</div><h3>The send-off</h3>
+          <blockquote>“Six years, four office moves, and the spreadsheet that saved the Henderson account.”</blockquote>
+          <p>For a coworker who's moving on: what they built, who they helped, and goodbyes from the team. Better than a goodbye cake.</p></article>
+        <article class="story"><div class="kind">Tribute</div><h3>A life well lived</h3>
+          <blockquote>“She was born in a farmhouse with no electricity, and lived to video-call her great-grandchildren.”</blockquote>
+          <p>A parent's life story, for a milestone birthday or a memorial service.</p></article>
+        <article class="story"><div class="kind">Warm</div><h3>Milestones</h3>
+          <blockquote>“Fifty years ago, a nervous young man asked a girl from the next town to the drive-in.”</blockquote>
+          <p>Anniversaries, graduations, a new baby, a big birthday.</p></article>
+        <article class="story"><div class="kind">Documentary</div><h3>A history</h3>
+          <blockquote>“In 1925, four young men met in a coffee house in Dover, New Hampshire.”</blockquote>
+          <p>Families, churches and businesses, like the 100-year church film on this page.</p></article>
+        <article class="story"><div class="kind">Love story</div><h3>The wedding</h3>
+          <blockquote>“They met over a spilled coffee in 2016. Eight years later, she still makes him carry the cups.”</blockquote>
+          <p>How they met, the proposal and the big day, for the reception screen or the first anniversary. Every guest's phone photos welcome.</p></article>
+        <article class="story"><div class="kind">Anything goes</div><h3>Just because</h3>
+          <blockquote>“Nobody believed a beagle could open a refrigerator. Then came the summer of 2019.”</blockquote>
+          <p>The dog, the house you grew up in, the championship season, the restaurant's first year.</p></article>
+      </div>
+      <p class="stories-note">The full example on this page is a 100-year church history, but your story can be a long weekend, an inside joke or a beagle.</p>
+    </div>
+  </section>
+
+  <!-- Film styles -->
+  <section class="film-styles" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Pick a style</div>
+        <h2>Same story, <em>six ways to tell it.</em></h2>
+        <p>Here's one made-up family's lake week in each style. Choose one in your dashboard, or tap Experts pick and we'll match the style to the story.</p>
+      </div>
+      <div class="styles">
+        <article class="style-card"><img src="images/story-video/style-documentary.jpg" alt="Documentary style: an illustration shown as a framed print, from the church film" loading="lazy" />
+          <div class="body"><div class="best">Histories · tributes · milestones</div><h3>Documentary</h3><p>Slow, Ken Burns-style moves over your photos shown as framed prints, maps of where it happened, and a warm narrator. Like the church film on this page.</p></div></article>
+        <article class="style-card"><img src="images/story-video/style-cartoon.jpg" alt="Animated cartoon style: Dad gets soaked steering a pontoon boat while the kids laugh" loading="lazy" />
+          <div class="body"><div class="best">Funny stories · send-offs · roasts</div><h3>Animated cartoon</h3><p>Bouncy, slapstick cartoon scenes for the moments nobody caught on camera, with comic timing and a narrator who's in on the joke.</p></div></article>
+        <article class="style-card"><img src="images/story-video/style-storybook.jpg" alt="Storybook style: the family on the boat at sunset in soft picture-book colors" loading="lazy" />
+          <div class="body"><div class="best">Grandkids · weddings · bedtime</div><h3>Storybook</h3><p>Soft picture-book illustrations and a read-aloud narrator, like a bedtime story starring your family. Becomes a children's book easily.</p></div></article>
+        <article class="style-card"><img src="images/story-video/style-trailer.jpg" alt="Movie trailer style: Dad at the wheel of the pontoon boat like an action hero under dramatic clouds" loading="lazy" />
+          <div class="body"><div class="best">Retirements · birthdays · trips</div><h3>Movie trailer</h3><p>Big music, a booming voice and dramatic titles: "This summer, one man rented a pontoon boat." Short, epic and funny.</p></div></article>
+        <article class="style-card"><img src="images/story-video/style-news.jpg" alt="News report style: a news anchor at a desk with the family's photo on the screen beside her" loading="lazy" />
+          <div class="body"><div class="best">Send-offs · retirements · big news</div><h3>News report</h3><p>"Breaking news from the Johnson household": an anchor reports the story, with on-the-scene photos and quotes from the family or the team.</p></div></article>
+        <article class="style-card"><img src="images/story-video/style-scrapbook.jpg" alt="Scrapbook style: snapshots of the lake week taped into a scrapbook with doodles" loading="lazy" />
+          <div class="body"><div class="best">Trips · weddings · a year in the life</div><h3>Scrapbook</h3><p>Your photos and clips taped into a moving scrapbook, with doodles, ticket stubs and the warm feel of old home movies.</p></div></article>
+      </div>
+      <p class="styles-note">Not sure? Tap <strong>Experts pick</strong> and we'll choose. Every style uses your real photos and videos first.</p>
+    </div>
+  </section>
+
+  <!-- Messy in, polished out -->
+  <section class="messy">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">From the folder to the screen</div>
+        <h2>You don't organize anything. <em>That's our job.</em></h2>
+        <p>Here's what we were actually sent for the example film, and what came out the other side.</p>
+      </div>
+      <div class="messy-grid">
+        <div class="pile" aria-label="The materials we were sent">
+          <div class="bit b1 paper">“We are often asked about the origin of Christian Believers Fellowship. It isn't always easy to remember details, nevertheless, here is a brief account…”<span class="tag">Text copied from the church website</span></div>
+          <div class="bit b2"><img src="images/story-video/messy-scan.jpg" alt="A sideways scanned page" loading="lazy" /><span class="tag">A sideways scan in a PDF</span></div>
+          <div class="bit b3"><img src="images/story-video/messy-small-photo.jpg" alt="A small, low-resolution photo of the old chapel" loading="lazy" /><span class="tag">A 400-pixel photo of the old chapel</span></div>
+          <div class="bit b4 chat">first service at the new church was dec 18 2005, just confirmed<span class="tag">A quick note, mid-project</span></div>
+          <div class="bit b5 paper"><strong style="font-family:var(--sans);font-size:14px;">100th Anniversary Celebration</strong><br />Friday evening, June 20, 2025 thru Sunday afternoon, June 22, 2025 · 32 Chapel Lane<span class="tag">The anniversary flyer</span></div>
+          <div class="bit b6"><img src="images/story-video/messy-phone-photo.jpg" alt="A snapshot from a church dinner" loading="lazy" /><span class="tag">Snapshots from 2012</span></div>
+        </div>
+        <div class="arrow">→<small>We sort it</small></div>
+        <div class="result">
+          <img src="images/story-video/frame-old-chapel.jpg" alt="A frame from the finished video showing the old chapel as a framed print" loading="lazy" />
+          <h3>A 7-minute documentary</h3>
+          <p>A written script, a warm narrator, music, chapters by year, and every photo given its place, even that 400-pixel one.</p>
+        </div>
+      </div>
+      <p class="messy-note">Also welcome: voice memos, old letters, home videos, obituaries, family trees, links, screenshots, and “I think it was around 1962.”</p>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">How it works</div>
+        <h2>Five steps. <em>You only do two.</em></h2>
+        <p>Every step below shows the real church project at that stage.</p>
+      </div>
+      <div class="steps">
+
+        <article class="step">
+          <div>
+            <div class="step-num">1</div>
+            <h3>Pay once</h3>
+            <p>One price for the video. No subscription, no surprise fees.</p>
+            <p class="small">Your private dashboard opens the moment payment goes through. Name your project, add the details and start uploading right away, no waiting on us.</p>
+          </div>
+          <div class="step-visual">
+            <div class="price-card">
+              <div class="eyebrow">Folder to Film</div>
+              <div class="amount">$199.99</div>
+              <ul>
+                <li>Up to about 8 minutes</li>
+                <li>Up to 75 photos and clips</li>
+                <li>Narration, music and chapters</li>
+                <li>Two rounds of changes</li>
+                <li>Private share page and download</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <article class="step">
+          <div>
+            <div class="step-num">2</div>
+            <h3>Share everything you have</h3>
+            <p>Upload from your phone or computer, one file at a time or a whole folder at once: photos, videos, audio, scans, documents, screenshots and links. Every file type is welcome, big videos included. No sorting or labeling needed.</p>
+            <p>Then answer 12 quick questions about tone, narrator, music and the big moments, or tap <strong>Experts pick</strong> on any of them and we'll choose.</p>
+            <p>Add as much as you like, over as many days as you need, and <strong>invite family to add theirs too</strong>: everyone you add gets their own sign-in code. When you've added everything, press <strong>Start production</strong>. We'll email you right away with your timeline and the date your demo will be ready.</p>
+            <div class="uploads"><span>📷 photos, iPhone &amp; camera files</span><span>🎞 videos from any phone or camera</span><span>🎙 audio &amp; voice memos</span><span>📄 scans &amp; PDFs</span><span>📝 Word docs, slides &amp; notes</span><span>💬 screenshots &amp; texts</span><span>🗂 zipped folders</span><span>🔗 Google Photos, iCloud &amp; Dropbox links</span></div>
+          </div>
+          <div class="step-visual">
+            <div class="quiz" aria-label="Example questions">
+              <div class="q"><b>What tone should it have?</b>
+                <div class="chips"><span class="chip">Heartfelt</span><span class="chip">Funny</span><span class="chip">Adventure</span><span class="chip on">Documentary</span><span class="chip expert">Experts pick</span></div></div>
+              <div class="q"><b>Who should narrate?</b>
+                <div class="chips"><span class="chip on">Older man</span><span class="chip">Older woman</span><span class="chip">Record it myself</span><span class="chip expert">Experts pick</span></div></div>
+              <div class="q"><b>What music?</b>
+                <div class="chips"><span class="chip on">Hymns</span><span class="chip">Piano</span><span class="chip">Music from their era</span><span class="chip expert">Experts pick</span></div></div>
+              <div class="q"><b>Moments with no photos?</b>
+                <div class="chips"><span class="chip">Watercolor</span><span class="chip">Cartoon</span><span class="chip">Photos only</span><span class="chip expert on">Experts pick</span></div></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step">
+          <div>
+            <div class="step-num">3</div>
+            <h3>Watch your demo in 2–3 business days</h3>
+            <p>We sort through everything, write the script, and build the first version: narration, music, your photos as framed prints, maps of where it happened, and illustrations for the moments nobody photographed.</p>
+            <p class="small">Cards mark any photo we're still hoping you can find. The church's demo had a few, like the street sign named for one of its founders.</p>
+          </div>
+          <div class="step-visual stack">
+            <img src="images/story-video/frame-coffee-house.jpg" alt="A frame from the demo: an illustration of a 1920s coffee house shown as a framed print" loading="lazy" />
+            <img src="images/story-video/frame-placeholder.jpg" alt="A demo card marking a photo still needed" loading="lazy" />
+          </div>
+        </article>
+
+        <article class="step">
+          <div>
+            <div class="step-num">4</div>
+            <h3>Tell us what to fix</h3>
+            <p>Dates, names, how a name is pronounced, a photo you just found. Send it however it comes to you. These are the real corrections from the church project.</p>
+          </div>
+          <div class="step-visual">
+            <div class="thread">
+              <div class="bubble them">First service at the new church was Dec 18, 2005. Just confirmed.</div>
+              <div class="bubble them">The whole property was bought out by Target after Walmart moved in across the street in the '90s. That's why they moved.</div>
+              <div class="bubble them">The old church 👇<br /><img src="images/story-video/messy-small-photo.jpg" alt="The old chapel" loading="lazy" /></div>
+              <div class="bubble us">Got it, all three are in. Your new version is ready tomorrow.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step">
+          <div>
+            <div class="step-num">5</div>
+            <h3>Your final film, the next business day</h3>
+            <p>A private page that plays beautifully on any phone, a link to send the family, and a download to keep.</p>
+            <p class="small">Want it on YouTube? We'll post it as private, unlisted (link only) or public. Your choice.</p>
+          </div>
+          <div class="step-visual">
+            <div class="phone">
+              <div class="phone-screen">
+                <img src="images/story-video/frame-today.jpg" alt="The finished video playing on a phone" loading="lazy" />
+                <div class="phone-body">
+                  <div class="t">Christian Believers Fellowship: Our Story</div>
+                  <div class="s">7 min · 1925 – 2025</div>
+                  <div class="share">easternshore.ai/story/…<b>Copy link</b></div>
+                  <div class="phone-chips"><span>Private link</span><span>Download</span><span>YouTube</span><span>Order the book</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Project chat showcase -->
+  <section class="collab-wrap" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="collab">
+        <div>
+          <div class="eyebrow">You're never talking to a robot about your story</div>
+          <h2>A real person, right in <em>your dashboard.</em></h2>
+          <p>Every film comes with its own project chat. Ask a question, share an idea, or send a photo you just remembered, and talk it through with Chris, the person making your film. <strong>We usually reply within an hour during the day</strong>, and we'll email you when we do, so you don't have to keep checking.</p>
+          <ul>
+            <li>Chat back and forth about the story, the style, the music and the people in it.</li>
+            <li>A <strong>Notes for Chris</strong> box for spellings, nicknames, people to leave out and the feeling you're going for.</li>
+            <li>It stays open through production, your demo and your changes.</li>
+          </ul>
+        </div>
+        <div class="chat-mock" aria-label="Example project chat">
+          <div class="mock-head"><span class="dot" aria-hidden="true"></span>Project chat · Dad's Retirement</div>
+          <div class="thread">
+            <div class="bubble us">Can the film end with the whole crew at the plant waving goodbye? I have a video of it.</div>
+            <div class="bubble them"><span class="who">Chris</span>Absolutely, that's a perfect ending. Upload it whenever you're ready, and tell me who's who so I can caption names.</div>
+            <div class="bubble us">Uploaded! He's in the blue hat, front row.</div>
+            <div class="bubble them"><span class="who">Chris</span>Got it. I'll slow that moment down with the music. You'll see it in your demo Wednesday.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Illustrations -->
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">No photo of that moment? No problem.</div>
+        <h2>We paint the moments <em>nobody photographed.</em></h2>
+        <p>For the moments nobody caught on camera, we add illustrations, one for each moment the narrator describes: soft watercolor for a life story or a history, a playful cartoon style for the funny ones. We match the people and the place: in the church film they're Greek immigrant families in a New Hampshire mill town, and a founder's son modeled his father. Real photos always come first: if one turns up later, it takes the illustration's place.</p>
+      </div>
+      <div class="gallery">
+        <figure><img src="images/story-video/illus2-02.jpg" alt="Young Greek men listening to a traveling preacher in a coffee house" loading="lazy" /><figcaption>The coffee house where it began, 1925</figcaption></figure>
+        <figure><img src="images/story-video/illus2-13.jpg" alt="Four young Greek immigrant couples on the porch of a triple-decker" loading="lazy" /><figcaption>The four founding families</figcaption></figure>
+        <figure><img src="images/story-video/illus2-21.jpg" alt="Three young men speaking with an Orthodox priest outside a brick church" loading="lazy" /><figcaption>Questions for the priest, Dover</figcaption></figure>
+        <figure><img src="images/story-video/illus2-07.jpg" alt="A big Greek-American family dinner in the 1940s" loading="lazy" /><figcaption>Nine children at every table</figcaption></figure>
+        <figure><img src="images/story-video/illus2-08.jpg" alt="A small Bible study around a dining table in 1960" loading="lazy" /><figcaption>A new fellowship, 1960</figcaption></figure>
+        <figure><img src="images/story-video/illus2-12.jpg" alt="Volunteers building a small brown chapel in 1974" loading="lazy" /><figcaption>Building the chapel, 1974</figcaption></figure>
+      </div>
+      <div class="maps-row">
+        <div class="maps-copy">
+          <div class="eyebrow">Where it happened</div>
+          <h3>From the whole country down to the street</h3>
+          <p>Viewers who didn't grow up there still know exactly where the story happened. The camera starts on a map of the United States and moves into the town, then dissolves into real maps from the period, like this 1918 government survey of Dover. On a trip film, the map follows your route.</p>
+        </div>
+        <figure class="maps-pair">
+          <img src="images/story-video/map-new-england.jpg" alt="A map of New England with New Hampshire highlighted and Dover marked" loading="lazy" />
+          <img src="images/story-video/map-dover-1918.jpg" alt="A 1918 survey map of Dover, New Hampshire" loading="lazy" />
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sound -->
+  <section style="padding-top: 0;">
+    <div class="wrap sound">
+      <div class="panel">
+        <div class="eyebrow">Music</div>
+        <h3>Pick the music, or let us</h3>
+        <p>Hymns, gentle piano, folk, orchestral, upbeat, or music from their era. This is the hymn-style score from the church film.</p>
+        <audio controls preload="none" src="images/story-video/music-hymn-sample.m4a"></audio>
+        <div class="chips" style="margin-top: 18px;"><span class="chip on">Hymns</span><span class="chip">Piano</span><span class="chip">Folk</span><span class="chip">Orchestral</span><span class="chip">Upbeat</span><span class="chip">Their era</span><span class="chip">Experts pick</span></div>
+      </div>
+      <div class="panel">
+        <div class="eyebrow">Narrator</div>
+        <h3>A voice that fits the story</h3>
+        <p>Choose an older or younger man or woman, or record the narration yourself and we'll build around your voice. We check every name with you so it's said the way your family says it.</p>
+        <div class="chips"><span class="chip on">Older man</span><span class="chip">Older woman</span><span class="chip">Younger man</span><span class="chip">Younger woman</span><span class="chip">Record it myself</span><span class="chip">Experts pick</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Keepsakes -->
+  <section class="keepsakes">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">After the film</div>
+        <h2>Turn the story into <em>keepsakes.</em></h2>
+        <p>The script, photos and illustrations are already done, so the book, the children's book and the audiobook come together fast. Request any of them from your film dashboard, whenever you like, and we'll confirm the details and send you a payment link.</p>
+      </div>
+      <div class="products">
+        <div class="product">
+          <img class="fit" src="images/story-video/book-cover.jpg" alt="Hardcover book: Our Story" loading="lazy" />
+          <div class="body"><div class="price">FROM $149</div><h3>Hardcover story book</h3><p>The full story with every photo and illustration, printed and bound. Extra copies for the whole family.</p></div>
+        </div>
+        <div class="product wide">
+          <img src="images/story-video/book-spread-coffee-house.jpg" alt="Inside the book: a chapter page and an illustration" loading="lazy" />
+          <div class="body"><div class="price">INSIDE THE BOOK</div><h3>Chapters, photos and captions</h3><p>Each chapter of the film becomes a chapter of the book, laid out like a real book.</p></div>
+        </div>
+        <div class="product">
+          <img class="fit" src="images/story-video/childrens-book-cover.jpg" alt="Children's book: The Little Church That Started With a Cup of Coffee" loading="lazy" />
+          <div class="body"><div class="price">FROM $99</div><h3>Children's picture book</h3><p>The same story, told for the grandkids, with the illustrations they've already seen in the film.</p></div>
+        </div>
+        <div class="product">
+          <div class="icon-tile" aria-hidden="true">♪</div>
+          <div class="body"><div class="price">FROM $29</div><h3>Audiobook</h3><p>The narration in chapters, for the car, for Grandpa, or for anyone who'd rather listen.</p></div>
+        </div>
+        <div class="product">
+          <div class="icon-tile" aria-hidden="true">✉</div>
+          <div class="body"><div class="price">FROM $15</div><h3>Prints, postcards &amp; QR plaque</h3><p>Framed illustrations, postcards for the reunion, or a small plaque that plays the film when scanned.</p></div>
+        </div>
+        <div class="product bundle" style="grid-column: 1 / -1;">
+          <div class="body" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;">
+            <div><div class="price">LEGACY BUNDLE · $399</div><h3>Film + hardcover book + audiobook</h3><p>Everything together, for less than buying each one.</p></div>
+            <a class="btn btn-primary" href="#start">Start with the film</a>
+          </div>
+        </div>
+      </div>
+      <p class="keepsake-note">Relatives can get their own copies of the book too: just tell us who and how many, and we'll ship to each of them.</p>
+    </div>
+  </section>
+
+  <!-- Who it's for -->
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Who it's for</div>
+        <h2>Every story deserves <em>a proper telling.</em></h2>
+      </div>
+      <div class="who">
+        <div><h3>Families</h3><p>A trip, a retirement, the family legend, a parent's life story, a memorial service, a milestone birthday or a 50th anniversary.</p></div>
+        <div><h3>Churches &amp; groups</h3><p>Anniversaries and histories, like the 100-year church film on this page.</p></div>
+        <div><h3>Businesses</h3><p>A send-off for a coworker who's moving on, or how the company started and who built it. Great for parties, anniversaries and websites.</p></div>
+        <div><h3>Parties &amp; gifts</h3><p>Something to play on the big screen at the retirement party or the reunion, or to give at Christmas, Mother's Day or Father's Day.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom: 30px;"><div class="eyebrow">Questions</div><h2>Good to know</h2></div>
+      <div class="faq">
+        <details><summary>What can I send?</summary><p>Anything that helps tell the story, in any file type: photos (iPhone photos and Live Photos included), videos from phones, camcorders or GoPros, audio files and voice memos, scans, PDFs, Word documents, slideshows, spreadsheets, screenshots of texts or emails, and zipped folders. Links to Google Photos, iCloud, Dropbox, Facebook or YouTube work too. Large videos are fine. You don't need to sort, label, rename or convert anything, and if we ever can't open a file, we'll tell you. Please send only things you own or have permission to use.</p></details>
+        <details><summary>Does it have to be serious?</summary><p>Not at all. A road trip, a family legend that gets funnier every year, a wedding, a retirement roast, a coworker's send-off, the dog's greatest hits: pick Funny or Adventure and we write it that way, with music and a narrator to match. The church history on this page is one example.</p></details>
+        <details><summary>Can I talk to a real person?</summary><p>Yes. Your film dashboard has a project chat with Chris, the person making your film. We usually reply within an hour during the day and email you when we do. You can also call or text (302) 907-9162. Ask K, the assistant on this page, is for quick questions before you order.</p></details>
+        <details><summary>Our old photos are prints. Is that OK?</summary><p>Yes. Take a picture of each one with your phone, or scan them if you have a scanner; phone snapshots are fine. We straighten, crop and clean them up. The church's oldest pictures reached us as phone shots and a sideways scan in a PDF.</p></details>
+        <details><summary>We don't have photos from the early years.</summary><p>That's common. We add watercolor illustrations for the moments nobody photographed, in one consistent style, and if a real photo turns up later we swap it in.</p></details>
+        <details><summary>How long is the video?</summary><p>Up to about 8 minutes, using up to 75 photos and clips. Longer stories, or churches and businesses with a lot of material, get a quote up front.</p></details>
+        <details><summary>How fast can I have it?</summary><p>Your demo is ready 2–3 business days after you upload, and the final version the next business day after your changes. Need it for a memorial service this week? Ask about rush delivery.</p></details>
+        <details><summary>Who can see it, and what happens to my photos?</summary><p>Only people you send the link to. Your files are stored privately for your project only, never sold or used in our marketing, and deleted 90 days after your final film (sooner if you ask). If you'd like the film on YouTube, we'll post it as private, unlisted or public. The details are in our <a href="folder-to-film-terms.html#privacy">privacy notice</a>.</p></details>
+        <details><summary>Do you use AI?</summary><p>Yes, and we'll always tell you where. Narrators are AI voices unless you record it yourself, and the illustrations are AI-generated watercolors. AI also helps us sort your materials and draft the script. A person checks every name, date and picture, and nothing is final until you approve it.</p></details>
+        <details><summary>What if something's wrong in the demo?</summary><p>Tell us. Two rounds of changes are included: after each one we send you a new version, and the final arrives the next business day after you approve. More rounds are available if the story keeps growing.</p></details>
+        <details><summary>Who owns the finished film?</summary><p>It's yours to keep, share and show. Your photos and materials stay yours too; you just need to have the right to share what you send us.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Start -->
+  <section class="start" id="start" style="padding-top: 20px;">
+    <div class="wrap">
+      <div class="start-card">
+        <div class="eyebrow" style="text-align:center;">Start your film</div>
+        <h2>Pay once. Your dashboard opens <em>right away.</em></h2>
+        <p>No forms to fill out first and no waiting on us. Everything else happens in your own private dashboard.</p>
+        <ol class="start-steps">
+          <li><b>Pay $199.99</b><span>Secure checkout by Stripe.</span></li>
+          <li><b>Your dashboard opens</b><span>Name your project, tell us whose story it is and when you need it, and answer the 12 quick questions.</span></li>
+          <li><b>Upload everything</b><span>Any file type, over as many days as you like. Press Start production when you're done.</span></li>
+        </ol>
+        <label class="start-terms"><input type="checkbox" id="start-terms" /> <span>I've read and agree to the <a href="folder-to-film-terms.html" target="_blank" rel="noopener">Folder to Film Terms and Privacy Notice</a>, including how my photos and files are used and kept, and I'll only upload materials I own or have permission to use.</span></label>
+        <div class="start-foot">
+          <button class="btn btn-primary" type="button" id="start-checkout">Start my film · $199.99</button>
+          <small>Add a book, children's book or audiobook any time from your dashboard.</small>
+        </div>
+        <div class="form-status" id="start-status" role="status" aria-live="polite"></div>
+        <p class="start-help">Questions first? Call or text <a href="tel:+13029079162">(302) 907-9162</a> or email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Ask K -->
+  <button type="button" class="askk-fab" id="askk-fab" aria-controls="askk-drawer" aria-expanded="false"><img src="images/story-video/icon.svg" alt="" width="40" height="40" />Ask K</button>
+  <section class="askk-drawer" id="askk-drawer" role="dialog" aria-modal="false" aria-labelledby="askk-title">
+    <div class="askk-head">
+      <img src="images/story-video/icon.svg" alt="" width="38" height="38" />
+      <div><b id="askk-title">Ask K</b><span>Questions about Folder to Film, or your order</span></div>
+      <button type="button" class="askk-close" id="askk-close" aria-label="Close Ask K">×</button>
+    </div>
+    <div class="askk-log" id="askk-log" aria-live="polite"></div>
+    <div id="askk-turnstile"></div>
+    <form class="askk-form" id="askk-form">
+      <label for="askk-input" class="sr-only" style="position:absolute;left:-9999px;">Your question</label>
+      <textarea id="askk-input" maxlength="1000" rows="1" placeholder="Ask anything about your film…"></textarea>
+      <button type="submit" class="btn btn-primary" id="askk-send">Send</button>
+    </form>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Eastern Shore AI, LLC · Fruitland, Maryland</span>
+      <span><a href="tel:+13029079162">(302) 907-9162</a> · <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> · <a href="folder-to-film-terms.html">Terms &amp; Privacy</a></span>
+    </div>
+  </footer>
+
+  <script>
+    // Example video. When the full demo is on YouTube, put its id here and the player
+    // plays the whole film; until then it plays the 45-second excerpt hosted with the page.
+    const DEMO_YOUTUBE_ID = '';
+    const TEASER_SRC = 'images/story-video/cbf-teaser.mp4';
+
+    (function () {
+      const player = document.getElementById('demo-player');
+      const note = document.getElementById('player-note');
+      if (DEMO_YOUTUBE_ID) note.textContent = 'Example: the 100-year history of a small New Hampshire church. Full 7-minute film.';
+      player.querySelector('button.play').addEventListener('click', () => {
+        if (DEMO_YOUTUBE_ID) {
+          player.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(DEMO_YOUTUBE_ID) +
+            '?autoplay=1&rel=0&modestbranding=1" title="Folder to Film example film" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';
+        } else {
+          const v = document.createElement('video');
+          v.src = TEASER_SRC;
+          v.controls = true;
+          v.autoplay = true;
+          v.playsInline = true;
+          v.poster = 'images/story-video/cbf-poster.jpg';
+          player.innerHTML = '';
+          player.appendChild(v);
+        }
+        if (typeof gtag === 'function') gtag('event', 'play_demo', { page: 'story_video' });
+      });
+    })();
+
+    // Checkout. The worker route that creates the Stripe session and the project (its dashboard
+    // and storage) isn't built yet; set CHECKOUT_API_URL when it is. It should answer
+    // { ok, checkoutUrl }, and Stripe sends the customer on to their dashboard after paying.
+    (function () {
+      const CHECKOUT_API_URL = 'https://eastern-shore-ai-contact.99redder.workers.dev/api/film/checkout';
+      const btn = document.getElementById('start-checkout');
+      const statusEl = document.getElementById('start-status');
+      const setStatus = (text, kind) => { statusEl.textContent = text; statusEl.className = 'form-status' + (kind ? ' ' + kind : ''); };
+      const notYet = 'Checkout opens soon. To start now, call or text (302) 907-9162 or email contact@easternshore.ai.';
+
+      btn.addEventListener('click', async () => {
+        if (!document.getElementById('start-terms').checked) { setStatus('Please check the box to agree to the Terms and Privacy Notice first.', 'err'); return; }
+        if (typeof gtag === 'function') gtag('event', 'begin_checkout', { item: 'folder_to_film', value: 199.99, currency: 'USD' });
+        if (!CHECKOUT_API_URL) { setStatus(notYet); return; }
+        btn.disabled = true;
+        setStatus('Opening secure checkout…');
+        try {
+          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.4' }) });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok || !data.checkoutUrl) throw new Error(data.error || 'Checkout failed');
+          window.location.href = data.checkoutUrl;
+        } catch (err) {
+          setStatus('Checkout could not open right now. Please call or text (302) 907-9162, or email contact@easternshore.ai.', 'err');
+          btn.disabled = false;
+        }
+      });
+    })();
+
+    // Ask K (worker: /api/film/ask-k; order updates are emailed by /api/film/ask-k/status).
+    (function () {
+      const API = 'https://eastern-shore-ai-contact.99redder.workers.dev';
+      const TURNSTILE_SITE_KEY = '0x4AAAAAAFePoIp3Ty2iYrR3';
+      const fab = document.getElementById('askk-fab');
+      const drawer = document.getElementById('askk-drawer');
+      const log = document.getElementById('askk-log');
+      const input = document.getElementById('askk-input');
+      const form = document.getElementById('askk-form');
+      const history = [];
+      let pass = null;
+      let widget = null;
+      let waiter = null;
+      let started = false;
+      let busy = false;
+
+      const esc = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+
+      function add(role, html) {
+        const d = document.createElement('div');
+        d.className = `askk-msg ${role}`;
+        d.innerHTML = html;
+        log.appendChild(d);
+        log.scrollTop = log.scrollHeight;
+        return d;
+      }
+
+      function chips() {
+        const wrap = document.createElement('div');
+        wrap.className = 'askk-chips';
+        [['What do I get for $199.99?'], ['What can I upload?'], ['Which film styles are there?'], ['How long does it take?'], ['Check on my film', 'status']].forEach(([label, kind]) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = label;
+          b.addEventListener('click', () => kind === 'status' ? statusBox() : ask(label));
+          wrap.appendChild(b);
+        });
+        log.appendChild(wrap);
+      }
+
+      function open() {
+        drawer.classList.add('on');
+        fab.hidden = true;
+        fab.setAttribute('aria-expanded', 'true');
+        if (!started) {
+          started = true;
+          add('k', "Hi, I'm K. Ask me anything about Folder to Film: how it works, what you can upload, styles, timing or price. Already ordered? I can email you your film's status and dashboard link.");
+          chips();
+        }
+        setTimeout(() => input.focus(), 50);
+      }
+      function close() {
+        drawer.classList.remove('on');
+        fab.hidden = false;
+        fab.setAttribute('aria-expanded', 'false');
+      }
+      fab.addEventListener('click', open);
+      document.getElementById('askk-close').addEventListener('click', close);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.classList.contains('on')) close(); });
+
+      function loadTurnstile() {
+        if (window.turnstile) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+          s.async = true;
+          s.onload = resolve;
+          s.onerror = () => reject(new Error('turnstile load failed'));
+          document.head.appendChild(s);
+        });
+      }
+      async function token() {
+        if (!TURNSTILE_SITE_KEY) return null;
+        await loadTurnstile();
+        return Promise.race([
+          new Promise((_, reject) => setTimeout(() => reject(new Error('verification timed out')), 120000)),
+          new Promise((resolve, reject) => {
+            waiter = { resolve, reject };
+            const done = (fn, v) => { const w = waiter; waiter = null; if (w) w[fn](v); };
+            if (widget === null) {
+              widget = window.turnstile.render('#askk-turnstile', {
+                sitekey: TURNSTILE_SITE_KEY, appearance: 'interaction-only', execution: 'execute',
+                callback: (t) => done('resolve', t),
+                'error-callback': () => done('reject', new Error('verification failed')),
+                'expired-callback': () => done('reject', new Error('verification expired')),
+              });
+            } else {
+              window.turnstile.reset(widget);
+            }
+            window.turnstile.execute(widget);
+          }),
+        ]);
+      }
+      async function post(path, body) {
+        const send = async (b) => {
+          const res = await fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) });
+          return { res, data: await res.json().catch(() => ({})) };
+        };
+        let extra = pass ? { pass } : {};
+        if (!pass) { try { extra = { turnstileToken: await token() }; } catch { extra = {}; } }
+        let { res, data } = await send({ ...body, ...extra });
+        if (res.status === 403 && data.needsVerification) {
+          pass = null;
+          try { ({ res, data } = await send({ ...body, turnstileToken: await token() })); } catch {}
+        }
+        if (data.pass) pass = data.pass;
+        return { res, data };
+      }
+
+      async function ask(text) {
+        const q = String(text || '').trim();
+        if (!q || busy) return;
+        busy = true;
+        add('me', esc(q));
+        const typing = add('k askk-typing', 'K is typing…');
+        try {
+          const { res, data } = await post('/api/film/ask-k', { message: q, history: history.slice(-10), context: { url: location.pathname } });
+          typing.remove();
+          const reply = data.reply || data.error || 'Something went wrong. Call or text (302) 907-9162.';
+          add('k', fmt(reply));
+          history.push({ role: 'user', content: q }, { role: 'assistant', content: reply });
+          if (data.lookup) statusBox();
+          if (typeof gtag === 'function') gtag('event', 'ask_k', { page: 'folder_to_film', ok: res.ok });
+        } catch {
+          typing.remove();
+          add('k', "I couldn't connect just now. Call or text (302) 907-9162, or email contact@easternshore.ai.");
+        } finally { busy = false; }
+      }
+
+      function statusBox() {
+        const box = document.createElement('form');
+        box.className = 'askk-status';
+        box.innerHTML = '<div><strong>Check on your film</strong><br>Enter the email you ordered with. We will email the latest status, estimated completion date and your dashboard link to that address.</div>'
+          + '<input type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Email you ordered with" />'
+          + '<button type="submit" class="btn btn-primary">Email me the status</button>';
+        box.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = box.querySelector('input').value.trim();
+          const btn = box.querySelector('button');
+          btn.disabled = true; btn.textContent = 'Sending…';
+          try {
+            const { data } = await post('/api/film/ask-k/status', { email });
+            box.replaceWith(add('k', fmt(data.reply || data.error || 'Something went wrong.')));
+          } catch {
+            btn.disabled = false; btn.textContent = 'Email me the status';
+          }
+        });
+        log.appendChild(box);
+        log.scrollTop = log.scrollHeight;
+        box.querySelector('input').focus();
+      }
+
+      form.addEventListener('submit', (e) => { e.preventDefault(); const q = input.value; input.value = ''; ask(q); });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+    })();
+  </script>
+</body>
+</html>

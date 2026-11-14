@@ -63,6 +63,13 @@ database_id = "59d029fc-5f2b-42af-bdff-c5814a717879"
 binding = "RECEIPTS"
 bucket_name = "eastern-shore-ai-receipts"
 
+# Folder to Film customer uploads (src/folder-to-film.js), one folder per
+# project: projects/<id>/. Create once with:
+#   npx wrangler r2 bucket create eastern-shore-ai-films
+[[r2_buckets]]
+binding = "FILMS"
+bucket_name = "eastern-shore-ai-films"
+
 [[queues.producers]]
 binding = "SUPPORT_PUSH_QUEUE"
 queue = "eastern-shore-ai-support-push"

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' https: http://localhost:8787; connect-src 'self' https://eastern-shore-ai-contact.99redder.workers.dev http://localhost:8787; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Our Film | Folder to Film</title>
+  <link rel="icon" href="images/story-video/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="images/story-video/icon-180.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Hanken+Grotesk:wght@400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #12100d; --card: #1f1a14; --line: #352c22;
+      --ivory: #ece4d4; --muted: #a99d88; --dim: #7d725f; --gold: #c9a96e; --gold2: #e3c58e;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ivory); font-family: var(--sans); font-size: 17px; line-height: 1.55; min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: var(--gold2); }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; width: 100%; }
+    .topbar { border-bottom: 1px solid var(--line); }
+    .topbar .wrap { display: flex; align-items: center; height: 62px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ivory); font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.05; }
+    .brand img { width: 38px; height: auto; }
+    .brand em { color: var(--gold); font-weight: 500; }
+    .brand small { display: block; font-family: var(--sans); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-top: 3px; }
+    .brand small .esai { font-family: 'Orbitron', var(--sans); font-weight: 700; letter-spacing: .1em; background: linear-gradient(90deg, #00e5ff, #ff4fd8); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+    main { flex: 1; padding: 34px 0 20px; }
+    h1 { font-family: var(--serif); font-weight: 600; font-size: 46px; line-height: 1.1; margin: 0 0 18px; }
+    .player { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+    .player video { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; padding: 13px 24px; font-family: var(--sans); font-weight: 700; font-size: 16px; text-decoration: none; cursor: pointer; border: 1px solid transparent; }
+    .btn-primary { background: linear-gradient(180deg, var(--gold2), var(--gold)); color: #1a1510; }
+    .btn-ghost { background: transparent; color: var(--ivory); border-color: var(--line); }
+    .msg { color: var(--muted); text-align: center; padding: 80px 0; }
+    .made { margin-top: 46px; border-top: 1px solid var(--line); padding-top: 26px; display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; color: var(--muted); }
+    .made b { color: var(--ivory); font-family: var(--serif); font-size: 24px; font-weight: 600; display: block; }
+    footer { color: var(--dim); font-size: 13.5px; padding: 18px 0 30px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 600px) { h1 { font-size: 34px; } .btn { width: 100%; } .brand small { display: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap"><a class="brand" href="folder-to-film.html"><img src="images/story-video/logo-mark.svg" alt="" width="38" height="31" /><span>Folder <em>to Film</em><small>by <span class="esai">Eastern Shore AI</span></small></span></a></div>
+  </header>
+  <main class="wrap">
+    <div class="msg" id="msg">Loading the film…</div>
+    <section id="film" hidden>
+      <h1 id="title"></h1>
+      <div class="player" id="player"></div>
+      <div class="row">
+        <a class="btn btn-primary" id="download" href="#">Download to keep</a>
+        <button type="button" class="btn btn-ghost" id="copy">Copy this page's link</button>
+      </div>
+      <div class="made">
+        <div><b>Made with Folder to Film</b>A narrated short film made from a family's own photos, videos and stories.</div>
+        <a class="btn btn-ghost" href="folder-to-film.html">Make one for your family</a>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap">Shared privately with the people who have this link. · <a href="folder-to-film-terms.html#privacy">Privacy</a></div></footer>
+  <script>
+  (function () {
+    const API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).get('local') === '1'
+      ? 'http://localhost:8787' : 'https://eastern-shore-ai-contact.99redder.workers.dev';
+    const s = new URLSearchParams(location.search).get('s') || '';
+    const $ = (id) => document.getElementById(id);
+    async function load() {
+      if (!s) { $('msg').textContent = 'This film link is missing something. Ask the person who shared it to send it again.'; return; }
+      try {
+        const res = await fetch(`${API}/api/film/share?s=${encodeURIComponent(s)}`);
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok || !d.ok) throw new Error(d.error || 'This film link is not available.');
+        document.title = `${d.title} | Folder to Film`;
+        $('title').textContent = d.title;
+        const v = document.createElement('video');
+        v.src = d.src; v.controls = true; v.playsInline = true; v.preload = 'metadata';
+        $('player').appendChild(v);
+        $('download').href = d.downloadUrl;
+        $('msg').hidden = true;
+        $('film').hidden = false;
+      } catch (e) { $('msg').textContent = e.message; }
+    }
+    $('copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(location.href); $('copy').textContent = 'Link copied'; } catch { prompt('Copy this link:', location.href); }
+    });
+    load();
+  })();
+  </script>
+</body>
+</html>

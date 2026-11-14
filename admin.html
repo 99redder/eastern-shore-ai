@@ -258,6 +258,11 @@
     .tax-summary-items .tax-summary-line strong { white-space:nowrap; }
     .tax-entry-wrap { margin-top:1rem; }
 
+    .admin-tab-groups { display:grid; gap:.45rem; margin-bottom:.8rem; }
+    .admin-tab-group { display:grid; grid-template-columns:7.2rem 1fr; gap:.6rem; align-items:center; }
+    .admin-tab-label { font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:700; }
+    .admin-tab-groups .admin-section-tabs { margin-bottom:0; }
+    @media (max-width: 760px) { .admin-tab-group { grid-template-columns:1fr; gap:.25rem; } }
     .admin-section-tabs { display:flex; gap:.35rem; flex-wrap:wrap; align-items:center; margin-bottom:.7rem; }
     .admin-section-tabs .btn {
       padding:.45rem .5rem;
@@ -444,17 +449,28 @@
       <div id="admin-controls-mount"></div>
       <template id="admin-controls-template">
       <div class="admin-controls" id="admin-controls" style="padding:0 1rem 1rem;">
-        <div class="admin-section-tabs" id="admin-section-tabs">
-          <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
-          <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
-          <button type="button" class="btn" data-admin-tab="orders">Survival Node Orders</button>
-          <button type="button" class="btn" data-admin-tab="websites">Website Clients</button>
-          <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
-          <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
-          <button type="button" class="btn" data-admin-tab="invoices">Invoices</button>
-          <button type="button" class="btn" data-admin-tab="quotes">Quotes</button>
-          <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
-          <button type="button" class="btn" data-admin-tab="audit-package">Audit Package</button>
+        <div class="admin-tab-groups" id="admin-section-tabs">
+          <div class="admin-tab-group">
+            <span class="admin-tab-label">Customers</span>
+            <div class="admin-section-tabs">
+              <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
+              <button type="button" class="btn" data-admin-tab="orders">Survival Node Orders</button>
+              <button type="button" class="btn" data-admin-tab="films">Folder to Film</button>
+              <button type="button" class="btn" data-admin-tab="websites">Website Clients</button>
+            </div>
+          </div>
+          <div class="admin-tab-group">
+            <span class="admin-tab-label">Accounting</span>
+            <div class="admin-section-tabs">
+              <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
+              <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
+              <button type="button" class="btn" data-admin-tab="invoices">Invoices</button>
+              <button type="button" class="btn" data-admin-tab="quotes">Quotes</button>
+              <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
+              <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
+              <button type="button" class="btn" data-admin-tab="audit-package">Audit Package</button>
+            </div>
+          </div>
         </div>
 
         <div class="admin-collapsible-card" id="booking-controls-card">
@@ -849,6 +865,34 @@
         </div>
       </div>
 
+      <div class="admin-collapsible-card" id="films-card" style="margin-top:1rem; display:none;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Folder to Film</h3>
+        </div>
+        <div id="films-body">
+          <section class="admin-calendar-wrap" style="margin-top:.5rem; grid-column:1 / -1;">
+            <p class="invoice-flow-note">Customers pay on folder-to-film.html and land in their own dashboard (my-film.html) to name the project, answer the questions and upload files. Payments and Stripe fees post to the books automatically. Set the status, demo date, estimated completion and links here; Ask K reads them for order updates.</p>
+            <div id="film-summary" class="web-summary"></div>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin:.6rem 0 .5rem; align-items:center;">
+              <label for="film-filter" style="margin:0;">Show</label>
+              <select id="film-filter" style="max-width:220px; font-size:.92rem; padding:.5rem .6rem;">
+                <option value="open">Open</option>
+                <option value="collecting">Collecting files</option>
+                <option value="production">In production</option>
+                <option value="changes">Changes requested</option>
+                <option value="demo_ready">Demo sent</option>
+                <option value="final_ready">Final sent</option>
+                <option value="delivered">Delivered</option>
+                <option value="pending_payment">Unfinished checkouts</option>
+                <option value="all">All</option>
+              </select>
+              <button type="button" class="btn" id="film-refresh-btn">Refresh</button>
+            </div>
+            <div id="film-list" class="admin-list">Loading…</div>
+          </section>
+        </div>
+      </div>
+
       <div class="admin-collapsible-card" id="reconciliation-card" style="margin-top:1rem;">
         <div class="admin-collapsible-head">
           <h3 style="margin:0;">Reconciliation</h3>
@@ -1153,6 +1197,29 @@
       <div class="form-actions" style="margin-top:1rem; gap:.5rem;">
         <button type="button" class="btn" id="web-email-cancel-btn">Cancel</button>
         <button type="button" class="btn btn-primary" id="web-email-send-btn">Send Email</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-modal-overlay" id="film-email-modal" aria-hidden="true">
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="film-email-title" style="width:min(920px,96vw); max-height:92vh; overflow-y:auto;">
+      <h3 id="film-email-title">Email</h3>
+      <div class="web-email-to" id="film-email-to"></div>
+      <div style="display:grid; gap:.7rem;">
+        <div><label for="film-email-subject">Subject</label><input id="film-email-subject" maxlength="200"></div>
+        <div>
+          <label for="film-email-body">Email body</label>
+          <textarea id="film-email-body" rows="11" style="min-height:200px;"></textarea>
+          <p class="web-muted" style="margin:.35rem 0 0;">The line with just the dashboard link becomes the button. Keep it on its own line.</p>
+        </div>
+        <div>
+          <div style="font-weight:700; margin-bottom:.35rem;">Preview <span class="web-muted" id="film-email-status" style="font-weight:400;"></span></div>
+          <div id="film-email-preview" role="region" aria-label="Email preview" style="width:100%; max-height:560px; overflow:auto; border:1px solid var(--line); background:#EEF0F3;"></div>
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:1rem; gap:.5rem;">
+        <button type="button" class="btn" id="film-email-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="film-email-send-btn">Send Email</button>
       </div>
     </div>
   </div>
@@ -1515,7 +1582,8 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-11-08h"></script>
+  <script src="/admin.js?v=2026-11-14a"></script>
   <script src="/admin-websites.js?v=7"></script>
+  <script src="/admin-films.js?v=5"></script>
 </body>
 </html>

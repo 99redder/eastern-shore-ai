@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' https: http://localhost:8787; connect-src 'self' https://eastern-shore-ai-contact.99redder.workers.dev http://localhost:8787; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Your Film Dashboard | Folder to Film</title>
+  <link rel="icon" href="images/story-video/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="images/story-video/icon-180.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Hanken+Grotesk:wght@400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #12100d; --card: #1f1a14; --card2: #262019; --line: #352c22;
+      --ivory: #ece4d4; --muted: #a99d88; --dim: #7d725f;
+      --gold: #c9a96e; --gold2: #e3c58e; --ok: #9fd7a5; --err: #f0a49a;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ivory); font-family: var(--sans); font-size: 17px; line-height: 1.55; }
+    a { color: var(--gold2); }
+    h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.1; margin: 0; }
+    h1 em, h2 em { color: var(--gold2); font-style: italic; font-weight: 500; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+    .eyebrow { font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    .muted { color: var(--muted); }
+    .small { font-size: 14.5px; }
+
+    .topbar { border-bottom: 1px solid var(--line); background: rgba(18,16,13,.92); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(8px); }
+    .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 66px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; color: var(--ivory); font-family: var(--serif); font-size: 22px; font-weight: 600; line-height: 1.05; }
+    .brand img { width: 40px; height: auto; }
+    .brand span { color: var(--gold); font-style: italic; font-weight: 500; }
+    .brand small { display: block; font-family: var(--sans); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-top: 3px; }
+    .pill { font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold2); white-space: nowrap; }
+
+    header.hero { padding: 40px 0 18px; }
+    header.hero h1 { font-size: 46px; margin: 8px 0 8px; }
+    header.hero p { margin: 0; color: var(--muted); max-width: 40em; }
+
+    .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 26px 0 8px; list-style: none; padding: 0; }
+    .timeline li { position: relative; padding-top: 34px; font-size: 13.5px; color: var(--dim); text-align: center; }
+    .timeline li::before { content: attr(data-n); position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-style: italic; font-size: 16px; background: var(--bg); }
+    .timeline li.done { color: var(--muted); }
+    .timeline li.done::before { content: '✓'; font-style: normal; font-family: var(--sans); font-size: 14px; background: var(--gold); color: #1a1510; border-color: var(--gold); }
+    .timeline li.now { color: var(--ivory); font-weight: 600; }
+    .timeline li.now::before { border-color: var(--gold2); color: var(--gold2); box-shadow: 0 0 0 4px rgba(201,169,110,.18); }
+
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 30px; margin: 22px 0; }
+    .card h2 { font-size: 32px; margin: 6px 0 6px; }
+    .card > p.lead { color: var(--muted); margin: 0 0 20px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+    input, textarea { width: 100%; background: #15110d; border: 1px solid var(--line); border-radius: 10px; color: var(--ivory); font-family: var(--sans); font-size: 16px; padding: 12px 14px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--gold); }
+    textarea { min-height: 96px; resize: vertical; }
+    input[type="date"] { color-scheme: dark; }
+    .save-state { font-size: 13.5px; color: var(--dim); min-height: 1.4em; margin-top: 10px; }
+    .save-state.ok { color: var(--ok); }
+    .save-state.err { color: var(--err); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 13px 24px; font-family: var(--sans); font-weight: 700; font-size: 16px; text-decoration: none; cursor: pointer; border: 1px solid transparent; }
+    .btn-primary { background: linear-gradient(180deg, var(--gold2), var(--gold)); color: #1a1510; box-shadow: 0 10px 30px rgba(201,169,110,.25); }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+    .btn-ghost { background: transparent; color: var(--ivory); border-color: var(--line); }
+    .btn-ghost:hover { border-color: var(--gold); }
+
+    .drop { border: 2px dashed #5a4a36; border-radius: 16px; padding: 30px 20px; text-align: center; background: #1a1611; transition: border-color .15s, background .15s; }
+    .drop.over { border-color: var(--gold2); background: #241d15; }
+    .drop strong { display: block; font-family: var(--serif); font-size: 26px; font-weight: 600; margin-bottom: 4px; }
+    .drop .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+    .types { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 14px; }
+    .types span { font-size: 12.5px; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 3px 9px; }
+    .files { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 8px; }
+    .file { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+    .file .ic { font-size: 22px; text-align: center; }
+    .file .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+    .file .meta { font-size: 12.5px; color: var(--dim); }
+    .file .bar { height: 5px; border-radius: 3px; background: #3a3024; margin-top: 6px; overflow: hidden; }
+    .file .bar i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .2s; }
+    .file .x { background: none; border: 0; color: var(--dim); font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1; }
+    .file .x:hover { color: var(--err); }
+    .file.err .meta { color: var(--err); }
+    .totals { margin-top: 12px; font-size: 14px; color: var(--muted); }
+
+    .qs { display: grid; gap: 22px; }
+    .q b { display: block; font-size: 16px; margin-bottom: 9px; font-weight: 600; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { font-family: var(--sans); font-size: 14.5px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #15110d; color: var(--ivory); cursor: pointer; }
+    .chip:hover { border-color: var(--gold); }
+    .chip[aria-checked="true"] { background: var(--gold); border-color: var(--gold); color: #1a1510; font-weight: 600; }
+    .chip.expert { border-style: dashed; }
+
+    .checklist { list-style: none; padding: 0; margin: 0 0 22px; display: grid; gap: 8px; }
+    .checklist li::before { content: '○'; display: inline-block; width: 1.6em; color: var(--dim); }
+    .checklist li.ok::before { content: '✓'; color: var(--ok); }
+    .checklist li.ok { color: var(--muted); }
+
+    .player { position: relative; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin: 6px 0 18px; }
+    .player iframe, .player video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .note { background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; color: var(--muted); font-size: 15px; }
+    .big-date { font-family: var(--serif); font-size: 40px; color: var(--gold2); font-style: italic; margin: 6px 0 14px; }
+
+    .chat-log { background: #15110d; border: 1px solid var(--line); border-radius: 14px; padding: 14px; height: 360px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .chat-empty { margin: auto; color: var(--dim); font-size: 15px; text-align: center; max-width: 22em; }
+    .bubble { max-width: 82%; padding: 9px 13px; border-radius: 14px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+    .bubble.me { align-self: flex-end; background: var(--gold); color: #1a1510; border-bottom-right-radius: 4px; }
+    .bubble.them { align-self: flex-start; background: #262019; border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+    .bubble .who { display: block; font-size: 12px; font-weight: 700; opacity: .75; margin-bottom: 2px; }
+    .bubble .when { display: block; font-size: 11.5px; opacity: .6; margin-top: 3px; }
+    .chat-typing { color: var(--muted); font-size: 14px; font-style: italic; margin: 8px 2px 0; }
+    .chat-form { display: flex; gap: 10px; margin-top: 12px; align-items: flex-end; }
+    .chat-form textarea { flex: 1; min-height: 52px; max-height: 160px; resize: vertical; }
+    .chat-form .btn { width: auto; }
+    @media (max-width: 700px) { .chat-log { height: 300px; } .chat-form .btn { padding: 13px 18px; } }
+    .keep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .keep { text-align: left; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; color: var(--ivory); font-family: var(--sans); cursor: pointer; display: grid; gap: 4px; }
+    .keep:hover { border-color: var(--gold); }
+    .keep b { font-size: 16px; }
+    .keep span { color: var(--muted); font-size: 14px; }
+    .keep.sent { border-color: var(--ok); }
+    @media (max-width: 700px) { .keep-grid { grid-template-columns: 1fr; } }
+    .people { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .people li { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+    .people .pe { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .people .pe b { color: var(--ivory); font-weight: 600; }
+    .people .pe span { color: var(--muted); font-size: 14px; }
+    .people .tag { font-size: 12px; color: var(--gold2); border: 1px solid var(--gold); border-radius: 999px; padding: 2px 9px; }
+    .people button { background: none; border: 0; color: var(--dim); font-size: 14px; cursor: pointer; text-decoration: underline; }
+    .people button:hover { color: var(--err); }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+    .modal.on { display: flex; }
+    .modal .box { background: var(--card); border: 1px solid #4a3c2b; border-radius: 18px; padding: 28px; max-width: 480px; width: 100%; }
+    .modal h3 { font-size: 30px; margin-bottom: 8px; }
+    .modal p { color: var(--muted); margin: 0 0 20px; }
+
+    .spinner { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    [hidden] { display: none !important; }
+    .touch-only { display: none; }
+    @media (pointer: coarse) { .touch-only { display: block; } .desktop-only { display: none !important; } }
+    footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 26px 0 40px; color: var(--dim); font-size: 14px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+    @media (max-width: 700px) {
+      body { font-size: 16px; }
+      header.hero h1 { font-size: 36px; }
+      .card { padding: 22px 18px; border-radius: 16px; }
+      .card h2 { font-size: 28px; }
+      .grid2 { grid-template-columns: 1fr; }
+      .timeline li { font-size: 11.5px; }
+      .btn { width: 100%; }
+      .drop .btns .btn { width: auto; flex: 1 1 140px; }
+      .big-date { font-size: 32px; }
+      .topbar .brand small { display: none; }
+    }
+    .brand small .esai { font-family: 'Orbitron', var(--sans); font-style: normal; font-weight: 700; letter-spacing: .1em; background: linear-gradient(90deg, #00e5ff, #ff4fd8); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; text-shadow: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="folder-to-film.html"><img src="images/story-video/logo-mark.svg" alt="" width="40" height="33" /><span style="color:var(--ivory);font-style:normal;font-weight:600;">Folder <span>to Film</span><small>by <span class="esai">Eastern Shore AI</span></small></span></a>
+      <span class="pill" id="status-pill" hidden></span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Your film dashboard</div>
+      <h1 id="hero-title">Welcome</h1>
+      <p id="hero-sub">Everything for your film lives here. Bookmark this page.</p>
+      <ol class="timeline" id="timeline" aria-label="Progress">
+        <li data-n="1" data-step="paid">Paid</li>
+        <li data-n="2" data-step="collecting">Share everything</li>
+        <li data-n="3" data-step="production">In production</li>
+        <li data-n="4" data-step="demo">Demo</li>
+        <li data-n="5" data-step="final">Final film</li>
+      </ol>
+    </header>
+
+    <!-- Loading / payment confirming / errors -->
+    <section class="card" id="state-loading" style="text-align:center;">
+      <div class="spinner" aria-hidden="true"></div>
+      <h2 id="loading-title">Opening your dashboard…</h2>
+      <p class="muted" id="loading-text" style="margin:8px 0 0;"></p>
+    </section>
+
+    <!-- Sign in on a new browser: code emailed to the buyer or a person they added -->
+    <section class="card" id="state-signin" hidden>
+      <div class="eyebrow">Private dashboard</div>
+      <h2>Confirm it's you</h2>
+      <p class="lead">For privacy, this film's dashboard opens only for the person who ordered it and the people they've added. We'll email you a 6-digit code; this browser will remember you after that.</p>
+      <form id="signin-email-form" class="grid2">
+        <div class="full"><label for="signin-email">Your email address</label><input id="signin-email" type="email" autocomplete="email" required placeholder="you@example.com" /></div>
+        <div class="full"><p class="small muted" id="signin-hint" style="margin:0;"></p></div>
+        <div class="full"><button type="submit" class="btn btn-primary" id="signin-send">Email me a code</button></div>
+      </form>
+      <form id="signin-code-form" class="grid2" hidden>
+        <div class="full"><p class="muted" id="signin-sent" style="margin:0;"></p></div>
+        <div><label for="signin-code">6-digit code</label><input id="signin-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="123456" style="font-size:22px; letter-spacing:6px;" /></div>
+        <div class="full row"><button type="submit" class="btn btn-primary" id="signin-verify">Open my dashboard</button><button type="button" class="btn btn-ghost" id="signin-back">Use a different email</button></div>
+      </form>
+      <div class="save-state" id="signin-state" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- Collecting: details, uploads, questions, start -->
+    <div id="state-collecting" hidden>
+      <section class="card">
+        <div class="eyebrow">Step 1</div>
+        <h2>About your film</h2>
+        <p class="lead">A few words is plenty. Everything saves as you type.</p>
+        <div class="grid2">
+          <div class="full"><label for="f-name">Name your project</label><input id="f-name" maxlength="120" placeholder="e.g. Dad's Retirement, Our Lake Week, The Smith Wedding" /></div>
+          <div class="full"><label for="f-about">Whose story is it, and what's it about?</label><textarea id="f-about" maxlength="4000" placeholder="e.g. Dad retires in June after 34 years at the plant. He coached Little League, burns every grilled cheese, and calls everyone 'chief'."></textarea></div>
+          <div><label for="f-occasion">Occasion (optional)</label><input id="f-occasion" maxlength="200" placeholder="e.g. Retirement party, reception, Christmas gift" /></div>
+          <div><label for="f-needed">Need it by (optional)</label><input id="f-needed" type="date" /></div>
+          <div><label for="f-phone">Phone, in case we have a quick question (optional)</label><input id="f-phone" type="tel" maxlength="40" autocomplete="tel" /></div>
+          <div class="full"><label for="f-links">Links (optional)</label><textarea id="f-links" maxlength="4000" style="min-height:70px;" placeholder="Google Photos, iCloud or Dropbox albums, Facebook posts, YouTube videos: one per line"></textarea></div>
+        </div>
+        <div class="save-state" id="save-state" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">Step 2</div>
+        <h2>Upload everything</h2>
+        <p class="lead">Any type of file, as many as you like, over as many days as you need. Big videos are fine. No need to sort, rename or convert anything.</p>
+        <div class="drop" id="drop">
+          <strong class="desktop-only">Drop files or folders here</strong>
+          <strong class="touch-only">Add from your phone</strong>
+          <span class="muted small desktop-only">or choose them from your computer</span>
+          <span class="muted small touch-only">Pick straight from your camera roll, or any file from Files, iCloud or Google Drive.</span>
+          <div class="btns">
+            <button type="button" class="btn btn-primary" id="pick-media">📷 Photos &amp; videos</button>
+            <button type="button" class="btn btn-ghost" id="pick-files">📄 Any file</button>
+            <button type="button" class="btn btn-ghost desktop-only" id="pick-folder">🗂 A whole folder</button>
+          </div>
+          <div class="types"><span>📷 photos</span><span>🎞 videos</span><span>🎙 audio &amp; voice memos</span><span>📄 scans &amp; PDFs</span><span>📝 documents &amp; slides</span><span>💬 screenshots</span><span>🗂 zip files</span></div>
+          <input type="file" id="media-input" accept="image/*,video/*" multiple hidden />
+          <input type="file" id="file-input" multiple hidden />
+          <input type="file" id="folder-input" multiple webkitdirectory hidden />
+        </div>
+        <p class="small muted" id="keep-open" hidden style="margin:14px 0 0;">Uploading… keep this page open (and your phone unlocked) until it finishes. You can add more any time.</p>
+        <p class="small muted" style="margin:12px 0 0;">Please upload only photos, videos, music and other files you own or have permission to use. We can't tell who owns what, so you're responsible for having the rights to everything you send (<a href="folder-to-film-terms.html#t-materials" target="_blank" rel="noopener">terms</a>).</p>
+        <ul class="files" id="file-list" aria-label="Your files"></ul>
+        <div class="totals" id="totals"></div>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">Step 3</div>
+        <h2>12 quick questions</h2>
+        <p class="lead">Skip any of them and our experts will pick for you.</p>
+        <div class="qs" id="questions"></div>
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">Step 4</div>
+        <h2>Ready when you are</h2>
+        <p class="lead">When you've added everything, press Start production. We'll email you right away with the date your demo will be ready.</p>
+        <ul class="checklist" id="checklist">
+          <li data-check="name">Your project has a name</li>
+          <li data-check="about">A few words about the story</li>
+          <li data-check="files">At least one file or link</li>
+          <li data-check="idle">All uploads finished</li>
+        </ul>
+        <button type="button" class="btn btn-primary" id="start-btn" disabled>Start production</button>
+        <div class="save-state" id="start-state" role="status" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <!-- Production -->
+    <section class="card" id="state-production" hidden>
+      <div class="eyebrow">In production</div>
+      <h2>We're making your film</h2>
+      <p class="muted" style="margin:8px 0 0;">Your demo will be ready by</p>
+      <div class="big-date" id="due-date"></div>
+      <p class="muted">We're going through everything you sent, writing the script, and choosing the narration and music. We'll email you the moment your demo is ready, and you'll watch it right here.</p>
+      <p class="muted" id="done-line" hidden style="margin:0 0 14px;"></p>
+      <div class="note" id="sent-summary"></div>
+      <p class="small muted" style="margin-top:16px;">Found another photo or thought of something? Reply to any of our emails and attach it.</p>
+    </section>
+
+    <!-- Demo -->
+    <section class="card" id="state-demo" hidden>
+      <div class="eyebrow">Your demo</div>
+      <h2 id="demo-title">Your demo is ready</h2>
+      <div class="player" id="demo-player"></div>
+      <div id="feedback-box">
+        <p class="small muted" id="rounds-line" style="margin:0 0 10px;"></p>
+        <label for="fb-text">What should we change? Names, dates, a photo you just found, anything.</label>
+        <textarea id="fb-text" maxlength="8000" placeholder="e.g. At 1:12, Uncle Ray's name is spelled Rae. Can the music be a little more upbeat?"></textarea>
+        <div class="row" style="margin-top:14px;">
+          <button type="button" class="btn btn-primary" id="fb-send">Send my changes</button>
+          <button type="button" class="btn btn-ghost" id="fb-approve">Approve as is</button>
+        </div>
+        <div class="save-state" id="fb-state" role="status" aria-live="polite"></div>
+      </div>
+      <div class="note" id="changes-note" hidden>Thanks! We have your notes and are working on them. Your final film comes the next business day. Thought of something else? Add it above and send again.</div>
+    </section>
+
+    <!-- Final -->
+    <section class="card" id="state-final" hidden>
+      <div class="eyebrow">Your film</div>
+      <h2 id="final-title">Your film is ready</h2>
+      <div class="player" id="final-player"></div>
+      <div class="row">
+        <a class="btn btn-primary" id="final-open" href="#" target="_blank" rel="noopener">Open or download</a>
+        <button type="button" class="btn btn-ghost" id="copy-link">Copy a link to share</button>
+      </div>
+      <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, a children's book or an audiobook? See Keepsakes below.</p>
+    </section>
+
+    <!-- Project chat + notes (any time after paying) -->
+    <section class="card" id="chat" hidden>
+      <div class="eyebrow">Project chat</div>
+      <h2>Talk with Chris</h2>
+      <p class="lead">Questions, ideas, a photo you just remembered: ask here, any time. We usually reply within an hour during the day, and we'll email you when we do.</p>
+      <div class="chat-log" id="chat-log" aria-live="polite"><div class="chat-empty" id="chat-empty">No messages yet. Say hi, or ask us anything about your film.</div></div>
+      <div class="chat-typing" id="chat-typing" hidden></div>
+      <form class="chat-form" id="chat-form">
+        <label for="chat-input" style="position:absolute;left:-9999px;">Your message</label>
+        <textarea id="chat-input" maxlength="4000" rows="2" placeholder="Type a message…"></textarea>
+        <button type="submit" class="btn btn-primary" id="chat-send">Send</button>
+      </form>
+      <div class="save-state" id="chat-state" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card" id="notes-card" hidden>
+      <div class="eyebrow">Notes for Chris</div>
+      <h2>Anything we should remember</h2>
+      <p class="lead">Spellings, nicknames, people or photos to leave out, a song that matters, the feeling you're going for. It saves as you type, and we read it before and during production.</p>
+      <textarea id="notes" maxlength="20000" style="min-height:130px;" placeholder="e.g. Everyone calls Grandma 'Yiayia'. Please leave out the photos from 2009. The ending should feel hopeful."></textarea>
+      <div class="save-state" id="notes-state" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card" id="keepsakes-card" hidden>
+      <div class="eyebrow">Keepsakes</div>
+      <h2>Turn your film into something to hold</h2>
+      <p class="lead">Your script, photos and illustrations are already done, so these come together fast. Tap one and we'll reply in your project chat with the details and a payment link. Nothing is charged until you say yes.</p>
+      <div class="keep-grid" id="keep-grid">
+        <button type="button" class="keep" data-keep="Hardcover story book (from $149)"><b>Hardcover story book</b><span>From $149 · the full story with every photo and illustration</span></button>
+        <button type="button" class="keep" data-keep="Children's picture book (from $99)"><b>Children's picture book</b><span>From $99 · the same story, told for the grandkids</span></button>
+        <button type="button" class="keep" data-keep="Audiobook (from $29)"><b>Audiobook</b><span>From $29 · the narration in chapters</span></button>
+        <button type="button" class="keep" data-keep="Prints, postcards or a QR plaque (from $15)"><b>Prints, postcards &amp; QR plaque</b><span>From $15 · a plaque that plays the film when scanned</span></button>
+        <button type="button" class="keep" data-keep="Legacy bundle: film + hardcover book + audiobook ($399)"><b>Legacy bundle</b><span>$399 · hardcover book and audiobook together</span></button>
+        <button type="button" class="keep" data-keep="Extra copies of the book for family"><b>Copies for family</b><span>Tell us who and how many; we ship to each of them</span></button>
+      </div>
+      <div class="save-state" id="keep-state" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card" id="people-card" hidden>
+      <div class="eyebrow">People with access</div>
+      <h2>Invite family to help</h2>
+      <p class="lead">Add the people who should be able to open this dashboard: they can upload their own photos and videos, answer questions and chat with us. Only people you add can get a sign-in code, and you can remove anyone at any time.</p>
+      <ul class="people" id="people-list"></ul>
+      <form id="people-form" class="grid2" style="margin-top:16px;">
+        <div><label for="people-name">Name (optional)</label><input id="people-name" maxlength="80" placeholder="e.g. Aunt Maria" /></div>
+        <div><label for="people-email">Email</label><input id="people-email" type="email" required placeholder="maria@example.com" /></div>
+        <div class="full"><button type="submit" class="btn btn-ghost" id="people-add">Add and email an invitation</button></div>
+      </form>
+      <div class="save-state" id="people-state" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card" id="state-canceled" hidden>
+      <h2>This film was canceled</h2>
+      <p class="muted">Questions? Call or text (302) 907-9162 or email contact@easternshore.ai.</p>
+    </section>
+  </main>
+
+  <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="box">
+      <h3 id="confirm-title">Is that everything?</h3>
+      <p>Once production starts, uploads close and your details lock. (You can still email us anything you forget.)</p>
+      <div class="row">
+        <button type="button" class="btn btn-primary" id="confirm-yes">Yes, start production</button>
+        <button type="button" class="btn btn-ghost" id="confirm-no">Not yet</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <span>Folder to Film · Eastern Shore AI, LLC · Fruitland, Maryland</span>
+      <span><a href="tel:+13029079162">(302) 907-9162</a> · <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> · <a href="folder-to-film-terms.html" target="_blank" rel="noopener">Terms &amp; Privacy</a></span>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    const API = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).get('local') === '1'
+      ? 'http://localhost:8787' : 'https://eastern-shore-ai-contact.99redder.workers.dev';
+    const params = new URLSearchParams(location.search);
+    const token = params.get('t') || '';
+    const sessionId = params.get('session_id') || '';
+    const $ = (id) => document.getElementById(id);
+    let project = null;
+    let saveTimer = null;
+    let answers = {};
+    const queue = [];      // {file, el, state}
+    let active = 0;
+    const MAX_PARALLEL = 3;
+
+    // This browser's sign-in for this film (the link alone doesn't open the dashboard).
+    const DKEY = `ff-dev-${token.slice(0, 16)}`;
+    let device = '';
+    try { device = localStorage.getItem(DKEY) || ''; } catch {}
+    function saveDevice(t) { device = t || ''; try { if (device) localStorage.setItem(DKEY, device); else localStorage.removeItem(DKEY); } catch {} }
+    // The address bar keeps only the film link (the Stripe session id stays in memory for the first load).
+    if (sessionId) history.replaceState(null, '', `${location.pathname}?t=${encodeURIComponent(token)}`);
+
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const sizeText = (b) => b >= 1073741824 ? `${(b / 1073741824).toFixed(1)} GB` : b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : b >= 1024 ? `${Math.round(b / 1024)} KB` : `${b} bytes`;
+    const icon = (type, name) => {
+      const n = (name || '').toLowerCase();
+      if (/^image\//.test(type) || /\.(heic|heif|jpe?g|png|gif|webp|tiff?|bmp|raw|cr2|nef|arw|dng)$/.test(n)) return '📷';
+      if (/^video\//.test(type) || /\.(mov|mp4|m4v|avi|mkv|wmv|mts|3gp|webm)$/.test(n)) return '🎞';
+      if (/^audio\//.test(type) || /\.(m4a|mp3|wav|aac|aiff?|flac|ogg|amr|caf)$/.test(n)) return '🎙';
+      if (/pdf/.test(type) || /\.pdf$/.test(n)) return '📄';
+      if (/zip|compressed/.test(type) || /\.(zip|rar|7z|tar|gz)$/.test(n)) return '🗂';
+      return '📝';
+    };
+
+    async function api(path, body) {
+      const headers = device ? { 'X-Film-Device': device } : {};
+      const res = await fetch(API + path, body === undefined ? { headers } : { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401 && data.needsCode) { showSignIn(data); throw Object.assign(new Error('Please sign in.'), { needsCode: true }); }
+      if (!res.ok || data.ok === false) throw Object.assign(new Error(data.error || `Something went wrong (${res.status}).`), { data });
+      return data;
+    }
+
+    function show(id) {
+      ['state-loading', 'state-signin', 'state-collecting', 'state-production', 'state-demo', 'state-final', 'state-canceled'].forEach((s) => { $(s).hidden = s !== id; });
+      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'keepsakes-card'].forEach((s) => { $(s).hidden = true; });
+    }
+
+    function setTimeline(status) {
+      const order = ['paid', 'collecting', 'production', 'demo', 'final'];
+      const at = { pending_payment: 0, collecting: 1, production: 2, demo_ready: 3, changes: 3, final_ready: 4, delivered: 5, canceled: -1 }[status] ?? 0;
+      document.querySelectorAll('#timeline li').forEach((li) => {
+        const i = order.indexOf(li.dataset.step);
+        li.className = i < at || (status === 'delivered') ? 'done' : (i === at ? 'now' : '');
+      });
+      if (status !== 'pending_payment') document.querySelector('#timeline li[data-step="paid"]').className = 'done';
+    }
+
+    function render() {
+      const p = project;
+      $('chat').hidden = !p.chat;
+      $('notes-card').hidden = !p.chat;
+      $('people-card').hidden = !(p.me && p.me.isOwner && p.status !== 'canceled');
+      $('keepsakes-card').hidden = !p.chat;
+      if (p.people) renderPeople(p.people);
+      if (p.chat && document.activeElement !== $('notes')) $('notes').value = p.notes || '';
+      if (p.chat) startChat();
+      const pill = $('status-pill');
+      pill.hidden = false;
+      pill.textContent = p.statusLabel;
+      $('timeline').hidden = false;
+      setTimeline(p.status);
+      $('hero-title').innerHTML = p.projectName ? esc(p.projectName) : (p.customerName ? `Welcome, ${esc(p.customerName.split(' ')[0])}` : 'Welcome');
+      if (p.status === 'collecting') {
+        $('hero-sub').textContent = 'Name your project, upload everything you have and answer the quick questions. Take as long as you need: everything saves as you go.';
+        show('state-collecting');
+        fillForm();
+        renderQuestions();
+        renderFiles();
+        updateChecklist();
+      } else if (p.status === 'production') {
+        $('hero-sub').textContent = 'Thanks for sending everything. Here is where things stand.';
+        $('due-date').textContent = p.demoDueText || 'soon';
+        $('done-line').hidden = !p.estimatedDoneText;
+        $('done-line').textContent = p.estimatedDoneText ? `Finished film expected by ${p.estimatedDoneText}.` : '';
+        const answered = Object.keys(p.answers || {}).length;
+        $('sent-summary').innerHTML = `You sent <b>${p.uploads.length}</b> file${p.uploads.length === 1 ? '' : 's'} (${sizeText(p.totalBytes)})${p.links ? ' plus links' : ''}, and answered ${answered} of 12 questions${answered < 12 ? '; our experts will pick the rest' : ''}.`;
+        show('state-production');
+      } else if (p.status === 'demo_ready' || p.status === 'changes') {
+        $('hero-sub').textContent = p.status === 'changes' ? "We're working on your changes. Your final film comes the next business day." : 'Watch your demo, then tell us what to change or approve it.';
+        $('demo-title').textContent = p.status === 'changes' ? 'Your demo' : 'Your demo is ready';
+        mountPlayer($('demo-player'), p.demoSrc || p.demoUrl);
+        $('changes-note').hidden = p.status !== 'changes';
+        $('fb-approve').hidden = !!p.approvedAt;
+        const inc = p.roundsIncluded || 2, used = p.changeRounds || 0;
+        $('rounds-line').textContent = used < inc
+          ? `${inc} rounds of changes are included; you've used ${used}. Send everything for a round in one go if you can.`
+          : `You've used both included rounds of changes. You can still send notes: if more changes would cost extra, we'll tell you first.`;
+        show('state-demo');
+      } else if (p.status === 'final_ready' || p.status === 'delivered') {
+        $('hero-sub').textContent = 'Your finished film. Watch it, share it, keep it.';
+        mountPlayer($('final-player'), p.finalSrc || p.finalUrl);
+        $('final-open').href = p.downloadUrl || p.finalUrl || '#';
+        $('final-open').textContent = p.downloadUrl ? 'Download to keep' : 'Open the film';
+        if (p.downloadUrl) $('final-open').removeAttribute('target'); else $('final-open').setAttribute('target', '_blank');
+        $('copy-link').hidden = !(p.shareUrl || p.finalUrl);
+        show('state-final');
+      } else if (p.status === 'canceled') {
+        show('state-canceled');
+      }
+    }
+
+    function mountPlayer(el, url) {
+      el.innerHTML = '';
+      if (!url) { el.hidden = true; return; }
+      el.hidden = false;
+      let m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+      if (m) { el.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${esc(m[1])}?rel=0&modestbranding=1" title="Your film" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`; return; }
+      m = url.match(/vimeo\.com\/(\d+)/);
+      if (m) { el.innerHTML = `<iframe src="https://player.vimeo.com/video/${esc(m[1])}" title="Your film" allow="fullscreen; picture-in-picture" allowfullscreen></iframe>`; return; }
+      if (/\.(mp4|m4v|webm|mov)(\?|$)/i.test(url) || url.includes('/api/film/watch')) { const v = document.createElement('video'); v.src = url; v.controls = true; v.playsInline = true; v.preload = 'metadata'; el.appendChild(v); return; }
+      el.hidden = true;
+      el.insertAdjacentHTML('afterend', '');
+      const a = document.createElement('a'); a.className = 'btn btn-primary'; a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Watch it';
+      el.parentNode.insertBefore(a, el.nextSibling);
+    }
+
+    // ----- details form -----
+    const fields = { projectName: 'f-name', about: 'f-about', occasion: 'f-occasion', neededBy: 'f-needed', phone: 'f-phone', links: 'f-links' };
+    function fillForm() {
+      for (const [k, id] of Object.entries(fields)) if (document.activeElement !== $(id)) $(id).value = project[k] || '';
+      answers = { ...(project.answers || {}) };
+    }
+    function collect() {
+      const out = { t: token, answers };
+      for (const [k, id] of Object.entries(fields)) out[k] = $(id).value;
+      return out;
+    }
+    function scheduleSave() {
+      $('save-state').className = 'save-state';
+      $('save-state').textContent = 'Saving…';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(save, 700);
+      updateChecklist();
+    }
+    async function save() {
+      clearTimeout(saveTimer);
+      const body = collect();
+      try {
+        await api('/api/film/dashboard', body);
+        Object.assign(project, { projectName: body.projectName, about: body.about, occasion: body.occasion, neededBy: body.neededBy, phone: body.phone, links: body.links, answers: { ...answers } });
+        $('save-state').className = 'save-state ok';
+        $('save-state').textContent = 'Saved';
+        $('hero-title').textContent = body.projectName || 'Welcome';
+      } catch (e) {
+        $('save-state').className = 'save-state err';
+        $('save-state').textContent = e.message;
+      }
+    }
+    Object.values(fields).forEach((id) => $(id).addEventListener('input', scheduleSave));
+
+    // ----- questions -----
+    function renderQuestions() {
+      const box = $('questions');
+      if (box.dataset.ready) return;
+      box.dataset.ready = '1';
+      box.innerHTML = project.questions.map((q, i) => {
+        if (q.type === 'text') {
+          return `<div class="q"><label for="q-${q.id}"><b>${i + 1}. ${esc(q.q)}</b></label><textarea id="q-${q.id}" data-q="${q.id}" maxlength="2000" style="min-height:70px;" placeholder="${esc(q.placeholder || '')}">${esc(answers[q.id] || '')}</textarea></div>`;
+        }
+        const multi = q.type === 'multi';
+        const chosen = multi ? (answers[q.id] || []) : [answers[q.id]];
+        return `<div class="q" role="${multi ? 'group' : 'radiogroup'}" aria-label="${esc(q.q)}"><b>${i + 1}. ${esc(q.q)}${multi ? ' <span class="muted small" style="font-weight:400;">(pick any)</span>' : ''}</b><div class="chips">${q.options.map((o) =>
+          `<button type="button" class="chip${o === 'Experts pick' ? ' expert' : ''}" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${chosen.includes(o)}" data-q="${q.id}" data-multi="${multi ? 1 : 0}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div></div>`;
+      }).join('');
+    }
+    $('questions').addEventListener('click', (e) => {
+      const b = e.target.closest('.chip');
+      if (!b) return;
+      const id = b.dataset.q, v = b.dataset.v;
+      if (b.dataset.multi === '1') {
+        const set = new Set(answers[id] || []);
+        set.has(v) ? set.delete(v) : set.add(v);
+        answers[id] = [...set];
+        if (!answers[id].length) delete answers[id];
+        b.setAttribute('aria-checked', String(set.has(v)));
+      } else {
+        const on = answers[id] !== v;
+        if (on) answers[id] = v; else delete answers[id];
+        b.parentNode.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-checked', String(on && c === b)));
+      }
+      scheduleSave();
+    });
+    $('questions').addEventListener('input', (e) => {
+      const t = e.target.closest('textarea[data-q]');
+      if (!t) return;
+      if (t.value.trim()) answers[t.dataset.q] = t.value; else delete answers[t.dataset.q];
+      scheduleSave();
+    });
+
+    // ----- files -----
+    function renderFiles() {
+      const list = $('file-list');
+      list.querySelectorAll('li.file.saved').forEach((li) => li.remove());
+      for (const u of project.uploads) list.appendChild(savedRow(u));
+      updateTotals();
+    }
+    function savedRow(u) {
+      const li = document.createElement('li');
+      li.className = 'file saved';
+      li.innerHTML = `<div class="ic">${icon(u.type, u.name)}</div><div style="min-width:0;"><div class="nm" title="${esc(u.name)}">${esc(u.name)}</div><div class="meta">${sizeText(u.size)} · uploaded</div></div><button type="button" class="x" aria-label="Remove ${esc(u.name)}" data-del="${u.id}">×</button>`;
+      return li;
+    }
+    function updateTotals() {
+      const n = project.uploads.length;
+      const pending = queue.filter((q) => q.state !== 'done' && q.state !== 'error').length;
+      $('totals').textContent = n || pending ? `${n} file${n === 1 ? '' : 's'} uploaded (${sizeText(project.totalBytes)})${pending ? ` · ${pending} still uploading` : ''}` : '';
+    }
+    $('file-list').addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-del]');
+      if (!b) return;
+      const id = Number(b.dataset.del);
+      b.disabled = true;
+      try {
+        await api('/api/film/upload/delete', { t: token, fileId: id });
+        const u = project.uploads.find((x) => x.id === id);
+        project.uploads = project.uploads.filter((x) => x.id !== id);
+        project.totalBytes -= u ? u.size : 0;
+        b.closest('li').remove();
+        updateTotals(); updateChecklist();
+      } catch (err) { b.disabled = false; alert(err.message); }
+    });
+
+    function addFiles(files) {
+      for (const f of files) {
+        if (!f || f.name === '.DS_Store' || f.name === 'Thumbs.db') continue;
+        const name = f.relPath || f.webkitRelativePath || f.name;
+        const li = document.createElement('li');
+        li.className = 'file';
+        li.innerHTML = `<div class="ic">${icon(f.type, name)}</div><div style="min-width:0;"><div class="nm" title="${esc(name)}">${esc(name)}</div><div class="meta">${sizeText(f.size)} · waiting</div><div class="bar"><i></i></div></div><span></span>`;
+        $('file-list').prepend(li);
+        const item = { file: f, name, el: li, state: 'waiting' };
+        if (!f.size) { item.state = 'error'; li.classList.add('err'); li.querySelector('.meta').textContent = 'Empty file, skipped'; li.querySelector('.bar').remove(); continue; }
+        queue.push(item);
+      }
+      pump();
+      updateTotals(); updateChecklist();
+    }
+    let wakeLock = null;
+    async function keepAwake(on) {
+      $('keep-open').hidden = !on;
+      try {
+        if (on && !wakeLock && 'wakeLock' in navigator && document.visibilityState === 'visible') {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => { wakeLock = null; });
+        } else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+      } catch { wakeLock = null; }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && queue.some((q) => q.state === 'uploading' || q.state === 'waiting')) keepAwake(true);
+    });
+    function pump() {
+      keepAwake(queue.some((q) => q.state === 'uploading' || q.state === 'waiting'));
+      while (active < MAX_PARALLEL) {
+        const next = queue.find((q) => q.state === 'waiting');
+        if (!next) break;
+        active++;
+        next.state = 'uploading';
+        uploadOne(next).finally(() => { active--; updateTotals(); updateChecklist(); pump(); if (!active && !queue.some((q) => q.state === 'waiting')) keepAwake(false); });
+      }
+    }
+    function sendPart(url, blob, onProgress) {
+      return new Promise((resolve, reject) => {
+        const x = new XMLHttpRequest();
+        x.open('POST', url);
+        x.setRequestHeader('Content-Type', 'application/octet-stream');
+        if (device) x.setRequestHeader('X-Film-Device', device);
+        x.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded); };
+        x.onload = () => {
+          let d = {};
+          try { d = JSON.parse(x.responseText); } catch {}
+          if (x.status >= 200 && x.status < 300 && d.ok) resolve(d);
+          else reject(Object.assign(new Error(d.error || `Upload failed (${x.status})`), { fatal: x.status >= 400 && x.status < 500 }));
+        };
+        x.onerror = () => reject(new Error('Connection dropped'));
+        x.send(blob);
+      });
+    }
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    async function uploadOne(item) {
+      const { file, el } = item;
+      const meta = el.querySelector('.meta');
+      const bar = el.querySelector('.bar i');
+      try {
+        const s = await api('/api/film/upload/start', { t: token, name: item.name, size: file.size, type: file.type });
+        const etags = [];
+        let doneBytes = 0;
+        for (let n = 1; n <= s.parts; n++) {
+          const blob = file.slice((n - 1) * s.partBytes, Math.min(n * s.partBytes, file.size));
+          for (let attempt = 1; ; attempt++) {
+            try {
+              const r = await sendPart(`${API}/api/film/upload/part?t=${encodeURIComponent(token)}&file=${s.fileId}&part=${n}`, blob, (loaded) => {
+                const pct = Math.min(99, Math.round(((doneBytes + loaded) / file.size) * 100));
+                bar.style.width = `${pct}%`;
+                meta.textContent = `${sizeText(file.size)} · ${pct}%`;
+              });
+              etags.push({ part: r.part, etag: r.etag });
+              break;
+            } catch (e) {
+              if (e.fatal || attempt >= 5) throw e;
+              meta.textContent = `${sizeText(file.size)} · connection hiccup, retrying…`;
+              await sleep(1500 * attempt);
+            }
+          }
+          doneBytes += blob.size;
+        }
+        const c = await api('/api/film/upload/complete', { t: token, fileId: s.fileId, parts: etags });
+        item.state = 'done';
+        project.uploads.push(c.file);
+        project.totalBytes += c.file.size;
+        el.replaceWith(savedRow(c.file));
+      } catch (e) {
+        item.state = 'error';
+        el.classList.add('err');
+        meta.textContent = `${e.message} Try adding it again.`;
+      }
+    }
+
+    $('pick-media').addEventListener('click', () => $('media-input').click());
+    $('media-input').addEventListener('change', (e) => { addFiles([...e.target.files]); e.target.value = ''; });
+    $('pick-files').addEventListener('click', () => $('file-input').click());
+    $('pick-folder').addEventListener('click', () => $('folder-input').click());
+    $('file-input').addEventListener('change', (e) => { addFiles([...e.target.files]); e.target.value = ''; });
+    $('folder-input').addEventListener('change', (e) => { addFiles([...e.target.files]); e.target.value = ''; });
+    const drop = $('drop');
+    ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', async (e) => {
+      const items = [...(e.dataTransfer.items || [])];
+      const entries = items.map((i) => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+      if (!entries.length) { addFiles([...e.dataTransfer.files]); return; }
+      const out = [];
+      async function walk(entry, path) {
+        if (entry.isFile) {
+          await new Promise((res) => entry.file((f) => { f.relPath = path + f.name; out.push(f); res(); }, res));
+        } else if (entry.isDirectory) {
+          const reader = entry.createReader();
+          for (;;) {
+            const batch = await new Promise((res) => reader.readEntries(res, () => res([])));
+            if (!batch.length) break;
+            for (const child of batch) await walk(child, `${path}${entry.name}/`);
+          }
+        }
+      }
+      for (const en of entries) await walk(en, '');
+      addFiles(out);
+    });
+    window.addEventListener('beforeunload', (e) => {
+      if (queue.some((q) => q.state === 'uploading' || q.state === 'waiting')) { e.preventDefault(); e.returnValue = ''; }
+    });
+
+    // ----- start production -----
+    function updateChecklist() {
+      if (!project || project.status !== 'collecting') return;
+      const busy = queue.some((q) => q.state === 'uploading' || q.state === 'waiting');
+      const ok = {
+        name: !!$('f-name').value.trim(),
+        about: !!$('f-about').value.trim(),
+        files: project.uploads.length > 0 || !!$('f-links').value.trim(),
+        idle: !busy,
+      };
+      document.querySelectorAll('#checklist li').forEach((li) => li.classList.toggle('ok', !!ok[li.dataset.check]));
+      $('start-btn').disabled = !Object.values(ok).every(Boolean);
+    }
+    $('start-btn').addEventListener('click', () => $('confirm-modal').classList.add('on'));
+    $('confirm-no').addEventListener('click', () => $('confirm-modal').classList.remove('on'));
+    $('confirm-modal').addEventListener('click', (e) => { if (e.target.id === 'confirm-modal') e.target.classList.remove('on'); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('confirm-modal').classList.remove('on'); });
+    $('confirm-yes').addEventListener('click', async () => {
+      const b = $('confirm-yes');
+      b.disabled = true;
+      try {
+        await save();
+        const r = await api('/api/film/start', { t: token });
+        $('confirm-modal').classList.remove('on');
+        project.status = 'production';
+        project.statusLabel = 'In production';
+        project.demoDueText = r.demoDueText;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        $('confirm-modal').classList.remove('on');
+        $('start-state').className = 'save-state err';
+        $('start-state').textContent = e.message;
+      } finally { b.disabled = false; }
+    });
+
+    // ----- feedback -----
+    async function sendFeedback(approve) {
+      const text = $('fb-text').value.trim();
+      $('fb-state').className = 'save-state';
+      $('fb-state').textContent = 'Sending…';
+      try {
+        await api('/api/film/feedback', { t: token, text, approve });
+        $('fb-text').value = '';
+        project.status = 'changes';
+        project.statusLabel = 'Changes requested';
+        if (approve) project.approvedAt = new Date().toISOString();
+        render();
+        $('fb-state').className = 'save-state ok';
+        $('fb-state').textContent = approve ? 'Approved. Thank you!' : 'Sent. Thank you!';
+      } catch (e) {
+        $('fb-state').className = 'save-state err';
+        $('fb-state').textContent = e.message;
+      }
+    }
+    $('fb-send').addEventListener('click', () => sendFeedback(false));
+    $('fb-approve').addEventListener('click', () => sendFeedback(true));
+    $('copy-link').addEventListener('click', async () => {
+      const link = project.shareUrl || project.finalUrl;
+      try { await navigator.clipboard.writeText(link); $('copy-link').textContent = 'Link copied'; } catch { prompt('Copy this link:', link); }
+    });
+
+
+    // ----- notes for Chris -----
+    let notesTimer = null;
+    $('notes').addEventListener('input', () => {
+      $('notes-state').className = 'save-state';
+      $('notes-state').textContent = 'Saving…';
+      clearTimeout(notesTimer);
+      notesTimer = setTimeout(async () => {
+        try {
+          await api('/api/film/notes', { t: token, notes: $('notes').value });
+          project.notes = $('notes').value;
+          $('notes-state').className = 'save-state ok';
+          $('notes-state').textContent = 'Saved';
+        } catch (e) { $('notes-state').className = 'save-state err'; $('notes-state').textContent = e.message; }
+      }, 700);
+    });
+
+    // ----- project chat (staff answer from the support chat console) -----
+    let chatStarted = false, lastMsgId = 0, chatTimer = null, typingSentAt = 0;
+    const fmtTime = (iso) => { try { return new Date(iso).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); } catch { return ''; } };
+    function addBubble(m) {
+      if (m.id && m.id <= lastMsgId) return;
+      if (m.id) lastMsgId = m.id;
+      $('chat-empty')?.remove();
+      const mine = m.role === 'user';
+      const b = document.createElement('div');
+      b.className = `bubble ${mine ? 'me' : 'them'}`;
+      b.innerHTML = `${mine ? '' : `<span class="who">${esc(m.sender_name || 'Chris')}</span>`}${esc(m.content)}<span class="when">${esc(fmtTime(m.created_at))}</span>`;
+      const log = $('chat-log');
+      const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+      log.appendChild(b);
+      if (nearBottom || mine) log.scrollTop = log.scrollHeight;
+    }
+    async function pollChat() {
+      clearTimeout(chatTimer);
+      try {
+        const d = await api(`/api/film/chat?t=${encodeURIComponent(token)}&after=${lastMsgId}`);
+        d.messages.forEach(addBubble);
+        $('chat-typing').hidden = !d.typing;
+        $('chat-typing').textContent = d.typing ? `${d.typing} is typing…` : '';
+      } catch {}
+      chatTimer = setTimeout(pollChat, document.visibilityState === 'visible' ? 4000 : 20000);
+    }
+    function startChat() {
+      if (chatStarted) return;
+      chatStarted = true;
+      pollChat();
+      if (location.hash === '#chat') setTimeout(() => $('chat').scrollIntoView({ behavior: 'smooth' }), 300);
+    }
+    document.addEventListener('visibilitychange', () => { if (chatStarted && document.visibilityState === 'visible') pollChat(); });
+    $('chat-input').addEventListener('input', () => {
+      if (Date.now() - typingSentAt < 2500 || !$('chat-input').value.trim()) return;
+      typingSentAt = Date.now();
+      api('/api/film/chat/typing', { t: token, typing: true }).catch(() => {});
+    });
+    $('chat-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey && !matchMedia('(pointer: coarse)').matches) { e.preventDefault(); $('chat-form').requestSubmit(); }
+    });
+    $('chat-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = $('chat-input').value.trim();
+      if (!text) return;
+      $('chat-send').disabled = true;
+      $('chat-state').textContent = '';
+      try {
+        const d = await api('/api/film/chat', { t: token, content: text });
+        $('chat-input').value = '';
+        typingSentAt = 0;
+        addBubble(d.message);
+      } catch (err) {
+        $('chat-state').className = 'save-state err';
+        $('chat-state').textContent = err.message;
+      } finally { $('chat-send').disabled = false; }
+    });
+
+
+    // ----- sign in (code) -----
+    let signinEmail = '';
+    function showSignIn(info) {
+      chatStarted = false; clearTimeout(chatTimer);
+      $('hero-title').textContent = info && info.projectName ? info.projectName : 'Your film';
+      $('hero-sub').textContent = 'This dashboard is private.';
+      $('status-pill').hidden = true;
+      $('timeline').hidden = true;
+      $('signin-hint').textContent = info && info.maskedEmail ? `The film was ordered with ${info.maskedEmail}. People that person added can sign in with their own email.` : '';
+      show('state-signin');
+    }
+    $('signin-email-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      signinEmail = $('signin-email').value.trim();
+      $('signin-send').disabled = true;
+      $('signin-state').className = 'save-state'; $('signin-state').textContent = 'Sending…';
+      try {
+        const d = await api('/api/film/access/code', { t: token, email: signinEmail });
+        $('signin-state').textContent = '';
+        $('signin-sent').textContent = d.message;
+        $('signin-email-form').hidden = true; $('signin-code-form').hidden = false;
+        $('signin-code').value = ''; $('signin-code').focus();
+      } catch (err) { $('signin-state').className = 'save-state err'; $('signin-state').textContent = err.message; }
+      finally { $('signin-send').disabled = false; }
+    });
+    $('signin-code-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      $('signin-verify').disabled = true;
+      try {
+        const d = await api('/api/film/access/verify', { t: token, email: signinEmail, code: $('signin-code').value.trim() });
+        saveDevice(d.deviceToken);
+        $('signin-state').textContent = '';
+        show('state-loading');
+        load();
+      } catch (err) { $('signin-state').className = 'save-state err'; $('signin-state').textContent = err.message; }
+      finally { $('signin-verify').disabled = false; }
+    });
+    $('signin-back').addEventListener('click', () => { $('signin-code-form').hidden = true; $('signin-email-form').hidden = false; $('signin-state').textContent = ''; });
+
+    // ----- keepsakes: a request goes into the project chat; Chris replies with details and a payment link -----
+    $('keep-grid').addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-keep]');
+      if (!b || b.disabled) return;
+      b.disabled = true;
+      try {
+        const d = await api('/api/film/chat', { t: token, content: `Keepsake request: ${b.dataset.keep}. Please send me the details.` });
+        addBubble(d.message);
+        b.classList.add('sent');
+        $('keep-state').className = 'save-state ok';
+        $('keep-state').textContent = "Request sent. We'll reply in your project chat with the details and a payment link.";
+      } catch (err) { $('keep-state').className = 'save-state err'; $('keep-state').textContent = err.message; }
+      finally { b.disabled = false; }
+    });
+
+    // ----- people with access (the buyer only) -----
+    function renderPeople(list) {
+      $('people-list').innerHTML = list.map((p) => `<li><div class="pe"><b>${esc(p.name || p.email)}</b>${p.name ? ` <span>${esc(p.email)}</span>` : ''}</div>${p.isOwner ? '<span class="tag">You</span>' : `<button type="button" data-remove="${esc(p.email)}">Remove</button>`}</li>`).join('');
+    }
+    $('people-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      $('people-add').disabled = true;
+      $('people-state').className = 'save-state'; $('people-state').textContent = 'Adding…';
+      try {
+        const d = await api('/api/film/people', { t: token, email: $('people-email').value.trim(), name: $('people-name').value.trim() });
+        renderPeople(d.people);
+        $('people-state').className = 'save-state ok';
+        $('people-state').textContent = `Added. We emailed ${$('people-email').value.trim()} an invitation.`;
+        $('people-email').value = ''; $('people-name').value = '';
+      } catch (err) { $('people-state').className = 'save-state err'; $('people-state').textContent = err.message; }
+      finally { $('people-add').disabled = false; }
+    });
+    $('people-list').addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-remove]');
+      if (!b) return;
+      if (!confirm(`Remove ${b.dataset.remove}? They won't be able to open this dashboard anymore.`)) return;
+      try {
+        const d = await api('/api/film/people/remove', { t: token, email: b.dataset.remove });
+        renderPeople(d.people);
+        $('people-state').className = 'save-state ok'; $('people-state').textContent = 'Removed.';
+      } catch (err) { $('people-state').className = 'save-state err'; $('people-state').textContent = err.message; }
+    });
+
+    // ----- load -----
+    async function load(attempt = 0) {
+      if (!token) {
+        $('loading-title').textContent = 'This link is missing something';
+        $('loading-text').textContent = 'Open the dashboard link from your email, or call (302) 907-9162.';
+        document.querySelector('#state-loading .spinner').hidden = true;
+        return;
+      }
+      try {
+        const q = sessionId && !device ? `&session_id=${encodeURIComponent(sessionId)}` : '';
+        const d = await api(`/api/film/dashboard?t=${encodeURIComponent(token)}${q}`);
+        if (d.deviceToken) saveDevice(d.deviceToken);
+        project = d.project;
+        if (project.status === 'pending_payment') {
+          $('loading-title').textContent = 'Confirming your payment…';
+          $('loading-text').textContent = 'This usually takes a few seconds.';
+          if (attempt < 40) { setTimeout(() => load(attempt + 1), 3000); return; }
+          $('loading-text').textContent = "Still waiting on the payment. If you finished checkout, we'll email you your dashboard link shortly. Questions? Call or text (302) 907-9162.";
+          document.querySelector('#state-loading .spinner').hidden = true;
+          return;
+        }
+        render();
+      } catch (e) {
+        if (e.needsCode) return;
+        $('loading-title').textContent = "We couldn't open your dashboard";
+        $('loading-text').textContent = e.message;
+        document.querySelector('#state-loading .spinner').hidden = true;
+      }
+    }
+    load();
+  })();
+  </script>
+</body>
+</html>
