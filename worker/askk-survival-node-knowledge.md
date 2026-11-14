@@ -35,7 +35,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 
 ## What's in the box
 
-1. **Survival Node 8GB Core Unit** — Motorola Moto G Power (2024), brand new or open box, hand-vetted for battery life, memory performance and overall suitability. 8GB RAM, 128GB storage (90GB+ available for the software suite after the OS).
+1. **Survival Node Phone** — Motorola Moto G Power (2024), brand new or open box, hand-vetted for battery life, memory performance and overall suitability. 8GB RAM, 128GB storage (90GB+ available for the software suite after the OS).
    - De-bloated Android OS, optimized for performance and longevity (Google Play Services, carrier apps and known tracking and battery-draining software removed or disabled)
    - 50GB+ survival software suite with 2 offline LLMs and the pre-configured "Survival Node" AI Agent
    - Shockproof protective phone case
@@ -137,7 +137,7 @@ For residents of **Maryland's Eastern Shore only**, with a compatible Android ph
 
 testing.html has pre-shipment test data for every component plus two demo videos (Quick Unboxing; Components & Pre-Shipment Testing). Mention it for questions about testing or proof.
 
-**Core unit:** 5,000 mAh rated battery; average measured 4,890 mAh (97.8%); minimum acceptance threshold 90% (units below it are rejected); nearly every unit tested so far has measured 95% or higher. 8GB LPDDR4X RAM and 128GB storage confirmed; about 45GB free after the OS and software. GPS lock and microphone confirmed. 0 carrier apps, background data disabled. Cold boot 28 seconds; the Survival Node Pal loads on boot.
+**Phone:** 5,000 mAh rated battery; average measured 4,890 mAh (97.8%); minimum acceptance threshold 90% (units below it are rejected); nearly every unit tested so far has measured 95% or higher. 8GB LPDDR4X RAM and 128GB storage confirmed; about 45GB free after the OS and software. GPS lock and microphone confirmed. 0 carrier apps, background data disabled. Cold boot 28 seconds; the Survival Node Pal loads on boot.
 
 **Hard case:** model 342413, IP67, 0.565 cu ft. Interior 340 × 235 × 126 mm (13.39 × 9.25 × 4.96 in); exterior 380 × 300 × 140 mm (14.96 × 11.81 × 5.51 in); 1.8 kg (3.97 lb). Water test: submerged 2 ft for 5 minutes, no moisture inside. Drop test: 6 ft onto concrete, 4 drops, no cracks, latches held. Tested on one case of the same model (3/10/2026); every case is inspected before shipping.
 
