@@ -826,7 +826,7 @@
         btn.disabled = true;
         setStatus('Opening secure checkout…');
         try {
-          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.6' }) });
+          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.7' }) });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok || !data.checkoutUrl) throw new Error(data.error || 'Checkout failed');
           window.location.href = data.checkoutUrl;

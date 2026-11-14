@@ -22,7 +22,7 @@ import { easternDate } from './node-price.js';
 
 export const FILM_PRICE_CENTS = 19999;
 export const FILM_TAX_CODE = 'txcd_10402100'; // Digital Audio Visual Works - downloaded - non subscription - with permanent rights
-export const FILM_TERMS_VERSION = '2026-11-14.6';
+export const FILM_TERMS_VERSION = '2026-11-14.7';
 export const FILM_CHANGE_ROUNDS = 2;   // included in the price (folder-to-film.html, terms sections 2 and 10) // folder-to-film-terms.html; bump both together
 export const FILM_PART_BYTES = 20 * 1024 * 1024; // R2 multipart: every part but the last must be this size
 const MAX_FILE_BYTES = 50 * 1024 * 1024 * 1024; // 50 GB per file
