@@ -280,6 +280,15 @@
     }
     @media (min-width: 960px) { .admin-section-tabs { flex-wrap:nowrap; } }
     .admin-section-tabs .btn.active { border-color:#7bb6ff; box-shadow:0 0 12px rgba(123,182,255,.45); }
+    /* Product tabs carry the main site's top-bar icon and accent color (⚙️ Survival Node, gold Folder to Film). */
+    .admin-section-tabs .btn.tab-node,
+    .admin-section-tabs .btn.tab-film { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; font-weight:700; }
+    .admin-section-tabs .btn .tab-icon { width:1.2em; height:1.2em; line-height:1; font-size:1.1em; border-radius:3px; flex:none; }
+    .admin-section-tabs .btn.tab-node { color:#9ed0ff; border-color:#3f86d6; }
+    .admin-section-tabs .btn.tab-node.active { border-color:#9ed0ff; box-shadow:0 0 14px rgba(158,208,255,.55); }
+    .admin-section-tabs .btn.tab-film { color:#e3c58e; border-color:#a8894f; }
+    .admin-section-tabs .btn.tab-film:hover { border-color:#e3c58e; }
+    .admin-section-tabs .btn.tab-film.active { border-color:#e3c58e; box-shadow:0 0 14px rgba(227,197,142,.55); }
     .tax-ledger-action-row {
       display:flex;
       align-items:center;
@@ -454,8 +463,8 @@
             <span class="admin-tab-label">Customers</span>
             <div class="admin-section-tabs">
               <button type="button" class="btn active" data-admin-tab="booking">Booking Controls</button>
-              <button type="button" class="btn" data-admin-tab="orders">Survival Node Orders</button>
-              <button type="button" class="btn" data-admin-tab="films">Folder to Film</button>
+              <button type="button" class="btn tab-node" data-admin-tab="orders"><span class="tab-icon" aria-hidden="true">⚙️</span>Survival Node Orders</button>
+              <button type="button" class="btn tab-film" data-admin-tab="films"><img class="tab-icon" src="/images/story-video/icon.svg" alt="" width="18" height="18" />Folder to Film</button>
               <button type="button" class="btn" data-admin-tab="websites">Website Clients</button>
               <button type="button" class="btn" data-admin-tab="invoices">Invoices</button>
               <button type="button" class="btn" data-admin-tab="quotes">Quotes</button>
