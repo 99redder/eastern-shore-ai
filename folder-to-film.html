@@ -645,11 +645,11 @@
         <div class="maps-copy">
           <div class="eyebrow">Where it happened</div>
           <h3>From the whole country down to the street</h3>
-          <p>Viewers who didn't grow up there still know exactly where the story happened. The camera starts on a map of the United States and moves into the town, then dissolves into real maps from the period, like this 1918 government survey of Dover. On a trip film, the map follows your route.</p>
+          <p>Viewers who didn't grow up there still know exactly where the story happened. The camera starts on a map of the United States and moves into the town, then dissolves into real maps from the period, like a 1918 government survey of Dover. When the story names other places, they appear on the map as the narrator says them. On a trip film, the map follows your route.</p>
         </div>
         <figure class="maps-pair">
           <img src="images/story-video/map-new-england.jpg" alt="A map of New England with New Hampshire highlighted and Dover marked" loading="lazy" />
-          <img src="images/story-video/map-dover-1918.jpg" alt="A 1918 survey map of Dover, New Hampshire" loading="lazy" />
+          <img src="images/story-video/map-places.jpg" alt="A map of New Hampshire, Maine and Massachusetts with Somersworth, Manchester, Biddeford and Boston marked and joined by dotted lines" loading="lazy" />
         </figure>
       </div>
     </div>
@@ -830,12 +830,12 @@
     // Example video. When the full demo is on YouTube, put its id here and the player
     // plays the whole film; until then it plays the 45-second excerpt hosted with the page.
     const DEMO_YOUTUBE_ID = '';
-    const TEASER_SRC = 'images/story-video/cbf-teaser.mp4';
+    const TEASER_SRC = 'images/story-video/cbf-teaser-v2.mp4';
 
     (function () {
       const player = document.getElementById('demo-player');
       const note = document.getElementById('player-note');
-      if (DEMO_YOUTUBE_ID) note.textContent = 'Example: the 100-year history of a small New Hampshire church. Full 7-minute film.';
+      if (DEMO_YOUTUBE_ID) note.textContent = 'Example: the 100-year history of a small New Hampshire church. Full 8½-minute film.';
       player.querySelector('button.play').addEventListener('click', () => {
         if (DEMO_YOUTUBE_ID) {
           player.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(DEMO_YOUTUBE_ID) +
