@@ -1004,14 +1004,63 @@ export function createFilmHandlers(deps) {
     const obj = await env.FILMS.get(up.r2_key);
     if (!obj) return new Response('Not found.', { status: 404 });
     const ascii = up.filename.replace(/[^\x20-\x7e]/g, '_').replace(/"/g, "'");
+    const inline = url.searchParams.get('inline') === '1' && /^image\/(jpeg|png|webp|gif)$/i.test(up.content_type || '');
     return new Response(obj.body, {
       headers: {
         'Content-Type': up.content_type || 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(up.filename)}`,
-        'Cache-Control': 'private, no-store',
+        'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(up.filename)}`,
+        'Cache-Control': inline ? 'private, max-age=3600' : 'private, no-store',
+        'X-Content-Type-Options': 'nosniff',
         ...(obj.size != null ? { 'Content-Length': String(obj.size) } : {}),
       },
     });
+  }
+
+  // GET /api/film/keepsake-photos?t=  -> a few of the customer's own photos, as signed links to show
+  // on their keepsakes page (my-keepsakes.html). Spread across what they uploaded; browser-viewable
+  // types only; skips tiny files (icons, screenshots of buttons) and very large ones.
+  async function handleKeepsakePhotos(request, env, corsHeaders, url) {
+    const a = await access(env, request, corsHeaders, url.searchParams.get('t'));
+    if (a.res) return a.res;
+    const bad = chatGuard(a.row, corsHeaders);
+    if (bad) return bad;
+    const secret = linkSecret(env);
+    if (!secret) return json({ ok: true, photos: [] }, 200, corsHeaders);
+    const rows = ((await env.DB.prepare(
+      `SELECT id, filename, content_type, size_bytes FROM film_uploads WHERE project_id = ?1 AND status = 'done' AND size_bytes BETWEEN 40000 AND 15000000 ORDER BY id`
+    ).bind(a.row.id).all()).results || []).filter((r) => /^image\/(jpeg|png|webp|gif)$/i.test(r.content_type || ''));
+    const want = 8;
+    const picked = rows.length <= want ? rows : Array.from({ length: want }, (_, i) => rows[Math.floor(i * rows.length / want)]);
+    const exp = Math.floor(Date.now() / 1000) + 2 * 3600;
+    const base = new URL(request.url).origin;
+    const photos = await Promise.all(picked.map(async (r) => ({
+      name: r.filename,
+      url: `${base}/api/film/file?f=${r.id}&e=${exp}&s=${await hmacHex(secret, `film-file:${r.id}:${exp}`)}&inline=1`,
+    })));
+    return json({ ok: true, photos }, 200, corsHeaders);
+  }
+
+  // Ask K on the dashboard: a signed-in customer (film link + trusted browser) skips the bot check,
+  // and Ask K is told where their film stands so it can answer process questions about it.
+  async function askKDashboardContext(env, request, corsHeaders, token) {
+    const a = await access(env, request, corsHeaders, token);
+    if (a.res) return { res: a.res };
+    const row = a.row;
+    if (row.status === 'pending_payment') return { res: json({ ok: false, error: 'Payment is still confirming.' }, 409, corsHeaders) };
+    const uploads = await uploadsFor(env.DB, row.id);
+    const v = customerView(row, uploads);
+    const answered = Object.keys(v.answers || {}).length;
+    const facts = [
+      `Project name: ${v.projectName || '(not named yet)'}.`,
+      `Status: ${v.statusLabel}.`,
+      row.status === 'collecting' ? `They have uploaded ${uploads.length} file${uploads.length === 1 ? '' : 's'} and answered ${answered} of ${FILM_QUESTIONS.length} questions, and have not pressed Start production yet.` : '',
+      v.demoDueText ? `Demo due by ${v.demoDueText}.` : '',
+      v.estimatedDoneText ? `Estimated completion: ${v.estimatedDoneText}.` : '',
+      ['demo_ready', 'changes', 'final_ready', 'delivered'].includes(row.status) ? `Rounds of changes used: ${v.changeRounds} of ${v.roundsIncluded}.` : '',
+      v.neededBy ? `They need it by ${v.neededBy}.` : '',
+      a.person.isStaff ? 'The person asking is Eastern Shore AI staff using the staff view.' : (a.person.isOwner ? 'The person asking is the buyer.' : 'The person asking is someone the buyer added to the dashboard.'),
+    ].filter(Boolean).join(' ');
+    return { row, person: a.person, facts, conversationKey: `film-dash:${row.id}` };
   }
 
   // POST /api/film/project/delete {id}  (unpaid or canceled projects only; removes their files too)
@@ -1459,7 +1508,7 @@ export function createFilmHandlers(deps) {
   }
 
   return {
-    handleStaffLink, handleStaffAccess,
+    handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext,
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove,
     handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,

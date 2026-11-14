@@ -196,7 +196,7 @@ export default {
       const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/stop-autopay', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
       const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead', '/api/page/visit'].includes(url.pathname) && request.method === 'POST');
       // Folder to Film: checkout + customer dashboard (token) + admin (session) + signed file downloads.
-      const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
+      const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share', '/api/film/keepsake-photos'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
       const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link', '/api/film/chat/reply'].includes(url.pathname) && request.method === 'POST');
       if (!isFilmPublic && !isFilmAdmin && !isPreviewPublic && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -282,6 +282,7 @@ export default {
         return film().handleStaffAccess(request, env, corsHeaders);
       }
       if (p === '/api/film/staff-link' && m === 'POST') return film().handleStaffLink(request, env, corsHeaders, url);
+      if (p === '/api/film/keepsake-photos' && m === 'GET') return film().handleKeepsakePhotos(request, env, corsHeaders, url);
       if (p === '/api/film/chat/reply' && m === 'POST') return film().handleChatReply(request, env, corsHeaders, url);
       if (p === '/api/film/people' && m === 'POST') return film().handlePeopleAdd(request, env, corsHeaders);
       if (p === '/api/film/people/remove' && m === 'POST') return film().handlePeopleRemove(request, env, corsHeaders);
@@ -6975,10 +6976,25 @@ async function handleAskK(request, env, corsHeaders, url, { admin = false, deplo
     return json({ ok: true, reply: cannedTestingReply }, 200, corsHeaders);
   }
 
+  // Dashboard "Need Help?": a signed-in Folder to Film customer (film link + trusted browser)
+  // skips the bot check, and Ask K is told where their film stands.
+  let dash = null;
+  if (isFilm && !admin && data.t) {
+    const ctx = await film().askKDashboardContext(env, request, corsHeaders, String(data.t));
+    if (ctx.res) return ctx.res;
+    dash = ctx;
+    const capped = await checkPersistentRateLimit(env, _askKRateLimits, `conv:${dash.conversationKey}`, `${dep.prefix}ask_k_conv`, {
+      limit: ASKK_CONVERSATION_LIMIT * 2,
+      windowMs: 2 * 60 * 60 * 1000,
+      error: "That's a lot of questions! For anything else, use the project chat on this page and Chris will reply.",
+    }, corsHeaders);
+    if (capped) { await recordAskKBlocked(env, 'ratelimited', dep); return capped; }
+  }
+
   // Bot check: a Turnstile token buys a signed conversation pass, good for
   // ASKK_CONVERSATION_LIMIT questions (see ask-k-claude.js).
   let pass = null;
-  if (!admin) {
+  if (!admin && !dash) {
     const visitor = await checkAskKVisitor(env, { pass: data.pass, turnstileToken: data.turnstileToken, ip: getClientIp(request) });
     if (!visitor.ok) {
       if (data.turnstileToken || data.pass) await recordAskKBlocked(env, 'unverified', dep);
@@ -7001,16 +7017,20 @@ async function handleAskK(request, env, corsHeaders, url, { admin = false, deplo
       question,
       history,
       context,
-      systemPrompt: isFilm ? filmAskKSystemPrompt() : askKSystemPrompt(),
+      systemPrompt: isFilm ? filmAskKSystemPrompt(dash) : askKSystemPrompt(),
       knowledge: clipAskKKnowledge(isFilm ? ASKK_FOLDER_TO_FILM_KNOWLEDGE : ASKK_SURVIVAL_NODE_KNOWLEDGE, 20000),
       deployment: dep,
     }, {
       notify: sendAskKAlert,
     });
-    return json({ ok: true, reply, lookup: !!lookup, ...(pass ? { pass } : {}), ...(admin ? { provider } : {}) }, 200, corsHeaders);
+    // On the dashboard the project chat is the way to reach a person, not the contact form.
+    const shown = dash && provider === 'busy'
+      ? "I can't answer right now. Write in the project chat on this page and Chris will reply, usually within an hour during the day. You can also call or text (302) 907-9162."
+      : reply;
+    return json({ ok: true, reply: shown, lookup: !!lookup && !dash, ...(pass ? { pass } : {}), ...(admin ? { provider } : {}) }, 200, corsHeaders);
   } catch (error) {
     console.error('Ask K failed:', error);
-    return json({ ok: false, error: "I'm having trouble right now. Our team can help directly at (302) 907-9162 or through the contact form.", lookup: wantsOrderStatus(question, dep) }, 502, corsHeaders);
+    return json({ ok: false, error: dash ? "I'm having trouble right now. Write in the project chat on this page and Chris will reply." : "I'm having trouble right now. Our team can help directly at (302) 907-9162 or through the contact form.", lookup: dash ? false : wantsOrderStatus(question, dep) }, 502, corsHeaders);
   }
 }
 
@@ -7081,7 +7101,13 @@ async function handleAskKOrderStatus(request, env, corsHeaders, ctx, { deploymen
 
 const FILM_ASKK_STATUS_REPLY = "Thanks! If that email address has a Folder to Film order, I've just emailed its latest status, estimated completion date and your dashboard link to it. It can take a minute or two, so check your spam folder too.";
 
-function filmAskKSystemPrompt() {
+function filmAskKSystemPrompt(dash = null) {
+  const dashboard = dash ? [
+    'Right now you are the "Need Help?" assistant inside the customer\'s private film dashboard. They are signed in and have already paid, so focus on the process and on using the dashboard: naming the project, uploading (the "Click to add photos & videos", "Click to add any file" and "Click to add a whole folder" buttons, the phone camera roll, big videos are fine, keep the page open until uploads finish), the 12 quick questions (skip any and our experts pick), Notes, Start production (what it means, and that it locks their details, uploads, answers and notes), timing, watching the demo, sending changes or approving (two rounds of changes are included), the finished film with its download and share link, keepsakes (the Keepsakes link at the top of the dashboard opens their keepsakes page), and letting family in with "Manage Who Has Access" (they get emailed sign-in codes).',
+    'Do not offer the order-status email box here: their status is shown at the top of this page.',
+    'For anything about their specific film that needs a person (a correction, a photo found after production started, reopening uploads, a date, a special request, a keepsake order), tell them to write in the project chat on this page ("Talk with the Eastern Shore AI team"), where Chris, who is making their film, replies, usually within an hour during the day.',
+    `What our system says about their film (trustworthy; use it to answer questions like "when will my demo be ready"): ${dash.facts}`,
+  ] : [];
   return [
     'You are Ask K, the assistant for Folder to Film by Eastern Shore AI: a service that turns the photos, videos, audio and files a customer already has into a narrated short film.',
     'Help shoppers and customers with how it works, what they can upload, film styles, narration and music choices, timing, pricing and sales tax, changes, sharing and privacy, how AI is used, keepsakes, and their order.',
@@ -7094,6 +7120,7 @@ function filmAskKSystemPrompt() {
     'You will be given a grounded knowledge base for this service. When it answers the question, use it confidently and quote its exact prices and timings. If it does not cover something, say you are not sure and offer contact@easternshore.ai or (302) 907-9162 rather than guessing.',
     'Assume many people are not technical. Use plain, warm English. Keep answers short: a few sentences or a short list. Use **bold** for emphasis and plain text otherwise; no tables or headings.',
     'Do not output chain-of-thought or hidden reasoning. Give only the final helpful answer.',
+    ...dashboard,
   ].join(' ');
 }
 

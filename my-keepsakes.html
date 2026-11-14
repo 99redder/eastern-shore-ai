@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: http://localhost:8787; connect-src 'self' https://eastern-shore-ai-contact.99redder.workers.dev http://localhost:8787 https://b893ca94.sibforms.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Your Keepsakes | Folder to Film</title>
+  <link rel="icon" href="images/story-video/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="images/story-video/icon-180.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Hanken+Grotesk:wght@400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #12100d; --card: #1f1a14; --card2: #262019; --line: #352c22;
+      --ivory: #ece4d4; --muted: #a99d88; --dim: #7d725f;
+      --gold: #c9a96e; --gold2: #e3c58e; --ok: #9fd7a5; --err: #f0a49a;
+      --paper: #f3ecdf; --ink: #2a2118;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ivory); font-family: var(--sans); font-size: 17px; line-height: 1.55; }
+    a { color: var(--gold2); }
+    h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.08; margin: 0; }
+    h1 em, h2 em { color: var(--gold2); font-style: italic; font-weight: 500; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    .eyebrow { font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    .muted { color: var(--muted); }
+    [hidden] { display: none !important; }
+
+    .topbar { border-bottom: 1px solid var(--line); background: rgba(18,16,13,.92); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(8px); }
+    .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 66px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ivory); font-family: var(--serif); font-size: 22px; font-weight: 600; line-height: 1.05; }
+    .brand a { color: inherit; text-decoration: none; }
+    .brand img { width: 40px; height: auto; }
+    .brand em { color: var(--gold); font-weight: 500; }
+    .brand small { display: block; font-family: var(--sans); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-top: 3px; }
+    .brand small .esai { font-family: 'Orbitron', var(--sans); font-weight: 700; letter-spacing: .1em; background: linear-gradient(90deg, #00e5ff, #ff4fd8); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+    .back { font-size: 14.5px; font-weight: 600; text-decoration: none; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--ivory); white-space: nowrap; }
+    .back:hover { border-color: var(--gold); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; padding: 13px 24px; font-family: var(--sans); font-weight: 700; font-size: 16px; text-decoration: none; cursor: pointer; border: 1px solid transparent; }
+    .btn-primary { background: linear-gradient(180deg, var(--gold2), var(--gold)); color: #1a1510; box-shadow: 0 10px 30px rgba(201,169,110,.25); }
+    .btn-ghost { background: transparent; color: var(--ivory); border-color: var(--line); }
+    .btn-ghost:hover { border-color: var(--gold); }
+    .btn:disabled { opacity: .6; cursor: default; }
+
+    /* Hero */
+    .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; padding: 56px 0 40px; }
+    .hero h1 { font-size: 56px; margin: 12px 0 18px; }
+    .hero p { color: var(--muted); font-size: 18.5px; margin: 0 0 22px; max-width: 32em; }
+    .note { background: var(--card2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; color: var(--muted); font-size: 15px; }
+    .note b { color: var(--ivory); }
+
+    /* A hardcover book, drawn with CSS around the customer's own photo and title */
+    .book { position: relative; width: min(340px, 78vw); aspect-ratio: 3 / 4; margin: 0 auto; transform: perspective(1400px) rotateY(-18deg) rotateX(4deg); filter: drop-shadow(0 30px 40px rgba(0,0,0,.55)); }
+    .book::before { content: ''; position: absolute; left: -16px; top: 2%; bottom: 2%; width: 18px; background: linear-gradient(90deg, #3a2a1c, #5b4330); border-radius: 4px 0 0 4px; }
+    .book .cover { position: absolute; inset: 0; border-radius: 3px 8px 8px 3px; background: linear-gradient(160deg, #3b2c1f, #22180f); padding: 9% 9% 10%; display: flex; flex-direction: column; overflow: hidden; }
+    .book .cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.35), transparent 7%, transparent 93%, rgba(255,255,255,.05)); pointer-events: none; }
+    .book .ph { flex: 1; border: 6px solid var(--paper); background: #2b2119 center / cover no-repeat; box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+    .book .t { margin-top: 7%; text-align: center; font-family: var(--serif); color: var(--gold2); font-size: clamp(22px, 3.2vw, 30px); font-weight: 600; line-height: 1.05; overflow-wrap: anywhere; }
+    .book .s { text-align: center; margin-top: 6px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #cdbb98; }
+
+    section.k { padding: 46px 0; border-top: 1px solid var(--line); }
+    section.k, main [id] { scroll-margin-top: 80px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+    .row.flip .vis { order: 2; }
+    .k h2 { font-size: 42px; margin: 10px 0 14px; }
+    .k p { color: var(--muted); margin: 0 0 14px; max-width: 30em; }
+    .price { display: inline-block; font-size: 14px; font-weight: 700; color: #1a1510; background: var(--gold2); border-radius: 999px; padding: 4px 12px; margin-top: 2px; }
+    .k ul { margin: 0 0 20px; padding: 0 0 0 20px; color: var(--muted); }
+    .k ul li { margin: 4px 0; }
+    .ask-state { margin-top: 12px; font-size: 15px; min-height: 1px; }
+    .ask-state.ok { color: var(--ok); }
+    .ask-state.err { color: var(--err); }
+    .vis { display: flex; justify-content: center; }
+
+    /* Open book spread */
+    .spread { width: 100%; max-width: 480px; aspect-ratio: 3 / 2; display: grid; grid-template-columns: 1fr 1fr; background: var(--paper); border-radius: 6px; box-shadow: 0 30px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(0,0,0,.08); position: relative; overflow: hidden; }
+    .spread::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 46px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, rgba(0,0,0,.14), transparent); }
+    .page { padding: 9% 8%; color: var(--ink); display: flex; flex-direction: column; gap: 6%; }
+    .page .ch { font-family: var(--serif); font-size: clamp(14px, 1.9vw, 19px); font-weight: 600; line-height: 1.1; }
+    .page .ch small { display: block; font-family: var(--sans); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #8a7a62; margin-bottom: 4px; font-weight: 700; }
+    .page .lines span { display: block; height: 5px; border-radius: 3px; background: #d9cfbd; margin: 7px 0; }
+    .page .img { flex: 1; background: #d8ccb7 center / cover no-repeat; border-radius: 2px; min-height: 40%; }
+    .page .cap { font-family: var(--serif); font-style: italic; font-size: 12px; color: #6d604d; }
+
+    /* Picture book */
+    .pbook { width: min(320px, 74vw); aspect-ratio: 1; border-radius: 10px; background: #f6e7c8; padding: 7%; box-shadow: 0 30px 50px rgba(0,0,0,.5); display: flex; flex-direction: column; transform: rotate(-2.5deg); }
+    .pbook .img { flex: 1; border-radius: 50% 50% 46% 54% / 46% 52% 48% 54%; background: #d8b98a center / cover no-repeat; filter: saturate(1.15) contrast(1.04); box-shadow: inset 0 0 0 6px #fff7e6; }
+    .pbook .t { text-align: center; margin-top: 6%; font-family: var(--serif); font-weight: 600; font-size: clamp(20px, 2.8vw, 27px); color: #5a3b1c; line-height: 1.05; overflow-wrap: anywhere; }
+    .pbook .s { text-align: center; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #a07a4c; margin-top: 4px; font-weight: 700; }
+
+    /* Audiobook player */
+    .player { width: min(330px, 78vw); background: linear-gradient(180deg, #221b14, #17120d); border: 1px solid #4a3c2b; border-radius: 26px; padding: 22px; box-shadow: 0 30px 60px rgba(0,0,0,.55); }
+    .player .art { aspect-ratio: 1; border-radius: 16px; background: #2b2119 center / cover no-repeat; box-shadow: 0 10px 26px rgba(0,0,0,.5); }
+    .player .tt { margin-top: 16px; font-family: var(--serif); font-size: 24px; font-weight: 600; line-height: 1.1; overflow-wrap: anywhere; }
+    .player .st { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+    .player .bar { height: 5px; border-radius: 3px; background: #3a3027; margin: 16px 0 6px; overflow: hidden; }
+    .player .bar i { display: block; height: 100%; width: 34%; background: var(--gold); }
+    .player .tm { display: flex; justify-content: space-between; font-size: 12px; color: var(--dim); }
+    .player .ctl { display: flex; justify-content: center; align-items: center; gap: 28px; margin-top: 12px; color: var(--ivory); font-size: 20px; }
+    .player .play { width: 56px; height: 56px; border-radius: 50%; background: var(--gold2); color: #1a1510; display: flex; align-items: center; justify-content: center; font-size: 20px; padding-left: 4px; }
+
+    /* Prints and plaque */
+    .prints { position: relative; width: 100%; max-width: 460px; aspect-ratio: 5 / 4; }
+    .polaroid { position: absolute; width: 46%; background: #fbf7ef; padding: 3.5% 3.5% 11%; box-shadow: 0 16px 34px rgba(0,0,0,.5); }
+    .polaroid .img { aspect-ratio: 1; background: #d8ccb7 center / cover no-repeat; }
+    .polaroid:nth-child(1) { left: 0; top: 6%; transform: rotate(-7deg); }
+    .polaroid:nth-child(2) { left: 30%; top: 0; transform: rotate(4deg); z-index: 1; }
+    .plaque { position: absolute; right: 0; bottom: 0; width: 46%; z-index: 2; background: linear-gradient(160deg, #3b2c1f, #20170f); border: 2px solid #8a6a3e; border-radius: 10px; padding: 7%; text-align: center; box-shadow: 0 16px 34px rgba(0,0,0,.55); transform: rotate(-2deg); }
+    .plaque .qr { width: 52%; aspect-ratio: 1; margin: 0 auto 8px; background: #fbf7ef; border-radius: 6px; padding: 8%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6%; }
+    .plaque .qr i { background: #1a1510; border-radius: 1px; }
+    .plaque .qr i.o { background: transparent; }
+    .plaque b { display: block; font-family: var(--serif); color: var(--gold2); font-size: clamp(15px, 1.9vw, 19px); line-height: 1.1; overflow-wrap: anywhere; }
+    .plaque span { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #cdbb98; }
+
+    /* Copies for family */
+    .stack { position: relative; width: 100%; max-width: 440px; height: 300px; }
+    .mini { position: absolute; bottom: 0; width: 34%; aspect-ratio: 3 / 4; border-radius: 3px 7px 7px 3px; background: linear-gradient(160deg, #3b2c1f, #22180f); padding: 9%; box-shadow: 0 20px 34px rgba(0,0,0,.5); display: flex; flex-direction: column; }
+    .mini .ph { flex: 1; border: 4px solid var(--paper); background: #2b2119 center / cover no-repeat; }
+    .mini .for { margin-top: 10%; text-align: center; font-family: var(--serif); font-style: italic; color: var(--gold2); font-size: 15px; line-height: 1.1; overflow-wrap: anywhere; }
+    .mini:nth-child(1) { left: 2%; transform: rotate(-6deg); }
+    .mini:nth-child(2) { left: 33%; bottom: 14px; z-index: 1; }
+    .mini:nth-child(3) { right: 2%; transform: rotate(6deg); }
+
+    .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 26px; }
+    .how div { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+    .how b { display: block; font-family: var(--serif); font-size: 24px; margin-bottom: 6px; }
+    .how span { color: var(--muted); font-size: 15.5px; }
+    .how .n { width: 32px; height: 32px; border-radius: 50%; background: var(--gold2); color: #1a1510; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 12px; font-size: 15px; }
+    .center { text-align: center; }
+
+    .msg { text-align: center; padding: 90px 0; color: var(--muted); }
+    .msg h1 { font-size: 40px; color: var(--ivory); margin-bottom: 12px; }
+
+    @media (max-width: 860px) {
+      .hero, .row { grid-template-columns: 1fr; gap: 34px; }
+      .row.flip .vis { order: 0; }
+      .hero { padding-top: 34px; }
+      .hero h1 { font-size: 42px; }
+      .k h2 { font-size: 34px; }
+      .how { grid-template-columns: 1fr; }
+      .stack { height: 250px; }
+    }
+    @media (max-width: 520px) { .btn { width: 100%; } .back span { display: none; } }
+
+    /* Footer: same layout and links as the main site's and Survival Node's footers (ESA cyan and pink) */
+    .esai-footer { margin-top: 2rem; padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px)); color: var(--muted); font-family: var(--sans); font-size: 0.85rem; line-height: 1.5; border-top: 1px solid var(--line); }
+    .esai-footer-inner { display: flex; align-items: flex-start; gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .esai-footer-newsletter { flex: 0.72; min-width: 0; max-width: 360px; }
+    .esai-footer-info { flex: 1.28; text-align: center; min-width: 0; padding-top: 0.25rem; }
+    .esai-nl { padding: 1.5rem; background: var(--card); border: 1px solid var(--line); text-align: left; }
+    .esai-nl h3 { margin: 0 0 0.5rem; font-family: var(--sans); font-size: 1rem; font-weight: 700; line-height: 1.3; color: #00e5ff; letter-spacing: 0.08em; text-transform: uppercase; }
+    .esai-nl p { margin: 0 0 1rem; color: var(--muted); font-size: 0.9rem; }
+    .esai-nl-form { display: flex; gap: 0.5rem; flex-wrap: wrap; position: relative; margin: 0; }
+    .esai-nl-form input[type="email"] { flex: 1; min-width: 180px; width: auto; padding: 0.75rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; color: var(--ivory); font: inherit; font-size: 1rem; }
+    .esai-nl-form input[type="email"]:focus { outline: none; border-color: #00e5ff; }
+    .esai-nl-form button { padding: 0.75rem 1.1rem; border-radius: 6px; border: 1px solid #ff4fd8; background: linear-gradient(145deg, #ff4fd8, #c850ff); box-shadow: 0 0 14px rgba(255, 79, 216, 0.35); color: #fff; font: inherit; font-size: 0.95rem; font-weight: 700; cursor: pointer; }
+    .esai-nl-form button:disabled { opacity: 0.6; cursor: default; }
+    .esai-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .esai-nl .esai-nl-status { margin: 0.6rem 0 0; font-size: 0.85rem; }
+    .esai-nl .esai-nl-status:empty { display: none; }
+    .esai-footer-link { display: inline-block; margin: 0.2rem 0.4rem 0; color: #00e5ff; text-decoration: underline; }
+    .esai-footer-link:hover { opacity: 0.85; }
+    .esai-footer-row { margin-top: 0.2rem; }
+    .esai-footer-vet { margin: 0.45rem 0 0; font-size: 0.8rem; color: var(--muted); letter-spacing: 0.04em; }
+    @media (max-width: 820px) { .esai-footer-inner { flex-direction: column; align-items: stretch; } .esai-footer-newsletter { flex: none; width: 100%; max-width: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand"><a href="folder-to-film.html" tabindex="-1" aria-hidden="true"><img src="images/story-video/logo-mark.svg" alt="" width="40" height="33" /></a><span><a href="folder-to-film.html">Folder <em>to Film</em></a><a href="/" aria-label="Eastern Shore AI home page"><small>by <span class="esai">Eastern Shore AI</span></small></a></span></div>
+      <a class="back" id="back" href="my-film.html">← <span>Back to my </span>dashboard</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="msg" id="loading"><h1 id="msg-title">Opening your keepsakes…</h1><p id="msg-text"></p></div>
+
+    <div id="page" hidden>
+      <section class="hero">
+        <div>
+          <div class="eyebrow" id="hero-eyebrow">Keepsakes</div>
+          <h1 id="hero-title">Keep your story on the shelf, <em>not just on a screen.</em></h1>
+          <p>Your film's script, photos and illustrations become a hardcover book, a picture book for the kids, an audiobook or prints for the wall. It's all made already, so they come together fast.</p>
+          <p class="note" id="timing-note" hidden></p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
+            <a class="btn btn-primary" href="#book">See the book</a>
+            <a class="btn btn-ghost" href="#how">How ordering works</a>
+          </div>
+        </div>
+        <div class="vis"><div class="book"><div class="cover"><div class="ph" data-photo="0"></div><div class="t" data-title></div><div class="s" data-sub></div></div></div></div>
+      </section>
+
+      <section class="k" id="book">
+        <div class="row">
+          <div class="vis">
+            <div class="spread">
+              <div class="page"><div class="ch"><small>Chapter one</small><span data-title></span></div><div class="lines"><span></span><span style="width:92%"></span><span style="width:96%"></span><span style="width:70%"></span></div><div class="img" data-photo="1"></div></div>
+              <div class="page"><div class="img" data-photo="2"></div><div class="cap" data-cap="2"></div><div class="lines"><span></span><span style="width:88%"></span><span style="width:60%"></span></div></div>
+            </div>
+          </div>
+          <div>
+            <div class="eyebrow">Hardcover story book</div>
+            <h2 id="book-title">Your film, <em>printed and bound.</em></h2>
+            <p>Each chapter of the film becomes a chapter of the book, laid out like a real book, with every photo, illustration and caption.</p>
+            <ul><li>The whole story, word for word, as the narrator tells it</li><li>Every photo and illustration from the film</li><li>A hardcover that will outlast any phone or hard drive</li></ul>
+            <span class="price">From $149</span>
+            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Hardcover story book (from $149)">Ask about the hardcover book</button></div>
+            <div class="ask-state" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="k">
+        <div class="row flip">
+          <div class="vis"><div class="pbook"><div class="img" data-photo="3"></div><div class="t" data-title></div><div class="s">A picture book</div></div></div>
+          <div>
+            <div class="eyebrow">Children's picture book</div>
+            <h2>The same story, <em>told for the grandkids.</em></h2>
+            <p>Simple words and big pictures, with the illustrations they've already seen in the film. The kind of book that gets read at bedtime and asked for again.</p>
+            <span class="price">From $99</span>
+            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Children's picture book (from $99)">Ask about the picture book</button></div>
+            <div class="ask-state" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="k">
+        <div class="row">
+          <div class="vis">
+            <div class="player"><div class="art" data-photo="4"></div><div class="tt" data-title></div><div class="st">Narrated · in chapters</div><div class="bar"><i></i></div><div class="tm"><span>Chapter 2</span><span>12:40</span></div><div class="ctl"><span aria-hidden="true">⏮</span><span class="play" aria-hidden="true">▶</span><span aria-hidden="true">⏭</span></div></div>
+          </div>
+          <div>
+            <div class="eyebrow">Audiobook</div>
+            <h2>For the car, <em>or for Grandpa.</em></h2>
+            <p>The narration in chapters, for anyone who'd rather listen, or whose eyes aren't what they were. Plays on any phone.</p>
+            <span class="price">From $29</span>
+            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Audiobook (from $29)">Ask about the audiobook</button></div>
+            <div class="ask-state" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="k">
+        <div class="row flip">
+          <div class="vis">
+            <div class="prints">
+              <div class="polaroid"><div class="img" data-photo="5"></div></div>
+              <div class="polaroid"><div class="img" data-photo="6"></div></div>
+              <div class="plaque"><div class="qr" id="qr" aria-hidden="true"></div><b data-title></b><span>Scan to watch the film</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="eyebrow">Prints, postcards &amp; QR plaque</div>
+            <h2>Something for the wall, <em>or the reunion.</em></h2>
+            <p>Framed prints of your favorite photos or illustrations, postcards to hand out, or a small plaque that plays the film when someone scans it with their phone.</p>
+            <span class="price">From $15</span>
+            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Prints, postcards or a QR plaque (from $15)">Ask about prints and the plaque</button></div>
+            <div class="ask-state" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="k">
+        <div class="row">
+          <div class="vis">
+            <div class="stack">
+              <div class="mini"><div class="ph" data-photo="0"></div><div class="for" data-for="0">for the family</div></div>
+              <div class="mini"><div class="ph" data-photo="0"></div><div class="for" data-for="1">for the kids</div></div>
+              <div class="mini"><div class="ph" data-photo="0"></div><div class="for" data-for="2">for you</div></div>
+            </div>
+          </div>
+          <div>
+            <div class="eyebrow">Copies for family</div>
+            <h2 id="family-title">One for everyone <em>in the story.</em></h2>
+            <p id="family-text">Tell us who and how many, and we'll ship a copy of the book straight to each of them.</p>
+            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Extra copies of the book for family">Ask about copies for family</button></div>
+            <div class="ask-state" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="k" id="how">
+        <div class="center"><div class="eyebrow">How ordering works</div><h2>Nothing is charged until you say yes.</h2></div>
+        <div class="how">
+          <div><div class="n">1</div><b>Tap the one you want</b><span>Your request goes to your project chat, so it's all in one place with your film.</span></div>
+          <div><div class="n">2</div><b>We send the details</b><span>We reply in the chat with options, a preview and a payment link, usually within an hour during the day.</span></div>
+          <div><div class="n">3</div><b>You say yes</b><span>We make it from your film's script, photos and illustrations and ship it to you, or to each person on your list.</span></div>
+        </div>
+        <p class="center muted" style="margin-top:26px;">Questions first? <a id="chat-link" href="my-film.html#chat">Ask in your project chat</a>.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="esai-footer">
+    <div class="esai-footer-inner">
+      <div class="esai-footer-newsletter">
+        <div class="esai-nl">
+          <h3>Our Newsletter</h3>
+          <p>Subscribe and stay updated.</p>
+          <form id="newsletter-form" class="esai-nl-form">
+            <input type="email" placeholder="your@email.com" required aria-label="Your email address" />
+            <button type="submit">Subscribe</button>
+            <input type="text" name="email_address_check" value="" tabindex="-1" autocomplete="off" aria-hidden="true" class="esai-hp" />
+          </form>
+          <p class="esai-nl-status" id="newsletter-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="esai-footer-info">
+        <div class="esai-footer-row">&copy; <span id="year">2026</span> Eastern Shore AI, LLC &nbsp;&middot;&nbsp; <a href="tel:+13029079162" class="esai-footer-link">(302) 907-9162</a></div>
+        <div class="esai-footer-row">
+          <a href="https://instagram.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="esai-footer-link">Instagram</a>
+          <a href="https://www.facebook.com/easternshoreai" target="_blank" rel="noopener noreferrer" class="esai-footer-link">Facebook</a>
+          <a href="https://discord.gg/w8PZMXKN2N" target="_blank" rel="noopener noreferrer" class="esai-footer-link">Discord</a>
+          <a href="https://www.youtube.com/@easternshoreai" target="_blank" rel="noopener noreferrer" class="esai-footer-link">YouTube</a>
+        </div>
+        <div class="esai-footer-row">
+          <a href="mailto:contact@easternshore.ai" class="esai-footer-link">Contact Us</a>
+          <a href="/#about" class="esai-footer-link">About Us</a>
+          <a href="/folder-to-film-terms.html" class="esai-footer-link">Folder to Film Terms</a>
+          <a href="/privacy.html" class="esai-footer-link">Privacy Policy</a>
+        </div>
+        <p class="esai-footer-vet">&#127482;&#127480; Veteran-Owned Business</p>
+      </div>
+    </div>
+  </footer>
+  <script src="/film-footer.js?v=1" defer></script>
+
+  <script>
+  (function () {
+    // Same sign-in as the dashboard: the film link plus this browser's saved sign-in.
+    const params = new URLSearchParams(location.search);
+    const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && params.get('local') === '1';
+    const API = local ? 'http://localhost:8787' : 'https://eastern-shore-ai-contact.99redder.workers.dev';
+    const token = params.get('t') || '';
+    const $ = (id) => document.getElementById(id);
+    const dash = `my-film.html?t=${encodeURIComponent(token)}${local ? '&local=1' : ''}`;
+    let device = '';
+    try { device = localStorage.getItem(`ff-dev-${token.slice(0, 16)}`) || ''; } catch {}
+    $('back').href = dash;
+    $('chat-link').href = `${dash}#chat`;
+
+    async function api(path, body) {
+      const headers = device ? { 'X-Film-Device': device } : {};
+      const res = await fetch(API + path, body === undefined ? { headers } : { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) throw Object.assign(new Error(data.error || `Something went wrong (${res.status}).`), { status: res.status, data });
+      return data;
+    }
+    function stop(title, html) {
+      $('msg-title').textContent = title;
+      $('msg-text').innerHTML = html;
+    }
+
+    // A tiny decorative "QR" for the plaque mock-up (not a real code).
+    const qr = $('qr');
+    '11101 10011 01110 10101 11011'.split(' ').join('').split('').forEach((c) => {
+      const i = document.createElement('i');
+      if (c === '0') i.className = 'o';
+      qr.appendChild(i);
+    });
+
+    function fill(p, photos) {
+      const name = (p.projectName || '').trim();
+      const title = name || 'Our Story';
+      document.title = `Keepsakes for ${title} | Folder to Film`;
+      document.querySelectorAll('[data-title]').forEach((el) => { el.textContent = title; });
+      document.querySelectorAll('[data-sub]').forEach((el) => { el.textContent = (p.occasion || '').trim() || 'A Folder to Film story'; });
+      $('hero-eyebrow').textContent = name ? `Keepsakes for ${name}` : 'Keepsakes';
+      if (name) $('hero-title').innerHTML = `Keep <em></em> on the shelf, not just on a screen.`;
+      if (name) $('hero-title').querySelector('em').textContent = name;
+      if (name) $('book-title').innerHTML = `<em></em>, printed and bound.`;
+      if (name) $('book-title').querySelector('em').textContent = name;
+
+      // The customer's own photos, spread across the mock-ups (repeat if there are only a few).
+      const urls = photos.map((x) => x.url);
+      document.querySelectorAll('[data-photo]').forEach((el) => {
+        if (!urls.length) return;
+        const url = urls[Number(el.dataset.photo) % urls.length];
+        el.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`;
+      });
+      document.querySelectorAll('[data-cap]').forEach((el) => { el.textContent = (p.occasion || '').trim() || title; });
+
+      // Copies for family: use the names of the people they've added, when we have them.
+      const people = (p.people || []).filter((x) => !x.isOwner).map((x) => (x.name || '').trim().split(' ')[0]).filter(Boolean);
+      if (people.length) {
+        document.querySelectorAll('[data-for]').forEach((el) => {
+          const n = people[Number(el.dataset.for)];
+          if (n) el.textContent = `for ${n}`;
+        });
+        const list = people.length === 1 ? people[0] : `${people.slice(0, -1).join(', ')} and ${people[people.length - 1]}`;
+        $('family-text').textContent = `${list} ${people.length === 1 ? 'is' : 'are'} already helping with this film. Want a copy of the book for each of them? Tell us who and how many, and we'll ship one straight to each person.`;
+      }
+
+      if (!['final_ready', 'delivered'].includes(p.status)) {
+        $('timing-note').hidden = false;
+        $('timing-note').innerHTML = '<b>Your film is still in the works.</b> Keepsakes are made from the finished film, so ask any time and we\'ll make them as soon as it\'s done.';
+      }
+    }
+
+    // Asking for a keepsake posts it to the project chat, where we reply with details and a payment link.
+    document.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-ask]');
+      if (!b || b.disabled) return;
+      const state = b.closest('div').parentElement.querySelector('.ask-state');
+      b.disabled = true;
+      try {
+        await api('/api/film/chat', { t: token, content: `Keepsake request: ${b.dataset.ask}. Please send me the details.` });
+        state.className = 'ask-state ok';
+        state.innerHTML = 'Request sent. We\'ll reply in your <a></a> with the details and a payment link.';
+        const a = state.querySelector('a');
+        a.href = `${dash}#chat`;
+        a.textContent = 'project chat';
+        b.textContent = 'Requested ✓';
+      } catch (err) {
+        state.className = 'ask-state err';
+        state.textContent = err.status === 401 ? 'Please open your dashboard first to sign in, then come back.' : err.message;
+        b.disabled = false;
+      }
+    });
+
+    async function load() {
+      if (!token) { stop('This link is missing something', 'Open your film dashboard from the email we sent, then tap Keepsakes.'); return; }
+      try {
+        const d = await api(`/api/film/dashboard?t=${encodeURIComponent(token)}`);
+        const p = d.project || {};
+        if (p.status === 'pending_payment') { stop('Payment is still confirming', `Give it a moment, then <a href="${dash}">open your dashboard</a>.`); return; }
+        if (p.status === 'canceled') { stop('This film was canceled', 'Questions? Call or text (302) 907-9162.'); return; }
+        let photos = [];
+        try { photos = (await api(`/api/film/keepsake-photos?t=${encodeURIComponent(token)}`)).photos || []; } catch {}
+        fill(p, photos);
+        $('loading').hidden = true;
+        $('page').hidden = false;
+      } catch (err) {
+        if (err.status === 401) stop('Please sign in first', `<a href="${dash}">Open your dashboard</a> to sign in on this device, then tap Keepsakes again.`);
+        else stop("We couldn't open your keepsakes", err.message);
+      }
+    }
+    load();
+  })();
+  </script>
+</body>
+</html>

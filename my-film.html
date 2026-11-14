@@ -132,13 +132,6 @@
     .chat-form textarea { flex: 1; min-height: 52px; max-height: 160px; resize: vertical; }
     .chat-form .btn { width: auto; }
     @media (max-width: 700px) { .chat-log { height: 300px; } .chat-form .btn { padding: 13px 18px; } }
-    .keep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .keep { text-align: left; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; color: var(--ivory); font-family: var(--sans); cursor: pointer; display: grid; gap: 4px; }
-    .keep:hover { border-color: var(--gold); }
-    .keep b { font-size: 16px; }
-    .keep span { color: var(--muted); font-size: 14px; }
-    .keep.sent { border-color: var(--ok); }
-    @media (max-width: 700px) { .keep-grid { grid-template-columns: 1fr; } }
     .people { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
     .people li { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
     .people .pe { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -147,6 +140,32 @@
     .staff-bar { background: #2a2216; border-bottom: 1px solid var(--gold); color: var(--gold2); font-size: 14px; line-height: 1.45; }
     .staff-bar .wrap { padding-top: 9px; padding-bottom: 9px; }
     .staff-bar b { color: var(--ivory); }
+    /* Need Help? (Ask K, answers questions about the process) */
+    .askk-fab { position: fixed; right: 18px; bottom: 18px; z-index: 60; display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px 8px 8px; border-radius: 999px; border: 1px solid #4a3c2b; background: #1f1a14; color: var(--ivory); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 14px 40px rgba(0,0,0,.5); }
+    .askk-fab img { width: 38px; height: 38px; border-radius: 10px; }
+    .askk-fab:hover { border-color: var(--gold); }
+    .askk-drawer { position: fixed; right: 18px; bottom: 18px; z-index: 61; width: min(420px, calc(100vw - 24px)); height: min(620px, calc(100vh - 36px)); display: none; flex-direction: column; background: #17130f; border: 1px solid #4a3c2b; border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,.6); overflow: hidden; }
+    .askk-drawer.on { display: flex; }
+    .askk-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: #1f1a14; }
+    .askk-head img { width: 36px; height: 36px; border-radius: 9px; }
+    .askk-head b { display: block; font-size: 16px; }
+    .askk-head span { font-size: 12.5px; color: var(--muted); }
+    .askk-close { margin-left: auto; background: none; border: 0; color: var(--muted); font-size: 26px; line-height: 1; cursor: pointer; padding: 4px 8px; }
+    .askk-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .askk-msg { max-width: 88%; padding: 10px 14px; border-radius: 14px; font-size: 15px; line-height: 1.5; }
+    .askk-msg.k { background: #241e17; border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .askk-msg.me { background: var(--gold); color: #1a1510; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .askk-msg.k strong { color: var(--gold2); }
+    .askk-msg a { color: var(--gold2); }
+    .askk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .askk-chips button { font-family: var(--sans); font-size: 13.5px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: #15110d; color: var(--ivory); cursor: pointer; }
+    .askk-chips button:hover { border-color: var(--gold); }
+    .askk-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); background: #1f1a14; }
+    .askk-form textarea { flex: 1; width: auto; min-height: 46px; max-height: 120px; resize: none; background: #15110d; border: 1px solid var(--line); border-radius: 12px; color: var(--ivory); font-family: var(--sans); font-size: 16px; line-height: 1.4; padding: 11px 14px; }
+    .askk-form textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,110,.16); }
+    .askk-form .btn { border-radius: 12px; padding: 0 16px; width: auto; }
+    .askk-typing { color: var(--muted); font-size: 14px; font-style: italic; }
+    @media (max-width: 560px) { .askk-drawer { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; } .askk-fab { right: 12px; bottom: 12px; } }
     .people .tag { font-size: 12px; color: var(--gold2); border: 1px solid var(--gold); border-radius: 999px; padding: 2px 9px; }
     .people button { background: none; border: 0; color: var(--dim); font-size: 14px; cursor: pointer; text-decoration: underline; }
     .people button:hover { color: var(--err); }
@@ -372,7 +391,7 @@
         <a class="btn btn-primary" id="final-open" href="#" target="_blank" rel="noopener">Open or download</a>
         <button type="button" class="btn btn-ghost" id="copy-link">Copy a link to share</button>
       </div>
-      <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, a children's book or an audiobook? See Keepsakes below.</p>
+      <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, a children's book or an audiobook? <a href="#" class="keepsakes-link">See your keepsakes</a>.</p>
     </section>
 
     <!-- Project chat + notes (any time after paying) -->
@@ -399,20 +418,6 @@
       <div class="save-state" id="notes-state" role="status" aria-live="polite"></div>
     </section>
 
-    <section class="card" id="keepsakes-card" hidden>
-      <div class="eyebrow">Keepsakes</div>
-      <h2>Turn your film into something to hold</h2>
-      <p class="lead">Your script, photos and illustrations are already done, so these come together fast. Tap one and we'll reply in your project chat with the details and a payment link. Nothing is charged until you say yes.</p>
-      <div class="keep-grid" id="keep-grid">
-        <button type="button" class="keep" data-keep="Hardcover story book (from $149)"><b>Hardcover story book</b><span>From $149 · the full story with every photo and illustration</span></button>
-        <button type="button" class="keep" data-keep="Children's picture book (from $99)"><b>Children's picture book</b><span>From $99 · the same story, told for the grandkids</span></button>
-        <button type="button" class="keep" data-keep="Audiobook (from $29)"><b>Audiobook</b><span>From $29 · the narration in chapters</span></button>
-        <button type="button" class="keep" data-keep="Prints, postcards or a QR plaque (from $15)"><b>Prints, postcards &amp; QR plaque</b><span>From $15 · a plaque that plays the film when scanned</span></button>
-        <button type="button" class="keep" data-keep="Legacy bundle: film + hardcover book + audiobook ($399)"><b>Legacy bundle</b><span>$399 · hardcover book and audiobook together</span></button>
-        <button type="button" class="keep" data-keep="Extra copies of the book for family"><b>Copies for family</b><span>Tell us who and how many; we ship to each of them</span></button>
-      </div>
-      <div class="save-state" id="keep-state" role="status" aria-live="polite"></div>
-    </section>
 
     <section class="card" id="people-card" hidden>
       <div class="eyebrow">People with access</div>
@@ -453,6 +458,22 @@
       </div>
     </div>
   </div>
+
+  <!-- Need Help? (Ask K for the dashboard: questions about the process) -->
+  <button type="button" class="askk-fab" id="askk-fab" aria-controls="askk-drawer" aria-expanded="false" hidden><img src="images/story-video/icon.svg" alt="" width="38" height="38" />Need Help?</button>
+  <section class="askk-drawer" id="askk-drawer" role="dialog" aria-modal="false" aria-labelledby="askk-title">
+    <div class="askk-head">
+      <img src="images/story-video/icon.svg" alt="" width="36" height="36" />
+      <div><b id="askk-title">Need Help?</b><span>Ask K how anything on your dashboard works</span></div>
+      <button type="button" class="askk-close" id="askk-close" aria-label="Close help">×</button>
+    </div>
+    <div class="askk-log" id="askk-log" aria-live="polite"></div>
+    <form class="askk-form" id="askk-form">
+      <label for="askk-input" style="position:absolute;left:-9999px;">Your question</label>
+      <textarea id="askk-input" maxlength="1000" rows="1" placeholder="Ask how something works…"></textarea>
+      <button type="submit" class="btn btn-primary" id="askk-send">Send</button>
+    </form>
+  </section>
 
   <footer class="esai-footer">
     <div class="esai-footer-inner">
@@ -536,7 +557,7 @@
 
     function show(id) {
       ['state-loading', 'state-signin', 'state-collecting', 'state-production', 'state-demo', 'state-final', 'state-canceled'].forEach((s) => { $(s).hidden = s !== id; });
-      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'keepsakes-card', 'jump-nav'].forEach((s) => { $(s).hidden = true; });
+      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'jump-nav', 'askk-fab'].forEach((s) => { $(s).hidden = true; });
     }
 
     function setTimeline(status) {
@@ -560,7 +581,7 @@
       $('notes-lead').hidden = locked;
       $('people-card').hidden = !(p.me && (p.me.isOwner || p.me.isStaff) && p.status !== 'canceled');
       $('staff-bar').hidden = !isStaff();
-      $('keepsakes-card').hidden = !p.chat;
+      $('askk-fab').hidden = !p.chat || $('askk-drawer').classList.contains('on');
       if (p.people) renderPeople(p.people);
       if (p.chat && document.activeElement !== $('notes')) $('notes').value = p.notes || '';
       if (p.chat) startChat();
@@ -625,13 +646,22 @@
     const JUMPS = [
       ['step-upload', 'Upload Photos and Files'], ['step-questions', 'Answer the Questions'], ['step-start', 'Start Production'],
       ['state-production', 'Demo Date'], ['state-demo', 'Your Demo'], ['state-final', 'Your Film'],
-      ['chat', '💬 Talk With Us', true], ['notes-card', 'Add Notes'], ['keepsakes-card', '🎁 Keepsakes'], ['people-card', '👪 Manage Who Has Access'],
+      ['chat', '💬 Talk With Us', true], ['notes-card', 'Add Notes'], ['people-card', '👪 Manage Who Has Access'],
     ];
+    // Keepsakes have their own page (my-keepsakes.html), made from this project's photos and names.
+    const keepsakesUrl = () => `my-keepsakes.html?t=${encodeURIComponent(token)}${params.get('local') === '1' ? '&local=1' : ''}`;
     function renderJump() {
       const on = JUMPS.filter(([id]) => $(id) && !$(id).closest('[hidden]'))
         .sort((a, b) => ($(a[0]).compareDocumentPosition($(b[0])) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));   // page order
       const label = (id, text) => (id === 'notes-card' && project && project.status !== 'collecting' ? 'Your Notes' : text);   // notes are read-only after Start production
-      $('jump-nav').innerHTML = on.map(([id, text, hl]) => `<a href="#${id}"${hl ? ' class="hl"' : ''}>${esc(label(id, text))}</a>`).join('');
+      const links = on.map(([id, text, hl]) => `<a href="#${id}"${hl ? ' class="hl"' : ''}>${esc(label(id, text))}</a>`);
+      if (project && project.chat) {
+        const k = `<a href="${esc(keepsakesUrl())}">🎁 Keepsakes</a>`;
+        const at = on.findIndex(([id]) => id === 'people-card');
+        if (at >= 0) links.splice(at, 0, k); else links.push(k);
+      }
+      document.querySelectorAll('.keepsakes-link').forEach((a) => { a.href = keepsakesUrl(); });
+      $('jump-nav').innerHTML = links.join('');
       $('jump-nav').hidden = on.length < 2;
     }
 
@@ -1131,20 +1161,76 @@
     });
     $('signin-back').addEventListener('click', () => { $('signin-code-form').hidden = true; $('signin-email-form').hidden = false; $('signin-state').textContent = ''; });
 
-    // ----- keepsakes: a request goes into the project chat; Chris replies with details and a payment link -----
-    $('keep-grid').addEventListener('click', async (e) => {
-      const b = e.target.closest('[data-keep]');
-      if (!b || b.disabled) return;
-      b.disabled = true;
-      try {
-        const d = await api('/api/film/chat', { t: token, content: `Keepsake request: ${b.dataset.keep}. Please send me the details.` });
-        addBubble(d.message);
-        b.classList.add('sent');
-        $('keep-state').className = 'save-state ok';
-        $('keep-state').textContent = "Request sent. We'll reply in your project chat with the details and a payment link.";
-      } catch (err) { $('keep-state').className = 'save-state err'; $('keep-state').textContent = err.message; }
-      finally { b.disabled = false; }
-    });
+    // ----- Need Help? (Ask K, signed in through this dashboard, so no bot check) -----
+    (function () {
+      const fab = $('askk-fab'), drawer = $('askk-drawer'), log = $('askk-log'), input = $('askk-input'), form = $('askk-form');
+      const history = [];
+      let started = false, busy = false;
+      const fmt = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+      function add(role, html) {
+        const d = document.createElement('div');
+        d.className = `askk-msg ${role}`;
+        d.innerHTML = html;
+        log.appendChild(d);
+        log.scrollTop = log.scrollHeight;
+        return d;
+      }
+      function chips() {
+        const wrap = document.createElement('div');
+        wrap.className = 'askk-chips';
+        ['How do I upload from my phone?', 'What happens when I press Start production?', 'When will my demo be ready?', 'How do changes work?', 'How do I add family?']
+          .forEach((q) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = q;
+            b.addEventListener('click', () => ask(q));
+            wrap.appendChild(b);
+          });
+        log.appendChild(wrap);
+      }
+      function open() {
+        drawer.classList.add('on');
+        fab.hidden = true;
+        fab.setAttribute('aria-expanded', 'true');
+        if (!started) {
+          started = true;
+          add('k', "Hi, I'm K. Ask me how anything here works: uploading, the questions, Start production, your demo or keepsakes. For anything about your film itself, the project chat reaches Chris, who's making it.");
+          chips();
+        }
+        setTimeout(() => input.focus(), 50);
+      }
+      function close() {
+        drawer.classList.remove('on');
+        fab.hidden = !(project && project.chat);
+        fab.setAttribute('aria-expanded', 'false');
+      }
+      fab.addEventListener('click', open);
+      $('askk-close').addEventListener('click', close);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.classList.contains('on')) close(); });
+      async function ask(q) {
+        q = String(q || '').trim();
+        if (!q || busy) return;
+        busy = true;
+        add('me', fmt(q));
+        const wait = add('k askk-typing', 'K is typing…');
+        try {
+          const headers = { 'Content-Type': 'application/json', ...(device ? { 'X-Film-Device': device } : {}) };
+          const res = await fetch(`${API}/api/film/ask-k`, { method: 'POST', headers, body: JSON.stringify({ t: token, message: q, history: history.slice(-8) }) });
+          const d = await res.json().catch(() => ({}));
+          wait.remove();
+          if (!res.ok || !d.ok) throw new Error(d.error || "I couldn't answer that just now. Try the project chat on this page and Chris will reply.");
+          add('k', fmt(d.reply));
+          history.push({ role: 'user', content: q }, { role: 'assistant', content: d.reply });
+        } catch (err) {
+          wait.remove();
+          add('k', fmt(err.message));
+        } finally {
+          busy = false;
+        }
+      }
+      form.addEventListener('submit', (e) => { e.preventDefault(); const q = input.value; input.value = ''; ask(q); });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+    })();
 
     // ----- people with access (the buyer only) -----
     function renderPeople(list) {

@@ -60,6 +60,23 @@ Read-only grounding for Ask K on folder-to-film.html. Keep it in step with the p
 - The customer starts production themselves with the Start production button on the dashboard. From then on their details, uploads, answers and notes are locked; anything new (a photo they found, a correction) goes through the project chat, and we can reopen uploads if they have more files.
 - Before ordering, people can call or text (302) 907-9162 or email contact@easternshore.ai. Ask K is for quick questions; it can't see orders or chats.
 
+## Using your dashboard (for customers who are signed in)
+
+- **Getting in:** the dashboard link from the payment email opens it. The browser they paid from is signed in automatically; on any other phone or computer we email a 6-digit code to the buyer's address or to someone they added. The code lasts 15 minutes.
+- **Quick links** at the top jump to each part: Upload Photos and Files, Answer the Questions, Start Production, Talk With Us (the project chat), Add Notes, Keepsakes and Manage Who Has Access.
+- **Step 1, About your film:** a name for the project, a few words about whose story it is, the occasion and the date they need it by (all optional except the name and a few words). It saves as they type.
+- **Step 2, Upload:** "Click to add photos & videos" (on phones it opens the camera roll), "Click to add any file" (Files, iCloud, Google Drive, documents, audio, zips) and, on computers, "Click to add a whole folder", or drag files into the box. Any file type, any size; big videos are fine. Keep the page open (and the phone unlocked) until the uploads finish; they can add more over as many days as they like. A file that's already uploaded is skipped, and each file shows who added it. The × removes a file.
+- **Step 3, 12 quick questions:** tap an answer or skip it; skipped ones are "Experts pick". "See an example of each" under the film style question shows the six styles with a picture of each.
+- **Notes:** spellings, nicknames, people or photos to leave out, the feeling they want. Saves as they type.
+- **Step 4, Start production:** pressed when everything is in. It needs a project name, a few words about the story, at least one file or link, and no uploads still running. After it, the details, uploads, answers and notes lock, and anything new goes through the project chat (we can reopen uploads if they have more files). We email them the demo date right away.
+- **Timing:** the demo is usually ready 2 to 3 business days after Start production (weekends and major holidays don't count); the final film usually comes the next business day after they send changes or approve.
+- **Demo:** it plays right on the dashboard. They type their changes and press "Send my changes", or "Approve as is". Two rounds of changes are included; a round is all their notes on one version of the demo.
+- **Final film:** plays on the dashboard with "Download to keep" and "Copy a link to share". The share link plays the film for anyone they send it to, without opening the dashboard.
+- **Project chat ("Talk with the Eastern Shore AI team"):** for questions and anything about their film; Chris, who is making the film, replies, usually within an hour during the day, and we email them when we reply. Once production starts, the chat moves to the top of the dashboard.
+- **Manage Who Has Access:** the buyer adds family or coworkers by email; each can sign in with an emailed code, upload, answer questions and chat. The buyer can remove anyone, which signs them out right away.
+- **Keepsakes:** the Keepsakes link opens a separate keepsakes page made from their project. Tapping one sends a request into the project chat; we reply there with the details and a payment link. Nothing is charged until they say yes. Keepsakes are made from the finished film's script, photos and illustrations.
+- **Need Help?** (this assistant, bottom right of the dashboard) answers questions about the process. It can't see their files or chat, change anything, or take payments.
+
 ## Order status and the dashboard
 
 - Every order has its own private dashboard link, emailed right after payment. The dashboard always shows the current status, the demo date once production starts, and the finished film when it's ready.

@@ -835,6 +835,74 @@ test('staff view: admin opens any dashboard with a one-time link; staff messages
   assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM film_devices WHERE project_id = ?`).get(id).n, 0);
 });
 
+test('dashboard: Need Help? Ask K skips the bot check for a signed-in customer and knows the film; keepsake photos are signed and shown inline', async (t) => {
+  quietConsole(t);
+  const env = baseEnv({ FILM_ANTHROPIC_API_KEY: 'sk-ant-film-only', ASKK_TURNSTILE_ENFORCE: '1', TURNSTILE_SECRET_KEY: 'ts-test', ASKK_PASS_SECRET: 'pass-test' });
+  const { token, id } = await paidProject(t, env);
+  env.DB.sqlite.prepare(`UPDATE film_projects SET project_name = 'Lake Week' WHERE id = ?`).run(id);
+  const prev = globalThis.fetch;
+  const bodies = [];
+  globalThis.fetch = async (input, init = {}) => {
+    const url = String(input?.url || input);
+    if (url.startsWith('https://api.anthropic.com/v1/models')) return Response.json({ data: [{ type: 'model', id: 'claude-opus-5-5', display_name: 'Claude Opus 5.5', created_at: '2026-09-01T00:00:00Z' }], has_more: false, first_id: 'claude-opus-5-5', last_id: 'claude-opus-5-5' });
+    if (url.startsWith('https://api.anthropic.com/v1/messages')) {
+      bodies.push(JSON.parse(init.body));
+      return Response.json({ id: 'msg_d', type: 'message', role: 'assistant', model: 'claude-opus-5-5', stop_reason: 'end_turn', usage: { input_tokens: 10, output_tokens: 5 },
+        content: [{ type: 'text', text: JSON.stringify({ reply: 'Tap **Click to add photos & videos** and pick from your camera roll.', lookup: true }) }] });
+    }
+    if (url.startsWith('https://challenges.cloudflare.com/turnstile/')) return Response.json({ success: false });
+    return prev(input, init);
+  };
+  try {
+    // The public page's bot check still applies without the film link.
+    let r = await call(env, post('/api/film/ask-k', { message: 'How do I upload from my phone?' }));
+    assert.equal(r.status, 403);
+    assert.equal(r.data.needsVerification, true);
+    // Film link + this browser's sign-in: answered, no order-status box, and Ask K knows where the film stands.
+    r = await call(env, post('/api/film/ask-k', { t: token, message: 'How do I upload from my phone?' }));
+    assert.equal(r.status, 200, JSON.stringify(r.data));
+    assert.match(r.data.reply, /camera roll/);
+    assert.equal(r.data.lookup, false);
+    const sys = bodies.at(-1).system.map((b) => b.text).join('\n');
+    assert.match(sys, /"Need Help\?" assistant/);
+    assert.match(sys, /Project name: Lake Week\./);
+    assert.match(sys, /Status: Collecting files\./);
+    assert.match(sys, /Using your dashboard/);
+    // The film link alone (no signed-in browser) is refused.
+    const saved = DEVICE;
+    DEVICE = null;
+    r = await call(env, post('/api/film/ask-k', { t: token, message: 'How do I upload?' }));
+    assert.equal(r.status, 401);
+    DEVICE = saved;
+  } finally {
+    globalThis.fetch = prev;
+  }
+
+  // Keepsake photos: the customer's own images, as signed links that display inline.
+  const size = 50000;
+  const st = await call(env, post('/api/film/upload/start', { t: token, name: 'dock.jpg', size, type: 'image/jpeg' }));
+  const pr = await worker.fetch(new Request(`https://worker.example/api/film/upload/part?t=${token}&file=${st.data.fileId}&part=1`, {
+    method: 'POST', headers: { Origin: SITE, ...dev() }, body: new Uint8Array(size).fill(7) }), env, ctx);
+  await call(env, post('/api/film/upload/complete', { t: token, fileId: st.data.fileId, parts: [await pr.json()] }));
+  await call(env, post('/api/film/upload/start', { t: token, name: 'notes.pdf', size: 60000, type: 'application/pdf' }));   // never shown
+  let k = await call(env, get(`/api/film/keepsake-photos?t=${token}`));
+  assert.equal(k.status, 200, JSON.stringify(k.data));
+  assert.equal(k.data.photos.length, 1);
+  assert.equal(k.data.photos[0].name, 'dock.jpg');
+  const u = new URL(k.data.photos[0].url);
+  assert.equal(u.searchParams.get('inline'), '1');
+  const img = await worker.fetch(new Request(`https://worker.example${u.pathname}${u.search}`), env, ctx);
+  assert.equal(img.status, 200);
+  assert.match(img.headers.get('content-disposition'), /^inline;/);
+  assert.equal(img.headers.get('content-type'), 'image/jpeg');
+  u.searchParams.delete('inline');
+  const dl = await worker.fetch(new Request(`https://worker.example${u.pathname}${u.search}`), env, ctx);
+  assert.match(dl.headers.get('content-disposition'), /^attachment;/, 'admin download links stay attachments');
+  DEVICE = null;
+  k = await call(env, get(`/api/film/keepsake-photos?t=${token}`));
+  assert.equal(k.status, 401, 'needs a signed-in browser');
+});
+
 // Keep last: node:test runs this file's tests in order.
 test('every email to a customer or someone they added is BCCed to the business, like Survival Node order emails', () => {
   const toCustomers = ALL_SENT.filter((m) => /contact@easternshore\.ai/.test(JSON.stringify(m.from)) && !(m.to || []).includes('owner@inbox.example'));
