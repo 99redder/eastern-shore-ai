@@ -238,7 +238,7 @@ export function createFilmHandlers(deps) {
 
   async function uploadsFor(db, projectId, { all = false } = {}) {
     const rows = (await db.prepare(
-      `SELECT id, filename, content_type, size_bytes, status, created_at, completed_at FROM film_uploads
+      `SELECT id, filename, content_type, size_bytes, status, created_at, completed_at, uploaded_by FROM film_uploads
        WHERE project_id = ?1 ${all ? '' : "AND status = 'done'"} ORDER BY id`
     ).bind(projectId).all()).results || [];
     return rows;
@@ -276,7 +276,7 @@ export function createFilmHandlers(deps) {
       editable: editable(row),
       notes: row.customer_notes || '',
       chat: !['pending_payment', 'canceled'].includes(row.status),
-      uploads: uploads.map((u) => ({ id: u.id, name: u.filename, type: u.content_type || '', size: Number(u.size_bytes || 0), at: u.completed_at || u.created_at })),
+      uploads: uploads.map((u) => ({ id: u.id, name: u.filename, type: u.content_type || '', size: Number(u.size_bytes || 0), at: u.completed_at || u.created_at, by: u.uploaded_by || '' })),
       totalBytes: uploads.reduce((s, u) => s + Number(u.size_bytes || 0), 0),
       questions: FILM_QUESTIONS,
       partBytes: FILM_PART_BYTES,
@@ -697,7 +697,7 @@ export function createFilmHandlers(deps) {
     if (a.res) return { res: a.res };
     const row = a.row;
     if (!editable(row)) return { res: json({ ok: false, error: 'Production has started, so uploads are closed. Reply to any of our emails and attach anything else.' }, 409, corsHeaders) };
-    return { row };
+    return { row, person: a.person };
   }
 
   // POST /api/film/upload/start {t, name, size, type}
@@ -716,8 +716,8 @@ export function createFilmHandlers(deps) {
     const key = `projects/${g.row.id}/${crypto.randomUUID().slice(0, 8)}-${name}`;
     const mpu = await env.FILMS.createMultipartUpload(key, { httpMetadata: { contentType: type }, customMetadata: { project: String(g.row.id), original: name } });
     const ins = await env.DB.prepare(
-      `INSERT INTO film_uploads (project_id, r2_key, upload_id, filename, content_type, size_bytes, status) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'uploading')`
-    ).bind(g.row.id, key, mpu.uploadId, name, type, size).run();
+      `INSERT INTO film_uploads (project_id, r2_key, upload_id, filename, content_type, size_bytes, status, uploaded_by) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'uploading', ?7)`
+    ).bind(g.row.id, key, mpu.uploadId, name, type, size, clip(g.person?.name || g.person?.email || '', 120) || null).run();
     return json({ ok: true, fileId: Number(ins.meta?.last_row_id || 0), partBytes: FILM_PART_BYTES, parts: Math.max(1, Math.ceil(size / FILM_PART_BYTES)) }, 200, corsHeaders);
   }
 
@@ -757,7 +757,7 @@ export function createFilmHandlers(deps) {
     const obj = await mpu.complete(parts);
     await env.DB.prepare(`UPDATE film_uploads SET status = 'done', size_bytes = ?1, completed_at = datetime('now') WHERE id = ?2`)
       .bind(Number(obj?.size ?? up.size_bytes ?? 0), up.id).run();
-    return json({ ok: true, file: { id: up.id, name: up.filename, type: up.content_type, size: Number(obj?.size ?? up.size_bytes ?? 0) } }, 200, corsHeaders);
+    return json({ ok: true, file: { id: up.id, name: up.filename, type: up.content_type, size: Number(obj?.size ?? up.size_bytes ?? 0), at: new Date().toISOString(), by: up.uploaded_by || '' } }, 200, corsHeaders);
   }
 
   // POST /api/film/upload/delete {t, fileId}  (also aborts an unfinished upload)

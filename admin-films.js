@@ -85,7 +85,7 @@
     const files = d.uploads.length
       ? d.uploads.map((u) => `<div style="display:flex; gap:.5rem; align-items:center; margin:.2rem 0; flex-wrap:wrap;">
           ${u.status === 'done' ? `<button type="button" class="btn action-pop" style="padding:.25rem .6rem; font-size:.82rem;" data-film-action="download" data-film-file="${Number(u.id)}">Download</button>` : '<span class="web-muted">(unfinished)</span>'}
-          <span>${escHtml(u.filename)}</span><span class="web-muted">${size(u.size_bytes)} &bull; ${escHtml(u.content_type || '')}</span></div>`).join('')
+          <span>${escHtml(u.filename)}</span><span class="web-muted">${size(u.size_bytes)} &bull; ${escHtml(u.content_type || '')}${u.uploaded_by ? ` &bull; by ${escHtml(u.uploaded_by)}` : ''} &bull; ${day(u.completed_at || u.created_at)}</span></div>`).join('')
       : '<span class="web-muted">No files yet.</span>';
     const emails = d.emails.length ? d.emails.map((e) => `${escHtml(e.subject)} <span class="web-muted">(${day(e.sent_at)})</span>`).join('<br>') : '<span class="web-muted">None yet.</span>';
     const opts = Object.entries(statuses).filter(([k]) => k !== 'pending_payment' || p.status === 'pending_payment')

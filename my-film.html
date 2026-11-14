@@ -91,6 +91,7 @@
     .file .x:hover { color: var(--err); }
     .file.err .meta { color: var(--err); }
     .totals { margin-top: 12px; font-size: 14px; color: var(--muted); }
+    .skip-note { margin: 14px 0 0; font-size: 14.5px; color: var(--gold2); background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; overflow-wrap: anywhere; }
 
     .qs { display: grid; gap: 22px; }
     .q b { display: block; font-size: 16px; margin-bottom: 9px; font-weight: 600; }
@@ -146,6 +147,26 @@
     .modal .box { background: var(--card); border: 1px solid #4a3c2b; border-radius: 18px; padding: 28px; max-width: 480px; width: 100%; }
     .modal h3 { font-size: 30px; margin-bottom: 8px; }
     .modal p { color: var(--muted); margin: 0 0 20px; }
+    /* Film style examples (from the "Which film style?" question) */
+    .see-styles { margin-left: 8px; background: none; border: 0; padding: 0; color: var(--gold2); font: inherit; font-size: 14.5px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; }
+    .see-styles:hover { color: var(--ivory); }
+    .modal .box.wide { max-width: 980px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; position: relative; }
+    .modal .box.wide > p { margin-bottom: 0; }
+    .modal-x { position: absolute; top: 12px; right: 14px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card2); color: var(--ivory); font-size: 22px; line-height: 1; cursor: pointer; }
+    .modal-x:hover { border-color: var(--gold); }
+    .style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+    .style-pick { background: var(--card2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+    .style-pick.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+    .style-pick img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; display: block; background: #0d0b09; }
+    .style-pick .bd { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; }
+    .style-pick .best { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+    .style-pick h4 { font-family: var(--serif); font-size: 25px; font-weight: 600; margin: 4px 0 6px; line-height: 1.1; }
+    .modal .style-pick p { font-size: 14.5px; line-height: 1.5; margin: 0 0 14px; flex: 1; }
+    .style-pick .btn { padding: 9px 18px; font-size: 14.5px; align-self: flex-start; }
+    .style-experts { margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; background: var(--card2); border: 1px dashed var(--line); border-radius: 14px; padding: 14px 16px; color: var(--muted); font-size: 15px; }
+    .style-experts.on { border-style: solid; border-color: var(--gold); }
+    @media (max-width: 820px) { .style-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .style-grid { grid-template-columns: 1fr; } .modal .box.wide { padding: 22px 18px; } .modal .box.wide h3 { font-size: 26px; padding-right: 44px; } }
 
     .spinner { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite; margin: 10px auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -256,6 +277,7 @@
         </div>
         <p class="small muted" id="keep-open" hidden style="margin:14px 0 0;">Uploading… keep this page open (and your phone unlocked) until it finishes. You can add more any time.</p>
         <p class="small muted" style="margin:12px 0 0;">Please upload only photos, videos, music and other files you own or have permission to use. We can't tell who owns what, so you're responsible for having the rights to everything you send (<a href="folder-to-film-terms.html#t-materials" target="_blank" rel="noopener">terms</a>).</p>
+        <p class="skip-note" id="skip-note" role="status" hidden></p>
         <ul class="files" id="file-list" aria-label="Your files"></ul>
         <div class="totals" id="totals"></div>
       </section>
@@ -380,6 +402,16 @@
       <p class="muted">Questions? Call or text (302) 907-9162 or email contact@easternshore.ai.</p>
     </section>
   </main>
+
+  <div class="modal" id="styles-modal" role="dialog" aria-modal="true" aria-labelledby="styles-title">
+    <div class="box wide">
+      <button type="button" class="modal-x" id="styles-close" aria-label="Close">×</button>
+      <h3 id="styles-title">Film styles</h3>
+      <p>Every style uses your real photos and videos first. Pick one here, or close this and choose below.</p>
+      <div class="style-grid" id="style-grid"></div>
+      <div class="style-experts" id="style-experts"><span><b style="color:var(--ivory);">Not sure?</b> We'll choose the style that fits your story best.</span><button type="button" class="btn btn-ghost" data-style-pick="Experts pick" style="padding:9px 18px; font-size:14.5px;">Let the experts pick</button></div>
+    </div>
+  </div>
 
   <div class="modal" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="box">
@@ -575,7 +607,8 @@
         }
         const multi = q.type === 'multi';
         const chosen = multi ? (answers[q.id] || []) : [answers[q.id]];
-        return `<div class="q" role="${multi ? 'group' : 'radiogroup'}" aria-label="${esc(q.q)}"><b>${i + 1}. ${esc(q.q)}${multi ? ' <span class="muted small" style="font-weight:400;">(pick any)</span>' : ''}</b><div class="chips">${q.options.map((o) =>
+        const examples = q.id === 'style' ? ' <button type="button" class="see-styles" id="see-styles">See an example of each</button>' : '';
+        return `<div class="q" role="${multi ? 'group' : 'radiogroup'}" aria-label="${esc(q.q)}"><b>${i + 1}. ${esc(q.q)}${multi ? ' <span class="muted small" style="font-weight:400;">(pick any)</span>' : ''}</b>${examples}<div class="chips">${q.options.map((o) =>
           `<button type="button" class="chip${o === 'Experts pick' ? ' expert' : ''}" role="${multi ? 'checkbox' : 'radio'}" aria-checked="${chosen.includes(o)}" data-q="${q.id}" data-multi="${multi ? 1 : 0}" data-v="${esc(o)}">${esc(o)}</button>`).join('')}</div></div>`;
       }).join('');
     }
@@ -596,6 +629,47 @@
       }
       scheduleSave();
     });
+    // ----- film style examples (same pictures and words as the Folder to Film page) -----
+    const STYLE_EXAMPLES = [
+      { name: 'Documentary', img: 'style-documentary', best: 'Histories · tributes · milestones', alt: 'An illustration shown as a framed print, from the church film', text: 'Slow, Ken Burns-style moves over your photos shown as framed prints, maps of where it happened, and a warm narrator. Like the church film on the Folder to Film page.' },
+      { name: 'Animated cartoon', img: 'style-cartoon', best: 'Funny stories · send-offs · roasts', alt: 'Dad gets soaked steering a pontoon boat while the kids laugh', text: "Bouncy, slapstick cartoon scenes for the moments nobody caught on camera, with comic timing and a narrator who's in on the joke." },
+      { name: 'Storybook', img: 'style-storybook', best: 'Grandkids · weddings · bedtime', alt: 'The family on the boat at sunset in soft picture-book colors', text: "Soft picture-book illustrations and a read-aloud narrator, like a bedtime story starring your family. Becomes a children's book easily." },
+      { name: 'Movie trailer', img: 'style-trailer', best: 'Retirements · birthdays · trips', alt: 'Dad at the wheel of the pontoon boat like an action hero under dramatic clouds', text: 'Big music, a booming voice and dramatic titles: "This summer, one man rented a pontoon boat." Short, epic and funny.' },
+      { name: 'News report', img: 'style-news', best: 'Send-offs · retirements · big news', alt: "A news anchor at a desk with the family's photo on the screen beside her", text: '"Breaking news from the Johnson household": an anchor reports the story, with on-the-scene photos and quotes from the family or the team.' },
+      { name: 'Scrapbook', img: 'style-scrapbook', best: 'Trips · weddings · a year in the life', alt: 'Snapshots of the lake week taped into a scrapbook with doodles', text: 'Your photos and clips taped into a moving scrapbook, with doodles, ticket stubs and the warm feel of old home movies.' },
+    ];
+    let stylesOpener = null;
+    function openStyles() {
+      const chosen = answers.style || '';
+      $('style-grid').innerHTML = STYLE_EXAMPLES.map((s) => `<article class="style-pick${chosen === s.name ? ' on' : ''}">
+        <img src="images/story-video/${s.img}.jpg" alt="${esc(s.name)} style: ${esc(s.alt)}" loading="lazy" width="600" height="400" />
+        <div class="bd"><div class="best">${esc(s.best)}</div><h4>${esc(s.name)}</h4><p>${esc(s.text)}</p>
+        <button type="button" class="btn ${chosen === s.name ? 'btn-primary' : 'btn-ghost'}" data-style-pick="${esc(s.name)}">${chosen === s.name ? '✓ Chosen' : `Choose ${esc(s.name)}`}</button></div></article>`).join('');
+      $('style-experts').classList.toggle('on', chosen === 'Experts pick');
+      stylesOpener = document.activeElement;
+      $('styles-modal').classList.add('on');
+      document.body.style.overflow = 'hidden';
+      $('styles-close').focus();
+    }
+    function closeStyles() {
+      $('styles-modal').classList.remove('on');
+      document.body.style.overflow = '';
+      if (stylesOpener && stylesOpener.focus) stylesOpener.focus();
+    }
+    $('questions').addEventListener('click', (e) => { if (e.target.closest('#see-styles')) openStyles(); });
+    $('styles-close').addEventListener('click', closeStyles);
+    $('styles-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) { closeStyles(); return; }
+      const b = e.target.closest('[data-style-pick]');
+      if (!b) return;
+      const v = b.dataset.stylePick;
+      answers.style = v;
+      document.querySelectorAll('#questions .chip[data-q="style"]').forEach((c) => c.setAttribute('aria-checked', String(c.dataset.v === v)));
+      scheduleSave();
+      closeStyles();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('styles-modal').classList.contains('on')) closeStyles(); });
+
     $('questions').addEventListener('input', (e) => {
       const t = e.target.closest('textarea[data-q]');
       if (!t) return;
@@ -610,12 +684,22 @@
       for (const u of project.uploads) list.appendChild(savedRow(u));
       updateTotals();
     }
+    // Who added a file and when: "uploaded by you · Nov 14", "uploaded by Aunt Maria · Nov 14".
+    function uploadedText(u) {
+      const me = project && project.me ? (project.me.name || project.me.email) : '';
+      const who = !u.by ? '' : (u.by === me ? 'you' : u.by);
+      let when = '';
+      try { if (u.at) when = new Date(String(u.at).replace(' ', 'T') + (/[zZ]|[+-]\d\d:?\d\d$/.test(u.at) ? '' : 'Z')).toLocaleDateString([], { month: 'short', day: 'numeric' }); } catch {}
+      return `uploaded${who ? ` by ${who}` : ''}${when ? ` · ${when}` : ''}`;
+    }
     function savedRow(u) {
       const li = document.createElement('li');
       li.className = 'file saved';
-      li.innerHTML = `<div class="ic">${icon(u.type, u.name)}</div><div style="min-width:0;"><div class="nm" title="${esc(u.name)}">${esc(u.name)}</div><div class="meta">${sizeText(u.size)} · uploaded</div></div><button type="button" class="x" aria-label="Remove ${esc(u.name)}" data-del="${u.id}">×</button>`;
+      li.innerHTML = `<div class="ic">${icon(u.type, u.name)}</div><div style="min-width:0;"><div class="nm" title="${esc(u.name)}">${esc(u.name)}</div><div class="meta">${sizeText(u.size)} · ${esc(uploadedText(u))}</div></div><button type="button" class="x" aria-label="Remove ${esc(u.name)}" data-del="${u.id}">×</button>`;
       return li;
     }
+    // The name the worker stores (same rules as safeFilename there), so a re-picked file matches its saved copy.
+    const storedName = (n) => (String(n ?? '').trim().slice(0, 180).replace(/[\\/]+/g, '_').replace(/[\u0000-\u001f\u007f]/g, '').replace(/^\.+/, '')) || 'file';
     function updateTotals() {
       const n = project.uploads.length;
       const pending = queue.filter((q) => q.state !== 'done' && q.state !== 'error').length;
@@ -637,9 +721,16 @@
     });
 
     function addFiles(files) {
+      // Skip files already uploaded or on their way (same name and exact size), so nothing goes up twice.
+      const have = new Set(project.uploads.map((u) => `${u.name}|${u.size}`));
+      for (const q of queue) if (q.state !== 'error') have.add(`${storedName(q.name)}|${q.file.size}`);
+      const skipped = [];
       for (const f of files) {
         if (!f || f.name === '.DS_Store' || f.name === 'Thumbs.db') continue;
         const name = f.relPath || f.webkitRelativePath || f.name;
+        const key = `${storedName(name)}|${f.size}`;
+        if (f.size && have.has(key)) { skipped.push(name); continue; }
+        have.add(key);
         const li = document.createElement('li');
         li.className = 'file';
         li.innerHTML = `<div class="ic">${icon(f.type, name)}</div><div style="min-width:0;"><div class="nm" title="${esc(name)}">${esc(name)}</div><div class="meta">${sizeText(f.size)} · waiting</div><div class="bar"><i></i></div></div><span></span>`;
@@ -647,6 +738,14 @@
         const item = { file: f, name, el: li, state: 'waiting' };
         if (!f.size) { item.state = 'error'; li.classList.add('err'); li.querySelector('.meta').textContent = 'Empty file, skipped'; li.querySelector('.bar').remove(); continue; }
         queue.push(item);
+      }
+      const note = $('skip-note');
+      note.hidden = !skipped.length;
+      if (skipped.length) {
+        const names = skipped.slice(0, 3).join(', ') + (skipped.length > 3 ? ` and ${skipped.length - 3} more` : '');
+        note.textContent = skipped.length === 1
+          ? `${names} is already uploaded, so we skipped it.`
+          : `${skipped.length} files are already uploaded, so we skipped them: ${names}.`;
       }
       pump();
       updateTotals(); updateChecklist();

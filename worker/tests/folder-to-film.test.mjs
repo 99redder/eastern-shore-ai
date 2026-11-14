@@ -313,6 +313,7 @@ test('details, any-file multipart uploads, and Start production with a business-
   assert.equal(done.status, 200, JSON.stringify(done.data));
   assert.equal(done.data.file.size, size);
   assert.equal(done.data.file.name, 'beach_trip?.MOV');
+  assert.equal(done.data.file.by, 'Pat Family', 'the buyer is recorded as the uploader');
   const [key] = [...env.FILMS.objects.keys()];
   assert.match(key, new RegExp(`^projects/${id}/`));
 
@@ -326,6 +327,7 @@ test('details, any-file multipart uploads, and Start production with a business-
 
   const dash = await call(env, get(`/api/film/dashboard?t=${token}`));
   assert.equal(dash.data.project.uploads.length, 1);
+  assert.equal(dash.data.project.uploads[0].by, 'Pat Family');
   assert.equal(dash.data.project.totalBytes, size);
 
   const start = await call(env, post('/api/film/start', { t: token }));
@@ -776,6 +778,12 @@ test('staff view: admin opens any dashboard with a one-time link; staff messages
   r = await call(env, get(`/api/film/chat?t=${token}`));
   assert.equal(r.data.typing, 'Chris');
   assert.deepEqual(r.data.messages.map((m) => [m.role, m.sender_name]), [['staff', 'Chris']]);
+
+  // Files staff add from the dashboard show as uploaded by Chris.
+  DEVICE = ok.data.deviceToken;
+  const up = await call(env, post('/api/film/upload/start', { t: token, name: 'from-chris.jpg', size: 4, type: 'image/jpeg' }));
+  assert.equal(up.status, 200, JSON.stringify(up.data));
+  assert.equal(db.prepare('SELECT uploaded_by FROM film_uploads WHERE id = ?').get(up.data.fileId).uploaded_by, 'Chris');
 
   // Staff can add people for the buyer.
   DEVICE = ok.data.deviceToken;
