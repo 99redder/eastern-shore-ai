@@ -163,7 +163,7 @@ const call = async (env, req) => {
 };
 
 async function checkout(env) {
-  const r = await call(env, post('/api/film/checkout', { termsAccepted: true, termsVersion: '2026-11-14.4' }));
+  const r = await call(env, post('/api/film/checkout', { termsAccepted: true, termsVersion: '2026-11-14.5' }));
   assert.equal(r.status, 200, JSON.stringify(r.data));
   const row = env.DB.sqlite.prepare('SELECT * FROM film_projects ORDER BY id DESC LIMIT 1').get();
   return { ...r.data, row };
@@ -479,14 +479,14 @@ test('checkout needs the terms; retention purge, link reset', async (t) => {
   assert.equal(refused.status, 400);
   assert.match(refused.data.error, /Terms and Privacy/);
   const c = await checkout(env);
-  assert.equal(c.row.terms_version, '2026-11-14.4');
+  assert.equal(c.row.terms_version, '2026-11-14.5');
   assert.ok(c.row.terms_accepted_at);
 
-  // A delivered film from 100 days ago loses its uploads but keeps the project; one from 400 days ago is removed.
+  // Raw uploads go 12 months after the final film; the project (film, dashboard) stays.
   const db = env.DB.sqlite;
-  db.prepare(`INSERT INTO film_projects (id, token, status, final_sent_at) VALUES (50, 'tok_old_0123456789abcdef0123456789abcd', 'delivered', datetime('now', '-100 days'))`).run();
-  db.prepare(`INSERT INTO film_projects (id, token, status, final_sent_at, uploads_purged_at) VALUES (51, 'tok_older_0123456789abcdef0123456789ab', 'delivered', datetime('now', '-400 days'), datetime('now', '-300 days'))`).run();
-  db.prepare(`INSERT INTO film_projects (id, token, status, final_sent_at) VALUES (52, 'tok_new_0123456789abcdef0123456789abcd', 'final_ready', datetime('now', '-10 days'))`).run();
+  db.prepare(`INSERT INTO film_projects (id, token, status, final_sent_at) VALUES (50, 'tok_old_0123456789abcdef0123456789abcd', 'delivered', datetime('now', '-400 days'))`).run();
+  db.prepare(`INSERT INTO film_projects (id, token, status, final_sent_at, uploads_purged_at) VALUES (51, 'tok_older_0123456789abcdef0123456789ab', 'delivered', datetime('now', '-900 days'), datetime('now', '-500 days'))`).run();
+  db.prepare(`INSERT INTO film_projects (id, token, status, final_sent_at) VALUES (52, 'tok_new_0123456789abcdef0123456789abcd', 'final_ready', datetime('now', '-100 days'))`).run();
   for (const [pid, key] of [[50, 'projects/50/a-old.jpg'], [52, 'projects/52/a-new.jpg']]) {
     env.FILMS.objects.set(key, { bytes: new Uint8Array([1]) });
     db.prepare(`INSERT INTO film_uploads (project_id, r2_key, filename, size_bytes, status) VALUES (?, ?, 'a.jpg', 1, 'done')`).run(pid, key);
@@ -497,7 +497,7 @@ test('checkout needs the terms; retention purge, link reset', async (t) => {
   assert.equal(env.FILMS.objects.has('projects/50/a-old.jpg'), false);
   assert.equal(env.FILMS.objects.has('projects/52/a-new.jpg'), true);
   assert.ok(db.prepare('SELECT uploads_purged_at FROM film_projects WHERE id = 50').get().uploads_purged_at);
-  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_projects WHERE id = 51').get().n, 0);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_projects WHERE id = 51').get().n, 1, 'old films are kept');
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_projects WHERE id = 52').get().n, 1);
 
   // Reset a leaked dashboard link: the old one stops working.

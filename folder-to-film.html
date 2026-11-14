@@ -714,7 +714,7 @@
         <details><summary>We don't have photos from the early years.</summary><p>That's common. We add watercolor illustrations for the moments nobody photographed, in one consistent style, and if a real photo turns up later we swap it in.</p></details>
         <details><summary>How long is the video?</summary><p>Up to about 8 minutes, using up to 75 photos and clips. Longer stories, or churches and businesses with a lot of material, get a quote up front.</p></details>
         <details><summary>How fast can I have it?</summary><p>Your demo is ready 2–3 business days after you upload, and the final version the next business day after your changes. Need it for a memorial service this week? Ask about rush delivery.</p></details>
-        <details><summary>Who can see it, and what happens to my photos?</summary><p>Only people you send the link to. Your files are stored privately for your project only, never sold or used in our marketing, and deleted 90 days after your final film (sooner if you ask). If you'd like the film on YouTube, we'll post it as private, unlisted or public. The details are in our <a href="folder-to-film-terms.html#privacy">privacy notice</a>.</p></details>
+        <details><summary>Who can see it, and what happens to my photos?</summary><p>Only people you send the link to. Your files are stored privately for your project only and never sold or used in our marketing. Your finished film and dashboard stay up for as long as you want them; the original uploads are deleted 12 months after your final film, or sooner if you ask. If you'd like the film on YouTube, we'll post it as private, unlisted or public. The details are in our <a href="folder-to-film-terms.html#privacy">privacy notice</a>.</p></details>
         <details><summary>Do you use AI?</summary><p>Yes, and we'll always tell you where. Narrators are AI voices unless you record it yourself, and the illustrations are AI-generated watercolors. AI also helps us sort your materials and draft the script. A person checks every name, date and picture, and nothing is final until you approve it.</p></details>
         <details><summary>What if something's wrong in the demo?</summary><p>Tell us. Two rounds of changes are included: after each one we send you a new version, and the final arrives the next business day after you approve. More rounds are available if the story keeps growing.</p></details>
         <details><summary>Who owns the finished film?</summary><p>It's yours to keep, share and show. Your photos and materials stay yours too; you just need to have the right to share what you send us.</p></details>
@@ -815,7 +815,7 @@
         btn.disabled = true;
         setStatus('Opening secure checkout…');
         try {
-          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.4' }) });
+          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.5' }) });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok || !data.checkoutUrl) throw new Error(data.error || 'Checkout failed');
           window.location.href = data.checkoutUrl;

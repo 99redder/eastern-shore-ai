@@ -22,15 +22,15 @@ import { easternDate } from './node-price.js';
 
 export const FILM_PRICE_CENTS = 19999;
 export const FILM_TAX_CODE = 'txcd_10402100'; // Digital Audio Visual Works - downloaded - non subscription - with permanent rights
-export const FILM_TERMS_VERSION = '2026-11-14.4';
+export const FILM_TERMS_VERSION = '2026-11-14.5';
 export const FILM_CHANGE_ROUNDS = 2;   // included in the price (folder-to-film.html, terms sections 2 and 10) // folder-to-film-terms.html; bump both together
 export const FILM_PART_BYTES = 20 * 1024 * 1024; // R2 multipart: every part but the last must be this size
 const MAX_FILE_BYTES = 50 * 1024 * 1024 * 1024; // 50 GB per file
 const MAX_FILES = 2000;
 const DEMO_BUSINESS_DAYS = 3;
 const FILE_LINK_SECONDS = 3600;
-const UPLOAD_KEEP_DAYS = 90;   // after the final film is sent (folder-to-film-terms.html "How long we keep it")
-const PROJECT_KEEP_DAYS = 365;
+const UPLOAD_KEEP_DAYS = 365;  // raw uploads, after the final film is sent (folder-to-film-terms.html "How long we keep it")
+// The finished film, dashboard, share page and project chat are kept until the customer asks us to delete them.
 
 export const FILM_STATUSES = {
   pending_payment: 'Awaiting payment',
@@ -1080,11 +1080,12 @@ export function createFilmHandlers(deps) {
     return true;
   }
 
-  // Daily (scheduled handler): uploads go 90 days after the final film was sent,
-  // canceled projects' uploads go at once, and whole projects (dashboard, details,
-  // email log) go 365 days after the final film. Books stay in tax_income.
+  // Daily (scheduled handler): raw uploads go 12 months after the final film was
+  // sent, and canceled projects' uploads go at once. The finished film, dashboard,
+  // share page and chat stay (keepsakes and family copies can be ordered for
+  // years); they're removed only on request (admin Delete after Canceled).
   async function purgeOldFilms(env) {
-    if (!env.DB) return { uploads: 0, projects: 0 };
+    if (!env.DB) return { uploads: 0 };
     const due = (await env.DB.prepare(
       `SELECT id FROM film_projects WHERE uploads_purged_at IS NULL AND (
          (final_sent_at IS NOT NULL AND final_sent_at <= datetime('now', ?1)) OR status = 'canceled')`
@@ -1104,21 +1105,11 @@ export function createFilmHandlers(deps) {
       }
       if (!failed) await env.DB.prepare(`UPDATE film_projects SET uploads_purged_at = datetime('now') WHERE id = ?1`).bind(id).run();
     }
-    const old = (await env.DB.prepare(
-      `SELECT id, demo_key, final_key FROM film_projects WHERE uploads_purged_at IS NOT NULL AND final_sent_at IS NOT NULL AND final_sent_at <= datetime('now', ?1)`
-    ).bind(`-${PROJECT_KEEP_DAYS} days`).all()).results || [];
-    for (const { id, demo_key, final_key } of old) {
-      for (const k of [demo_key, final_key]) { if (k && env.FILMS) { try { await env.FILMS.delete(k); } catch {} } }
-      for (const table of ['film_emails', 'film_people', 'film_devices', 'film_codes']) {
-        await env.DB.prepare(`DELETE FROM ${table} WHERE project_id = ?1`).bind(id).run();
-      }
-      await env.DB.prepare(`DELETE FROM film_projects WHERE id = ?1`).bind(id).run();
-    }
     await env.DB.prepare(`DELETE FROM film_devices WHERE expires_at <= datetime('now')`).run();
     await env.DB.prepare(`DELETE FROM film_codes WHERE expires_at <= datetime('now', '-1 day')`).run();
     // Unpaid checkouts Stripe never expired (should be none): drop after 3 days.
     await env.DB.prepare(`DELETE FROM film_projects WHERE status = 'pending_payment' AND created_at <= datetime('now', '-3 days')`).run();
-    return { uploads: files, projects: old.length };
+    return { uploads: files };
   }
 
   // ---------- project chat + notes ----------
