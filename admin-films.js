@@ -17,6 +17,7 @@
     deliverPart: `${BASE}/api/film/deliver/part`,
     deliverComplete: `${BASE}/api/film/deliver/complete`,
     staffLink: `${BASE}/api/film/staff-link`,
+    chatReply: `${BASE}/api/film/chat/reply`,
   };
   const $ = (id) => document.getElementById(id);
   let projects = [];
@@ -34,8 +35,15 @@
   const day = (v) => {
     if (!v) return '';
     const s = String(v);
-    const d = new Date(s.length <= 10 ? `${s}T12:00:00` : `${s.replace(' ', 'T')}Z`);
+    const d = new Date(s.length <= 10 ? `${s}T12:00:00` : (/[zZ]$|[+-]\d\d:?\d\d$/.test(s) ? s : `${s.replace(' ', 'T')}Z`));
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' });
+  };
+  // Date and time in Eastern, for chat messages (stored as ISO times).
+  const when = (v) => {
+    if (!v) return '';
+    const s = String(v);
+    const d = new Date(/[zZ]$|[+-]\d\d:?\d\d$/.test(s) ? s : `${s.replace(' ', 'T')}Z`);
+    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
   };
 
   async function call(url, body) {
@@ -102,8 +110,10 @@
         const dv = (d.devices || []).find((x) => x.email === pp.email);
         return `<div>${escHtml(pp.name || pp.email)}${pp.name ? ` <span class="web-muted">${escHtml(pp.email)}</span>` : ''}${pp.isOwner ? ' <span class="web-muted">(buyer)</span>' : ''} <span class="web-muted">&bull; ${dv ? `signed in on ${dv.n} browser${dv.n === 1 ? '' : 's'}${dv.seen ? `, last seen ${day(dv.seen)}` : ''}` : 'not signed in'}</span></div>`;
       }).join('')}</div>
-      <div><b>Project chat</b> <a href="/support-chat.html" target="_blank" rel="noopener" style="color:var(--cyan);">Reply in Support Chat</a>
-        ${(d.chat || []).length ? `<div style="margin-top:.3rem; display:grid; gap:.25rem;">${d.chat.map((m) => `<div><span class="web-muted">${escHtml(m.role === 'staff' ? (m.sender_name || 'You') : (m.sender_name || 'Customer'))}, ${day(m.created_at)}:</span> ${escHtml(m.content)}</div>`).join('')}</div>` : '<div class="web-muted">No messages yet.</div>'}
+      <div><b>Project chat</b> <span class="web-muted">(customers' messages email you; your reply shows on their dashboard and emails them unless they're on it right now, at most once per 20 minutes)</span>
+        ${(d.chat || []).length ? `<div style="margin-top:.3rem; display:grid; gap:.3rem; max-height:340px; overflow-y:auto;">${d.chat.map((m) => `<div><span class="web-muted">${escHtml(m.role === 'staff' ? `${m.sender_name || 'Chris'} (you)` : (m.sender_name || 'Customer'))}, ${when(m.created_at)}:</span> <span style="white-space:pre-wrap;">${escHtml(m.content)}</span></div>`).join('')}</div>` : '<div class="web-muted">No messages yet.</div>'}
+        ${['pending_payment', 'canceled'].includes(p.status) ? '' : `<div class="web-span" style="margin-top:.4rem;"><label for="film-reply-${p.id}">Reply as Chris</label><textarea id="film-reply-${p.id}" rows="3" maxlength="4000"></textarea></div>
+        <div class="web-row-actions"><button type="button" class="btn btn-primary" data-film-action="reply" data-film-id="${p.id}">Send Reply</button></div>`}
       </div>
       <div><b>Videos for the customer</b> <span class="web-muted">(upload the files here; they play on the dashboard and the final gets a share page with a download)</span>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
@@ -261,6 +271,17 @@
           const r = await call(API.staffLink, { id });
           if (w) w.location.href = r.url; else prompt('Open this link within 10 minutes (it works once):', r.url);
         } catch (err) { if (w) w.close(); throw err; }
+      } else if (action === 'reply') {
+        const box = $(`film-reply-${id}`);
+        const content = box ? box.value.trim() : '';
+        if (!content) { openErrorModal('Type a reply first.'); return; }
+        btn.disabled = true;
+        const r = await call(API.chatReply, { id, content });
+        btn.disabled = false;
+        await loadDetail(id);
+        openSuccessModal(r.emailed
+          ? 'Reply sent. It shows on their dashboard, and we emailed them.'
+          : "Reply sent. It shows on their dashboard. No email this time: they're on the dashboard now, or we emailed them a reply in the last 20 minutes.", 'Sent');
       } else if (action === 'copy') {
         try { await navigator.clipboard.writeText(p.dashboard_url); openSuccessModal('Dashboard link copied.', 'Copied'); } catch { prompt('Copy the dashboard link:', p.dashboard_url); }
       } else if (action === 'email') {

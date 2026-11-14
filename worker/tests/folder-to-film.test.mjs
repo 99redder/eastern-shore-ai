@@ -517,12 +517,14 @@ test('checkout needs the terms; retention purge, link reset', async (t) => {
   assert.notEqual(db.prepare('SELECT token FROM film_projects WHERE id = 52').get().token, old);
 });
 
-test('project chat: customer messages reach the support console and staff once per half hour; console replies email the customer when away; notes save', async (t) => {
+test('project chat: its own tables, never the support console; customer messages email staff; replies from admin email the customer when away; notes save', async (t) => {
   quietConsole(t);
   const env = baseEnv();
   const { token, id } = await paidProject(t, env);
   const db = env.DB.sqlite;
   env.EMAIL.sent.length = 0;
+  const staffMail = () => env.EMAIL.sent.filter((m) => /^Film chat: /.test(m.subject));
+  const replies = () => env.EMAIL.sent.filter((m) => m.subject === 'Chris replied about your film');
 
   let r = await call(env, get(`/api/film/chat?t=${token}`));
   assert.equal(r.status, 200);
@@ -530,53 +532,86 @@ test('project chat: customer messages reach the support console and staff once p
 
   r = await call(env, post('/api/film/chat', { t: token, content: 'Can we use the song from our first dance?' }));
   assert.equal(r.status, 200, JSON.stringify(r.data));
-  const proj = db.prepare('SELECT * FROM film_projects WHERE id = ?').get(id);
-  assert.ok(proj.chat_session_id);
-  const session = db.prepare('SELECT * FROM chat_sessions WHERE id = ?').get(proj.chat_session_id);
-  assert.match(session.page, /^Folder to Film: /);
-  assert.equal(session.status, 'active');
-  const staffMail = env.EMAIL.sent.filter((m) => /^Film chat: /.test(m.subject));
-  assert.equal(staffMail.length, 1);
-  assert.match(staffMail[0].text, /first dance/);
-  assert.match(staffMail[0].text, /support-chat\.html/);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM chat_sessions').get().n, 0, 'nothing reaches the support chat console');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM chat_messages').get().n, 0);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_messages WHERE project_id = ?').get(id).n, 1);
+  assert.equal(staffMail().length, 1);
+  assert.match(staffMail()[0].text, /first dance/);
+  assert.match(staffMail()[0].text, /admin\.html/);
+  assert.doesNotMatch(staffMail()[0].text, /support-chat/);
+  // A quick follow-up before any reply is covered by that email.
   await call(env, post('/api/film/chat', { t: token, content: 'Also, Grandma is Yiayia in the family.' }));
-  assert.equal(env.EMAIL.sent.filter((m) => /^Film chat: /.test(m.subject)).length, 1, 'second message within 30 minutes: no second email');
-
-  // Staff closes the chat in the console; the customer's next message reopens it.
-  db.prepare(`UPDATE chat_sessions SET status = 'closed' WHERE id = ?`).run(proj.chat_session_id);
+  assert.equal(staffMail().length, 1);
+  // A few minutes later, still unanswered: it emails again.
+  db.prepare('UPDATE film_projects SET last_staff_alert_at = ? WHERE id = ?').run(new Date(Date.now() - 4 * 60000).toISOString(), id);
   await call(env, post('/api/film/chat', { t: token, content: 'One more thing!' }));
-  assert.equal(db.prepare('SELECT status FROM chat_sessions WHERE id = ?').get(proj.chat_session_id).status, 'active');
+  assert.equal(staffMail().length, 2);
 
-  // Staff replies from the console while the customer is away: they get an email with the reply.
+  // Admin replies while the customer is away: they get an email with the reply.
   db.prepare(`UPDATE film_projects SET customer_seen_at = datetime('now', '-10 minutes') WHERE id = ?`).run(id);
-  const reply = await worker.fetch(post('/api/chat/message', { token: session.session_token, content: 'Great idea. We can use a licensed version that sounds just like it.', role: 'staff', senderName: 'Chris' }, ADMIN), env, ctx);
-  assert.equal(reply.status, 200, await reply.clone().text());
-  const toCustomer = env.EMAIL.sent.filter((m) => m.subject === 'Chris replied about your film');
-  assert.equal(toCustomer.length, 1);
-  assert.deepEqual(toCustomer[0].to, ['pat@family.example']);
-  assert.match(toCustomer[0].text, /licensed version/);
-  assert.match(toCustomer[0].html, /my-film\.html\?t=[^"]+#chat/);
-  // A second reply soon after doesn't email again; the dashboard shows both.
-  await worker.fetch(post('/api/chat/message', { token: session.session_token, content: 'Anything else?', role: 'staff', senderName: 'Chris' }, ADMIN), env, ctx);
-  assert.equal(env.EMAIL.sent.filter((m) => m.subject === 'Chris replied about your film').length, 1);
+  assert.notEqual((await call(env, post('/api/film/chat/reply', { id, content: 'x' }))).status, 200, 'admin only');
+  r = await call(env, post('/api/film/chat/reply', { id, content: 'Great idea. We can use a licensed version that sounds just like it.' }, ADMIN));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.emailed, true);
+  assert.equal(replies().length, 1);
+  assert.deepEqual(replies()[0].to, ['pat@family.example']);
+  assert.match(replies()[0].text, /licensed version/);
+  assert.match(replies()[0].html, /my-film\.html\?t=[^"]+#chat/);
+  // After a reply, the customer's next message emails staff right away.
+  await call(env, post('/api/film/chat', { t: token, content: 'Perfect, thanks!' }));
+  assert.equal(staffMail().length, 3);
+  // A second reply soon after doesn't email the customer again; the dashboard shows everything.
+  r = await call(env, post('/api/film/chat/reply', { id, content: 'Anything else?' }, ADMIN));
+  assert.equal(r.data.emailed, false);
+  assert.equal(replies().length, 1);
   r = await call(env, get(`/api/film/chat?t=${token}`));
-  assert.deepEqual(r.data.messages.map((m) => m.role), ['user', 'user', 'user', 'staff', 'staff']);
+  assert.deepEqual(r.data.messages.map((m) => m.role), ['user', 'user', 'user', 'staff', 'user', 'staff']);
   assert.equal(r.data.messages[3].sender_name, 'Chris');
 
-  // Customer on the dashboard right now: no email.
-  db.prepare(`UPDATE film_projects SET last_reply_email_at = NULL WHERE id = ?`).run(id);
-  await worker.fetch(post('/api/chat/message', { token: session.session_token, content: 'Seen?', role: 'staff', senderName: 'Chris' }, ADMIN), env, ctx);
-  assert.equal(env.EMAIL.sent.filter((m) => m.subject === 'Chris replied about your film').length, 1);
+  // Customer on the dashboard right now (they just loaded the chat): no email.
+  db.prepare('UPDATE film_projects SET last_reply_email_at = NULL WHERE id = ?').run(id);
+  r = await call(env, post('/api/film/chat/reply', { id, content: 'Seen?' }, ADMIN));
+  assert.equal(r.data.emailed, false);
+  // Staff watching in the staff view: customer messages don't email.
+  db.prepare(`UPDATE film_projects SET staff_seen_at = datetime('now'), last_staff_alert_at = NULL WHERE id = ?`).run(id);
+  await call(env, post('/api/film/chat', { t: token, content: 'Hi Chris!' }));
+  assert.equal(staffMail().length, 3);
 
-  // Notes save any time after paying and show in admin with the chat.
+  // Notes save while collecting and show in admin with the whole chat.
   r = await call(env, post('/api/film/notes', { t: token, notes: 'Please leave out photos of Uncle Bob.' }));
   assert.equal(r.status, 200);
   const detail = await call(env, get(`/api/film/project?id=${id}`, ADMIN));
   assert.equal(detail.data.project.customer_notes, 'Please leave out photos of Uncle Bob.');
-  assert.equal(detail.data.chat.length, 6);
+  assert.equal(detail.data.chat.length, 8);
   const dash = await call(env, get(`/api/film/dashboard?t=${token}`));
   assert.equal(dash.data.project.notes, 'Please leave out photos of Uncle Bob.');
   assert.equal(dash.data.project.chat, true);
+  // Deleting a canceled film removes its chat too.
+  await call(env, post('/api/film/project/update', { id, status: 'canceled' }, ADMIN));
+  await call(env, post('/api/film/project/delete', { id }, ADMIN));
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_messages WHERE project_id = ?').get(id).n, 0);
+});
+
+test('migration 0043 moves film chats out of the support console', () => {
+  const DB = createD1();
+  const files = readdirSync(MIGRATIONS).filter((f) => f.endsWith('.sql')).sort();
+  for (const file of files.filter((f) => f < '0043')) {
+    try { DB.sqlite.exec(readFileSync(new URL(file, MIGRATIONS), 'utf8')); } catch (e) { if (!file.startsWith('0023_')) throw e; }
+  }
+  const db = DB.sqlite;
+  db.prepare(`INSERT INTO chat_sessions (id, session_token, page, status, escalated_at, created_at, last_activity_at) VALUES (18, 'film-x', 'Folder to Film: Church', 'active', '2026-11-14T21:44:40.443Z', '2026-11-14T21:44:40.443Z', '2026-11-14T21:45:00.492Z')`).run();
+  db.prepare(`INSERT INTO chat_sessions (id, session_token, page, status, escalated_at, created_at, last_activity_at) VALUES (19, 'sn-y', 'Survival Node', 'active', '2026-11-14T21:00:00.000Z', '2026-11-14T21:00:00.000Z', '2026-11-14T21:00:00.000Z')`).run();
+  for (const [sid, role, who, text, at] of [[18, 'system', 'System', 'Project chat for Folder to Film #2.', '2026-11-14T21:44:40.443Z'], [18, 'staff', 'Chris', 'test', '2026-11-14T21:44:40.561Z'],
+    [18, 'user', 'Chris Gorham', 'Test', '2026-11-14T21:45:00.492Z'], [19, 'user', 'Visitor', 'Battery question', '2026-11-14T21:00:00.000Z']]) {
+    db.prepare('INSERT INTO chat_messages (session_id, role, sender_name, content, created_at) VALUES (?, ?, ?, ?, ?)').run(sid, role, who, text, at);
+  }
+  db.prepare(`INSERT INTO film_projects (id, token, status, chat_session_id) VALUES (2, 'tok_church_0123456789abcdef0123456789', 'collecting', 18)`).run();
+  db.exec(readFileSync(new URL(files.find((f) => f.startsWith('0043')), MIGRATIONS), 'utf8'));
+  assert.deepEqual(db.prepare('SELECT project_id, role, sender_name, content FROM film_messages ORDER BY id').all().map((m) => ({ ...m })),
+    [{ project_id: 2, role: 'staff', sender_name: 'Chris', content: 'test' }, { project_id: 2, role: 'user', sender_name: 'Chris Gorham', content: 'Test' }]);
+  assert.deepEqual(db.prepare('SELECT id FROM chat_sessions').all().map((r) => r.id), [19], 'Survival Node chats stay');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM chat_messages').get().n, 1);
+  assert.equal(db.prepare('SELECT chat_session_id FROM film_projects WHERE id = 2').get().chat_session_id, null);
 });
 
 test('dashboard access: codes only to the buyer or people they add; trusted browsers; removing someone locks them out', async (t) => {

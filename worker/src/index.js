@@ -39,7 +39,6 @@ function film() {
     _film = createFilmHandlers({
       json, requireAdmin, escapeHtml, formatUsd, generateToken,
       upsertTaxIncomeJournal, upsertTaxExpenseJournal, stripeFee, sendStaffOperationalAlert,
-      notifySupportPushes, enqueueSupportPushReminder,
     });
   }
   return _film;
@@ -198,7 +197,7 @@ export default {
       const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead', '/api/page/visit'].includes(url.pathname) && request.method === 'POST');
       // Folder to Film: checkout + customer dashboard (token) + admin (session) + signed file downloads.
       const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
-      const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link'].includes(url.pathname) && request.method === 'POST');
+      const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link', '/api/film/chat/reply'].includes(url.pathname) && request.method === 'POST');
       if (!isFilmPublic && !isFilmAdmin && !isPreviewPublic && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
@@ -283,6 +282,7 @@ export default {
         return film().handleStaffAccess(request, env, corsHeaders);
       }
       if (p === '/api/film/staff-link' && m === 'POST') return film().handleStaffLink(request, env, corsHeaders, url);
+      if (p === '/api/film/chat/reply' && m === 'POST') return film().handleChatReply(request, env, corsHeaders, url);
       if (p === '/api/film/people' && m === 'POST') return film().handlePeopleAdd(request, env, corsHeaders);
       if (p === '/api/film/people/remove' && m === 'POST') return film().handlePeopleRemove(request, env, corsHeaders);
       if (p === '/api/film/feedback' && m === 'POST') return film().handleFeedback(request, env, corsHeaders);
@@ -7649,12 +7649,6 @@ async function handleChatMessageSend(request, env, corsHeaders) {
     await env.DB.prepare(
       `UPDATE chat_sessions SET last_activity_at = ?1 WHERE id = ?2`
     ).bind(now, session.id).run();
-
-    // A staff reply in a Folder to Film project chat emails the customer when
-    // they aren't on their dashboard (throttled in folder-to-film.js).
-    if (role === 'staff') {
-      try { await film().onStaffReply(env, session.id, content, senderName); } catch (e) { console.error('film chat reply hook', e); }
-    }
 
     // A staff reply resolves the request, so scheduled push reminders stop.
     if (role === 'staff') {

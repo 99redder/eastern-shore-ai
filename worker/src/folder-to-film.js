@@ -135,7 +135,6 @@ export function createFilmHandlers(deps) {
   const {
     json, requireAdmin, escapeHtml, formatUsd, generateToken,
     upsertTaxIncomeJournal, upsertTaxExpenseJournal, stripeFee, sendStaffOperationalAlert,
-    notifySupportPushes = async () => {}, enqueueSupportPushReminder = async () => {},
   } = deps;
 
   const SITE = 'https://www.easternshore.ai';
@@ -910,9 +909,7 @@ export function createFilmHandlers(deps) {
     if (!row) return json({ ok: false, error: 'Project not found' }, 404, corsHeaders);
     const uploads = await uploadsFor(env.DB, row.id, { all: true });
     const emails = (await env.DB.prepare(`SELECT kind, subject, to_email, sent_at FROM film_emails WHERE project_id = ?1 ORDER BY id DESC`).bind(row.id).all()).results || [];
-    const chat = row.chat_session_id ? ((await env.DB.prepare(
-      `SELECT role, content, sender_name, created_at FROM chat_messages WHERE session_id = ?1 AND role IN ('user', 'staff') ORDER BY id DESC LIMIT 30`
-    ).bind(row.chat_session_id).all()).results || []).reverse() : [];
+    const chat = await chatMessages(env, row.id, { limit: 500 });
     const people = row.customer_email ? await peopleFor(env, row) : [];
     const devices = (await env.DB.prepare(`SELECT email, COUNT(*) AS n, MAX(last_seen_at) AS seen FROM film_devices WHERE project_id = ?1 AND expires_at > datetime('now') GROUP BY email`).bind(row.id).all()).results || [];
     return json({ ok: true, project: adminView(row), uploads, emails, chat, people, devices, questions: FILM_QUESTIONS }, 200, corsHeaders);
@@ -1035,7 +1032,7 @@ export function createFilmHandlers(deps) {
     }
     await env.DB.prepare(`DELETE FROM film_uploads WHERE project_id = ?1`).bind(row.id).run();
     for (const k of [row.demo_key, row.final_key]) { if (k && env.FILMS) { try { await env.FILMS.delete(k); } catch {} } }
-    for (const table of ['film_emails', 'film_people', 'film_devices', 'film_codes']) {
+    for (const table of ['film_emails', 'film_people', 'film_devices', 'film_codes', 'film_messages', 'film_typing']) {
       await env.DB.prepare(`DELETE FROM ${table} WHERE project_id = ?1`).bind(row.id).run();
     }
     await env.DB.prepare(`DELETE FROM film_projects WHERE id = ?1`).bind(row.id).run();
@@ -1121,39 +1118,33 @@ export function createFilmHandlers(deps) {
   }
 
   // ---------- project chat + notes ----------
-  // Each film gets one chat_sessions row (page "Folder to Film: <name>"), so it
-  // shows up in support-chat.html with push alerts like Survival Node's
-  // "Talk to a human". The dashboard talks to these film-token routes; staff
-  // reply from the console (/api/chat/message), which calls onStaffReply.
+  // The project chat has its own tables (film_messages, film_typing); it is not the
+  // Survival Node support chat and never shows in support-chat.html. A customer
+  // message emails staff; staff reply from admin (POST /api/film/chat/reply) or the
+  // staff view of the dashboard, and the customer gets an email if they're away.
 
-  const STAFF_ALERT_GAP_MIN = 30;   // at most one "new message" email to staff per project per half hour
+  const STAFF_BURST_MIN = 3;        // more customer messages this soon after an alert, before any reply: no second email
+  const STAFF_SEEN_SEC = 120;       // staff has the chat open in the staff view: no email
   const REPLY_EMAIL_GAP_MIN = 20;   // at most one "Chris replied" email to the customer per 20 minutes
   const SEEN_WINDOW_SEC = 90;       // the customer is on the dashboard: no email needed
-
-  async function ensureChat(env, row) {
-    if (row.chat_session_id) {
-      const s = await env.DB.prepare(`SELECT * FROM chat_sessions WHERE id = ?1`).bind(row.chat_session_id).first();
-      if (s) return s;
-    }
-    const now = new Date().toISOString();
-    const token = `film-${generateToken()}`;
-    const page = `Folder to Film: ${row.project_name || `#${row.id}`}`.slice(0, 100);
-    const ins = await env.DB.prepare(
-      `INSERT INTO chat_sessions (session_token, page, page_url, customer_name, customer_email, status, escalated_at, last_activity_at, created_at)
-       VALUES (?1, ?2, ?3, ?4, ?5, 'active', ?6, ?6, ?6)`
-    ).bind(token, page, `${SITE}/admin.html`, row.customer_name || null, row.customer_email || null, now).run();
-    const id = Number(ins.meta?.last_row_id || 0);
-    await env.DB.prepare(`INSERT INTO chat_messages (session_id, role, content, sender_name, created_at) VALUES (?1, 'system', ?2, 'System', ?3)`)
-      .bind(id, `Project chat for Folder to Film #${row.id}. The customer is writing from their film dashboard.`, now).run();
-    await env.DB.prepare(`UPDATE film_projects SET chat_session_id = ?1 WHERE id = ?2`).bind(id, row.id).run();
-    return env.DB.prepare(`SELECT * FROM chat_sessions WHERE id = ?1`).bind(id).first();
-  }
+  const ms = (v) => {
+    if (!v) return 0;
+    const t = String(v);
+    return Date.parse(/[zZ]|[+-]\d\d:?\d\d$/.test(t) ? t : `${t.replace(' ', 'T')}Z`) || 0;
+  };
+  const ago = (v) => (v ? Date.now() - ms(v) : Infinity);
 
   function chatGuard(row, corsHeaders) {
     if (!row) return json({ ok: false, error: 'Film not found' }, 404, corsHeaders);
     if (row.status === 'pending_payment') return json({ ok: false, error: 'Payment is still confirming.' }, 409, corsHeaders);
     if (row.status === 'canceled') return json({ ok: false, error: 'This film was canceled.' }, 409, corsHeaders);
     return null;
+  }
+
+  async function chatMessages(env, projectId, { after = 0, limit = 200 } = {}) {
+    return (await env.DB.prepare(
+      `SELECT id, role, content, sender_name, created_at FROM film_messages WHERE project_id = ?1 AND id > ?2 ORDER BY id ASC LIMIT ?3`
+    ).bind(projectId, after, limit).all()).results || [];
   }
 
   // GET /api/film/chat?t=&after=
@@ -1163,19 +1154,28 @@ export function createFilmHandlers(deps) {
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
     if (bad) return bad;
-    if (!a.person.isStaff) await env.DB.prepare(`UPDATE film_projects SET customer_seen_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
-    if (!row.chat_session_id) return json({ ok: true, messages: [], typing: false }, 200, corsHeaders);
+    await env.DB.prepare(`UPDATE film_projects SET ${a.person.isStaff ? 'staff_seen_at' : 'customer_seen_at'} = datetime('now') WHERE id = ?1`).bind(row.id).run();
     const after = Math.max(0, Math.round(Number(url.searchParams.get('after') || 0)));
-    const msgs = (await env.DB.prepare(
-      `SELECT id, role, content, sender_name, created_at FROM chat_messages WHERE session_id = ?1 AND id > ?2 AND role IN ('user', 'staff') ORDER BY id ASC LIMIT 200`
-    ).bind(row.chat_session_id, after).all()).results || [];
+    const msgs = await chatMessages(env, row.id, { after });
     const since = new Date(Date.now() - 5000).toISOString();
-    const typing = await env.DB.prepare(`SELECT sender_name FROM chat_typing WHERE session_id = ?1 AND role = ?3 AND updated_at > ?2`).bind(row.chat_session_id, since, a.person.isStaff ? 'user' : 'staff').first();
-    return json({ ok: true, messages: msgs, typing: typing ? (typing.sender_name || 'Chris') : false }, 200, corsHeaders);
+    const typing = await env.DB.prepare(`SELECT sender_name FROM film_typing WHERE project_id = ?1 AND role = ?2 AND updated_at > ?3`)
+      .bind(row.id, a.person.isStaff ? 'user' : 'staff', since).first();
+    return json({ ok: true, messages: msgs, typing: typing ? (typing.sender_name || STAFF_NAME) : false }, 200, corsHeaders);
+  }
+
+  // A staff message (staff view or admin): saved as Chris, and the customer is emailed if they're away.
+  async function postStaffMessage(env, row, content) {
+    const now = new Date().toISOString();
+    const ins = await env.DB.prepare(`INSERT INTO film_messages (project_id, role, sender_name, content, created_at) VALUES (?1, 'staff', ?2, ?3, ?4)`)
+      .bind(row.id, STAFF_NAME, content, now).run();
+    await env.DB.prepare(`DELETE FROM film_typing WHERE project_id = ?1 AND role = 'staff'`).bind(row.id).run();
+    let emailed = false;
+    try { emailed = await emailCustomerReply(env, row, content, STAFF_NAME); } catch (e) { console.error('film staff reply email', e); }
+    return { message: { id: Number(ins.meta?.last_row_id || 0), role: 'staff', content, sender_name: STAFF_NAME, created_at: now }, emailed };
   }
 
   // POST /api/film/chat {t, content}
-  async function handleChatSend(request, env, corsHeaders, ctx) {
+  async function handleChatSend(request, env, corsHeaders) {
     const d = await readJson(request);
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const a = await access(env, request, corsHeaders, d.t);
@@ -1183,50 +1183,55 @@ export function createFilmHandlers(deps) {
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
     if (bad) return bad;
-    const who = a.person.name || a.person.email;
     const content = clip(d.content, 4000);
     if (!content) return json({ ok: false, error: 'Type a message first.' }, 400, corsHeaders);
-    const session = await ensureChat(env, row);
-    const now = new Date().toISOString();
     if (a.person.isStaff) {
-      // Staff writing from the customer's dashboard: the same as replying from the console.
-      const insStaff = await env.DB.prepare(`INSERT INTO chat_messages (session_id, role, content, sender_name, created_at) VALUES (?1, 'staff', ?2, ?3, ?4)`)
-        .bind(session.id, content, STAFF_NAME, now).run();
-      await env.DB.prepare(`UPDATE chat_sessions SET last_activity_at = ?1 WHERE id = ?2`).bind(now, session.id).run();
-      await env.DB.prepare(`DELETE FROM chat_typing WHERE session_id = ?1 AND role = 'staff'`).bind(session.id).run();
-      try {
-        await env.DB.prepare(`INSERT INTO support_push_state (session_id, acknowledged_at, updated_at) VALUES (?1, ?2, datetime('now'))
-          ON CONFLICT(session_id) DO UPDATE SET acknowledged_at = excluded.acknowledged_at, updated_at = datetime('now')`).bind(session.id, Math.floor(Date.now() / 1000)).run();
-      } catch {}
-      try { await onStaffReply(env, session.id, content, STAFF_NAME); } catch (e) { console.error('film staff reply email', e); }
-      return json({ ok: true, message: { id: Number(insStaff.meta?.last_row_id || 0), role: 'staff', content, sender_name: STAFF_NAME, created_at: now } }, 200, corsHeaders);
+      const r = await postStaffMessage(env, row, content);
+      return json({ ok: true, message: r.message }, 200, corsHeaders);
     }
-    const ins = await env.DB.prepare(`INSERT INTO chat_messages (session_id, role, content, sender_name, created_at) VALUES (?1, 'user', ?2, ?3, ?4)`)
-      .bind(session.id, content, who, now).run();
-    // A closed console chat reopens when the customer writes again.
-    await env.DB.prepare(`UPDATE chat_sessions SET status = 'active', closed_at = NULL, last_activity_at = ?1, page = ?2 WHERE id = ?3`)
-      .bind(now, `Folder to Film: ${row.project_name || `#${row.id}`}`.slice(0, 100), session.id).run();
-    await env.DB.prepare(`DELETE FROM chat_typing WHERE session_id = ?1 AND role = 'user'`).bind(session.id).run();
-    try { await env.DB.prepare(`DELETE FROM support_push_state WHERE session_id = ?1`).bind(session.id).run(); } catch {}
-    const pushes = Promise.all([
-      notifySupportPushes(env, { id: session.id, page: `Folder to Film: ${row.project_name || `#${row.id}`}`, customerName: row.customer_name || '' }, 0),
-      enqueueSupportPushReminder(env, session.id, 300),
-    ]).catch((e) => console.error('film chat push', e));
-    if (ctx?.waitUntil) ctx.waitUntil(pushes); else await pushes;
-    // Staff email, throttled.
-    const recent = row.last_staff_alert_at && Date.parse(`${row.last_staff_alert_at.replace(' ', 'T')}Z`) > Date.now() - STAFF_ALERT_GAP_MIN * 60000;
-    if (!recent) {
-      await env.DB.prepare(`UPDATE film_projects SET last_staff_alert_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
+    const who = a.person.name || a.person.email;
+    const now = new Date().toISOString();
+    const ins = await env.DB.prepare(`INSERT INTO film_messages (project_id, role, sender_name, content, created_at) VALUES (?1, 'user', ?2, ?3, ?4)`)
+      .bind(row.id, who, content, now).run();
+    await env.DB.prepare(`DELETE FROM film_typing WHERE project_id = ?1 AND role = 'user'`).bind(row.id).run();
+
+    // Email staff about every message, except while staff has the chat open, or for a quick
+    // burst right after an alert that hasn't been answered yet (one email covers those).
+    const lastStaff = await env.DB.prepare(`SELECT MAX(created_at) AS t FROM film_messages WHERE project_id = ?1 AND role = 'staff'`).bind(row.id).first();
+    const watching = ago(row.staff_seen_at) < STAFF_SEEN_SEC * 1000;
+    const burst = ago(row.last_staff_alert_at) < STAFF_BURST_MIN * 60000 && !(lastStaff?.t && ms(lastStaff.t) >= ms(row.last_staff_alert_at));
+    if (!watching && !burst) {
+      await env.DB.prepare(`UPDATE film_projects SET last_staff_alert_at = ?1 WHERE id = ?2`).bind(now, row.id).run();
+      const project = row.project_name || `Film #${row.id}`;
       try {
         await sendStaffOperationalAlert(env, {
           from: env.ALERTS_FROM_EMAIL,
-          subject: `Film chat: ${row.customer_name || row.customer_email || 'customer'} (${row.project_name || `#${row.id}`})`,
-          text: [`${who}${a.person.isOwner ? '' : ` (added by ${row.customer_name || row.customer_email})`} wrote in the Folder to Film project chat:`, '', content, '',
-            'Reply in Support Chat: https://www.easternshore.ai/support-chat.html', `(More messages in the next ${STAFF_ALERT_GAP_MIN} minutes won't email again; the console and push alerts show them.)`].join('\n'),
+          subject: `Film chat: ${who} (${project})`,
+          text: [
+            `${who}${a.person.isOwner ? '' : ` (added by ${row.customer_name || row.customer_email})`} wrote in the Folder to Film project chat for "${project}":`, '',
+            content, '',
+            'Reply in admin: Customers > Folder to Film > Details & Files (reply box), or Open Dashboard (staff).',
+            `${SITE}/admin.html`, '',
+            `More messages in the next ${STAFF_BURST_MIN} minutes, before you reply, won't email again; they'll be in the chat.`,
+          ].join('\n'),
         });
       } catch (e) { console.error('film chat staff alert', e); }
     }
     return json({ ok: true, message: { id: Number(ins.meta?.last_row_id || 0), role: 'user', content, sender_name: who, created_at: now } }, 200, corsHeaders);
+  }
+
+  // POST /api/film/chat/reply {id, content} (admin)
+  async function handleChatReply(request, env, corsHeaders, url) {
+    const auth = await adminGuard(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+    const d = await readJson(request);
+    const row = await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(Number(d?.id || 0)).first();
+    const bad = chatGuard(row, corsHeaders);
+    if (bad) return bad;
+    const content = clip(d?.content, 4000);
+    if (!content) return json({ ok: false, error: 'Type a reply first.' }, 400, corsHeaders);
+    const r = await postStaffMessage(env, row, content);
+    return json({ ok: true, ...r }, 200, corsHeaders);
   }
 
   // POST /api/film/chat/typing {t, typing}
@@ -1237,30 +1242,27 @@ export function createFilmHandlers(deps) {
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
     if (bad) return bad;
-    if (!row.chat_session_id) return json({ ok: true }, 200, corsHeaders);
     const role = a.person.isStaff ? 'staff' : 'user';
     if (d.typing === false) {
-      await env.DB.prepare(`DELETE FROM chat_typing WHERE session_id = ?1 AND role = ?2`).bind(row.chat_session_id, role).run();
+      await env.DB.prepare(`DELETE FROM film_typing WHERE project_id = ?1 AND role = ?2`).bind(row.id, role).run();
     } else {
       await env.DB.prepare(
-        `INSERT INTO chat_typing (session_id, role, sender_name, updated_at) VALUES (?1, ?2, ?3, ?4)
-         ON CONFLICT(session_id, role) DO UPDATE SET sender_name = excluded.sender_name, updated_at = excluded.updated_at`
-      ).bind(row.chat_session_id, role, a.person.name || a.person.email, new Date().toISOString()).run();
+        `INSERT INTO film_typing (project_id, role, sender_name, updated_at) VALUES (?1, ?2, ?3, ?4)
+         ON CONFLICT(project_id, role) DO UPDATE SET sender_name = excluded.sender_name, updated_at = excluded.updated_at`
+      ).bind(row.id, role, a.person.isStaff ? STAFF_NAME : (a.person.name || a.person.email), new Date().toISOString()).run();
     }
     return json({ ok: true }, 200, corsHeaders);
   }
 
-  // Called after a staff message in the support console: if the session is a
-  // film chat and the customer isn't on their dashboard, email them the reply.
-  async function onStaffReply(env, sessionId, content, senderName) {
-    const row = await env.DB.prepare(`SELECT * FROM film_projects WHERE chat_session_id = ?1`).bind(sessionId).first();
+  // After a staff message: if the customer isn't on their dashboard, email them the reply.
+  async function emailCustomerReply(env, row, content, senderName) {
     if (!row || !row.customer_email) return false;
-    const ago = (v) => (v ? Date.now() - Date.parse(`${String(v).replace(' ', 'T')}Z`) : Infinity);
-    if (ago(row.customer_seen_at) < SEEN_WINDOW_SEC * 1000) return false;
-    if (ago(row.last_reply_email_at) < REPLY_EMAIL_GAP_MIN * 60000) return false;
+    const fresh = await env.DB.prepare(`SELECT customer_seen_at, last_reply_email_at FROM film_projects WHERE id = ?1`).bind(row.id).first();
+    if (ago(fresh?.customer_seen_at) < SEEN_WINDOW_SEC * 1000) return false;
+    if (ago(fresh?.last_reply_email_at) < REPLY_EMAIL_GAP_MIN * 60000) return false;
     await env.DB.prepare(`UPDATE film_projects SET last_reply_email_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
     const link = `${dashboardUrl(row.token)}#chat`;
-    const who = clip(senderName, 60) || 'Chris';
+    const who = clip(senderName, 60) || STAFF_NAME;
     const hi = firstName(row);
     const text = [hi, '', `${who} replied in your project chat${row.project_name ? ` for "${row.project_name}"` : ''}:`, '', clip(content, 4000), '',
       `Reply on your dashboard: ${link}`, '', 'Folder to Film by Eastern Shore AI'].join('\n');
@@ -1460,7 +1462,7 @@ export function createFilmHandlers(deps) {
     handleStaffLink, handleStaffAccess,
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove,
-    handleChatGet, handleChatSend, handleChatTyping, handleNotes, onStaffReply,
+    handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,
     sendStatusEmail, purgeOldFilms,
     handleCheckout, handleFilmPaid, handleFilmExpired,
     handleDashboardGet, handleDashboardSave,
