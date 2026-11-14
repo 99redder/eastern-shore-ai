@@ -375,6 +375,22 @@
       transition: color 0.2s;
     }
     .header-nav a:hover { color: var(--cyan); }
+
+    /* Folder to Film link (its own gold) and the More menu */
+    .header-nav { align-items: center; }
+    .header-nav a.film-link { color: #e3c58e; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .header-nav a.film-link img { width: 18px; height: 18px; border-radius: 4px; flex: none; }
+    .header-nav a.film-link:hover { color: #f2d9a6; text-shadow: 0 0 10px rgba(227,197,142,.45); }
+    body[data-theme="light"] .header-nav a.film-link { color: #8a6a2e; }
+    .nav-more { position: relative; }
+    .nav-more-btn { background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted); font: inherit; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-more-btn:hover, .nav-more.open .nav-more-btn { color: var(--cyan); }
+    .nav-more-btn span { font-size: 0.7rem; margin-left: 0.2rem; }
+    .nav-more-menu { display: none; position: absolute; right: 0; top: calc(100% + 12px); min-width: 200px; flex-direction: column; background: var(--card); border: 1px solid var(--line); box-shadow: 0 16px 40px rgba(0,0,0,.45); padding: 0.35rem 0; z-index: 320; }
+    .nav-more-menu::before { content: ''; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+    .nav-more.open .nav-more-menu { display: flex; }
+    @media (hover: hover) and (min-width: 1141px) { .nav-more:hover .nav-more-menu { display: flex; } }
+    .nav-more-menu a { padding: 0.6rem 1rem; white-space: nowrap; }
     .header-nav a.web-link { color: var(--pink); }
     .header-nav a.web-link:hover { color: var(--cyan); }
     .header-nav a.node-link { color: #9ed0ff; }
@@ -972,6 +988,14 @@
         color: var(--muted);
       }
       .header-nav a:last-child { border-bottom: none; }
+      .header-nav { align-items: stretch; }
+      .header-nav a.film-link { display: flex; }
+      .nav-more { width: 100%; }
+      .nav-more-btn { display: block; width: 100%; text-align: left; padding: 0.7rem 1.5rem 0.3rem; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; pointer-events: none; }
+      .nav-more-btn span { display: none; }
+      .nav-more-menu { display: flex; position: static; box-shadow: none; border: 0; background: none; padding: 0; min-width: 0; }
+      .nav-more-menu::before { display: none; }
+      .nav-more-menu a { padding-left: 2.25rem; }
     }
     @media (max-width: 820px) {
       .grid-3, .steps { grid-template-columns: 1fr 1fr; }
@@ -1027,9 +1051,15 @@
         <a href="/#website-plan" class="web-link">💻 $100/yr Websites</a>
         <a href="openclaw-setup.html" class="openclaw-link" style="color:#C73E2D;">🦞 $100 OpenClaw Setup</a>
         <a href="node.html" class="node-link">⚙️ Survival Node</a>
-        <a href="/ai-automation.html">AI Automation</a>
-        <a href="#" class="quote-trigger">AI Agent Repair</a>
-        <a href="book-lessons.html">Tech Tutoring</a>
+        <a href="folder-to-film.html" class="film-link"><img src="images/story-video/icon.svg" alt="" width="18" height="18" />Folder to Film</a>
+        <div class="nav-more">
+          <button type="button" class="nav-more-btn" aria-expanded="false" aria-haspopup="true">More<span aria-hidden="true">▾</span></button>
+          <div class="nav-more-menu">
+            <a href="/ai-automation.html">AI Automation</a>
+            <a href="#" class="quote-trigger">AI Agent Repair</a>
+            <a href="book-lessons.html">Tech Tutoring</a>
+          </div>
+        </div>
       </nav>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
         <span class="theme-toggle-knob">☽</span>
@@ -1535,6 +1565,18 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
       });
     })();
 
+
+    // More menu: click to open (and hover on desktop); closes on outside click or Escape.
+    (function () {
+      const more = document.querySelector('.nav-more');
+      if (!more) return;
+      const btn = more.querySelector('.nav-more-btn');
+      const set = (on) => { more.classList.toggle('open', on); btn.setAttribute('aria-expanded', on ? 'true' : 'false'); };
+      btn.addEventListener('click', (e) => { e.stopPropagation(); set(!more.classList.contains('open')); });
+      document.addEventListener('click', (e) => { if (!more.contains(e.target)) set(false); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+      more.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+    })();
     // Hamburger menu
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const headerNav = document.getElementById('header-nav');

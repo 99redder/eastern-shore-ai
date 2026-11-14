@@ -174,7 +174,10 @@
       renderList();
       for (const id of open) loadDetail(id);
     } catch (e) {
-      if (el) el.innerHTML = `<div style="color:#ff9b9b;">${escHtml(e.message)}</div>`;
+      const notDeployed = /method not allowed/i.test(e.message);
+      if (el) el.innerHTML = notDeployed
+        ? '<div style="color:#fbbf24;">The Folder to Film part of the worker isn\'t deployed yet, so there\'s nothing to show. This tab starts working once the worker is deployed (cd worker &amp;&amp; npx wrangler deploy --config wrangler.toml, after creating the films bucket and applying migration 0041).</div>'
+        : `<div style="color:#ff9b9b;">${escHtml(e.message)}</div>`;
     }
   }
   window.refreshStoryFilms = refresh;
