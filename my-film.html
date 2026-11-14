@@ -565,14 +565,16 @@
     }
 
     // Links to every section on screen, since the chat and keepsakes sit far down the page.
+    // (Step 1 sits right under these links, so it has none.)
     const JUMPS = [
-      ['step-about', '1. About your film'], ['step-upload', '2. Upload'], ['step-questions', '3. Questions'], ['step-start', '4. Start production'],
-      ['state-production', 'Demo date'], ['state-demo', 'Your demo'], ['state-final', 'Your film'],
-      ['chat', '💬 Talk with us', true], ['notes-card', 'Notes'], ['keepsakes-card', '🎁 Keepsakes'], ['people-card', '👪 People with access'],
+      ['step-upload', 'Upload Photos and Files'], ['step-questions', 'Answer the Questions'], ['step-start', 'Start Production'],
+      ['state-production', 'Demo Date'], ['state-demo', 'Your Demo'], ['state-final', 'Your Film'],
+      ['chat', '💬 Talk With Us', true], ['notes-card', 'Add Notes'], ['keepsakes-card', '🎁 Keepsakes'], ['people-card', '👪 Manage Who Has Access'],
     ];
     function renderJump() {
       const on = JUMPS.filter(([id]) => $(id) && !$(id).closest('[hidden]'));
-      $('jump-nav').innerHTML = on.map(([id, label, hl]) => `<a href="#${id}"${hl ? ' class="hl"' : ''}>${esc(label)}</a>`).join('');
+      const label = (id, text) => (id === 'notes-card' && project && project.status !== 'collecting' ? 'Your Notes' : text);   // notes are read-only after Start production
+      $('jump-nav').innerHTML = on.map(([id, text, hl]) => `<a href="#${id}"${hl ? ' class="hl"' : ''}>${esc(label(id, text))}</a>`).join('');
       $('jump-nav').hidden = on.length < 2;
     }
 
