@@ -3715,6 +3715,12 @@ async function handleAdminBlockSlot(request, env, corsHeaders, url) {
 
   const setupAt = `${setupDate}T${setupTime}`;
 
+  // remove: true deletes the row (admin list's Delete button); active: false only unblocks it.
+  if (data.remove === true) {
+    const result = await env.DB.prepare('DELETE FROM blocked_slots WHERE setup_at = ?1').bind(setupAt).run();
+    return json({ ok: true, setupAt, deleted: Number(result.meta?.changes || 0) }, 200, corsHeaders);
+  }
+
   await env.DB.prepare(
     `INSERT INTO blocked_slots (setup_date, setup_time, setup_at, reason, active)
      VALUES (?1, ?2, ?3, ?4, ?5)
@@ -3752,6 +3758,12 @@ async function handleAdminBlockDay(request, env, corsHeaders, url) {
 
   if (!setupDate) {
     return json({ ok: false, error: 'Missing setup date' }, 400, corsHeaders);
+  }
+
+  // remove: true deletes the row (admin list's Delete button); active: false only unblocks it.
+  if (data.remove === true) {
+    const result = await env.DB.prepare('DELETE FROM blocked_days WHERE setup_date = ?1').bind(setupDate).run();
+    return json({ ok: true, setupDate, deleted: Number(result.meta?.changes || 0) }, 200, corsHeaders);
   }
 
   await env.DB.prepare(

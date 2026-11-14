@@ -2025,11 +2025,13 @@
             const ok = await openConfirmModal(`Delete blocked slot ${setupDate} ${setupTime}?`, 'Delete Blocked Slot?', 'Delete');
             if (!ok) return;
             try {
-              await fetch(`${BLOCK_SLOT_API_URL}`, {
+              const res = await fetch(`${BLOCK_SLOT_API_URL}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
-                body: JSON.stringify({ setupDate, setupTime, reason: '', active: false })
+                body: JSON.stringify({ setupDate, setupTime, remove: true })
               });
+              const out = await res.json().catch(() => ({}));
+              if (!res.ok || !out.ok) throw new Error(out.error || `HTTP ${res.status}`);
               await loadAdminData();
               openSuccessModal('Blocked slot deleted successfully.', 'Record Deleted ✅');
             } catch (e) {
@@ -2045,11 +2047,13 @@
             const ok = await openConfirmModal(`Delete blocked day ${setupDate}?`, 'Delete Blocked Day?', 'Delete');
             if (!ok) return;
             try {
-              await fetch(`${BLOCK_DAY_API_URL}`, {
+              const res = await fetch(`${BLOCK_DAY_API_URL}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-Admin-Session': adminSessionToken },
-                body: JSON.stringify({ setupDate, reason: '', active: false })
+                body: JSON.stringify({ setupDate, remove: true })
               });
+              const out = await res.json().catch(() => ({}));
+              if (!res.ok || !out.ok) throw new Error(out.error || `HTTP ${res.status}`);
               await loadAdminData();
               openSuccessModal('Blocked day deleted successfully.', 'Record Deleted ✅');
             } catch (e) {
