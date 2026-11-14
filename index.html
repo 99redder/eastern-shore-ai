@@ -1698,6 +1698,8 @@ const CONTACT_API_URL = window.CONTACT_API_URL || 'https://eastern-shore-ai-cont
     });
     document.querySelector('.about-close').addEventListener('click', () => aboutModal.style.display = 'none');
     aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.style.display = 'none'; });
+    // Other pages' footers link to /#about (the Folder to Film pages); open About when arriving that way.
+    if (location.hash === '#about') aboutModal.style.display = 'flex';
 
     // Status modal
     const statusModal = document.getElementById('status-modal');
