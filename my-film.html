@@ -607,7 +607,17 @@
       } else if (p.status === 'canceled') {
         show('state-canceled');
       }
+      placeChat(p.status);
       renderJump();
+    }
+
+    // Once production starts the chat is how customers reach us, so it moves to the top, above the
+    // "We're making your film" card. Otherwise it sits in its usual place, after the main card.
+    const chatHome = document.createComment('chat-home');
+    $('chat').before(chatHome);
+    function placeChat(status) {
+      if (status === 'production') $('state-production').before($('chat'));
+      else if ($('chat').previousSibling !== chatHome) chatHome.after($('chat'));
     }
 
     // Links to every section on screen, since the chat and keepsakes sit far down the page.
@@ -618,7 +628,8 @@
       ['chat', '💬 Talk With Us', true], ['notes-card', 'Add Notes'], ['keepsakes-card', '🎁 Keepsakes'], ['people-card', '👪 Manage Who Has Access'],
     ];
     function renderJump() {
-      const on = JUMPS.filter(([id]) => $(id) && !$(id).closest('[hidden]'));
+      const on = JUMPS.filter(([id]) => $(id) && !$(id).closest('[hidden]'))
+        .sort((a, b) => ($(a[0]).compareDocumentPosition($(b[0])) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));   // page order
       const label = (id, text) => (id === 'notes-card' && project && project.status !== 'collecting' ? 'Your Notes' : text);   // notes are read-only after Start production
       $('jump-nav').innerHTML = on.map(([id, text, hl]) => `<a href="#${id}"${hl ? ' class="hl"' : ''}>${esc(label(id, text))}</a>`).join('');
       $('jump-nav').hidden = on.length < 2;
