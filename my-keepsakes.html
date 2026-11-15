@@ -152,6 +152,15 @@
     .center { text-align: center; }
 
     .msg { text-align: center; padding: 90px 0; color: var(--muted); }
+    .signin { max-width: 560px; margin: 0 auto; padding: 70px 0 90px; }
+    .signin h1 { font-size: 40px; margin: 10px 0 12px; }
+    .signin p { color: var(--muted); }
+    .signin form { display: grid; gap: 12px; margin-top: 18px; }
+    .signin label { font-size: 14px; color: var(--muted); }
+    .signin input { width: 100%; background: #15110d; border: 1px solid var(--line); border-radius: 10px; color: var(--ivory); font: inherit; font-size: 16px; padding: 12px 14px; }
+    .signin input:focus { outline: none; border-color: var(--gold); }
+    .signin .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .copy-hint { color: var(--muted); font-size: 15px; margin: 12px 0 0; }
     .msg h1 { font-size: 40px; color: var(--ivory); margin-bottom: 12px; }
 
     @media (max-width: 860px) {
@@ -199,6 +208,24 @@
   <main class="wrap">
     <div class="msg" id="loading"><h1 id="msg-title">Opening your keepsakes…</h1><p id="msg-text"></p></div>
 
+    <section class="signin" id="signin" hidden>
+      <div class="eyebrow" id="signin-eyebrow">Keepsakes</div>
+      <h1>Confirm it's you</h1>
+      <p>For privacy, this page opens only for the person who ordered the film and the people they've invited. We'll email you a 6-digit code; this browser will remember you after that.</p>
+      <form id="signin-email-form">
+        <label for="signin-email">Your email address (the one your invitation went to)</label>
+        <input id="signin-email" type="email" autocomplete="email" required placeholder="you@example.com" />
+        <div><button type="submit" class="btn btn-primary" id="signin-send">Email me a code</button></div>
+      </form>
+      <form id="signin-code-form" hidden>
+        <p id="signin-sent" style="margin:0;"></p>
+        <label for="signin-code">6-digit code</label>
+        <input id="signin-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="123456" style="font-size:22px; letter-spacing:6px; max-width:220px;" />
+        <div class="row"><button type="submit" class="btn btn-primary" id="signin-verify">Open the keepsakes</button><button type="button" class="btn btn-ghost" id="signin-back">Use a different email</button></div>
+      </form>
+      <div class="ask-state" id="signin-state" role="status" aria-live="polite"></div>
+    </section>
+
     <div id="page" hidden>
       <div class="paid-banner" id="paid-banner" role="status" hidden></div>
       <section class="hero">
@@ -206,6 +233,7 @@
           <div class="eyebrow" id="hero-eyebrow">Keepsakes</div>
           <h1 id="hero-title">Keep your story on the shelf, <em>not just on a screen.</em></h1>
           <p>Your film's script, photos and illustrations become a hardcover book, a picture book for the kids, an audiobook or prints for the wall. It's all made already, so they come together fast. Books ship free to any U.S. address.</p>
+          <p class="note" id="invite-note" hidden></p>
           <p class="note" id="photo-note" hidden></p>
           <p class="note" id="timing-note" hidden style="margin-top:10px;"></p>
           <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
@@ -229,7 +257,7 @@
             <h2 id="book-title">Your film, <em>printed and bound.</em></h2>
             <p>Each chapter of the film becomes a chapter of the book, laid out like a real book, with every photo, illustration and caption.</p>
             <ul><li>The whole story, word for word, as the narrator tells it</li><li>Every photo and illustration from the film</li><li>A hardcover that will outlast any phone or hard drive</li></ul>
-            <span class="price">$149</span><span class="ship">Free shipping to U.S. addresses · ships about 2 to 3 weeks after you approve the proof</span>
+            <span class="price">$149</span><span class="ship">Free shipping to U.S. addresses · includes designing the book · ships about 2 to 3 weeks after you approve the proof</span>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="book">Buy the hardcover book · $149</button></div>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
@@ -286,7 +314,7 @@
         </div>
       </section>
 
-      <section class="k">
+      <section class="k" id="copies">
         <div class="row">
           <div class="vis">
             <div class="stack">
@@ -298,9 +326,11 @@
           <div>
             <div class="eyebrow">Copies for family</div>
             <h2 id="family-title">One for everyone <em>in the story.</em></h2>
-            <p id="family-text">Pick how many and add where each one goes. We ship a copy straight to each person.</p>
+            <p id="family-text">Copies are reprints of the hardcover book. Pick how many: for one, Stripe asks where to send it; for more, add where each one goes and we ship a copy straight to each person.</p>
+            <p class="note" id="family-tip" hidden></p>
             <span class="price">$79 each</span><span class="ship">Free shipping to each U.S. address</span>
             <div class="buy-row"><label class="qty">How many copies? <select id="copies-qty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label></div>
+            <p class="copy-hint" id="copy-hint">Stripe will ask where to send it at checkout.</p>
             <div class="recips" id="recips"></div>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="copies" id="copies-btn">Buy 1 copy · $79</button></div>
             <div class="ask-state" role="status" aria-live="polite"></div>
@@ -312,10 +342,10 @@
         <div class="center"><div class="eyebrow">How ordering works</div><h2>You see a proof before anything is printed.</h2></div>
         <div class="how">
           <div><div class="n">1</div><b>Pay securely</b><span>Checkout is through Stripe. Books ship free to any U.S. address.</span></div>
-          <div><div class="n">2</div><b>Approve the proof</b><span>We design it from your film's script, photos and illustrations and post a proof in your project chat.</span></div>
-          <div><div class="n">3</div><b>We print and ship it</b><span>It arrives about 2 to 3 weeks after you approve. The audiobook goes on your dashboard.</span></div>
+          <div><div class="n">2</div><b>Approve the proof</b><span id="how-proof">We design it from your film's script, photos and illustrations and post a proof in your project chat.</span></div>
+          <div><div class="n">3</div><b>We print and ship it</b><span id="how-ship">It arrives about 2 to 3 weeks after you approve. The audiobook goes on your dashboard.</span></div>
         </div>
-        <p class="center muted" style="margin-top:26px;">Questions first? <a id="chat-link" href="my-film.html#chat">Ask in your project chat</a>.</p>
+        <p class="center muted" style="margin-top:26px;" id="questions-line">Questions first? <a id="chat-link" href="my-film.html#chat">Ask in your project chat</a>.</p>
       </section>
     </div>
   </main>
@@ -363,8 +393,10 @@
     const token = params.get('t') || '';
     const $ = (id) => document.getElementById(id);
     const dash = `my-film.html?t=${encodeURIComponent(token)}${local ? '&local=1' : ''}`;
+    const DKEY = `ff-dev-${token.slice(0, 16)}`;   // the same browser sign-in as the dashboard
     let device = '';
-    try { device = localStorage.getItem(`ff-dev-${token.slice(0, 16)}`) || ''; } catch {}
+    try { device = localStorage.getItem(DKEY) || ''; } catch {}
+    let me = null;   // who's signed in, and what they may do
     $('back').href = dash;
     $('chat-link').href = `${dash}#chat`;
 
@@ -375,6 +407,7 @@
       if (!res.ok || data.ok === false) throw Object.assign(new Error(data.error || `Something went wrong (${res.status}).`), { status: res.status, data });
       return data;
     }
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     function stop(title, html) {
       $('msg-title').textContent = title;
       $('msg-text').innerHTML = html;
@@ -389,6 +422,10 @@
     });
 
     function fill(p, photos) {
+      me = p.me || {};
+      const own = !!(me.isOwner || me.isStaff);
+      const viaChat = !!(me.isOwner || me.isStaff || (me.can && me.can.chat));   // keepsakes-only invitations have no dashboard or chat
+      const buyer = (p.customerName || '').trim().split(' ')[0] || 'The person who ordered the film';
       const name = (p.projectName || '').trim();
       const title = name || 'Our Story';
       document.title = `Keepsakes for ${title} | Folder to Film`;
@@ -409,22 +446,67 @@
       });
       document.querySelectorAll('[data-cap]').forEach((el) => { el.textContent = (p.occasion || '').trim() || title; });
 
-      // Copies for family: use the names of the people they've added, when we have them.
-      const people = (p.people || []).filter((x) => !x.isOwner).map((x) => (x.name || '').trim().split(' ')[0]).filter(Boolean);
-      if (people.length) {
-        document.querySelectorAll('[data-for]').forEach((el) => {
-          const n = people[Number(el.dataset.for)];
-          if (n) el.textContent = `for ${n}`;
+      // Copies for family: use the names of the people on this film (not the viewer's own), when we have them.
+      const mine = (me.name || '').trim().split(' ')[0];
+      const people = (p.names || []).map((x) => String(x).trim().split(' ')[0]).filter((x) => x && x !== mine);
+      document.querySelectorAll('[data-for]').forEach((el) => {
+        const n = people[Number(el.dataset.for)];
+        if (n) el.textContent = `for ${n}`;
+      });
+      if (own) {
+        $('family-tip').hidden = false;
+        $('family-tip').innerHTML = '<b>Rather let family order their own?</b> On your dashboard, open <a></a>, add them and choose “Order keepsakes only”. They get an invitation to this page and can buy a copy without changing anything on your film.';
+        const a = $('family-tip').querySelector('a');
+        a.href = `${dash}#people-card`;
+        a.textContent = 'Manage Who Has Access';
+      } else {
+        $('family-title').innerHTML = 'A copy <em>of your own.</em>';
+        $('family-text').textContent = 'Copies are reprints of the hardcover book, shipped free to any U.S. address. One for you, or more for the family: for more than one, add where each goes.';
+      }
+      // Copies need the hardcover first (it includes designing the book); the book is ordered once per film.
+      const copiesBtn = $('copies-btn');
+      const copiesState = copiesBtn.closest('.buy-row').parentElement.querySelector('.ask-state');
+      const bookBtn = document.querySelector('[data-buy="book"]');
+      const bookState = bookBtn.closest('.buy-row').parentElement.querySelector('.ask-state');
+      if (p.bookOrdered) {
+        bookBtn.closest('.buy-row').hidden = true;
+        bookState.className = 'ask-state ok';
+        bookState.innerHTML = '✓ The hardcover book for this film is ordered. <a href="#copies">Get a copy for $79</a>.';
+      } else {
+        copiesBtn.disabled = true;
+        $('copies-qty').disabled = true;
+        $('recips').hidden = true;
+        $('copy-hint').hidden = true;
+        copiesState.className = 'ask-state';
+        copiesState.textContent = own
+          ? 'Copies open up once the hardcover book is ordered (the $149 book includes designing it). Order the book above, then come back for copies.'
+          : `Copies open up once the hardcover book is ordered (the $149 book includes designing it). ${buyer} may order it, or you can order it yourself above.`;
+      }
+      if (!viaChat) {
+        // Keepsakes-only invitation: no dashboard, no chat; we email them instead.
+        $('back').hidden = true;
+        $('invite-note').hidden = false;
+        $('invite-note').innerHTML = `<b>${esc(buyer)} invited you</b> to order keepsakes from this film. Everything ships free to any U.S. address, and we'll email you about your order.`;
+        $('how-proof').textContent = "We design it from the film's script, photos and illustrations and email you a proof.";
+        $('how-ship').textContent = 'It arrives about 2 to 3 weeks after you approve. The audiobook comes to you by email.';
+        $('questions-line').innerHTML = 'Questions first? Email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> or call or text <a href="tel:+13029079162">(302) 907-9162</a>.';
+        document.querySelectorAll('[data-ask]').forEach((b) => {
+          const a = document.createElement('a');
+          a.className = b.className;
+          a.href = 'mailto:contact@easternshore.ai';
+          a.textContent = 'Email us about prints and the plaque';
+          b.replaceWith(a);
         });
-        const list = people.length === 1 ? people[0] : `${people.slice(0, -1).join(', ')} and ${people[people.length - 1]}`;
-        $('family-text').textContent = `${list} ${people.length === 1 ? 'is' : 'are'} already helping with this film. Want a copy of the book for each of them? Tell us who and how many, and we'll ship one straight to each person.`;
       }
 
       if (!['final_ready', 'delivered'].includes(p.status)) {
         $('timing-note').hidden = false;
-        $('timing-note').innerHTML = '<b>Your film is still in the works.</b> You can order now: we make keepsakes from the finished film, so they come together soon after it\'s done.';
+        $('timing-note').innerHTML = `<b>${own ? 'Your' : 'The'} film is still in the works.</b> You can order now: we make keepsakes from the finished film, so they come together soon after it's done.`;
       }
-      if (!photos.length) {
+      if (!photos.length && !(me.can && me.can.upload) && !own) {
+        $('photo-note').hidden = false;
+        $('photo-note').textContent = "Photos from the film will show in these previews once they're uploaded.";
+      } else if (!photos.length) {
         $('photo-note').hidden = false;
         $('photo-note').innerHTML = '<b>No photos here yet.</b> <a></a> and they\'ll appear in these previews, so you can see what your keepsakes might look like.';
         const a = $('photo-note').querySelector('a');
@@ -439,13 +521,18 @@
         const st = b.closest('.buy-row').parentElement.querySelector('.ask-state');
         let when = '';
         try { when = new Date(String(o.paidAt).replace(' ', 'T') + 'Z').toLocaleDateString([], { month: 'short', day: 'numeric' }); } catch {}
+        const what = o.item === 'copies' ? `${o.qty} cop${o.qty === 1 ? 'y' : 'ies'}` : names[o.item];
         st.className = 'ask-state ok';
-        st.textContent = `✓ You ordered ${o.item === 'copies' ? `${o.qty} cop${o.qty === 1 ? 'y' : 'ies'}` : names[o.item]}${when ? ` on ${when}` : ''}. We'll keep you posted in your project chat.`;
+        st.textContent = o.mine
+          ? `✓ You ordered ${what}${when ? ` on ${when}` : ''}. We'll keep you posted ${viaChat ? 'in your project chat' : 'by email'}.`
+          : `✓ ${o.by || 'Someone'} ordered ${what}${when ? ` on ${when}` : ''}.`;
       });
       const paid = params.get('paid');
       if (paid && names[paid]) {
         $('paid-banner').hidden = false;
-        $('paid-banner').innerHTML = `<b>Thank you!</b> Your order for ${names[paid]} is in. We emailed you a receipt, and we'll post next steps in your <a href="${dash}#chat">project chat</a>.`;
+        $('paid-banner').innerHTML = viaChat
+          ? `<b>Thank you!</b> Your order for ${names[paid]} is in. We emailed you a receipt, and we'll post next steps in your <a href="${dash}#chat">project chat</a>.`
+          : `<b>Thank you!</b> Your order for ${names[paid]} is in. We emailed you a receipt, and we'll email you the next steps.`;
         history.replaceState(null, '', `${location.pathname}?t=${encodeURIComponent(token)}${local ? '&local=1' : ''}`);
       }
     }
@@ -468,8 +555,10 @@
     function syncRecips() {
       const n = Number($('copies-qty').value);
       const box = $('recips');
-      while (box.children.length < n) box.appendChild(recipBlock(box.children.length));
-      while (box.children.length > n) box.removeChild(box.lastElementChild);
+      const want = n > 1 ? n : 0;   // one copy: Stripe asks for the address
+      while (box.children.length < want) box.appendChild(recipBlock(box.children.length));
+      while (box.children.length > want) box.removeChild(box.lastElementChild);
+      $('copy-hint').textContent = n > 1 ? 'Add where each copy goes (U.S. addresses).' : 'Stripe will ask where to send it at checkout.';
       $('copies-btn').textContent = `Buy ${n} cop${n === 1 ? 'y' : 'ies'} · $${n * 79}`;
     }
     function readRecips() {
@@ -491,8 +580,8 @@
       const state = b.closest('.buy-row').parentElement.querySelector('.ask-state');
       const label = b.textContent;
       const isCopies = b.dataset.buy === 'copies';
-      const recipients = isCopies ? readRecips() : undefined;
-      if (isCopies) {
+      const recipients = isCopies && Number($('copies-qty').value) > 1 ? readRecips() : undefined;
+      if (recipients) {
         const problem = checkRecips(recipients);
         if (problem) { state.className = 'ask-state err'; state.textContent = problem; return; }
       }
@@ -503,7 +592,8 @@
         location.href = d.checkoutUrl;
       } catch (err) {
         state.className = 'ask-state err';
-        state.textContent = err.status === 401 ? 'Please open your dashboard first to sign in, then come back.' : err.message;
+        if (err.status === 401) { showSignIn(); return; }
+        state.textContent = err.message;
         b.disabled = false;
         b.textContent = label;
       }
@@ -525,7 +615,8 @@
         b.textContent = 'Requested ✓';
       } catch (err) {
         state.className = 'ask-state err';
-        state.textContent = err.status === 401 ? 'Please open your dashboard first to sign in, then come back.' : err.message;
+        if (err.status === 401) { showSignIn(); return; }
+        state.textContent = err.message;
         b.disabled = false;
       }
     });
@@ -543,10 +634,49 @@
         $('loading').hidden = true;
         $('page').hidden = false;
       } catch (err) {
-        if (err.status === 401) stop('Please sign in first', `<a href="${dash}">Open your dashboard</a> to sign in on this device, then tap Keepsakes again.`);
+        if (err.status === 401 && err.data && err.data.needsCode) showSignIn(err.data);
         else stop("We couldn't open your keepsakes", err.message);
       }
     }
+
+    // Sign in with an emailed code (the buyer, or anyone they invited), like the dashboard.
+    let signinEmail = '';
+    function showSignIn(info) {
+      $('loading').hidden = true;
+      $('page').hidden = true;
+      $('signin').hidden = false;
+      if (info && info.projectName) $('signin-eyebrow').textContent = `Keepsakes for ${info.projectName}`;
+      $('signin-email').focus();
+    }
+    $('signin-email-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      signinEmail = $('signin-email').value.trim();
+      $('signin-send').disabled = true;
+      $('signin-state').className = 'ask-state'; $('signin-state').textContent = 'Sending…';
+      try {
+        const d = await api('/api/film/access/code', { t: token, email: signinEmail });
+        $('signin-sent').textContent = d.message || 'Check your email for a 6-digit code.';
+        $('signin-state').textContent = '';
+        $('signin-email-form').hidden = true; $('signin-code-form').hidden = false;
+        $('signin-code').focus();
+      } catch (err) { $('signin-state').className = 'ask-state err'; $('signin-state').textContent = err.message; }
+      finally { $('signin-send').disabled = false; }
+    });
+    $('signin-code-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      $('signin-verify').disabled = true;
+      $('signin-state').className = 'ask-state'; $('signin-state').textContent = 'Checking…';
+      try {
+        const d = await api('/api/film/access/verify', { t: token, email: signinEmail, code: $('signin-code').value.trim() });
+        device = d.deviceToken || '';
+        try { if (device) localStorage.setItem(DKEY, device); } catch {}
+        $('signin').hidden = true;
+        $('loading').hidden = false;
+        load();
+      } catch (err) { $('signin-state').className = 'ask-state err'; $('signin-state').textContent = err.message; }
+      finally { $('signin-verify').disabled = false; }
+    });
+    $('signin-back').addEventListener('click', () => { $('signin-code-form').hidden = true; $('signin-email-form').hidden = false; $('signin-state').textContent = ''; });
     load();
   })();
   </script>

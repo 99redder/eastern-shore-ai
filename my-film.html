@@ -60,8 +60,12 @@
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .full { grid-column: 1 / -1; }
     label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
-    input, textarea { width: 100%; background: #15110d; border: 1px solid var(--line); border-radius: 10px; color: var(--ivory); font-family: var(--sans); font-size: 16px; padding: 12px 14px; }
-    input:focus, textarea:focus { outline: none; border-color: var(--gold); }
+    input, textarea, select { width: 100%; background: #15110d; border: 1px solid var(--line); border-radius: 10px; color: var(--ivory); font-family: var(--sans); font-size: 16px; padding: 12px 14px; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); }
+    input[readonly], textarea[readonly], input:disabled { color: var(--muted); background: #120f0b; }
+    .qs.ro .chip { cursor: default; }
+    .qs.ro .chip:disabled { opacity: 1; }
+    .people select { width: auto; max-width: 52%; padding: 6px 10px; font-size: 14px; }
     textarea { min-height: 96px; resize: vertical; }
     input[type="date"] { color-scheme: dark; }
     .save-state { font-size: 13.5px; color: var(--dim); min-height: 1.4em; margin-top: 10px; }
@@ -305,13 +309,14 @@
       <section class="card" id="step-about">
         <div class="eyebrow">Step 1</div>
         <h2>About your film</h2>
-        <p class="lead">A few words is plenty. Everything saves as you type.</p>
+        <p class="lead" id="about-lead">Write as little or as much as you like. Everything saves as you type.</p>
+        <p class="lock-note ro-note" hidden style="margin:0 0 14px;"></p>
         <div class="grid2">
           <div class="full"><label for="f-name">Name your project</label><input id="f-name" maxlength="120" placeholder="e.g. Dad's Retirement, Our Lake Week, The Smith Wedding" /></div>
-          <div class="full"><label for="f-about">Whose story is it, and what's it about?</label><textarea id="f-about" maxlength="4000" placeholder="e.g. Dad retires in June after 34 years at the plant. He coached Little League, burns every grilled cheese, and calls everyone 'chief'."></textarea></div>
+          <div class="full"><label for="f-about">Whose story is it, and what's it about?</label><p class="small muted" id="about-hint" style="margin:0 0 8px;">Tell us as much as you want: the more we know, the better the film. Already have a biography, a history, an obituary or family notes written up? Paste it here, or upload the file with your other files in Step 2.</p><textarea id="f-about" maxlength="50000" style="min-height:160px;" placeholder="e.g. Dad retires in June after 34 years at the plant. He coached Little League, burns every grilled cheese, and calls everyone 'chief'."></textarea></div>
           <div><label for="f-occasion">Occasion (optional)</label><input id="f-occasion" maxlength="200" placeholder="e.g. Retirement party, reception, Christmas gift" /></div>
           <div><label for="f-needed">Need it by (optional)</label><input id="f-needed" type="date" /></div>
-          <div><label for="f-phone">Phone, in case we have a quick question (optional)</label><input id="f-phone" type="tel" maxlength="40" autocomplete="tel" /></div>
+          <div id="f-phone-box"><label for="f-phone">Phone, in case we have a quick question (optional)</label><input id="f-phone" type="tel" maxlength="40" autocomplete="tel" /></div>
           <div class="full"><label for="f-links">Links (optional)</label><textarea id="f-links" maxlength="4000" style="min-height:70px;" placeholder="Google Photos, iCloud or Dropbox albums, Facebook posts, YouTube videos: one per line"></textarea></div>
         </div>
         <div class="save-state" id="save-state" role="status" aria-live="polite"></div>
@@ -346,6 +351,7 @@
         <div class="eyebrow">Step 3</div>
         <h2>12 quick questions</h2>
         <p class="lead">Skip any of them and our experts will pick for you.</p>
+        <p class="lock-note ro-note" hidden style="margin:0 0 14px;"></p>
         <div class="qs" id="questions"></div>
       </section>
 
@@ -360,6 +366,7 @@
           <li data-check="idle">All uploads finished</li>
         </ul>
         <button type="button" class="btn btn-primary" id="start-btn" disabled>Start production</button>
+        <p class="lock-note" id="start-lock" hidden></p>
         <div class="save-state" id="start-state" role="status" aria-live="polite"></div>
       </section>
     </div>
@@ -391,6 +398,7 @@
         </div>
         <div class="save-state" id="fb-state" role="status" aria-live="polite"></div>
       </div>
+      <p class="lock-note" id="fb-lock" hidden></p>
       <div class="note" id="changes-note" hidden>Thanks! We have your notes and are working on them. Your final film comes the next business day. Thought of something else? Add it above and send again.</div>
     </section>
 
@@ -445,11 +453,16 @@
     <section class="card" id="people-card" hidden>
       <div class="eyebrow">People with access</div>
       <h2>Invite family to help</h2>
-      <p class="lead">Add the people who should be able to open this dashboard: they can upload their own photos and videos, answer questions and chat with us. Only people you add can get a sign-in code, and you can remove anyone at any time.</p>
+      <p class="lead">Add the people who should help, and choose what each one can do: add their own photos and videos and chat with us, also change the details and answers, or only order keepsakes (they get the keepsakes page, not this dashboard). Only you can press Start production, approve the demo and add people. Only people you add can get a sign-in code, and you can change or remove anyone at any time.</p>
       <ul class="people" id="people-list"></ul>
       <form id="people-form" class="grid2" style="margin-top:16px;">
         <div><label for="people-name">Name (optional)</label><input id="people-name" maxlength="80" placeholder="e.g. Aunt Maria" /></div>
         <div><label for="people-email">Email</label><input id="people-email" type="email" required placeholder="maria@example.com" /></div>
+        <div class="full"><label for="people-role">What can they do?</label><select id="people-role">
+          <option value="helper">Add photos and chat (they can't change what you wrote)</option>
+          <option value="editor">Add photos, chat, and change the details and answers</option>
+          <option value="keepsakes">Order keepsakes only (no dashboard)</option>
+        </select></div>
         <div class="full"><button type="submit" class="btn btn-ghost" id="people-add">Add and email an invitation</button></div>
       </form>
       <div class="save-state" id="people-state" role="status" aria-live="polite"></div>
@@ -593,15 +606,22 @@
       if (status !== 'pending_payment') document.querySelector('#timeline li[data-step="paid"]').className = 'done';
     }
 
+    // What this person may do (the worker checks too): people the buyer adds may only add photos and chat,
+    // unless the buyer let them edit; Start production, the demo feedback and people are the buyer's.
+    const may = (k) => !!(project && project.me && (project.me.isOwner || project.me.isStaff || (project.me.can && project.me.can[k])));
+    const buyerName = () => (project && project.customerName ? project.customerName.split(' ')[0] : 'The person who ordered the film');
     function render() {
       const p = project;
       $('chat').hidden = !p.chat;
       const locked = p.status !== 'collecting';
+      const canEdit = may('edit');
       // Notes lock with everything else once production starts (shown read-only if there are any).
-      $('notes-card').hidden = !p.chat || (locked && !(p.notes || '').trim());
-      $('notes').readOnly = locked;
-      $('notes-lock').hidden = !locked;
-      $('notes-lead').hidden = locked;
+      $('notes-card').hidden = !p.chat || ((locked || !canEdit) && !(p.notes || '').trim());
+      $('notes').readOnly = locked || !canEdit;
+      $('notes-lock').hidden = !locked && canEdit;
+      $('notes-lock').innerHTML = locked ? '🔒 <b>Production has started, so these notes are locked.</b> We have them. Send anything new in the <a href="#chat">project chat</a>.'
+        : `🔒 <b>${esc(buyerName())} wrote these notes.</b> Have something to add? Tell us in the <a href="#chat">project chat</a>.`;
+      $('notes-lead').hidden = locked || !canEdit;
       $('people-card').hidden = !(p.me && (p.me.isOwner || p.me.isStaff) && p.status !== 'canceled');
       $('staff-bar').hidden = !isStaff();
       $('askk-fab').hidden = !p.chat || $('askk-drawer').classList.contains('on');
@@ -617,7 +637,9 @@
       setTimeline(p.status);
       $('hero-title').innerHTML = p.projectName ? esc(p.projectName) : (p.customerName ? `Welcome, ${esc(p.customerName.split(' ')[0])}` : 'Welcome');
       if (p.status === 'collecting') {
-        $('hero-sub').textContent = 'Name your project, upload everything you have and answer the quick questions. Take as long as you need: everything saves as you go.';
+        $('hero-sub').textContent = canEdit ? 'Name your project, upload everything you have and answer the quick questions. Take as long as you need: everything saves as you go.'
+          : `Add your photos, videos and memories, and chat with us about the film. ${buyerName()} fills in the details and answers.`;
+        applyPermissions();
         show('state-collecting');
         fillForm();
         renderQuestions();
@@ -637,6 +659,9 @@
         mountPlayer($('demo-player'), p.demoSrc || p.demoUrl);
         $('changes-note').hidden = p.status !== 'changes';
         $('fb-approve').hidden = !!p.approvedAt;
+        $('feedback-box').hidden = !may('decide');
+        $('fb-lock').hidden = may('decide');
+        $('fb-lock').innerHTML = `${esc(buyerName())} approves the demo or asks for changes. Spot something? Tell us in the <a href="#chat">project chat</a> and we'll pass it along.`;
         const inc = p.roundsIncluded || 2, used = p.changeRounds || 0;
         $('rounds-line').textContent = used < inc
           ? `${inc} rounds of changes are included; you've used ${used}. Send everything for a round in one go if you can.`
@@ -655,6 +680,26 @@
       }
       placeChat(p.status);
       renderJump();
+    }
+
+    function applyPermissions() {
+      const canEdit = may('edit');
+      for (const id of Object.values(fields)) { if ($(id).type === 'date') $(id).disabled = !canEdit; else $(id).readOnly = !canEdit; }
+      $('f-phone-box').hidden = !(project.me && (project.me.isOwner || project.me.isStaff));   // the buyer's own number
+      $('about-lead').hidden = !canEdit;
+      $('about-hint').textContent = canEdit
+        ? 'Tell us as much as you want: the more we know, the better the film. Already have a biography, a history, an obituary or family notes written up? Paste it here, or upload the file with your other files in Step 2.'
+        : 'Have a biography, a history or family notes written up? Upload the file with your photos in Step 2.';
+      document.querySelectorAll('.ro-note').forEach((n) => {
+        n.hidden = canEdit;
+        n.innerHTML = `🔒 <b>${esc(buyerName())} fills this in.</b> You can read it; to suggest a change, use the <a href="#chat">project chat</a>.`;
+      });
+      $('questions').classList.toggle('ro', !canEdit);
+      $('questions').querySelectorAll('.chip').forEach((c) => { c.disabled = !canEdit; });
+      $('questions').querySelectorAll('textarea').forEach((t) => { t.readOnly = !canEdit; });
+      $('start-btn').hidden = !may('decide');
+      $('start-lock').hidden = may('decide');
+      $('start-lock').textContent = `${buyerName()} presses Start production when everything's in. Finished adding your files? Let them know, or tell us in the project chat.`;
     }
 
     // Once production starts the chat is how customers reach us, so it moves to the top, above the
@@ -717,6 +762,7 @@
       return out;
     }
     function scheduleSave() {
+      if (!may('edit')) return;
       $('save-state').className = 'save-state';
       $('save-state').textContent = 'Saving…';
       clearTimeout(saveTimer);
@@ -744,6 +790,7 @@
       const box = $('questions');
       if (box.dataset.ready) return;
       box.dataset.ready = '1';
+      setTimeout(applyPermissions);
       box.innerHTML = project.questions.map((q, i) => {
         if (q.type === 'text') {
           return `<div class="q"><label for="q-${q.id}"><b>${i + 1}. ${esc(q.q)}</b></label><textarea id="q-${q.id}" data-q="${q.id}" maxlength="2000" style="min-height:70px;" placeholder="${esc(q.placeholder || '')}">${esc(answers[q.id] || '')}</textarea></div>`;
@@ -757,7 +804,7 @@
     }
     $('questions').addEventListener('click', (e) => {
       const b = e.target.closest('.chip');
-      if (!b) return;
+      if (!b || !may('edit')) return;
       const id = b.dataset.q, v = b.dataset.v;
       if (b.dataset.multi === '1') {
         const set = new Set(answers[id] || []);
@@ -787,8 +834,9 @@
       $('style-grid').innerHTML = STYLE_EXAMPLES.map((s) => `<article class="style-pick${chosen === s.name ? ' on' : ''}">
         <img src="images/story-video/${s.img}.jpg" alt="${esc(s.name)} style: ${esc(s.alt)}" loading="lazy" width="600" height="400" />
         <div class="bd"><div class="best">${esc(s.best)}</div><h4>${esc(s.name)}</h4><p>${esc(s.text)}</p>
-        <button type="button" class="btn ${chosen === s.name ? 'btn-primary' : 'btn-ghost'}" data-style-pick="${esc(s.name)}">${chosen === s.name ? '✓ Chosen' : `Choose ${esc(s.name)}`}</button></div></article>`).join('');
+        ${may('edit') ? `<button type="button" class="btn ${chosen === s.name ? 'btn-primary' : 'btn-ghost'}" data-style-pick="${esc(s.name)}">${chosen === s.name ? '✓ Chosen' : `Choose ${esc(s.name)}`}</button>` : (chosen === s.name ? '<b>✓ Chosen</b>' : '')}</div></article>`).join('');
       $('style-experts').classList.toggle('on', chosen === 'Experts pick');
+      $('style-experts').hidden = !may('edit');
       stylesOpener = document.activeElement;
       $('styles-modal').classList.add('on');
       document.body.style.overflow = 'hidden';
@@ -838,7 +886,7 @@
     function savedRow(u) {
       const li = document.createElement('li');
       li.className = 'file saved';
-      li.innerHTML = `<div class="ic">${icon(u.type, u.name)}</div><div style="min-width:0;"><div class="nm" title="${esc(u.name)}">${esc(u.name)}</div><div class="meta">${sizeText(u.size)} · ${esc(uploadedText(u))}</div></div><button type="button" class="x" aria-label="Remove ${esc(u.name)}" data-del="${u.id}">×</button>`;
+      li.innerHTML = `<div class="ic">${icon(u.type, u.name)}</div><div style="min-width:0;"><div class="nm" title="${esc(u.name)}">${esc(u.name)}</div><div class="meta">${sizeText(u.size)} · ${esc(uploadedText(u))}</div></div>${may('deleteAny') || u.mine ? `<button type="button" class="x" aria-label="Remove ${esc(u.name)}" data-del="${u.id}">×</button>` : ''}`;
       return li;
     }
     // The name the worker stores (same rules as safeFilename there), so a re-picked file matches its saved copy.
@@ -1259,20 +1307,34 @@
 
     // ----- people with access (the buyer only) -----
     function renderPeople(list) {
-      $('people-list').innerHTML = list.map((p) => `<li><div class="pe"><b>${esc(p.name || p.email)}</b>${p.name ? ` <span>${esc(p.email)}</span>` : ''}</div>${p.isOwner ? `<span class="tag">${isStaff() ? 'Buyer' : 'You'}</span>` : `<button type="button" data-remove="${esc(p.email)}">Remove</button>`}</li>`).join('');
+      const roles = [['helper', 'Add photos and chat'], ['editor', 'Also edit the details'], ['keepsakes', 'Keepsakes only']];
+      $('people-list').innerHTML = list.map((p) => `<li><div class="pe"><b>${esc(p.name || p.email)}</b>${p.name ? ` <span>${esc(p.email)}</span>` : ''}</div>${p.isOwner ? `<span class="tag">${isStaff() ? 'Buyer' : 'You'}</span>`
+        : `<select data-role="${esc(p.email)}" aria-label="What ${esc(p.name || p.email)} can do">${roles.map(([v, l]) => `<option value="${v}"${(p.role || 'helper') === v ? ' selected' : ''}>${l}</option>`).join('')}</select><button type="button" data-remove="${esc(p.email)}">Remove</button>`}</li>`).join('');
     }
     $('people-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       $('people-add').disabled = true;
       $('people-state').className = 'save-state'; $('people-state').textContent = 'Adding…';
       try {
-        const d = await api('/api/film/people', { t: token, email: $('people-email').value.trim(), name: $('people-name').value.trim() });
+        const d = await api('/api/film/people', { t: token, email: $('people-email').value.trim(), name: $('people-name').value.trim(), role: $('people-role').value });
         renderPeople(d.people);
         $('people-state').className = 'save-state ok';
         $('people-state').textContent = `Added. We emailed ${$('people-email').value.trim()} an invitation.`;
         $('people-email').value = ''; $('people-name').value = '';
       } catch (err) { $('people-state').className = 'save-state err'; $('people-state').textContent = err.message; }
       finally { $('people-add').disabled = false; }
+    });
+    $('people-list').addEventListener('change', async (e) => {
+      const sel = e.target.closest('[data-role]');
+      if (!sel) return;
+      sel.disabled = true;
+      $('people-state').className = 'save-state'; $('people-state').textContent = 'Saving…';
+      try {
+        const d = await api('/api/film/people/role', { t: token, email: sel.dataset.role, role: sel.value });
+        renderPeople(d.people);
+        $('people-state').className = 'save-state ok';
+        $('people-state').textContent = sel.value === 'keepsakes' ? 'Saved. They can order keepsakes but not open this dashboard.' : 'Saved.';
+      } catch (err) { $('people-state').className = 'save-state err'; $('people-state').textContent = err.message; sel.disabled = false; }
     });
     $('people-list').addEventListener('click', async (e) => {
       const b = e.target.closest('[data-remove]');
@@ -1302,6 +1364,7 @@
         const q = sessionId && !device ? `&session_id=${encodeURIComponent(sessionId)}` : '';
         const d = await api(`/api/film/dashboard?t=${encodeURIComponent(token)}${q}`);
         if (d.deviceToken) saveDevice(d.deviceToken);
+        if (d.keepsakesOnly) { location.replace(keepsakesUrl()); return; }
         project = d.project;
         if (project.status === 'pending_payment') {
           $('loading-title').textContent = 'Confirming your payment…';

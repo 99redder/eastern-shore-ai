@@ -939,27 +939,15 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   assert.equal(params.get('automatic_tax[enabled]'), 'true');
   assert.equal(params.get('metadata[checkout_type]'), 'film_keepsake');
   assert.equal(params.get('metadata[keepsake]'), 'book');
+  assert.equal(params.get('metadata[ordered_by]'), 'pat@family.example');
+  assert.equal(params.get('customer_email'), 'pat@family.example');
   assert.match(params.get('success_url'), /my-keepsakes\.html\?t=.+&paid=book$/);
   assert.match(params.get('line_items[0][price_data][product_data][name]'), /Lake Week/);
-  // Family copies: an address for every copy, U.S. only, checked before checkout and saved with the order.
+  // Copies are reprints of the hardcover, so they wait for a paid book order.
   const addr = (n) => ({ name: `Cousin ${n}`, line1: `${n} Elm St`, city: 'Portsmouth', state: 'NH', zip: '03801' });
-  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(1)] }));
-  assert.equal(r.status, 400);
-  assert.match(r.data.error, /address for each of the 2 copies/);
-  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1, recipients: [{ ...addr(1), state: 'ON' }] }));
-  assert.match(r.data.error, /U\.S\. addresses only/);
-  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1, recipients: [{ ...addr(1), zip: '3801' }] }));
-  assert.match(r.data.error, /ZIP/);
   r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(1), addr(2)] }));
-  assert.equal(r.status, 200, JSON.stringify(r.data));
-  const copiesSession = r.data.id;
-  params = stripe.sessions.get(copiesSession);
-  assert.equal(params.get('line_items[0][quantity]'), '2');
-  assert.equal(params.get('line_items[0][price_data][unit_amount]'), '7900');
-  assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), null);
-  const pendingCopies = db.prepare('SELECT * FROM film_keepsake_orders WHERE stripe_session_id = ?').get(copiesSession);
-  assert.equal(pendingCopies.status, 'pending');
-  assert.deepEqual(JSON.parse(pendingCopies.recipients).map((x) => x.name), ['Cousin 1', 'Cousin 2']);
+  assert.equal(r.status, 409);
+  assert.match(r.data.error, /book has to be ordered first/);
   r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'audiobook' }));
   params = stripe.sessions.get(r.data.id);
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), '2900');
@@ -969,11 +957,6 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   DEVICE = null;
   assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }))).status, 401);
   DEVICE = saved;
-
-  // An abandoned checkout's pending order goes away when Stripe expires the session.
-  let exp = await worker.fetch(await signedWebhook({ id: 'evt_keep_exp', type: 'checkout.session.expired', created: Math.floor(Date.now() / 1000), data: { object: { id: copiesSession, metadata: { checkout_type: 'film_keepsake', film_project_id: String(id) } } } }), env, ctx);
-  assert.equal(exp.status, 200);
-  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_keepsake_orders WHERE stripe_session_id = ?').get(copiesSession).n, 0);
   // Pending orders don't show as orders.
   assert.deepEqual((await call(env, get(`/api/film/dashboard?t=${token}`))).data.project.keepsakeOrders, []);
 
@@ -1005,6 +988,40 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   assert.equal(res.status, 200);
   assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM tax_income WHERE stripe_session_id = 'cs_keep_1'`).get().n, 1);
   assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM film_keepsake_orders WHERE status = 'paid'`).get().n, 1);
+  // The book is ordered once per film; after that it's copies.
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }));
+  assert.equal(r.status, 409);
+  assert.equal(r.data.bookOrdered, true);
+  assert.equal((await call(env, get(`/api/film/dashboard?t=${token}`))).data.project.bookOrdered, true);
+
+  // Family copies: an address for every copy when there's more than one, U.S. only, saved with the order.
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(1)] }));
+  assert.equal(r.status, 400);
+  assert.match(r.data.error, /address for each of the 2 copies/);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1, recipients: [{ ...addr(1), state: 'ON' }] }));
+  assert.match(r.data.error, /U\.S\. addresses only/);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1, recipients: [{ ...addr(1), zip: '3801' }] }));
+  assert.match(r.data.error, /ZIP/);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(1), addr(2)] }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const copiesSession = r.data.id;
+  params = stripe.sessions.get(copiesSession);
+  assert.equal(params.get('line_items[0][quantity]'), '2');
+  assert.equal(params.get('line_items[0][price_data][unit_amount]'), '7900');
+  assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), null);
+  const pendingCopies = db.prepare('SELECT * FROM film_keepsake_orders WHERE stripe_session_id = ?').get(copiesSession);
+  assert.equal(pendingCopies.status, 'pending');
+  assert.deepEqual(JSON.parse(pendingCopies.recipients).map((x) => x.name), ['Cousin 1', 'Cousin 2']);
+  // One copy with no addresses: Stripe asks where to send it.
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1 }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(stripe.sessions.get(r.data.id).get('shipping_address_collection[allowed_countries][0]'), 'US');
+
+  // An abandoned checkout's pending order goes away when Stripe expires the session.
+  const exp = await worker.fetch(await signedWebhook({ id: 'evt_keep_exp', type: 'checkout.session.expired', created: Math.floor(Date.now() / 1000), data: { object: { id: copiesSession, metadata: { checkout_type: 'film_keepsake', film_project_id: String(id) } } } }), env, ctx);
+  assert.equal(exp.status, 200);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_keepsake_orders WHERE stripe_session_id = ?').get(copiesSession).n, 0);
+
   // Family copies paid: the addresses entered before checkout go into the receipt, the alert and admin.
   r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(3), addr(4)] }));
   env.EMAIL.sent.length = 0;
@@ -1021,9 +1038,147 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   // The dashboard and admin see the order.
   const dash = await call(env, get(`/api/film/dashboard?t=${token}`));
   assert.deepEqual(dash.data.project.keepsakeOrders.map((o) => o.item), ['book', 'copies']);
+  assert.ok(dash.data.project.keepsakeOrders.every((o) => o.mine));
   const detail = await call(env, get(`/api/film/project?id=${id}`, ADMIN));
   assert.equal(detail.data.keepsakes.length, 2);
   assert.equal(detail.data.keepsakes[1].recipients.length, 2);
+});
+
+test('people the buyer adds: helpers add photos and chat, editors also edit, keepsakes-only invitations just order keepsakes', async (t) => {
+  quietConsole(t);
+  const env = baseEnv();
+  const { stripe, token, id } = await paidProject(t, env);
+  const db = env.DB.sqlite;
+  const owner = DEVICE;
+  const codeFrom = (mail) => (mail.text.match(/is (\d{6})\./) || [])[1];
+  db.prepare(`UPDATE film_projects SET project_name = 'Lake Week' WHERE id = ?`).run(id);
+
+  // The buyer adds three people, each with a different level; each invitation fits.
+  env.EMAIL.sent.length = 0;
+  await call(env, post('/api/film/people', { t: token, email: 'sam@family.example', name: 'Sam Lee' }));
+  await call(env, post('/api/film/people', { t: token, email: 'eve@family.example', name: 'Eve Lee', role: 'editor' }));
+  let r = await call(env, post('/api/film/people', { t: token, email: 'kim@family.example', name: 'Kim Lee', role: 'keepsakes' }));
+  assert.deepEqual(r.data.people.map((x) => x.role || 'owner'), ['owner', 'helper', 'editor', 'keepsakes']);
+  const inviteTo = (who) => env.EMAIL.sent.find((m) => m.to.includes(who));
+  assert.match(inviteTo('sam@family.example').text, /add your own photos and videos and chat with us/);
+  assert.match(inviteTo('eve@family.example').text, /fill in the details and answers/);
+  const kimInvite = inviteTo('kim@family.example');
+  assert.match(kimInvite.subject, /invited you to order keepsakes/);
+  assert.ok(kimInvite.text.includes(`my-keepsakes.html?t=${token}`));
+  assert.ok(!kimInvite.text.includes('my-film.html'));
+
+  const signIn = async (email) => {
+    DEVICE = null;
+    await call(env, post('/api/film/access/code', { t: token, email }));
+    const v = await call(env, post('/api/film/access/verify', { t: token, email, code: codeFrom(env.EMAIL.sent.at(-1)) }));
+    assert.equal(v.status, 200, JSON.stringify(v.data));
+    return v.data.deviceToken;
+  };
+  const sam = await signIn('sam@family.example');
+  const eve = await signIn('eve@family.example');
+  const kim = await signIn('kim@family.example');
+  const upload = async (name) => {
+    const s = await call(env, post('/api/film/upload/start', { t: token, name, size: 5, type: 'image/jpeg' }));
+    assert.equal(s.status, 200, JSON.stringify(s.data));
+    const res = await worker.fetch(new Request(`https://worker.example/api/film/upload/part?t=${token}&file=${s.data.fileId}&part=1`, {
+      method: 'POST', headers: { Origin: SITE, 'Content-Type': 'application/octet-stream', ...dev() }, body: new Uint8Array(5).fill(1),
+    }), env, ctx);
+    const d = await res.json();
+    await call(env, post('/api/film/upload/complete', { t: token, fileId: s.data.fileId, parts: [{ part: d.part, etag: d.etag }] }));
+    return s.data.fileId;
+  };
+
+  // Sam (helper): uploads and chats, but can't change what the buyer wrote, start production or add people.
+  DEVICE = sam;
+  r = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(r.data.project.me.can.edit, false);
+  assert.equal(r.data.project.me.can.upload, true);
+  assert.equal(r.data.project.me.can.decide, false);
+  r = await call(env, post('/api/film/dashboard', { t: token, projectName: 'Sam was here', about: 'x' }));
+  assert.equal(r.status, 403);
+  assert.match(r.data.error, /Only Pat Family can change/);
+  assert.equal((await call(env, post('/api/film/notes', { t: token, notes: 'hi' }))).status, 403);
+  assert.equal(db.prepare('SELECT project_name FROM film_projects WHERE id = ?').get(id).project_name, 'Lake Week');
+  const samFile = await upload('camping.jpg');
+  assert.equal((await call(env, post('/api/film/chat', { t: token, content: 'Added the camping photos' }))).status, 200);
+  assert.equal((await call(env, post('/api/film/start', { t: token }))).status, 403);
+  assert.equal((await call(env, post('/api/film/people', { t: token, email: 'x@y.example' }))).status, 403);
+  DEVICE = owner;
+  const ownerFile = await upload('wedding.jpg');
+  DEVICE = sam;
+  r = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.deepEqual(r.data.project.uploads.map((u) => [u.name, u.mine]), [['camping.jpg', true], ['wedding.jpg', false]]);
+  r = await call(env, post('/api/film/upload/delete', { t: token, fileId: ownerFile }));
+  assert.equal(r.status, 403, 'helpers remove only their own files');
+  assert.equal((await call(env, post('/api/film/upload/delete', { t: token, fileId: samFile }))).status, 200);
+
+  // Eve (editor): can change the details and notes, still not start production.
+  DEVICE = eve;
+  assert.equal((await call(env, post('/api/film/dashboard', { t: token, projectName: 'Lake Week 2026', about: 'Our week at the lake' }))).status, 200);
+  assert.equal((await call(env, post('/api/film/notes', { t: token, notes: 'Grandma is Yiayia' }))).status, 200);
+  assert.equal(db.prepare('SELECT project_name FROM film_projects WHERE id = ?').get(id).project_name, 'Lake Week 2026');
+  assert.equal((await call(env, post('/api/film/start', { t: token }))).status, 403);
+
+  // Kim (keepsakes only): the film's name and the keepsakes, nothing from the dashboard.
+  DEVICE = kim;
+  r = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(r.status, 200);
+  assert.equal(r.data.keepsakesOnly, true);
+  assert.equal(r.data.project.projectName, 'Lake Week 2026');
+  for (const k of ['uploads', 'answers', 'about', 'notes', 'people', 'customerEmail']) assert.equal(r.data.project[k], undefined, k);
+  assert.equal(r.data.project.bookOrdered, false);
+  assert.equal((await call(env, get(`/api/film/chat?t=${token}`))).status, 403);
+  assert.equal((await call(env, post('/api/film/chat', { t: token, content: 'hi' }))).status, 403);
+  assert.equal((await call(env, post('/api/film/upload/start', { t: token, name: 'a.jpg', size: 5 }))).status, 403);
+  assert.equal((await call(env, post('/api/film/dashboard', { t: token, projectName: 'x' }))).status, 403);
+  assert.equal((await call(env, get(`/api/film/keepsake-photos?t=${token}`))).status, 200);
+  // Kim orders the hardcover herself: Stripe gets her email, and her receipt and updates come to her.
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1 }));
+  assert.equal(r.status, 409);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const params = stripe.sessions.get(r.data.id);
+  assert.equal(params.get('customer_email'), 'kim@family.example');
+  assert.equal(params.get('metadata[ordered_by]'), 'kim@family.example');
+  assert.match(params.get('custom_text[submit][message]'), /email you a proof/);
+  env.EMAIL.sent.length = 0;
+  const res = await worker.fetch(await signedWebhook({ id: 'evt_kim_book', type: 'checkout.session.completed', created: Math.floor(Date.now() / 1000), data: { object: {
+    id: r.data.id, payment_status: 'paid', amount_total: 15794, total_details: { amount_tax: 894 }, payment_intent: 'pi_kim',
+    customer_details: { name: 'Kim Lee', email: 'kim@family.example', address: { state: 'NH' } },
+    collected_information: { shipping_details: { name: 'Kim Lee', address: { line1: '9 Oak St', city: 'Keene', state: 'NH', postal_code: '03431', country: 'US' } } },
+    metadata: { checkout_type: 'film_keepsake', film_project_id: String(id), keepsake: 'book', qty: '1', ordered_by: 'kim@family.example' } } } }), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const receipt = env.EMAIL.sent.find((m) => /^Thank you for your order/.test(m.subject));
+  assert.deepEqual(receipt.to, ['kim@family.example']);
+  assert.match(receipt.text, /^Hi Kim,/);
+  assert.match(receipt.text, /email you a proof/);
+  assert.ok(receipt.text.includes(`my-keepsakes.html?t=${token}`));
+  assert.ok(!receipt.text.includes('my-film.html'));
+  assert.match(env.EMAIL.sent.find((m) => /^Keepsake order:/.test(m.subject)).text, /Kim Lee <kim@family\.example> \(added by Pat Family, "Order keepsakes only"\)/);
+  assert.match(db.prepare(`SELECT content FROM film_messages WHERE project_id = ? ORDER BY id DESC`).get(id).content, /^Kim Lee ordered the Hardcover story book from the keepsakes page/);
+  assert.equal(db.prepare(`SELECT ordered_by FROM film_keepsake_orders WHERE stripe_session_id = ?`).get(r.data.id).ordered_by, 'kim@family.example');
+  r = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.deepEqual(r.data.project.keepsakeOrders.map((o) => [o.item, o.mine]), [['book', true]]);
+  // Now copies are open to everyone; the buyer sees who ordered the book.
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1 }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  DEVICE = owner;
+  r = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(r.data.project.bookOrdered, true);
+  assert.deepEqual(r.data.project.keepsakeOrders.map((o) => [o.item, o.mine, o.by]), [['book', false, 'Kim Lee']]);
+  assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }))).status, 409);
+  const detail = await call(env, get(`/api/film/project?id=${id}`, ADMIN));
+  assert.equal(detail.data.keepsakes[0].by, 'Kim Lee');
+  assert.equal(detail.data.keepsakes[0].byBuyer, false);
+
+  // The buyer changes Sam to keepsakes only: Sam's dashboard closes at once.
+  r = await call(env, post('/api/film/people/role', { t: token, email: 'sam@family.example', role: 'keepsakes' }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.people.find((x) => x.email === 'sam@family.example').role, 'keepsakes');
+  assert.equal((await call(env, post('/api/film/people/role', { t: token, email: 'sam@family.example', role: 'boss' }))).status, 400);
+  DEVICE = sam;
+  assert.equal((await call(env, get(`/api/film/dashboard?t=${token}`))).data.keepsakesOnly, true);
+  assert.equal((await call(env, post('/api/film/people/role', { t: token, email: 'sam@family.example', role: 'editor' }))).status, 403);
 });
 
 // Keep last: node:test runs this file's tests in order.

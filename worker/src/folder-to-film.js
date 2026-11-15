@@ -155,6 +155,7 @@ export function createFilmHandlers(deps) {
 
   const SITE = 'https://www.easternshore.ai';
   const dashboardUrl = (token, origin = SITE) => `${origin}/my-film.html?t=${encodeURIComponent(token)}`;
+  const keepsakesUrl = (token, origin = SITE) => `${origin}/my-keepsakes.html?t=${encodeURIComponent(token)}`;
 
   // ---------- helpers ----------
 
@@ -178,6 +179,29 @@ export function createFilmHandlers(deps) {
   const STAFF_LINK_MINUTES = 10;
   const CODE_MINUTES = 15;
   const MAX_PEOPLE = 10;
+  // What a person the buyer adds may do (asked when they're added; the buyer can change it later).
+  // The buyer and staff can do everything, including adding people, Start production and the demo feedback.
+  const FILM_ROLES = {
+    helper: { label: 'Add photos and chat', can: ['view', 'upload', 'chat', 'keepsakes'] },
+    editor: { label: 'Add photos, chat and edit the details', can: ['view', 'upload', 'deleteAny', 'chat', 'edit', 'keepsakes'] },
+    keepsakes: { label: 'Order keepsakes only', can: ['keepsakes'] },
+  };
+  const roleOf = (v) => (Object.prototype.hasOwnProperty.call(FILM_ROLES, v) ? v : 'helper');
+  function can(person, what) {
+    if (!person) return false;
+    if (person.isOwner || person.isStaff) return true;
+    return FILM_ROLES[roleOf(person.role)].can.includes(what);
+  }
+  function forbidden(row, need, corsHeaders) {
+    const buyer = clip(row.customer_name, 60) || 'the person who ordered the film';
+    const msg = {
+      view: 'This invitation is for ordering keepsakes. Open the keepsakes page instead.',
+      edit: `Only ${buyer} can change what's written here. Send your ideas in the project chat.`,
+      decide: `Only ${buyer} can do this. Share your thoughts in the project chat.`,
+      people: `Only ${buyer} can add or remove people.`,
+    }[need] || "Your invitation doesn't include this.";
+    return json({ ok: false, error: msg, ...(need === 'view' ? { keepsakesOnly: true } : {}) }, 403, corsHeaders);
+  }
 
   async function sha256Hex(text) {
     const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -192,8 +216,9 @@ export function createFilmHandlers(deps) {
   }
 
   async function peopleFor(env, row) {
-    const added = (await env.DB.prepare(`SELECT email, name, added_at FROM film_people WHERE project_id = ?1 ORDER BY id`).bind(row.id).all()).results || [];
-    return [{ email: normEmail(row.customer_email), name: row.customer_name || '', isOwner: true }, ...added.map((p) => ({ email: p.email, name: p.name || '', isOwner: false, addedAt: p.added_at }))];
+    const added = (await env.DB.prepare(`SELECT email, name, role, added_at FROM film_people WHERE project_id = ?1 ORDER BY id`).bind(row.id).all()).results || [];
+    return [{ email: normEmail(row.customer_email), name: row.customer_name || '', isOwner: true },
+      ...added.map((p) => ({ email: p.email, name: p.name || '', isOwner: false, role: roleOf(p.role), roleLabel: FILM_ROLES[roleOf(p.role)].label, addedAt: p.added_at }))];
   }
 
   async function personFor(env, row, email) {
@@ -201,8 +226,8 @@ export function createFilmHandlers(deps) {
     if (!e) return null;
     if (e === STAFF_ID) return { email: STAFF_ID, name: STAFF_NAME, isOwner: false, isStaff: true };
     if (e === normEmail(row.customer_email)) return { email: e, name: row.customer_name || '', isOwner: true };
-    const p = await env.DB.prepare(`SELECT email, name FROM film_people WHERE project_id = ?1 AND email = ?2`).bind(row.id, e).first();
-    return p ? { email: p.email, name: p.name || '', isOwner: false } : null;
+    const p = await env.DB.prepare(`SELECT email, name, role FROM film_people WHERE project_id = ?1 AND email = ?2`).bind(row.id, e).first();
+    return p ? { email: p.email, name: p.name || '', isOwner: false, role: roleOf(p.role) } : null;
   }
 
   async function deviceFor(env, row, request) {
@@ -234,12 +259,14 @@ export function createFilmHandlers(deps) {
   }
 
   // Film from the link + the person behind this browser, or an error response.
-  async function access(env, request, corsHeaders, token) {
+  // `need` is what the route lets them do (see FILM_ROLES); most routes need 'view'.
+  async function access(env, request, corsHeaders, token, need = 'view') {
     const row = await getByToken(env.DB, token);
     if (!row) return { res: json({ ok: false, error: 'Film not found' }, 404, corsHeaders) };
     if (row.status === 'pending_payment') return { res: json({ ok: false, error: 'Payment is still confirming. Try again in a moment.' }, 409, corsHeaders) };
     const person = await deviceFor(env, row, request);
     if (!person) return { res: needsCode(row, corsHeaders) };
+    if (need && !can(person, need)) return { res: forbidden(row, need, corsHeaders) };
     return { row, person };
   }
 
@@ -253,7 +280,7 @@ export function createFilmHandlers(deps) {
 
   async function uploadsFor(db, projectId, { all = false } = {}) {
     const rows = (await db.prepare(
-      `SELECT id, filename, content_type, size_bytes, status, created_at, completed_at, uploaded_by FROM film_uploads
+      `SELECT id, filename, content_type, size_bytes, status, created_at, completed_at, uploaded_by, uploader_email FROM film_uploads
        WHERE project_id = ?1 ${all ? '' : "AND status = 'done'"} ORDER BY id`
     ).bind(projectId).all()).results || [];
     return rows;
@@ -263,7 +290,7 @@ export function createFilmHandlers(deps) {
     return row.status === 'collecting';
   }
 
-  function customerView(row, uploads) {
+  function customerView(row, uploads, person = null) {
     return {
       id: row.id,
       status: row.status,
@@ -291,7 +318,8 @@ export function createFilmHandlers(deps) {
       editable: editable(row),
       notes: row.customer_notes || '',
       chat: !['pending_payment', 'canceled'].includes(row.status),
-      uploads: uploads.map((u) => ({ id: u.id, name: u.filename, type: u.content_type || '', size: Number(u.size_bytes || 0), at: u.completed_at || u.created_at, by: u.uploaded_by || '' })),
+      uploads: uploads.map((u) => ({ id: u.id, name: u.filename, type: u.content_type || '', size: Number(u.size_bytes || 0), at: u.completed_at || u.created_at, by: u.uploaded_by || '',
+        mine: !!(person && u.uploader_email && u.uploader_email === person.email) })),
       totalBytes: uploads.reduce((s, u) => s + Number(u.size_bytes || 0), 0),
       questions: FILM_QUESTIONS,
       partBytes: FILM_PART_BYTES,
@@ -567,12 +595,27 @@ export function createFilmHandlers(deps) {
       person = await personFor(env, row, row.customer_email);
     }
     if (!person) return needsCode(row, corsHeaders);
+    const people = await peopleFor(env, row);
+    const orders = await keepsakeOrders(env, row.id);
+    const me = { ...person, ...(person.isOwner || person.isStaff ? {} : { roleLabel: FILM_ROLES[roleOf(person.role)].label }),
+      can: Object.fromEntries(['view', 'upload', 'deleteAny', 'chat', 'edit', 'decide', 'people', 'keepsakes'].map((k) => [k, k === 'decide' || k === 'people' ? !!(person.isOwner || person.isStaff) : can(person, k)])) };
+    const orderView = (o) => ({ item: o.item, qty: o.qty, status: o.status, paidAt: o.paid_at, mine: orderIsMine(o, row, person), by: orderedByName(o, row, people) });
+    // Keepsakes-only invitations see the film's name and the keepsakes, nothing from the dashboard.
+    if (!can(person, 'view')) {
+      return json({ ok: true, keepsakesOnly: true, project: {
+        id: row.id, status: row.status, statusLabel: FILM_STATUSES[row.status] || row.status, projectName: row.project_name || '', occasion: row.occasion || '',
+        customerName: row.customer_name || '', me, bookOrdered: hasBook(orders), names: people.map((x) => x.name).filter(Boolean),
+        keepsakeOrders: orders.filter((o) => orderIsMine(o, row, person)).map(orderView),
+      } }, 200, corsHeaders);
+    }
     const uploads = await uploadsFor(env.DB, row.id);
-    const view = customerView(row, uploads);
+    const view = customerView(row, uploads, person);
     Object.assign(view, await mediaFor(env, row, new URL(request.url).origin));
-    view.me = person;
-    if (person.isOwner || person.isStaff) view.people = await peopleFor(env, row);
-    view.keepsakeOrders = (await keepsakeOrders(env, row.id)).map((o) => ({ item: o.item, qty: o.qty, status: o.status, paidAt: o.paid_at }));
+    view.me = me;
+    if (person.isOwner || person.isStaff) view.people = people;
+    view.names = people.map((x) => x.name).filter(Boolean);
+    view.bookOrdered = hasBook(orders);
+    view.keepsakeOrders = orders.map(orderView);
     return json({ ok: true, project: view, ...(deviceToken ? { deviceToken } : {}) }, 200, corsHeaders);
   }
 
@@ -595,12 +638,12 @@ export function createFilmHandlers(deps) {
     await env.DB.prepare(`INSERT INTO film_codes (project_id, email, code_hash, expires_at) VALUES (?1, ?2, ?3, datetime('now', ?4))`)
       .bind(row.id, email, await sha256Hex(`${row.id}:${email}:${code}`), `+${CODE_MINUTES} minutes`).run();
     const name = row.project_name ? `"${row.project_name}"` : 'your Folder to Film project';
-    const text = [`Your sign-in code for ${name} is ${code}.`, '', `It works for ${CODE_MINUTES} minutes. Type it on the dashboard to open it in this browser.`, '',
-      "Didn't ask for this? You can ignore it: nobody can open the dashboard without this code.", '', 'Folder to Film by Eastern Shore AI'].join('\n');
+    const text = [`Your sign-in code for ${name} is ${code}.`, '', `It works for ${CODE_MINUTES} minutes. Type it on the page that asked for it, and that browser will remember you.`, '',
+      "Didn't ask for this? You can ignore it: nobody can open your film's pages without this code.", '', 'Folder to Film by Eastern Shore AI'].join('\n');
     const html = shell(`<p style="margin:0 0 12px;">Your sign-in code for ${escapeHtml(name)} is:</p>`
       + `<p style="margin:0 0 16px;font-size:32px;font-weight:bold;letter-spacing:6px;color:#2A2118;">${code}</p>`
-      + `<p style="margin:0 0 12px;">It works for ${CODE_MINUTES} minutes. Type it on the dashboard to open it in this browser.</p>`
-      + `<p style="margin:0 0 12px;color:#7D725F;">Didn't ask for this? You can ignore it: nobody can open the dashboard without this code.</p>`,
+      + `<p style="margin:0 0 12px;">It works for ${CODE_MINUTES} minutes. Type it on the page that asked for it, and that browser will remember you.</p>`
+      + `<p style="margin:0 0 12px;color:#7D725F;">Didn't ask for this? You can ignore it: nobody can open your film's pages without this code.</p>`,
       { heading: 'Your sign-in code', preheader: `Your code is ${code}` });
     try {
       await sendCustomerEmail(env, row, { kind: 'code', to: email, subject: `Your Folder to Film code: ${code}`, text, html });
@@ -628,32 +671,63 @@ export function createFilmHandlers(deps) {
     return json({ ok: true, deviceToken: await issueDevice(env, row, email) }, 200, corsHeaders);
   }
 
-  // POST /api/film/people {t, email, name}  (the buyer only): add someone who can get a code.
+  // POST /api/film/people {t, email, name, role}  (the buyer only): add someone who can get a code.
+  // role: helper (add photos and chat, the default), editor (also edit the details), keepsakes (order keepsakes only).
   async function handlePeopleAdd(request, env, corsHeaders) {
     const d = await readJson(request);
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const a = await access(env, request, corsHeaders, d.t);
     if (a.res) return a.res;
-    if (!a.person.isOwner && !a.person.isStaff) return json({ ok: false, error: 'Only the person who ordered the film can add people.' }, 403, corsHeaders);
+    if (!a.person.isOwner && !a.person.isStaff) return forbidden(a.row, 'people', corsHeaders);
     const email = normEmail(d.email);
     if (!validEmail(email)) return json({ ok: false, error: 'Please enter a valid email address.' }, 400, corsHeaders);
     if (email === normEmail(a.row.customer_email)) return json({ ok: false, error: "That's your own email; you already have access." }, 400, corsHeaders);
     const n = await env.DB.prepare(`SELECT COUNT(*) AS n FROM film_people WHERE project_id = ?1`).bind(a.row.id).first();
     if (Number(n?.n || 0) >= MAX_PEOPLE) return json({ ok: false, error: `You can add up to ${MAX_PEOPLE} people.` }, 400, corsHeaders);
     const name = clip(d.name, 80);
-    const ins = await env.DB.prepare(`INSERT OR IGNORE INTO film_people (project_id, email, name) VALUES (?1, ?2, ?3)`).bind(a.row.id, email, name || null).run();
+    const role = roleOf(clip(d.role, 20));
+    const ins = await env.DB.prepare(`INSERT OR IGNORE INTO film_people (project_id, email, name, role) VALUES (?1, ?2, ?3, ?4)`).bind(a.row.id, email, name || null, role).run();
     if (Number(ins.meta?.changes || 0) && d.invite !== false) {
-      const owner = a.row.customer_name || a.row.customer_email;   // invitations always come in the buyer's name
-      const film = a.row.project_name ? `"${a.row.project_name}"` : 'a Folder to Film project';
-      const link = dashboardUrl(a.row.token);
-      const hi = name ? `Hi ${name.split(/\s+/)[0]},` : 'Hi,';
-      const lines = [hi, '', `${owner} invited you to help with ${film}: a short film made from family photos, videos and stories. You can add your own photos and videos, answer questions and chat with us about it.`, '',
-        link, '', `When you open it, ask for a sign-in code: we'll email it to this address (${email}). Only people ${owner} adds can get one.`, '', 'Chris', 'Folder to Film by Eastern Shore AI'];
       try {
-        await sendCustomerEmail(env, a.row, { kind: 'invite', to: email, subject: `${owner} invited you to help with a film`, text: lines.join('\n'),
-          html: shell(linesHtml(lines, link, 'Open the dashboard'), { heading: "You're invited", preheader: `${owner} invited you to help with ${film}.` }) });
+        const m = inviteEmail(a.row, { email, name, role });
+        await sendCustomerEmail(env, a.row, { kind: 'invite', to: email, subject: m.subject, text: m.text, html: m.html });
       } catch (e) { console.error('film invite email', e); }
     }
+    return json({ ok: true, people: await peopleFor(env, a.row) }, 200, corsHeaders);
+  }
+
+  // The invitation, in the buyer's name. Keepsakes-only invitations open the keepsakes page.
+  function inviteEmail(row, { email, name, role }) {
+    const owner = row.customer_name || row.customer_email;
+    const film = row.project_name ? `"${row.project_name}"` : 'a Folder to Film project';
+    const hi = name ? `Hi ${name.split(/\s+/)[0]},` : 'Hi,';
+    const signIn = `When you open it, ask for a sign-in code: we'll email it to this address (${email}). Only people ${owner} adds can get one.`;
+    if (role === 'keepsakes') {
+      const link = keepsakesUrl(row.token);
+      const lines = [hi, '', `${owner} invited you to order keepsakes from ${film}: a short film made from family photos, videos and stories. You can order your own copy of the hardcover story book, the children's picture book or the audiobook, shipped free anywhere in the U.S.`, '',
+        link, '', signIn, '', 'Chris', 'Folder to Film by Eastern Shore AI'];
+      return { subject: `${owner} invited you to order keepsakes from a family film`, text: lines.join('\n'),
+        html: shell(linesHtml(lines, link, 'See the keepsakes'), { heading: "You're invited", preheader: `${owner} invited you to order keepsakes from ${film}.` }) };
+    }
+    const link = dashboardUrl(row.token);
+    const what = role === 'editor'
+      ? 'You can add your own photos and videos, fill in the details and answers, and chat with us about it.'
+      : 'You can add your own photos and videos and chat with us about it.';
+    const lines = [hi, '', `${owner} invited you to help with ${film}: a short film made from family photos, videos and stories. ${what}`, '',
+      link, '', signIn, '', 'Chris', 'Folder to Film by Eastern Shore AI'];
+    return { subject: `${owner} invited you to help with a film`, text: lines.join('\n'),
+      html: shell(linesHtml(lines, link, 'Open the dashboard'), { heading: "You're invited", preheader: `${owner} invited you to help with ${film}.` }) };
+  }
+
+  // POST /api/film/people/role {t, email, role}  (the buyer only): change what someone may do.
+  async function handlePeopleRole(request, env, corsHeaders) {
+    const d = await readJson(request);
+    if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
+    const a = await access(env, request, corsHeaders, d.t);
+    if (a.res) return a.res;
+    if (!a.person.isOwner && !a.person.isStaff) return forbidden(a.row, 'people', corsHeaders);
+    if (!Object.prototype.hasOwnProperty.call(FILM_ROLES, clip(d.role, 20))) return json({ ok: false, error: 'Unknown access level' }, 400, corsHeaders);
+    await env.DB.prepare(`UPDATE film_people SET role = ?1 WHERE project_id = ?2 AND email = ?3`).bind(clip(d.role, 20), a.row.id, normEmail(d.email)).run();
     return json({ ok: true, people: await peopleFor(env, a.row) }, 200, corsHeaders);
   }
 
@@ -663,7 +737,7 @@ export function createFilmHandlers(deps) {
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const a = await access(env, request, corsHeaders, d.t);
     if (a.res) return a.res;
-    if (!a.person.isOwner && !a.person.isStaff) return json({ ok: false, error: 'Only the person who ordered the film can remove people.' }, 403, corsHeaders);
+    if (!a.person.isOwner && !a.person.isStaff) return forbidden(a.row, 'people', corsHeaders);
     const email = normEmail(d.email);
     if (email === normEmail(a.row.customer_email)) return json({ ok: false, error: "You can't remove yourself." }, 400, corsHeaders);
     for (const table of ['film_people', 'film_devices', 'film_codes']) {
@@ -676,7 +750,7 @@ export function createFilmHandlers(deps) {
   async function handleDashboardSave(request, env, corsHeaders) {
     const d = await readJson(request);
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
-    const a = await access(env, request, corsHeaders, d.t);
+    const a = await access(env, request, corsHeaders, d.t, 'edit');
     if (a.res) return a.res;
     const row = a.row;
     if (!editable(row)) return json({ ok: false, error: row.status === 'pending_payment' ? 'Payment is still confirming. Try again in a moment.' : 'Production has started, so these details are locked. Send any changes in the project chat.' }, 409, corsHeaders);
@@ -699,7 +773,7 @@ export function createFilmHandlers(deps) {
     await env.DB.prepare(
       `UPDATE film_projects SET project_name = ?1, about = ?2, occasion = ?3, needed_by = ?4, links = ?5,
          customer_phone = COALESCE(NULLIF(?6, ''), customer_phone), answers_json = ?7, updated_at = datetime('now') WHERE id = ?8`
-    ).bind(clip(d.projectName, 120), clip(d.about, 4000), clip(d.occasion, 200), neededBy, clip(d.links, 4000), clip(d.phone, 40), JSON.stringify(answers), row.id).run();
+    ).bind(clip(d.projectName, 120), clip(d.about, 50000), clip(d.occasion, 200), neededBy, clip(d.links, 4000), clip(d.phone, 40), JSON.stringify(answers), row.id).run();
     return json({ ok: true }, 200, corsHeaders);
   }
 
@@ -707,7 +781,7 @@ export function createFilmHandlers(deps) {
 
   async function uploadGuard(env, corsHeaders, token, request) {
     if (!env.FILMS) return { res: json({ ok: false, error: "Uploads aren't switched on yet. Please call or text (302) 907-9162." }, 503, corsHeaders) };
-    const a = await access(env, request, corsHeaders, token);
+    const a = await access(env, request, corsHeaders, token, 'upload');
     if (a.res) return { res: a.res };
     const row = a.row;
     if (!editable(row)) return { res: json({ ok: false, error: 'Production has started, so uploads are closed. Tell us in the project chat; we can reopen uploads if you have more files.' }, 409, corsHeaders) };
@@ -730,8 +804,8 @@ export function createFilmHandlers(deps) {
     const key = `projects/${g.row.id}/${crypto.randomUUID().slice(0, 8)}-${name}`;
     const mpu = await env.FILMS.createMultipartUpload(key, { httpMetadata: { contentType: type }, customMetadata: { project: String(g.row.id), original: name } });
     const ins = await env.DB.prepare(
-      `INSERT INTO film_uploads (project_id, r2_key, upload_id, filename, content_type, size_bytes, status, uploaded_by) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'uploading', ?7)`
-    ).bind(g.row.id, key, mpu.uploadId, name, type, size, clip(g.person?.name || g.person?.email || '', 120) || null).run();
+      `INSERT INTO film_uploads (project_id, r2_key, upload_id, filename, content_type, size_bytes, status, uploaded_by, uploader_email) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'uploading', ?7, ?8)`
+    ).bind(g.row.id, key, mpu.uploadId, name, type, size, clip(g.person?.name || g.person?.email || '', 120) || null, g.person?.email || null).run();
     return json({ ok: true, fileId: Number(ins.meta?.last_row_id || 0), partBytes: FILM_PART_BYTES, parts: Math.max(1, Math.ceil(size / FILM_PART_BYTES)) }, 200, corsHeaders);
   }
 
@@ -771,7 +845,7 @@ export function createFilmHandlers(deps) {
     const obj = await mpu.complete(parts);
     await env.DB.prepare(`UPDATE film_uploads SET status = 'done', size_bytes = ?1, completed_at = datetime('now') WHERE id = ?2`)
       .bind(Number(obj?.size ?? up.size_bytes ?? 0), up.id).run();
-    return json({ ok: true, file: { id: up.id, name: up.filename, type: up.content_type, size: Number(obj?.size ?? up.size_bytes ?? 0), at: new Date().toISOString(), by: up.uploaded_by || '' } }, 200, corsHeaders);
+    return json({ ok: true, file: { id: up.id, name: up.filename, type: up.content_type, size: Number(obj?.size ?? up.size_bytes ?? 0), at: new Date().toISOString(), by: up.uploaded_by || '', mine: true } }, 200, corsHeaders);
   }
 
   // POST /api/film/upload/delete {t, fileId}  (also aborts an unfinished upload)
@@ -782,6 +856,10 @@ export function createFilmHandlers(deps) {
     if (g.res) return g.res;
     const up = await uploadRow(env, g.row.id, d.fileId);
     if (!up) return json({ ok: true }, 200, corsHeaders);
+    // Helpers can take back their own files; the buyer and editors can remove any.
+    if (!can(g.person, 'deleteAny') && !(up.uploader_email && up.uploader_email === g.person.email)) {
+      return json({ ok: false, error: `You can remove the files you uploaded. Ask ${clip(g.row.customer_name, 60) || 'the person who ordered the film'} to remove this one.` }, 403, corsHeaders);
+    }
     try {
       if (up.status === 'done') await env.FILMS.delete(up.r2_key);
       else await env.FILMS.resumeMultipartUpload(up.r2_key, up.upload_id).abort();
@@ -792,18 +870,19 @@ export function createFilmHandlers(deps) {
 
   // ---------- public: start production, feedback ----------
 
-  // POST /api/film/start {t}
+  // POST /api/film/start {t}  (the buyer only)
   async function handleStart(request, env, corsHeaders) {
     const d = await readJson(request);
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const a = await access(env, request, corsHeaders, d.t);
     if (a.res) return a.res;
+    if (!a.person.isOwner && !a.person.isStaff) return forbidden(a.row, 'decide', corsHeaders);
     const row = a.row;
     if (row.status !== 'collecting') return json({ ok: false, error: 'Production has already started.' }, 409, corsHeaders);
     const uploads = await uploadsFor(env.DB, row.id);
     const missing = [];
     if (!clip(row.project_name, 120)) missing.push('a project name');
-    if (!clip(row.about, 4000)) missing.push('a few words about the story');
+    if (!clip(row.about, 50000)) missing.push('a few words about the story');
     if (!uploads.length && !clip(row.links, 4000)) missing.push('at least one file or link');
     if (missing.length) return json({ ok: false, error: `Before we start, please add ${missing.join(', ')}.` }, 400, corsHeaders);
     const today = easternDate();
@@ -843,6 +922,7 @@ export function createFilmHandlers(deps) {
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const a = await access(env, request, corsHeaders, d.t);
     if (a.res) return a.res;
+    if (!a.person.isOwner && !a.person.isStaff) return forbidden(a.row, 'decide', corsHeaders);
     const row = a.row;
     if (!['demo_ready', 'changes'].includes(row.status)) return json({ ok: false, error: 'There is no demo waiting for feedback right now.' }, 409, corsHeaders);
     const text = clip(d.text, 8000);
@@ -925,8 +1005,8 @@ export function createFilmHandlers(deps) {
     const uploads = await uploadsFor(env.DB, row.id, { all: true });
     const emails = (await env.DB.prepare(`SELECT kind, subject, to_email, sent_at FROM film_emails WHERE project_id = ?1 ORDER BY id DESC`).bind(row.id).all()).results || [];
     const chat = await chatMessages(env, row.id, { limit: 500 });
-    const keepsakes = await keepsakeOrders(env, row.id);
     const people = row.customer_email ? await peopleFor(env, row) : [];
+    const keepsakes = (await keepsakeOrders(env, row.id)).map((o) => ({ ...o, by: orderedByName(o, row, people), byBuyer: orderedBy(o, row) === normEmail(row.customer_email) }));
     const devices = (await env.DB.prepare(`SELECT email, COUNT(*) AS n, MAX(last_seen_at) AS seen FROM film_devices WHERE project_id = ?1 AND expires_at > datetime('now') GROUP BY email`).bind(row.id).all()).results || [];
     return json({ ok: true, project: adminView(row), uploads, emails, chat, people, devices, keepsakes, questions: FILM_QUESTIONS }, 200, corsHeaders);
   }
@@ -1036,7 +1116,7 @@ export function createFilmHandlers(deps) {
   // on their keepsakes page (my-keepsakes.html). Spread across what they uploaded; browser-viewable
   // types only; skips tiny files (icons, screenshots of buttons) and very large ones.
   async function handleKeepsakePhotos(request, env, corsHeaders, url) {
-    const a = await access(env, request, corsHeaders, url.searchParams.get('t'));
+    const a = await access(env, request, corsHeaders, url.searchParams.get('t'), 'keepsakes');
     if (a.res) return a.res;
     const bad = chatGuard(a.row, corsHeaders);
     if (bad) return bad;
@@ -1074,7 +1154,8 @@ export function createFilmHandlers(deps) {
       v.estimatedDoneText ? `Estimated completion: ${v.estimatedDoneText}.` : '',
       ['demo_ready', 'changes', 'final_ready', 'delivered'].includes(row.status) ? `Rounds of changes used: ${v.changeRounds} of ${v.roundsIncluded}.` : '',
       v.neededBy ? `They need it by ${v.neededBy}.` : '',
-      a.person.isStaff ? 'The person asking is Eastern Shore AI staff using the staff view.' : (a.person.isOwner ? 'The person asking is the buyer.' : 'The person asking is someone the buyer added to the dashboard.'),
+      a.person.isStaff ? 'The person asking is Eastern Shore AI staff using the staff view.' : (a.person.isOwner ? 'The person asking is the buyer.'
+        : `The person asking is someone the buyer added to the dashboard, with "${FILM_ROLES[roleOf(a.person.role)].label}" access${a.person.role === 'editor' ? '' : " (they can't change the details or answers)"}; only the buyer can press Start production, approve the demo or ask for changes, and add people.`),
     ].filter(Boolean).join(' ');
     return { row, person: a.person, facts, conversationKey: `film-dash:${row.id}` };
   }
@@ -1122,12 +1203,22 @@ export function createFilmHandlers(deps) {
     return { recipients: out };
   }
   const addressLine = (r) => [r.name, r.line1, r.line2, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', ');
+  // The first hardcover includes designing the book; copies are reprints, so they need it first.
+  const hasBook = (orders) => orders.some((o) => o.item === 'book' && o.status !== 'pending');
+  const orderedBy = (o, row) => normEmail(o.ordered_by) || normEmail(row.customer_email);   // older orders: the buyer
+  const orderIsMine = (o, row, person) => orderedBy(o, row) === (person.isStaff ? STAFF_ID : person.email);
+  function orderedByName(o, row, people) {
+    const by = orderedBy(o, row);
+    if (by === STAFF_ID) return STAFF_NAME;
+    const p = people.find((x) => x.email === by);
+    return p ? (p.name || p.email) : by;
+  }
 
   // POST /api/film/keepsake-checkout {t, item, qty, recipients?} -> { checkoutUrl }
   async function handleKeepsakeCheckout(request, env, corsHeaders, originAllowed, allowedOrigins) {
     if (!env.STRIPE_SECRET_KEY) return json({ ok: false, error: 'Stripe not configured' }, 500, corsHeaders);
     const d = (await readJson(request)) || {};
-    const a = await access(env, request, corsHeaders, d.t);
+    const a = await access(env, request, corsHeaders, d.t, 'keepsakes');
     if (a.res) return a.res;
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
@@ -1136,12 +1227,19 @@ export function createFilmHandlers(deps) {
     const item = Object.prototype.hasOwnProperty.call(FILM_KEEPSAKES, key) ? FILM_KEEPSAKES[key] : null;
     if (!item) return json({ ok: false, error: 'Unknown keepsake' }, 400, corsHeaders);
     const qty = Math.max(1, Math.min(item.maxQty, Math.round(Number(d.qty || 1)) || 1));
+    const booked = hasBook(await keepsakeOrders(env, row.id));
+    if (key === 'book' && booked) return json({ ok: false, bookOrdered: true, error: `The hardcover book is already ordered, so you can get a copy for ${formatUsd(FILM_KEEPSAKES.copies.cents)} instead.` }, 409, corsHeaders);
+    if (key === 'copies' && !booked) return json({ ok: false, bookOrdered: false, error: 'Copies are reprints of the hardcover book, so the book has to be ordered first.' }, 409, corsHeaders);
+    // Copies: one copy can use Stripe's shipping address; two or more need an address each, entered first.
     let recipients = null;
-    if (key === 'copies') {
+    if (key === 'copies' && (qty > 1 || (Array.isArray(d.recipients) && d.recipients.length))) {
       const c = cleanRecipients(d.recipients, qty);
       if (c.error) return json({ ok: false, error: c.error }, 400, corsHeaders);
       recipients = c.recipients;
     }
+    const stripeShips = item.ship || (key === 'copies' && !recipients);
+    const canChat = can(a.person, 'chat');
+    const by = a.person.isStaff ? STAFF_ID : a.person.email;
     const origin = (originAllowed && request.headers.get('Origin')) || allowedOrigins[0] || SITE;
     const back = `${origin}/my-keepsakes.html?t=${encodeURIComponent(row.token)}`;
     const film = clip(row.project_name, 80) || 'your film';
@@ -1162,14 +1260,17 @@ export function createFilmHandlers(deps) {
       'metadata[film_project_id]': String(row.id),
       'metadata[keepsake]': key,
       'metadata[qty]': String(qty),
+      'metadata[ordered_by]': by,
       'payment_intent_data[metadata][checkout_type]': 'film_keepsake',
       'payment_intent_data[metadata][film_project_id]': String(row.id),
       'custom_text[submit][message]': item.ship
-        ? "We design it from your film and post a proof in your project chat before it's printed."
-        : (key === 'copies' ? "We ship a copy to each address you entered, free, once the book is final." : "We'll put the MP3 on your dashboard and let you know in your project chat."),
+        ? (canChat ? "We design it from your film and post a proof in your project chat before it's printed." : "We design it from the film and email you a proof to approve before it's printed.")
+        : key === 'copies'
+          ? (recipients ? 'We ship a copy to each address you entered, free, once the book is final.' : 'We ship it free to this address once the book is final.')
+          : (canChat ? "We'll put the MP3 on your dashboard and let you know in your project chat." : "We'll email you the MP3 when it's ready."),
     });
-    if (item.ship) body.set('shipping_address_collection[allowed_countries][0]', 'US');
-    if (a.person.isOwner && row.customer_email) body.set('customer_email', row.customer_email);
+    if (stripeShips) body.set('shipping_address_collection[allowed_countries][0]', 'US');
+    if (!a.person.isStaff && validEmail(a.person.email)) body.set('customer_email', a.person.email);
     const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
       headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1178,8 +1279,8 @@ export function createFilmHandlers(deps) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data?.url) return json({ ok: false, error: 'Checkout could not start. Please try again or ask in your project chat.', detail: data?.error?.message || '' }, 502, corsHeaders);
     // Saved as pending (with the addresses for copies); the webhook marks it paid, an expired checkout deletes it.
-    await env.DB.prepare(`INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, stripe_session_id, recipients, status) VALUES (?1, ?2, ?3, ?4, ?5, 'pending')`)
-      .bind(row.id, key, qty, clip(data.id, 120), recipients ? JSON.stringify(recipients) : null).run();
+    await env.DB.prepare(`INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, stripe_session_id, recipients, ordered_by, status) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'pending')`)
+      .bind(row.id, key, qty, clip(data.id, 120), recipients ? JSON.stringify(recipients) : null, by).run();
     return json({ ok: true, checkoutUrl: data.url, id: data.id }, 200, corsHeaders);
   }
 
@@ -1212,22 +1313,28 @@ export function createFilmHandlers(deps) {
     ).bind(amount, tax, shipTo || null, sid).run();
     if (!Number(claimed.meta?.changes || 0)) {
       claimed = await env.DB.prepare(
-        `INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, amount_cents, tax_cents, stripe_session_id, ship_to, status, paid_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'paid', datetime('now'))`
-      ).bind(row.id, key, qty, amount, tax, sid, shipTo || null).run();
+        `INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, amount_cents, tax_cents, stripe_session_id, ship_to, ordered_by, status, paid_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 'paid', datetime('now'))`
+      ).bind(row.id, key, qty, amount, tax, sid, shipTo || null, normEmail(session.metadata?.ordered_by) || null).run();
       if (!Number(claimed.meta?.changes || 0)) return { ok: true, duplicate: true };
     }
     const order = await env.DB.prepare(`SELECT * FROM film_keepsake_orders WHERE stripe_session_id = ?1`).bind(sid).first();
     let recipients = [];
     try { recipients = JSON.parse(order?.recipients || '[]') || []; } catch {}
     const label = `${item.name}${qty > 1 ? ` x ${qty}` : ''}`;
+    // Who ordered: the buyer (or staff), or someone the buyer added (their receipt and updates go to them).
+    const byEmail = orderedBy(order || {}, row);
+    const byBuyer = byEmail === normEmail(row.customer_email) || byEmail === STAFF_ID;
+    const person = byBuyer ? null : await personFor(env, row, byEmail);
+    const canChat = byBuyer || can(person, 'chat');
+    const byName = byBuyer ? (row.customer_name || row.customer_email || 'customer') : (person?.name || clip(session.customer_details?.name, 80) || byEmail);
 
     // Books: income (session total) and the Stripe fee, deduped by session id like the film itself.
     const existing = await env.DB.prepare(`SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`).bind(sid).first();
     if (!existing?.id && amount > 0) {
       const source = 'Stripe - Folder to Film';
       const category = 'Folder to Film Keepsakes';
-      const notes = `${label} | Folder to Film #${row.id} | ${row.customer_name || row.customer_email || 'customer'}${tax ? ` | includes ${formatUsd(tax)} sales tax (${state || 'state n/a'})` : ''} | session_id=${sid}`;
+      const notes = `${label} | Folder to Film #${row.id} | ${byName}${byBuyer ? '' : ` (added by ${row.customer_name || row.customer_email})`}${tax ? ` | includes ${formatUsd(tax)} sales tax (${state || 'state n/a'})` : ''} | session_id=${sid}`;
       const insIncome = await env.DB.prepare(
         `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
       ).bind(incomeDate, source, category, amount, sid, notes).run();
@@ -1250,33 +1357,43 @@ export function createFilmHandlers(deps) {
       }
     } catch (e) { console.error('Keepsake fee booking failed', e); }
 
-    // Next steps in the project chat (no extra email: the receipt below covers it).
+    // Next steps: in the project chat for people who have it, by email for keepsakes-only invitations.
+    const changeAddr = canChat ? 'Tell us here.' : 'Just reply to this email.';
     const next = item.ship
-      ? `Thank you for ordering the ${label}! We'll design it from your film and post a proof here for you to approve before it's printed. It ships about 2 to 3 weeks after you approve it.`
+      ? (canChat
+        ? `Thank you for ordering the ${label}! We'll design it from your film and post a proof here for you to approve before it's printed. It ships about 2 to 3 weeks after you approve it.`
+        : `Thank you for ordering the ${label}! We'll design it from the film and email you a proof to approve before it's printed. It ships about 2 to 3 weeks after you approve it.`)
       : key === 'copies'
-        ? `Thank you for ordering ${qty} extra cop${qty === 1 ? 'y' : 'ies'} of the book! We'll ship one free to each address you gave us${recipients.length ? ` (${recipients.map((r) => r.name).join(', ')})` : ''} once the book is final. Need to change an address? Tell us here.`
-        : `Thank you for ordering the audiobook! We'll record the extra narration and put the MP3 on your dashboard, and let you know here when it's ready.`;
+        ? `Thank you for ordering ${qty} cop${qty === 1 ? 'y' : 'ies'} of the book! ${recipients.length ? `We'll ship one free to each address you gave us (${recipients.map((r) => r.name).join(', ')})` : "We'll ship it free to the address you gave at checkout"} once the book is final. Need to change an address? ${changeAddr}`
+        : (canChat
+          ? `Thank you for ordering the audiobook! We'll record the extra narration and put the MP3 on your dashboard, and let you know here when it's ready.`
+          : `Thank you for ordering the audiobook! We'll record the extra narration and email you the MP3 when it's ready.`);
+    const chatNote = byBuyer || canChat ? next
+      : `${byName} ordered ${key === 'copies' ? `${qty === 1 ? 'a copy' : `${qty} copies`} of the book` : `the ${label}`} from the keepsakes page. We'll keep them posted by email.`;
     try {
       await env.DB.prepare(`INSERT INTO film_messages (project_id, role, sender_name, content, created_at) VALUES (?1, 'staff', ?2, ?3, ?4)`)
-        .bind(row.id, STAFF_NAME, next, new Date().toISOString()).run();
+        .bind(row.id, STAFF_NAME, byBuyer ? chatNote : (canChat ? `${byName} ordered the ${label}. ${next}` : chatNote), new Date().toISOString()).run();
     } catch (e) { console.error('keepsake chat note', e); }
     try {
-      const link = `${dashboardUrl(row.token)}#chat`;
-      const hi = firstName(row);
+      const link = canChat ? `${dashboardUrl(row.token)}#chat` : keepsakesUrl(row.token);
+      const first = clip(byBuyer ? row.customer_name : byName, 80).split(/\s+/)[0];
+      const hi = first && !first.includes('@') ? `Hi ${first},` : 'Hi,';
       const text = [hi, '', `Thanks for your order: ${label} for ${row.project_name || 'your film'} (${formatUsd(amount)}${tax ? `, including ${formatUsd(tax)} tax` : ''}).`, '', next,
-        ...(shipTo ? ['', `Shipping to: ${shipTo}`] : []), ...(recipients.length ? ['', 'Shipping a copy to:', ...recipients.map((r) => `- ${addressLine(r)}`)] : []), '', `Your project chat: ${link}`, '', 'Folder to Film by Eastern Shore AI'].join('\n');
+        ...(shipTo ? ['', `Shipping to: ${shipTo}`] : []), ...(recipients.length ? ['', 'Shipping a copy to:', ...recipients.map((r) => `- ${addressLine(r)}`)] : []), '',
+        `${canChat ? 'Your project chat' : 'Your keepsakes page'}: ${link}`, '', 'Folder to Film by Eastern Shore AI'].join('\n');
       const html = shell(`<p style="margin:0 0 12px;">${escapeHtml(hi)}</p>`
         + filmDetailsBox([['Keepsake', label], ['Film', row.project_name || ''], ['Paid', formatUsd(amount) + (tax ? ` (includes ${formatUsd(tax)} tax)` : '')], ['Ship to', shipTo]])
         + (recipients.length ? `<p style="margin:0 0 6px;"><b>Shipping a copy to:</b></p><ul style="margin:0 0 14px;padding-left:20px;">${recipients.map((r) => `<li>${escapeHtml(addressLine(r))}</li>`).join('')}</ul>` : '')
-        + `<p style="margin:0 0 12px;">${escapeHtml(next)}</p>` + filmButton(link, 'Open my project chat'),
+        + `<p style="margin:0 0 12px;">${escapeHtml(next)}</p>` + filmButton(link, canChat ? 'Open my project chat' : 'See the keepsakes'),
         { heading: 'Thank you for your order', preheader: `${label}: ${next}` });
-      await sendCustomerEmail(env, row, { kind: 'keepsake', subject: `Thank you for your order: ${label}`, text, html });
+      await sendCustomerEmail(env, row, { kind: 'keepsake', subject: `Thank you for your order: ${label}`, text, html,
+        ...(byBuyer || !validEmail(byEmail) ? {} : { to: byEmail }) });
     } catch (e) { console.error('keepsake receipt', e); }
     try {
       await sendStaffOperationalAlert(env, {
         from: env.ALERTS_FROM_EMAIL,
         subject: `Keepsake order: ${label} (${row.project_name || `Film #${row.id}`})`,
-        text: [`${row.customer_name || row.customer_email} bought ${label} for ${formatUsd(amount)}${tax ? ` (includes ${formatUsd(tax)} tax, ${state})` : ''}.`,
+        text: [`${byBuyer ? byName : `${byName} <${byEmail}> (added by ${row.customer_name || row.customer_email}${person ? `, "${FILM_ROLES[roleOf(person.role)].label}"` : ''})`} bought ${label} for ${formatUsd(amount)}${tax ? ` (includes ${formatUsd(tax)} tax, ${state})` : ''}.`,
           shipTo ? `Ship to: ${shipTo}` : '', ...(recipients.length ? ['Ship a copy to:', ...recipients.map((r) => `- ${addressLine(r)}`)] : []),
           '', `Admin: ${SITE}/admin.html (Folder to Film > Details & Files)`].filter((l) => l !== '').join('\n'),
       });
@@ -1286,7 +1403,7 @@ export function createFilmHandlers(deps) {
 
   async function keepsakeOrders(env, projectId) {
     try {
-      const rows = (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, recipients, status, paid_at FROM film_keepsake_orders WHERE project_id = ?1 AND status != 'pending' ORDER BY id`).bind(projectId).all()).results || [];
+      const rows = (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, recipients, ordered_by, status, paid_at FROM film_keepsake_orders WHERE project_id = ?1 AND status != 'pending' ORDER BY id`).bind(projectId).all()).results || [];
       return rows.map((o) => { let r = []; try { r = JSON.parse(o.recipients || '[]') || []; } catch {} return { ...o, recipients: r }; });
     } catch { return []; }
   }
@@ -1426,7 +1543,7 @@ export function createFilmHandlers(deps) {
 
   // GET /api/film/chat?t=&after=
   async function handleChatGet(request, env, corsHeaders, url) {
-    const a = await access(env, request, corsHeaders, url.searchParams.get('t'));
+    const a = await access(env, request, corsHeaders, url.searchParams.get('t'), 'chat');
     if (a.res) return a.res;
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
@@ -1455,7 +1572,7 @@ export function createFilmHandlers(deps) {
   async function handleChatSend(request, env, corsHeaders) {
     const d = await readJson(request);
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
-    const a = await access(env, request, corsHeaders, d.t);
+    const a = await access(env, request, corsHeaders, d.t, 'chat');
     if (a.res) return a.res;
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
@@ -1487,7 +1604,7 @@ export function createFilmHandlers(deps) {
           text: [
             `${who}${a.person.isOwner ? '' : ` (added by ${row.customer_name || row.customer_email})`} wrote in the Folder to Film project chat for "${project}":`, '',
             content, '',
-            'Reply in admin: Customers > Folder to Film > Details & Files (reply box), or Open Dashboard (staff).',
+            'Reply in admin: Customers > Folder to Film > Details & Files (reply box), or Open as Staff.',
             `${SITE}/admin.html`, '',
             `More messages in the next ${STAFF_BURST_MIN} minutes, before you reply, won't email again; they'll be in the chat.`,
           ].join('\n'),
@@ -1514,7 +1631,7 @@ export function createFilmHandlers(deps) {
   // POST /api/film/chat/typing {t, typing}
   async function handleChatTyping(request, env, corsHeaders) {
     const d = await readJson(request);
-    const a = await access(env, request, corsHeaders, d?.t);
+    const a = await access(env, request, corsHeaders, d?.t, 'chat');
     if (a.res) return a.res;
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
@@ -1563,7 +1680,7 @@ export function createFilmHandlers(deps) {
   async function handleNotes(request, env, corsHeaders) {
     const d = await readJson(request);
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
-    const a = await access(env, request, corsHeaders, d.t);
+    const a = await access(env, request, corsHeaders, d.t, 'edit');
     if (a.res) return a.res;
     const row = a.row;
     const bad = chatGuard(row, corsHeaders);
@@ -1744,7 +1861,7 @@ export function createFilmHandlers(deps) {
     handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples, handleKeepsakeCheckout, handleKeepsakePaid,
     handleKeepsakeExpired: async (env, session) => { if (session?.id) await env.DB.prepare(`DELETE FROM film_keepsake_orders WHERE stripe_session_id = ?1 AND status = 'pending'`).bind(clip(session.id, 120)).run(); },
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
-    handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove,
+    handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove, handlePeopleRole,
     handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,
     sendStatusEmail, purgeOldFilms,
     handleCheckout, handleFilmPaid, handleFilmExpired,

@@ -109,14 +109,14 @@
       <div><b>Customer notes</b>${p.customer_notes ? ` <span class="web-muted">(updated ${day(p.customer_notes_at)})</span><pre style="white-space:pre-wrap; font-family:inherit; margin:.2rem 0 0;">${escHtml(p.customer_notes)}</pre>` : ' <span class="web-muted">None yet.</span>'}</div>
       <div><b>People with access</b> <span class="web-muted">(codes go only to these addresses)</span>${(d.people || []).map((pp) => {
         const dv = (d.devices || []).find((x) => x.email === pp.email);
-        return `<div>${escHtml(pp.name || pp.email)}${pp.name ? ` <span class="web-muted">${escHtml(pp.email)}</span>` : ''}${pp.isOwner ? ' <span class="web-muted">(buyer)</span>' : ''} <span class="web-muted">&bull; ${dv ? `signed in on ${dv.n} browser${dv.n === 1 ? '' : 's'}${dv.seen ? `, last seen ${day(dv.seen)}` : ''}` : 'not signed in'}</span></div>`;
+        return `<div>${escHtml(pp.name || pp.email)}${pp.name ? ` <span class="web-muted">${escHtml(pp.email)}</span>` : ''}${pp.isOwner ? ' <span class="web-muted">(buyer)</span>' : (pp.roleLabel ? ` <span class="web-muted">(${escHtml(pp.roleLabel)})</span>` : '')} <span class="web-muted">&bull; ${dv ? `signed in on ${dv.n} browser${dv.n === 1 ? '' : 's'}${dv.seen ? `, last seen ${day(dv.seen)}` : ''}` : 'not signed in'}</span></div>`;
       }).join('')}</div>
       <div><b>Project chat</b> <span class="web-muted">(customers' messages email you; your reply shows on their dashboard and emails them unless they're on it right now, at most once per 20 minutes)</span>
         ${(d.chat || []).length ? `<div style="margin-top:.3rem; display:grid; gap:.3rem; max-height:340px; overflow-y:auto;">${d.chat.map((m) => `<div><span class="web-muted">${escHtml(m.role === 'staff' ? `${m.sender_name || 'Chris'} (you)` : (m.sender_name || 'Customer'))}, ${when(m.created_at)}:</span> <span style="white-space:pre-wrap;">${escHtml(m.content)}</span></div>`).join('')}</div>` : '<div class="web-muted">No messages yet.</div>'}
         ${['pending_payment', 'canceled'].includes(p.status) ? '' : `<div class="web-span" style="margin-top:.4rem;"><label for="film-reply-${p.id}">Reply as Chris</label><textarea id="film-reply-${p.id}" rows="3" maxlength="4000"></textarea></div>
         <div class="web-row-actions"><button type="button" class="btn btn-primary" data-film-action="reply" data-film-id="${p.id}">Send Reply</button></div>`}
       </div>
-      <div><b>Keepsake orders</b>${(d.keepsakes || []).length ? d.keepsakes.map((o) => `<div>${escHtml({ book: 'Hardcover story book', copies: 'Extra copies of the book', picture: "Children's picture book", audiobook: 'Audiobook (MP3)' }[o.item] || o.item)}${o.qty > 1 ? ` x ${o.qty}` : ''} <span class="web-muted">&bull; ${(o.amount_cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}${o.tax_cents ? ` incl. ${(o.tax_cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} tax` : ''} &bull; paid ${when(o.paid_at)}${o.ship_to ? ` &bull; ship to ${escHtml(o.ship_to)}` : ''}</span>${(o.recipients || []).map((r) => `<div class="web-muted" style="padding-left:1rem;">&rarr; ${escHtml([r.name, r.line1, r.line2, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', '))}</div>`).join('')}</div>`).join('') : ' <span class="web-muted">None yet.</span>'}</div>
+      <div><b>Keepsake orders</b>${(d.keepsakes || []).length ? d.keepsakes.map((o) => `<div>${escHtml({ book: 'Hardcover story book', copies: 'Extra copies of the book', picture: "Children's picture book", audiobook: 'Audiobook (MP3)' }[o.item] || o.item)}${o.qty > 1 ? ` x ${o.qty}` : ''} <span class="web-muted">&bull; ${(o.amount_cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}${o.tax_cents ? ` incl. ${(o.tax_cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} tax` : ''} &bull; paid ${when(o.paid_at)}${o.by && !o.byBuyer ? ` &bull; ordered by ${escHtml(o.by)}` : ''}${o.ship_to ? ` &bull; ship to ${escHtml(o.ship_to)}` : ''}</span>${(o.recipients || []).map((r) => `<div class="web-muted" style="padding-left:1rem;">&rarr; ${escHtml([r.name, r.line1, r.line2, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', '))}</div>`).join('')}</div>`).join('') : ' <span class="web-muted">None yet.</span>'}</div>
       <div><b>Videos for the customer</b> <span class="web-muted">(upload the files here; they play on the dashboard and the final gets a share page with a download)</span>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
           <label class="btn action-pop" style="cursor:pointer;">${p.has_demo_video ? 'Replace' : 'Upload'} demo video<input type="file" accept="video/*" data-film-deliver="demo" data-film-id="${p.id}" hidden></label>
@@ -159,15 +159,15 @@
       return `<div class="web-row">
         <div class="web-row-head"><strong>#${id} ${escHtml(p.project_name || '(not named yet)')}</strong><span>${badge(p.status)}</span></div>
         ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
-        <div class="web-row-actions">
+        <div class="web-row-actions film-actions">
           <button type="button" class="btn action-pop" data-film-action="toggle" data-film-id="${id}">${isOpen ? 'Hide Details' : 'Details & Files'}</button>
-          ${paid ? `<button type="button" class="btn action-pop" data-film-action="staff" data-film-id="${id}">Open Dashboard (staff)</button>
-          <button type="button" class="btn action-pop" data-film-action="copy" data-film-id="${id}">Copy Dashboard Link</button>
-          <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="welcome" data-film-id="${id}">Resend Dashboard Link</button>
+          ${paid ? `<button type="button" class="btn action-pop" data-film-action="staff" data-film-id="${id}" title="Open the customer's dashboard as staff">Open as Staff</button>
+          <button type="button" class="btn action-pop" data-film-action="copy" data-film-id="${id}" title="Copy the customer's dashboard link">Copy Link</button>
+          <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="welcome" data-film-id="${id}" title="Email the customer their dashboard link again">Resend Link</button>
           <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="demo" data-film-id="${id}">Email Demo Ready</button>
           <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="final" data-film-id="${id}">Email Final Film</button>
-          <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="message" data-film-id="${id}">Message Customer</button>
-          <button type="button" class="btn delete" data-film-action="rotate" data-film-id="${id}">New Dashboard Link</button>` : ''}
+          <button type="button" class="btn action-pop" data-film-action="email" data-film-kind="message" data-film-id="${id}" title="Email the customer a message">Message</button>
+          <button type="button" class="btn delete" data-film-action="rotate" data-film-id="${id}" title="Replace the dashboard link and sign everyone out (if the link leaked)">New Link</button>` : ''}
           ${['pending_payment', 'canceled'].includes(p.status) ? `<button type="button" class="btn delete" data-film-action="delete" data-film-id="${id}">Delete</button>` : ''}
         </div>
         ${isOpen ? detailHtml(p, details.get(id)) : ''}
@@ -305,12 +305,12 @@
         btn.disabled = false;
         await refresh();
       } else if (action === 'rotate') {
-        const msg = `Make a new dashboard link for #${id}? The old link stops working right away (use this if it leaked). Then use Resend Dashboard Link to email the new one.`;
+        const msg = `Make a new dashboard link for #${id}? The old link stops working right away (use this if it leaked). Then use Resend Link to email the new one.`;
         const ok = typeof openConfirmModal === 'function' ? await openConfirmModal(msg) : confirm(msg);
         if (!ok) return;
         await call(API.update, { id, rotateToken: true });
         await refresh();
-        openSuccessModal('New link made. The old one no longer works. Use Resend Dashboard Link to email the new one.', 'Link Reset');
+        openSuccessModal('New link made. The old one no longer works. Use Resend Link to email the new one.', 'Link Reset');
       } else if (action === 'download') {
         const r = await call(API.fileLink, { fileId: Number(btn.getAttribute('data-film-file')) });
         window.location.href = r.url;
