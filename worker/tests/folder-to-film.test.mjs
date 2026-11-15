@@ -236,6 +236,8 @@ test('payment webhook books income and fee once, emails the dashboard link and a
   assert.deepEqual(welcome.to, ['pat@family.example']);
   assert.equal(welcome.from.email, 'contact@easternshore.ai');
   assert.ok(welcome.html.includes(`https://www.easternshore.ai/my-film.html?t=${token}`));
+  assert.match(welcome.text, /Message me in the chat on your dashboard/);
+  assert.match(welcome.html, /It also has a chat where you can reach me \(Chris\) any time/);
   assert.ok(env.EMAIL.sent.some((m) => /New Folder to Film order/.test(m.subject) && m.to.includes('owner@inbox.example')));
 
   // Stripe retries the same event: nothing doubles.
@@ -493,11 +495,13 @@ test('Folder to Film Ask K: own key and counters, busy reply names its key, stat
   assert.match(kimMail.text, /the film you were added to/);
   assert.match(kimMail.text, /Your keepsakes page: https:\/\/www\.easternshore\.ai\/my-keepsakes\.html\?t=tok_status_test/);
   assert.ok(!kimMail.text.includes('my-film.html'), 'keepsakes-only people get the keepsakes page, not the dashboard');
+  assert.doesNotMatch(kimMail.text, /chat on your dashboard/, 'keepsakes-only people have no chat');
   env3.EMAIL.sent.length = 0;
   r = await call(env3, post('/api/film/ask-k/status', { email: 'sam@family.example', turnstileToken: 'ok' }));
   const samMail = env3.EMAIL.sent.find((m) => m.subject === 'Lake Week: In production');
   assert.deepEqual(samMail.to, ['sam@family.example']);
   assert.match(samMail.text, /The film dashboard: https:\/\/www\.easternshore\.ai\/my-film\.html\?t=tok_status_test/);
+  assert.match(samMail.text, /Message me in the chat on your dashboard/);
   // A canceled film isn't sent to added people.
   env3.DB.sqlite.prepare(`UPDATE film_projects SET status = 'canceled' WHERE id = ?`).run(pid);
   env3.EMAIL.sent.length = 0;

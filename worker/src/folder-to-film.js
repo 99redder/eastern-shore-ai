@@ -346,7 +346,7 @@ export function createFilmHandlers(deps) {
       preheader,
       body: innerHtml,
       panels: link ? [filmCallout('Your film dashboard',
-        `Everything for your film lives on your private dashboard: <a href="${escapeHtml(link)}" style="${FILM_LINK}">open it here</a>. Bookmark it. Lost the link? Just reply to this email and we'll send it again.`)] : [],
+        `Everything for your film lives on your private dashboard: <a href="${escapeHtml(link)}" style="${FILM_LINK}">open it here</a>. It also has a chat where you can reach me (Chris) any time; I usually reply within an hour during the day. Bookmark it. Lost the link? Just reply to this email and we'll send it again.`)] : [],
       footerNote: "You're receiving this about your Folder to Film order with Eastern Shore AI. Just reply if you have a question.",
     });
   }
@@ -379,7 +379,7 @@ export function createFilmHandlers(deps) {
           heading: 'Your dashboard is ready',
           button: 'Open my dashboard',
           lines: [hi, '', "Thank you! Your payment went through, and your film's private dashboard is ready now. That's where you'll name your project, answer a few quick questions and upload everything you have: photos, videos, audio, scans, documents, any type of file, big videos included.", '',
-            link, '', "Take as many days as you need. When you've added everything, press Start production, and we'll email you the date your demo will be ready (2 to 3 business days).", '', 'Questions? Just reply to this email, or call or text (302) 907-9162.', '', 'Chris', 'Folder to Film by Eastern Shore AI'],
+            link, '', "Take as many days as you need. When you've added everything, press Start production, and we'll email you the date your demo will be ready (2 to 3 business days).", '', 'Questions? Message me in the chat on your dashboard (I usually reply within an hour during the day), reply to this email, or call or text (302) 907-9162.', '', 'Chris', 'Folder to Film by Eastern Shore AI'],
         };
       case 'production':
         return {
@@ -1868,19 +1868,23 @@ export function createFilmHandlers(deps) {
         button: keepsakesOnly ? 'Open the keepsakes page' : r.person_role ? 'Open the dashboard' : 'Open my dashboard',
       };
     });
+    const canChat = blocks.some((b) => !b.label.includes('keepsakes'));
+    const questionsLine = canChat
+      ? 'Questions? Message me in the chat on your dashboard (I usually reply within an hour during the day), reply to this email, or call or text (302) 907-9162.'
+      : 'Questions? Just reply to this email, or call or text (302) 907-9162.';
     const personFirst = clip(added[0]?.person_name, 80).split(/\s+/)[0];
     const hi = own.length ? firstName(own[0]) : personFirst ? `Hi ${personFirst},` : 'Hi,';
     const what = own.length ? `your Folder to Film order${rows.length > 1 ? 's' : ''}` : `the film${rows.length > 1 ? 's' : ''} you were added to`;
     const text = [hi, '', `Here's the latest on ${what}:`, '',
       ...blocks.flatMap((b) => [`${b.name}: ${b.status}`, b.sentence, `${b.label}: ${b.link}`, '']),
       'When you open the link on a new phone or computer, it asks for a sign-in code, which we email to this address.', '',
-      'Questions? Just reply to this email, or call or text (302) 907-9162.', '', 'Folder to Film by Eastern Shore AI'].join('\n');
+      questionsLine, '', 'Folder to Film by Eastern Shore AI'].join('\n');
     const html = shell([
       `<p style="margin:0 0 12px;">${escapeHtml(hi)}</p>`,
       `<p style="margin:0 0 12px;">Here's the latest on ${escapeHtml(what)}:</p>`,
       ...blocks.map((b) => filmDetailsBox([['Film', b.name], ['Status', b.status]]) + `<p style="margin:10px 0 0;">${escapeHtml(b.sentence)}</p>` + filmButton(b.link, b.button)),
       '<p style="margin:0 0 12px;">When you open the link on a new phone or computer, it asks for a sign-in code, which we email to this address.</p>',
-      '<p style="margin:0 0 12px;">Questions? Just reply to this email, or call or text (302) 907-9162.</p>',
+      `<p style="margin:0 0 12px;">${escapeHtml(questionsLine)}</p>`,
     ].join(''), { heading: 'Your film status', preheader: `${blocks[0].name}: ${blocks[0].status}` });
     await sendCustomerEmail(env, rows[0], {
       kind: 'status', subject: rows.length > 1 ? 'Your Folder to Film links and status' : `${blocks[0].name}: ${blocks[0].status}`, text, html,
