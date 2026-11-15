@@ -149,8 +149,9 @@
     .uploads span { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; }
     .stack { position: relative; }
     .stack img:nth-child(2) { width: 62%; position: absolute; right: -4%; bottom: -12%; border: 6px solid var(--card); }
-    .stack.dash img:nth-child(1) { width: 92%; }
-    .stack.dash img:nth-child(2) { width: 50%; right: -5%; bottom: -26%; border-color: #3a3026; }
+    /* Step 2: the two dashboard screenshots sit one above the other, full width (the text column is tall) */
+    .stack.dash { display: grid; gap: 22px; }
+    .stack.dash img:nth-child(1), .stack.dash img:nth-child(2) { width: 100%; position: static; border: 1px solid #3a3026; }
     .collab { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 40px; }
     .collab h2 { font-size: 44px; margin: 10px 0 14px; }
     .collab p { color: #d2c8b6; margin: 0 0 12px; }
@@ -315,7 +316,6 @@
       .who, .stories, .styles { grid-template-columns: 1fr 1fr; }
       .gallery { grid-template-columns: 1fr 1fr; }
       .stack img:nth-child(2) { position: static; width: 100%; margin-top: 14px; border: 0; }
-      .stack.dash img:nth-child(1), .stack.dash img:nth-child(2) { width: 100%; }
     }
     @media (max-width: 760px) {
       .pile { height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
