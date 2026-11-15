@@ -198,9 +198,9 @@
       lines.push(k.has_audiobook
         ? `MP3 uploaded ${day(k.audiobook_uploaded_at)}${k.audiobook_listen ? ` &bull; <a href="${escHtml(k.audiobook_listen)}" target="_blank" rel="noopener" style="color:var(--cyan);">Listen</a>` : ''} <span class="web-muted">(one file per film, shared by every audiobook order on it)</span>`
         : '<span style="color:#fbbf24;">No MP3 uploaded yet.</span>');
-      if (k.link_expires_at) {
+      if (k.listen_url) {
         const left = Number(k.link_uses_left ?? 0);
-        lines.push(`<span class="web-muted">Download link sent: works until ${escHtml(when(k.link_expires_at))}, ${left} download${left === 1 ? '' : 's'} left. Deliver Audiobook again sends a fresh link.</span>`);
+        lines.push(`<span class="web-muted">Listening page: <a href="${escHtml(k.listen_url)}" target="_blank" rel="noopener" style="color:var(--cyan);">open</a> &bull; ${left} download${left === 1 ? '' : 's'} left. Deliver Again re-sends the same link and resets downloads to 5.</span>`);
       }
     }
     if (k.shipped_at) lines.push(`<span class="web-muted">Shipped ${day(k.shipped_at)}</span>`);
@@ -217,7 +217,7 @@
         <button type="button" class="btn btn-primary" data-keep-action="save" data-keep-id="${id}">Save</button>
         ${isAudio
           ? `<label class="btn action-pop" style="cursor:pointer;">${k.has_audiobook ? 'Replace MP3' : 'Upload MP3'}<input type="file" accept="audio/mpeg,audio/mp4,.mp3,.m4a" data-film-deliver="audiobook" data-film-id="${Number(k.film_id)}" data-film-status="keep-upload-${id}" hidden></label>
-             <button type="button" class="btn action-pop" data-keep-action="email" data-film-kind="audiobook" data-keep-id="${id}" title="Email the person who ordered it a private download link">${k.status === 'delivered' ? 'Deliver Again' : 'Deliver Audiobook'}</button>`
+             <button type="button" class="btn action-pop" data-keep-action="email" data-film-kind="audiobook" data-keep-id="${id}" title="Email the person who ordered it their private listening page">${k.status === 'delivered' ? 'Deliver Again' : 'Deliver Audiobook'}</button>`
           : `<button type="button" class="btn action-pop" data-keep-action="email" data-film-kind="shipped" data-keep-id="${id}" title="Email the person who ordered it that it shipped, with the tracking">Email Shipped</button>`}
         <span class="web-muted" id="keep-upload-${id}" style="align-self:center;"></span>
       </div>

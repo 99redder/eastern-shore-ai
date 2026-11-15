@@ -1247,70 +1247,107 @@ test('audiobook: upload the MP3 on its line, deliver a private download link, pl
   DEVICE = owner;
   assert.equal((await call(env, get(`/api/film/dashboard?t=${token}`))).data.project.audiobookSrc, undefined);
 
-  // Deliver to the buyer: preview first, then a private link (stored only as a hash) in the email.
+  // Deliver to the buyer: preview first, then the private listening page in the email.
   r = await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, preview: true }, ADMIN));
   assert.equal(r.status, 200, JSON.stringify(r.data));
   assert.equal(r.data.to, 'pat@family.example');
-  assert.match(r.data.body, /a private download link goes here when you send/);
+  assert.match(r.data.body, /your private listening link goes here when you send/);
   assert.match(r.data.body, /new narration for everything the film shows on screen/);
+  assert.match(r.data.body, /Apple Podcasts/);
   assert.equal((await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, send: true, body: 'Hi Pat, here it is.' }, ADMIN))).status, 400, 'the link line must stay');
   env.EMAIL.sent.length = 0;
   r = await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, send: true }, ADMIN));
   assert.equal(r.status, 200, JSON.stringify(r.data));
   const mail = env.EMAIL.sent.find((m) => /^Your audiobook is ready: Lake Week/.test(m.subject));
   assert.deepEqual(mail.to, ['pat@family.example']);
-  const link = (mail.text.match(/https:\/\/worker\.example\/api\/film\/audiobook\?d=([0-9a-f]{64})/) || [])[0];
-  assert.ok(link, mail.text);
-  assert.ok(mail.text.includes(`my-film.html?t=${token}#audiobook-card`), 'the buyer is pointed at the dashboard');
-  assert.ok(mail.html.includes(link), 'the button carries the link');
-  const order = db.prepare('SELECT * FROM film_keepsake_orders WHERE id = ?').get(patOrder);
+  const listen = (mail.text.match(/https:\/\/www\.easternshore\.ai\/listen\.html\?l=([0-9a-f]{64})/) || []);
+  assert.ok(listen[0], mail.text);
+  const l = listen[1];
+  assert.ok(mail.html.includes(listen[0]) && /Listen to the audiobook/.test(mail.html), 'the button carries the listening link');
+  let order = db.prepare('SELECT * FROM film_keepsake_orders WHERE id = ?').get(patOrder);
   assert.equal(order.status, 'delivered');
+  assert.equal(order.listen_token, l);
   assert.equal(order.download_uses_left, 5);
-  assert.ok(order.download_hash && !link.includes(order.download_hash), 'only a hash is stored');
 
-  // The link downloads the MP3 (counting full downloads, not byte ranges after the start).
-  let res = await worker.fetch(new Request(link), env, ctx);
+  // The listening page's info, the stream (never counted) and the podcast feed.
+  let info = await call(env, get(`/api/film/listen?l=${l}`));
+  assert.equal(info.status, 200, JSON.stringify(info.data));
+  assert.equal(info.data.title, 'Lake Week');
+  assert.equal(info.data.downloadsLeft, 5);
+  assert.match(info.data.cover, /audiobook-cover\.jpg$/);
+  assert.equal(info.data.applePodcastsUrl, info.data.feedUrl.replace('https:', 'podcast:'));
+  let res = await worker.fetch(new Request(info.data.src), env, ctx);
   assert.equal(res.status, 200);
   assert.equal(res.headers.get('Content-Type'), 'audio/mpeg');
-  assert.match(res.headers.get('Content-Disposition'), /attachment; filename="Lake Week - Audiobook\.mp3"/);
+  assert.match(res.headers.get('Content-Disposition'), /^inline/);
   assert.equal((await res.arrayBuffer()).byteLength, size);
-  res = await worker.fetch(new Request(link, { headers: { Range: 'bytes=100-199' } }), env, ctx);
+  res = await worker.fetch(new Request(info.data.src, { headers: { Range: 'bytes=100-199' } }), env, ctx);
   assert.equal(res.status, 206);
+  assert.equal(db.prepare('SELECT download_uses_left AS n FROM film_keepsake_orders WHERE id = ?').get(patOrder).n, 5, 'streaming is not counted');
+  res = await worker.fetch(new Request(info.data.feedUrl), env, ctx);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('Content-Type'), /application\/rss\+xml/);
+  const xml = await res.text();
+  assert.match(xml, /<itunes:block>Yes<\/itunes:block>/);
+  assert.match(xml, /<title>Lake Week \(Audiobook\)<\/title>/);
+  assert.ok(xml.includes(`<enclosure url="${info.data.src.replace(/&/g, '&amp;')}" length="${size}" type="audio/mpeg"/>`), xml);
+  // Downloads are counted (byte ranges after the start aren't) and stop at zero.
+  res = await worker.fetch(new Request(info.data.downloadUrl), env, ctx);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('Content-Disposition'), /attachment; filename="Lake Week - Audiobook\.mp3"/);
+  await worker.fetch(new Request(info.data.downloadUrl, { headers: { Range: 'bytes=100-199' } }), env, ctx);
   assert.equal(db.prepare('SELECT download_uses_left AS n FROM film_keepsake_orders WHERE id = ?').get(patOrder).n, 4);
-  // Guessing doesn't work; expired or used-up links stop.
-  assert.equal((await worker.fetch(new Request(`https://worker.example/api/film/audiobook?d=${'0'.repeat(64)}`), env, ctx)).status, 404);
-  assert.equal((await worker.fetch(new Request('https://worker.example/api/film/audiobook?d=short'), env, ctx)).status, 404);
   db.prepare('UPDATE film_keepsake_orders SET download_uses_left = 0 WHERE id = ?').run(patOrder);
-  res = await worker.fetch(new Request(link), env, ctx);
+  res = await worker.fetch(new Request(info.data.downloadUrl), env, ctx);
   assert.equal(res.status, 410);
-  assert.match(await res.text(), /used up/);
-  db.prepare("UPDATE film_keepsake_orders SET download_uses_left = 3, download_expires_at = datetime('now', '-1 hour') WHERE id = ?").run(patOrder);
-  res = await worker.fetch(new Request(link), env, ctx);
-  assert.equal(res.status, 410);
-  assert.match(await res.text(), /expired/);
+  assert.match(await res.text(), /No downloads left/);
+  assert.equal((await worker.fetch(new Request(info.data.src, { headers: { Range: 'bytes=0-9' } }), env, ctx)).status, 206, 'still streams');
+  // Deliver Again keeps the same link (podcast apps keep working) and resets the downloads.
+  assert.equal((await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, send: true }, ADMIN))).status, 200);
+  order = db.prepare('SELECT * FROM film_keepsake_orders WHERE id = ?').get(patOrder);
+  assert.equal(order.listen_token, l);
+  assert.equal(order.download_uses_left, 5);
+  // Guesses, a malformed link, an order that isn't delivered, or a canceled film get nothing.
+  assert.equal((await call(env, get(`/api/film/listen?l=${'0'.repeat(64)}`))).status, 404);
+  assert.equal((await call(env, get('/api/film/listen?l=short'))).status, 404);
+  assert.equal((await worker.fetch(new Request(`https://worker.example/api/film/listen/feed.xml?l=${'0'.repeat(64)}`), env, ctx)).status, 404);
+  db.prepare("UPDATE film_keepsake_orders SET status = 'in_progress' WHERE id = ?").run(patOrder);
+  assert.equal((await call(env, get(`/api/film/listen?l=${l}`))).status, 404);
+  db.prepare("UPDATE film_keepsake_orders SET status = 'delivered' WHERE id = ?").run(patOrder);
+  db.prepare("UPDATE film_projects SET status = 'canceled' WHERE id = ?").run(id);
+  assert.equal((await worker.fetch(new Request(info.data.src), env, ctx)).status, 404);
+  db.prepare("UPDATE film_projects SET status = 'collecting' WHERE id = ?").run(id);
+  // Admin's line shows the listening page.
+  list = await call(env, get('/api/film/projects', ADMIN));
+  assert.equal(list.data.keepsakes.find((k) => k.id === patOrder).listen_url, listen[0]);
 
-  // Players: the buyer and Sam (dashboard access) get it; Kim's own order isn't delivered yet.
+  // Players: the buyer (with their listening link) and Sam (dashboard access) get it; Kim's own order isn't delivered yet.
   DEVICE = owner;
   let dash = await call(env, get(`/api/film/dashboard?t=${token}`));
   assert.ok(dash.data.project.audiobookSrc && dash.data.project.audiobookDownload);
+  assert.equal(dash.data.project.audiobookListenUrl, listen[0]);
   res = await worker.fetch(new Request(dash.data.project.audiobookSrc, { headers: { Range: 'bytes=0-9' } }), env, ctx);
   assert.equal(res.status, 206);
   DEVICE = sam;
-  assert.ok((await call(env, get(`/api/film/dashboard?t=${token}`))).data.project.audiobookSrc);
+  dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.ok(dash.data.project.audiobookSrc);
+  assert.equal(dash.data.project.audiobookListenUrl, undefined, "Sam didn't order it, so no listening link of his own");
   DEVICE = kim;
   dash = await call(env, get(`/api/film/dashboard?t=${token}`));
   assert.equal(dash.data.keepsakesOnly, true);
   assert.equal(dash.data.project.audiobookSrc, undefined);
-  // Deliver Kim's: her link points at the keepsakes page, and now she has the player there.
+  // Deliver Kim's: her own listening link, and now she has the player on the keepsakes page.
   env.EMAIL.sent.length = 0;
   assert.equal((await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: kimOrder, send: true }, ADMIN))).status, 200);
   const kimMail = env.EMAIL.sent.find((m) => /^Your audiobook is ready/.test(m.subject));
   assert.deepEqual(kimMail.to, ['kim@family.example']);
   assert.match(kimMail.text, /^Hi Kim,/);
-  assert.ok(kimMail.text.includes(`my-keepsakes.html?t=${token}#audiobook`));
+  const kimL = (kimMail.text.match(/listen\.html\?l=([0-9a-f]{64})/) || [])[1];
+  assert.ok(kimL && kimL !== l, 'each order has its own link');
   assert.ok(!kimMail.text.includes('my-film.html'));
   dash = await call(env, get(`/api/film/dashboard?t=${token}`));
   assert.ok(dash.data.project.audiobookSrc);
+  assert.match(dash.data.project.audiobookListenUrl, new RegExp(kimL));
   assert.equal(dash.data.project.uploads, undefined, 'still nothing else from the dashboard');
 
   // A book on its own line: status, tracking, then Email Shipped.

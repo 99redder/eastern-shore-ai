@@ -196,7 +196,7 @@ export default {
       const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/stop-autopay', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
       const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead', '/api/page/visit'].includes(url.pathname) && request.method === 'POST');
       // Folder to Film: checkout + customer dashboard (token) + admin (session) + signed file downloads.
-      const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share', '/api/film/keepsake-photos', '/api/film/audiobook'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/keepsake-checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/people/role', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
+      const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share', '/api/film/keepsake-photos', '/api/film/listen', '/api/film/listen/audio.mp3', '/api/film/listen/download', '/api/film/listen/feed.xml'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/keepsake-checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/people/role', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
       const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/keepsake/update', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link', '/api/film/chat/reply', '/api/film/email-samples'].includes(url.pathname) && request.method === 'POST');
       if (!isFilmPublic && !isFilmAdmin && !isPreviewPublic && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -205,7 +205,7 @@ export default {
       // Public quote accept/deny, invoice landing, battery image, and tracking reads don't require strict origin check.
       // Chat endpoints are public but still must come from an allowed site origin to avoid cross-origin D1 flooding.
       // Planner endpoints are admin-only and must pass normal origin enforcement.
-      const isFilmDownload = ['/api/film/file', '/api/film/watch', '/api/film/audiobook'].includes(url.pathname) && request.method === 'GET';   // links opened from emails or <video>/<audio>: no Origin header
+      const isFilmDownload = ['/api/film/file', '/api/film/watch', '/api/film/listen/audio.mp3', '/api/film/listen/download', '/api/film/listen/feed.xml'].includes(url.pathname) && request.method === 'GET';   // opened from <video>/<audio>, links and podcast apps: no Origin header
       if (!originAllowed && !isQuotePublic && !isInvoicePublic && !isBatteryImagePublic && !isTrackPublic && !isFilmDownload) {
         return json({ ok: false, error: 'Origin not allowed' }, 403, corsHeaders);
       }
@@ -297,7 +297,10 @@ export default {
       if (p === '/api/film/deliver/part' && m === 'POST') return film().handleDeliverPart(request, env, corsHeaders, url);
       if (p === '/api/film/deliver/complete' && m === 'POST') return film().handleDeliverComplete(request, env, corsHeaders, url);
       if (p === '/api/film/keepsake/update' && m === 'POST') return film().handleKeepsakeUpdate(request, env, corsHeaders, url);
-      if (p === '/api/film/audiobook' && m === 'GET') return film().handleAudiobookDownload(request, env, corsHeaders, url);
+      if (p === '/api/film/listen' && m === 'GET') return film().handleListenInfo(request, env, corsHeaders, url);
+      if (p === '/api/film/listen/audio.mp3' && m === 'GET') return film().handleListenAudio(request, env, corsHeaders, url, false);
+      if (p === '/api/film/listen/download' && m === 'GET') return film().handleListenAudio(request, env, corsHeaders, url, true);
+      if (p === '/api/film/listen/feed.xml' && m === 'GET') return film().handleListenFeed(request, env, corsHeaders, url);
       if (p === '/api/film/projects' && m === 'GET') return film().handleAdminList(request, env, corsHeaders, url);
       if (p === '/api/film/project' && m === 'GET') return film().handleAdminDetail(request, env, corsHeaders, url);
       if (p === '/api/film/project/update' && m === 'POST') return film().handleAdminUpdate(request, env, corsHeaders, url);

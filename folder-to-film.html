@@ -240,6 +240,7 @@
     .askk-fab:hover { border-color: var(--gold); }
     .askk-drawer { position: fixed; right: 18px; bottom: 18px; z-index: 61; width: min(420px, calc(100vw - 24px)); height: min(640px, calc(100vh - 36px)); display: none; flex-direction: column; background: #17130f; border: 1px solid #4a3c2b; border-radius: 18px; box-shadow: 0 30px 80px rgba(0,0,0,.6); overflow: hidden; }
     .askk-drawer.on { display: flex; }
+    section.askk-drawer { padding: 0; }   /* the page's sections get 96px of padding; the drawer is a section too */
     .askk-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: #1f1a14; }
     .askk-head img { width: 38px; height: 38px; border-radius: 9px; }
     .askk-head b { display: block; font-size: 16px; }

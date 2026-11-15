@@ -291,7 +291,7 @@
             <span class="price">$29</span><span class="ship" id="audio-ship">An MP3 you download from your dashboard</span>
             <div class="ab-ready" id="ab-ready" hidden>
               <audio id="ab-player" controls preload="none" style="width:100%; margin-top:16px;"></audio>
-              <div class="buy-row"><a class="btn btn-primary" id="ab-download" href="#">Download the MP3</a></div>
+              <div class="buy-row"><a class="btn btn-primary" id="ab-download" href="#">Download the MP3</a><a class="btn btn-ghost" id="ab-listen" href="#" target="_blank" rel="noopener" hidden>Listen on your phone or in Apple Podcasts</a></div>
             </div>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="audiobook">Buy the audiobook · $29</button></div>
             <p class="fine">Made to order, so keepsakes can't be refunded. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
@@ -486,6 +486,8 @@
         $('ab-ready').hidden = false;
         if (!$('ab-player').getAttribute('src')) $('ab-player').src = p.audiobookSrc;
         $('ab-download').href = p.audiobookDownload || p.audiobookSrc;
+        $('ab-listen').hidden = !p.audiobookListenUrl;
+        if (p.audiobookListenUrl) $('ab-listen').href = p.audiobookListenUrl;
         $('audio-ship').textContent = 'Your MP3 is ready: play it here or download it to keep';
         const st = row.parentElement.querySelector('.ask-state');
         st.className = 'ask-state ok';

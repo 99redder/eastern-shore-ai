@@ -607,11 +607,12 @@ export function createFilmHandlers(deps) {
         customerName: row.customer_name || '', me, bookOrdered: hasBook(orders), names: people.map((x) => x.name).filter(Boolean),
         keepsakeOrders: orders.filter((o) => orderIsMine(o, row, person)).map(orderView),
         ...(await mediaFor(env, { ...row, demo_key: null, final_key: null }, new URL(request.url).origin, { audiobook: audiobookAccess(row, person, orders, people) })),
+        ...myListen(row, person, orders),
       } }, 200, corsHeaders);
     }
     const uploads = await uploadsFor(env.DB, row.id);
     const view = customerView(row, uploads, person);
-    Object.assign(view, await mediaFor(env, row, new URL(request.url).origin, { audiobook: audiobookAccess(row, person, orders, people) }));
+    Object.assign(view, await mediaFor(env, row, new URL(request.url).origin, { audiobook: audiobookAccess(row, person, orders, people) }), myListen(row, person, orders));
     view.me = me;
     if (person.isOwner || person.isStaff) view.people = people;
     view.names = people.map((x) => x.name).filter(Boolean);
@@ -1026,7 +1027,7 @@ export function createFilmHandlers(deps) {
         ship_to: o.ship_to || '', recipients, ordered_by_email: who.email, ordered_by_name: who.name, ordered_by_buyer: who.buyer,
         ordered_by_role: who.role, has_audiobook: !!o.audiobook_key, audiobook_uploaded_at: o.audiobook_uploaded_at || '',
         audiobook_listen: o.item === 'audiobook' && o.audiobook_key && linkSecret(env) ? await signedWatch(env, origin, o.project_id, 'audiobook') : '',
-        link_expires_at: o.download_expires_at || '', link_uses_left: o.download_uses_left ?? null,
+        listen_url: o.listen_token ? listenUrl(o.listen_token) : '', link_uses_left: o.download_uses_left ?? null,
       });
     }
     return out;
@@ -1053,7 +1054,7 @@ export function createFilmHandlers(deps) {
   }
 
   // The keepsake emails staff send from an order's line: the audiobook's download link, or a book's tracking.
-  const DOWNLOAD_PLACEHOLDER = '(a private download link goes here when you send)';
+  const LISTEN_PLACEHOLDER = '(your private listening link goes here when you send)';
   async function keepsakeDraft(env, row, o, kind, origin) {
     const who = await orderPerson(env, row, o);
     const first = clip(who.name, 80).split(/\s+/)[0];
@@ -1062,12 +1063,13 @@ export function createFilmHandlers(deps) {
     const page = who.dashboard ? `${dashboardUrl(row.token)}#audiobook-card` : `${keepsakesUrl(row.token)}#audiobook`;
     if (kind === 'audiobook') {
       return {
-        to: who.email, who, link: DOWNLOAD_PLACEHOLDER, button: 'Download the audiobook', heading: 'Your audiobook is ready',
+        to: who.email, who, link: LISTEN_PLACEHOLDER, button: 'Listen to the audiobook', heading: 'Your audiobook is ready',
         subject: `Your audiobook is ready: ${row.project_name || 'your story'}`,
         lines: [hi, '', `The audiobook of ${film} is ready. It's made for listening: the film's narration plus new narration for everything the film shows on screen, so the whole story works by ear.`, '',
-          DOWNLOAD_PLACEHOLDER, '',
-          `That link is private to you and works for ${AUDIOBOOK_LINK_DAYS} days (up to ${AUDIOBOOK_LINK_USES} downloads). It's an MP3, so it plays on any phone, computer or car stereo.`, '',
-          `You can also listen or download it again any time on your ${who.dashboard ? 'film dashboard' : 'keepsakes page'}: ${page}`, '', 'Chris'],
+          LISTEN_PLACEHOLDER, '',
+          'Tap the button to listen on your phone or computer, with no app to install. It remembers where you stopped, and it keeps playing with the screen off.', '',
+          `On that page you can also add it to Apple Podcasts (or another podcast app) to listen offline and in the car, or download the MP3 (up to ${AUDIOBOOK_DOWNLOADS} times).`, '',
+          "The link is private: anyone who has it can listen, so share it only with people you'd like to have it.", '', 'Chris'],
       };
     }
     const track = clip(o.tracking, 300);
@@ -1085,30 +1087,96 @@ export function createFilmHandlers(deps) {
     };
   }
 
-  // GET /api/film/audiobook?d=TOKEN  (public): the emailed download link. The token is long and random,
-  // stored only as a hash, and works for AUDIOBOOK_LINK_DAYS days and AUDIOBOOK_LINK_USES downloads.
-  async function handleAudiobookDownload(request, env, corsHeaders, url) {
-    const page = (title, text, status) => new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title>`
+  // ---------- the audiobook's private listening page (listen.html?l=TOKEN) ----------
+  function plainPage(title, text, status) {
+    return new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title>`
       + `<body style="font-family:Georgia,serif;background:#12100D;color:#F4EDE0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:20px;"><div style="max-width:520px;">`
       + `<h1 style="font-weight:600;font-size:30px;margin:0 0 12px;">${escapeHtml(title)}</h1><p style="color:#C9BFA9;font-size:18px;line-height:1.5;margin:0;">${text}</p></div></body>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
-    const token = clip(url.searchParams.get('d'), 128);
-    if (token.length < 48 || !env.FILMS) return page('Link not found', 'This download link isn\'t right. Please use the link in your email.', 404);
-    const o = await env.DB.prepare(`SELECT * FROM film_keepsake_orders WHERE download_hash = ?1`).bind(await sha256Hex(token)).first();
-    const row = o ? await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(o.project_id).first() : null;
-    if (!o || !row || !row.audiobook_key || row.status === 'canceled') return page('Link not found', 'This download link isn\'t right. Please use the link in your email.', 404);
-    const again = 'You can still listen or download it from your film dashboard or keepsakes page, or reply to the email and we\'ll send a fresh link.';
-    if (!o.download_expires_at || Date.parse(`${o.download_expires_at.replace(' ', 'T')}Z`) < Date.now()) return page('This link has expired', again, 410);
-    // Count a download when the file starts from the beginning (players asking for later byte ranges don't count again).
-    const range = request.headers.get('Range') || '';
-    const fresh = !range || /^bytes=0-/.test(range);
-    if (fresh) {
-      const took = await env.DB.prepare(`UPDATE film_keepsake_orders SET download_uses_left = download_uses_left - 1 WHERE id = ?1 AND download_uses_left > 0`).bind(o.id).run();
-      if (!Number(took.meta?.changes || 0)) return page('This link has been used up', again, 410);
-    } else if (!(Number(o.download_uses_left) >= 0)) {
-      return page('This link has been used up', again, 410);
+  }
+  // The order behind a listening link: delivered audiobooks only, with the MP3 still there and the film not canceled.
+  async function listenGuard(env, url) {
+    const token = clip(url.searchParams.get('l'), 128);
+    if (!/^[0-9a-f]{48,128}$/.test(token) || !env.FILMS) return null;
+    const o = await env.DB.prepare(`SELECT * FROM film_keepsake_orders WHERE listen_token = ?1 AND item = 'audiobook'`).bind(token).first();
+    if (!o || o.status !== 'delivered') return null;
+    const row = await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(o.project_id).first();
+    if (!row || !row.audiobook_key || row.status === 'canceled') return null;
+    return { o, row, token };
+  }
+  const NOT_AVAILABLE = 'This listening link isn\'t available. Please use the link in your audiobook email, or reply to that email and we\'ll help.';
+
+  // GET /api/film/listen?l=  -> what listen.html needs
+  async function handleListenInfo(request, env, corsHeaders, url) {
+    const g = await listenGuard(env, url);
+    if (!g) return json({ ok: false, error: NOT_AVAILABLE }, 404, corsHeaders);
+    const base = new URL(request.url).origin;
+    const q = `l=${g.token}`;
+    const feed = `${base}/api/film/listen/feed.xml?${q}`;
+    return json({
+      ok: true, title: g.row.project_name || 'Our Story', cover: AUDIOBOOK_COVER,
+      src: `${base}/api/film/listen/audio.mp3?${q}`, downloadUrl: `${base}/api/film/listen/download?${q}`,
+      downloadsLeft: Math.max(0, Number(g.o.download_uses_left ?? 0)), downloadsAllowed: AUDIOBOOK_DOWNLOADS,
+      feedUrl: feed, applePodcastsUrl: feed.replace(/^https?:/, 'podcast:'),
+    }, 200, corsHeaders);
+  }
+
+  // GET /api/film/listen/audio.mp3?l=  (players and podcast apps; not counted)
+  // GET /api/film/listen/download?l=   (a download; counted when it starts from the beginning)
+  async function handleListenAudio(request, env, corsHeaders, url, download = false) {
+    const g = await listenGuard(env, url);
+    if (!g) return plainPage('Link not available', escapeHtml(NOT_AVAILABLE), 404);
+    if (download) {
+      const range = request.headers.get('Range') || '';
+      if (!range || /^bytes=0-/.test(range)) {
+        const took = await env.DB.prepare(`UPDATE film_keepsake_orders SET download_uses_left = download_uses_left - 1 WHERE id = ?1 AND download_uses_left > 0`).bind(g.o.id).run();
+        if (!Number(took.meta?.changes || 0)) {
+          return plainPage('No downloads left', `You've downloaded this audiobook ${AUDIOBOOK_DOWNLOADS} times. You can still listen any time on <a style="color:#E3C58E;" href="${escapeHtml(listenUrl(g.token))}">your listening page</a>, or reply to your audiobook email and we'll reset the downloads.`, 410);
+        }
+      }
     }
-    return streamDeliverable(env, request, row, 'audiobook', row.audiobook_key, true);
+    return streamDeliverable(env, request, g.row, 'audiobook', g.row.audiobook_key, download);
+  }
+
+  // GET /api/film/listen/feed.xml?l=  A private podcast feed (Apple Podcasts "Follow a Show by URL",
+  // Pocket Casts and other apps) with the audiobook as one episode; marked not to be listed anywhere.
+  async function handleListenFeed(request, env, corsHeaders, url) {
+    const g = await listenGuard(env, url);
+    if (!g) return new Response('Not found.', { status: 404, headers: { 'X-Robots-Tag': 'noindex' } });
+    const head = await env.FILMS.head(g.row.audiobook_key);
+    const x = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const title = g.row.project_name || 'Our Story';
+    const base = new URL(request.url).origin;
+    const audio = `${base}/api/film/listen/audio.mp3?l=${g.token}`;
+    const ext = (g.row.audiobook_key.split('.').pop() || 'mp3').toLowerCase();
+    const when = g.o.delivered_at || g.row.audiobook_uploaded_at || g.o.paid_at;
+    const pub = new Date(when ? Date.parse(`${String(when).replace(' ', 'T')}Z`) : Date.now()).toUTCString();
+    const about = `The audiobook of ${title}: the film's narration plus new narration for everything the film shows on screen. Made privately for this family with Folder to Film by Eastern Shore AI. Please don't share this feed's link.`;
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+<channel>
+<title>${x(title)} (Audiobook)</title>
+<link>${x(listenUrl(g.token))}</link>
+<language>en-us</language>
+<description>${x(about)}</description>
+<itunes:summary>${x(about)}</itunes:summary>
+<itunes:author>Folder to Film</itunes:author>
+<itunes:image href="${x(AUDIOBOOK_COVER)}"/>
+<image><url>${x(AUDIOBOOK_COVER)}</url><title>${x(title)} (Audiobook)</title><link>${x(listenUrl(g.token))}</link></image>
+<itunes:explicit>false</itunes:explicit>
+<itunes:block>Yes</itunes:block>
+<itunes:type>episodic</itunes:type>
+<item>
+<title>${x(title)}: the audiobook</title>
+<description>${x(about)}</description>
+<enclosure url="${x(audio)}" length="${Number(head?.size || 0)}" type="${ext === 'mp3' ? 'audio/mpeg' : 'audio/x-m4a'}"/>
+<guid isPermaLink="false">folder-to-film-audiobook-${g.o.id}-${x(g.row.audiobook_key.split('/').pop())}</guid>
+<pubDate>${x(pub)}</pubDate>
+<itunes:explicit>false</itunes:explicit>
+</item>
+</channel>
+</rss>`;
+    return new Response(xml, { headers: { 'Content-Type': 'application/rss+xml; charset=utf-8', 'Cache-Control': 'private, max-age=300', 'X-Robots-Tag': 'noindex' } });
   }
 
   // GET /api/film/project?id=
@@ -1193,7 +1261,7 @@ export function createFilmHandlers(deps) {
     const draft = await keepsakeDraft(env, row, o, kind, new URL(request.url).origin);
     const subject = clip(d.subject, 200) || draft.subject;
     let body = typeof d.body === 'string' && d.body.trim() ? d.body.replace(/\r\n/g, '\n').slice(0, 8000) : draft.lines.join('\n');
-    if (kind === 'audiobook' && !body.includes(DOWNLOAD_PLACEHOLDER)) return json({ ok: false, error: `Keep the line "${DOWNLOAD_PLACEHOLDER}" in the email: that's where the download link goes.` }, 400, corsHeaders);
+    if (kind === 'audiobook' && !body.includes(LISTEN_PLACEHOLDER)) return json({ ok: false, error: `Keep the line "${LISTEN_PLACEHOLDER}" in the email: that's where the listening link goes.` }, 400, corsHeaders);
     const render = (text, link) => {
       const lines = text.split('\n').map((l) => l.trimEnd());
       return shell(linesHtml(lines, link, draft.button), { heading: draft.heading, preheader: lines.find((l) => l && !l.startsWith('Hi')) || '', link });
@@ -1202,12 +1270,12 @@ export function createFilmHandlers(deps) {
     if (!d.send) return json({ ok: true }, 200, corsHeaders);
     let link = draft.link;
     if (kind === 'audiobook') {
-      // A fresh private link each time it's sent; the old one stops working.
-      const token = generateToken() + generateToken();
-      link = `${new URL(request.url).origin}/api/film/audiobook?d=${token}`;
-      body = body.split(DOWNLOAD_PLACEHOLDER).join(link);
-      await env.DB.prepare(`UPDATE film_keepsake_orders SET download_hash = ?1, download_expires_at = datetime('now', ?2), download_uses_left = ?3 WHERE id = ?4`)
-        .bind(await sha256Hex(token), `+${AUDIOBOOK_LINK_DAYS} days`, AUDIOBOOK_LINK_USES, o.id).run();
+      // The listening link is made once and kept (a podcast app following its feed keeps working);
+      // each delivery resets the downloads.
+      const token = o.listen_token || generateToken() + generateToken();
+      link = listenUrl(token);
+      body = body.split(LISTEN_PLACEHOLDER).join(link);
+      await env.DB.prepare(`UPDATE film_keepsake_orders SET listen_token = ?1, download_uses_left = ?2 WHERE id = ?3`).bind(token, AUDIOBOOK_DOWNLOADS, o.id).run();
     }
     try {
       await sendCustomerEmail(env, row, { kind: `keepsake_${kind}`, to: draft.to, subject, text: body, html: render(body, link) });
@@ -1372,8 +1440,10 @@ export function createFilmHandlers(deps) {
     copies: ['paid', 'printing', 'shipped', 'delivered'],
     audiobook: ['paid', 'in_progress', 'delivered'],
   };
-  const AUDIOBOOK_LINK_DAYS = 7;
-  const AUDIOBOOK_LINK_USES = 5;
+  // The audiobook's private listening page (listen.html?l=TOKEN): streaming isn't counted; downloads are.
+  const AUDIOBOOK_DOWNLOADS = 5;
+  const listenUrl = (token) => `${SITE}/listen.html?l=${token}`;
+  const AUDIOBOOK_COVER = `${SITE}/images/story-video/audiobook-cover.jpg`;
   // Who can play and download the audiobook once it's delivered: everyone on the dashboard when the buyer
   // (or anyone with dashboard access) ordered it; a keepsakes-only relative only for their own order.
   function audiobookAccess(row, person, orders, people) {
@@ -1390,6 +1460,11 @@ export function createFilmHandlers(deps) {
       });
     }
     return done.some((o) => orderIsMine(o, row, person));
+  }
+  // The viewer's own delivered audiobook's listening page, for the dashboard card and the keepsakes page.
+  function myListen(row, person, orders) {
+    const o = row.audiobook_key ? orders.find((x) => x.item === 'audiobook' && x.status === 'delivered' && x.listen_token && orderIsMine(x, row, person)) : null;
+    return o ? { audiobookListenUrl: listenUrl(o.listen_token) } : {};
   }
   // The person behind an order, for emails: their email, first name, and whether they can open the dashboard.
   async function orderPerson(env, row, o) {
@@ -1599,7 +1674,7 @@ export function createFilmHandlers(deps) {
 
   async function keepsakeOrders(env, projectId) {
     try {
-      const rows = (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, recipients, ordered_by, status, paid_at, tracking, staff_notes, status_at, shipped_at, delivered_at, stripe_session_id
+      const rows = (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, recipients, ordered_by, status, paid_at, tracking, staff_notes, status_at, shipped_at, delivered_at, stripe_session_id, listen_token
         FROM film_keepsake_orders WHERE project_id = ?1 AND status != 'pending' ORDER BY id`).bind(projectId).all()).results || [];
       return rows.map((o) => { let r = []; try { r = JSON.parse(o.recipients || '[]') || []; } catch {} return { ...o, recipients: r }; });
     } catch { return []; }
@@ -2072,7 +2147,7 @@ export function createFilmHandlers(deps) {
   return {
     handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples, handleKeepsakeCheckout, handleKeepsakePaid,
     handleKeepsakeExpired: async (env, session) => { if (session?.id) await env.DB.prepare(`DELETE FROM film_keepsake_orders WHERE stripe_session_id = ?1 AND status = 'pending'`).bind(clip(session.id, 120)).run(); },
-    handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch, handleKeepsakeUpdate, handleAudiobookDownload,
+    handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch, handleKeepsakeUpdate, handleListenInfo, handleListenAudio, handleListenFeed,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove, handlePeopleRole,
     handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,
     sendStatusEmail, purgeOldFilms,

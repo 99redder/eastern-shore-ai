@@ -430,7 +430,7 @@
       <h2>Listen anywhere</h2>
       <p class="lead">Made for listening: the film's narration plus extra narration for everything the film shows on screen. Play it here, or download the MP3 for your phone or the car.</p>
       <audio id="audiobook-player" controls preload="none" style="width:100%;"></audio>
-      <div class="row" style="margin-top:14px;"><a class="btn btn-primary" id="audiobook-download" href="#">Download the MP3</a></div>
+      <div class="row" style="margin-top:14px;"><a class="btn btn-primary" id="audiobook-download" href="#">Download the MP3</a><a class="btn btn-ghost" id="audiobook-listen" href="#" target="_blank" rel="noopener" hidden>Listen on your phone or in Apple Podcasts</a></div>
     </section>
 
     <!-- Keepsakes box (once production starts) -->
@@ -660,6 +660,8 @@
       if (p.audiobookSrc) {
         if (!$('audiobook-player').getAttribute('src')) $('audiobook-player').src = p.audiobookSrc;   // don't restart it mid-listen
         $('audiobook-download').href = p.audiobookDownload || p.audiobookSrc;
+        $('audiobook-listen').hidden = !p.audiobookListenUrl;
+        if (p.audiobookListenUrl) $('audiobook-listen').href = p.audiobookListenUrl;
       }
       $('keep-ad-title').textContent = p.projectName || 'Our Story';
       if (p.people) renderPeople(p.people);
