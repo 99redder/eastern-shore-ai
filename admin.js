@@ -4130,9 +4130,10 @@
       if (adminSessionActive) loadAccountsData();
     }
 
+    const ORDER_STATUS_COLORS = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e', delivered: '#6366f1', review_requested: '#f59e0b' };
     function orderStatusBadge(status) {
       const s = String(status || 'new').toLowerCase();
-      const colors = { new: '#ff4fd8', acknowledged: '#00e5ff', shipped: '#22c55e', delivered: '#6366f1', review_requested: '#f59e0b' };
+      const colors = ORDER_STATUS_COLORS;
       const labels = { new: 'New', acknowledged: 'Acknowledged', shipped: 'Shipped', delivered: 'Delivered', review_requested: 'Review Requested' };
       return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${colors[s] || '#475569'}; color:#fff;">${escHtml(labels[s] || s)}</span>`;
     }
@@ -4177,7 +4178,9 @@
               : `<div style="margin-top:.2rem; color:var(--muted);">Review request: wait until ${escHtml(formatShipDate(reviewTiming.dueDate, 'short'))} (${REVIEW_WAIT_DAYS} days after the delivered email)</div>`;
           // Not the disabled attribute: a disabled button ignores clicks, so it just looks broken.
           const blockedBy = (reason) => `aria-disabled="true" data-blocked="${escHtml(reason)}" title="${escHtml(reason)}"`;
-          return `<div style="padding:.45rem 0; border-bottom:1px dashed var(--line);">
+          // Each order is its own card, edged in its status color (like the Folder to Film rows).
+          const edge = ORDER_STATUS_COLORS[String(order.fulfillment_status || 'new').toLowerCase()] || '#475569';
+          return `<div class="order-card" style="border-left-color:${edge};">
             <div style="display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;">
               <strong>${escHtml(order.order_summary || 'Order')}</strong>
               ${statusBadge}

@@ -1206,6 +1206,7 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - Use this instead of Apple Mail when a customer email has to arrive: it goes through Cloudflare and passes DMARC.
 - The review request can also go out more than once: the button reads **Send Review Again** after the first, and `orderEmailSentAt` returns nothing for `message` and `review`. `review_email_sent_at` keeps the latest.
 - Order buttons that can't run yet use `aria-disabled` and `data-blocked` (`blockedBy()` in `admin.js`), not `disabled`, so they look grayed out and a click explains why.
+- Each order is its own card (`.order-card`, since 2026-11-15, Red's ask: his eyes had trouble telling customers apart), edged in its status color from `ORDER_STATUS_COLORS` (new pink, acknowledged cyan, shipped green, delivered indigo, review requested amber), like the Folder to Film rows.
 
 ## Text Customer button (added 2026-10-30)
 
