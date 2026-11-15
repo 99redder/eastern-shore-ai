@@ -1106,7 +1106,24 @@ export function createFilmHandlers(deps) {
 
   // ---------- keepsakes: pay on the keepsakes page ----------
 
-  // POST /api/film/keepsake-checkout {t, item, qty} -> { checkoutUrl }
+  const US_STATES = new Set('AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' '));
+  // Family copies: one U.S. address per copy, checked before checkout.
+  function cleanRecipients(list, qty) {
+    if (!Array.isArray(list) || list.length !== qty) return { error: `Please add an address for each of the ${qty} cop${qty === 1 ? 'y' : 'ies'}.` };
+    const out = [];
+    for (const [i, r] of list.entries()) {
+      const one = { name: clip(r?.name, 80), line1: clip(r?.line1, 120), line2: clip(r?.line2, 80), city: clip(r?.city, 60),
+        state: clip(r?.state, 2).toUpperCase(), zip: clip(r?.zip, 10) };
+      if (!one.name || !one.line1 || !one.city) return { error: `Copy ${i + 1}: please add the name, street and city.` };
+      if (!US_STATES.has(one.state)) return { error: `Copy ${i + 1}: books ship to U.S. addresses only. Please pick a state.` };
+      if (!/^\d{5}(-\d{4})?$/.test(one.zip)) return { error: `Copy ${i + 1}: please check the ZIP code.` };
+      out.push(one);
+    }
+    return { recipients: out };
+  }
+  const addressLine = (r) => [r.name, r.line1, r.line2, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', ');
+
+  // POST /api/film/keepsake-checkout {t, item, qty, recipients?} -> { checkoutUrl }
   async function handleKeepsakeCheckout(request, env, corsHeaders, originAllowed, allowedOrigins) {
     if (!env.STRIPE_SECRET_KEY) return json({ ok: false, error: 'Stripe not configured' }, 500, corsHeaders);
     const d = (await readJson(request)) || {};
@@ -1119,6 +1136,12 @@ export function createFilmHandlers(deps) {
     const item = Object.prototype.hasOwnProperty.call(FILM_KEEPSAKES, key) ? FILM_KEEPSAKES[key] : null;
     if (!item) return json({ ok: false, error: 'Unknown keepsake' }, 400, corsHeaders);
     const qty = Math.max(1, Math.min(item.maxQty, Math.round(Number(d.qty || 1)) || 1));
+    let recipients = null;
+    if (key === 'copies') {
+      const c = cleanRecipients(d.recipients, qty);
+      if (c.error) return json({ ok: false, error: c.error }, 400, corsHeaders);
+      recipients = c.recipients;
+    }
     const origin = (originAllowed && request.headers.get('Origin')) || allowedOrigins[0] || SITE;
     const back = `${origin}/my-keepsakes.html?t=${encodeURIComponent(row.token)}`;
     const film = clip(row.project_name, 80) || 'your film';
@@ -1143,7 +1166,7 @@ export function createFilmHandlers(deps) {
       'payment_intent_data[metadata][film_project_id]': String(row.id),
       'custom_text[submit][message]': item.ship
         ? "We design it from your film and post a proof in your project chat before it's printed."
-        : (key === 'copies' ? "After paying, tell us in your project chat where to send each copy (U.S. addresses only)." : "We'll put the MP3 on your dashboard and let you know in your project chat."),
+        : (key === 'copies' ? "We ship a copy to each address you entered, free, once the book is final." : "We'll put the MP3 on your dashboard and let you know in your project chat."),
     });
     if (item.ship) body.set('shipping_address_collection[allowed_countries][0]', 'US');
     if (a.person.isOwner && row.customer_email) body.set('customer_email', row.customer_email);
@@ -1154,6 +1177,9 @@ export function createFilmHandlers(deps) {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data?.url) return json({ ok: false, error: 'Checkout could not start. Please try again or ask in your project chat.', detail: data?.error?.message || '' }, 502, corsHeaders);
+    // Saved as pending (with the addresses for copies); the webhook marks it paid, an expired checkout deletes it.
+    await env.DB.prepare(`INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, stripe_session_id, recipients, status) VALUES (?1, ?2, ?3, ?4, ?5, 'pending')`)
+      .bind(row.id, key, qty, clip(data.id, 120), recipients ? JSON.stringify(recipients) : null).run();
     return json({ ok: true, checkoutUrl: data.url, id: data.id }, 200, corsHeaders);
   }
 
@@ -1180,11 +1206,20 @@ export function createFilmHandlers(deps) {
     const state = clip(session.customer_details?.address?.state, 8).toUpperCase();
     const pi = clip(session.payment_intent?.id || session.payment_intent, 80);
     const shipTo = shipToText(session);
-    const ins = await env.DB.prepare(
-      `INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, amount_cents, tax_cents, stripe_session_id, ship_to, status, paid_at)
-       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'paid', datetime('now'))`
-    ).bind(row.id, key, qty, amount, tax, sid, shipTo || null).run();
-    if (!Number(ins.meta?.changes || 0)) return { ok: true, duplicate: true };
+    let claimed = await env.DB.prepare(
+      `UPDATE film_keepsake_orders SET status = 'paid', amount_cents = ?1, tax_cents = ?2, ship_to = COALESCE(?3, ship_to), paid_at = datetime('now')
+       WHERE stripe_session_id = ?4 AND status = 'pending'`
+    ).bind(amount, tax, shipTo || null, sid).run();
+    if (!Number(claimed.meta?.changes || 0)) {
+      claimed = await env.DB.prepare(
+        `INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, amount_cents, tax_cents, stripe_session_id, ship_to, status, paid_at)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'paid', datetime('now'))`
+      ).bind(row.id, key, qty, amount, tax, sid, shipTo || null).run();
+      if (!Number(claimed.meta?.changes || 0)) return { ok: true, duplicate: true };
+    }
+    const order = await env.DB.prepare(`SELECT * FROM film_keepsake_orders WHERE stripe_session_id = ?1`).bind(sid).first();
+    let recipients = [];
+    try { recipients = JSON.parse(order?.recipients || '[]') || []; } catch {}
     const label = `${item.name}${qty > 1 ? ` x ${qty}` : ''}`;
 
     // Books: income (session total) and the Stripe fee, deduped by session id like the film itself.
@@ -1219,7 +1254,7 @@ export function createFilmHandlers(deps) {
     const next = item.ship
       ? `Thank you for ordering the ${label}! We'll design it from your film and post a proof here for you to approve before it's printed. It ships about 2 to 3 weeks after you approve it.`
       : key === 'copies'
-        ? `Thank you for ordering ${qty} extra cop${qty === 1 ? 'y' : 'ies'} of the book! Please reply here with each person's name and U.S. mailing address, and we'll ship them free once the book is final.`
+        ? `Thank you for ordering ${qty} extra cop${qty === 1 ? 'y' : 'ies'} of the book! We'll ship one free to each address you gave us${recipients.length ? ` (${recipients.map((r) => r.name).join(', ')})` : ''} once the book is final. Need to change an address? Tell us here.`
         : `Thank you for ordering the audiobook! We'll record the extra narration and put the MP3 on your dashboard, and let you know here when it's ready.`;
     try {
       await env.DB.prepare(`INSERT INTO film_messages (project_id, role, sender_name, content, created_at) VALUES (?1, 'staff', ?2, ?3, ?4)`)
@@ -1229,9 +1264,10 @@ export function createFilmHandlers(deps) {
       const link = `${dashboardUrl(row.token)}#chat`;
       const hi = firstName(row);
       const text = [hi, '', `Thanks for your order: ${label} for ${row.project_name || 'your film'} (${formatUsd(amount)}${tax ? `, including ${formatUsd(tax)} tax` : ''}).`, '', next,
-        ...(shipTo ? ['', `Shipping to: ${shipTo}`] : []), '', `Your project chat: ${link}`, '', 'Folder to Film by Eastern Shore AI'].join('\n');
+        ...(shipTo ? ['', `Shipping to: ${shipTo}`] : []), ...(recipients.length ? ['', 'Shipping a copy to:', ...recipients.map((r) => `- ${addressLine(r)}`)] : []), '', `Your project chat: ${link}`, '', 'Folder to Film by Eastern Shore AI'].join('\n');
       const html = shell(`<p style="margin:0 0 12px;">${escapeHtml(hi)}</p>`
         + filmDetailsBox([['Keepsake', label], ['Film', row.project_name || ''], ['Paid', formatUsd(amount) + (tax ? ` (includes ${formatUsd(tax)} tax)` : '')], ['Ship to', shipTo]])
+        + (recipients.length ? `<p style="margin:0 0 6px;"><b>Shipping a copy to:</b></p><ul style="margin:0 0 14px;padding-left:20px;">${recipients.map((r) => `<li>${escapeHtml(addressLine(r))}</li>`).join('')}</ul>` : '')
         + `<p style="margin:0 0 12px;">${escapeHtml(next)}</p>` + filmButton(link, 'Open my project chat'),
         { heading: 'Thank you for your order', preheader: `${label}: ${next}` });
       await sendCustomerEmail(env, row, { kind: 'keepsake', subject: `Thank you for your order: ${label}`, text, html });
@@ -1241,7 +1277,7 @@ export function createFilmHandlers(deps) {
         from: env.ALERTS_FROM_EMAIL,
         subject: `Keepsake order: ${label} (${row.project_name || `Film #${row.id}`})`,
         text: [`${row.customer_name || row.customer_email} bought ${label} for ${formatUsd(amount)}${tax ? ` (includes ${formatUsd(tax)} tax, ${state})` : ''}.`,
-          shipTo ? `Ship to: ${shipTo}` : (key === 'copies' ? 'Addresses: they were asked to send them in the project chat.' : ''),
+          shipTo ? `Ship to: ${shipTo}` : '', ...(recipients.length ? ['Ship a copy to:', ...recipients.map((r) => `- ${addressLine(r)}`)] : []),
           '', `Admin: ${SITE}/admin.html (Folder to Film > Details & Files)`].filter((l) => l !== '').join('\n'),
       });
     } catch (e) { console.error('keepsake staff alert', e); }
@@ -1250,7 +1286,8 @@ export function createFilmHandlers(deps) {
 
   async function keepsakeOrders(env, projectId) {
     try {
-      return (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, status, paid_at FROM film_keepsake_orders WHERE project_id = ?1 ORDER BY id`).bind(projectId).all()).results || [];
+      const rows = (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, recipients, status, paid_at FROM film_keepsake_orders WHERE project_id = ?1 AND status != 'pending' ORDER BY id`).bind(projectId).all()).results || [];
+      return rows.map((o) => { let r = []; try { r = JSON.parse(o.recipients || '[]') || []; } catch {} return { ...o, recipients: r }; });
     } catch { return []; }
   }
 
@@ -1705,6 +1742,7 @@ export function createFilmHandlers(deps) {
 
   return {
     handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples, handleKeepsakeCheckout, handleKeepsakePaid,
+    handleKeepsakeExpired: async (env, session) => { if (session?.id) await env.DB.prepare(`DELETE FROM film_keepsake_orders WHERE stripe_session_id = ?1 AND status = 'pending'`).bind(clip(session.id, 120)).run(); },
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove,
     handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,

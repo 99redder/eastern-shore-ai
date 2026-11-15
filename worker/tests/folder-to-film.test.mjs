@@ -941,12 +941,25 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   assert.equal(params.get('metadata[keepsake]'), 'book');
   assert.match(params.get('success_url'), /my-keepsakes\.html\?t=.+&paid=book$/);
   assert.match(params.get('line_items[0][price_data][product_data][name]'), /Lake Week/);
-  // Family copies: quantity capped, addresses come through the chat; the audiobook is $29 and digital.
-  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 99 }));
-  params = stripe.sessions.get(r.data.id);
-  assert.equal(params.get('line_items[0][quantity]'), '25');
+  // Family copies: an address for every copy, U.S. only, checked before checkout and saved with the order.
+  const addr = (n) => ({ name: `Cousin ${n}`, line1: `${n} Elm St`, city: 'Portsmouth', state: 'NH', zip: '03801' });
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(1)] }));
+  assert.equal(r.status, 400);
+  assert.match(r.data.error, /address for each of the 2 copies/);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1, recipients: [{ ...addr(1), state: 'ON' }] }));
+  assert.match(r.data.error, /U\.S\. addresses only/);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 1, recipients: [{ ...addr(1), zip: '3801' }] }));
+  assert.match(r.data.error, /ZIP/);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(1), addr(2)] }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const copiesSession = r.data.id;
+  params = stripe.sessions.get(copiesSession);
+  assert.equal(params.get('line_items[0][quantity]'), '2');
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), '7900');
   assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), null);
+  const pendingCopies = db.prepare('SELECT * FROM film_keepsake_orders WHERE stripe_session_id = ?').get(copiesSession);
+  assert.equal(pendingCopies.status, 'pending');
+  assert.deepEqual(JSON.parse(pendingCopies.recipients).map((x) => x.name), ['Cousin 1', 'Cousin 2']);
   r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'audiobook' }));
   params = stripe.sessions.get(r.data.id);
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), '2900');
@@ -957,6 +970,13 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }))).status, 401);
   DEVICE = saved;
 
+  // An abandoned checkout's pending order goes away when Stripe expires the session.
+  let exp = await worker.fetch(await signedWebhook({ id: 'evt_keep_exp', type: 'checkout.session.expired', created: Math.floor(Date.now() / 1000), data: { object: { id: copiesSession, metadata: { checkout_type: 'film_keepsake', film_project_id: String(id) } } } }), env, ctx);
+  assert.equal(exp.status, 200);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_keepsake_orders WHERE stripe_session_id = ?').get(copiesSession).n, 0);
+  // Pending orders don't show as orders.
+  assert.deepEqual((await call(env, get(`/api/film/dashboard?t=${token}`))).data.project.keepsakeOrders, []);
+
   // Paid: order recorded once, income + fee booked, a note in the chat, a receipt and a staff alert.
   env.EMAIL.sent.length = 0;
   const event = { id: 'evt_keep_1', type: 'checkout.session.completed', created: Math.floor(Date.now() / 1000), data: { object: {
@@ -966,7 +986,7 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
     metadata: { checkout_type: 'film_keepsake', film_project_id: String(id), keepsake: 'book', qty: '1' } } } };
   let res = await worker.fetch(await signedWebhook(event), env, ctx);
   assert.equal(res.status, 200, await res.clone().text());
-  const order = db.prepare('SELECT * FROM film_keepsake_orders WHERE project_id = ?').get(id);
+  const order = db.prepare(`SELECT * FROM film_keepsake_orders WHERE stripe_session_id = 'cs_keep_1'`).get();
   assert.equal(order.item, 'book');
   assert.equal(order.amount_cents, 15794);
   assert.match(order.ship_to, /1 Main St, Dover NH 03820/);
@@ -984,12 +1004,26 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   res = await worker.fetch(await signedWebhook({ ...event, id: 'evt_keep_2' }), env, ctx);
   assert.equal(res.status, 200);
   assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM tax_income WHERE stripe_session_id = 'cs_keep_1'`).get().n, 1);
-  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_keepsake_orders').get().n, 1);
+  assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM film_keepsake_orders WHERE status = 'paid'`).get().n, 1);
+  // Family copies paid: the addresses entered before checkout go into the receipt, the alert and admin.
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 2, recipients: [addr(3), addr(4)] }));
+  env.EMAIL.sent.length = 0;
+  res = await worker.fetch(await signedWebhook({ id: 'evt_keep_copies', type: 'checkout.session.completed', created: Math.floor(Date.now() / 1000), data: { object: {
+    id: r.data.id, payment_status: 'paid', amount_total: 16748, total_details: { amount_tax: 948 }, payment_intent: 'pi_keep2',
+    customer_details: { name: 'Pat Family', email: 'pat@family.example', address: { state: 'MD' } },
+    metadata: { checkout_type: 'film_keepsake', film_project_id: String(id), keepsake: 'copies', qty: '2' } } } }), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const copiesReceipt = env.EMAIL.sent.find((m) => /Thank you for your order: Extra copies/.test(m.subject));
+  assert.match(copiesReceipt.text, /Cousin 3, 3 Elm St, Portsmouth, NH 03801/);
+  assert.match(env.EMAIL.sent.find((m) => /^Keepsake order:/.test(m.subject)).text, /Cousin 4, 4 Elm St/);
+  assert.match(db.prepare(`SELECT content FROM film_messages WHERE project_id = ? ORDER BY id DESC`).get(id).content, /Cousin 3, Cousin 4/);
+
   // The dashboard and admin see the order.
   const dash = await call(env, get(`/api/film/dashboard?t=${token}`));
-  assert.deepEqual(dash.data.project.keepsakeOrders.map((o) => o.item), ['book']);
+  assert.deepEqual(dash.data.project.keepsakeOrders.map((o) => o.item), ['book', 'copies']);
   const detail = await call(env, get(`/api/film/project?id=${id}`, ADMIN));
-  assert.equal(detail.data.keepsakes.length, 1);
+  assert.equal(detail.data.keepsakes.length, 2);
+  assert.equal(detail.data.keepsakes[1].recipients.length, 2);
 });
 
 // Keep last: node:test runs this file's tests in order.

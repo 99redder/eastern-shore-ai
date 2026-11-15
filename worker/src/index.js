@@ -1558,6 +1558,9 @@ async function handleStripeWebhook(request, env, corsHeaders) {
     if ((session.metadata?.checkout_type || '').toString() === 'folder_to_film') {
       await film().handleFilmExpired(env, session);
     }
+    if ((session.metadata?.checkout_type || '').toString() === 'film_keepsake') {
+      await film().handleKeepsakeExpired(env, session);
+    }
     return json({ ok: true }, 200, corsHeaders);
   }
 

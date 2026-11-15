@@ -79,6 +79,16 @@
     .buy-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
     .qty { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; }
     .qty select { background: var(--card2); color: var(--ivory); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 16px; }
+    .recips { display: grid; gap: 14px; margin-top: 16px; }
+    .recip { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+    .recip b { display: block; font-size: 14px; color: var(--gold2); margin-bottom: 8px; letter-spacing: .04em; }
+    .recip .g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .recip .g .full { grid-column: 1 / -1; }
+    .recip .row3 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .recip input, .recip select { width: 100%; background: #15110d; border: 1px solid var(--line); border-radius: 10px; color: var(--ivory); font: inherit; font-size: 16px; padding: 10px 12px; }
+    .recip input:focus, .recip select:focus { outline: none; border-color: var(--gold); }
+    .recip label { position: absolute; left: -9999px; }
+    @media (max-width: 520px) { .recip .g { grid-template-columns: 1fr; } }
     .paid-banner { background: rgba(159,215,165,.12); border: 1px solid #5f8f65; color: var(--ivory); border-radius: 14px; padding: 14px 18px; margin: 24px 0 0; }
     .paid-banner b { color: var(--ok); }
     .ask-state.ok { color: var(--ok); }
@@ -288,12 +298,11 @@
           <div>
             <div class="eyebrow">Copies for family</div>
             <h2 id="family-title">One for everyone <em>in the story.</em></h2>
-            <p id="family-text">Pick how many, and after you pay, tell us in your project chat where to send each one. We ship a copy straight to each person.</p>
+            <p id="family-text">Pick how many and add where each one goes. We ship a copy straight to each person.</p>
             <span class="price">$79 each</span><span class="ship">Free shipping to each U.S. address</span>
-            <div class="buy-row">
-              <label class="qty">Copies <select id="copies-qty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label>
-              <button type="button" class="btn btn-primary" data-buy="copies" id="copies-btn">Buy 1 copy · $79</button>
-            </div>
+            <div class="buy-row"><label class="qty">How many copies? <select id="copies-qty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label></div>
+            <div class="recips" id="recips"></div>
+            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="copies" id="copies-btn">Buy 1 copy · $79</button></div>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
@@ -441,20 +450,56 @@
       }
     }
 
-    // Buying goes straight to Stripe Checkout.
-    $('copies-qty').addEventListener('change', () => {
+    // Family copies: an address block per copy (Stripe takes only one shipping address).
+    const STATES = 'AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY'.split(' ');
+    function recipBlock(i) {
+      const d = document.createElement('div');
+      d.className = 'recip';
+      d.innerHTML = `<b>Copy ${i + 1}</b><div class="g">
+        <label for="r${i}-name">Name</label><input id="r${i}-name" class="full" data-f="name" maxlength="80" placeholder="Who it's for" autocomplete="off" />
+        <label for="r${i}-line1">Street address</label><input id="r${i}-line1" class="full" data-f="line1" maxlength="120" placeholder="Street address" autocomplete="off" />
+        <label for="r${i}-line2">Apartment or suite</label><input id="r${i}-line2" class="full" data-f="line2" maxlength="80" placeholder="Apartment, suite (optional)" autocomplete="off" />
+        <label for="r${i}-city">City</label><input id="r${i}-city" data-f="city" maxlength="60" placeholder="City" autocomplete="off" />
+        <div class="row3"><label for="r${i}-state">State</label><select id="r${i}-state" data-f="state"><option value="">State</option>${STATES.map((st) => `<option>${st}</option>`).join('')}</select>
+        <label for="r${i}-zip">ZIP code</label><input id="r${i}-zip" data-f="zip" maxlength="10" inputmode="numeric" placeholder="ZIP" autocomplete="off" /></div>
+      </div>`;
+      return d;
+    }
+    function syncRecips() {
       const n = Number($('copies-qty').value);
+      const box = $('recips');
+      while (box.children.length < n) box.appendChild(recipBlock(box.children.length));
+      while (box.children.length > n) box.removeChild(box.lastElementChild);
       $('copies-btn').textContent = `Buy ${n} cop${n === 1 ? 'y' : 'ies'} · $${n * 79}`;
-    });
+    }
+    function readRecips() {
+      return [...$('recips').children].map((d) => Object.fromEntries([...d.querySelectorAll('[data-f]')].map((el) => [el.dataset.f, el.value.trim()])));
+    }
+    function checkRecips(list) {
+      for (const [i, r] of list.entries()) {
+        if (!r.name || !r.line1 || !r.city) return `Copy ${i + 1}: please add the name, street and city.`;
+        if (!r.state) return `Copy ${i + 1}: please pick a state (U.S. addresses only).`;
+        if (!/^\d{5}(-\d{4})?$/.test(r.zip)) return `Copy ${i + 1}: please check the ZIP code.`;
+      }
+      return '';
+    }
+    $('copies-qty').addEventListener('change', syncRecips);
+    syncRecips();
     document.addEventListener('click', async (e) => {
       const b = e.target.closest('[data-buy]');
       if (!b || b.disabled) return;
       const state = b.closest('.buy-row').parentElement.querySelector('.ask-state');
       const label = b.textContent;
+      const isCopies = b.dataset.buy === 'copies';
+      const recipients = isCopies ? readRecips() : undefined;
+      if (isCopies) {
+        const problem = checkRecips(recipients);
+        if (problem) { state.className = 'ask-state err'; state.textContent = problem; return; }
+      }
       b.disabled = true;
       b.textContent = 'Opening checkout…';
       try {
-        const d = await api('/api/film/keepsake-checkout', { t: token, item: b.dataset.buy, qty: b.dataset.buy === 'copies' ? Number($('copies-qty').value) : 1 });
+        const d = await api('/api/film/keepsake-checkout', { t: token, item: b.dataset.buy, qty: isCopies ? Number($('copies-qty').value) : 1, recipients });
         location.href = d.checkoutUrl;
       } catch (err) {
         state.className = 'ask-state err';
