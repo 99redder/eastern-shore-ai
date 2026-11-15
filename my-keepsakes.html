@@ -335,13 +335,13 @@
             <div class="eyebrow">Audiobook</div>
             <h2>For the car, <em>or for Grandpa.</em></h2>
             <p>Made to be an audiobook, not just the film's soundtrack. We add narration for everything the film shows on screen, like the photos, maps and captions, so the whole story works by ear. For anyone who'd rather listen, or whose eyes aren't what they were. Plays on any phone.</p>
-            <span class="price">$29</span><span class="ship" id="audio-ship">An MP3 you download from your dashboard</span>
+            <span class="price">$29</span><span class="ship" id="audio-ship">A private listening page for any phone or podcast app, plus the MP3 to download</span>
             <div class="ab-ready" id="ab-ready" hidden>
               <audio id="ab-player" controls preload="none" style="width:100%; margin-top:16px;"></audio>
               <div class="buy-row"><a class="btn btn-primary" id="ab-download" href="#">Download the MP3</a><a class="btn btn-ghost" id="ab-listen" href="#" target="_blank" rel="noopener" hidden>Listen on your phone or in Apple Podcasts</a></div>
             </div>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="audiobook">Buy the audiobook · $29</button></div>
-            <p class="fine">Made to order, so keepsakes can't be refunded. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
+            <p class="fine">Made to order, so it can't be refunded once it's paid for. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
@@ -530,6 +530,15 @@
         el.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`;
       });
       document.querySelectorAll('[data-cap]').forEach((el) => { el.textContent = (p.occasion || '').trim() || title; });
+      // The audiobook's art and the copies' covers: the real book cover once it's laid out; with no
+      // book and no photos yet, the generic audiobook cover, so nothing shows as a blank square.
+      const bg = (el, url) => { el.style.backgroundImage = `url("${String(url).replace(/"/g, '%22')}")`; };
+      const cover = p.bookPreview && p.bookPreview.cover;
+      if (cover) {
+        document.querySelectorAll('.player .art, .mini .ph').forEach((el) => bg(el, cover));
+      } else if (!urls.length) {
+        document.querySelectorAll('.player .art').forEach((el) => bg(el, 'images/story-video/audiobook-cover.jpg'));
+      }
 
       // Copies for family: use the names of the people on this film (not the viewer's own), when we have them.
       const mine = (me.name || '').trim().split(' ')[0];
@@ -578,7 +587,7 @@
         $('how-proof').textContent = "We design it from the film's script, photos and illustrations and email you a proof.";
         $('how-ship').textContent = 'It arrives about 2 to 3 weeks after you approve. The audiobook comes to you by email.';
         $('questions-line').innerHTML = 'Questions first? Email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> or call or text <a href="tel:+13029079162">(302) 907-9162</a>.';
-        $('audio-ship').textContent = 'An MP3 we email you when it\'s ready';
+        $('audio-ship').textContent = 'A private listening link we email you when it\'s ready, plus the MP3 to download';
       }
 
       if (!['final_ready', 'delivered'].includes(p.status)) {
