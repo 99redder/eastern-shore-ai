@@ -178,6 +178,12 @@
     .book-label { display: block; text-align: center; text-decoration: none; color: var(--muted); font-size: 15px; line-height: 1.4; }
     .book-label b { display: block; font-family: var(--serif); color: var(--ivory); font-size: 24px; font-weight: 600; }
     .book-label:hover b { color: var(--gold2); }
+    .hero-buy { text-align: center; margin-top: -10px; }
+    .hero-buy .buy-row { justify-content: center; margin-top: 0; }
+    .hero-more { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: -12px; }
+    .hero-more a { border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px; color: var(--ivory); text-decoration: none; font-size: 14.5px; background: var(--card); }
+    .hero-more a:hover { border-color: var(--gold); }
+    .hero-more b { color: var(--gold2); font-weight: 700; }
     .k p.how-terms { max-width: 780px; margin: 28px auto 0; text-align: center; color: var(--muted); font-size: 15px; line-height: 1.6; border: 1px solid var(--line); border-radius: 14px; padding: 14px 20px; background: var(--card); }
     .how-terms b { color: var(--ivory, #ece4d4); }
     .k p.how-questions { max-width: none; margin: 20px auto 0; }
@@ -265,6 +271,14 @@
         <div class="vis hero-vis">
           <div class="book"><div class="cover"><div class="ph" data-photo="0"></div><div class="t" data-title></div><div class="s" data-sub></div></div></div>
           <a class="book-label" href="#book"><b id="hero-book-name">Hardcover story book</b><span id="hero-book-meta">$149 · free shipping to U.S. addresses</span></a>
+          <div class="hero-buy" id="hero-buy">
+            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="book">Buy the hardcover book · $149</button></div>
+            <div class="ask-state" role="status" aria-live="polite"></div>
+          </div>
+          <div class="hero-more" aria-label="More keepsakes">
+            <a href="#copies">Copies for the family · <b>$79 each</b></a>
+            <a href="#audiobook">Audiobook · <b>$29</b></a>
+          </div>
         </div>
       </section>
 
@@ -561,13 +575,14 @@
       // Copies need the hardcover first (it includes designing the book); the book is ordered once per film.
       const copiesBtn = $('copies-btn');
       const copiesState = copiesBtn.closest('.buy-row').parentElement.querySelector('.ask-state');
-      const bookBtn = document.querySelector('[data-buy="book"]');
+      const bookBtn = document.querySelector('#book [data-buy="book"]');
       const bookState = bookBtn.closest('.buy-row').parentElement.querySelector('.ask-state');
       if (p.bookOrdered) {
         bookBtn.closest('.buy-row').hidden = true;
         bookState.className = 'ask-state ok';
         bookState.innerHTML = '✓ The hardcover book for this film is ordered. <a href="#copies">Get a copy for $79</a>.';
         $('hero-book-meta').textContent = '✓ Ordered for this film · copies $79 each';
+        $('hero-buy').hidden = true;
       } else {
         copiesBtn.setAttribute('aria-disabled', 'true');
         copiesBtn.classList.add('is-off');
@@ -610,7 +625,7 @@
       // Already ordered: a note under that keepsake's button.
       const names = { book: 'the hardcover book', copies: 'family copies', audiobook: 'the audiobook' };
       (p.keepsakeOrders || []).forEach((o) => {
-        const b = document.querySelector(`[data-buy="${o.item}"]`);
+        const b = document.querySelector(`#${o.item} [data-buy="${o.item}"]`);
         if (!b) return;
         const st = b.closest('.buy-row').parentElement.querySelector('.ask-state');
         let when = '';
@@ -623,7 +638,7 @@
       });
       // A delivered audiobook plays right here (signed links that last 12 hours; reload for fresh ones).
       if (p.audiobookSrc) {
-        const btn = document.querySelector('[data-buy="audiobook"]');
+        const btn = document.querySelector('#audiobook [data-buy="audiobook"]');
         const row = btn.closest('.buy-row');
         row.hidden = true;
         row.nextElementSibling.hidden = true;   // the no-refunds line
