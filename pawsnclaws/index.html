@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Paws 'n' Claws Cottages | Princess Anne, MD</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="description" content="Paws 'n' Claws Cottages: a small, family-owned dog boarding kennel on Stewart Neck Rd outside Princess Anne, MD, with grooming by Kiersten on the premises. Open 7 days. Call (443) 880-0346.">
+<link rel="icon" type="image/png" sizes="32x32" href="/pawsnclaws/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/pawsnclaws/img/icon-192.png">
+<link rel="apple-touch-icon" href="/pawsnclaws/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<style>/* Design idea: the two navy cottages themselves. Navy siding sprinkled with white paw prints, a white picket-fence edge under each section, the red and yellow flower bed as the accent, and a trail of paw prints that walks across the page as you scroll. */
+:root {
+  --navy: #22356B;
+  --navy-2: #2C4384;
+  --ink: #1B2440;
+  --paper: #FFFDF8;
+  --cream: #F4F1E8;
+  --white: #FFFFFF;
+  --red: #C8323C;
+  --red-2: #A9262F;
+  --sun: #F2B731;
+  --grass: #4E8A3E;
+  --muted: #55607A;
+  --line: #DDD8CB;
+  --display: 'Fredoka', 'Trebuchet MS', system-ui, sans-serif;
+  --body: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --r: 14px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--navy-2); }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.1; margin: 0 0 .5em; text-wrap: balance; color: var(--navy); }
+p { margin: 0 0 1em; text-wrap: pretty; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)); }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font: 700 .82rem/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--red-2); margin-bottom: 14px; }
+.eyebrow svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* paw-print siding */
+.siding { background-color: var(--navy); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23ffffff' fill-opacity='.10'%3E%3Cg transform='translate(24 26) rotate(-18)'%3E%3Cellipse cx='0' cy='6' rx='6' ry='5'/%3E%3Ccircle cx='-6' cy='-3' r='2.4'/%3E%3Ccircle cx='-2' cy='-7' r='2.4'/%3E%3Ccircle cx='3' cy='-7' r='2.4'/%3E%3Ccircle cx='7' cy='-3' r='2.4'/%3E%3C/g%3E%3Cg transform='translate(86 84) rotate(22)'%3E%3Cellipse cx='0' cy='6' rx='6' ry='5'/%3E%3Ccircle cx='-6' cy='-3' r='2.4'/%3E%3Ccircle cx='-2' cy='-7' r='2.4'/%3E%3Ccircle cx='3' cy='-7' r='2.4'/%3E%3Ccircle cx='7' cy='-3' r='2.4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); color: #fff; }
+.siding h1, .siding h2, .siding h3 { color: #fff; }
+
+/* picket fence edge */
+.fence { height: 40px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='40' viewBox='0 0 28 40'%3E%3Crect x='0' y='15' width='28' height='4' fill='%23ffffff' stroke='%2322356B' stroke-width='1.2'/%3E%3Crect x='0' y='27' width='28' height='4' fill='%23ffffff' stroke='%2322356B' stroke-width='1.2'/%3E%3Cpath d='M8 9 L14 3 L20 9 V36 H8 Z' fill='%23ffffff' stroke='%2322356B' stroke-width='1.4' stroke-linejoin='round'/%3E%3C/svg%3E") repeat-x left top / 28px 40px, linear-gradient(to bottom, transparent 0 34px, #4E8A3E 34px); }
+.fence.on-cream { background-color: var(--cream); }
+.fence.on-paper { background-color: var(--paper); }
+.fence.on-navy { background-color: var(--navy); }
+.fence-shade { filter: drop-shadow(0 -1px 0 var(--line)); }
+
+/* header */
+.top { position: sticky; top: 0; z-index: 50; background: rgba(255,253,248,.96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--navy); margin-right: auto; min-width: 0; }
+.brand svg { width: 40px; height: 40px; flex: none; }
+.brand b { font: 600 1.32rem/1.05 var(--display); display: block; }
+.brand small { display: block; font: 700 .72rem/1.2 var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.top nav { display: flex; gap: 22px; }
+.top nav a { text-decoration: none; color: var(--ink); font-weight: 700; font-size: .98rem; }
+.top nav a:hover { color: var(--red-2); }
+.top a.call { display: inline-flex; align-items: center; gap: 8px; background: var(--red); color: #fff; text-decoration: none; font-weight: 800; padding: 11px 18px; border-radius: 999px; white-space: nowrap; }
+.top a.call svg { width: 18px; height: 18px; }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px; border-radius: 999px; font: 800 1rem/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-main { background: var(--red); color: #fff; }
+.btn-main:hover { background: var(--red-2); }
+.btn-ghost { background: #fff; color: var(--navy); border-color: #fff; }
+.btn-line { background: transparent; color: var(--navy); border-color: var(--navy); }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* hero */
+.hero { padding: 64px 0 0; }
+.hero .wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+.badge { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--navy); font: 800 .85rem/1 var(--body); padding: 8px 14px; border-radius: 999px; margin-bottom: 18px; }
+.badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--grass); }
+.badge.shut::before { background: var(--red); }
+.hero h1 { font-size: clamp(2.3rem, 4.6vw, 3.7rem); margin-bottom: 18px; }
+.hero .lead { font-size: 1.14rem; color: #E9ECF6; max-width: 34em; }
+.stars { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; margin: 6px 0 26px; color: #fff; }
+.stars b { font: 600 1.5rem/1 var(--display); }
+.stars span[aria-hidden] { color: var(--sun); letter-spacing: 2px; font-size: 1.1rem; }
+.stars small { font-size: 1rem; color: #E9ECF6; }
+.stars .g-logo { background: #fff; border-radius: 50%; padding: .12em; box-sizing: content-box; vertical-align: -.26em; }
+.hero-photo { position: relative; margin: 0; align-self: end; }
+.hero-photo img { width: 100%; aspect-ratio: 4 / 3.1; object-fit: cover; object-position: center 40%; border-radius: var(--r) var(--r) 0 0; border: 6px solid #fff; border-bottom: 0; }
+.hero-photo figcaption { position: absolute; left: 16px; bottom: 14px; background: rgba(27,36,64,.82); color: #fff; font-size: .85rem; font-weight: 700; padding: 6px 12px; border-radius: 999px; }
+.hero .copy { padding-bottom: 56px; }
+
+/* quick facts strip */
+.strip { background: var(--paper); padding: 34px 0 10px; }
+.strip ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.strip li { display: flex; align-items: center; gap: 14px; background: #fff; border: 1.5px solid var(--line); border-radius: var(--r); padding: 16px 18px; min-height: 86px; }
+.strip li svg { width: 40px; height: 40px; flex: none; }
+.strip li b { display: block; font: 600 1.06rem/1.2 var(--display); color: var(--navy); }
+.strip li span { display: block; font-size: .92rem; color: var(--muted); line-height: 1.35; }
+
+/* sections */
+.block { padding: 76px 0; }
+.block.cream { background: var(--cream); }
+.head { max-width: 46em; margin-bottom: 34px; }
+.head h2 { font-size: clamp(2rem, 3.4vw, 2.7rem); }
+.head p { color: var(--muted); font-size: 1.08rem; }
+
+/* stay grid */
+.stay { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card { background: #fff; border: 1.5px solid var(--line); border-radius: var(--r); padding: 20px; height: 100%; }
+.card svg { width: 44px; height: 44px; margin-bottom: 10px; }
+.card h3 { font-size: 1.16rem; margin-bottom: 6px; }
+.card p { font-size: .98rem; color: var(--muted); margin: 0; }
+.stay-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; position: sticky; top: 96px; }
+.stay-photos figure { margin: 0; display: grid; grid-template-rows: 1fr auto; min-height: 0; }
+.stay-photos img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--r); }
+.stay-photos .tall { grid-row: span 2; }
+.stay-photos .tall img { aspect-ratio: 3 / 4.6; }
+.stay-photos .sq img { aspect-ratio: auto; height: 100%; min-height: 0; }
+.stay-photos figcaption { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+
+/* grooming */
+.groom { display: grid; grid-template-columns: .9fr 1.1fr; gap: 44px; align-items: center; }
+.groom-card { background: #fff; color: var(--ink); border-radius: var(--r); padding: 30px; box-shadow: 0 18px 40px rgba(10,18,45,.25); }
+.groom-card h3 { color: var(--navy); font-size: 1.5rem; }
+.groom ul.list { list-style: none; padding: 0; margin: 0 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; }
+.groom ul.list li { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+.groom ul.list svg { width: 34px; height: 34px; flex: none; }
+.groom .small { font-size: .95rem; color: var(--muted); }
+.groom .copy p { color: #E9ECF6; font-size: 1.08rem; }
+
+/* cats + before you come */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.panel { background: #fff; border: 1.5px solid var(--line); border-radius: var(--r); padding: 28px; display: flex; flex-direction: column; }
+.panel h3 { font-size: 1.45rem; }
+.panel ul { margin: 0 0 8px; padding: 0; list-style: none; }
+.panel li { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.panel li:last-child { border-bottom: 0; }
+.panel li svg { width: 28px; height: 28px; flex: none; margin-top: 1px; }
+.cat-photo { display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: center; margin-top: auto; }
+.cat-photo img { border-radius: 10px; aspect-ratio: 3 / 4; object-fit: cover; }
+
+/* gallery */
+.gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; max-width: 900px; }
+.gallery figure { margin: 0; }
+.gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r); }
+.gallery figcaption { font-size: .88rem; color: var(--muted); margin-top: 6px; }
+
+/* reviews */
+.rgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.rgrid figure { margin: 0; background: #fff; border: 1.5px solid var(--line); border-radius: var(--r); padding: 24px 22px 18px; display: flex; flex-direction: column; position: relative; }
+.rgrid figure::before { content: ""; position: absolute; top: -14px; left: 20px; width: 30px; height: 30px; background: var(--navy) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -12 24 24'%3E%3Cg fill='%23ffffff'%3E%3Cellipse cx='0' cy='4' rx='5' ry='4.2'/%3E%3Ccircle cx='-5.4' cy='-3' r='2.1'/%3E%3Ccircle cx='-1.8' cy='-6.4' r='2.1'/%3E%3Ccircle cx='2.2' cy='-6.4' r='2.1'/%3E%3Ccircle cx='5.6' cy='-3' r='2.1'/%3E%3C/g%3E%3C/svg%3E") center / 20px no-repeat; border-radius: 50%; }
+.rgrid .rs { color: var(--sun); letter-spacing: 2px; margin-bottom: 8px; }
+.rgrid blockquote { margin: 0 0 14px; font-size: 1.02rem; }
+.rgrid figcaption { margin-top: auto; font-size: .9rem; font-weight: 700; color: var(--muted); }
+.rgrid figcaption a { color: var(--navy-2); }
+
+/* visit */
+.visit .wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: start; }
+.visit address { font-style: normal; font-size: 1.3rem; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+.visit .route { background: #fff; border-left: 5px solid var(--red); border-radius: 0 var(--r) var(--r) 0; padding: 14px 18px; margin: 0 0 18px; color: var(--ink); }
+.visit .note { color: var(--muted); }
+.hours-card { background: #fff; border: 1.5px solid var(--line); border-radius: var(--r); padding: 24px; }
+.hours-card h3 { font-size: 1.35rem; margin-bottom: 4px; }
+.hours-card .sub { color: var(--muted); font-size: .95rem; margin-bottom: 12px; }
+table.hours { width: 100%; border-collapse: collapse; font-size: 1rem; }
+table.hours td { padding: 10px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.hours td:first-child { font-weight: 700; white-space: nowrap; }
+table.hours td:last-child { text-align: right; }
+table.hours tr.today td { background: #FFF6DC; }
+table.hours tr.today td:first-child::after { content: "TODAY"; display: inline-block; margin-left: 10px; font: 800 .68rem/1 var(--body); letter-spacing: .1em; background: var(--red); color: #fff; padding: 4px 7px; border-radius: 999px; vertical-align: 2px; }
+.hours-note { font-size: .95rem; color: var(--muted); margin-top: 12px; }
+
+footer { background: var(--navy); color: #DDE3F2; font-size: .92rem; padding: 26px 0 30px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+footer a { color: #fff; }
+
+/* paw trail (signature animation) */
+.trail { display: flex; gap: 20px; justify-content: center; padding: 6px 0 0; height: 40px; overflow: hidden; }
+.trail svg { width: 22px; height: 22px; fill: var(--navy); opacity: .9; }
+.trail svg:nth-child(odd) { transform: translateY(12px) rotate(-12deg); }
+.trail svg:nth-child(even) { transform: rotate(12deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .sig-on .trail svg { opacity: 0; }
+  .sig-on .trail.in svg { animation: step .45s ease-out forwards; }
+  .sig-on .trail.in svg:nth-child(1) { animation-delay: 0s; }
+  .sig-on .trail.in svg:nth-child(2) { animation-delay: .22s; }
+  .sig-on .trail.in svg:nth-child(3) { animation-delay: .44s; }
+  .sig-on .trail.in svg:nth-child(4) { animation-delay: .66s; }
+  .sig-on .trail.in svg:nth-child(5) { animation-delay: .88s; }
+  .sig-on .trail.in svg:nth-child(6) { animation-delay: 1.1s; }
+  .sig-on .trail.in svg:nth-child(7) { animation-delay: 1.32s; }
+  @keyframes step { from { opacity: 0; scale: .4; } to { opacity: .9; scale: 1; } }
+}
+
+@media (max-width: 900px) {
+  .top nav { display: none; }
+  .hero .wrap, .stay, .groom, .visit .wrap, .two { grid-template-columns: 1fr; }
+  .stay-photos { position: static; }
+  .strip ul { grid-template-columns: 1fr 1fr; }
+  .rgrid, .gallery { grid-template-columns: 1fr 1fr; }
+  .hero .copy { padding-bottom: 0; }
+}
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .block { padding: 56px 0; }
+  .cards, .strip ul, .gallery, .rgrid { grid-template-columns: 1fr; }
+  .groom ul.list { grid-template-columns: 1fr; }
+  .cat-photo { grid-template-columns: 110px 1fr; }
+  .actions .btn { flex: 1 1 100%; }
+  .brand small { display: none; }
+  table.hours tr.today td:first-child::after { display: block; margin: 6px 0 0; width: max-content; }
+}
+</style>
+<!-- m-layer:css -->
+<style>
+/* Phone-first layer (<= 700px). Desktop is unchanged. */
+.m-only { display: none; }
+@media (max-width: 700px) {
+  html { scroll-padding-top: 72px; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); -webkit-tap-highlight-color: transparent; }
+  .m-only { display: block; }
+  .m-hide { display: none !important; }
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 31; background: #FFFDF8; }
+  .hero { display: none; }
+
+  /* Mobile hero */
+  .m-hero { background: #FFFDF8; color: #1B2440; }
+  .m-photo { position: relative; margin: 0; }
+  .m-photo img { display: block; width: 100%; height: min(46vh, 340px); object-fit: cover; object-position: center 45%; }
+  .m-photo::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to top, #FFFDF8, transparent); }
+  .m-body { padding: 6px max(18px, env(safe-area-inset-right, 0px)) 26px max(18px, env(safe-area-inset-left, 0px)); position: relative; }
+  .m-photo + .m-body { margin-top: -38px; }
+  .m-status { display: inline-flex; align-items: center; gap: 8px; font: 700 .92rem/1 var(--body); padding: 8px 12px; border-radius: 999px; background: #FFFFFF; color: #1B2440; box-shadow: 0 6px 14px -8px rgba(0,0,0,.35); }
+  .m-status i { width: 9px; height: 9px; border-radius: 50%; background: #2E9E5B; box-shadow: 0 0 0 3px rgba(46,158,91,.25); }
+  .m-status.shut i { background: #C2412D; box-shadow: 0 0 0 3px rgba(194,65,45,.22); }
+  .m-title { font-family: var(--display); font-weight:600;color:#22356B; font-size: clamp(2rem, 9.5vw, 2.6rem); line-height: 1.02; margin: 16px 0 10px; text-wrap: balance; }
+  .m-lead { font-size: 1.05rem; line-height: 1.5; margin: 0 0 18px; opacity: .92; }
+  .m-g { white-space: nowrap; }
+  .m-g .g-logo { width: 1em; height: 1em; display: inline-block; vertical-align: -0.14em; margin-right: .3em; }
+  .m-call { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; text-decoration: none; font: 700 1.1rem/1 var(--body); background: #C8323C; color: #FFFFFF; border-radius: 999px; }
+  .m-call svg { width: 20px; height: 20px; }
+  .m-sub { display: flex; gap: 10px; margin-top: 10px; }
+  .m-sub a { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; text-decoration: none; font: 600 .98rem/1 var(--body); border: 1.5px solid currentColor; border-radius: 999px; }
+  .m-addr { margin: 14px 0 0; font-size: .95rem; opacity: .85; }
+
+  /* Swipe rows */
+  .rgrid {
+    display: flex !important; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px;
+    margin-left: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(20px, env(safe-area-inset-right, 0px)));
+    padding: 6px max(20px, env(safe-area-inset-right, 0px)) 18px max(20px, env(safe-area-inset-left, 0px));
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .rgrid::-webkit-scrollbar { display: none; }
+  .rgrid > figure { flex: 0 0 82%; scroll-snap-align: center; transform: none !important; }
+  .m-swipe-hint { display: flex; align-items: center; gap: 8px; font-size: .88rem; opacity: .7; margin: -4px 0 6px; }
+
+  /* Hours: today first */
+  #hours tr:not(.today) { display: none; }
+  #hours.all tr { display: table-row; }
+  #hours tr.today td { font-size: 1.1rem; padding-block: 14px; }
+  .m-hours-toggle { display: block; text-align: left; margin-top: 10px; background: none; border: 0; padding: 10px 0; font: 600 1rem var(--body); color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* Bottom action bar */
+  .m-bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px;
+    background: #22356B; padding: 8px max(10px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -8px 20px -14px rgba(0,0,0,.5);
+  }
+  .m-bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px; text-decoration: none; font: 700 .82rem/1 var(--body); color: #FFFFFF; border-radius: 999px; }
+  .m-bar a svg { width: 22px; height: 22px; }
+  .m-bar a.primary { background: #C8323C; color: #FFFFFF; flex-direction: row; gap: 8px; font-size: 1rem; }
+  h1, h2, h3 { text-wrap: balance; }
+  #hours td:last-child { white-space: nowrap; }
+  .m-hours-wrap { min-width: 0; }
+  .top a.call { display: none; } .m-status i { background: #4E8A3E; } .m-sub a { color: #22356B; } .hero-fence { display: none; }
+}
+</style>
+<!-- /m-layer:css -->
+<style id="polish">.g-logo{width:1em;height:1em;display:inline-block;vertical-align:-0.14em;margin-right:.3em;flex:none} .g-nw{white-space:nowrap;color:inherit;letter-spacing:inherit;font-size:inherit;font-weight:inherit;text-transform:inherit}</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Paws 'n' Claws Cottages, home">
+      <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M5 19 20 6l15 13v15a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="#22356B"/><path d="M3 20 20 5l17 15" fill="none" stroke="#C8323C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><g fill="#fff" transform="translate(20 25)"><ellipse cx="0" cy="3" rx="4.2" ry="3.5"/><circle cx="-4.6" cy="-2.6" r="1.8"/><circle cx="-1.6" cy="-5.4" r="1.8"/><circle cx="1.8" cy="-5.4" r="1.8"/><circle cx="4.8" cy="-2.6" r="1.8"/></g></svg>
+      <span><b>Paws 'n' Claws Cottages</b><small>Dog boarding · Princess Anne</small></span>
+    </a>
+    <nav aria-label="Sections"><a href="#stay">The stay</a><a href="#grooming">Grooming</a><a href="#reviews">Reviews</a><a href="#visit">Visit</a></nav>
+    <a class="call" href="tel:+14438800346"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>(443) 880-0346</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- m-layer:hero -->
+<section class="m-hero m-only" aria-label="Paws &#x27;n&#x27; Claws Cottages">
+  <figure class="m-photo"><img src="img/pnc_1.webp" alt="The navy blue Paws Cottage building with white paw prints and a white picket fence"></figure>
+  <div class="m-body">
+    <span class="m-status" id="m-status"><i></i><span id="m-status-text">Open 7 days a week</span></span>
+    <h1 class="m-title">A small, family-run kennel where every dog gets attention.</h1>
+    <p class="m-lead">Dog boarding with three play sessions a day and a groomer on the property, outside Princess Anne. 4.8 stars on <span class="m-g"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span>.</p>
+    <a class="m-call" href="tel:+14438800346"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (443) 880-0346</a>
+    <div class="m-sub">
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Paws%20N%20Claws%20Cottages&amp;query_place_id=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener">Directions</a>
+      <a href="#stay">The stay</a>
+    </div>
+    <p class="m-addr">10100 Stewart Neck Rd, Princess Anne, MD</p>
+  </div>
+</section>
+<!-- /m-layer:hero -->
+  <section class="hero siding">
+    <div class="wrap">
+      <div class="copy">
+        <span class="badge" id="open-now" hidden>Open 7 days</span>
+        <h1>A small, family-run kennel where every dog gets real attention.</h1>
+        <p class="lead">John and Tammy Provost generally board no more than 22 pets at a time on Stewart Neck Road, just south of Salisbury on the outskirts of Princess Anne. That's how they make time, every day, to give each guest extra attention, with three individual play sessions outside and a groomer right on the property.</p>
+        <div class="stars"><b>4.8</b><span aria-hidden="true">★★★★★</span><small>from 23 <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</small></div>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14438800346"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call for rates &amp; dates</a>
+          <a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Paws%20N%20Claws%20Cottages&amp;query_place_id=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+        </div>
+      </div>
+      <figure class="hero-photo">
+        <img src="img/pnc_1.webp" alt="The navy blue Paws Cottage building with white paw prints, a white picket fence and a flower bed out front" width="1600" height="957">
+        <figcaption>The Paws Cottage</figcaption>
+      </figure>
+    </div>
+  </section>
+  <div class="fence on-navy hero-fence" aria-hidden="true" style="background-color:var(--navy)"></div>
+
+  <section class="strip" aria-label="At a glance">
+    <div class="wrap">
+      <ul>
+        <li><svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M6 19 20 7l14 12v14H6z" fill="none" stroke="#22356B" stroke-width="2.6" stroke-linejoin="round"/><path d="M20 31s-6-3.7-6-8a3.4 3.4 0 0 1 6-2.2 3.4 3.4 0 0 1 6 2.2c0 4.3-6 8-6 8z" fill="#C8323C"/></svg><div><b>Family-owned</b><span>Run by John &amp; Tammy Provost</span></div></li>
+        <li><svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><circle cx="20" cy="20" r="14" fill="none" stroke="#22356B" stroke-width="2.6"/><text x="20" y="25.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="#C8323C">22</text></svg><div><b>22 pets, at most</b><span>Generally, at any given time</span></div></li>
+        <li><svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><rect x="6" y="9" width="28" height="25" rx="3" fill="none" stroke="#22356B" stroke-width="2.6"/><path d="M6 16h28M13 5v7M27 5v7" stroke="#22356B" stroke-width="2.6" stroke-linecap="round"/><path d="m14 25 4 4 8-8" fill="none" stroke="#4E8A3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Open 7 days</b><span>Check-in every morning</span></div></li>
+        <li><svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M8 14h18l6-4v20l-6-4H8z" fill="none" stroke="#22356B" stroke-width="2.6" stroke-linejoin="round"/><circle cx="16" cy="20" r="3.5" fill="#C8323C"/></svg><div><b>24-hour monitoring</b><span>Electronic, day and night</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block" id="stay">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow"><svg viewBox="-12 -12 24 24" aria-hidden="true" focusable="false"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg>The stay</span>
+        <h2>Their vacation, while you're on yours</h2>
+        <p>The Provosts used to be a camping and traveling family, so they know finding the right boarding place is the hardest part of going away. Here's what every guest gets.</p>
+      </div>
+      <div class="stay">
+        <div class="cards">
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><path d="M18 6v22a6 6 0 1 0 8 0V6a4 4 0 0 0-8 0z" fill="none" stroke="#22356B" stroke-width="2.6"/><circle cx="22" cy="33" r="3.4" fill="#C8323C"/><path d="M22 30V14" stroke="#C8323C" stroke-width="2.6" stroke-linecap="round"/><path d="M32 12h6M32 19h4" stroke="#22356B" stroke-width="2.4" stroke-linecap="round"/></svg><h3>Heated &amp; air conditioned</h3><p>Climate-controlled kennels, comfortable in every season.</p></div>
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><path d="M4 18 22 8l18 10" fill="none" stroke="#22356B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 18v18M35 18v18M16 22v14M22 22v14M28 22v14" stroke="#22356B" stroke-width="2.4" stroke-linecap="round"/><path d="M6 36h32" stroke="#4E8A3E" stroke-width="3" stroke-linecap="round"/></svg><h3>Covered outdoor runs</h3><p>Every kennel has an attached run, covered from the hot sun and sudden storms.</p></div>
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><circle cx="15" cy="27" r="9" fill="none" stroke="#22356B" stroke-width="2.6"/><path d="M8 22c4 2 10 2 14 0M8 32c4-2 10-2 14 0" stroke="#22356B" stroke-width="2" fill="none"/><path d="M28 10c3 2 5 5 5 9" fill="none" stroke="#C8323C" stroke-width="2.6" stroke-linecap="round"/><path d="M34 8c3 3 5 7 5 12" fill="none" stroke="#C8323C" stroke-width="2.6" stroke-linecap="round"/></svg><h3>Play time, 3 times a day</h3><p>Individual, supervised play in the fenced yard, from 8 am to 9 pm.</p></div>
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><path d="M6 30c0-6 7-9 16-9s16 3 16 9v4H6z" fill="none" stroke="#22356B" stroke-width="2.6" stroke-linejoin="round"/><path d="M6 30h32" stroke="#22356B" stroke-width="2.6"/><path d="M12 25l4 5M20 22l3 8M28 23l2 7" stroke="#C8323C" stroke-width="2.4" stroke-linecap="round"/></svg><h3>Blankets for everyone</h3><p>Bring their favorite blankie, bed or toy too, if it helps them settle in.</p></div>
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><path d="M7 24h30l-3 12H10z" fill="none" stroke="#22356B" stroke-width="2.6" stroke-linejoin="round"/><path d="M13 24c1-4 4-6 9-6s8 2 9 6" fill="#C8323C"/><circle cx="17" cy="15" r="2" fill="#F2B731"/><circle cx="24" cy="12" r="2" fill="#F2B731"/><circle cx="29" cy="16" r="2" fill="#F2B731"/></svg><h3>Meals &amp; snacks included</h3><p>Built into their reasonable rates. Call for rates and availability.</p></div>
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><path d="M22 38s-14-8-14-19a8 8 0 0 1 14-5 8 8 0 0 1 14 5c0 11-14 19-14 19z" fill="none" stroke="#22356B" stroke-width="2.6" stroke-linejoin="round"/><path d="M22 18v12M16 24h12" stroke="#C8323C" stroke-width="3" stroke-linecap="round"/></svg><h3>Vet on call</h3><p>Their own vet is on call for emergencies.</p></div>
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><g fill="#22356B"><ellipse cx="14" cy="27" rx="5" ry="4.2"/><circle cx="8.6" cy="20" r="2.1"/><circle cx="12.2" cy="16.6" r="2.1"/><circle cx="16.2" cy="16.6" r="2.1"/><circle cx="19.6" cy="20" r="2.1"/></g><g fill="#C8323C"><ellipse cx="30" cy="31" rx="5" ry="4.2"/><circle cx="24.6" cy="24" r="2.1"/><circle cx="28.2" cy="20.6" r="2.1"/><circle cx="32.2" cy="20.6" r="2.1"/><circle cx="35.6" cy="24" r="2.1"/></g></svg><h3>Siblings can bunk together</h3><p>Large kennels are big enough for family members to share, if you ask.</p></div>
+          <div class="card"><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><path d="M10 32c2-7 6-10 12-10s10 3 12 10" fill="none" stroke="#22356B" stroke-width="2.6" stroke-linecap="round"/><circle cx="17" cy="16" r="2.4" fill="#22356B"/><circle cx="27" cy="16" r="2.4" fill="#22356B"/><path d="M8 36h28" stroke="#4E8A3E" stroke-width="3" stroke-linecap="round"/><path d="M33 9l2 3 3 .5-2 2.3.5 3.2-3-1.5-3 1.5.5-3.2-2-2.3 3-.5z" fill="#F2B731"/></svg><h3>Bathing &amp; nail trims</h3><p>Available during a stay, with a salon-quality line of shampoos.</p></div>
+        </div>
+        <div class="stay-photos">
+          <figure class="tall"><img src="img/pnc_4.webp" alt="Inside the kennel building: a long aisle of kennel doors with a shiny gray floor" width="1012" height="1800"><figcaption>Inside the kennel building</figcaption></figure>
+          <figure class="sq"><img src="img/pnc_7.webp" alt="The Claws Cottage building with OFFICE lettering, picket fence and flowers" width="1600" height="957"><figcaption>The Claws Cottage office</figcaption></figure>
+          <figure class="sq"><img src="img/pnc_6.webp" alt="Two white fluffy dogs playing in the snow in front of the Paws Cottage" width="1563" height="1800"><figcaption>Snow days count too</figcaption></figure>
+        </div>
+      </div>
+      <div class="trail" aria-hidden="true">
+        <svg viewBox="-12 -12 24 24"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg><svg viewBox="-12 -12 24 24"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg><svg viewBox="-12 -12 24 24"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg><svg viewBox="-12 -12 24 24"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg><svg viewBox="-12 -12 24 24"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg><svg viewBox="-12 -12 24 24"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg><svg viewBox="-12 -12 24 24"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg>
+      </div>
+    </div>
+  </section>
+
+    <section class="block siding" id="grooming">
+    <div class="wrap groom">
+      <div class="copy">
+        <span class="eyebrow" style="color:var(--sun)"><svg viewBox="-12 -12 24 24" aria-hidden="true" focusable="false"><ellipse cx="0" cy="4" rx="5" ry="4.2"/><circle cx="-5.4" cy="-3" r="2.1"/><circle cx="-1.8" cy="-6.4" r="2.1"/><circle cx="2.2" cy="-6.4" r="2.1"/><circle cx="5.6" cy="-3" r="2.1"/></svg>Grooming Salon</span>
+        <h2>Kiersten's grooming hut, right on the property</h2>
+        <p>Paws N Claws Cottages Grooming Salon handles all phases of grooming, and Kiersten is committed to a safe, calm and relaxing visit. Boarding guests can be groomed during their stay when she has openings.</p>
+      </div>
+      <div class="groom-card">
+        <h3>What Kiersten does</h3>
+        <ul class="list">
+          <li><svg viewBox="0 0 34 34" aria-hidden="true" focusable="false"><path d="M4 16h26v4a8 8 0 0 1-8 8H12a8 8 0 0 1-8-8z" fill="none" stroke="#22356B" stroke-width="2.4"/><path d="M8 16V8a3 3 0 0 1 6 0" fill="none" stroke="#22356B" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="10" r="2.2" fill="#C8323C"/><circle cx="25" cy="7" r="1.6" fill="#C8323C"/><circle cx="26" cy="12" r="1.4" fill="#C8323C"/></svg>Basic baths</li>
+          <li><svg viewBox="0 0 34 34" aria-hidden="true" focusable="false"><path d="M6 26 22 10M10 30 26 14" stroke="#22356B" stroke-width="2.4" stroke-linecap="round"/><circle cx="25" cy="9" r="4" fill="none" stroke="#C8323C" stroke-width="2.4"/></svg>Nail trimming</li>
+          <li><svg viewBox="0 0 34 34" aria-hidden="true" focusable="false"><circle cx="9" cy="25" r="4" fill="none" stroke="#22356B" stroke-width="2.4"/><circle cx="9" cy="9" r="4" fill="none" stroke="#22356B" stroke-width="2.4"/><path d="M12 11l18 14M12 23 30 9" stroke="#C8323C" stroke-width="2.4" stroke-linecap="round"/></svg>Special cuts</li>
+          <li><svg viewBox="0 0 34 34" aria-hidden="true" focusable="false"><path d="M10 6c-4 0-6 3-6 7 0 6 6 9 6 15h6c0-6 4-8 4-14 0-5-4-8-10-8z" fill="none" stroke="#22356B" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 14l6-3M24 19h7M24 24l6 3" stroke="#C8323C" stroke-width="2.4" stroke-linecap="round"/></svg>Ear &amp; teeth cleaning</li>
+          <li><svg viewBox="0 0 34 34" aria-hidden="true" focusable="false"><rect x="6" y="6" width="22" height="8" rx="2" fill="none" stroke="#22356B" stroke-width="2.4"/><path d="M9 14v6M13 14v6M17 14v6M21 14v6M25 14v6" stroke="#22356B" stroke-width="2.2" stroke-linecap="round"/><path d="M8 27c3-2 6 2 9 0s6 2 9 0" fill="none" stroke="#C8323C" stroke-width="2.4" stroke-linecap="round"/></svg>De-shedding</li>
+          <li><svg viewBox="0 0 34 34" aria-hidden="true" focusable="false"><path d="M17 29s-11-6-11-14a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 14-11 14z" fill="#C8323C"/></svg>A calm, relaxing visit</li>
+        </ul>
+        <p class="small">Grooming is booked separately through the salon: call Kiersten at <a href="tel:+14439447444">(443) 944-7444</a>. She takes PayPal, Venmo, Cash App and cash (no credit cards).</p>
+      </div>
+    </div>
+  </section>
+  <div class="fence on-navy" aria-hidden="true" style="background-color:var(--navy)"></div>
+
+  <section class="block" id="before">
+    <div class="wrap two">
+      <div class="panel">
+        <span class="eyebrow">Before you come</span>
+        <h3>What to bring to check-in</h3>
+        <ul>
+          <li><svg viewBox="0 0 28 28" aria-hidden="true" focusable="false"><rect x="5" y="3" width="18" height="22" rx="2" fill="none" stroke="#22356B" stroke-width="2.2"/><path d="m9 14 3 3 6-6" fill="none" stroke="#4E8A3E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>An up-to-date vaccination record, including rabies, DHLPP and Bordetella</span></li>
+          <li><svg viewBox="0 0 28 28" aria-hidden="true" focusable="false"><path d="M14 4c-4 5-7 8.5-7 12a7 7 0 0 0 14 0c0-3.5-3-7-7-12z" fill="none" stroke="#22356B" stroke-width="2.2"/><path d="m10 16 3 3 5-5" fill="none" stroke="#4E8A3E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>A recent flea treatment</span></li>
+          <li><svg viewBox="0 0 28 28" aria-hidden="true" focusable="false"><path d="M4 18c0-4 4-6 10-6s10 2 10 6v3H4z" fill="none" stroke="#22356B" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 12c0-3 2-5 5-5s5 2 5 5" fill="none" stroke="#C8323C" stroke-width="2.2"/></svg><span>Their favorite blanket, bed or toy, if you like</span></li>
+        </ul>
+        <p class="note" style="margin:8px 0 0">Check-in and check-out times are in the <a href="#visit">visit section</a> below.</p>
+      </div>
+      <div class="panel">
+        <span class="eyebrow">Cats too</span>
+        <h3>Cat suites inside</h3>
+        <p>Cats have their own stacked suites with glass fronts. Call to ask about boarding your cat.</p>
+        <div class="cat-photo">
+          <img src="img/pnc_3.webp" alt="Stacked cat suites with glass doors, cats resting inside" width="1076" height="1800">
+          <p style="margin:0;color:var(--muted)">"She always puts the dogs (and cats) first over everything else."<br><b style="color:var(--ink)">Tracy, <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block cream" id="photos">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Around the cottages</span><h2>Take a look around</h2></div>
+      <div class="gallery">
+        <figure><img src="img/pnc_9.webp" alt="The Paws Cottage seen across the green lawn under a blue sky" width="1076" height="1800" style="object-position:center 72%"><figcaption>The Paws Cottage from the lawn</figcaption></figure>
+        <figure><img src="img/pnc_8.webp" alt="A kennel aisle with a staff member kneeling beside one of the kennels" width="1600" height="900"><figcaption>Kennel aisle</figcaption></figure>
+        
+      </div>
+      <p class="note" style="margin-top:14px;color:var(--muted);font-size:.92rem">Photos from the kennel's <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> listing.</p>
+    </div>
+  </section>
+
+  <section class="block" id="reviews">
+    <div class="wrap">
+      <div class="head"><span class="eyebrow">Reviews</span><h2>4.8 stars from 23 <span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> reviews</h2></div>
+      <div class="rgrid">
+        <figure><div class="rs" aria-label="5 stars">★★★★★</div><blockquote>"Tammy and her staff always take amazing care of our dog ember. Ember is not a people friendly dog and tammy and her staff are able to handle her and keep her stress down. The only place we feel comfortable leaving our reactive dog."</blockquote><figcaption>Danielle · <a href="https://search.google.com/local/reviews?placeid=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption></figure>
+        <figure><div class="rs" aria-label="5 stars">★★★★★</div><blockquote>"Tammy is 100% outstanding. She has taken care of my dogs through hurricanes, flooding, and sickness outbreaks. She always puts the dogs (and cats) first over everything else."</blockquote><figcaption>Tracy · <a href="https://search.google.com/local/reviews?placeid=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption></figure>
+        <figure><div class="rs" aria-label="5 stars">★★★★★</div><blockquote>"We've been bringing our dogs here since just after this wonderful place opened. … The pups are taken care of with all love and attention. … Also the owners go to so much trouble for special needs dogs, like our ancient Malamute."</blockquote><figcaption>Kate · <a href="https://search.google.com/local/reviews?placeid=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption></figure>
+        <figure><div class="rs" aria-label="5 stars">★★★★★</div><blockquote>"We were able to do a meet and greet just to get my cane corso accustomed to being groomed. Once my dog started getting anxious they didn't push and allowed her time to calm down."</blockquote><figcaption>Taylor · <a href="https://search.google.com/local/reviews?placeid=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption></figure>
+        <figure><div class="rs" aria-label="5 stars">★★★★★</div><blockquote>"The owners of this kennel are welcoming and understanding with you and your dogs. They comfort you by reassuring you your animals will be safe while you are away. Very reasonable pricings too!"</blockquote><figcaption>Notorious Rollers · <a href="https://search.google.com/local/reviews?placeid=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption></figure>
+        <figure><div class="rs" aria-label="5 stars">★★★★★</div><blockquote>"This is the best groomer I have found! My doodle loves her and he has never looked better."</blockquote><figcaption>Lori · <a href="https://search.google.com/local/reviews?placeid=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><span class="g-nw"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Google</span> review<span aria-hidden="true"> ↗</span></a></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="block cream visit" id="visit">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Visit</span>
+        <h2>Find the cottages</h2>
+        <address>10100 Stewart Neck Rd<br>Princess Anne, MD 21853</address>
+        <p class="route">From Salisbury, head south on Rt. 13 through the two lights in Princess Anne (Mt. Vernon Rd. and Deal Island Rd.). In about .8 mile, turn right onto Stewart Neck Rd. Go about 2.8 miles; Paws 'n' Claws Cottages is on the right.</p>
+        <p class="note">Please call for rates and availability. Grooming appointments are made with Kiersten at (443) 944-7444.</p>
+        <div class="actions">
+          <a class="btn btn-main" href="tel:+14438800346"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call (443) 880-0346</a>
+          <a class="btn btn-line" href="https://www.google.com/maps/search/?api=1&amp;query=Paws%20N%20Claws%20Cottages&amp;query_place_id=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Get directions</a>
+        </div>
+      </div>
+      <div class="hours-card">
+        <h3>Check-in &amp; check-out</h3>
+        <p class="sub">Open 7 days a week.</p>
+        <table class="hours" id="hours" aria-label="Check-in and check-out hours">
+          <tr data-d="0"><td>Sunday</td><td>8:30 am – noon</td></tr>
+          <tr data-d="1"><td>Monday</td><td>8:30 am – noon<br>3 – 6 pm</td></tr>
+          <tr data-d="2"><td>Tuesday</td><td>8:30 am – noon<br>3 – 6 pm</td></tr>
+          <tr data-d="3"><td>Wednesday</td><td>8:30 am – noon<br>3 – 6 pm</td></tr>
+          <tr data-d="4"><td>Thursday</td><td>8:30 am – noon<br>3 – 6 pm</td></tr>
+          <tr data-d="5"><td>Friday</td><td>8:30 am – noon<br>3 – 6 pm</td></tr>
+          <tr data-d="6"><td>Saturday</td><td>8:30 am – noon</td></tr>
+        </table>
+        <p class="hours-note">Other times by appointment only, for an additional fee.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Paws 'n' Claws Cottages, Princess Anne, Maryland</span> <!-- legal-links --><span class="legal-links" style="display:inline-flex;gap:14px;flex-wrap:wrap"><a href="privacy.html">Privacy</a><a href="cookies.html">Cookies</a><a href="terms.html">Terms</a></span><!-- /legal-links -->
+    <span>Preview site made for Paws 'n' Claws Cottages by Chris at <a href="https://easternshore.ai" target="_blank" rel="noopener">Eastern Shore AI</a></span>
+  </div>
+</footer>
+
+<script>
+/* Check-in window badge + today's row (America/New_York). */
+(function () {
+  var WIN = { 0: [[8.5, 12]], 1: [[8.5, 12], [15, 18]], 2: [[8.5, 12], [15, 18]], 3: [[8.5, 12], [15, 18]], 4: [[8.5, 12], [15, 18]], 5: [[8.5, 12], [15, 18]], 6: [[8.5, 12]] };
+  try {
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60;
+    var row = document.querySelector('#hours tr[data-d="' + d + '"]');
+    if (row) row.classList.add('today');
+    var open = (WIN[d] || []).some(function (w) { return h >= w[0] && h < w[1]; });
+    var badge = document.getElementById('open-now');
+    badge.textContent = open ? 'Check-in open now' : 'Open 7 days · call to book';
+    badge.hidden = false;
+  } catch (e) {}
+})();
+</script>
+<script>
+/* Signature animation: the paw trail steps in when it scrolls into view. Skipped for reduced motion. */
+(function () {
+  try {
+    if (!('IntersectionObserver' in window) || !matchMedia('(prefers-reduced-motion: no-preference)').matches) return;
+    document.documentElement.classList.add('sig-on');
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('.trail').forEach(function (el) { io.observe(el); });
+  } catch (e) {}
+})();
+</script>
+
+<script src="/preview-contact.js?v=4" defer data-name="Paws 'n' Claws Cottages" data-slot="#visit .actions" data-accent="var(--red)" data-accent-fg="#fff" data-ink="var(--navy)" data-paper="var(--paper)" data-display="var(--display)" data-body="var(--body)" data-display-css="font-weight:600" data-btn-class="btn btn-line"></script>
+<script src="/preview-kit.js?v=5" data-slug="pawsnclaws" defer></script>
+<!-- m-layer:bar -->
+<nav class="m-bar m-only" aria-label="Quick actions">
+  <a class="primary" href="tel:+14438800346"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call</a>
+  <a href="https://www.google.com/maps/search/?api=1&amp;query=Paws%20N%20Claws%20Cottages&amp;query_place_id=ChIJ3WlIWI-guYkRB2cLv9i3Was" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>
+  <a href="#visit" id="m-bar-hours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Check-in</a>
+</nav>
+<!-- /m-layer:bar -->
+<!-- m-layer:js -->
+<script>
+(function () {
+  var HOURS = {};
+  var SEASON = null;
+  var STATIC = true;
+  var DAYS = { en: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], es: ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'] };
+  function fmt(t, lang) {
+    var h = Math.floor(t), m = Math.round((t - h) * 60), ap = h >= 12 ? 'pm' : 'am', hh = h % 12 || 12;
+    return hh + (m ? ':' + (m < 10 ? '0' : '') + m : '') + ' ' + ap;
+  }
+  function lang() { var el = document.getElementById('site'); return (el && el.getAttribute('data-lang')) || 'en'; }
+  function paint() {
+    var el = document.getElementById('m-status'), txt = document.getElementById('m-status-text');
+    if (!el) return;
+    if (STATIC) return; /* no regular hours: keep the status_placeholder text */
+    try {
+      var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+      var d = now.getDay(), h = now.getHours() + now.getMinutes() / 60, l = lang();
+      if (SEASON) { var mo = now.getMonth() + 1; if (mo < SEASON[0] || mo > SEASON[1]) { txt.textContent = SEASON[2] || 'Closed for the season'; el.classList.add('shut'); return; } }
+      var span = HOURS[d], open = !!(span && h >= span[0] && h < span[1]), msg;
+      if (open) {
+        msg = l === 'es' ? 'Abierto hasta las ' + fmt(span[1]) : 'Open now until ' + fmt(span[1]);
+      } else {
+        var k = 0, nd = d, ns = null;
+        if (span && h < span[0]) { ns = span; }
+        else { for (k = 1; k <= 7; k++) { nd = (d + k) % 7; if (HOURS[nd]) { ns = HOURS[nd]; break; } } }
+        var when = !ns ? '' : (k === 0 ? (l === 'es' ? 'hoy' : 'today') : (k === 1 ? (l === 'es' ? 'mañana' : 'tomorrow') : DAYS[l][nd]));
+        msg = l === 'es' ? 'Cerrado. Abre ' + when + ' a las ' + fmt(ns[0]) : 'Closed. Opens ' + when + ' at ' + fmt(ns[0]);
+      }
+      txt.textContent = msg;
+      el.classList.toggle('shut', !open);
+    } catch (e) { el.hidden = true; }
+  }
+  paint();
+  var site = document.getElementById('site');
+  if (site && window.MutationObserver) new MutationObserver(paint).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+
+  // Hours: collapse to today on phones, with a toggle
+  var table = document.getElementById('hours');
+  if (table) {
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'm-hours-toggle m-only';
+    function label() { var l = lang(), all = table.classList.contains('all'); btn.textContent = l === 'es' ? (all ? 'Mostrar solo hoy' : 'Ver todo el horario') : (all ? 'Show today only' : 'See all hours'); }
+    btn.addEventListener('click', function () { table.classList.toggle('all'); label(); });
+    var wrapEl = document.createElement('div'); wrapEl.className = 'm-hours-wrap';
+    table.parentNode.insertBefore(wrapEl, table); wrapEl.appendChild(table); wrapEl.appendChild(btn); label();
+    if (site && window.MutationObserver) new MutationObserver(label).observe(site, { attributes: true, attributeFilter: ['data-lang'] });
+    var hb = document.getElementById('m-bar-hours');
+    if (hb) hb.addEventListener('click', function () { table.classList.add('all'); label(); });
+  }
+})();
+</script>
+<!-- /m-layer:js -->
+</body>
+</html>

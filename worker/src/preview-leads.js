@@ -25,6 +25,10 @@ export const PREVIEW_SITES = {
   campbells: { name: "Campbell's Auto Body", phone: '(410) 677-3332', email: 'campbells_collision@yahoo.com' },
   salisburybarbershop: { name: 'Salisbury Barber Shop', phone: '(443) 366-0611', email: '' },
   seasonsbest: { name: 'Seasons Best Antiques', phone: '(410) 860-8988', email: '' },
+  pawsnclaws: { name: "Paws 'n' Claws Cottages", phone: '(443) 880-0346', email: 'tprovost10100@gmail.com' },
+  hollyridge: { name: 'Holly Ridge Farm Equestrian Center', phone: '(410) 835-2596', email: 'hollyridgefarmmd@gmail.com' },
+  cuttingup: { name: 'Cutting Up', phone: '(410) 860-0057', email: '' },
+  absoluttint: { name: 'Absolut Tint & PPF', phone: '(443) 944-8414', email: 'exoticsoundandtint@gmail.com' },
 };
 
 const SITE = 'https://www.easternshore.ai';
