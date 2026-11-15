@@ -131,7 +131,7 @@
     .step h3 { font-size: 36px; margin: 10px 0 12px; }
     .step p { color: #d2c8b6; margin: 0 0 10px; }
     .step .small { color: var(--muted); font-size: 15px; }
-    .step-visual img { border-radius: 10px; box-shadow: 0 18px 44px rgba(0,0,0,0.5); }
+    .step-visual img { border-radius: 10px; box-shadow: 0 18px 44px rgba(0,0,0,0.5); height: auto; }
     .price-card { background: linear-gradient(160deg, #2a2219, #1b1610); border: 1px solid #4a3c2b; border-radius: 16px; padding: 34px; max-width: 420px; margin: 0 auto; }
     .price-card .amount { font-family: var(--serif); font-size: 64px; color: var(--ivory); line-height: 1; }
     .price-card ul { list-style: none; padding: 0; margin: 20px 0 0; }
@@ -149,6 +149,8 @@
     .uploads span { font-size: 13px; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; }
     .stack { position: relative; }
     .stack img:nth-child(2) { width: 62%; position: absolute; right: -4%; bottom: -12%; border: 6px solid var(--card); }
+    .stack.dash img:nth-child(1) { width: 92%; }
+    .stack.dash img:nth-child(2) { width: 50%; right: -5%; bottom: -26%; border-color: #3a3026; }
     .collab { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 40px; }
     .collab h2 { font-size: 44px; margin: 10px 0 14px; }
     .collab p { color: #d2c8b6; margin: 0 0 12px; }
@@ -313,6 +315,7 @@
       .who, .stories, .styles { grid-template-columns: 1fr 1fr; }
       .gallery { grid-template-columns: 1fr 1fr; }
       .stack img:nth-child(2) { position: static; width: 100%; margin-top: 14px; border: 0; }
+      .stack.dash img:nth-child(1), .stack.dash img:nth-child(2) { width: 100%; }
     }
     @media (max-width: 760px) {
       .pile { height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -524,22 +527,15 @@
           <div>
             <div class="step-num">2</div>
             <h3>Share everything you have</h3>
+            <p>The moment you pay, your own private <strong>film dashboard</strong> opens. That's where everything happens: you can see where your film stands, upload, answer a few questions, leave us notes and chat with the person making your film. Pictured: the church's dashboard.</p>
             <p>Upload from your phone or computer, one file at a time or a whole folder at once: photos, videos, audio, scans, documents, screenshots and links. Every file type is welcome, big videos included. No sorting or labeling needed.</p>
             <p>Then answer 12 quick questions about tone, narrator, music and the big moments, or tap <strong>Experts pick</strong> on any of them and we'll choose.</p>
             <p>Add as much as you like, over as many days as you need, and <strong>invite family to add theirs too</strong>: everyone you add gets their own sign-in code. When you've added everything, press <strong>Start production</strong>. We'll email you right away with your timeline and the date your demo will be ready.</p>
             <div class="uploads"><span>📷 photos, iPhone &amp; camera files</span><span>🎞 videos from any phone or camera</span><span>🎙 audio &amp; voice memos</span><span>📄 scans &amp; PDFs</span><span>📝 Word docs, slides &amp; notes</span><span>💬 screenshots &amp; texts</span><span>🗂 zipped folders</span><span>🔗 Google Photos, iCloud &amp; Dropbox links</span></div>
           </div>
-          <div class="step-visual">
-            <div class="quiz" aria-label="Example questions">
-              <div class="q"><b>What tone should it have?</b>
-                <div class="chips"><span class="chip">Heartfelt</span><span class="chip">Funny</span><span class="chip">Adventure</span><span class="chip on">Documentary</span><span class="chip expert">Experts pick</span></div></div>
-              <div class="q"><b>Who should narrate?</b>
-                <div class="chips"><span class="chip on">Older man</span><span class="chip">Older woman</span><span class="chip">Record it myself</span><span class="chip expert">Experts pick</span></div></div>
-              <div class="q"><b>What music?</b>
-                <div class="chips"><span class="chip on">Hymns</span><span class="chip">Piano</span><span class="chip">Music from their era</span><span class="chip expert">Experts pick</span></div></div>
-              <div class="q"><b>Moments with no photos?</b>
-                <div class="chips"><span class="chip">Watercolor</span><span class="chip">Cartoon</span><span class="chip">Photos only</span><span class="chip expert on">Experts pick</span></div></div>
-            </div>
+          <div class="step-visual stack dash">
+            <img src="images/story-video/dashboard-cbf-top.jpg" alt="The church's film dashboard: the project name, progress from Paid to Final film, and quick links to uploads, questions, the project chat and keepsakes" loading="lazy" width="1400" height="875" />
+            <img src="images/story-video/dashboard-cbf-uploads.jpg" alt="Files the church uploaded on its dashboard: the history page, scans of the old chapel, a flyer screenshot, a photo gallery and a livestream" loading="lazy" width="1100" height="998" />
           </div>
         </article>
 
