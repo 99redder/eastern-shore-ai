@@ -104,6 +104,28 @@
     /* Open book spread */
     .spread { width: 100%; max-width: 480px; aspect-ratio: 3 / 2; display: grid; grid-template-columns: 1fr 1fr; background: var(--paper); border-radius: 6px; box-shadow: 0 30px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(0,0,0,.08); position: relative; overflow: hidden; }
     .spread::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 46px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, rgba(0,0,0,.14), transparent); }
+    /* Their real book (make_book.py --web-preview), when staff have uploaded it. */
+    .real-book { margin-bottom: 56px; text-align: center; }
+    .real-book h2 { font-size: 40px; margin: 8px 0 10px; }
+    .real-book .rb-note { color: var(--muted); max-width: 42em; margin: 0 auto 24px; }
+    .rb-stage { position: relative; width: 100%; max-width: 1100px; margin: 0 auto; aspect-ratio: 2 / 1; overflow: hidden; border-radius: 6px; background: #ece7dd; box-shadow: 0 30px 60px rgba(0,0,0,.45); outline: none; touch-action: pan-y; cursor: pointer; }
+    .rb-stage:focus-visible { box-shadow: 0 0 0 3px var(--gold2), 0 30px 60px rgba(0,0,0,.45); }
+    .rb-stage img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; }
+    .rb-stage.page img { width: 200%; object-fit: fill; }
+    .rb-stage.page.right img { transform: translateX(-50%); }
+    .rb-stage.cover { background: transparent; box-shadow: none; }
+    .rb-nav { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 18px; }
+    .rb-nav .btn[disabled] { opacity: .35; cursor: default; }
+    .rb-nav .btn { white-space: nowrap; }
+    #rb-count { min-width: 10em; color: var(--muted); font-size: 15px; }
+    #book.has-real .row { grid-template-columns: 1fr; max-width: 660px; margin: 0 auto; text-align: center; }
+    #book.has-real .row > .vis { display: none; }
+    #book.has-real .row ul { display: inline-block; text-align: left; }
+    #book.has-real .k p, #book.has-real .row p { margin-left: auto; margin-right: auto; }
+    .book.real { aspect-ratio: 1 / 1; }
+    .book.real .cover { padding: 0; background: #22180f; }
+    .book.real .cover img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 3px 8px 8px 3px; }
+    @media (max-width: 640px) { .rb-stage { aspect-ratio: 1 / 1; } .real-book h2 { font-size: 30px; } .rb-nav { gap: 8px; } .rb-nav .btn { padding: 10px 16px; } #rb-count { min-width: 0; font-size: 14px; } }
     .page { padding: 9% 8%; color: var(--ink); display: flex; flex-direction: column; gap: 6%; }
     .page .ch { font-family: var(--serif); font-size: clamp(14px, 1.9vw, 19px); font-weight: 600; line-height: 1.1; }
     .page .ch small { display: block; font-family: var(--sans); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #8a7a62; margin-bottom: 4px; font-weight: 700; }
@@ -226,7 +248,7 @@
           <p class="note" id="photo-note" hidden></p>
           <p class="note" id="timing-note" hidden style="margin-top:10px;"></p>
           <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
-            <a class="btn btn-primary" href="#book">See the book</a>
+            <a class="btn btn-primary" href="#book" id="hero-book-btn">See the book</a>
             <a class="btn btn-ghost" href="#how">How ordering works</a>
           </div>
         </div>
@@ -234,6 +256,19 @@
       </section>
 
       <section class="k" id="book">
+        <div class="real-book" id="real-book" hidden>
+          <div class="eyebrow">Your book</div>
+          <h2>Page through <em data-title></em></h2>
+          <p class="rb-note" id="rb-note"></p>
+          <div class="rb-stage spread" id="rb-stage" tabindex="0" role="img" aria-roledescription="book" aria-label="Your book">
+            <img id="rb-img" alt="" draggable="false">
+          </div>
+          <div class="rb-nav">
+            <button type="button" class="btn btn-ghost" id="rb-prev" aria-label="Previous page">&lsaquo; Back</button>
+            <span id="rb-count" aria-live="polite"></span>
+            <button type="button" class="btn btn-ghost" id="rb-next" aria-label="Next page">Next &rsaquo;</button>
+          </div>
+        </div>
         <div class="row">
           <div class="vis">
             <div class="spread">
@@ -244,7 +279,7 @@
           <div>
             <div class="eyebrow">Hardcover story book</div>
             <h2 id="book-title">Your film, <em>printed and bound.</em></h2>
-            <p>Each chapter of the film becomes a chapter of the book, laid out like a real book, with every photo, illustration and caption.</p>
+            <p id="book-lede">Each chapter of the film becomes a chapter of the book, laid out like a real book, with every photo, illustration and caption.</p>
             <ul><li>The whole story, word for word, as the narrator tells it</li><li>Every photo and illustration from the film</li><li>A hardcover that will outlast any phone or hard drive</li></ul>
             <span class="price">$149</span><span class="ship">Free shipping to U.S. addresses · includes designing the book · ships about 2 to 3 weeks after you approve the proof</span>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="book">Buy the hardcover book · $149</button></div>
@@ -339,6 +374,7 @@
           <a href="/#about" class="esai-footer-link">About Us</a>
           <a href="/folder-to-film-terms.html" class="esai-footer-link">Folder to Film Terms</a>
           <a href="/folder-to-film-terms.html#privacy" class="esai-footer-link">Privacy Notice</a>
+          <a href="/folder-to-film.html#find" class="esai-footer-link">Find My Film</a>
         </div>
         <p class="esai-footer-vet">&#127482;&#127480; Veteran-Owned Business</p>
       </div>
@@ -375,6 +411,85 @@
       $('msg-text').innerHTML = html;
     }
 
+    // Their real book: the cover, then every spread (a page at a time on phones).
+    function setupRealBook(p) {
+      const bp = p.bookPreview;
+      if (!bp || !bp.cover || !Array.isArray(bp.spreads) || !bp.spreads.length) return false;
+      const stage = $('rb-stage');
+      const img = $('rb-img');
+      const n = bp.spreads.length;
+      const total = Number(bp.pages) || n * 2 - 2;
+      const narrow = window.matchMedia('(max-width: 640px)');
+      const build = () => {
+        const v = [{ src: bp.cover, kind: 'cover', label: 'The cover' }];
+        bp.spreads.forEach((src, i) => {
+          const k = i + 1;
+          const left = k === 1 ? 0 : 2 * k - 2;
+          const right = k === n ? 0 : 2 * k - 1;
+          if (narrow.matches) {
+            if (left) v.push({ src, kind: 'page left', label: `Page ${left} of ${total}` });
+            if (right) v.push({ src, kind: 'page right', label: `Page ${right} of ${total}` });
+          } else {
+            v.push({ src, kind: 'spread', label: left && right ? `Pages ${left}–${right} of ${total}` : `Page ${left || right} of ${total}` });
+          }
+        });
+        return v;
+      };
+      let views = build();
+      let at = 0;
+      const preload = (i) => { if (views[i]) { const im = new Image(); im.src = views[i].src; } };
+      const show = () => {
+        const v = views[at];
+        stage.className = `rb-stage ${v.kind}`;
+        if (img.getAttribute('src') !== v.src) img.src = v.src;
+        img.alt = v.label;
+        stage.setAttribute('aria-label', `Your book: ${v.label}`);
+        $('rb-count').textContent = v.label;
+        $('rb-prev').disabled = at === 0;
+        $('rb-next').disabled = at === views.length - 1;
+        preload(at + 1); preload(at - 1);
+      };
+      const go = (d) => { const nx = Math.max(0, Math.min(views.length - 1, at + d)); if (nx !== at) { at = nx; show(); } };
+      $('rb-prev').addEventListener('click', () => go(-1));
+      $('rb-next').addEventListener('click', () => go(1));
+      stage.addEventListener('click', (e) => { const r = stage.getBoundingClientRect(); go(e.clientX - r.left < r.width / 3 ? -1 : 1); });
+      stage.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+      });
+      let x0 = null;
+      stage.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+      stage.addEventListener('touchend', (e) => {
+        if (x0 == null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        x0 = null;
+        if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+      });
+      narrow.addEventListener('change', () => {
+        const src = views[at].src;
+        views = build();
+        at = Math.max(0, views.findIndex((v) => v.src === src));
+        show();
+      });
+      show();
+      $('real-book').hidden = false;
+      $('book').classList.add('has-real');
+      $('rb-note').textContent = `Laid out from your film: ${total} pages with every photo, illustration and caption. You can still change any of it, and nothing is printed until you approve a final proof.`;
+      $('book-lede').textContent = `That's your book above, ${total} pages. Order it and we'll email you the proof to check, then print and bind it.`;
+      $('hero-book-btn').textContent = 'Page through your book';
+      const hb = document.querySelector('.hero .book');
+      if (hb) {
+        hb.classList.add('real');
+        const c = hb.querySelector('.cover');
+        c.innerHTML = '';
+        const im = document.createElement('img');
+        im.src = bp.cover;
+        im.alt = 'The cover of your book';
+        c.appendChild(im);
+      }
+      return true;
+    }
+
     function fill(p, photos) {
       me = p.me || {};
       const own = !!(me.isOwner || me.isStaff);
@@ -390,6 +505,7 @@
       if (name) $('hero-title').querySelector('em').textContent = name;
       if (name) $('book-title').innerHTML = `<em></em>, printed and bound.`;
       if (name) $('book-title').querySelector('em').textContent = name;
+      const realBook = setupRealBook(p);
 
       // The customer's own photos, spread across the mock-ups (repeat if there are only a few).
       const urls = photos.map((x) => x.url);
@@ -453,7 +569,9 @@
         $('timing-note').hidden = false;
         $('timing-note').innerHTML = `<b>${own ? 'Your' : 'The'} film is still in the works.</b> You can order now: we make keepsakes from the finished film, so they come together soon after it's done.`;
       }
-      if (!photos.length && !(me.can && me.can.upload) && !own) {
+      if (realBook) {
+        // Their real book is above, so the sample mock-ups' photo hints don't apply.
+      } else if (!photos.length && !(me.can && me.can.upload) && !own) {
         $('photo-note').hidden = false;
         $('photo-note').textContent = "Photos from the film will show in these previews once they're uploaded.";
       } else if (!photos.length) {
@@ -578,7 +696,7 @@
     });
 
     async function load() {
-      if (!token) { stop('This link is missing something', 'Open your film dashboard from the email we sent, then tap Keepsakes.'); return; }
+      if (!token) { stop('This link is missing something', 'Open your film dashboard from the email we sent, then tap Keepsakes. Lost the email with your link? <a href="/folder-to-film.html#find">Find your film</a>.'); return; }
       try {
         const d = await api(`/api/film/dashboard?t=${encodeURIComponent(token)}`);
         const p = d.project || {};
@@ -591,7 +709,7 @@
         $('page').hidden = false;
       } catch (err) {
         if (err.status === 401 && err.data && err.data.needsCode) showSignIn(err.data);
-        else stop("We couldn't open your keepsakes", err.message);
+        else stop("We couldn't open your keepsakes", `${esc(err.message)} Lost the email with your link? <a href="/folder-to-film.html#find">Find your film</a>.`);
       }
     }
 

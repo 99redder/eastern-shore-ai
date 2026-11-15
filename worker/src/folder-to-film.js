@@ -405,7 +405,10 @@ export function createFilmHandlers(deps) {
           button: 'Watch and download',
           lines: [hi, '', `The final version of ${name} is ready. You can watch it, share it with family, and download a copy to keep, all from your dashboard.`, '', link, '',
             ...(row.share_token ? [`To share the film itself (without dashboard access), send people this link: ${SITE}/film.html?s=${row.share_token}`, ''] : []),
-            'Thank you for trusting us with your story. You can also turn it into a hardcover book or an audiobook (with extra narration, made for listening) from the Keepsakes link on your dashboard.', '', 'Chris'],
+            ...(Number(row.book_preview_spreads || 0) > 0
+              ? [`Thank you for trusting us with your story. We've also laid it out as a hardcover book, with your photos and captions, so you can see exactly what it would look like before you decide. Page through it here: ${keepsakesUrl(row.token)}`, '',
+                 'You can order it, or the audiobook (with extra narration, made for listening), from that page.', '', 'Chris']
+              : ['Thank you for trusting us with your story. You can also turn it into a hardcover book or an audiobook (with extra narration, made for listening) from the Keepsakes link on your dashboard.', '', 'Chris'])],
         };
       default:
         return {
@@ -608,6 +611,7 @@ export function createFilmHandlers(deps) {
         keepsakeOrders: orders.filter((o) => orderIsMine(o, row, person)).map(orderView),
         ...(await mediaFor(env, { ...row, demo_key: null, final_key: null }, new URL(request.url).origin, { audiobook: audiobookAccess(row, person, orders, people) })),
         ...myListen(row, person, orders),
+        bookPreview: await bookPreviewFor(env, row, new URL(request.url).origin),
       } }, 200, corsHeaders);
     }
     const uploads = await uploadsFor(env.DB, row.id);
@@ -618,6 +622,7 @@ export function createFilmHandlers(deps) {
     view.names = people.map((x) => x.name).filter(Boolean);
     view.bookOrdered = hasBook(orders);
     view.keepsakeOrders = orders.map(orderView);
+    if (can(person, 'keepsakes')) view.bookPreview = await bookPreviewFor(env, row, new URL(request.url).origin);
     return json({ ok: true, project: view, ...(deviceToken ? { deviceToken } : {}) }, 200, corsHeaders);
   }
 
@@ -1191,7 +1196,8 @@ export function createFilmHandlers(deps) {
     const people = row.customer_email ? await peopleFor(env, row) : [];
     const keepsakes = (await keepsakeOrders(env, row.id)).map((o) => ({ ...o, by: orderedByName(o, row, people), byBuyer: orderedBy(o, row) === normEmail(row.customer_email) }));
     const devices = (await env.DB.prepare(`SELECT email, COUNT(*) AS n, MAX(last_seen_at) AS seen FROM film_devices WHERE project_id = ?1 AND expires_at > datetime('now') GROUP BY email`).bind(row.id).all()).results || [];
-    return json({ ok: true, project: adminView(row), uploads, emails, chat, people, devices, keepsakes, questions: FILM_QUESTIONS }, 200, corsHeaders);
+    const bookPreview = await bookPreviewFor(env, row, new URL(request.url).origin);
+    return json({ ok: true, project: adminView(row, { book_preview: bookPreview }), uploads, emails, chat, people, devices, keepsakes, questions: FILM_QUESTIONS }, 200, corsHeaders);
   }
 
   // POST /api/film/project/update {id, status?, demoUrl?, finalUrl?, notes?, demoDueDate?, estimatedDoneDate?}
@@ -1359,6 +1365,115 @@ export function createFilmHandlers(deps) {
       url: `${base}/api/film/file?f=${r.id}&e=${exp}&s=${await hmacHex(secret, `film-file:${r.id}:${exp}`)}&inline=1`,
     })));
     return json({ ok: true, photos }, 200, corsHeaders);
+  }
+
+  // ---------- book preview (the keepsakes page shows their real book) ----------
+  // After the final film, staff lay the book out with make_book.py --web-preview and upload the
+  // folder from admin: cover.jpg, spread-01.jpg ... spread-NN.jpg, preview.json. They are
+  // low-resolution JPEGs (about 90 ppi at print size, so nobody prints the book from them),
+  // stored at deliverables/<id>/book-preview/ and shown to people with keepsakes access through
+  // signed links, since an <img> can't send the sign-in header.
+  const BOOK_PREVIEW_MAX_SPREADS = 200;
+  const BOOK_PREVIEW_MAX_BYTES = 3 * 1024 * 1024;
+  const BOOK_LINK_SECONDS = 6 * 3600;
+  const bookPreviewKey = (id, name) => `deliverables/${id}/book-preview/${name}`;
+  const storedSpread = (i) => `spread-${String(i).padStart(3, '0')}.jpg`;
+  const BOOK_PAGE_NAME = /^(cover|spread-\d{3})\.jpg$/;
+
+  async function bookPreviewFor(env, row, origin) {
+    const n = Math.round(Number(row.book_preview_spreads || 0));
+    const secret = linkSecret(env);
+    if (!(n > 0) || !secret || row.status === 'canceled') return null;
+    const exp = Math.floor(Date.now() / 1000) + BOOK_LINK_SECONDS;
+    const link = async (name) => `${origin}/api/film/book-page?f=${row.id}&n=${name}&e=${exp}&s=${await hmacHex(secret, `film-book:${row.id}:${name}:${exp}`)}`;
+    const spreads = [];
+    for (let i = 1; i <= n; i++) spreads.push(await link(storedSpread(i)));
+    return { pages: Math.round(Number(row.book_preview_pages || 0)) || Math.max(0, n * 2 - 2), cover: await link('cover.jpg'), spreads, at: row.book_preview_at || '' };
+  }
+
+  async function deleteBookPreview(env, row) {
+    if (!env.FILMS) return;
+    const n = Math.round(Number(row.book_preview_spreads || 0));
+    const keys = [bookPreviewKey(row.id, 'cover.jpg')];
+    for (let i = 1; i <= Math.min(n, BOOK_PREVIEW_MAX_SPREADS); i++) keys.push(bookPreviewKey(row.id, storedSpread(i)));
+    for (const k of keys) { try { await env.FILMS.delete(k); } catch {} }
+  }
+
+  // POST /api/film/book-preview  (admin; multipart form: id, files = the --web-preview folder)
+  async function handleBookPreviewUpload(request, env, corsHeaders, url) {
+    const auth = await adminGuard(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+    if (!env.FILMS) return json({ ok: false, error: 'FILMS storage is not set up' }, 503, corsHeaders);
+    let form;
+    try { form = await request.formData(); } catch { return json({ ok: false, error: 'Send the preview as a form upload.' }, 400, corsHeaders); }
+    const row = await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(Math.round(Number(form.get('id') || 0))).first();
+    if (!row) return json({ ok: false, error: 'Project not found' }, 404, corsHeaders);
+    const bad = (error) => json({ ok: false, error }, 400, corsHeaders);
+    let cover = null;
+    let meta = {};
+    const spreads = new Map();
+    for (const f of form.getAll('files')) {
+      if (!f || typeof f === 'string') continue;
+      const name = String(f.name || '').split('/').pop();
+      if (name === 'preview.json') {
+        try { meta = JSON.parse(await f.text()) || {}; } catch { return bad("preview.json isn't valid JSON."); }
+        continue;
+      }
+      const m = name.match(/^spread-(\d{2,3})\.jpg$/);
+      if (name !== 'cover.jpg' && !m) return bad(`${name} isn't part of a book preview. Upload the build/book-preview folder: cover.jpg, spread-01.jpg and so on, and preview.json.`);
+      if (f.size > BOOK_PREVIEW_MAX_BYTES) return bad(`${name} is over 3 MB. Run make_book.py --web-preview again.`);
+      const bytes = new Uint8Array(await f.arrayBuffer());
+      if (!(bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)) return bad(`${name} isn't a JPEG.`);
+      if (m) spreads.set(Number(m[1]), bytes);
+      else cover = bytes;
+    }
+    const n = spreads.size;
+    if (!cover || !n) return bad('A book preview needs cover.jpg and the spread pictures (spread-01.jpg and so on).');
+    if (n > BOOK_PREVIEW_MAX_SPREADS) return bad(`That's more than ${BOOK_PREVIEW_MAX_SPREADS} spreads.`);
+    for (let i = 1; i <= n; i++) if (!spreads.has(i)) return bad(`Spread ${i} is missing.`);
+    await deleteBookPreview(env, row);
+    const opts = { httpMetadata: { contentType: 'image/jpeg' } };
+    await env.FILMS.put(bookPreviewKey(row.id, 'cover.jpg'), cover, opts);
+    for (let i = 1; i <= n; i++) await env.FILMS.put(bookPreviewKey(row.id, storedSpread(i)), spreads.get(i), opts);
+    const pages = Math.round(Number(meta.pages || 0)) || n * 2 - 2;
+    await env.DB.prepare(`UPDATE film_projects SET book_preview_spreads = ?1, book_preview_pages = ?2, book_preview_at = datetime('now'), updated_at = datetime('now') WHERE id = ?3`)
+      .bind(n, pages, row.id).run();
+    return json({ ok: true, spreads: n, pages }, 200, corsHeaders);
+  }
+
+  // POST /api/film/book-preview/remove {id}  (admin)
+  async function handleBookPreviewRemove(request, env, corsHeaders, url) {
+    const auth = await adminGuard(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+    const d = await readJson(request);
+    const row = await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(Math.round(Number(d?.id || 0))).first();
+    if (!row) return json({ ok: false, error: 'Project not found' }, 404, corsHeaders);
+    await deleteBookPreview(env, row);
+    await env.DB.prepare(`UPDATE film_projects SET book_preview_spreads = NULL, book_preview_pages = NULL, book_preview_at = NULL, updated_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
+    return json({ ok: true }, 200, corsHeaders);
+  }
+
+  // GET /api/film/book-page?f=&n=&e=&s=  (signed; an <img> on the keepsakes page)
+  async function handleBookPage(request, env, corsHeaders, url) {
+    const id = Math.round(Number(url.searchParams.get('f') || 0));
+    const name = clip(url.searchParams.get('n'), 40);
+    const exp = Math.round(Number(url.searchParams.get('e') || 0));
+    const sig = clip(url.searchParams.get('s'), 128);
+    const secret = linkSecret(env);
+    if (!id || !BOOK_PAGE_NAME.test(name) || !exp || !sig || !secret || exp < Math.floor(Date.now() / 1000)) return new Response('This picture link has expired. Reload the page.', { status: 403 });
+    if (!timingSafeEqual(await hmacHex(secret, `film-book:${id}:${name}:${exp}`), sig)) return new Response('Bad link.', { status: 403 });
+    const row = await env.DB.prepare(`SELECT id, status, book_preview_spreads FROM film_projects WHERE id = ?1`).bind(id).first();
+    if (!row || !Number(row.book_preview_spreads || 0) || row.status === 'canceled' || !env.FILMS) return new Response('Not found.', { status: 404 });
+    const obj = await env.FILMS.get(bookPreviewKey(id, name));
+    if (!obj) return new Response('Not found.', { status: 404 });
+    return new Response(obj.body, {
+      headers: {
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'private, max-age=21600',
+        'X-Content-Type-Options': 'nosniff',
+        ...(obj.size != null ? { 'Content-Length': String(obj.size) } : {}),
+      },
+    });
   }
 
   // Ask K on the dashboard: a signed-in customer (film link + trusted browser) skips the bot check,
@@ -1698,6 +1813,7 @@ export function createFilmHandlers(deps) {
     }
     await env.DB.prepare(`DELETE FROM film_uploads WHERE project_id = ?1`).bind(row.id).run();
     for (const k of [row.demo_key, row.final_key, row.audiobook_key]) { if (k && env.FILMS) { try { await env.FILMS.delete(k); } catch {} } }
+    await deleteBookPreview(env, row);
     for (const table of ['film_emails', 'film_people', 'film_devices', 'film_codes', 'film_messages', 'film_typing', 'film_keepsake_orders']) {
       await env.DB.prepare(`DELETE FROM ${table} WHERE project_id = ?1`).bind(row.id).run();
     }
@@ -1725,29 +1841,51 @@ export function createFilmHandlers(deps) {
 
   // Email the status of every film ordered with this address to that address.
   // Called from Ask K; the visitor sees the same reply either way.
+  // Ask K's "Find my film / check on my film" box: email the status and the right link to an
+  // address that bought a film or was added to one (keepsakes-only people get their keepsakes page).
   async function sendStatusEmail(env, email) {
-    const rows = (await env.DB.prepare(
+    const e = normEmail(String(email || '').trim());
+    const own = (await env.DB.prepare(
       `SELECT * FROM film_projects WHERE lower(trim(customer_email)) = ?1 AND status != 'pending_payment' ORDER BY id DESC LIMIT 10`
-    ).bind(String(email || '').trim().toLowerCase()).all()).results || [];
+    ).bind(e).all()).results || [];
+    const added = (await env.DB.prepare(
+      `SELECT p.*, fp.email AS person_email, fp.name AS person_name, fp.role AS person_role
+       FROM film_people fp JOIN film_projects p ON p.id = fp.project_id
+       WHERE lower(fp.email) = ?1 AND p.status NOT IN ('pending_payment', 'canceled') ORDER BY p.id DESC LIMIT 10`
+    ).bind(e).all()).results || [];
+    const seen = new Set(own.map((r) => r.id));
+    const rows = [...own, ...added.filter((r) => !seen.has(r.id))].slice(0, 10);
     if (!rows.length) return false;
-    const blocks = rows.map((r) => ({
-      r,
-      name: r.project_name || `Folder to Film order #${r.id}`,
-      status: FILM_STATUSES[r.status] || r.status,
-      sentence: statusSentence(r),
-      link: dashboardUrl(r.token),
-    }));
-    const hi = firstName(rows[0]);
-    const text = [hi, '', `Here's the latest on your Folder to Film order${rows.length > 1 ? 's' : ''}:`, '',
-      ...blocks.flatMap((b) => [`${b.name}: ${b.status}`, b.sentence, `Your dashboard: ${b.link}`, '']),
+    const blocks = rows.map((r) => {
+      const keepsakesOnly = !!r.person_role && roleOf(r.person_role) === 'keepsakes';
+      return {
+        r,
+        name: r.project_name || `Folder to Film order #${r.id}`,
+        status: FILM_STATUSES[r.status] || r.status,
+        sentence: statusSentence(r),
+        link: keepsakesOnly ? keepsakesUrl(r.token) : dashboardUrl(r.token),
+        label: keepsakesOnly ? 'Your keepsakes page' : r.person_role ? 'The film dashboard' : 'Your dashboard',
+        button: keepsakesOnly ? 'Open the keepsakes page' : r.person_role ? 'Open the dashboard' : 'Open my dashboard',
+      };
+    });
+    const personFirst = clip(added[0]?.person_name, 80).split(/\s+/)[0];
+    const hi = own.length ? firstName(own[0]) : personFirst ? `Hi ${personFirst},` : 'Hi,';
+    const what = own.length ? `your Folder to Film order${rows.length > 1 ? 's' : ''}` : `the film${rows.length > 1 ? 's' : ''} you were added to`;
+    const text = [hi, '', `Here's the latest on ${what}:`, '',
+      ...blocks.flatMap((b) => [`${b.name}: ${b.status}`, b.sentence, `${b.label}: ${b.link}`, '']),
+      'When you open the link on a new phone or computer, it asks for a sign-in code, which we email to this address.', '',
       'Questions? Just reply to this email, or call or text (302) 907-9162.', '', 'Folder to Film by Eastern Shore AI'].join('\n');
     const html = shell([
       `<p style="margin:0 0 12px;">${escapeHtml(hi)}</p>`,
-      `<p style="margin:0 0 12px;">Here's the latest on your Folder to Film order${rows.length > 1 ? 's' : ''}:</p>`,
-      ...blocks.map((b) => filmDetailsBox([['Film', b.name], ['Status', b.status]]) + `<p style="margin:10px 0 0;">${escapeHtml(b.sentence)}</p>` + filmButton(b.link, 'Open my dashboard')),
+      `<p style="margin:0 0 12px;">Here's the latest on ${escapeHtml(what)}:</p>`,
+      ...blocks.map((b) => filmDetailsBox([['Film', b.name], ['Status', b.status]]) + `<p style="margin:10px 0 0;">${escapeHtml(b.sentence)}</p>` + filmButton(b.link, b.button)),
+      '<p style="margin:0 0 12px;">When you open the link on a new phone or computer, it asks for a sign-in code, which we email to this address.</p>',
       '<p style="margin:0 0 12px;">Questions? Just reply to this email, or call or text (302) 907-9162.</p>',
     ].join(''), { heading: 'Your film status', preheader: `${blocks[0].name}: ${blocks[0].status}` });
-    await sendCustomerEmail(env, rows[0], { kind: 'status', subject: rows.length > 1 ? 'Your Folder to Film orders: latest status' : `${blocks[0].name}: ${blocks[0].status}`, text, html });
+    await sendCustomerEmail(env, rows[0], {
+      kind: 'status', subject: rows.length > 1 ? 'Your Folder to Film links and status' : `${blocks[0].name}: ${blocks[0].status}`, text, html,
+      ...(own.length ? {} : { to: added[0].person_email }),
+    });
     return true;
   }
 
@@ -2145,7 +2283,7 @@ export function createFilmHandlers(deps) {
   }
 
   return {
-    handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples, handleKeepsakeCheckout, handleKeepsakePaid,
+    handleStaffLink, handleStaffAccess, handleKeepsakePhotos, handleBookPreviewUpload, handleBookPreviewRemove, handleBookPage, askKDashboardContext, handleEmailSamples, handleKeepsakeCheckout, handleKeepsakePaid,
     handleKeepsakeExpired: async (env, session) => { if (session?.id) await env.DB.prepare(`DELETE FROM film_keepsake_orders WHERE stripe_session_id = ?1 AND status = 'pending'`).bind(clip(session.id, 120)).run(); },
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch, handleKeepsakeUpdate, handleListenInfo, handleListenAudio, handleListenFeed,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove, handlePeopleRole,

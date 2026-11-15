@@ -407,7 +407,7 @@
   <header class="topbar">
     <div class="wrap">
       <div class="brand"><a href="#top" tabindex="-1" aria-hidden="true"><img class="brand-mark" src="images/story-video/logo-mark.svg" alt="" width="44" height="36" /></a><span class="brand-text"><a href="#top" class="brand-name">Folder <span>to Film</span></a><a href="/" class="brand-by" aria-label="Eastern Shore AI home page"><small>by <span class="esai">Eastern Shore AI</span></small></a></span></div>
-      <div class="top-right"><a class="home-link" href="/">Eastern Shore AI home</a><a class="btn btn-primary" href="#start">Start your story</a></div>
+      <div class="top-right"><a class="home-link" href="#find" data-find>Find my film</a><a class="home-link" href="/">Eastern Shore AI home</a><a class="btn btn-primary" href="#start">Start your story</a></div>
     </div>
   </header>
 
@@ -799,6 +799,7 @@
         </div>
         <div class="form-status" id="start-status" role="status" aria-live="polite"></div>
         <p class="start-help">Questions first? Call or text <a href="tel:+13029079162">(302) 907-9162</a> or email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>.</p>
+        <p class="start-help">Already ordered, or lost the email with your link? <a href="#find" data-find>Find your film</a>.</p>
       </div>
     </div>
   </section>
@@ -848,6 +849,7 @@
           <a href="/#about" class="esai-footer-link">About Us</a>
           <a href="/folder-to-film-terms.html" class="esai-footer-link">Folder to Film Terms</a>
           <a href="/folder-to-film-terms.html#privacy" class="esai-footer-link">Privacy Notice</a>
+          <a href="/folder-to-film.html#find" class="esai-footer-link" data-find>Find My Film</a>
         </div>
         <p class="esai-footer-vet">&#127482;&#127480; Veteran-Owned Business</p>
       </div>
@@ -942,7 +944,7 @@
       function chips() {
         const wrap = document.createElement('div');
         wrap.className = 'askk-chips';
-        [['How does this process work?'], ['What do I get for $199.99?'], ['What can I upload?'], ['Which film styles are there?'], ['How long does it take?'], ['Check on my film', 'status']].forEach(([label, kind]) => {
+        [['How does this process work?'], ['What do I get for $199.99?'], ['What can I upload?'], ['Which film styles are there?'], ['How long does it take?'], ['Find my film or check on it', 'status']].forEach(([label, kind]) => {
           const b = document.createElement('button');
           b.type = 'button';
           b.textContent = label;
@@ -958,7 +960,7 @@
         fab.setAttribute('aria-expanded', 'true');
         if (!started) {
           started = true;
-          add('k', "Hi, I'm K. Ask me anything about Folder to Film: how it works, what you can upload, styles, timing or price. Already ordered? I can email you your film's status and dashboard link.");
+          add('k', "Hi, I'm K. Ask me anything about Folder to Film: how it works, what you can upload, styles, timing or price. Already ordered, or lost your link? I can email it to you.");
           chips();
         }
         setTimeout(() => input.focus(), 50);
@@ -969,6 +971,21 @@
         fab.setAttribute('aria-expanded', 'false');
       }
       fab.addEventListener('click', open);
+      // "Find my film": open K straight to the lookup box, for anyone who lost or deleted the email
+      // with their dashboard (or keepsakes) link. Linked from the top bar, the footer and #find.
+      function findMyFilm() {
+        open();
+        const box = log.querySelector('form.askk-status');
+        if (box) { box.querySelector('input').focus(); return; }
+        statusBox();
+      }
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest && e.target.closest('[data-find]');
+        if (!a) return;
+        e.preventDefault();
+        findMyFilm();
+      });
+      if (location.hash === '#find') findMyFilm();
       document.getElementById('askk-close').addEventListener('click', close);
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawer.classList.contains('on')) close(); });
 
@@ -1044,9 +1061,9 @@
       function statusBox() {
         const box = document.createElement('form');
         box.className = 'askk-status';
-        box.innerHTML = '<div><strong>Check on your film</strong><br>Enter the email you ordered with. We will email the latest status, estimated completion date and your dashboard link to that address.</div>'
-          + '<input type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Email you ordered with" />'
-          + '<button type="submit" class="btn btn-primary">Email me the status</button>';
+        box.innerHTML = '<div><strong>Find your film</strong><br>Enter the email you ordered with, or the one you were invited with. We\'ll email your link and the latest status to that address.</div>'
+          + '<input type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email address" />'
+          + '<button type="submit" class="btn btn-primary">Email me my link</button>';
         box.addEventListener('submit', async (e) => {
           e.preventDefault();
           const email = box.querySelector('input').value.trim();
@@ -1056,7 +1073,7 @@
             const { data } = await post('/api/film/ask-k/status', { email });
             box.replaceWith(add('k', fmt(data.reply || data.error || 'Something went wrong.')));
           } catch {
-            btn.disabled = false; btn.textContent = 'Email me the status';
+            btn.disabled = false; btn.textContent = 'Email me my link';
           }
         });
         log.appendChild(box);

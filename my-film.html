@@ -294,6 +294,7 @@
       <div class="spinner" aria-hidden="true"></div>
       <h2 id="loading-title">Opening your dashboard…</h2>
       <p class="muted" id="loading-text" style="margin:8px 0 0;"></p>
+      <p class="muted" id="loading-find" style="margin:14px 0 0;" hidden>Lost the email with your link? <a href="/folder-to-film.html#find">Find your film</a> and we'll email it to you again.</p>
     </section>
 
     <!-- Sign in on a new browser: code emailed to the buyer or a person they added -->
@@ -421,7 +422,7 @@
         <a class="btn btn-primary" id="final-open" href="#" target="_blank" rel="noopener">Open or download</a>
         <button type="button" class="btn btn-ghost" id="copy-link">Copy a link to share</button>
       </div>
-      <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, or an audiobook made for listening? <a href="#" class="keepsakes-link">See your keepsakes</a>.</p>
+      <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. <span id="final-keep-text">Want it as a hardcover book, or an audiobook made for listening?</span> <a href="#" class="keepsakes-link" id="final-keep-link">See your keepsakes</a>.</p>
     </section>
 
     <!-- The audiobook, once it's delivered to someone on this dashboard -->
@@ -438,9 +439,9 @@
       <div class="mini-book" aria-hidden="true"><span id="keep-ad-title">Our Story</span></div>
       <div>
         <div class="eyebrow">Keepsakes</div>
-        <h3>Something to hold</h3>
-        <p>Turn your film into a hardcover book, with copies for the family, or an audiobook with extra narration made for listening. Books ship free in the U.S.</p>
-        <a class="btn btn-primary keepsakes-link" href="#">See your keepsakes</a>
+        <h3 id="keep-ad-h">Something to hold</h3>
+        <p id="keep-ad-p">Turn your film into a hardcover book, with copies for the family, or an audiobook with extra narration made for listening. Books ship free in the U.S.</p>
+        <a class="btn btn-primary keepsakes-link" href="#" id="keep-ad-btn">See your keepsakes</a>
       </div>
     </aside>
 
@@ -568,6 +569,7 @@
           <a href="/#about" class="esai-footer-link">About Us</a>
           <a href="/folder-to-film-terms.html" class="esai-footer-link">Folder to Film Terms</a>
           <a href="/folder-to-film-terms.html#privacy" class="esai-footer-link">Privacy Notice</a>
+          <a href="/folder-to-film.html#find" class="esai-footer-link">Find My Film</a>
         </div>
         <p class="esai-footer-vet">&#127482;&#127480; Veteran-Owned Business</p>
       </div>
@@ -664,6 +666,18 @@
         if (p.audiobookListenUrl) $('audiobook-listen').href = p.audiobookListenUrl;
       }
       $('keep-ad-title').textContent = p.projectName || 'Our Story';
+      // Their book is laid out (a preview was uploaded): show its real cover and say so.
+      if (p.bookPreview && p.bookPreview.cover) {
+        const mb = document.querySelector('#keep-ad .mini-book');
+        mb.style.background = `#22180f url("${String(p.bookPreview.cover).replace(/"/g, '%22')}") center / cover no-repeat`;
+        mb.style.aspectRatio = '1 / 1';
+        $('keep-ad-title').textContent = '';
+        $('keep-ad-h').textContent = 'Your book is laid out';
+        $('keep-ad-p').textContent = `We've made ${p.projectName || 'your film'} into a ${p.bookPreview.pages || ''}-page hardcover book. Page through all of it before you decide.`.replace(' -page', '');
+        $('keep-ad-btn').textContent = 'Page through your book';
+        $('final-keep-text').textContent = "We've also laid it out as a hardcover book.";
+        $('final-keep-link').textContent = 'Page through your book';
+      }
       if (p.people) renderPeople(p.people);
       if (p.chat && document.activeElement !== $('notes')) $('notes').value = p.notes || '';
       if (p.chat) startChat();
@@ -1412,6 +1426,7 @@
         $('loading-title').textContent = 'This link is missing something';
         $('loading-text').textContent = 'Open the dashboard link from your email, or call (302) 907-9162.';
         document.querySelector('#state-loading .spinner').hidden = true;
+        $('loading-find').hidden = false;
         return;
       }
       try {
@@ -1439,6 +1454,7 @@
         $('loading-title').textContent = "We couldn't open your dashboard";
         $('loading-text').textContent = e.message;
         document.querySelector('#state-loading .spinner').hidden = true;
+        $('loading-find').hidden = false;
       }
     }
     load();

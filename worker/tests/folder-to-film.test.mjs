@@ -76,6 +76,11 @@ function fakeR2() {
       return o ? { size: o.bytes.length, httpMetadata: { contentType: o.contentType || 'video/mp4' } } : null;
     },
     async delete(key) { objects.delete(key); },
+    async put(key, value, opts = {}) {
+      const bytes = value instanceof Uint8Array ? value : new Uint8Array(await new Response(value).arrayBuffer());
+      objects.set(key, { bytes, contentType: opts?.httpMetadata?.contentType });
+      return { key, size: bytes.length };
+    },
   };
 }
 
@@ -475,8 +480,31 @@ test('Folder to Film Ask K: own key and counters, busy reply names its key, stat
   assert.equal(mail.subject, 'Lake Week: In production');
   assert.match(mail.text, /demo is expected by Wednesday, November 18, and the finished film by Friday, November 20/);
   assert.match(mail.text, /my-film\.html\?t=tok_status_test_0123456789abcdef0123/);
+  // Lost links work for people the buyer added too: keepsakes-only people get their keepsakes page, helpers the dashboard.
+  const pid = env3.DB.sqlite.prepare(`SELECT id FROM film_projects WHERE token = 'tok_status_test_0123456789abcdef0123'`).get().id;
+  env3.DB.sqlite.prepare(`INSERT INTO film_people (project_id, email, name, role) VALUES (?, 'kim@family.example', 'Kim Lee', 'keepsakes'), (?, 'sam@family.example', 'Sam Lee', 'helper')`).run(pid, pid);
+  env3.EMAIL.sent.length = 0;
+  r = await call(env3, post('/api/film/ask-k/status', { email: 'Kim@Family.example', turnstileToken: 'ok' }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.match(r.data.reply, /or someone added it to their film/);
+  let kimMail = env3.EMAIL.sent.find((m) => m.subject === 'Lake Week: In production');
+  assert.deepEqual(kimMail.to, ['kim@family.example']);
+  assert.match(kimMail.text, /^Hi Kim,/);
+  assert.match(kimMail.text, /the film you were added to/);
+  assert.match(kimMail.text, /Your keepsakes page: https:\/\/www\.easternshore\.ai\/my-keepsakes\.html\?t=tok_status_test/);
+  assert.ok(!kimMail.text.includes('my-film.html'), 'keepsakes-only people get the keepsakes page, not the dashboard');
+  env3.EMAIL.sent.length = 0;
+  r = await call(env3, post('/api/film/ask-k/status', { email: 'sam@family.example', turnstileToken: 'ok' }));
+  const samMail = env3.EMAIL.sent.find((m) => m.subject === 'Lake Week: In production');
+  assert.deepEqual(samMail.to, ['sam@family.example']);
+  assert.match(samMail.text, /The film dashboard: https:\/\/www\.easternshore\.ai\/my-film\.html\?t=tok_status_test/);
+  // A canceled film isn't sent to added people.
+  env3.DB.sqlite.prepare(`UPDATE film_projects SET status = 'canceled' WHERE id = ?`).run(pid);
+  env3.EMAIL.sent.length = 0;
+  await call(env3, post('/api/film/ask-k/status', { email: 'kim@family.example', turnstileToken: 'ok' }));
+  assert.equal(env3.EMAIL.sent.filter((m) => m.to?.[0] === 'kim@family.example').length, 0);
   const counts = env3.DB.sqlite.prepare(`SELECT provider, questions FROM askk_daily WHERE provider = 'film_status'`).get();
-  assert.equal(counts.questions, 2);
+  assert.equal(counts.questions, 5, 'every lookup is counted, matched or not');
 });
 
 test('checkout needs the terms; retention purge, link reset', async (t) => {
@@ -1372,6 +1400,104 @@ test('audiobook: upload the MP3 on its line, deliver a private download link, pl
 });
 
 // Keep last: node:test runs this file's tests in order.
+test('book preview: admin uploads the laid-out book; the keepsakes page shows it through signed links; the final email points to it', async (t) => {
+  quietConsole(t);
+  const env = baseEnv();
+  const { token, id } = await paidProject(t, env);
+  const db = env.DB.sqlite;
+  const owner = DEVICE;
+  const codeFrom = (mail) => (mail.text.match(/is (\d{6})\./) || [])[1];
+  db.prepare(`UPDATE film_projects SET project_name = 'Lake Week' WHERE id = ?`).run(id);
+  await call(env, post('/api/film/people', { t: token, email: 'kim@family.example', name: 'Kim Lee', role: 'keepsakes' }));
+  DEVICE = null;
+  await call(env, post('/api/film/access/code', { t: token, email: 'kim@family.example' }));
+  const kim = (await call(env, post('/api/film/access/verify', { t: token, email: 'kim@family.example', code: codeFrom(env.EMAIL.sent.at(-1)) }))).data.deviceToken;
+  DEVICE = owner;
+
+  const jpeg = (n) => new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, ...Array.from({ length: n }, (_, i) => i % 251)])], { type: 'image/jpeg' });
+  const upload = (files, headers = ADMIN) => {
+    const fd = new FormData();
+    fd.append('id', String(id));
+    for (const [name, blob] of files) fd.append('files', blob, name);
+    return worker.fetch(new Request('https://worker.example/api/film/book-preview', { method: 'POST', headers: { Origin: SITE, ...headers }, body: fd }), env, ctx);
+  };
+  // Before a preview: none on the dashboard, and the final email keeps the plain keepsakes line.
+  let dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(dash.data.project.bookPreview, null);
+  db.prepare(`UPDATE film_projects SET final_url = 'https://vimeo.com/1', status = 'final_ready' WHERE id = ?`).run(id);
+  let r = await call(env, post('/api/film/email', { id, kind: 'final', preview: true }, ADMIN));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.doesNotMatch(r.data.body, /laid it out as a hardcover book/);
+
+  // Only admin can upload; a stray file name or a non-JPEG is refused; a gap in the spreads is refused.
+  let res = await upload([['cover.jpg', jpeg(10)], ['spread-01.jpg', jpeg(10)]], {});
+  assert.ok([401, 403].includes(res.status), String(res.status));
+  res = await upload([['cover.jpg', jpeg(10)], ['spread-01.jpg', jpeg(10)], ['notes.txt', new Blob(['x'])]]);
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /notes\.txt isn't part of a book preview/);
+  res = await upload([['cover.jpg', new Blob(['not a jpeg'])], ['spread-01.jpg', jpeg(10)]]);
+  assert.equal(res.status, 400);
+  res = await upload([['cover.jpg', jpeg(10)], ['spread-01.jpg', jpeg(10)], ['spread-03.jpg', jpeg(10)]]);
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /Spread 2 is missing/);
+
+  // The real thing: cover, three spreads and preview.json.
+  res = await upload([['cover.jpg', jpeg(500)], ['spread-01.jpg', jpeg(400)], ['spread-02.jpg', jpeg(401)], ['spread-03.jpg', jpeg(402)],
+    ['preview.json', new Blob([JSON.stringify({ title: 'Lake Week', pages: 4, spreads: 3 })], { type: 'application/json' })]]);
+  assert.equal(res.status, 200, await res.clone().text());
+  assert.deepEqual(await res.json(), { ok: true, spreads: 3, pages: 4 });
+  assert.deepEqual([...env.FILMS.objects.keys()].filter((k) => k.includes('/book-preview/')).sort(),
+    [`deliverables/${id}/book-preview/cover.jpg`, `deliverables/${id}/book-preview/spread-001.jpg`, `deliverables/${id}/book-preview/spread-002.jpg`, `deliverables/${id}/book-preview/spread-003.jpg`]);
+
+  // The buyer's dashboard and Kim's keepsakes-only view both get signed links to every picture.
+  dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  const bp = dash.data.project.bookPreview;
+  assert.equal(bp.pages, 4);
+  assert.equal(bp.spreads.length, 3);
+  let img = await worker.fetch(new Request(bp.spreads[1]), env, ctx);
+  assert.equal(img.status, 200);
+  assert.equal(img.headers.get('Content-Type'), 'image/jpeg');
+  assert.equal((await img.arrayBuffer()).byteLength, 405);
+  img = await worker.fetch(new Request(bp.cover), env, ctx);
+  assert.equal(img.status, 200);
+  // Tampered or other-film links get nothing.
+  assert.equal((await worker.fetch(new Request(bp.cover.replace('n=cover.jpg', 'n=spread-001.jpg')), env, ctx)).status, 403);
+  assert.equal((await worker.fetch(new Request(bp.cover.replace(/s=[0-9a-f]+/, 's=' + '0'.repeat(64))), env, ctx)).status, 403);
+  assert.equal((await worker.fetch(new Request(bp.cover.replace(/n=cover\.jpg/, 'n=..%2Fsecret.jpg')), env, ctx)).status, 403);
+  DEVICE = kim;
+  dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(dash.data.keepsakesOnly, true);
+  assert.equal(dash.data.project.bookPreview.spreads.length, 3);
+  DEVICE = owner;
+
+  // The final email now points to the book on the keepsakes page; admin sees the preview too.
+  r = await call(env, post('/api/film/email', { id, kind: 'final', preview: true }, ADMIN));
+  assert.match(r.data.body, /laid it out as a hardcover book/);
+  assert.ok(r.data.body.includes(`my-keepsakes.html?t=${token}`));
+  const detail = await call(env, get(`/api/film/project?id=${id}`, ADMIN));
+  assert.equal(detail.data.project.book_preview_spreads, 3);
+  assert.equal(detail.data.project.book_preview.spreads.length, 3);
+
+  // A new upload with fewer spreads replaces the old one completely.
+  res = await upload([['cover.jpg', jpeg(20)], ['spread-01.jpg', jpeg(20)], ['spread-02.jpg', jpeg(20)]]);
+  assert.equal(res.status, 200);
+  assert.equal([...env.FILMS.objects.keys()].filter((k) => k.includes('/book-preview/')).length, 3);
+  assert.equal(db.prepare('SELECT book_preview_pages AS p FROM film_projects WHERE id = ?').get(id).p, 2, 'pages default to 2 x spreads - 2');
+
+  // A canceled film stops serving it; Remove takes it away.
+  dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  const cover = dash.data.project.bookPreview.cover;
+  db.prepare(`UPDATE film_projects SET status = 'canceled' WHERE id = ?`).run(id);
+  assert.equal((await worker.fetch(new Request(cover), env, ctx)).status, 404);
+  db.prepare(`UPDATE film_projects SET status = 'final_ready' WHERE id = ?`).run(id);
+  r = await call(env, post('/api/film/book-preview/remove', { id }, ADMIN));
+  assert.equal(r.status, 200);
+  assert.equal([...env.FILMS.objects.keys()].filter((k) => k.includes('/book-preview/')).length, 0);
+  assert.equal((await worker.fetch(new Request(cover), env, ctx)).status, 404);
+  dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(dash.data.project.bookPreview, null);
+});
+
 test('every email to a customer or someone they added is BCCed to the business, like Survival Node order emails', () => {
   const toCustomers = ALL_SENT.filter((m) => /contact@easternshore\.ai/.test(JSON.stringify(m.from)) && !(m.to || []).includes('owner@inbox.example'));
   const subjects = toCustomers.map((m) => m.subject).join(' | ');

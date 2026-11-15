@@ -20,6 +20,8 @@
     chatReply: `${BASE}/api/film/chat/reply`,
     samples: `${BASE}/api/film/email-samples`,
     keepUpdate: `${BASE}/api/film/keepsake/update`,
+    bookPreview: `${BASE}/api/film/book-preview`,
+    bookPreviewRemove: `${BASE}/api/film/book-preview/remove`,
   };
   const $ = (id) => document.getElementById(id);
   let projects = [];
@@ -87,6 +89,23 @@
     return ` &bull; <strong style="color:${late ? '#ff9b9b' : '#fbbf24'};">Demo ${late ? 'was due' : 'due'} ${escHtml(p.demo_due_text || day(p.demo_due_date))}</strong>${p.estimated_done_date ? ` &bull; Done by ${escHtml(day(p.estimated_done_date))}` : ''}`;
   }
 
+  // The book laid out before anyone buys it (make_book.py --web-preview), shown on the keepsakes page.
+  function bookPreviewHtml(p, d) {
+    const has = Number(p.book_preview_spreads || 0) > 0;
+    const bp = d && d.project && d.project.book_preview;
+    const thumbs = has && bp ? `<div style="display:flex; gap:.4rem; margin-top:.45rem; overflow-x:auto; padding-bottom:.2rem;">
+        <img src="${escHtml(bp.cover)}" alt="Cover" style="height:96px; border-radius:3px;">
+        ${bp.spreads.slice(0, 4).map((u, i) => `<img src="${escHtml(u)}" alt="Spread ${i + 1}" style="height:96px; border-radius:3px;">`).join('')}
+      </div>` : '';
+    return `<div><b>Book preview</b> <span class="web-muted">(pick the film's build/book-preview folder from make_book.py --web-preview; the keepsakes page shows it so they can page through their book before buying, and Email Final Film mentions it)</span>
+        <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
+          <label class="btn action-pop" style="cursor:pointer;">${has ? 'Replace' : 'Upload'} book preview<input type="file" multiple webkitdirectory data-film-bookpreview="${p.id}" hidden></label>
+          ${has ? `<button type="button" class="btn" data-film-action="book-preview-remove" data-film-id="${p.id}">Remove</button>` : ''}
+          <span class="web-muted" id="film-bookpreview-${p.id}">${has ? `${Number(p.book_preview_spreads)} spreads, ${Number(p.book_preview_pages || 0)} pages, uploaded ${when(p.book_preview_at)}.` : 'No book preview yet.'}</span>
+        </div>${thumbs}
+      </div>`;
+  }
+
   function detailHtml(p, d) {
     if (!d) return '<div class="web-muted" style="margin-top:.5rem;">Loading details…</div>';
     const a = d.project.answers || {};
@@ -132,6 +151,7 @@
         </div>
         <div class="web-muted" style="margin-top:.25rem;">Then press Email Demo Ready / Email Final Film. (The link fields below are only for a video hosted elsewhere, such as YouTube.)</div>
       </div>
+      ${bookPreviewHtml(p, d)}
       <div class="web-form-grid">
         <div><label for="film-status-${p.id}">Status</label><select id="film-status-${p.id}">${opts}</select></div>
         <div><label for="film-due-${p.id}">Demo due</label><input id="film-due-${p.id}" type="date" value="${escHtml(p.demo_due_date || '')}"></div>
@@ -347,6 +367,14 @@
     const id = Number(btn.getAttribute('data-film-id'));
     const p = projects.find((x) => Number(x.id) === id);
     try {
+      if (action === 'book-preview-remove') {
+        const msg = 'Remove the book preview? The keepsakes page goes back to the sample mock-up.';
+        const ok = typeof openConfirmModal === 'function' ? await openConfirmModal(msg) : confirm(msg);
+        if (!ok) return;
+        await call(API.bookPreviewRemove, { id });
+        await loadDetail(id);
+        return;
+      }
       if (action === 'toggle') {
         if (open.has(id)) { open.delete(id); renderList(); } else { open.add(id); renderList(); loadDetail(id); }
       } else if (action === 'staff') {
@@ -477,7 +505,31 @@
     } finally { input.disabled = false; input.value = ''; }
   }
 
+  // Upload the book preview folder (cover.jpg, spread-NN.jpg, preview.json) in one form post.
+  async function bookPreviewUpload(input) {
+    const id = Number(input.getAttribute('data-film-bookpreview'));
+    const status = $(`film-bookpreview-${id}`);
+    const say = (t) => { if (status) status.textContent = t; };
+    const files = [...(input.files || [])].filter((f) => /^(cover\.jpg|spread-\d{2,3}\.jpg|preview\.json)$/.test(f.name));
+    if (!files.length) { say('That folder has no book preview in it. Pick build/book-preview.'); input.value = ''; return; }
+    input.disabled = true;
+    say(`Uploading ${files.length} files…`);
+    try {
+      const fd = new FormData();
+      fd.append('id', String(id));
+      for (const f of files) fd.append('files', f, f.name);
+      const res = await fetch(API.bookPreview, { method: 'POST', headers: { 'X-Admin-Session': adminSessionToken }, body: fd });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok || !d.ok) throw new Error(d.error || `Upload failed (${res.status})`);
+      say(`Uploaded: ${d.spreads} spreads, ${d.pages} pages.`);
+      await loadDetail(id);
+    } catch (err) {
+      say(`Upload failed: ${err.message}`);
+    } finally { input.disabled = false; input.value = ''; }
+  }
+
   document.addEventListener('change', (e) => {
+    if (e.target.matches && e.target.matches('input[data-film-bookpreview]')) bookPreviewUpload(e.target);
     if (e.target.id === 'film-filter') renderList();
     if (e.target.id === 'film-keep-filter') renderKeepsakes();
     if (e.target.matches && e.target.matches('input[data-film-deliver]')) deliverUpload(e.target);
