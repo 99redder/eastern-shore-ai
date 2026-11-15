@@ -98,6 +98,15 @@
     #order-list .btn.order-action-btn[aria-disabled="true"] { opacity:.45; cursor:not-allowed; filter:saturate(.3); box-shadow:none; }
     /* Folder to Film rows: compact like the order rows, so every action fits on one line on desktop. */
     .web-row-actions.film-actions .btn { padding:.4rem .6rem; font-size:.8rem; white-space:nowrap; }
+    /* Each film / keepsake line is its own card, edged in its status color, so customers don't run together. */
+    .web-row.film-card { border:1px solid #33405e; border-left:6px solid #475569; border-radius:10px; background:rgba(255,255,255,.035); padding:.85rem 1rem; margin:0 0 1.1rem; box-shadow:0 2px 10px rgba(0,0,0,.25); }
+    .web-row.film-card.keep-card { border-left-color:#e3c58e; }
+    .web-row.film-card .web-row-head strong { font-size:1.05rem; }
+    .film-detail { border-top:1px solid #33405e; padding-top:.8rem; }
+    /* Buttons inside Details & Files (the job itself): compact and gold, apart from the blue row buttons. */
+    .btn.film-op { padding:.4rem .7rem; font-size:.8rem; white-space:nowrap; background:rgba(227,197,142,.12); border-color:#e3c58e; color:#f1d9a6; box-shadow:none; }
+    .btn.film-op:hover { background:#e3c58e; color:#1b1408; border-color:#e3c58e; }
+    .btn.film-op.film-op-save { background:#e3c58e; color:#1b1408; font-weight:700; }
     #order-list .order-delete-note { font-size:.76rem; color:var(--muted); padding:.4rem .1rem; white-space:nowrap; }
 
     /* ===== Site Header ===== */
@@ -1610,6 +1619,6 @@
 
   <script src="/admin.js?v=2026-11-15a"></script>
   <script src="/admin-websites.js?v=7"></script>
-  <script src="/admin-films.js?v=19"></script>
+  <script src="/admin-films.js?v=20"></script>
 </body>
 </html>

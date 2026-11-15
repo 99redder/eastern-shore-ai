@@ -98,8 +98,8 @@
       </div>` : '';
     return `<div><b>Book preview</b> <span class="web-muted">(choose the <b>folder</b> of pictures Claude makes, like <b>CBF-book-preview</b> on your Desktop, not the PDF proof; Chrome then asks to confirm uploading its files. The keepsakes page shows it so they can page through their book before buying, and Email Final Film mentions it.)</span>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
-          <label class="btn action-pop" style="cursor:pointer;">${has ? 'Replace' : 'Upload'} book preview folder<input type="file" multiple webkitdirectory data-film-bookpreview="${p.id}" hidden></label>
-          ${has ? `<button type="button" class="btn" data-film-action="book-preview-remove" data-film-id="${p.id}">Remove</button>` : ''}
+          <label class="btn film-op" style="cursor:pointer;">${has ? 'Replace' : 'Upload'} book preview folder<input type="file" multiple webkitdirectory data-film-bookpreview="${p.id}" hidden></label>
+          ${has ? `<button type="button" class="btn film-op" data-film-action="book-preview-remove" data-film-id="${p.id}">Remove</button>` : ''}
           <span class="web-muted" id="film-bookpreview-${p.id}">${has ? `${Number(p.book_preview_spreads)} spreads, ${Number(p.book_preview_pages || 0)} pages, uploaded ${when(p.book_preview_at)}.` : 'No book preview yet.'}</span>
         </div>${thumbs}
       </div>`;
@@ -107,32 +107,29 @@
 
   // Details & Files is for running the job: files to download, videos and the book preview to
   // upload, status and dates, internal notes, emails sent. What the customer entered (story,
-  // answers, notes, feedback, people, chat) is on their dashboard (Open as Staff), and Download
-  // brief saves all of it as one file for production (the folder-to-film skill reads it).
+  // answers, notes, feedback, people, chat) is on their dashboard (Open as Staff); the
+  // folder-to-film skill reads it straight from the database (pull_film.py).
   function detailHtml(p, d) {
     if (!d) return '<div class="web-muted" style="margin-top:.5rem;">Loading details…</div>';
     const files = d.uploads.length
       ? d.uploads.map((u) => `<div style="display:flex; gap:.5rem; align-items:center; margin:.2rem 0; flex-wrap:wrap;">
-          ${u.status === 'done' ? `<button type="button" class="btn action-pop" style="padding:.25rem .6rem; font-size:.82rem;" data-film-action="download" data-film-file="${Number(u.id)}">Download</button>` : '<span class="web-muted">(unfinished)</span>'}
+          ${u.status === 'done' ? `<button type="button" class="btn film-op" data-film-action="download" data-film-file="${Number(u.id)}">Download</button>` : '<span class="web-muted">(unfinished)</span>'}
           <span>${escHtml(u.filename)}</span><span class="web-muted">${size(u.size_bytes)} &bull; ${escHtml(u.content_type || '')}${u.uploaded_by ? ` &bull; by ${escHtml(u.uploaded_by)}` : ''} &bull; ${day(u.completed_at || u.created_at)}</span></div>`).join('')
       : '<span class="web-muted">No files yet.</span>';
     const emails = d.emails.length ? d.emails.map((e) => `${escHtml(e.subject)} <span class="web-muted">(${day(e.sent_at)})</span>`).join('<br>') : '<span class="web-muted">None yet.</span>';
     const opts = Object.entries(statuses).filter(([k]) => k !== 'pending_payment' || p.status === 'pending_payment')
       .map(([k, l]) => `<option value="${k}"${k === p.status ? ' selected' : ''}>${escHtml(l)}</option>`).join('');
     return `<div class="film-detail" style="margin-top:.6rem; display:grid; gap:.8rem;">
-      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
-        <button type="button" class="btn action-pop" data-film-action="brief" data-film-id="${p.id}">Download brief</button>
-        <span class="web-muted">Everything the customer entered (story, answers, notes, feedback, people, chat) in one file for production. To read or reply, use Open as Staff.</span>
-      </div>
+      <div class="web-muted">What the customer entered (story, answers, notes, feedback, people, chat) is on their dashboard: use Open as Staff. Claude reads it straight from the database when making the film.</div>
       <div><b>Files (${d.uploads.filter((u) => u.status === 'done').length})</b><br>${files}<div class="web-muted" style="margin-top:.2rem;">Download links last one hour.</div></div>
       <div><b>Rounds of changes:</b> ${Number(p.change_rounds || 0)} of ${Number(p.rounds_included || 2)} used</div>
       <div><b>Videos for the customer</b> <span class="web-muted">(upload the files here; they play on the dashboard and the final gets a share page with a download)</span>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
-          <label class="btn action-pop" style="cursor:pointer;">${p.has_demo_video ? 'Replace' : 'Upload'} demo video<input type="file" accept="video/*" data-film-deliver="demo" data-film-id="${p.id}" hidden></label>
+          <label class="btn film-op" style="cursor:pointer;">${p.has_demo_video ? 'Replace' : 'Upload'} demo video<input type="file" accept="video/*" data-film-deliver="demo" data-film-id="${p.id}" hidden></label>
           <span class="web-muted" id="film-deliver-demo-${p.id}">${p.has_demo_video ? 'Demo uploaded.' : 'No demo video yet.'}</span>
         </div>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
-          <label class="btn action-pop" style="cursor:pointer;">${p.has_final_video ? 'Replace' : 'Upload'} final film<input type="file" accept="video/*" data-film-deliver="final" data-film-id="${p.id}" hidden></label>
+          <label class="btn film-op" style="cursor:pointer;">${p.has_final_video ? 'Replace' : 'Upload'} final film<input type="file" accept="video/*" data-film-deliver="final" data-film-id="${p.id}" hidden></label>
           <span class="web-muted" id="film-deliver-final-${p.id}">${p.has_final_video ? `Final uploaded.${p.share_url ? ` Share page: <a href="${escHtml(p.share_url)}" target="_blank" rel="noopener" style="color:var(--cyan);">${escHtml(p.share_url)}</a>` : ''}` : 'No final film yet.'}</span>
         </div>
         <div class="web-muted" style="margin-top:.25rem;">Then press Email Demo Ready / Email Final Film. (The link fields below are only for a video hosted elsewhere, such as YouTube.)</div>
@@ -146,55 +143,9 @@
         <div class="web-span"><label for="film-final-${p.id}">Final film link</label><input id="film-final-${p.id}" type="url" placeholder="https://youtu.be/…" value="${escHtml(p.final_url || '')}"></div>
         <div class="web-span"><label for="film-notes-${p.id}">Internal notes (customer never sees these)</label><textarea id="film-notes-${p.id}" rows="2">${escHtml(p.internal_notes || '')}</textarea></div>
       </div>
-      <div class="web-row-actions"><button type="button" class="btn btn-primary" data-film-action="save" data-film-id="${p.id}">Save</button></div>
+      <div class="web-row-actions"><button type="button" class="btn film-op film-op-save" data-film-action="save" data-film-id="${p.id}">Save</button></div>
       <div><b>Emails sent</b><br>${emails}</div>
     </div>`;
-  }
-
-  // The production brief: everything the customer gave us, as Markdown. Saved as film-<id>-brief.md;
-  // the folder-to-film skill copies it into the film's production folder as brief.md.
-  function briefText(d) {
-    const pr = d.project;
-    const a = pr.answers || {};
-    const block = (v) => (String(v || '').trim() || '(blank)');
-    const et = (v) => (v ? when(v) : '');
-    const L = [];
-    L.push(`# Folder to Film #${pr.id}: ${pr.project_name || '(not named yet)'}`, '');
-    L.push(`- Status: ${pr.statusLabel || pr.status}`);
-    L.push(`- Bought by: ${pr.customer_name || '(no name)'}${pr.customer_email ? ` <${pr.customer_email}>` : ''}${pr.customer_phone ? `, ${pr.customer_phone}` : ''}`);
-    if (pr.paid_at) L.push(`- Paid: ${et(pr.paid_at)}`);
-    if (pr.demo_due_date) L.push(`- Demo due: ${pr.demo_due_text || pr.demo_due_date}`);
-    if (pr.estimated_done_date) L.push(`- Estimated completion: ${pr.estimated_done_text || pr.estimated_done_date}`);
-    L.push(`- Rounds of changes used: ${Number(pr.change_rounds || 0)} of ${Number(pr.rounds_included || 2)}`);
-    L.push(`- Dashboard: ${pr.dashboard_url || ''}`);
-    L.push(`- Brief downloaded: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' })} Eastern`, '');
-    L.push('## Whose story is it, and what it\'s about', '', block(pr.about), '');
-    L.push('## Occasion and date needed', '', `- Occasion: ${pr.occasion || '(blank)'}`, `- Needed by: ${pr.needed_by ? day(pr.needed_by) : '(blank)'}`, '');
-    L.push('## Links they shared', '', pr.links ? pr.links.split(/\n+/).map((x) => x.trim()).filter(Boolean).map((x) => `- ${x}`).join('\n') : '(none)', '');
-    L.push('## The questions (blank = Experts pick)', '');
-    questions.forEach((q, i) => {
-      const v = a[q.id];
-      const txt = Array.isArray(v) ? v.join(', ') : (v || '');
-      L.push(`${i + 1}. ${q.q}`, `   - ${txt || '(Experts pick)'}`);
-    });
-    L.push('', '## Notes for our team', '', block(pr.customer_notes), '');
-    if (pr.feedback) L.push('## Demo feedback (changes they asked for)', '', pr.feedback, '');
-    L.push('## People with access', '');
-    (d.people || []).forEach((pp) => L.push(`- ${pp.name || pp.email}${pp.name ? ` <${pp.email}>` : ''}: ${pp.isOwner ? 'the buyer' : (pp.roleLabel || 'added')}`));
-    if (!(d.people || []).length) L.push('(none)');
-    L.push('', '## Project chat', '');
-    (d.chat || []).forEach((m) => L.push(`**${m.role === 'staff' ? (m.sender_name || 'Chris') : (m.sender_name || 'Customer')}** (${et(m.created_at)}):`, '', String(m.content || ''), ''));
-    if (!(d.chat || []).length) L.push('(no messages)', '');
-    L.push('## Uploaded files', '');
-    const done = (d.uploads || []).filter((u) => u.status === 'done');
-    done.forEach((u) => L.push(`- ${u.filename} (${size(u.size_bytes)}, ${u.content_type || 'unknown type'}${u.uploaded_by ? `, by ${u.uploaded_by}` : ''}, ${day(u.completed_at || u.created_at)})`));
-    if (!done.length) L.push('(none)');
-    if ((d.keepsakes || []).length) {
-      L.push('', '## Keepsake orders', '');
-      d.keepsakes.forEach((o) => L.push(`- ${o.item}${o.qty > 1 ? ` x ${o.qty}` : ''}: ${o.status}${o.by && !o.byBuyer ? `, ordered by ${o.by}` : ''}, paid ${et(o.paid_at)}`));
-    }
-    if (pr.internal_notes) L.push('', '## Internal notes (ours, never shown to the customer)', '', pr.internal_notes);
-    return L.join('\n') + '\n';
   }
 
   function renderList() {
@@ -212,7 +163,7 @@
       const style = [a.story_type, a.style, a.tone].filter(Boolean).join(' &bull; ');
       if (style) lines.push(`<span class="web-muted">${escHtml(style).replace(/&amp;bull;/g, '&bull;')}</span>`);
       const isOpen = open.has(id);
-      return `<div class="web-row">
+      return `<div class="web-row film-card" style="border-left-color:${COLORS[p.status] || '#475569'};">
         <div class="web-row-head"><strong>#${id} ${escHtml(p.project_name || '(not named yet)')}</strong><span>${badge(p.status)}</span></div>
         ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
         <div class="web-row-actions film-actions">
@@ -257,7 +208,7 @@
     }
     if (k.shipped_at) lines.push(`<span class="web-muted">Shipped ${day(k.shipped_at)}</span>`);
     const opts = (keepItemStatuses[k.item] || Object.keys(keepStatuses)).map((st) => `<option value="${escHtml(st)}"${st === k.status ? ' selected' : ''}>${escHtml(keepStatuses[st] || st)}</option>`).join('');
-    return `<div class="web-row">
+    return `<div class="web-row film-card keep-card">
       <div class="web-row-head"><strong>${escHtml(k.item_label)}${Number(k.qty) > 1 ? ` x ${Number(k.qty)}` : ''} &bull; #${Number(k.film_id)} ${escHtml(k.film_name || '(not named yet)')}</strong><span>${keepBadge(k)}</span></div>
       ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
       <div class="web-form-grid" style="margin-top:.4rem;">
@@ -416,18 +367,6 @@
           const r = await call(API.staffLink, { id });
           if (w) w.location.href = r.url; else prompt('Open this link within 10 minutes (it works once):', r.url);
         } catch (err) { if (w) w.close(); throw err; }
-      } else if (action === 'brief') {
-        let d = details.get(id);
-        if (!d) { await loadDetail(id); d = details.get(id); }
-        if (!d) return;
-        const blob = new Blob([briefText(d)], { type: 'text/markdown;charset=utf-8' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `film-${id}-brief.md`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(link.href), 5000);
       } else if (action === 'copy') {
         try { await navigator.clipboard.writeText(p.dashboard_url); openSuccessModal('Dashboard link copied.', 'Copied'); } catch { prompt('Copy the dashboard link:', p.dashboard_url); }
       } else if (action === 'email') {
