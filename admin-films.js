@@ -17,7 +17,6 @@
     deliverPart: `${BASE}/api/film/deliver/part`,
     deliverComplete: `${BASE}/api/film/deliver/complete`,
     staffLink: `${BASE}/api/film/staff-link`,
-    chatReply: `${BASE}/api/film/chat/reply`,
     samples: `${BASE}/api/film/email-samples`,
     keepUpdate: `${BASE}/api/film/keepsake/update`,
     bookPreview: `${BASE}/api/film/book-preview`,
@@ -97,23 +96,21 @@
         <img src="${escHtml(bp.cover)}" alt="Cover" style="height:96px; border-radius:3px;">
         ${bp.spreads.slice(0, 4).map((u, i) => `<img src="${escHtml(u)}" alt="Spread ${i + 1}" style="height:96px; border-radius:3px;">`).join('')}
       </div>` : '';
-    return `<div><b>Book preview</b> <span class="web-muted">(pick the film's build/book-preview folder from make_book.py --web-preview; the keepsakes page shows it so they can page through their book before buying, and Email Final Film mentions it)</span>
+    return `<div><b>Book preview</b> <span class="web-muted">(choose the <b>folder</b> of pictures Claude makes, like <b>CBF-book-preview</b> on your Desktop, not the PDF proof; Chrome then asks to confirm uploading its files. The keepsakes page shows it so they can page through their book before buying, and Email Final Film mentions it.)</span>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
-          <label class="btn action-pop" style="cursor:pointer;">${has ? 'Replace' : 'Upload'} book preview<input type="file" multiple webkitdirectory data-film-bookpreview="${p.id}" hidden></label>
+          <label class="btn action-pop" style="cursor:pointer;">${has ? 'Replace' : 'Upload'} book preview folder<input type="file" multiple webkitdirectory data-film-bookpreview="${p.id}" hidden></label>
           ${has ? `<button type="button" class="btn" data-film-action="book-preview-remove" data-film-id="${p.id}">Remove</button>` : ''}
           <span class="web-muted" id="film-bookpreview-${p.id}">${has ? `${Number(p.book_preview_spreads)} spreads, ${Number(p.book_preview_pages || 0)} pages, uploaded ${when(p.book_preview_at)}.` : 'No book preview yet.'}</span>
         </div>${thumbs}
       </div>`;
   }
 
+  // Details & Files is for running the job: files to download, videos and the book preview to
+  // upload, status and dates, internal notes, emails sent. What the customer entered (story,
+  // answers, notes, feedback, people, chat) is on their dashboard (Open as Staff), and Download
+  // brief saves all of it as one file for production (the folder-to-film skill reads it).
   function detailHtml(p, d) {
     if (!d) return '<div class="web-muted" style="margin-top:.5rem;">Loading details…</div>';
-    const a = d.project.answers || {};
-    const qa = questions.map((q, i) => {
-      const v = a[q.id];
-      const txt = Array.isArray(v) ? v.join(', ') : (v || '');
-      return `<div style="margin:.15rem 0;"><span class="web-muted">${i + 1}. ${escHtml(q.q)}</span> ${txt ? `<b>${escHtml(txt)}</b>` : '<span class="web-muted">(Experts pick)</span>'}</div>`;
-    }).join('');
     const files = d.uploads.length
       ? d.uploads.map((u) => `<div style="display:flex; gap:.5rem; align-items:center; margin:.2rem 0; flex-wrap:wrap;">
           ${u.status === 'done' ? `<button type="button" class="btn action-pop" style="padding:.25rem .6rem; font-size:.82rem;" data-film-action="download" data-film-file="${Number(u.id)}">Download</button>` : '<span class="web-muted">(unfinished)</span>'}
@@ -123,23 +120,12 @@
     const opts = Object.entries(statuses).filter(([k]) => k !== 'pending_payment' || p.status === 'pending_payment')
       .map(([k, l]) => `<option value="${k}"${k === p.status ? ' selected' : ''}>${escHtml(l)}</option>`).join('');
     return `<div class="film-detail" style="margin-top:.6rem; display:grid; gap:.8rem;">
-      <div><b>About:</b> ${escHtml(p.about || '—')}${p.occasion ? `<br><b>Occasion:</b> ${escHtml(p.occasion)}` : ''}${p.needed_by ? `<br><b>Needed by:</b> ${escHtml(day(p.needed_by))}` : ''}</div>
-      ${p.links ? `<div><b>Links:</b><br>${p.links.split(/\n+/).filter(Boolean).map((l) => /^https?:\/\//.test(l.trim()) ? `<a href="${escHtml(l.trim())}" target="_blank" rel="noopener noreferrer" style="color:var(--cyan);">${escHtml(l.trim())}</a>` : escHtml(l)).join('<br>')}</div>` : ''}
-      <div><b>Answers</b>${qa}</div>
+      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+        <button type="button" class="btn action-pop" data-film-action="brief" data-film-id="${p.id}">Download brief</button>
+        <span class="web-muted">Everything the customer entered (story, answers, notes, feedback, people, chat) in one file for production. To read or reply, use Open as Staff.</span>
+      </div>
       <div><b>Files (${d.uploads.filter((u) => u.status === 'done').length})</b><br>${files}<div class="web-muted" style="margin-top:.2rem;">Download links last one hour.</div></div>
       <div><b>Rounds of changes:</b> ${Number(p.change_rounds || 0)} of ${Number(p.rounds_included || 2)} used</div>
-      ${p.feedback ? `<div><b>Customer feedback</b><pre style="white-space:pre-wrap; font-family:inherit; margin:.2rem 0 0;">${escHtml(p.feedback)}</pre></div>` : ''}
-      <div><b>Customer notes</b>${p.customer_notes ? ` <span class="web-muted">(updated ${day(p.customer_notes_at)})</span><pre style="white-space:pre-wrap; font-family:inherit; margin:.2rem 0 0;">${escHtml(p.customer_notes)}</pre>` : ' <span class="web-muted">None yet.</span>'}</div>
-      <div><b>People with access</b> <span class="web-muted">(codes go only to these addresses)</span>${(d.people || []).map((pp) => {
-        const dv = (d.devices || []).find((x) => x.email === pp.email);
-        return `<div>${escHtml(pp.name || pp.email)}${pp.name ? ` <span class="web-muted">${escHtml(pp.email)}</span>` : ''}${pp.isOwner ? ' <span class="web-muted">(buyer)</span>' : (pp.roleLabel ? ` <span class="web-muted">(${escHtml(pp.roleLabel)})</span>` : '')} <span class="web-muted">&bull; ${dv ? `signed in on ${dv.n} browser${dv.n === 1 ? '' : 's'}${dv.seen ? `, last seen ${day(dv.seen)}` : ''}` : 'not signed in'}</span></div>`;
-      }).join('')}</div>
-      <div><b>Project chat</b> <span class="web-muted">(customers' messages email you; your reply shows on their dashboard and emails them unless they're on it right now, at most once per 20 minutes)</span>
-        ${(d.chat || []).length ? `<div style="margin-top:.3rem; display:grid; gap:.3rem; max-height:340px; overflow-y:auto;">${d.chat.map((m) => `<div><span class="web-muted">${escHtml(m.role === 'staff' ? `${m.sender_name || 'Chris'} (you)` : (m.sender_name || 'Customer'))}, ${when(m.created_at)}:</span> <span style="white-space:pre-wrap;">${escHtml(m.content)}</span></div>`).join('')}</div>` : '<div class="web-muted">No messages yet.</div>'}
-        ${['pending_payment', 'canceled'].includes(p.status) ? '' : `<div class="web-span" style="margin-top:.4rem;"><label for="film-reply-${p.id}">Reply as Chris</label><textarea id="film-reply-${p.id}" rows="3" maxlength="4000"></textarea></div>
-        <div class="web-row-actions"><button type="button" class="btn btn-primary" data-film-action="reply" data-film-id="${p.id}">Send Reply</button></div>`}
-      </div>
-      <div><b>Keepsake orders</b>${(d.keepsakes || []).length ? d.keepsakes.map((o) => `<div>${escHtml({ book: 'Hardcover story book', copies: 'Extra copies of the book', picture: "Children's picture book", audiobook: 'Audiobook (MP3)' }[o.item] || o.item)}${o.qty > 1 ? ` x ${o.qty}` : ''} <span class="web-muted">&bull; ${(o.amount_cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}${o.tax_cents ? ` incl. ${(o.tax_cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} tax` : ''} &bull; paid ${when(o.paid_at)}${o.by && !o.byBuyer ? ` &bull; ordered by ${escHtml(o.by)}` : ''}${o.ship_to ? ` &bull; ship to ${escHtml(o.ship_to)}` : ''}</span>${(o.recipients || []).map((r) => `<div class="web-muted" style="padding-left:1rem;">&rarr; ${escHtml([r.name, r.line1, r.line2, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', '))}</div>`).join('')}</div>`).join('') : ' <span class="web-muted">None yet.</span>'}</div>
       <div><b>Videos for the customer</b> <span class="web-muted">(upload the files here; they play on the dashboard and the final gets a share page with a download)</span>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
           <label class="btn action-pop" style="cursor:pointer;">${p.has_demo_video ? 'Replace' : 'Upload'} demo video<input type="file" accept="video/*" data-film-deliver="demo" data-film-id="${p.id}" hidden></label>
@@ -163,6 +149,52 @@
       <div class="web-row-actions"><button type="button" class="btn btn-primary" data-film-action="save" data-film-id="${p.id}">Save</button></div>
       <div><b>Emails sent</b><br>${emails}</div>
     </div>`;
+  }
+
+  // The production brief: everything the customer gave us, as Markdown. Saved as film-<id>-brief.md;
+  // the folder-to-film skill copies it into the film's production folder as brief.md.
+  function briefText(d) {
+    const pr = d.project;
+    const a = pr.answers || {};
+    const block = (v) => (String(v || '').trim() || '(blank)');
+    const et = (v) => (v ? when(v) : '');
+    const L = [];
+    L.push(`# Folder to Film #${pr.id}: ${pr.project_name || '(not named yet)'}`, '');
+    L.push(`- Status: ${pr.statusLabel || pr.status}`);
+    L.push(`- Bought by: ${pr.customer_name || '(no name)'}${pr.customer_email ? ` <${pr.customer_email}>` : ''}${pr.customer_phone ? `, ${pr.customer_phone}` : ''}`);
+    if (pr.paid_at) L.push(`- Paid: ${et(pr.paid_at)}`);
+    if (pr.demo_due_date) L.push(`- Demo due: ${pr.demo_due_text || pr.demo_due_date}`);
+    if (pr.estimated_done_date) L.push(`- Estimated completion: ${pr.estimated_done_text || pr.estimated_done_date}`);
+    L.push(`- Rounds of changes used: ${Number(pr.change_rounds || 0)} of ${Number(pr.rounds_included || 2)}`);
+    L.push(`- Dashboard: ${pr.dashboard_url || ''}`);
+    L.push(`- Brief downloaded: ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'medium', timeStyle: 'short' })} Eastern`, '');
+    L.push('## Whose story is it, and what it\'s about', '', block(pr.about), '');
+    L.push('## Occasion and date needed', '', `- Occasion: ${pr.occasion || '(blank)'}`, `- Needed by: ${pr.needed_by ? day(pr.needed_by) : '(blank)'}`, '');
+    L.push('## Links they shared', '', pr.links ? pr.links.split(/\n+/).map((x) => x.trim()).filter(Boolean).map((x) => `- ${x}`).join('\n') : '(none)', '');
+    L.push('## The questions (blank = Experts pick)', '');
+    questions.forEach((q, i) => {
+      const v = a[q.id];
+      const txt = Array.isArray(v) ? v.join(', ') : (v || '');
+      L.push(`${i + 1}. ${q.q}`, `   - ${txt || '(Experts pick)'}`);
+    });
+    L.push('', '## Notes for our team', '', block(pr.customer_notes), '');
+    if (pr.feedback) L.push('## Demo feedback (changes they asked for)', '', pr.feedback, '');
+    L.push('## People with access', '');
+    (d.people || []).forEach((pp) => L.push(`- ${pp.name || pp.email}${pp.name ? ` <${pp.email}>` : ''}: ${pp.isOwner ? 'the buyer' : (pp.roleLabel || 'added')}`));
+    if (!(d.people || []).length) L.push('(none)');
+    L.push('', '## Project chat', '');
+    (d.chat || []).forEach((m) => L.push(`**${m.role === 'staff' ? (m.sender_name || 'Chris') : (m.sender_name || 'Customer')}** (${et(m.created_at)}):`, '', String(m.content || ''), ''));
+    if (!(d.chat || []).length) L.push('(no messages)', '');
+    L.push('## Uploaded files', '');
+    const done = (d.uploads || []).filter((u) => u.status === 'done');
+    done.forEach((u) => L.push(`- ${u.filename} (${size(u.size_bytes)}, ${u.content_type || 'unknown type'}${u.uploaded_by ? `, by ${u.uploaded_by}` : ''}, ${day(u.completed_at || u.created_at)})`));
+    if (!done.length) L.push('(none)');
+    if ((d.keepsakes || []).length) {
+      L.push('', '## Keepsake orders', '');
+      d.keepsakes.forEach((o) => L.push(`- ${o.item}${o.qty > 1 ? ` x ${o.qty}` : ''}: ${o.status}${o.by && !o.byBuyer ? `, ordered by ${o.by}` : ''}, paid ${et(o.paid_at)}`));
+    }
+    if (pr.internal_notes) L.push('', '## Internal notes (ours, never shown to the customer)', '', pr.internal_notes);
+    return L.join('\n') + '\n';
   }
 
   function renderList() {
@@ -384,17 +416,18 @@
           const r = await call(API.staffLink, { id });
           if (w) w.location.href = r.url; else prompt('Open this link within 10 minutes (it works once):', r.url);
         } catch (err) { if (w) w.close(); throw err; }
-      } else if (action === 'reply') {
-        const box = $(`film-reply-${id}`);
-        const content = box ? box.value.trim() : '';
-        if (!content) { openErrorModal('Type a reply first.'); return; }
-        btn.disabled = true;
-        const r = await call(API.chatReply, { id, content });
-        btn.disabled = false;
-        await loadDetail(id);
-        openSuccessModal(r.emailed
-          ? 'Reply sent. It shows on their dashboard, and we emailed them.'
-          : "Reply sent. It shows on their dashboard. No email this time: they're on the dashboard now, or we emailed them a reply in the last 20 minutes.", 'Sent');
+      } else if (action === 'brief') {
+        let d = details.get(id);
+        if (!d) { await loadDetail(id); d = details.get(id); }
+        if (!d) return;
+        const blob = new Blob([briefText(d)], { type: 'text/markdown;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `film-${id}-brief.md`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 5000);
       } else if (action === 'copy') {
         try { await navigator.clipboard.writeText(p.dashboard_url); openSuccessModal('Dashboard link copied.', 'Copied'); } catch { prompt('Copy the dashboard link:', p.dashboard_url); }
       } else if (action === 'email') {
@@ -511,7 +544,7 @@
     const status = $(`film-bookpreview-${id}`);
     const say = (t) => { if (status) status.textContent = t; };
     const files = [...(input.files || [])].filter((f) => /^(cover\.jpg|spread-\d{2,3}\.jpg|preview\.json)$/.test(f.name));
-    if (!files.length) { say('That folder has no book preview in it. Pick build/book-preview.'); input.value = ''; return; }
+    if (!files.length) { say('That folder has no book preview in it. Choose the folder of pictures (cover.jpg and spread-01.jpg and so on), not the PDF.'); input.value = ''; return; }
     input.disabled = true;
     say(`Uploading ${files.length} files…`);
     try {
