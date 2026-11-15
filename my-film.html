@@ -65,7 +65,9 @@
     input[readonly], textarea[readonly], input:disabled { color: var(--muted); background: #120f0b; }
     .qs.ro .chip { cursor: default; }
     .qs.ro .chip:disabled { opacity: 1; }
-    .people select { width: auto; max-width: 52%; padding: 6px 10px; font-size: 14px; }
+    .people select { width: auto; flex: 0 0 auto; max-width: 100%; padding: 8px 36px 8px 12px; font-size: 14px; line-height: 1.2; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background: #15110d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23C9A96E' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center / 12px 8px; }
     textarea { min-height: 96px; resize: vertical; }
     input[type="date"] { color-scheme: dark; }
     .save-state { font-size: 13.5px; color: var(--dim); min-height: 1.4em; margin-top: 10px; }
@@ -137,8 +139,8 @@
     .chat-form .btn { width: auto; }
     @media (max-width: 700px) { .chat-log { height: 300px; } .chat-form .btn { padding: 13px 18px; } }
     .people { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-    .people li { display: flex; align-items: center; gap: 12px; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
-    .people .pe { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .people li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; background: var(--card2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+    .people .pe { flex: 1 1 220px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .people .pe b { color: var(--ivory); font-weight: 600; }
     .people .pe span { color: var(--muted); font-size: 14px; }
     .staff-bar { background: #2a2216; border-bottom: 1px solid var(--gold); color: var(--gold2); font-size: 14px; line-height: 1.45; }
@@ -183,7 +185,7 @@
       .keep-ad .btn { width: 100%; }
     }
     .people .tag { font-size: 12px; color: var(--gold2); border: 1px solid var(--gold); border-radius: 999px; padding: 2px 9px; }
-    .people button { background: none; border: 0; color: var(--dim); font-size: 14px; cursor: pointer; text-decoration: underline; }
+    .people button { flex: 0 0 auto; white-space: nowrap; background: none; border: 0; color: var(--dim); font-size: 14px; cursor: pointer; text-decoration: underline; }
     .people button:hover { color: var(--err); }
     .modal { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
     .modal.on { display: flex; }
@@ -197,6 +199,14 @@
     .modal .box.wide > p { margin-bottom: 0; }
     .modal-x { position: absolute; top: 12px; right: 14px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card2); color: var(--ivory); font-size: 22px; line-height: 1; cursor: pointer; }
     .modal-x:hover { border-color: var(--gold); }
+    .invite-form { display: grid; gap: 14px; }
+    .invite-form fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .invite-form legend { font-size: 14px; color: var(--muted); margin-bottom: 6px; font-weight: 500; padding: 0; }
+    .role-pick { display: flex; gap: 12px; align-items: flex-start; margin: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card2); cursor: pointer; color: var(--ivory); }
+    .role-pick:has(input:checked) { border-color: var(--gold); background: #2a2219; }
+    .role-pick input { width: 18px; height: 18px; padding: 0; border: 0; background: none; margin: 3px 0 0; accent-color: var(--gold); flex: 0 0 auto; }
+    .role-pick b { display: block; font-weight: 600; font-size: 15.5px; }
+    .role-pick small { display: block; color: var(--muted); font-size: 14px; line-height: 1.45; margin-top: 2px; }
     .style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
     .style-pick { background: var(--card2); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
     .style-pick.on { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
@@ -411,7 +421,7 @@
         <a class="btn btn-primary" id="final-open" href="#" target="_blank" rel="noopener">Open or download</a>
         <button type="button" class="btn btn-ghost" id="copy-link">Copy a link to share</button>
       </div>
-      <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, a children's book or an audiobook? <a href="#" class="keepsakes-link">See your keepsakes</a>.</p>
+      <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, or an audiobook made for listening? <a href="#" class="keepsakes-link">See your keepsakes</a>.</p>
     </section>
 
     <!-- Keepsakes box (once production starts) -->
@@ -420,7 +430,7 @@
       <div>
         <div class="eyebrow">Keepsakes</div>
         <h3>Something to hold</h3>
-        <p>Turn your film into a hardcover book, a picture book for the grandkids, or an audiobook. Books ship free in the U.S.</p>
+        <p>Turn your film into a hardcover book, with copies for the family, or an audiobook with extra narration made for listening. Books ship free in the U.S.</p>
         <a class="btn btn-primary keepsakes-link" href="#">See your keepsakes</a>
       </div>
     </aside>
@@ -452,19 +462,10 @@
 
     <section class="card" id="people-card" hidden>
       <div class="eyebrow">People with access</div>
-      <h2>Invite family to help</h2>
+      <h2>Invite family or friends to help</h2>
       <p class="lead">Add the people who should help, and choose what each one can do: add their own photos and videos and chat with us, also change the details and answers, or only order keepsakes (they get the keepsakes page, not this dashboard). Only you can press Start production, approve the demo and add people. Only people you add can get a sign-in code, and you can change or remove anyone at any time.</p>
       <ul class="people" id="people-list"></ul>
-      <form id="people-form" class="grid2" style="margin-top:16px;">
-        <div><label for="people-name">Name (optional)</label><input id="people-name" maxlength="80" placeholder="e.g. Aunt Maria" /></div>
-        <div><label for="people-email">Email</label><input id="people-email" type="email" required placeholder="maria@example.com" /></div>
-        <div class="full"><label for="people-role">What can they do?</label><select id="people-role">
-          <option value="helper">Add photos and chat (they can't change what you wrote)</option>
-          <option value="editor">Add photos, chat, and change the details and answers</option>
-          <option value="keepsakes">Order keepsakes only (no dashboard)</option>
-        </select></div>
-        <div class="full"><button type="submit" class="btn btn-ghost" id="people-add">Add and email an invitation</button></div>
-      </form>
+      <div class="row" style="margin-top:16px;"><button type="button" class="btn btn-primary" id="people-open">+ Invite someone</button></div>
       <div class="save-state" id="people-state" role="status" aria-live="polite"></div>
     </section>
 
@@ -481,6 +482,26 @@
       <p>Every style uses your real photos and videos first. Pick one here, or close this and choose below.</p>
       <div class="style-grid" id="style-grid"></div>
       <div class="style-experts" id="style-experts"><span><b style="color:var(--ivory);">Not sure?</b> We'll choose the style that fits your story best.</span><button type="button" class="btn btn-ghost" data-style-pick="Experts pick" style="padding:9px 18px; font-size:14.5px;">Let the experts pick</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="people-modal" role="dialog" aria-modal="true" aria-labelledby="people-modal-title">
+    <div class="box" style="position:relative; max-height:calc(100dvh - 32px); overflow-y:auto;">
+      <button type="button" class="modal-x" id="people-close" aria-label="Close">×</button>
+      <h3 id="people-modal-title">Invite someone</h3>
+      <p>We'll email them an invitation. They sign in with a code we send to that address.</p>
+      <form id="people-form" class="invite-form">
+        <div><label for="people-name">Their name (optional)</label><input id="people-name" maxlength="80" placeholder="e.g. Aunt Maria or Coach Dave" /></div>
+        <div><label for="people-email">Their email</label><input id="people-email" type="email" required placeholder="maria@example.com" /></div>
+        <fieldset>
+          <legend>What can they do?</legend>
+          <label class="role-pick"><input type="radio" name="people-role" value="helper" checked /><span><b>Add photos and chat</b><small>Upload their own photos and videos and chat with us. They can't change what you wrote.</small></span></label>
+          <label class="role-pick"><input type="radio" name="people-role" value="editor" /><span><b>Add photos, chat and change the details</b><small>Everything above, plus editing the details, answers and notes.</small></span></label>
+          <label class="role-pick"><input type="radio" name="people-role" value="keepsakes" /><span><b>Order keepsakes only</b><small>They get the keepsakes page to order their own copy of the book or the audiobook, not this dashboard.</small></span></label>
+        </fieldset>
+        <div class="row"><button type="submit" class="btn btn-primary" id="people-add">Add and email an invitation</button><button type="button" class="btn btn-ghost" id="people-cancel">Cancel</button></div>
+        <div class="save-state" id="people-modal-state" role="status" aria-live="polite"></div>
+      </form>
     </div>
   </div>
 
@@ -823,7 +844,7 @@
     const STYLE_EXAMPLES = [
       { name: 'Documentary', img: 'style-documentary', best: 'Histories · tributes · milestones', alt: 'An illustration shown as a framed print, from the church film', text: 'Slow, Ken Burns-style moves over your photos shown as framed prints, maps of where it happened, and a warm narrator. Like the church film on the Folder to Film page.' },
       { name: 'Animated cartoon', img: 'style-cartoon', best: 'Funny stories · send-offs · roasts', alt: 'Dad gets soaked steering a pontoon boat while the kids laugh', text: "Bouncy, slapstick cartoon scenes for the moments nobody caught on camera, with comic timing and a narrator who's in on the joke." },
-      { name: 'Storybook', img: 'style-storybook', best: 'Grandkids · weddings · bedtime', alt: 'The family on the boat at sunset in soft picture-book colors', text: "Soft picture-book illustrations and a read-aloud narrator, like a bedtime story starring your family. Becomes a children's book easily." },
+      { name: 'Storybook', img: 'style-storybook', best: 'Grandkids · weddings · bedtime', alt: 'The family on the boat at sunset in soft picture-book colors', text: "Soft picture-book illustrations and a read-aloud narrator, like a bedtime story starring your family." },
       { name: 'Movie trailer', img: 'style-trailer', best: 'Retirements · birthdays · trips', alt: 'Dad at the wheel of the pontoon boat like an action hero under dramatic clouds', text: 'Big music, a booming voice and dramatic titles: "This summer, one man rented a pontoon boat." Short, epic and funny.' },
       { name: 'News report', img: 'style-news', best: 'Send-offs · retirements · big news', alt: "A news anchor at a desk with the family's photo on the screen beside her", text: '"Breaking news from the Johnson household": an anchor reports the story, with on-the-scene photos and quotes from the family or the team.' },
       { name: 'Scrapbook', img: 'style-scrapbook', best: 'Trips · weddings · a year in the life', alt: 'Snapshots of the lake week taped into a scrapbook with doodles', text: 'Your photos and clips taped into a moving scrapbook, with doodles, ticket stubs and the warm feel of old home movies.' },
@@ -1311,17 +1332,39 @@
       $('people-list').innerHTML = list.map((p) => `<li><div class="pe"><b>${esc(p.name || p.email)}</b>${p.name ? ` <span>${esc(p.email)}</span>` : ''}</div>${p.isOwner ? `<span class="tag">${isStaff() ? 'Buyer' : 'You'}</span>`
         : `<select data-role="${esc(p.email)}" aria-label="What ${esc(p.name || p.email)} can do">${roles.map(([v, l]) => `<option value="${v}"${(p.role || 'helper') === v ? ' selected' : ''}>${l}</option>`).join('')}</select><button type="button" data-remove="${esc(p.email)}">Remove</button>`}</li>`).join('');
     }
+    // Inviting someone happens in a modal, so the form isn't mixed up with the list of people above it.
+    let peopleOpener = null;
+    function openPeopleModal() {
+      $('people-form').reset();
+      $('people-modal-state').className = 'save-state'; $('people-modal-state').textContent = '';
+      peopleOpener = document.activeElement;
+      $('people-modal').classList.add('on');
+      document.body.style.overflow = 'hidden';
+      $('people-name').focus();
+    }
+    function closePeopleModal() {
+      $('people-modal').classList.remove('on');
+      document.body.style.overflow = '';
+      if (peopleOpener && peopleOpener.focus) peopleOpener.focus();
+    }
+    $('people-open').addEventListener('click', openPeopleModal);
+    $('people-close').addEventListener('click', closePeopleModal);
+    $('people-cancel').addEventListener('click', closePeopleModal);
+    $('people-modal').addEventListener('click', (e) => { if (e.target === e.currentTarget) closePeopleModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('people-modal').classList.contains('on')) closePeopleModal(); });
     $('people-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const email = $('people-email').value.trim();
+      const role = (document.querySelector('input[name="people-role"]:checked') || {}).value || 'helper';
       $('people-add').disabled = true;
-      $('people-state').className = 'save-state'; $('people-state').textContent = 'Adding…';
+      $('people-modal-state').className = 'save-state'; $('people-modal-state').textContent = 'Adding…';
       try {
-        const d = await api('/api/film/people', { t: token, email: $('people-email').value.trim(), name: $('people-name').value.trim(), role: $('people-role').value });
+        const d = await api('/api/film/people', { t: token, email, name: $('people-name').value.trim(), role });
         renderPeople(d.people);
+        closePeopleModal();
         $('people-state').className = 'save-state ok';
-        $('people-state').textContent = `Added. We emailed ${$('people-email').value.trim()} an invitation.`;
-        $('people-email').value = ''; $('people-name').value = '';
-      } catch (err) { $('people-state').className = 'save-state err'; $('people-state').textContent = err.message; }
+        $('people-state').textContent = `Added. We emailed ${email} an invitation${role === 'keepsakes' ? ' to the keepsakes page' : ''}.`;
+      } catch (err) { $('people-modal-state').className = 'save-state err'; $('people-modal-state').textContent = err.message; }
       finally { $('people-add').disabled = false; }
     });
     $('people-list').addEventListener('change', async (e) => {

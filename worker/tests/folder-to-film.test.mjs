@@ -165,7 +165,7 @@ const call = async (env, req) => {
 };
 
 async function checkout(env) {
-  const r = await call(env, post('/api/film/checkout', { termsAccepted: true, termsVersion: '2026-11-14.7' }));
+  const r = await call(env, post('/api/film/checkout', { termsAccepted: true, termsVersion: '2026-11-14.8' }));
   assert.equal(r.status, 200, JSON.stringify(r.data));
   const row = env.DB.sqlite.prepare('SELECT * FROM film_projects ORDER BY id DESC LIMIT 1').get();
   return { ...r.data, row };
@@ -488,7 +488,7 @@ test('checkout needs the terms; retention purge, link reset', async (t) => {
   assert.equal(refused.status, 400);
   assert.match(refused.data.error, /Terms and Privacy/);
   const c = await checkout(env);
-  assert.equal(c.row.terms_version, '2026-11-14.7');
+  assert.equal(c.row.terms_version, '2026-11-14.8');
   assert.ok(c.row.terms_accepted_at);
 
   // Raw uploads go 12 months after the final film; the project (film, dashboard) stays.
@@ -953,6 +953,11 @@ test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), '2900');
   assert.equal(params.get('line_items[0][price_data][product_data][tax_code]'), 'txcd_10301000');
   assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'yacht' }))).status, 400);
+  // Keepsakes are the hardcover (and its copies) and the audiobook; the picture book is gone for now.
+  assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'picture' }))).status, 400);
+  assert.match(params.get('custom_text[submit][message]'), /can't be refunded/);
+  assert.match(params.get('line_items[0][price_data][product_data][description]'), /not just the film's soundtrack/);
+  assert.equal(params.get('metadata[terms_version]'), '2026-11-14.8');
   const saved = DEVICE;
   DEVICE = null;
   assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }))).status, 401);

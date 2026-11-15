@@ -451,7 +451,7 @@
         <article class="style-card"><img src="images/story-video/style-cartoon.jpg" alt="Animated cartoon style: Dad gets soaked steering a pontoon boat while the kids laugh" loading="lazy" />
           <div class="body"><div class="best">Funny stories · send-offs · roasts</div><h3>Animated cartoon</h3><p>Bouncy, slapstick cartoon scenes for the moments nobody caught on camera, with comic timing and a narrator who's in on the joke.</p></div></article>
         <article class="style-card"><img src="images/story-video/style-storybook.jpg" alt="Storybook style: the family on the boat at sunset in soft picture-book colors" loading="lazy" />
-          <div class="body"><div class="best">Grandkids · weddings · bedtime</div><h3>Storybook</h3><p>Soft picture-book illustrations and a read-aloud narrator, like a bedtime story starring your family. Becomes a children's book easily.</p></div></article>
+          <div class="body"><div class="best">Grandkids · weddings · bedtime</div><h3>Storybook</h3><p>Soft picture-book illustrations and a read-aloud narrator, like a bedtime story starring your family.</p></div></article>
         <article class="style-card"><img src="images/story-video/style-trailer.jpg" alt="Movie trailer style: Dad at the wheel of the pontoon boat like an action hero under dramatic clouds" loading="lazy" />
           <div class="body"><div class="best">Retirements · birthdays · trips</div><h3>Movie trailer</h3><p>Big music, a booming voice and dramatic titles: "This summer, one man rented a pontoon boat." Short, epic and funny.</p></div></article>
         <article class="style-card"><img src="images/story-video/style-news.jpg" alt="News report style: a news anchor at a desk with the family's photo on the screen beside her" loading="lazy" />
@@ -676,7 +676,7 @@
       <div class="section-head">
         <div class="eyebrow">After the film</div>
         <h2>Turn the story into <em>keepsakes.</em></h2>
-        <p>The script, photos and illustrations are already done, so the book, the children's book and the audiobook come together fast. Order them from your film dashboard whenever you like. Books ship free to U.S. addresses, and you see a proof before anything is printed.</p>
+        <p>The script, photos and illustrations are already done, so the book and the audiobook come together fast. Order them from your film dashboard whenever you like. Books ship free to U.S. addresses, and you see a proof before anything is printed.</p>
       </div>
       <div class="products">
         <div class="product">
@@ -688,25 +688,19 @@
           <div class="body"><div class="price">INSIDE THE BOOK</div><h3>Chapters, photos and captions</h3><p>Each chapter of the film becomes a chapter of the book, laid out like a real book.</p></div>
         </div>
         <div class="product">
-          <img class="fit" src="images/story-video/childrens-book-cover.jpg" alt="Children's book: The Little Church That Started With a Cup of Coffee" loading="lazy" />
-          <div class="body"><div class="price">$99 · FREE U.S. SHIPPING</div><h3>Children's picture book</h3><p>The same story, told for the grandkids, with the illustrations they've already seen in the film.</p></div>
+          <div class="icon-tile" aria-hidden="true">✉</div>
+          <div class="body"><div class="price">$79 EACH · FREE U.S. SHIPPING</div><h3>Copies for the family</h3><p>Reprints of your hardcover, shipped straight to each person. Relatives you invite can order their own.</p></div>
         </div>
         <div class="product">
           <div class="icon-tile" aria-hidden="true">♪</div>
-          <div class="body"><div class="price">$29</div><h3>Audiobook</h3><p>The narration as an MP3, with a little extra for what the film shows on screen. For the car, for Grandpa, or for anyone who'd rather listen.</p></div>
+          <div class="body"><div class="price">$29</div><h3>Audiobook</h3><p>Made to be an audiobook, not just the film's soundtrack: we add narration for everything the film shows on screen, so the whole story works by ear. For the car, or for Grandpa.</p></div>
         </div>
         <div class="product">
-          <div class="icon-tile" aria-hidden="true">✉</div>
-          <div class="body"><div class="price">FROM $15</div><h3>Prints, postcards &amp; QR plaque</h3><p>Framed illustrations, postcards for the reunion, or a small plaque that plays the film when scanned.</p></div>
-        </div>
-        <div class="product bundle" style="grid-column: 1 / -1;">
-          <div class="body" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;">
-            <div><div class="price">LEGACY BUNDLE · $399</div><h3>Film + hardcover book + audiobook</h3><p>Everything together, for less than buying each one.</p></div>
-            <a class="btn btn-primary" href="#start">Start with the film</a>
-          </div>
+          <div class="icon-tile" aria-hidden="true">✓</div>
+          <div class="body"><div class="price">PROOF FIRST</div><h3>You approve it before it's printed</h3><p>We design the book from your finished film and send you a proof. Nothing is printed until you say it's right.</p></div>
         </div>
       </div>
-      <p class="keepsake-note">Relatives can get their own copies of the book too: $79 each, shipped free to each U.S. address.</p>
+      <p class="keepsake-note">Keepsakes are made to order, so they can't be refunded once ordered. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes">Terms</a></p>
     </div>
   </section>
 
@@ -763,7 +757,7 @@
         <label class="start-terms"><input type="checkbox" id="start-terms" /> <span>I'm 18 or older. I've read and agree to the <a href="folder-to-film-terms.html" target="_blank" rel="noopener">Folder to Film Terms and Privacy Notice</a>, including how my photos and files are used and kept and what you won't make, and I'll only upload materials I own or have permission to use.</span></label>
         <div class="start-foot">
           <button class="btn btn-primary" type="button" id="start-checkout">Start my film · $199.99</button>
-          <small>Add a book, children's book or audiobook any time from your dashboard.</small>
+          <small>Add the hardcover book or the audiobook any time from your dashboard.</small>
         </div>
         <div class="form-status" id="start-status" role="status" aria-live="polite"></div>
         <p class="start-help">Questions first? Call or text <a href="tel:+13029079162">(302) 907-9162</a> or email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a>.</p>
@@ -868,7 +862,7 @@
         btn.disabled = true;
         setStatus('Opening secure checkout…');
         try {
-          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.7' }) });
+          const res = await fetch(CHECKOUT_API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ termsAccepted: true, termsVersion: '2026-11-14.8' }) });
           const data = await res.json().catch(() => ({}));
           if (!res.ok || !data.ok || !data.checkoutUrl) throw new Error(data.error || 'Checkout failed');
           window.location.href = data.checkoutUrl;

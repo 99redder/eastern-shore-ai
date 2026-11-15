@@ -105,12 +105,6 @@
     .page .img { flex: 1; background: #d8ccb7 center / cover no-repeat; border-radius: 2px; min-height: 40%; }
     .page .cap { font-family: var(--serif); font-style: italic; font-size: 12px; color: #6d604d; }
 
-    /* Picture book */
-    .pbook { width: min(320px, 74vw); aspect-ratio: 1; border-radius: 10px; background: #f6e7c8; padding: 7%; box-shadow: 0 30px 50px rgba(0,0,0,.5); display: flex; flex-direction: column; transform: rotate(-2.5deg); }
-    .pbook .img { flex: 1; border-radius: 50% 50% 46% 54% / 46% 52% 48% 54%; background: #d8b98a center / cover no-repeat; filter: saturate(1.15) contrast(1.04); box-shadow: inset 0 0 0 6px #fff7e6; }
-    .pbook .t { text-align: center; margin-top: 6%; font-family: var(--serif); font-weight: 600; font-size: clamp(20px, 2.8vw, 27px); color: #5a3b1c; line-height: 1.05; overflow-wrap: anywhere; }
-    .pbook .s { text-align: center; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: #a07a4c; margin-top: 4px; font-weight: 700; }
-
     /* Audiobook player */
     .player { width: min(330px, 78vw); background: linear-gradient(180deg, #221b14, #17120d); border: 1px solid #4a3c2b; border-radius: 26px; padding: 22px; box-shadow: 0 30px 60px rgba(0,0,0,.55); }
     .player .art { aspect-ratio: 1; border-radius: 16px; background: #2b2119 center / cover no-repeat; box-shadow: 0 10px 26px rgba(0,0,0,.5); }
@@ -121,19 +115,6 @@
     .player .tm { display: flex; justify-content: space-between; font-size: 12px; color: var(--dim); }
     .player .ctl { display: flex; justify-content: center; align-items: center; gap: 28px; margin-top: 12px; color: var(--ivory); font-size: 20px; }
     .player .play { width: 56px; height: 56px; border-radius: 50%; background: var(--gold2); color: #1a1510; display: flex; align-items: center; justify-content: center; font-size: 20px; padding-left: 4px; }
-
-    /* Prints and plaque */
-    .prints { position: relative; width: 100%; max-width: 460px; aspect-ratio: 5 / 4; }
-    .polaroid { position: absolute; width: 46%; background: #fbf7ef; padding: 3.5% 3.5% 11%; box-shadow: 0 16px 34px rgba(0,0,0,.5); }
-    .polaroid .img { aspect-ratio: 1; background: #d8ccb7 center / cover no-repeat; }
-    .polaroid:nth-child(1) { left: 0; top: 6%; transform: rotate(-7deg); }
-    .polaroid:nth-child(2) { left: 30%; top: 0; transform: rotate(4deg); z-index: 1; }
-    .plaque { position: absolute; right: 0; bottom: 0; width: 46%; z-index: 2; background: linear-gradient(160deg, #3b2c1f, #20170f); border: 2px solid #8a6a3e; border-radius: 10px; padding: 7%; text-align: center; box-shadow: 0 16px 34px rgba(0,0,0,.55); transform: rotate(-2deg); }
-    .plaque .qr { width: 52%; aspect-ratio: 1; margin: 0 auto 8px; background: #fbf7ef; border-radius: 6px; padding: 8%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6%; }
-    .plaque .qr i { background: #1a1510; border-radius: 1px; }
-    .plaque .qr i.o { background: transparent; }
-    .plaque b { display: block; font-family: var(--serif); color: var(--gold2); font-size: clamp(15px, 1.9vw, 19px); line-height: 1.1; overflow-wrap: anywhere; }
-    .plaque span { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #cdbb98; }
 
     /* Copies for family */
     .stack { position: relative; width: 100%; max-width: 440px; height: 300px; }
@@ -161,6 +142,8 @@
     .signin input:focus { outline: none; border-color: var(--gold); }
     .signin .row { display: flex; gap: 10px; flex-wrap: wrap; }
     .copy-hint { color: var(--muted); font-size: 15px; margin: 12px 0 0; }
+    .fine { color: var(--dim); font-size: 13.5px; margin: 10px 0 0; }
+    .fine a { color: var(--muted); }
     .msg h1 { font-size: 40px; color: var(--ivory); margin-bottom: 12px; }
 
     @media (max-width: 860px) {
@@ -232,7 +215,7 @@
         <div>
           <div class="eyebrow" id="hero-eyebrow">Keepsakes</div>
           <h1 id="hero-title">Keep your story on the shelf, <em>not just on a screen.</em></h1>
-          <p>Your film's script, photos and illustrations become a hardcover book, a picture book for the kids, an audiobook or prints for the wall. It's all made already, so they come together fast. Books ship free to any U.S. address.</p>
+          <p>Your film's script, photos and illustrations become a hardcover book, with copies for the family, and an audiobook made for listening. It's all made already, so they come together fast. Books ship free to any U.S. address.</p>
           <p class="note" id="invite-note" hidden></p>
           <p class="note" id="photo-note" hidden></p>
           <p class="note" id="timing-note" hidden style="margin-top:10px;"></p>
@@ -259,63 +242,14 @@
             <ul><li>The whole story, word for word, as the narrator tells it</li><li>Every photo and illustration from the film</li><li>A hardcover that will outlast any phone or hard drive</li></ul>
             <span class="price">$149</span><span class="ship">Free shipping to U.S. addresses · includes designing the book · ships about 2 to 3 weeks after you approve the proof</span>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="book">Buy the hardcover book · $149</button></div>
-            <div class="ask-state" role="status" aria-live="polite"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="k">
-        <div class="row flip">
-          <div class="vis"><div class="pbook"><div class="img" data-photo="3"></div><div class="t" data-title></div><div class="s">A picture book</div></div></div>
-          <div>
-            <div class="eyebrow">Children's picture book</div>
-            <h2>The same story, <em>told for the grandkids.</em></h2>
-            <p>Simple words and big pictures, with the illustrations they've already seen in the film. The kind of book that gets read at bedtime and asked for again.</p>
-            <span class="price">$99</span><span class="ship">Free shipping to U.S. addresses · 32 pages, hardcover</span>
-            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="picture">Buy the picture book · $99</button></div>
-            <div class="ask-state" role="status" aria-live="polite"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="k">
-        <div class="row">
-          <div class="vis">
-            <div class="player"><div class="art" data-photo="4"></div><div class="tt" data-title></div><div class="st">Narrated · in chapters</div><div class="bar"><i></i></div><div class="tm"><span>Chapter 2</span><span>12:40</span></div><div class="ctl"><span aria-hidden="true">⏮</span><span class="play" aria-hidden="true">▶</span><span aria-hidden="true">⏭</span></div></div>
-          </div>
-          <div>
-            <div class="eyebrow">Audiobook</div>
-            <h2>For the car, <em>or for Grandpa.</em></h2>
-            <p>The film's narration as an MP3, with a little extra narration for the things the film shows on screen, so it stands on its own. For anyone who'd rather listen, or whose eyes aren't what they were. Plays on any phone.</p>
-            <span class="price">$29</span><span class="ship">An MP3 you download from your dashboard</span>
-            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="audiobook">Buy the audiobook · $29</button></div>
-            <div class="ask-state" role="status" aria-live="polite"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="k">
-        <div class="row flip">
-          <div class="vis">
-            <div class="prints">
-              <div class="polaroid"><div class="img" data-photo="5"></div></div>
-              <div class="polaroid"><div class="img" data-photo="6"></div></div>
-              <div class="plaque"><div class="qr" id="qr" aria-hidden="true"></div><b data-title></b><span>Scan to watch the film</span></div>
-            </div>
-          </div>
-          <div>
-            <div class="eyebrow">Prints, postcards &amp; QR plaque</div>
-            <h2>Something for the wall, <em>or the reunion.</em></h2>
-            <p>Framed prints of your favorite photos or illustrations, postcards to hand out, or a small plaque that plays the film when someone scans it with their phone.</p>
-            <span class="price">From $15</span><span class="ship">Made to order: tell us what you'd like and we'll send a price</span>
-            <div class="buy-row"><button type="button" class="btn btn-ghost" data-ask="Prints, postcards or a QR plaque (from $15)">Ask about prints and the plaque</button></div>
+            <p class="fine">Made to order, so keepsakes can't be refunded. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
       </section>
 
       <section class="k" id="copies">
-        <div class="row">
+        <div class="row flip">
           <div class="vis">
             <div class="stack">
               <div class="mini"><div class="ph" data-photo="0"></div><div class="for" data-for="0">for the family</div></div>
@@ -333,6 +267,24 @@
             <p class="copy-hint" id="copy-hint">Stripe will ask where to send it at checkout.</p>
             <div class="recips" id="recips"></div>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="copies" id="copies-btn">Buy 1 copy · $79</button></div>
+            <p class="fine">Made to order, so keepsakes can't be refunded. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
+            <div class="ask-state" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="k">
+        <div class="row">
+          <div class="vis">
+            <div class="player"><div class="art" data-photo="4"></div><div class="tt" data-title></div><div class="st">Narrated · in chapters</div><div class="bar"><i></i></div><div class="tm"><span>Chapter 2</span><span>12:40</span></div><div class="ctl"><span aria-hidden="true">⏮</span><span class="play" aria-hidden="true">▶</span><span aria-hidden="true">⏭</span></div></div>
+          </div>
+          <div>
+            <div class="eyebrow">Audiobook</div>
+            <h2>For the car, <em>or for Grandpa.</em></h2>
+            <p>Made to be an audiobook, not just the film's soundtrack. We add narration for everything the film shows on screen, like the photos, maps and captions, so the whole story works by ear. For anyone who'd rather listen, or whose eyes aren't what they were. Plays on any phone.</p>
+            <span class="price">$29</span><span class="ship" id="audio-ship">An MP3 you download from your dashboard</span>
+            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="audiobook">Buy the audiobook · $29</button></div>
+            <p class="fine">Made to order, so keepsakes can't be refunded. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
@@ -413,14 +365,6 @@
       $('msg-text').innerHTML = html;
     }
 
-    // A tiny decorative "QR" for the plaque mock-up (not a real code).
-    const qr = $('qr');
-    '11101 10011 01110 10101 11011'.split(' ').join('').split('').forEach((c) => {
-      const i = document.createElement('i');
-      if (c === '0') i.className = 'o';
-      qr.appendChild(i);
-    });
-
     function fill(p, photos) {
       me = p.me || {};
       const own = !!(me.isOwner || me.isStaff);
@@ -490,13 +434,7 @@
         $('how-proof').textContent = "We design it from the film's script, photos and illustrations and email you a proof.";
         $('how-ship').textContent = 'It arrives about 2 to 3 weeks after you approve. The audiobook comes to you by email.';
         $('questions-line').innerHTML = 'Questions first? Email <a href="mailto:contact@easternshore.ai">contact@easternshore.ai</a> or call or text <a href="tel:+13029079162">(302) 907-9162</a>.';
-        document.querySelectorAll('[data-ask]').forEach((b) => {
-          const a = document.createElement('a');
-          a.className = b.className;
-          a.href = 'mailto:contact@easternshore.ai';
-          a.textContent = 'Email us about prints and the plaque';
-          b.replaceWith(a);
-        });
+        $('audio-ship').textContent = 'An MP3 we email you when it\'s ready';
       }
 
       if (!['final_ready', 'delivered'].includes(p.status)) {
@@ -514,7 +452,7 @@
         a.textContent = 'Upload photos on your dashboard';
       }
       // Already ordered: a note under that keepsake's button.
-      const names = { book: 'the hardcover book', copies: 'family copies', picture: 'the picture book', audiobook: 'the audiobook' };
+      const names = { book: 'the hardcover book', copies: 'family copies', audiobook: 'the audiobook' };
       (p.keepsakeOrders || []).forEach((o) => {
         const b = document.querySelector(`[data-buy="${o.item}"]`);
         if (!b) return;
@@ -596,28 +534,6 @@
         state.textContent = err.message;
         b.disabled = false;
         b.textContent = label;
-      }
-    });
-
-    // Asking for a keepsake posts it to the project chat, where we reply with details and a payment link.
-    document.addEventListener('click', async (e) => {
-      const b = e.target.closest('[data-ask]');
-      if (!b || b.disabled) return;
-      const state = b.closest('.buy-row').parentElement.querySelector('.ask-state');
-      b.disabled = true;
-      try {
-        await api('/api/film/chat', { t: token, content: `Keepsake request: ${b.dataset.ask}. Please send me the details.` });
-        state.className = 'ask-state ok';
-        state.innerHTML = 'Request sent. We\'ll reply in your <a></a> with the details and a payment link.';
-        const a = state.querySelector('a');
-        a.href = `${dash}#chat`;
-        a.textContent = 'project chat';
-        b.textContent = 'Requested ✓';
-      } catch (err) {
-        state.className = 'ask-state err';
-        if (err.status === 401) { showSignIn(); return; }
-        state.textContent = err.message;
-        b.disabled = false;
       }
     });
 

@@ -23,22 +23,22 @@ import { easternDate } from './node-price.js';
 export const FILM_PRICE_CENTS = 19999;
 export const FILM_TAX_CODE = 'txcd_10402100'; // Digital Audio Visual Works - downloaded - non subscription - with permanent rights
 // Keepsakes customers can buy straight from my-keepsakes.html (keep the page's prices in step).
+// Red, 2026-11-14: start simple, one printed book (the hardcover, printed by Lulu) plus its copies,
+// and the audiobook. The picture book, prints and QR plaque were dropped for now.
 // Costs from Lulu's calculator on 2026-11-14 for an 8.5" square hardcover, premium color, 80# coated:
-// 60 pages $23.87, 80 pages $28.16, 32-page picture book $17.85; one book by US Ground $13.74
-// (Mail $5.69). Red, 2026-11-14: U.S. only, free shipping built into the price, high markup
-// (about 3.5x on the book, 3x on the picture book). Prints and the QR plaque stay requests.
+// 60 pages $23.87, 80 pages $28.16; one book by US Ground $13.74 (Mail $5.69).
+// U.S. only, free shipping built into the price, high markup (about 3.5x on the book).
+// Keepsakes aren't refundable once paid (terms section 12); damaged or misprinted books are replaced.
 export const FILM_KEEPSAKES = {
   book: { name: 'Hardcover story book', cents: 14900, taxCode: 'txcd_35010000', ship: true, maxQty: 1,
     desc: 'Your film as an 8.5-inch square hardcover book: every chapter, photo and illustration. Free shipping to U.S. addresses.' },
   copies: { name: 'Extra copies of the hardcover book', cents: 7900, taxCode: 'txcd_35010000', ship: false, maxQty: 25,
-    desc: 'Copies of the hardcover book for family, shipped free to each person at a U.S. address. Tell us the addresses in your project chat.' },
-  picture: { name: "Children's picture book", cents: 9900, taxCode: 'txcd_35010001', ship: true, maxQty: 1,
-    desc: 'The same story told for the grandkids: a 32-page, 8.5-inch square hardcover picture book. Free shipping to U.S. addresses.' },
+    desc: 'Reprints of the hardcover book for family, shipped free to each U.S. address.' },
   audiobook: { name: 'Audiobook (MP3)', cents: 2900, taxCode: 'txcd_10301000', ship: false, maxQty: 1,
-    desc: 'The narration as an MP3, with extra narration for what the film shows on screen. Delivered on your dashboard.' },
+    desc: "Made to be an audiobook, not just the film's soundtrack: the narration plus new narration for everything the film shows on screen (photos, maps, captions), so the whole story works by ear. MP3 download." },
 };
 
-export const FILM_TERMS_VERSION = '2026-11-14.7';
+export const FILM_TERMS_VERSION = '2026-11-14.8';
 export const FILM_CHANGE_ROUNDS = 2;   // included in the price (folder-to-film.html, terms sections 2 and 10) // folder-to-film-terms.html; bump both together
 export const FILM_PART_BYTES = 20 * 1024 * 1024; // R2 multipart: every part but the last must be this size
 const MAX_FILE_BYTES = 50 * 1024 * 1024 * 1024; // 50 GB per file
@@ -405,7 +405,7 @@ export function createFilmHandlers(deps) {
           button: 'Watch and download',
           lines: [hi, '', `The final version of ${name} is ready. You can watch it, share it with family, and download a copy to keep, all from your dashboard.`, '', link, '',
             ...(row.share_token ? [`To share the film itself (without dashboard access), send people this link: ${SITE}/film.html?s=${row.share_token}`, ''] : []),
-            'Thank you for trusting us with your story. If you\'d like it as a hardcover book, a children\'s book or an audiobook, just reply and we\'ll put it together from what we already have.', '', 'Chris'],
+            'Thank you for trusting us with your story. You can also turn it into a hardcover book or an audiobook (with extra narration, made for listening) from the Keepsakes link on your dashboard.', '', 'Chris'],
         };
       default:
         return {
@@ -704,7 +704,7 @@ export function createFilmHandlers(deps) {
     const signIn = `When you open it, ask for a sign-in code: we'll email it to this address (${email}). Only people ${owner} adds can get one.`;
     if (role === 'keepsakes') {
       const link = keepsakesUrl(row.token);
-      const lines = [hi, '', `${owner} invited you to order keepsakes from ${film}: a short film made from family photos, videos and stories. You can order your own copy of the hardcover story book, the children's picture book or the audiobook, shipped free anywhere in the U.S.`, '',
+      const lines = [hi, '', `${owner} invited you to order keepsakes from ${film}: a short film made from family photos, videos and stories. You can order your own copy of the hardcover story book (shipped free anywhere in the U.S.) or the audiobook, which has extra narration so the whole story works by ear.`, '',
         link, '', signIn, '', 'Chris', 'Folder to Film by Eastern Shore AI'];
       return { subject: `${owner} invited you to order keepsakes from a family film`, text: lines.join('\n'),
         html: shell(linesHtml(lines, link, 'See the keepsakes'), { heading: "You're invited", preheader: `${owner} invited you to order keepsakes from ${film}.` }) };
@@ -1261,13 +1261,14 @@ export function createFilmHandlers(deps) {
       'metadata[keepsake]': key,
       'metadata[qty]': String(qty),
       'metadata[ordered_by]': by,
+      'metadata[terms_version]': FILM_TERMS_VERSION,
       'payment_intent_data[metadata][checkout_type]': 'film_keepsake',
       'payment_intent_data[metadata][film_project_id]': String(row.id),
-      'custom_text[submit][message]': item.ship
+      'custom_text[submit][message]': `${item.ship
         ? (canChat ? "We design it from your film and post a proof in your project chat before it's printed." : "We design it from the film and email you a proof to approve before it's printed.")
         : key === 'copies'
           ? (recipients ? 'We ship a copy to each address you entered, free, once the book is final.' : 'We ship it free to this address once the book is final.')
-          : (canChat ? "We'll put the MP3 on your dashboard and let you know in your project chat." : "We'll email you the MP3 when it's ready."),
+          : (canChat ? "We'll put the MP3 on your dashboard and let you know in your project chat." : "We'll email you the MP3 when it's ready.")} Keepsakes are made to order, so they can't be refunded; a damaged or misprinted book is replaced free.`,
     });
     if (stripeShips) body.set('shipping_address_collection[allowed_countries][0]', 'US');
     if (!a.person.isStaff && validEmail(a.person.email)) body.set('customer_email', a.person.email);
