@@ -2172,6 +2172,7 @@
     const DEFAULT_TAX_INCOME_CATEGORIES = [
       'OpenClaw Setup', 'Consulting', 'Website Design', 'AI Lessons', 'Domain Sale',
       'Survival Node Sales', 'Survival Node BYOG Setup',
+      'Website Services', 'Folder to Film Sales', 'Folder to Film Keepsakes',
       'Customer Refunds / Returns & Allowances',
       'Bank Interest',
       'Shipping Insurance Reimbursement', 'Owner Funded (Non-Revenue)', 'Other'
@@ -2179,6 +2180,15 @@
 
     let TAX_EXPENSE_CATEGORIES = [...DEFAULT_TAX_EXPENSE_CATEGORIES];
     let TAX_INCOME_CATEGORIES = [...DEFAULT_TAX_INCOME_CATEGORIES];
+
+    // Set a ledger category dropdown to a row's category, adding it when the list doesn't have it
+    // (categories the worker books, like Folder to Film Sales, otherwise showed blank and blocked Save).
+    function setCategorySelect(sel, value, fallback) {
+      const v = String(value || '').trim();
+      if (!v) { sel.value = fallback; return; }
+      if (![...sel.options].some((o) => o.value === v)) sel.add(new Option(v, v));
+      sel.value = v;
+    }
 
     function escHtml(v) {
       return String(v == null ? '' : v)
@@ -2319,7 +2329,7 @@
         editingExpenseId = Number(r.id || 0);
         taxExpenseDateEl.value = r.date || '';
         taxExpenseVendorEl.value = r.vendor || '';
-        taxExpenseCategoryEl.value = r.category || TAX_EXPENSE_CATEGORIES[0];
+        setCategorySelect(taxExpenseCategoryEl, r.category, TAX_EXPENSE_CATEGORIES[0]);
         taxExpenseAmountEl.value = ((Number(r.amount_cents || 0))/100).toFixed(2);
         taxExpensePaidViaEl.value = r.paid_via || '';
         if (taxExpenseFundingSourceEl) taxExpenseFundingSourceEl.value = r.funding_source || 'cash_bank';
@@ -2335,7 +2345,7 @@
         editingIncomeId = Number(r.id || 0);
         taxIncomeDateEl.value = r.date || '';
         taxIncomeSourceEl.value = r.source || '';
-        taxIncomeCategoryEl.value = r.category || TAX_INCOME_CATEGORIES[0];
+        setCategorySelect(taxIncomeCategoryEl, r.category, TAX_INCOME_CATEGORIES[0]);
         taxIncomeAmountEl.value = (Math.abs(Number(r.amount_cents || 0))/100).toFixed(2);
         const originalStripeMatch = String(r.notes || '').match(/Original Stripe session:\s*([^|\s]+)/i);
         taxIncomeStripeEl.value = r.stripe_session_id || originalStripeMatch?.[1] || '';
