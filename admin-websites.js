@@ -111,7 +111,8 @@
         lines.push(`<span style="color:var(--muted);">Payments: ${c.payments.map((p) => `${money(p.amount_cents)} on ${day(p.paid_at)} (${day(p.period_start)}–${day(p.period_end)})`).join('; ')}</span>`);
       }
       if (c.notes) lines.push(`<span style="color:var(--muted);">Notes: ${escHtml(c.notes)}</span>`);
-      return `<div class="web-row">
+      // Each client is its own card, edged in its status color (like the film and order rows).
+      return `<div class="web-row client-card" style="border-left-color:${(STATUS[c.status] || [null, '#475569'])[1]};">
         <div class="web-row-head"><strong>${escHtml(c.business_name)}</strong><span>${Number(c.is_owner_test || 0) ? '<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:#7c3aed; color:#fff; margin-right:.35rem;">Owner test</span>' : ''}${badge(c.status)}</span></div>
         ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
         <div class="web-row-actions">
