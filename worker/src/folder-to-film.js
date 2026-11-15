@@ -346,7 +346,7 @@ export function createFilmHandlers(deps) {
           button: 'Open my dashboard',
           lines: [hi, '', `Thanks for sending everything for ${name}. We've started production, and your demo will be ready by ${nice(row.demo_due_date)}.`, '',
             "What happens next: we go through everything you sent, write the script, choose the narration and music, and build the first version. We'll email you the moment it's ready, and you can watch it on your dashboard and tell us what to change.", '',
-            link, '', 'Thought of something else, or found another photo? Reply to this email and attach it, and we will work it in.', '', 'Chris'],
+            link, '', 'Thought of something else, or found another photo? Your details and uploads are locked now, so tell us in the project chat on your dashboard. If you have more files, we can reopen uploads for you there.', '', 'Chris'],
         };
       case 'demo':
         return {
