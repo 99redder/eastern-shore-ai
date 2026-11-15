@@ -905,6 +905,16 @@
               <button type="button" class="btn" id="film-samples-btn" title="Sends the welcome, production, demo and chat-reply emails with made-up details to the business inbox">Email me samples</button>
             </div>
             <div id="film-list" class="admin-list">Loading…</div>
+            <h3 style="margin:1.6rem 0 .3rem;">Keepsake orders</h3>
+            <p class="invoice-flow-note" style="margin:.2rem 0 .5rem;">Every hardcover, copies and audiobook order gets its own line. Audiobook: upload the MP3 on its line, then Deliver Audiobook emails the person who ordered it a private download link (7 days, 5 downloads; they can also play it on their dashboard or keepsakes page). Books: move the status along, add Lulu's tracking, then Email Shipped.</p>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin:.2rem 0 .5rem; align-items:center;">
+              <label for="film-keep-filter" style="margin:0;">Show</label>
+              <select id="film-keep-filter" style="max-width:220px; font-size:.92rem; padding:.5rem .6rem;">
+                <option value="open">Not delivered yet</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+            <div id="film-keepsake-list" class="admin-list">Loading…</div>
           </section>
         </div>
       </div>
@@ -1600,6 +1610,6 @@
 
   <script src="/admin.js?v=2026-11-14b"></script>
   <script src="/admin-websites.js?v=7"></script>
-  <script src="/admin-films.js?v=15"></script>
+  <script src="/admin-films.js?v=16"></script>
 </body>
 </html>

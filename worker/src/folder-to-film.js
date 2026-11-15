@@ -606,11 +606,12 @@ export function createFilmHandlers(deps) {
         id: row.id, status: row.status, statusLabel: FILM_STATUSES[row.status] || row.status, projectName: row.project_name || '', occasion: row.occasion || '',
         customerName: row.customer_name || '', me, bookOrdered: hasBook(orders), names: people.map((x) => x.name).filter(Boolean),
         keepsakeOrders: orders.filter((o) => orderIsMine(o, row, person)).map(orderView),
+        ...(await mediaFor(env, { ...row, demo_key: null, final_key: null }, new URL(request.url).origin, { audiobook: audiobookAccess(row, person, orders, people) })),
       } }, 200, corsHeaders);
     }
     const uploads = await uploadsFor(env.DB, row.id);
     const view = customerView(row, uploads, person);
-    Object.assign(view, await mediaFor(env, row, new URL(request.url).origin));
+    Object.assign(view, await mediaFor(env, row, new URL(request.url).origin, { audiobook: audiobookAccess(row, person, orders, people) }));
     view.me = me;
     if (person.isOwner || person.isStaff) view.people = people;
     view.names = people.map((x) => x.name).filter(Boolean);
@@ -981,9 +982,13 @@ export function createFilmHandlers(deps) {
     ).all()).results || [];
     const projects = rows.map((r) => adminView(r));
     const open = projects.filter((p) => ['collecting', 'production', 'demo_ready', 'changes', 'final_ready'].includes(p.status));
+    const keepsakes = await adminKeepsakes(env, new URL(request.url).origin);
     return json({
       ok: true,
       projects,
+      keepsakes,
+      keepsakeStatuses: KEEPSAKE_STATUSES,
+      keepsakeItemStatuses: KEEPSAKE_ITEM_STATUSES,
       questions: FILM_QUESTIONS,
       statuses: FILM_STATUSES,
       summary: {
@@ -992,8 +997,118 @@ export function createFilmHandlers(deps) {
         changes: projects.filter((p) => p.status === 'changes').length,
         collecting: projects.filter((p) => p.status === 'collecting').length,
         revenueCents: projects.filter((p) => p.paid_at).reduce((s, p) => s + Number(p.amount_cents || 0), 0),
+        keepsakesOpen: keepsakes.filter((k) => k.status !== 'delivered').length,
       },
     }, 200, corsHeaders);
+  }
+
+  // Every paid keepsake order, newest first, each as its own line in admin's Folder to Film tab.
+  async function adminKeepsakes(env, origin) {
+    let rows = [];
+    try {
+      rows = (await env.DB.prepare(
+        `SELECT o.*, p.project_name, p.customer_name, p.customer_email, p.token, p.status AS film_status, p.audiobook_key, p.audiobook_uploaded_at
+         FROM film_keepsake_orders o JOIN film_projects p ON p.id = o.project_id
+         WHERE o.status != 'pending' ORDER BY CASE WHEN o.status = 'delivered' THEN 1 ELSE 0 END, o.id DESC LIMIT 300`
+      ).all()).results || [];
+    } catch { return []; }
+    const out = [];
+    for (const o of rows) {
+      const row = { id: o.project_id, customer_email: o.customer_email, customer_name: o.customer_name };
+      const who = await orderPerson(env, row, o);
+      let recipients = [];
+      try { recipients = JSON.parse(o.recipients || '[]') || []; } catch {}
+      out.push({
+        id: o.id, film_id: o.project_id, film_name: o.project_name || '', film_status: o.film_status, item: o.item,
+        item_label: FILM_KEEPSAKES[o.item]?.name || o.item, qty: o.qty, amount_cents: o.amount_cents, tax_cents: o.tax_cents,
+        paid_at: o.paid_at, status: o.status, status_label: KEEPSAKE_STATUSES[o.status] || o.status, status_at: o.status_at,
+        tracking: o.tracking || '', staff_notes: o.staff_notes || '', shipped_at: o.shipped_at, delivered_at: o.delivered_at,
+        ship_to: o.ship_to || '', recipients, ordered_by_email: who.email, ordered_by_name: who.name, ordered_by_buyer: who.buyer,
+        ordered_by_role: who.role, has_audiobook: !!o.audiobook_key, audiobook_uploaded_at: o.audiobook_uploaded_at || '',
+        audiobook_listen: o.item === 'audiobook' && o.audiobook_key && linkSecret(env) ? await signedWatch(env, origin, o.project_id, 'audiobook') : '',
+        link_expires_at: o.download_expires_at || '', link_uses_left: o.download_uses_left ?? null,
+      });
+    }
+    return out;
+  }
+
+  // POST /api/film/keepsake/update {orderId, status?, tracking?, notes?}  (admin)
+  async function handleKeepsakeUpdate(request, env, corsHeaders, url) {
+    const auth = await adminGuard(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+    const d = await readJson(request);
+    const o = await env.DB.prepare(`SELECT * FROM film_keepsake_orders WHERE id = ?1 AND status != 'pending'`).bind(Number(d?.orderId || 0)).first();
+    if (!o) return json({ ok: false, error: 'Keepsake order not found' }, 404, corsHeaders);
+    const allowed = KEEPSAKE_ITEM_STATUSES[o.item] || Object.keys(KEEPSAKE_STATUSES);
+    const status = d.status === undefined ? o.status : clip(d.status, 20);
+    if (!allowed.includes(status)) return json({ ok: false, error: 'That status doesn\'t fit this keepsake.' }, 400, corsHeaders);
+    await env.DB.prepare(
+      `UPDATE film_keepsake_orders SET status = ?1, tracking = ?2, staff_notes = ?3,
+         status_at = CASE WHEN status != ?1 THEN datetime('now') ELSE status_at END,
+         shipped_at = CASE WHEN ?1 = 'shipped' AND shipped_at IS NULL THEN datetime('now') ELSE shipped_at END,
+         delivered_at = CASE WHEN ?1 = 'delivered' AND delivered_at IS NULL THEN datetime('now') ELSE delivered_at END
+       WHERE id = ?4`
+    ).bind(status, d.tracking === undefined ? o.tracking : (clip(d.tracking, 300) || null), d.notes === undefined ? o.staff_notes : (clip(d.notes, 4000) || null), o.id).run();
+    return json({ ok: true }, 200, corsHeaders);
+  }
+
+  // The keepsake emails staff send from an order's line: the audiobook's download link, or a book's tracking.
+  const DOWNLOAD_PLACEHOLDER = '(a private download link goes here when you send)';
+  async function keepsakeDraft(env, row, o, kind, origin) {
+    const who = await orderPerson(env, row, o);
+    const first = clip(who.name, 80).split(/\s+/)[0];
+    const hi = first && !first.includes('@') ? `Hi ${first},` : 'Hi,';
+    const film = row.project_name ? `"${row.project_name}"` : 'your film';
+    const page = who.dashboard ? `${dashboardUrl(row.token)}#audiobook-card` : `${keepsakesUrl(row.token)}#audiobook`;
+    if (kind === 'audiobook') {
+      return {
+        to: who.email, who, link: DOWNLOAD_PLACEHOLDER, button: 'Download the audiobook', heading: 'Your audiobook is ready',
+        subject: `Your audiobook is ready: ${row.project_name || 'your story'}`,
+        lines: [hi, '', `The audiobook of ${film} is ready. It's made for listening: the film's narration plus new narration for everything the film shows on screen, so the whole story works by ear.`, '',
+          DOWNLOAD_PLACEHOLDER, '',
+          `That link is private to you and works for ${AUDIOBOOK_LINK_DAYS} days (up to ${AUDIOBOOK_LINK_USES} downloads). It's an MP3, so it plays on any phone, computer or car stereo.`, '',
+          `You can also listen or download it again any time on your ${who.dashboard ? 'film dashboard' : 'keepsakes page'}: ${page}`, '', 'Chris'],
+      };
+    }
+    const track = clip(o.tracking, 300);
+    const trackUrl = /^https?:\/\//i.test(track) ? track : '';
+    const label = `${FILM_KEEPSAKES[o.item]?.name || 'book'}${Number(o.qty) > 1 ? ` (${o.qty} copies)` : ''}`;
+    let recipients = [];
+    try { recipients = JSON.parse(o.recipients || '[]') || []; } catch {}
+    return {
+      to: who.email, who, link: trackUrl || page, button: trackUrl ? 'Track the package' : (who.dashboard ? 'Open my dashboard' : 'See my keepsakes'),
+      heading: 'Your book is on its way', subject: `Your book is on its way: ${row.project_name || 'your story'}`,
+      lines: [hi, '', `Good news: your ${label} for ${film} has shipped.`, '',
+        ...(recipients.length ? [`Going to: ${recipients.map((r) => r.name).join(', ')}.`, ''] : (o.ship_to ? [`Shipping to: ${o.ship_to}`, ''] : [])),
+        ...(trackUrl ? [trackUrl, ''] : track ? [`Tracking: ${track}`, ''] : []),
+        'If anything arrives damaged or misprinted, reply to this email with a photo within 30 days and we\'ll replace it free.', '', 'Chris'],
+    };
+  }
+
+  // GET /api/film/audiobook?d=TOKEN  (public): the emailed download link. The token is long and random,
+  // stored only as a hash, and works for AUDIOBOOK_LINK_DAYS days and AUDIOBOOK_LINK_USES downloads.
+  async function handleAudiobookDownload(request, env, corsHeaders, url) {
+    const page = (title, text, status) => new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title>`
+      + `<body style="font-family:Georgia,serif;background:#12100D;color:#F4EDE0;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:20px;"><div style="max-width:520px;">`
+      + `<h1 style="font-weight:600;font-size:30px;margin:0 0 12px;">${escapeHtml(title)}</h1><p style="color:#C9BFA9;font-size:18px;line-height:1.5;margin:0;">${text}</p></div></body>`,
+    { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+    const token = clip(url.searchParams.get('d'), 128);
+    if (token.length < 48 || !env.FILMS) return page('Link not found', 'This download link isn\'t right. Please use the link in your email.', 404);
+    const o = await env.DB.prepare(`SELECT * FROM film_keepsake_orders WHERE download_hash = ?1`).bind(await sha256Hex(token)).first();
+    const row = o ? await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(o.project_id).first() : null;
+    if (!o || !row || !row.audiobook_key || row.status === 'canceled') return page('Link not found', 'This download link isn\'t right. Please use the link in your email.', 404);
+    const again = 'You can still listen or download it from your film dashboard or keepsakes page, or reply to the email and we\'ll send a fresh link.';
+    if (!o.download_expires_at || Date.parse(`${o.download_expires_at.replace(' ', 'T')}Z`) < Date.now()) return page('This link has expired', again, 410);
+    // Count a download when the file starts from the beginning (players asking for later byte ranges don't count again).
+    const range = request.headers.get('Range') || '';
+    const fresh = !range || /^bytes=0-/.test(range);
+    if (fresh) {
+      const took = await env.DB.prepare(`UPDATE film_keepsake_orders SET download_uses_left = download_uses_left - 1 WHERE id = ?1 AND download_uses_left > 0`).bind(o.id).run();
+      if (!Number(took.meta?.changes || 0)) return page('This link has been used up', again, 410);
+    } else if (!(Number(o.download_uses_left) >= 0)) {
+      return page('This link has been used up', again, 410);
+    }
+    return streamDeliverable(env, request, row, 'audiobook', row.audiobook_key, true);
   }
 
   // GET /api/film/project?id=
@@ -1049,6 +1164,7 @@ export function createFilmHandlers(deps) {
     if (!d) return json({ ok: false, error: 'Invalid JSON' }, 400, corsHeaders);
     const row = await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(Number(d.id || 0)).first();
     if (!row) return json({ ok: false, error: 'Project not found' }, 404, corsHeaders);
+    if (['audiobook', 'shipped'].includes(d.kind)) return handleKeepsakeEmail(request, env, corsHeaders, row, d);
     const kind = ['welcome', 'demo', 'final', 'message', 'production'].includes(d.kind) ? d.kind : 'message';
     if (kind === 'demo' && !row.demo_url && !row.demo_key) return json({ ok: false, error: 'Upload the demo video or add its link first.' }, 400, corsHeaders);
     if (kind === 'final' && !row.final_url && !row.final_key) return json({ ok: false, error: 'Upload the final film or add its link first.' }, 400, corsHeaders);
@@ -1064,6 +1180,47 @@ export function createFilmHandlers(deps) {
     if (kind === 'demo') await env.DB.prepare(`UPDATE film_projects SET status = CASE WHEN status IN ('production', 'changes') THEN 'demo_ready' ELSE status END, demo_sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
     if (kind === 'final') await env.DB.prepare(`UPDATE film_projects SET status = CASE WHEN status != 'delivered' THEN 'final_ready' ELSE status END, final_sent_at = datetime('now'), updated_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
     return json({ ok: true, emailed: true }, 200, corsHeaders);
+  }
+
+  // Admin's Deliver Audiobook / Email Shipped, from the order's own line (preview, then send).
+  async function handleKeepsakeEmail(request, env, corsHeaders, row, d) {
+    const o = await env.DB.prepare(`SELECT * FROM film_keepsake_orders WHERE id = ?1 AND project_id = ?2 AND status != 'pending'`).bind(Number(d.orderId || 0), row.id).first();
+    if (!o) return json({ ok: false, error: 'Keepsake order not found' }, 404, corsHeaders);
+    const kind = d.kind;
+    if (kind === 'audiobook' && o.item !== 'audiobook') return json({ ok: false, error: 'That order isn\'t an audiobook.' }, 400, corsHeaders);
+    if (kind === 'audiobook' && !row.audiobook_key) return json({ ok: false, error: 'Upload the audiobook MP3 on this line first.' }, 400, corsHeaders);
+    if (kind === 'shipped' && o.item === 'audiobook') return json({ ok: false, error: 'An audiobook doesn\'t ship.' }, 400, corsHeaders);
+    const draft = await keepsakeDraft(env, row, o, kind, new URL(request.url).origin);
+    const subject = clip(d.subject, 200) || draft.subject;
+    let body = typeof d.body === 'string' && d.body.trim() ? d.body.replace(/\r\n/g, '\n').slice(0, 8000) : draft.lines.join('\n');
+    if (kind === 'audiobook' && !body.includes(DOWNLOAD_PLACEHOLDER)) return json({ ok: false, error: `Keep the line "${DOWNLOAD_PLACEHOLDER}" in the email: that's where the download link goes.` }, 400, corsHeaders);
+    const render = (text, link) => {
+      const lines = text.split('\n').map((l) => l.trimEnd());
+      return shell(linesHtml(lines, link, draft.button), { heading: draft.heading, preheader: lines.find((l) => l && !l.startsWith('Hi')) || '', link });
+    };
+    if (d.preview) return json({ ok: true, preview: true, to: draft.to, subject, body, html: render(body, draft.link), link: draft.link }, 200, corsHeaders);
+    if (!d.send) return json({ ok: true }, 200, corsHeaders);
+    let link = draft.link;
+    if (kind === 'audiobook') {
+      // A fresh private link each time it's sent; the old one stops working.
+      const token = generateToken() + generateToken();
+      link = `${new URL(request.url).origin}/api/film/audiobook?d=${token}`;
+      body = body.split(DOWNLOAD_PLACEHOLDER).join(link);
+      await env.DB.prepare(`UPDATE film_keepsake_orders SET download_hash = ?1, download_expires_at = datetime('now', ?2), download_uses_left = ?3 WHERE id = ?4`)
+        .bind(await sha256Hex(token), `+${AUDIOBOOK_LINK_DAYS} days`, AUDIOBOOK_LINK_USES, o.id).run();
+    }
+    try {
+      await sendCustomerEmail(env, row, { kind: `keepsake_${kind}`, to: draft.to, subject, text: body, html: render(body, link) });
+    } catch (e) {
+      return json({ ok: false, error: e.message || 'Email failed' }, 502, corsHeaders);
+    }
+    const next = kind === 'audiobook' ? 'delivered' : 'shipped';
+    await env.DB.prepare(
+      `UPDATE film_keepsake_orders SET status = CASE WHEN status = 'delivered' THEN status ELSE ?1 END, status_at = datetime('now'),
+         shipped_at = CASE WHEN ?1 = 'shipped' AND shipped_at IS NULL THEN datetime('now') ELSE shipped_at END,
+         delivered_at = CASE WHEN ?1 = 'delivered' AND delivered_at IS NULL THEN datetime('now') ELSE delivered_at END WHERE id = ?2`
+    ).bind(next, o.id).run();
+    return json({ ok: true, emailed: true, to: draft.to }, 200, corsHeaders);
   }
 
   function linkSecret(env) {
@@ -1205,6 +1362,44 @@ export function createFilmHandlers(deps) {
   const addressLine = (r) => [r.name, r.line1, r.line2, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', ');
   // The first hardcover includes designing the book; copies are reprints, so they need it first.
   const hasBook = (orders) => orders.some((o) => o.item === 'book' && o.status !== 'pending');
+  // Where each keepsake order stands (admin sets it on the order's own line; the emails set delivered/shipped).
+  const KEEPSAKE_STATUSES = {
+    paid: 'Paid, not started', in_progress: 'In progress', proof_sent: 'Proof sent', approved: 'Proof approved',
+    printing: 'Printing at Lulu', shipped: 'Shipped', delivered: 'Delivered',
+  };
+  const KEEPSAKE_ITEM_STATUSES = {
+    book: ['paid', 'in_progress', 'proof_sent', 'approved', 'printing', 'shipped', 'delivered'],
+    copies: ['paid', 'printing', 'shipped', 'delivered'],
+    audiobook: ['paid', 'in_progress', 'delivered'],
+  };
+  const AUDIOBOOK_LINK_DAYS = 7;
+  const AUDIOBOOK_LINK_USES = 5;
+  // Who can play and download the audiobook once it's delivered: everyone on the dashboard when the buyer
+  // (or anyone with dashboard access) ordered it; a keepsakes-only relative only for their own order.
+  function audiobookAccess(row, person, orders, people) {
+    if (!row.audiobook_key || !person) return false;
+    if (person.isStaff) return true;
+    const done = orders.filter((o) => o.item === 'audiobook' && o.status === 'delivered');
+    if (!done.length) return false;
+    if (can(person, 'view')) {
+      return done.some((o) => {
+        const by = orderedBy(o, row);
+        if (by === normEmail(row.customer_email) || by === STAFF_ID) return true;
+        const p = people.find((x) => x.email === by);
+        return !!(p && p.role !== 'keepsakes');
+      });
+    }
+    return done.some((o) => orderIsMine(o, row, person));
+  }
+  // The person behind an order, for emails: their email, first name, and whether they can open the dashboard.
+  async function orderPerson(env, row, o) {
+    const by = orderedBy(o, row);
+    const buyer = by === normEmail(row.customer_email) || by === STAFF_ID;
+    const person = buyer ? null : await personFor(env, row, by);
+    const email = buyer ? normEmail(row.customer_email) : by;
+    const name = buyer ? (row.customer_name || '') : (person?.name || '');
+    return { email, name, buyer, dashboard: buyer || can(person, 'view'), role: person?.role || '' };
+  }
   const orderedBy = (o, row) => normEmail(o.ordered_by) || normEmail(row.customer_email);   // older orders: the buyer
   const orderIsMine = (o, row, person) => orderedBy(o, row) === (person.isStaff ? STAFF_ID : person.email);
   function orderedByName(o, row, people) {
@@ -1404,7 +1599,8 @@ export function createFilmHandlers(deps) {
 
   async function keepsakeOrders(env, projectId) {
     try {
-      const rows = (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, recipients, ordered_by, status, paid_at FROM film_keepsake_orders WHERE project_id = ?1 AND status != 'pending' ORDER BY id`).bind(projectId).all()).results || [];
+      const rows = (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, recipients, ordered_by, status, paid_at, tracking, staff_notes, status_at, shipped_at, delivered_at, stripe_session_id
+        FROM film_keepsake_orders WHERE project_id = ?1 AND status != 'pending' ORDER BY id`).bind(projectId).all()).results || [];
       return rows.map((o) => { let r = []; try { r = JSON.parse(o.recipients || '[]') || []; } catch {} return { ...o, recipients: r }; });
     } catch { return []; }
   }
@@ -1426,7 +1622,7 @@ export function createFilmHandlers(deps) {
       } catch (e) { console.error('film delete file', e); }
     }
     await env.DB.prepare(`DELETE FROM film_uploads WHERE project_id = ?1`).bind(row.id).run();
-    for (const k of [row.demo_key, row.final_key]) { if (k && env.FILMS) { try { await env.FILMS.delete(k); } catch {} } }
+    for (const k of [row.demo_key, row.final_key, row.audiobook_key]) { if (k && env.FILMS) { try { await env.FILMS.delete(k); } catch {} } }
     for (const table of ['film_emails', 'film_people', 'film_devices', 'film_codes', 'film_messages', 'film_typing', 'film_keepsake_orders']) {
       await env.DB.prepare(`DELETE FROM ${table} WHERE project_id = ?1`).bind(row.id).run();
     }
@@ -1699,7 +1895,8 @@ export function createFilmHandlers(deps) {
   // send the sign-in header); the final film also gets a share page,
   // film.html?s=SHARE_TOKEN, which plays and downloads it without dashboard access.
   const WATCH_LINK_SECONDS = 12 * 3600;
-  const DELIVER_KINDS = ['demo', 'final'];
+  const DELIVER_KINDS = ['demo', 'final', 'audiobook'];
+  const deliverColumn = (kind) => ({ demo: 'demo_key', final: 'final_key', audiobook: 'audiobook_key' }[kind]);
 
   async function signedWatch(env, origin, id, kind, download = false) {
     const exp = Math.floor(Date.now() / 1000) + WATCH_LINK_SECONDS;
@@ -1707,8 +1904,12 @@ export function createFilmHandlers(deps) {
     return `${origin}/api/film/watch?f=${id}&k=${kind}&e=${exp}&sig=${sig}${download ? '&dl=1' : ''}`;
   }
 
-  async function mediaFor(env, row, origin) {
+  async function mediaFor(env, row, origin, { audiobook = false } = {}) {
     const out = {};
+    if (audiobook && row.audiobook_key && linkSecret(env)) {
+      out.audiobookSrc = await signedWatch(env, origin, row.id, 'audiobook');
+      out.audiobookDownload = await signedWatch(env, origin, row.id, 'audiobook', true);
+    }
     const shows = (kind) => kind === 'demo' ? ['demo_ready', 'changes', 'final_ready', 'delivered'].includes(row.status) : ['final_ready', 'delivered'].includes(row.status);
     if (row.demo_key && shows('demo') && linkSecret(env)) out.demoSrc = await signedWatch(env, origin, row.id, 'demo');
     if (row.final_key && shows('final') && linkSecret(env)) {
@@ -1732,12 +1933,15 @@ export function createFilmHandlers(deps) {
     const row = await env.DB.prepare(`SELECT id FROM film_projects WHERE id = ?1`).bind(Number(d?.id || 0)).first();
     if (!row) return json({ ok: false, error: 'Project not found' }, 404, corsHeaders);
     const kind = DELIVER_KINDS.includes(d.kind) ? d.kind : null;
-    if (!kind) return json({ ok: false, error: 'kind must be demo or final' }, 400, corsHeaders);
+    if (!kind) return json({ ok: false, error: 'kind must be demo, final or audiobook' }, 400, corsHeaders);
     const size = Math.round(Number(d.size || 0));
     if (!(size > 0) || size > MAX_FILE_BYTES) return json({ ok: false, error: 'Bad file size' }, 400, corsHeaders);
-    const ext = (safeFilename(d.name).match(/\.([a-z0-9]{2,5})$/i) || [, 'mp4'])[1].toLowerCase();
+    const audio = kind === 'audiobook';
+    const ext = (safeFilename(d.name).match(/\.([a-z0-9]{2,5})$/i) || [, audio ? 'mp3' : 'mp4'])[1].toLowerCase();
+    if (audio && !['mp3', 'm4a', 'm4b'].includes(ext)) return json({ ok: false, error: 'The audiobook should be an MP3 (or M4A) file.' }, 400, corsHeaders);
     const key = `deliverables/${row.id}/${kind}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
-    const mpu = await env.FILMS.createMultipartUpload(key, { httpMetadata: { contentType: clip(d.type, 80) || 'video/mp4' } });
+    const type = audio ? (ext === 'mp3' ? 'audio/mpeg' : 'audio/mp4') : (clip(d.type, 80) || 'video/mp4');
+    const mpu = await env.FILMS.createMultipartUpload(key, { httpMetadata: { contentType: type } });
     return json({ ok: true, key, uploadId: mpu.uploadId, partBytes: FILM_PART_BYTES, parts: Math.max(1, Math.ceil(size / FILM_PART_BYTES)) }, 200, corsHeaders);
   }
 
@@ -1766,10 +1970,11 @@ export function createFilmHandlers(deps) {
       .filter((x) => x.partNumber > 0 && x.etag).sort((a, b) => a.partNumber - b.partNumber);
     if (!parts.length) return json({ ok: false, error: 'No parts' }, 400, corsHeaders);
     await env.FILMS.resumeMultipartUpload(d.key, clip(d.uploadId, 400)).complete(parts);
-    const previous = kind === 'demo' ? row.demo_key : row.final_key;
+    const previous = row[deliverColumn(kind)];
     if (previous && previous !== d.key) { try { await env.FILMS.delete(previous); } catch {} }
     const share = row.share_token || generateToken() + generateToken().slice(0, 8);
     if (kind === 'demo') await env.DB.prepare(`UPDATE film_projects SET demo_key = ?1, updated_at = datetime('now') WHERE id = ?2`).bind(d.key, row.id).run();
+    else if (kind === 'audiobook') await env.DB.prepare(`UPDATE film_projects SET audiobook_key = ?1, audiobook_uploaded_at = datetime('now'), updated_at = datetime('now') WHERE id = ?2`).bind(d.key, row.id).run();
     else await env.DB.prepare(`UPDATE film_projects SET final_key = ?1, share_token = ?2, updated_at = datetime('now') WHERE id = ?3`).bind(d.key, share, row.id).run();
     return json({ ok: true, kind, shareUrl: kind === 'final' ? `${SITE}/film.html?s=${share}` : '' }, 200, corsHeaders);
   }
@@ -1795,26 +2000,32 @@ export function createFilmHandlers(deps) {
       if (row && !['final_ready', 'delivered'].includes(row.status)) row = null;
     } else {
       const id = Math.round(Number(url.searchParams.get('f') || 0));
-      kind = url.searchParams.get('k') === 'demo' ? 'demo' : 'final';
+      kind = ['demo', 'audiobook'].includes(url.searchParams.get('k')) ? url.searchParams.get('k') : 'final';
       const exp = Math.round(Number(url.searchParams.get('e') || 0));
       const sig = clip(url.searchParams.get('sig'), 128);
       const secret = linkSecret(env);
-      if (!id || !exp || !sig || !secret || exp < Math.floor(Date.now() / 1000)) return new Response('This video link has expired. Reload your dashboard.', { status: 403 });
+      if (!id || !exp || !sig || !secret || exp < Math.floor(Date.now() / 1000)) return new Response('This link has expired. Reload the page you opened it from.', { status: 403 });
       if (!timingSafeEqual(await hmacHex(secret, `film-watch:${id}:${kind}:${exp}`), sig)) return new Response('Bad link.', { status: 403 });
       row = await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(id).first();
     }
-    const key = row ? (kind === 'demo' ? row.demo_key : row.final_key) : null;
+    const key = row ? row[deliverColumn(kind)] : null;
     if (!key) return new Response('Not found.', { status: 404 });
+    return streamDeliverable(env, request, row, kind, key, url.searchParams.get('dl') === '1');
+  }
+
+  // Streams a delivered file from R2 (byte ranges, so phones can seek and resume).
+  async function streamDeliverable(env, request, row, kind, key, download) {
     const head = await env.FILMS.head(key);
     if (!head) return new Response('Not found.', { status: 404 });
     const size = Number(head.size || 0);
-    const type = head.httpMetadata?.contentType || 'video/mp4';
-    const name = `${(row.project_name || 'film').replace(/[^\w\s-]+/g, '').trim().slice(0, 60) || 'film'}${kind === 'demo' ? ' (demo)' : ''}.${(key.split('.').pop() || 'mp4')}`;
+    const type = head.httpMetadata?.contentType || (kind === 'audiobook' ? 'audio/mpeg' : 'video/mp4');
+    const base = (row.project_name || 'film').replace(/[^\w\s-]+/g, '').trim().slice(0, 60) || 'film';
+    const name = `${base}${kind === 'demo' ? ' (demo)' : kind === 'audiobook' ? ' - Audiobook' : ''}.${(key.split('.').pop() || 'mp4')}`;
     const headers = {
       'Content-Type': type,
       'Accept-Ranges': 'bytes',
       'Cache-Control': 'private, max-age=3600',
-      'Content-Disposition': `${url.searchParams.get('dl') === '1' ? 'attachment' : 'inline'}; filename="${name.replace(/"/g, '')}"`,
+      'Content-Disposition': `${download ? 'attachment' : 'inline'}; filename="${name.replace(/"/g, '')}"`,
     };
     const m = (request.headers.get('Range') || '').match(/^bytes=(\d*)-(\d*)$/);
     if (m && size > 0) {
@@ -1861,7 +2072,7 @@ export function createFilmHandlers(deps) {
   return {
     handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples, handleKeepsakeCheckout, handleKeepsakePaid,
     handleKeepsakeExpired: async (env, session) => { if (session?.id) await env.DB.prepare(`DELETE FROM film_keepsake_orders WHERE stripe_session_id = ?1 AND status = 'pending'`).bind(clip(session.id, 120)).run(); },
-    handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
+    handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch, handleKeepsakeUpdate, handleAudiobookDownload,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove, handlePeopleRole,
     handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,
     sendStatusEmail, purgeOldFilms,

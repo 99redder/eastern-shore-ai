@@ -1186,6 +1186,154 @@ test('people the buyer adds: helpers add photos and chat, editors also edit, kee
   assert.equal((await call(env, post('/api/film/people/role', { t: token, email: 'sam@family.example', role: 'editor' }))).status, 403);
 });
 
+test('audiobook: upload the MP3 on its line, deliver a private download link, players only for the people it belongs to; keepsake lines in admin', async (t) => {
+  quietConsole(t);
+  const env = baseEnv();
+  const { stripe, token, id } = await paidProject(t, env);
+  const db = env.DB.sqlite;
+  const owner = DEVICE;
+  const codeFrom = (mail) => (mail.text.match(/is (\d{6})\./) || [])[1];
+  db.prepare(`UPDATE film_projects SET project_name = 'Lake Week' WHERE id = ?`).run(id);
+  await call(env, post('/api/film/people', { t: token, email: 'sam@family.example', name: 'Sam Lee' }));
+  await call(env, post('/api/film/people', { t: token, email: 'kim@family.example', name: 'Kim Lee', role: 'keepsakes' }));
+  const signIn = async (email) => {
+    DEVICE = null;
+    await call(env, post('/api/film/access/code', { t: token, email }));
+    return (await call(env, post('/api/film/access/verify', { t: token, email, code: codeFrom(env.EMAIL.sent.at(-1)) }))).data.deviceToken;
+  };
+  const sam = await signIn('sam@family.example');
+  const kim = await signIn('kim@family.example');
+  // The buyer and Kim each buy the audiobook.
+  const buy = async (device, item, extra = {}) => {
+    DEVICE = device;
+    const r = await call(env, post('/api/film/keepsake-checkout', { t: token, item, ...extra }));
+    assert.equal(r.status, 200, JSON.stringify(r.data));
+    const params = stripe.sessions.get(r.data.id);
+    const res = await worker.fetch(await signedWebhook({ id: `evt_${r.data.id}`, type: 'checkout.session.completed', created: Math.floor(Date.now() / 1000), data: { object: {
+      id: r.data.id, payment_status: 'paid', amount_total: 2900, total_details: { amount_tax: 0 }, payment_intent: `pi_${r.data.id}`,
+      customer_details: { name: 'Someone', email: params.get('customer_email'), address: { state: 'NH' } },
+      collected_information: item === 'book' ? { shipping_details: { name: 'Pat Family', address: { line1: '1 Main St', city: 'Dover', state: 'NH', postal_code: '03820', country: 'US' } } } : undefined,
+      metadata: { checkout_type: 'film_keepsake', film_project_id: String(id), keepsake: item, qty: '1', ordered_by: params.get('metadata[ordered_by]') } } } }), env, ctx);
+    assert.equal(res.status, 200, await res.clone().text());
+    return db.prepare('SELECT id FROM film_keepsake_orders WHERE stripe_session_id = ?').get(r.data.id).id;
+  };
+  const patOrder = await buy(owner, 'audiobook');
+  const kimOrder = await buy(kim, 'audiobook');
+
+  // Each order is its own line in admin.
+  let list = await call(env, get('/api/film/projects', ADMIN));
+  assert.deepEqual(list.data.keepsakes.map((k) => [k.item, k.status, k.ordered_by_name, k.ordered_by_buyer]), [['audiobook', 'paid', 'Kim Lee', false], ['audiobook', 'paid', 'Pat Family', true]]);
+  assert.equal(list.data.summary.keepsakesOpen, 2);
+  assert.deepEqual(list.data.keepsakeItemStatuses.audiobook, ['paid', 'in_progress', 'delivered']);
+  // Delivering before the MP3 is uploaded is refused.
+  let r = await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, preview: true }, ADMIN));
+  assert.equal(r.status, 400);
+  assert.match(r.data.error, /Upload the audiobook MP3/);
+
+  // Upload the MP3 from admin (one file per film).
+  const size = 3000;
+  assert.equal((await call(env, post('/api/film/deliver/start', { id, kind: 'audiobook', name: 'lake.wav', size }, ADMIN))).status, 400, 'MP3 or M4A only');
+  const st = await call(env, post('/api/film/deliver/start', { id, kind: 'audiobook', name: 'Lake Week audiobook.mp3', size, type: 'audio/mpeg' }, ADMIN));
+  assert.equal(st.status, 200, JSON.stringify(st.data));
+  assert.match(st.data.key, new RegExp(`^deliverables/${id}/audiobook-[0-9a-f]{8}\\.mp3$`));
+  const up = await worker.fetch(new Request(`https://worker.example/api/film/deliver/part?id=${id}&key=${encodeURIComponent(st.data.key)}&uploadId=${encodeURIComponent(st.data.uploadId)}&part=1`,
+    { method: 'POST', headers: { Origin: SITE, ...ADMIN }, body: new Uint8Array(size).map((_, i) => i % 251) }), env, ctx);
+  const part = await up.json();
+  assert.equal((await call(env, post('/api/film/deliver/complete', { id, kind: 'audiobook', key: st.data.key, uploadId: st.data.uploadId, parts: [part] }, ADMIN))).status, 200);
+  list = await call(env, get('/api/film/projects', ADMIN));
+  assert.ok(list.data.keepsakes.every((k) => k.has_audiobook && k.audiobook_listen));
+
+  // Uploaded but not delivered: nobody sees it yet.
+  DEVICE = owner;
+  assert.equal((await call(env, get(`/api/film/dashboard?t=${token}`))).data.project.audiobookSrc, undefined);
+
+  // Deliver to the buyer: preview first, then a private link (stored only as a hash) in the email.
+  r = await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, preview: true }, ADMIN));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.to, 'pat@family.example');
+  assert.match(r.data.body, /a private download link goes here when you send/);
+  assert.match(r.data.body, /new narration for everything the film shows on screen/);
+  assert.equal((await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, send: true, body: 'Hi Pat, here it is.' }, ADMIN))).status, 400, 'the link line must stay');
+  env.EMAIL.sent.length = 0;
+  r = await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: patOrder, send: true }, ADMIN));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const mail = env.EMAIL.sent.find((m) => /^Your audiobook is ready: Lake Week/.test(m.subject));
+  assert.deepEqual(mail.to, ['pat@family.example']);
+  const link = (mail.text.match(/https:\/\/worker\.example\/api\/film\/audiobook\?d=([0-9a-f]{64})/) || [])[0];
+  assert.ok(link, mail.text);
+  assert.ok(mail.text.includes(`my-film.html?t=${token}#audiobook-card`), 'the buyer is pointed at the dashboard');
+  assert.ok(mail.html.includes(link), 'the button carries the link');
+  const order = db.prepare('SELECT * FROM film_keepsake_orders WHERE id = ?').get(patOrder);
+  assert.equal(order.status, 'delivered');
+  assert.equal(order.download_uses_left, 5);
+  assert.ok(order.download_hash && !link.includes(order.download_hash), 'only a hash is stored');
+
+  // The link downloads the MP3 (counting full downloads, not byte ranges after the start).
+  let res = await worker.fetch(new Request(link), env, ctx);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('Content-Type'), 'audio/mpeg');
+  assert.match(res.headers.get('Content-Disposition'), /attachment; filename="Lake Week - Audiobook\.mp3"/);
+  assert.equal((await res.arrayBuffer()).byteLength, size);
+  res = await worker.fetch(new Request(link, { headers: { Range: 'bytes=100-199' } }), env, ctx);
+  assert.equal(res.status, 206);
+  assert.equal(db.prepare('SELECT download_uses_left AS n FROM film_keepsake_orders WHERE id = ?').get(patOrder).n, 4);
+  // Guessing doesn't work; expired or used-up links stop.
+  assert.equal((await worker.fetch(new Request(`https://worker.example/api/film/audiobook?d=${'0'.repeat(64)}`), env, ctx)).status, 404);
+  assert.equal((await worker.fetch(new Request('https://worker.example/api/film/audiobook?d=short'), env, ctx)).status, 404);
+  db.prepare('UPDATE film_keepsake_orders SET download_uses_left = 0 WHERE id = ?').run(patOrder);
+  res = await worker.fetch(new Request(link), env, ctx);
+  assert.equal(res.status, 410);
+  assert.match(await res.text(), /used up/);
+  db.prepare("UPDATE film_keepsake_orders SET download_uses_left = 3, download_expires_at = datetime('now', '-1 hour') WHERE id = ?").run(patOrder);
+  res = await worker.fetch(new Request(link), env, ctx);
+  assert.equal(res.status, 410);
+  assert.match(await res.text(), /expired/);
+
+  // Players: the buyer and Sam (dashboard access) get it; Kim's own order isn't delivered yet.
+  DEVICE = owner;
+  let dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.ok(dash.data.project.audiobookSrc && dash.data.project.audiobookDownload);
+  res = await worker.fetch(new Request(dash.data.project.audiobookSrc, { headers: { Range: 'bytes=0-9' } }), env, ctx);
+  assert.equal(res.status, 206);
+  DEVICE = sam;
+  assert.ok((await call(env, get(`/api/film/dashboard?t=${token}`))).data.project.audiobookSrc);
+  DEVICE = kim;
+  dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.equal(dash.data.keepsakesOnly, true);
+  assert.equal(dash.data.project.audiobookSrc, undefined);
+  // Deliver Kim's: her link points at the keepsakes page, and now she has the player there.
+  env.EMAIL.sent.length = 0;
+  assert.equal((await call(env, post('/api/film/email', { id, kind: 'audiobook', orderId: kimOrder, send: true }, ADMIN))).status, 200);
+  const kimMail = env.EMAIL.sent.find((m) => /^Your audiobook is ready/.test(m.subject));
+  assert.deepEqual(kimMail.to, ['kim@family.example']);
+  assert.match(kimMail.text, /^Hi Kim,/);
+  assert.ok(kimMail.text.includes(`my-keepsakes.html?t=${token}#audiobook`));
+  assert.ok(!kimMail.text.includes('my-film.html'));
+  dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.ok(dash.data.project.audiobookSrc);
+  assert.equal(dash.data.project.uploads, undefined, 'still nothing else from the dashboard');
+
+  // A book on its own line: status, tracking, then Email Shipped.
+  const bookOrder = await buy(owner, 'book');
+  assert.equal((await call(env, post('/api/film/keepsake/update', { orderId: bookOrder, status: 'printing' }))).status, 401);
+  assert.equal((await call(env, post('/api/film/keepsake/update', { orderId: patOrder, status: 'printing' }, ADMIN))).status, 400, 'an audiobook does not print');
+  r = await call(env, post('/api/film/keepsake/update', { orderId: bookOrder, status: 'printing', tracking: 'https://track.example/1Z999', notes: 'Lulu order 123' }, ADMIN));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  env.EMAIL.sent.length = 0;
+  r = await call(env, post('/api/film/email', { id, kind: 'shipped', orderId: bookOrder, send: true }, ADMIN));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  const shipped = env.EMAIL.sent.find((m) => /^Your book is on its way/.test(m.subject));
+  assert.deepEqual(shipped.to, ['pat@family.example']);
+  assert.match(shipped.text, /https:\/\/track\.example\/1Z999/);
+  assert.match(shipped.html, /Track the package/);
+  const book = db.prepare('SELECT * FROM film_keepsake_orders WHERE id = ?').get(bookOrder);
+  assert.equal(book.status, 'shipped');
+  assert.ok(book.shipped_at);
+  assert.equal(book.staff_notes, 'Lulu order 123');
+  list = await call(env, get('/api/film/projects', ADMIN));
+  assert.equal(list.data.summary.keepsakesOpen, 1, 'the shipped book is still open until delivered');
+});
+
 // Keep last: node:test runs this file's tests in order.
 test('every email to a customer or someone they added is BCCed to the business, like Survival Node order emails', () => {
   const toCustomers = ALL_SENT.filter((m) => /contact@easternshore\.ai/.test(JSON.stringify(m.from)) && !(m.to || []).includes('owner@inbox.example'));

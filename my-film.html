@@ -424,6 +424,15 @@
       <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, or an audiobook made for listening? <a href="#" class="keepsakes-link">See your keepsakes</a>.</p>
     </section>
 
+    <!-- The audiobook, once it's delivered to someone on this dashboard -->
+    <section class="card" id="audiobook-card" hidden>
+      <div class="eyebrow">Your audiobook</div>
+      <h2>Listen anywhere</h2>
+      <p class="lead">Made for listening: the film's narration plus extra narration for everything the film shows on screen. Play it here, or download the MP3 for your phone or the car.</p>
+      <audio id="audiobook-player" controls preload="none" style="width:100%;"></audio>
+      <div class="row" style="margin-top:14px;"><a class="btn btn-primary" id="audiobook-download" href="#">Download the MP3</a></div>
+    </section>
+
     <!-- Keepsakes box (once production starts) -->
     <aside class="keep-ad" id="keep-ad" aria-label="Keepsakes" hidden>
       <div class="mini-book" aria-hidden="true"><span id="keep-ad-title">Our Story</span></div>
@@ -558,7 +567,7 @@
           <a href="mailto:contact@easternshore.ai" class="esai-footer-link">Contact Us</a>
           <a href="/#about" class="esai-footer-link">About Us</a>
           <a href="/folder-to-film-terms.html" class="esai-footer-link">Folder to Film Terms</a>
-          <a href="/privacy.html" class="esai-footer-link">Privacy Policy</a>
+          <a href="/folder-to-film-terms.html#privacy" class="esai-footer-link">Privacy Notice</a>
         </div>
         <p class="esai-footer-vet">&#127482;&#127480; Veteran-Owned Business</p>
       </div>
@@ -614,7 +623,7 @@
 
     function show(id) {
       ['state-loading', 'state-signin', 'state-collecting', 'state-production', 'state-demo', 'state-final', 'state-canceled'].forEach((s) => { $(s).hidden = s !== id; });
-      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'jump-nav', 'askk-fab', 'keep-ad'].forEach((s) => { $(s).hidden = true; });
+      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'jump-nav', 'askk-fab', 'keep-ad', 'audiobook-card'].forEach((s) => { $(s).hidden = true; });
     }
 
     function setTimeline(status) {
@@ -647,6 +656,11 @@
       $('staff-bar').hidden = !isStaff();
       $('askk-fab').hidden = !p.chat || $('askk-drawer').classList.contains('on');
       $('keep-ad').hidden = !['production', 'demo_ready', 'changes', 'final_ready', 'delivered'].includes(p.status);
+      $('audiobook-card').hidden = !p.audiobookSrc;
+      if (p.audiobookSrc) {
+        if (!$('audiobook-player').getAttribute('src')) $('audiobook-player').src = p.audiobookSrc;   // don't restart it mid-listen
+        $('audiobook-download').href = p.audiobookDownload || p.audiobookSrc;
+      }
       $('keep-ad-title').textContent = p.projectName || 'Our Story';
       if (p.people) renderPeople(p.people);
       if (p.chat && document.activeElement !== $('notes')) $('notes').value = p.notes || '';
@@ -737,7 +751,7 @@
     const JUMPS = [
       ['step-upload', 'Upload Photos and Files'], ['step-questions', 'Answer the Questions'], ['step-start', 'Start Production'],
       ['state-production', 'Demo Date'], ['state-demo', 'Your Demo'], ['state-final', 'Your Film'],
-      ['chat', '💬 Talk With Us', true], ['notes-card', 'Add Notes'], ['people-card', '👪 Manage Who Has Access'],
+      ['chat', '💬 Talk With Us', true], ['notes-card', 'Add Notes'], ['audiobook-card', '🎧 Audiobook'], ['people-card', '👪 Manage Who Has Access'],
     ];
     // Keepsakes have their own page (my-keepsakes.html), made from this project's photos and names.
     const keepsakesUrl = () => `my-keepsakes.html?t=${encodeURIComponent(token)}${params.get('local') === '1' ? '&local=1' : ''}`;

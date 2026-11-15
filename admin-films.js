@@ -19,11 +19,15 @@
     staffLink: `${BASE}/api/film/staff-link`,
     chatReply: `${BASE}/api/film/chat/reply`,
     samples: `${BASE}/api/film/email-samples`,
+    keepUpdate: `${BASE}/api/film/keepsake/update`,
   };
   const $ = (id) => document.getElementById(id);
   let projects = [];
   let questions = [];
   let statuses = {};
+  let keepsakes = [];
+  let keepStatuses = {};
+  let keepItemStatuses = {};
   const open = new Set();
   const details = new Map();
 
@@ -65,7 +69,7 @@
     if (!el || !s) return;
     el.innerHTML = [
       [s.open, 'Open films'], [s.collecting, 'Collecting files'], [s.inProduction, 'In production'],
-      [s.changes, 'Changes requested'], [money(s.revenueCents), 'Paid (incl. tax)'],
+      [s.changes, 'Changes requested'], [s.keepsakesOpen ?? 0, 'Keepsakes to do'], [money(s.revenueCents), 'Paid (incl. tax)'],
     ].map(([v, l]) => `<div><b>${escHtml(String(v))}</b><span>${escHtml(l)}</span></div>`).join('');
   }
 
@@ -175,6 +179,81 @@
     }).join('');
   }
 
+  // ----- keepsake orders: one line each -----
+  const KCOLORS = { paid: '#f59e0b', in_progress: '#0ea5e9', proof_sent: '#8b5cf6', approved: '#6366f1', printing: '#0891b2', shipped: '#22c55e', delivered: '#15803d' };
+  function keepBadge(k) {
+    return `<span style="font-size:.78rem; padding:2px 8px; border-radius:999px; background:${KCOLORS[k.status] || '#475569'}; color:#fff;">${escHtml(k.status_label || k.status)}</span>`;
+  }
+  function keepsakeRow(k) {
+    const id = Number(k.id);
+    const isAudio = k.item === 'audiobook';
+    const who = `${escHtml(k.ordered_by_name || k.ordered_by_email || 'Unknown')}${k.ordered_by_name ? ` <span class="web-muted">${escHtml(k.ordered_by_email)}</span>` : ''} <span class="web-muted">(${k.ordered_by_buyer ? 'buyer' : k.ordered_by_role === 'keepsakes' ? 'keepsakes-only invite' : 'added person'})</span>`;
+    const lines = [
+      `Ordered by ${who}`,
+      `Paid ${money(k.amount_cents)}${Number(k.tax_cents) ? ` (incl. ${money(k.tax_cents)} tax)` : ''} on ${day(k.paid_at)}${k.film_status === 'canceled' ? ' &bull; <strong style="color:#ff9b9b;">film canceled</strong>' : ''}`,
+    ];
+    if (k.ship_to) lines.push(`Ship to: ${escHtml(k.ship_to)}`);
+    for (const r of k.recipients || []) lines.push(`<span class="web-muted">&rarr;</span> ${escHtml([r.name, r.line1, r.line2, `${r.city}, ${r.state} ${r.zip}`].filter(Boolean).join(', '))}`);
+    if (isAudio) {
+      lines.push(k.has_audiobook
+        ? `MP3 uploaded ${day(k.audiobook_uploaded_at)}${k.audiobook_listen ? ` &bull; <a href="${escHtml(k.audiobook_listen)}" target="_blank" rel="noopener" style="color:var(--cyan);">Listen</a>` : ''} <span class="web-muted">(one file per film, shared by every audiobook order on it)</span>`
+        : '<span style="color:#fbbf24;">No MP3 uploaded yet.</span>');
+      if (k.link_expires_at) {
+        const left = Number(k.link_uses_left ?? 0);
+        lines.push(`<span class="web-muted">Download link sent: works until ${escHtml(when(k.link_expires_at))}, ${left} download${left === 1 ? '' : 's'} left. Deliver Audiobook again sends a fresh link.</span>`);
+      }
+    }
+    if (k.shipped_at) lines.push(`<span class="web-muted">Shipped ${day(k.shipped_at)}</span>`);
+    const opts = (keepItemStatuses[k.item] || Object.keys(keepStatuses)).map((st) => `<option value="${escHtml(st)}"${st === k.status ? ' selected' : ''}>${escHtml(keepStatuses[st] || st)}</option>`).join('');
+    return `<div class="web-row">
+      <div class="web-row-head"><strong>${escHtml(k.item_label)}${Number(k.qty) > 1 ? ` x ${Number(k.qty)}` : ''} &bull; #${Number(k.film_id)} ${escHtml(k.film_name || '(not named yet)')}</strong><span>${keepBadge(k)}</span></div>
+      ${lines.map((l) => `<div style="margin-top:.2rem;">${l}</div>`).join('')}
+      <div class="web-form-grid" style="margin-top:.4rem;">
+        <div><label for="keep-status-${id}">Status</label><select id="keep-status-${id}">${opts}</select></div>
+        ${isAudio ? '' : `<div><label for="keep-tracking-${id}">Tracking (Lulu's link or number)</label><input id="keep-tracking-${id}" value="${escHtml(k.tracking || '')}" placeholder="https://…"></div>`}
+        <div class="web-span"><label for="keep-notes-${id}">Notes (customer never sees these)</label><textarea id="keep-notes-${id}" rows="2">${escHtml(k.staff_notes || '')}</textarea></div>
+      </div>
+      <div class="web-row-actions film-actions">
+        <button type="button" class="btn btn-primary" data-keep-action="save" data-keep-id="${id}">Save</button>
+        ${isAudio
+          ? `<label class="btn action-pop" style="cursor:pointer;">${k.has_audiobook ? 'Replace MP3' : 'Upload MP3'}<input type="file" accept="audio/mpeg,audio/mp4,.mp3,.m4a" data-film-deliver="audiobook" data-film-id="${Number(k.film_id)}" data-film-status="keep-upload-${id}" hidden></label>
+             <button type="button" class="btn action-pop" data-keep-action="email" data-film-kind="audiobook" data-keep-id="${id}" title="Email the person who ordered it a private download link">${k.status === 'delivered' ? 'Deliver Again' : 'Deliver Audiobook'}</button>`
+          : `<button type="button" class="btn action-pop" data-keep-action="email" data-film-kind="shipped" data-keep-id="${id}" title="Email the person who ordered it that it shipped, with the tracking">Email Shipped</button>`}
+        <span class="web-muted" id="keep-upload-${id}" style="align-self:center;"></span>
+      </div>
+    </div>`;
+  }
+  function renderKeepsakes() {
+    const el = $('film-keepsake-list');
+    if (!el) return;
+    const f = $('film-keep-filter')?.value || 'open';
+    const rows = f === 'all' ? keepsakes : keepsakes.filter((k) => k.status !== 'delivered');
+    el.innerHTML = rows.length ? rows.map(keepsakeRow).join('') : `<div style="color:var(--muted);">${f === 'all' ? 'No keepsake orders yet.' : 'Nothing waiting: every keepsake order is delivered.'}</div>`;
+  }
+  async function onKeepAction(btn) {
+    const action = btn.getAttribute('data-keep-action');
+    const id = Number(btn.getAttribute('data-keep-id'));
+    const k = keepsakes.find((x) => Number(x.id) === id);
+    if (!k) return;
+    try {
+      if (action === 'save') {
+        btn.disabled = true;
+        await call(API.keepUpdate, { orderId: id, status: $(`keep-status-${id}`).value, notes: $(`keep-notes-${id}`).value, ...($(`keep-tracking-${id}`) ? { tracking: $(`keep-tracking-${id}`).value.trim() } : {}) });
+        btn.disabled = false;
+        await refresh();
+      } else if (action === 'email') {
+        const kind = btn.getAttribute('data-film-kind');
+        if (kind === 'audiobook' && !k.has_audiobook) { openErrorModal('Upload the MP3 on this line first.'); return; }
+        if (kind === 'shipped' && !k.tracking) { openErrorModal("Add Lulu's tracking on this line and press Save first."); return; }
+        const p = projects.find((x) => Number(x.id) === Number(k.film_id)) || { id: k.film_id, project_name: k.film_name };
+        await openEmail(p, kind, id);
+      }
+    } catch (e) {
+      btn.disabled = false;
+      openErrorModal(e.message);
+    }
+  }
+
   async function refresh() {
     if (typeof adminSessionActive !== 'undefined' && !adminSessionActive) return;
     const el = $('film-list');
@@ -184,8 +263,12 @@
       projects = data.projects || [];
       questions = data.questions || [];
       statuses = data.statuses || {};
+      keepsakes = data.keepsakes || [];
+      keepStatuses = data.keepsakeStatuses || {};
+      keepItemStatuses = data.keepsakeItemStatuses || {};
       renderSummary(data.summary);
       renderList();
+      renderKeepsakes();
       for (const id of open) loadDetail(id);
     } catch (e) {
       const notDeployed = /method not allowed/i.test(e.message);
@@ -210,7 +293,7 @@
   let draft = null;
   let previewTimer = null;
   let seq = 0;
-  const KIND_TITLE = { welcome: 'Resend Dashboard Link', demo: 'Demo Ready Email', final: 'Final Film Email', message: 'Message Customer' };
+  const KIND_TITLE = { welcome: 'Resend Dashboard Link', demo: 'Demo Ready Email', final: 'Final Film Email', message: 'Message Customer', audiobook: 'Deliver Audiobook', shipped: 'Book Shipped Email' };
   function showModal(el) { el.classList.add('active'); el.setAttribute('aria-hidden', 'false'); }
   function hideModal(el) { if (!el) return; el.classList.remove('active'); el.setAttribute('aria-hidden', 'true'); }
   function setPreview(html) {
@@ -224,15 +307,15 @@
     const my = ++seq;
     $('film-email-status').textContent = '(updating…)';
     try {
-      const d = await call(API.email, { id: draft.id, kind: draft.kind, preview: true, subject: $('film-email-subject').value, body: $('film-email-body').value });
+      const d = await call(API.email, { id: draft.id, kind: draft.kind, orderId: draft.orderId, preview: true, subject: $('film-email-subject').value, body: $('film-email-body').value });
       if (my !== seq) return;
       setPreview(d.html);
-      $('film-email-status').textContent = d.body.includes(d.link) ? '' : '(heads up: the dashboard link is no longer in the email)';
+      $('film-email-status').textContent = d.body.includes(d.link) || draft.kind === 'shipped' ? '' : (draft.kind === 'audiobook' ? '(heads up: keep the download link line, or the email can\'t be sent)' : '(heads up: the dashboard link is no longer in the email)');
     } catch (e) { $('film-email-status').textContent = `(preview failed: ${e.message})`; }
   }
-  async function openEmail(p, kind) {
-    const d = await call(API.email, { id: Number(p.id), kind, preview: true });
-    draft = { id: Number(p.id), kind, to: d.to };
+  async function openEmail(p, kind, orderId) {
+    const d = await call(API.email, { id: Number(p.id), kind, orderId, preview: true });
+    draft = { id: Number(p.id), kind, to: d.to, orderId };
     $('film-email-title').textContent = KIND_TITLE[kind] || 'Email';
     $('film-email-to').innerHTML = `To: <b>${escHtml(d.to || '(no email)')}</b> &middot; #${Number(p.id)} ${escHtml(p.project_name || '')}`;
     $('film-email-subject').value = d.subject;
@@ -248,7 +331,7 @@
     const b = $('film-email-send-btn');
     b.disabled = true; b.textContent = 'Sending…';
     try {
-      await call(API.email, { id: draft.id, kind: draft.kind, send: true, subject: $('film-email-subject').value, body: $('film-email-body').value });
+      await call(API.email, { id: draft.id, kind: draft.kind, orderId: draft.orderId, send: true, subject: $('film-email-subject').value, body: $('film-email-body').value });
       const to = draft.to;
       hideModal($('film-email-modal')); draft = null;
       openSuccessModal(`Sent to ${to}.`, 'Email Sent');
@@ -352,6 +435,8 @@
         .finally(() => { b.disabled = false; });
       return;
     }
+    const k = e.target.closest('[data-keep-action]');
+    if (k) { onKeepAction(k); return; }
     const t = e.target.closest('[data-film-action]');
     if (t) onAction(t);
   });
@@ -360,12 +445,12 @@
     const id = Number(input.getAttribute('data-film-id'));
     const kind = input.getAttribute('data-film-deliver');
     const file = input.files && input.files[0];
-    const status = $(`film-deliver-${kind}-${id}`);
+    const status = $(input.getAttribute('data-film-status') || `film-deliver-${kind}-${id}`);
     if (!file) return;
     input.disabled = true;
     const say = (t) => { if (status) status.textContent = t; };
     try {
-      const st = await call(API.deliverStart, { id, kind, name: file.name, size: file.size, type: file.type || 'video/mp4' });
+      const st = await call(API.deliverStart, { id, kind, name: file.name, size: file.size, type: file.type || (kind === 'audiobook' ? 'audio/mpeg' : 'video/mp4') });
       const parts = [];
       for (let n = 1; n <= st.parts; n++) {
         const blob = file.slice((n - 1) * st.partBytes, Math.min(n * st.partBytes, file.size));
@@ -385,8 +470,8 @@
         say(`Uploading ${kind}… ${Math.round((n / st.parts) * 100)}%`);
       }
       const done = await call(API.deliverComplete, { id, kind, key: st.key, uploadId: st.uploadId, parts });
-      say(kind === 'final' ? `Final uploaded. Share page: ${done.shareUrl}` : 'Demo uploaded.');
-      await loadDetail(id);
+      say(kind === 'final' ? `Final uploaded. Share page: ${done.shareUrl}` : kind === 'audiobook' ? 'MP3 uploaded.' : 'Demo uploaded.');
+      if (kind === 'audiobook') await refresh(); else await loadDetail(id);
     } catch (err) {
       say(`Upload failed: ${err.message}`);
     } finally { input.disabled = false; input.value = ''; }
@@ -394,6 +479,7 @@
 
   document.addEventListener('change', (e) => {
     if (e.target.id === 'film-filter') renderList();
+    if (e.target.id === 'film-keep-filter') renderKeepsakes();
     if (e.target.matches && e.target.matches('input[data-film-deliver]')) deliverUpload(e.target);
   });
 })();

@@ -48,6 +48,12 @@
     .btn-ghost { background: transparent; color: var(--ivory); border-color: var(--line); }
     .btn-ghost:hover { border-color: var(--gold); }
     .btn:disabled { opacity: .6; cursor: default; }
+    /* A buy button that isn't available yet: it still takes hover and taps, to show why. */
+    .btn.is-off { opacity: .55; cursor: not-allowed; box-shadow: none; filter: saturate(.6); }
+    .ask-state.why { padding: 10px 14px; margin-left: -14px; border: 1px solid transparent; border-radius: 12px; transition: background .2s, border-color .2s, box-shadow .2s; }
+    .buy-row:has(.is-off:hover) ~ .ask-state.why, .buy-row:has(.is-off:focus-visible) ~ .ask-state.why, .ask-state.why.flash {
+      background: rgba(201, 169, 110, .13); border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201, 169, 110, .18); color: var(--ivory); }
+    @media (max-width: 520px) { .ask-state.why { margin-left: 0; } }
 
     /* Hero */
     .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; padding: 56px 0 40px; }
@@ -260,11 +266,11 @@
           <div>
             <div class="eyebrow">Copies for family</div>
             <h2 id="family-title">One for everyone <em>in the story.</em></h2>
-            <p id="family-text">Copies are reprints of the hardcover book. Pick how many: for one, Stripe asks where to send it; for more, add where each one goes and we ship a copy straight to each person.</p>
+            <p id="family-text">Copies are reprints of the hardcover book. Pick how many: for one, you'll enter the address when you pay; for more, add where each one goes and we ship a copy straight to each person.</p>
             <p class="note" id="family-tip" hidden></p>
             <span class="price">$79 each</span><span class="ship">Free shipping to each U.S. address</span>
             <div class="buy-row"><label class="qty">How many copies? <select id="copies-qty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label></div>
-            <p class="copy-hint" id="copy-hint">Stripe will ask where to send it at checkout.</p>
+            <p class="copy-hint" id="copy-hint">You'll enter the address when you pay.</p>
             <div class="recips" id="recips"></div>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="copies" id="copies-btn">Buy 1 copy · $79</button></div>
             <p class="fine">Made to order, so keepsakes can't be refunded. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
@@ -273,7 +279,7 @@
         </div>
       </section>
 
-      <section class="k">
+      <section class="k" id="audiobook">
         <div class="row">
           <div class="vis">
             <div class="player"><div class="art" data-photo="4"></div><div class="tt" data-title></div><div class="st">Narrated · in chapters</div><div class="bar"><i></i></div><div class="tm"><span>Chapter 2</span><span>12:40</span></div><div class="ctl"><span aria-hidden="true">⏮</span><span class="play" aria-hidden="true">▶</span><span aria-hidden="true">⏭</span></div></div>
@@ -283,6 +289,10 @@
             <h2>For the car, <em>or for Grandpa.</em></h2>
             <p>Made to be an audiobook, not just the film's soundtrack. We add narration for everything the film shows on screen, like the photos, maps and captions, so the whole story works by ear. For anyone who'd rather listen, or whose eyes aren't what they were. Plays on any phone.</p>
             <span class="price">$29</span><span class="ship" id="audio-ship">An MP3 you download from your dashboard</span>
+            <div class="ab-ready" id="ab-ready" hidden>
+              <audio id="ab-player" controls preload="none" style="width:100%; margin-top:16px;"></audio>
+              <div class="buy-row"><a class="btn btn-primary" id="ab-download" href="#">Download the MP3</a></div>
+            </div>
             <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="audiobook">Buy the audiobook · $29</button></div>
             <p class="fine">Made to order, so keepsakes can't be refunded. A damaged or misprinted book is replaced free. <a href="folder-to-film-terms.html#t-keepsakes" target="_blank" rel="noopener">Terms</a></p>
             <div class="ask-state" role="status" aria-live="polite"></div>
@@ -293,7 +303,7 @@
       <section class="k" id="how">
         <div class="center"><div class="eyebrow">How ordering works</div><h2>You see a proof before anything is printed.</h2></div>
         <div class="how">
-          <div><div class="n">1</div><b>Pay securely</b><span>Checkout is through Stripe. Books ship free to any U.S. address.</span></div>
+          <div><div class="n">1</div><b>Pay securely</b><span>Pay by card on our secure checkout page. Books ship free to any U.S. address.</span></div>
           <div><div class="n">2</div><b>Approve the proof</b><span id="how-proof">We design it from your film's script, photos and illustrations and post a proof in your project chat.</span></div>
           <div><div class="n">3</div><b>We print and ship it</b><span id="how-ship">It arrives about 2 to 3 weeks after you approve. The audiobook goes on your dashboard.</span></div>
         </div>
@@ -328,7 +338,7 @@
           <a href="mailto:contact@easternshore.ai" class="esai-footer-link">Contact Us</a>
           <a href="/#about" class="esai-footer-link">About Us</a>
           <a href="/folder-to-film-terms.html" class="esai-footer-link">Folder to Film Terms</a>
-          <a href="/privacy.html" class="esai-footer-link">Privacy Policy</a>
+          <a href="/folder-to-film-terms.html#privacy" class="esai-footer-link">Privacy Notice</a>
         </div>
         <p class="esai-footer-vet">&#127482;&#127480; Veteran-Owned Business</p>
       </div>
@@ -417,11 +427,13 @@
         bookState.className = 'ask-state ok';
         bookState.innerHTML = '✓ The hardcover book for this film is ordered. <a href="#copies">Get a copy for $79</a>.';
       } else {
-        copiesBtn.disabled = true;
+        copiesBtn.setAttribute('aria-disabled', 'true');
+        copiesBtn.classList.add('is-off');
+        copiesBtn.title = 'Copies open up once the hardcover book is ordered';
         $('copies-qty').disabled = true;
         $('recips').hidden = true;
         $('copy-hint').hidden = true;
-        copiesState.className = 'ask-state';
+        copiesState.className = 'ask-state why';
         copiesState.textContent = own
           ? 'Copies open up once the hardcover book is ordered (the $149 book includes designing it). Order the book above, then come back for copies.'
           : `Copies open up once the hardcover book is ordered (the $149 book includes designing it). ${buyer} may order it, or you can order it yourself above.`;
@@ -465,6 +477,20 @@
           ? `✓ You ordered ${what}${when ? ` on ${when}` : ''}. We'll keep you posted ${viaChat ? 'in your project chat' : 'by email'}.`
           : `✓ ${o.by || 'Someone'} ordered ${what}${when ? ` on ${when}` : ''}.`;
       });
+      // A delivered audiobook plays right here (signed links that last 12 hours; reload for fresh ones).
+      if (p.audiobookSrc) {
+        const btn = document.querySelector('[data-buy="audiobook"]');
+        const row = btn.closest('.buy-row');
+        row.hidden = true;
+        row.nextElementSibling.hidden = true;   // the no-refunds line
+        $('ab-ready').hidden = false;
+        if (!$('ab-player').getAttribute('src')) $('ab-player').src = p.audiobookSrc;
+        $('ab-download').href = p.audiobookDownload || p.audiobookSrc;
+        $('audio-ship').textContent = 'Your MP3 is ready: play it here or download it to keep';
+        const st = row.parentElement.querySelector('.ask-state');
+        st.className = 'ask-state ok';
+        st.textContent = '✓ Your audiobook is ready.';
+      }
       const paid = params.get('paid');
       if (paid && names[paid]) {
         $('paid-banner').hidden = false;
@@ -496,7 +522,7 @@
       const want = n > 1 ? n : 0;   // one copy: Stripe asks for the address
       while (box.children.length < want) box.appendChild(recipBlock(box.children.length));
       while (box.children.length > want) box.removeChild(box.lastElementChild);
-      $('copy-hint').textContent = n > 1 ? 'Add where each copy goes (U.S. addresses).' : 'Stripe will ask where to send it at checkout.';
+      $('copy-hint').textContent = n > 1 ? 'Add where each copy goes (U.S. addresses).' : "You'll enter the address when you pay.";
       $('copies-btn').textContent = `Buy ${n} cop${n === 1 ? 'y' : 'ies'} · $${n * 79}`;
     }
     function readRecips() {
@@ -515,6 +541,18 @@
     document.addEventListener('click', async (e) => {
       const b = e.target.closest('[data-buy]');
       if (!b || b.disabled) return;
+      if (b.getAttribute('aria-disabled') === 'true') {
+        // Not available yet: point at the reason instead of doing nothing.
+        const why = b.closest('.buy-row').parentElement.querySelector('.ask-state.why');
+        if (why) {
+          why.classList.remove('flash');
+          void why.offsetWidth;
+          why.classList.add('flash');
+          why.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          setTimeout(() => why.classList.remove('flash'), 2200);
+        }
+        return;
+      }
       const state = b.closest('.buy-row').parentElement.querySelector('.ask-state');
       const label = b.textContent;
       const isCopies = b.dataset.buy === 'copies';
