@@ -96,7 +96,7 @@
         <img src="${escHtml(bp.cover)}" alt="Cover" style="height:96px; border-radius:3px;">
         ${bp.spreads.slice(0, 4).map((u, i) => `<img src="${escHtml(u)}" alt="Spread ${i + 1}" style="height:96px; border-radius:3px;">`).join('')}
       </div>` : '';
-    return `<div><b>Book preview</b> <span class="web-muted">(choose the <b>folder</b> of pictures Claude makes, like <b>CBF-book-preview</b> on your Desktop, not the PDF proof; Chrome then asks to confirm uploading its files. The keepsakes page shows it so they can page through their book before buying, and Email Final Film mentions it.)</span>
+    return `<div><b>Book preview</b> <span class="web-muted">(Claude publishes this when making the final; the keepsakes page shows it so they can page through their book before buying, and Email Final Film mentions it. The button is a backup: it takes the <b>folder</b> of pictures, not the PDF proof.)</span>
         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-top:.3rem;">
           <label class="btn film-op" style="cursor:pointer;">${has ? 'Replace' : 'Upload'} book preview folder<input type="file" multiple webkitdirectory data-film-bookpreview="${p.id}" hidden></label>
           ${has ? `<button type="button" class="btn film-op" data-film-action="book-preview-remove" data-film-id="${p.id}">Remove</button>` : ''}
