@@ -171,6 +171,10 @@
     .signin .row { display: flex; gap: 10px; flex-wrap: wrap; }
     .copy-hint { color: var(--muted); font-size: 15px; margin: 12px 0 0; }
     .fine { color: var(--dim); font-size: 13.5px; margin: 10px 0 0; }
+    .hero-vis { flex-direction: column; align-items: center; gap: 30px; }
+    .book-label { display: block; text-align: center; text-decoration: none; color: var(--muted); font-size: 15px; line-height: 1.4; }
+    .book-label b { display: block; font-family: var(--serif); color: var(--ivory); font-size: 24px; font-weight: 600; }
+    .book-label:hover b { color: var(--gold2); }
     .k p.how-terms { max-width: 780px; margin: 28px auto 0; text-align: center; color: var(--muted); font-size: 15px; line-height: 1.6; border: 1px solid var(--line); border-radius: 14px; padding: 14px 20px; background: var(--card); }
     .how-terms b { color: var(--ivory, #ece4d4); }
     .k p.how-questions { max-width: none; margin: 20px auto 0; }
@@ -255,7 +259,10 @@
             <a class="btn btn-ghost" href="#how">How ordering works</a>
           </div>
         </div>
-        <div class="vis"><div class="book"><div class="cover"><div class="ph" data-photo="0"></div><div class="t" data-title></div><div class="s" data-sub></div></div></div></div>
+        <div class="vis hero-vis">
+          <div class="book"><div class="cover"><div class="ph" data-photo="0"></div><div class="t" data-title></div><div class="s" data-sub></div></div></div>
+          <a class="book-label" href="#book"><b id="hero-book-name">Hardcover story book</b><span id="hero-book-meta">$149 · free shipping to U.S. addresses</span></a>
+        </div>
       </section>
 
       <section class="k" id="book">
@@ -481,6 +488,8 @@
       $('rb-note').textContent = `Laid out from your film: ${total} pages with every photo, illustration and caption. You can still change any of it, and nothing is printed until you approve a final proof.`;
       $('book-lede').textContent = `That's your book above, ${total} pages. Order it and we'll email you the proof to check, then print and bind it.`;
       $('hero-book-btn').textContent = 'Page through your book';
+      $('hero-book-name').textContent = 'Your hardcover story book';
+      $('hero-book-meta').textContent = `${total} pages · $149 · free shipping to U.S. addresses`;
       const hb = document.querySelector('.hero .book');
       if (hb) {
         hb.classList.add('real');
@@ -546,6 +555,7 @@
         bookBtn.closest('.buy-row').hidden = true;
         bookState.className = 'ask-state ok';
         bookState.innerHTML = '✓ The hardcover book for this film is ordered. <a href="#copies">Get a copy for $79</a>.';
+        $('hero-book-meta').textContent = '✓ Ordered for this film · copies $79 each';
       } else {
         copiesBtn.setAttribute('aria-disabled', 'true');
         copiesBtn.classList.add('is-off');
