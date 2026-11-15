@@ -197,7 +197,7 @@ export default {
       const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead', '/api/page/visit'].includes(url.pathname) && request.method === 'POST');
       // Folder to Film: checkout + customer dashboard (token) + admin (session) + signed file downloads.
       const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share', '/api/film/keepsake-photos'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
-      const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link', '/api/film/chat/reply'].includes(url.pathname) && request.method === 'POST');
+      const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link', '/api/film/chat/reply', '/api/film/email-samples'].includes(url.pathname) && request.method === 'POST');
       if (!isFilmPublic && !isFilmAdmin && !isPreviewPublic && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
@@ -284,6 +284,7 @@ export default {
       if (p === '/api/film/staff-link' && m === 'POST') return film().handleStaffLink(request, env, corsHeaders, url);
       if (p === '/api/film/keepsake-photos' && m === 'GET') return film().handleKeepsakePhotos(request, env, corsHeaders, url);
       if (p === '/api/film/chat/reply' && m === 'POST') return film().handleChatReply(request, env, corsHeaders, url);
+      if (p === '/api/film/email-samples' && m === 'POST') return film().handleEmailSamples(request, env, corsHeaders, url);
       if (p === '/api/film/people' && m === 'POST') return film().handlePeopleAdd(request, env, corsHeaders);
       if (p === '/api/film/people/remove' && m === 'POST') return film().handlePeopleRemove(request, env, corsHeaders);
       if (p === '/api/film/feedback' && m === 'POST') return film().handleFeedback(request, env, corsHeaders);

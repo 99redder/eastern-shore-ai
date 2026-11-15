@@ -903,6 +903,25 @@ test('dashboard: Need Help? Ask K skips the bot check for a signed-in customer a
   assert.equal(k.status, 401, 'needs a signed-in browser');
 });
 
+test('film emails wear the Folder to Film colors; admin can email samples to the business inbox', async (t) => {
+  quietConsole(t);
+  const env = baseEnv();
+  assert.notEqual((await call(env, post('/api/film/email-samples', {}))).status, 200, 'admin only');
+  let r = await call(env, post('/api/film/email-samples', {}, ADMIN));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.equal(r.data.sent.length, 4);
+  const samples = env.EMAIL.sent.filter((m) => /^\[Sample\] /.test(m.subject));
+  assert.equal(samples.length, 4);
+  for (const m of samples) {
+    assert.deepEqual(m.to, ['owner@inbox.example']);
+    assert.match(m.html, /images\/story-video\/icon-180\.png/, 'film logo');
+    assert.match(m.html, /Folder <i style="color:#C9A96E;">to Film<\/i>/, 'gold wordmark');
+    assert.doesNotMatch(m.html, /#0E6E86|#00B8D4|esai-badge/, 'none of the general Eastern Shore AI blue');
+    assert.ok(m.text.length > 40, 'plain-text part');
+  }
+  assert.ok(samples.some((m) => /replied about your film/.test(m.subject)));
+});
+
 // Keep last: node:test runs this file's tests in order.
 test('every email to a customer or someone they added is BCCed to the business, like Survival Node order emails', () => {
   const toCustomers = ALL_SENT.filter((m) => /contact@easternshore\.ai/.test(JSON.stringify(m.from)) && !(m.to || []).includes('owner@inbox.example'));

@@ -113,3 +113,61 @@ export function itemsTable(items, totals, formatUsd) {
 export function smallPrint(html) {
   return `<p style="margin:-8px 0 14px;font-size:12px;color:#7A818C;">${html}</p>`;
 }
+
+// ---------- Folder to Film ----------
+// The film emails wear the Folder to Film page's colors: a warm dark header with the gold
+// "Folder to Film" wordmark (the "Eastern Shore AI" line keeps its cyan and pink, as on the
+// site), cream paper, gold buttons and warm brown links. Same spam-safe rules as above: tables,
+// inline styles, one small logo from www.easternshore.ai, no gradients or flexbox.
+const SERIF = "font-family:Georgia,'Times New Roman',serif;";
+export const FILM_LINK = 'color:#8A6A3E;text-decoration:underline;';
+
+export function filmEmailLayout({ heading = '', preheader = '', body = '', panels = [], footerNote = '' } = {}) {
+  return `<div style="margin:0;padding:24px 12px;background:#EDE6DA;${FONT}">`
+    + (preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#EDE6DA;font-size:1px;line-height:1px;">${escapeHtml(preheader)}</div>` : '')
+    + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:#FBF8F2;border:1px solid #DED3C0;border-radius:12px;border-collapse:separate;">`
+    + `<tr><td style="background:#12100D;padding:18px 26px;border-radius:12px 12px 0 0;">`
+    + `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>`
+    + `<td style="vertical-align:middle;"><img src="${SITE}/images/story-video/icon-180.png" width="44" height="44" alt="Folder to Film" style="display:block;border:0;border-radius:9px;"></td>`
+    + `<td style="vertical-align:middle;padding-left:12px;">`
+    + `<div style="${SERIF}color:#ECE4D4;font-size:22px;line-height:1.1;">Folder <i style="color:#C9A96E;">to Film</i></div>`
+    + `<div style="${FONT}font-size:10px;letter-spacing:2px;color:#7D725F;line-height:1.6;text-transform:uppercase;">by <b style="color:#00E5FF;">Eastern Shore</b> <b style="color:#FF4FD8;">AI</b></div>`
+    + `</td></tr></table></td></tr>`
+    + `<tr><td style="height:3px;line-height:3px;font-size:0;background:#C9A96E;">&nbsp;</td></tr>`
+    + `<tr><td style="padding:28px 28px 10px;color:#3A3128;font-size:15px;line-height:1.65;${FONT}">`
+    + (heading ? `<h1 style="margin:0 0 14px;${SERIF}font-size:26px;font-weight:normal;line-height:1.2;color:#2A2118;">${escapeHtml(heading)}</h1>` : '')
+    + body
+    + `</td></tr>`
+    + panels.filter(Boolean).map((html) => `<tr><td style="padding:6px 28px 24px;${FONT}">${html}</td></tr>`).join('')
+    + `<tr><td style="padding:18px 28px 22px;border-top:1px solid #E6DCC9;background:#F4EEE3;border-radius:0 0 12px 12px;color:#7D725F;font-size:12px;line-height:1.7;${FONT}">`
+    + `<strong style="color:#3A3128;">Folder to Film</strong> by Eastern Shore AI, LLC &middot; ${escapeHtml(BUSINESS_LOCATION)}<br>`
+    + `<a href="${SITE}/folder-to-film.html" style="${FILM_LINK}">easternshore.ai/folder-to-film</a> &middot; <a href="mailto:contact@easternshore.ai" style="${FILM_LINK}">contact@easternshore.ai</a> &middot; <a href="tel:+13029079162" style="${FILM_LINK}">(302) 907-9162</a>`
+    + (footerNote ? `<br><span style="color:#998C76;">${footerNote}</span>` : '')
+    + `</td></tr></table></div>`;
+}
+
+export function filmButton(href, label) {
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0;"><tr><td style="border-radius:999px;background:#C9A96E;border:1px solid #B8955A;"><a href="${escapeHtml(href)}" style="display:inline-block;padding:12px 26px;${FONT}font-size:15px;font-weight:bold;color:#1A1510;text-decoration:none;border-radius:999px;">${escapeHtml(label)}</a></td></tr></table>`;
+}
+
+export function filmDetailsBox(rows) {
+  const lines = rows
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(([label, value]) => `<tr><td style="padding:3px 14px 3px 0;color:#7D725F;font-size:14px;vertical-align:top;white-space:nowrap;${FONT}">${escapeHtml(label)}</td><td style="padding:3px 0;color:#2A2118;font-size:14px;vertical-align:top;${FONT}">${escapeHtml(value)}</td></tr>`)
+    .join('');
+  return lines
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 18px;background:#F4EEE3;border:1px solid #E6DCC9;border-left:4px solid #C9A96E;border-radius:6px;"><tr><td style="padding:12px 16px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0">${lines}</table></td></tr></table>`
+    : '';
+}
+
+export function filmCallout(title, html) {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F4EEE3;border:1px solid #E6DCC9;border-radius:8px;"><tr><td style="padding:14px 16px;${FONT}font-size:13px;line-height:1.6;color:#4A3F33;">`
+    + (title ? `<strong style="${SERIF}color:#2A2118;font-size:16px;font-weight:normal;">${escapeHtml(title)}</strong><br>` : '')
+    + html
+    + `</td></tr></table>`;
+}
+
+// A quoted message (chat replies).
+export function filmQuote(text) {
+  return `<div style="margin:0 0 16px;padding:12px 16px;background:#F4EEE3;border-left:4px solid #C9A96E;border-radius:6px;white-space:pre-wrap;color:#2A2118;">${escapeHtml(text)}</div>`;
+}

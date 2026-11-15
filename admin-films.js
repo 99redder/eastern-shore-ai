@@ -18,6 +18,7 @@
     deliverComplete: `${BASE}/api/film/deliver/complete`,
     staffLink: `${BASE}/api/film/staff-link`,
     chatReply: `${BASE}/api/film/chat/reply`,
+    samples: `${BASE}/api/film/email-samples`,
   };
   const $ = (id) => document.getElementById(id);
   let projects = [];
@@ -341,6 +342,15 @@
     if (id === 'film-email-cancel-btn' || id === 'film-email-modal') { hideModal($('film-email-modal')); draft = null; return; }
     if (id === 'film-email-send-btn') { sendEmail(); return; }
     if (id === 'film-refresh-btn') { refresh(); return; }
+    if (id === 'film-samples-btn') {
+      const b = e.target;
+      b.disabled = true;
+      call(API.samples, {})
+        .then((r) => openSuccessModal(`Sent ${r.sent.length} sample emails to ${r.to}: ${r.sent.join(' · ')}`, 'Samples sent'))
+        .catch((err) => openErrorModal(err.message))
+        .finally(() => { b.disabled = false; });
+      return;
+    }
     const t = e.target.closest('[data-film-action]');
     if (t) onAction(t);
   });

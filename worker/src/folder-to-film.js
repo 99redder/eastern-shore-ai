@@ -17,7 +17,7 @@
 // charges it to Maryland buyers on top of the price; the books record the
 // session total like the other ESA checkouts, with the tax noted.
 import { sendEmail as deliverEmail, emailConfigured } from './email.js';
-import { emailLayout, emailButton, callout, detailsBox, TAGLINES } from './email-layout.js';
+import { filmEmailLayout, filmButton, filmCallout, filmDetailsBox, filmQuote, FILM_LINK } from './email-layout.js';
 import { easternDate } from './node-price.js';
 
 export const FILM_PRICE_CENTS = 19999;
@@ -297,14 +297,12 @@ export function createFilmHandlers(deps) {
   }
 
   function shell(innerHtml, { heading = '', preheader = '', link = '' } = {}) {
-    const a = 'color:#0E6E86;text-decoration:none;';
-    return emailLayout({
+    return filmEmailLayout({
       heading,
       preheader,
-      tagline: TAGLINES.films,
       body: innerHtml,
-      panels: link ? [callout('Your film dashboard',
-        `Everything for your film lives on your private dashboard: <a href="${escapeHtml(link)}" style="${a}">open it here</a>. Bookmark it. Lost the link? Just reply to this email and we'll send it again.`)] : [],
+      panels: link ? [filmCallout('Your film dashboard',
+        `Everything for your film lives on your private dashboard: <a href="${escapeHtml(link)}" style="${FILM_LINK}">open it here</a>. Bookmark it. Lost the link? Just reply to this email and we'll send it again.`)] : [],
       footerNote: "You're receiving this about your Folder to Film order with Eastern Shore AI. Just reply if you have a question.",
     });
   }
@@ -313,9 +311,9 @@ export function createFilmHandlers(deps) {
   function linesHtml(lines, link, buttonLabel) {
     return lines.map((l) => {
       if (!l) return '';
-      if (link && l === link) return emailButton(link, buttonLabel);
+      if (link && l === link) return filmButton(link, buttonLabel);
       let html = escapeHtml(l);
-      if (link) html = html.replace(escapeHtml(link), `<a href="${escapeHtml(link)}" style="color:#0E6E86;">${escapeHtml(link)}</a>`);
+      if (link) html = html.replace(escapeHtml(link), `<a href="${escapeHtml(link)}" style="${FILM_LINK}">${escapeHtml(link)}</a>`);
       return `<p style="margin:0 0 12px;">${html}</p>`;
     }).join('');
   }
@@ -583,9 +581,9 @@ export function createFilmHandlers(deps) {
     const text = [`Your sign-in code for ${name} is ${code}.`, '', `It works for ${CODE_MINUTES} minutes. Type it on the dashboard to open it in this browser.`, '',
       "Didn't ask for this? You can ignore it: nobody can open the dashboard without this code.", '', 'Folder to Film by Eastern Shore AI'].join('\n');
     const html = shell(`<p style="margin:0 0 12px;">Your sign-in code for ${escapeHtml(name)} is:</p>`
-      + `<p style="margin:0 0 16px;font-size:32px;font-weight:bold;letter-spacing:6px;color:#15181D;">${code}</p>`
+      + `<p style="margin:0 0 16px;font-size:32px;font-weight:bold;letter-spacing:6px;color:#2A2118;">${code}</p>`
       + `<p style="margin:0 0 12px;">It works for ${CODE_MINUTES} minutes. Type it on the dashboard to open it in this browser.</p>`
-      + `<p style="margin:0 0 12px;color:#5B6370;">Didn't ask for this? You can ignore it: nobody can open the dashboard without this code.</p>`,
+      + `<p style="margin:0 0 12px;color:#7D725F;">Didn't ask for this? You can ignore it: nobody can open the dashboard without this code.</p>`,
       { heading: 'Your sign-in code', preheader: `Your code is ${code}` });
     try {
       await sendCustomerEmail(env, row, { kind: 'code', to: email, subject: `Your Folder to Film code: ${code}`, text, html });
@@ -1063,6 +1061,31 @@ export function createFilmHandlers(deps) {
     return { row, person: a.person, facts, conversationKey: `film-dash:${row.id}` };
   }
 
+  // POST /api/film/email-samples (admin): sends the main customer emails, filled in with made-up
+  // details, to TO_EMAIL, to see how they look (admin's "Email me samples" button).
+  async function handleEmailSamples(request, env, corsHeaders, url) {
+    const auth = await adminGuard(request, env, corsHeaders, url);
+    if (!auth.ok) return auth.res;
+    const to = clip(env.TO_EMAIL, 200);
+    const from = env.CONTACT_FROM_EMAIL || env.FROM_EMAIL;
+    if (!to || !from || !emailConfigured(env)) return json({ ok: false, error: 'Email is not set up (TO_EMAIL / sender).' }, 500, corsHeaders);
+    const due = addBusinessDays(easternDate(), DEMO_BUSINESS_DAYS);
+    const row = { id: 0, token: 'sample-not-a-real-dashboard-link-000000000', status: 'production', project_name: 'Christian Believers Fellowship: Our Story',
+      customer_name: 'Pat Sample', customer_email: to, demo_due_date: due, estimated_done_date: addBusinessDays(due, 2), change_rounds: 0 };
+    const emails = [];
+    for (const kind of ['welcome', 'production', 'demo']) {
+      const d = await sendDraft(env, row, kind);
+      emails.push({ subject: d.subject, text: d.body, html: d.html });
+    }
+    emails.push(chatReplyEmail(row, "Thanks for sending the old chapel scans! Do you know roughly what year the snow photos were taken? I'd like to place them in the right part of the story.", STAFF_NAME));
+    const sent = [];
+    for (const e of emails) {
+      const res = await deliverEmail(env, { from, to: [to], subject: `[Sample] ${e.subject}`, html: e.html, text: e.text, reply_to: 'contact@easternshore.ai' });
+      if (res.ok) sent.push(e.subject);
+    }
+    return json({ ok: sent.length === emails.length, sent, to }, sent.length ? 200 : 502, corsHeaders);
+  }
+
   // POST /api/film/project/delete {id}  (unpaid or canceled projects only; removes their files too)
   async function handleAdminDelete(request, env, corsHeaders, url) {
     const auth = await adminGuard(request, env, corsHeaders, url);
@@ -1127,7 +1150,7 @@ export function createFilmHandlers(deps) {
     const html = shell([
       `<p style="margin:0 0 12px;">${escapeHtml(hi)}</p>`,
       `<p style="margin:0 0 12px;">Here's the latest on your Folder to Film order${rows.length > 1 ? 's' : ''}:</p>`,
-      ...blocks.map((b) => detailsBox([['Film', b.name], ['Status', b.status]]) + `<p style="margin:10px 0 0;">${escapeHtml(b.sentence)}</p>` + emailButton(b.link, 'Open my dashboard')),
+      ...blocks.map((b) => filmDetailsBox([['Film', b.name], ['Status', b.status]]) + `<p style="margin:10px 0 0;">${escapeHtml(b.sentence)}</p>` + filmButton(b.link, 'Open my dashboard')),
       '<p style="margin:0 0 12px;">Questions? Just reply to this email, or call or text (302) 907-9162.</p>',
     ].join(''), { heading: 'Your film status', preheader: `${blocks[0].name}: ${blocks[0].status}` });
     await sendCustomerEmail(env, rows[0], { kind: 'status', subject: rows.length > 1 ? 'Your Folder to Film orders: latest status' : `${blocks[0].name}: ${blocks[0].status}`, text, html });
@@ -1303,13 +1326,7 @@ export function createFilmHandlers(deps) {
     return json({ ok: true }, 200, corsHeaders);
   }
 
-  // After a staff message: if the customer isn't on their dashboard, email them the reply.
-  async function emailCustomerReply(env, row, content, senderName) {
-    if (!row || !row.customer_email) return false;
-    const fresh = await env.DB.prepare(`SELECT customer_seen_at, last_reply_email_at FROM film_projects WHERE id = ?1`).bind(row.id).first();
-    if (ago(fresh?.customer_seen_at) < SEEN_WINDOW_SEC * 1000) return false;
-    if (ago(fresh?.last_reply_email_at) < REPLY_EMAIL_GAP_MIN * 60000) return false;
-    await env.DB.prepare(`UPDATE film_projects SET last_reply_email_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
+  function chatReplyEmail(row, content, senderName) {
     const link = `${dashboardUrl(row.token)}#chat`;
     const who = clip(senderName, 60) || STAFF_NAME;
     const hi = firstName(row);
@@ -1317,11 +1334,22 @@ export function createFilmHandlers(deps) {
       `Reply on your dashboard: ${link}`, '', 'Folder to Film by Eastern Shore AI'].join('\n');
     const html = shell(
       `<p style="margin:0 0 12px;">${escapeHtml(hi)}</p><p style="margin:0 0 12px;">${escapeHtml(who)} replied in your project chat${row.project_name ? ` for "${escapeHtml(row.project_name)}"` : ''}:</p>`
-      + `<div style="margin:0 0 16px;padding:12px 16px;background:#F7F8FA;border-left:4px solid #00B8D4;border-radius:6px;white-space:pre-wrap;">${escapeHtml(clip(content, 4000))}</div>`
-      + emailButton(link, 'Reply on my dashboard'),
+      + filmQuote(clip(content, 4000))
+      + filmButton(link, 'Reply on my dashboard'),
       { heading: 'New message about your film', preheader: clip(content, 120) });
+    return { subject: `${who} replied about your film`, text, html };
+  }
+
+  // After a staff message: if the customer isn't on their dashboard, email them the reply.
+  async function emailCustomerReply(env, row, content, senderName) {
+    if (!row || !row.customer_email) return false;
+    const fresh = await env.DB.prepare(`SELECT customer_seen_at, last_reply_email_at FROM film_projects WHERE id = ?1`).bind(row.id).first();
+    if (ago(fresh?.customer_seen_at) < SEEN_WINDOW_SEC * 1000) return false;
+    if (ago(fresh?.last_reply_email_at) < REPLY_EMAIL_GAP_MIN * 60000) return false;
+    await env.DB.prepare(`UPDATE film_projects SET last_reply_email_at = datetime('now') WHERE id = ?1`).bind(row.id).run();
+    const { subject, text, html } = chatReplyEmail(row, content, senderName);
     try {
-      await sendCustomerEmail(env, row, { kind: 'chat_reply', subject: `${who} replied about your film`, text, html });
+      await sendCustomerEmail(env, row, { kind: 'chat_reply', subject, text, html });
       return true;
     } catch (e) { console.error('film chat reply email', e); return false; }
   }
@@ -1508,7 +1536,7 @@ export function createFilmHandlers(deps) {
   }
 
   return {
-    handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext,
+    handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples,
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove,
     handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,
