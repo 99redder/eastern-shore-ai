@@ -22,6 +22,22 @@ import { easternDate } from './node-price.js';
 
 export const FILM_PRICE_CENTS = 19999;
 export const FILM_TAX_CODE = 'txcd_10402100'; // Digital Audio Visual Works - downloaded - non subscription - with permanent rights
+// Keepsakes customers can buy straight from my-keepsakes.html (keep the page's prices in step).
+// Costs from Lulu's calculator on 2026-11-14 for an 8.5" square hardcover, premium color, 80# coated:
+// 60 pages $23.87, 80 pages $28.16, 32-page picture book $17.85; one book by US Ground $13.74
+// (Mail $5.69). Red, 2026-11-14: U.S. only, free shipping built into the price, high markup
+// (about 3.5x on the book, 3x on the picture book). Prints and the QR plaque stay requests.
+export const FILM_KEEPSAKES = {
+  book: { name: 'Hardcover story book', cents: 14900, taxCode: 'txcd_35010000', ship: true, maxQty: 1,
+    desc: 'Your film as an 8.5-inch square hardcover book: every chapter, photo and illustration. Free shipping to U.S. addresses.' },
+  copies: { name: 'Extra copies of the hardcover book', cents: 7900, taxCode: 'txcd_35010000', ship: false, maxQty: 25,
+    desc: 'Copies of the hardcover book for family, shipped free to each person at a U.S. address. Tell us the addresses in your project chat.' },
+  picture: { name: "Children's picture book", cents: 9900, taxCode: 'txcd_35010001', ship: true, maxQty: 1,
+    desc: 'The same story told for the grandkids: a 32-page, 8.5-inch square hardcover picture book. Free shipping to U.S. addresses.' },
+  audiobook: { name: 'Audiobook (MP3)', cents: 2900, taxCode: 'txcd_10301000', ship: false, maxQty: 1,
+    desc: 'The narration as an MP3, with extra narration for what the film shows on screen. Delivered on your dashboard.' },
+};
+
 export const FILM_TERMS_VERSION = '2026-11-14.7';
 export const FILM_CHANGE_ROUNDS = 2;   // included in the price (folder-to-film.html, terms sections 2 and 10) // folder-to-film-terms.html; bump both together
 export const FILM_PART_BYTES = 20 * 1024 * 1024; // R2 multipart: every part but the last must be this size
@@ -556,6 +572,7 @@ export function createFilmHandlers(deps) {
     Object.assign(view, await mediaFor(env, row, new URL(request.url).origin));
     view.me = person;
     if (person.isOwner || person.isStaff) view.people = await peopleFor(env, row);
+    view.keepsakeOrders = (await keepsakeOrders(env, row.id)).map((o) => ({ item: o.item, qty: o.qty, status: o.status, paidAt: o.paid_at }));
     return json({ ok: true, project: view, ...(deviceToken ? { deviceToken } : {}) }, 200, corsHeaders);
   }
 
@@ -908,9 +925,10 @@ export function createFilmHandlers(deps) {
     const uploads = await uploadsFor(env.DB, row.id, { all: true });
     const emails = (await env.DB.prepare(`SELECT kind, subject, to_email, sent_at FROM film_emails WHERE project_id = ?1 ORDER BY id DESC`).bind(row.id).all()).results || [];
     const chat = await chatMessages(env, row.id, { limit: 500 });
+    const keepsakes = await keepsakeOrders(env, row.id);
     const people = row.customer_email ? await peopleFor(env, row) : [];
     const devices = (await env.DB.prepare(`SELECT email, COUNT(*) AS n, MAX(last_seen_at) AS seen FROM film_devices WHERE project_id = ?1 AND expires_at > datetime('now') GROUP BY email`).bind(row.id).all()).results || [];
-    return json({ ok: true, project: adminView(row), uploads, emails, chat, people, devices, questions: FILM_QUESTIONS }, 200, corsHeaders);
+    return json({ ok: true, project: adminView(row), uploads, emails, chat, people, devices, keepsakes, questions: FILM_QUESTIONS }, 200, corsHeaders);
   }
 
   // POST /api/film/project/update {id, status?, demoUrl?, finalUrl?, notes?, demoDueDate?, estimatedDoneDate?}
@@ -1086,6 +1104,156 @@ export function createFilmHandlers(deps) {
     return json({ ok: sent.length === emails.length, sent, to }, sent.length ? 200 : 502, corsHeaders);
   }
 
+  // ---------- keepsakes: pay on the keepsakes page ----------
+
+  // POST /api/film/keepsake-checkout {t, item, qty} -> { checkoutUrl }
+  async function handleKeepsakeCheckout(request, env, corsHeaders, originAllowed, allowedOrigins) {
+    if (!env.STRIPE_SECRET_KEY) return json({ ok: false, error: 'Stripe not configured' }, 500, corsHeaders);
+    const d = (await readJson(request)) || {};
+    const a = await access(env, request, corsHeaders, d.t);
+    if (a.res) return a.res;
+    const row = a.row;
+    const bad = chatGuard(row, corsHeaders);
+    if (bad) return bad;
+    const key = clip(d.item, 20);
+    const item = Object.prototype.hasOwnProperty.call(FILM_KEEPSAKES, key) ? FILM_KEEPSAKES[key] : null;
+    if (!item) return json({ ok: false, error: 'Unknown keepsake' }, 400, corsHeaders);
+    const qty = Math.max(1, Math.min(item.maxQty, Math.round(Number(d.qty || 1)) || 1));
+    const origin = (originAllowed && request.headers.get('Origin')) || allowedOrigins[0] || SITE;
+    const back = `${origin}/my-keepsakes.html?t=${encodeURIComponent(row.token)}`;
+    const film = clip(row.project_name, 80) || 'your film';
+    const body = new URLSearchParams({
+      mode: 'payment',
+      success_url: `${back}&paid=${encodeURIComponent(key)}`,
+      cancel_url: back,
+      billing_address_collection: 'required',
+      allow_promotion_codes: 'true',
+      'automatic_tax[enabled]': 'true',
+      'line_items[0][quantity]': String(qty),
+      'line_items[0][price_data][currency]': 'usd',
+      'line_items[0][price_data][unit_amount]': String(item.cents),
+      'line_items[0][price_data][product_data][name]': `${item.name}: ${film}`,
+      'line_items[0][price_data][product_data][description]': item.desc,
+      'line_items[0][price_data][product_data][tax_code]': item.taxCode,
+      'metadata[checkout_type]': 'film_keepsake',
+      'metadata[film_project_id]': String(row.id),
+      'metadata[keepsake]': key,
+      'metadata[qty]': String(qty),
+      'payment_intent_data[metadata][checkout_type]': 'film_keepsake',
+      'payment_intent_data[metadata][film_project_id]': String(row.id),
+      'custom_text[submit][message]': item.ship
+        ? "We design it from your film and post a proof in your project chat before it's printed."
+        : (key === 'copies' ? "After paying, tell us in your project chat where to send each copy (U.S. addresses only)." : "We'll put the MP3 on your dashboard and let you know in your project chat."),
+    });
+    if (item.ship) body.set('shipping_address_collection[allowed_countries][0]', 'US');
+    if (a.person.isOwner && row.customer_email) body.set('customer_email', row.customer_email);
+    const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data?.url) return json({ ok: false, error: 'Checkout could not start. Please try again or ask in your project chat.', detail: data?.error?.message || '' }, 502, corsHeaders);
+    return json({ ok: true, checkoutUrl: data.url, id: data.id }, 200, corsHeaders);
+  }
+
+  function shipToText(session) {
+    const sd = session.collected_information?.shipping_details || session.shipping_details || null;
+    const ad = sd?.address;
+    if (!ad) return '';
+    return [sd.name, ad.line1, ad.line2, [ad.city, ad.state, ad.postal_code].filter(Boolean).join(' '), ad.country].filter(Boolean).join(', ');
+  }
+
+  // checkout.session.completed with metadata.checkout_type = film_keepsake
+  async function handleKeepsakePaid(env, event, incomeDate) {
+    const session = event.data?.object || {};
+    const id = Number(session.metadata?.film_project_id || 0);
+    const key = clip(session.metadata?.keepsake, 20);
+    const item = Object.prototype.hasOwnProperty.call(FILM_KEEPSAKES, key) ? FILM_KEEPSAKES[key] : null;
+    const row = id ? await env.DB.prepare(`SELECT * FROM film_projects WHERE id = ?1`).bind(id).first() : null;
+    if (!row || !item) return { ok: false, error: 'Keepsake order not recognized' };
+    if (session.payment_status && session.payment_status !== 'paid') return { ok: true, waiting: session.payment_status };
+    const qty = Math.max(1, Math.round(Number(session.metadata?.qty || 1)) || 1);
+    const sid = clip(session.id, 120);
+    const amount = Math.round(Number(session.amount_total || 0));
+    const tax = Math.round(Number(session.total_details?.amount_tax || 0));
+    const state = clip(session.customer_details?.address?.state, 8).toUpperCase();
+    const pi = clip(session.payment_intent?.id || session.payment_intent, 80);
+    const shipTo = shipToText(session);
+    const ins = await env.DB.prepare(
+      `INSERT OR IGNORE INTO film_keepsake_orders (project_id, item, qty, amount_cents, tax_cents, stripe_session_id, ship_to, status, paid_at)
+       VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 'paid', datetime('now'))`
+    ).bind(row.id, key, qty, amount, tax, sid, shipTo || null).run();
+    if (!Number(ins.meta?.changes || 0)) return { ok: true, duplicate: true };
+    const label = `${item.name}${qty > 1 ? ` x ${qty}` : ''}`;
+
+    // Books: income (session total) and the Stripe fee, deduped by session id like the film itself.
+    const existing = await env.DB.prepare(`SELECT id FROM tax_income WHERE stripe_session_id = ?1 LIMIT 1`).bind(sid).first();
+    if (!existing?.id && amount > 0) {
+      const source = 'Stripe - Folder to Film';
+      const category = 'Folder to Film Keepsakes';
+      const notes = `${label} | Folder to Film #${row.id} | ${row.customer_name || row.customer_email || 'customer'}${tax ? ` | includes ${formatUsd(tax)} sales tax (${state || 'state n/a'})` : ''} | session_id=${sid}`;
+      const insIncome = await env.DB.prepare(
+        `INSERT INTO tax_income (income_date, source, category, amount_cents, stripe_session_id, notes) VALUES (?1, ?2, ?3, ?4, ?5, ?6)`
+      ).bind(incomeDate, source, category, amount, sid, notes).run();
+      const incomeId = Number(insIncome.meta?.last_row_id || 0) || null;
+      if (incomeId) await upsertTaxIncomeJournal(env.DB, { id: incomeId, income_date: incomeDate, source, category, amount_cents: amount, notes });
+    }
+    try {
+      const { cents: feeCents, estimated } = await stripeFee(env.STRIPE_SECRET_KEY, pi, amount);
+      if (feeCents > 0) {
+        const base = `Auto Stripe fee for Folder to Film keepsake session ${sid}`;
+        const dupe = await env.DB.prepare(`SELECT id FROM tax_expenses WHERE notes IN (?1, ?2) LIMIT 1`).bind(base, `${base} (estimated)`).first();
+        if (!dupe?.id) {
+          const feeNote = `${base}${estimated ? ' (estimated)' : ''}`;
+          const insFee = await env.DB.prepare(
+            `INSERT INTO tax_expenses (expense_date, vendor, category, amount_cents, paid_via, notes) VALUES (?1, 'Stripe', 'Payment Processing Fees', ?2, 'stripe', ?3)`
+          ).bind(incomeDate, feeCents, feeNote).run();
+          const feeId = Number(insFee.meta?.last_row_id || 0) || null;
+          if (feeId) await upsertTaxExpenseJournal(env.DB, { id: feeId, expense_date: incomeDate, vendor: 'Stripe', category: 'Payment Processing Fees', amount_cents: feeCents, paid_via: 'stripe', notes: feeNote });
+        }
+      }
+    } catch (e) { console.error('Keepsake fee booking failed', e); }
+
+    // Next steps in the project chat (no extra email: the receipt below covers it).
+    const next = item.ship
+      ? `Thank you for ordering the ${label}! We'll design it from your film and post a proof here for you to approve before it's printed. It ships about 2 to 3 weeks after you approve it.`
+      : key === 'copies'
+        ? `Thank you for ordering ${qty} extra cop${qty === 1 ? 'y' : 'ies'} of the book! Please reply here with each person's name and U.S. mailing address, and we'll ship them free once the book is final.`
+        : `Thank you for ordering the audiobook! We'll record the extra narration and put the MP3 on your dashboard, and let you know here when it's ready.`;
+    try {
+      await env.DB.prepare(`INSERT INTO film_messages (project_id, role, sender_name, content, created_at) VALUES (?1, 'staff', ?2, ?3, ?4)`)
+        .bind(row.id, STAFF_NAME, next, new Date().toISOString()).run();
+    } catch (e) { console.error('keepsake chat note', e); }
+    try {
+      const link = `${dashboardUrl(row.token)}#chat`;
+      const hi = firstName(row);
+      const text = [hi, '', `Thanks for your order: ${label} for ${row.project_name || 'your film'} (${formatUsd(amount)}${tax ? `, including ${formatUsd(tax)} tax` : ''}).`, '', next,
+        ...(shipTo ? ['', `Shipping to: ${shipTo}`] : []), '', `Your project chat: ${link}`, '', 'Folder to Film by Eastern Shore AI'].join('\n');
+      const html = shell(`<p style="margin:0 0 12px;">${escapeHtml(hi)}</p>`
+        + filmDetailsBox([['Keepsake', label], ['Film', row.project_name || ''], ['Paid', formatUsd(amount) + (tax ? ` (includes ${formatUsd(tax)} tax)` : '')], ['Ship to', shipTo]])
+        + `<p style="margin:0 0 12px;">${escapeHtml(next)}</p>` + filmButton(link, 'Open my project chat'),
+        { heading: 'Thank you for your order', preheader: `${label}: ${next}` });
+      await sendCustomerEmail(env, row, { kind: 'keepsake', subject: `Thank you for your order: ${label}`, text, html });
+    } catch (e) { console.error('keepsake receipt', e); }
+    try {
+      await sendStaffOperationalAlert(env, {
+        from: env.ALERTS_FROM_EMAIL,
+        subject: `Keepsake order: ${label} (${row.project_name || `Film #${row.id}`})`,
+        text: [`${row.customer_name || row.customer_email} bought ${label} for ${formatUsd(amount)}${tax ? ` (includes ${formatUsd(tax)} tax, ${state})` : ''}.`,
+          shipTo ? `Ship to: ${shipTo}` : (key === 'copies' ? 'Addresses: they were asked to send them in the project chat.' : ''),
+          '', `Admin: ${SITE}/admin.html (Folder to Film > Details & Files)`].filter((l) => l !== '').join('\n'),
+      });
+    } catch (e) { console.error('keepsake staff alert', e); }
+    return { ok: true };
+  }
+
+  async function keepsakeOrders(env, projectId) {
+    try {
+      return (await env.DB.prepare(`SELECT id, item, qty, amount_cents, tax_cents, ship_to, status, paid_at FROM film_keepsake_orders WHERE project_id = ?1 ORDER BY id`).bind(projectId).all()).results || [];
+    } catch { return []; }
+  }
+
   // POST /api/film/project/delete {id}  (unpaid or canceled projects only; removes their files too)
   async function handleAdminDelete(request, env, corsHeaders, url) {
     const auth = await adminGuard(request, env, corsHeaders, url);
@@ -1104,7 +1272,7 @@ export function createFilmHandlers(deps) {
     }
     await env.DB.prepare(`DELETE FROM film_uploads WHERE project_id = ?1`).bind(row.id).run();
     for (const k of [row.demo_key, row.final_key]) { if (k && env.FILMS) { try { await env.FILMS.delete(k); } catch {} } }
-    for (const table of ['film_emails', 'film_people', 'film_devices', 'film_codes', 'film_messages', 'film_typing']) {
+    for (const table of ['film_emails', 'film_people', 'film_devices', 'film_codes', 'film_messages', 'film_typing', 'film_keepsake_orders']) {
       await env.DB.prepare(`DELETE FROM ${table} WHERE project_id = ?1`).bind(row.id).run();
     }
     await env.DB.prepare(`DELETE FROM film_projects WHERE id = ?1`).bind(row.id).run();
@@ -1536,7 +1704,7 @@ export function createFilmHandlers(deps) {
   }
 
   return {
-    handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples,
+    handleStaffLink, handleStaffAccess, handleKeepsakePhotos, askKDashboardContext, handleEmailSamples, handleKeepsakeCheckout, handleKeepsakePaid,
     handleDeliverStart, handleDeliverPart, handleDeliverComplete, handleShareInfo, handleWatch,
     handleAccessCode, handleAccessVerify, handlePeopleAdd, handlePeopleRemove,
     handleChatGet, handleChatSend, handleChatTyping, handleChatReply, handleNotes,

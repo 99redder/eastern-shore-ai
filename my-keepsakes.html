@@ -75,6 +75,12 @@
     .k ul { margin: 0 0 20px; padding: 0 0 0 20px; color: var(--muted); }
     .k ul li { margin: 4px 0; }
     .ask-state { margin-top: 12px; font-size: 15px; min-height: 1px; }
+    .ship { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }
+    .buy-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
+    .qty { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; }
+    .qty select { background: var(--card2); color: var(--ivory); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 16px; }
+    .paid-banner { background: rgba(159,215,165,.12); border: 1px solid #5f8f65; color: var(--ivory); border-radius: 14px; padding: 14px 18px; margin: 24px 0 0; }
+    .paid-banner b { color: var(--ok); }
     .ask-state.ok { color: var(--ok); }
     .ask-state.err { color: var(--err); }
     .vis { display: flex; justify-content: center; }
@@ -184,12 +190,14 @@
     <div class="msg" id="loading"><h1 id="msg-title">Opening your keepsakes…</h1><p id="msg-text"></p></div>
 
     <div id="page" hidden>
+      <div class="paid-banner" id="paid-banner" role="status" hidden></div>
       <section class="hero">
         <div>
           <div class="eyebrow" id="hero-eyebrow">Keepsakes</div>
           <h1 id="hero-title">Keep your story on the shelf, <em>not just on a screen.</em></h1>
-          <p>Your film's script, photos and illustrations become a hardcover book, a picture book for the kids, an audiobook or prints for the wall. It's all made already, so they come together fast.</p>
-          <p class="note" id="timing-note" hidden></p>
+          <p>Your film's script, photos and illustrations become a hardcover book, a picture book for the kids, an audiobook or prints for the wall. It's all made already, so they come together fast. Books ship free to any U.S. address.</p>
+          <p class="note" id="photo-note" hidden></p>
+          <p class="note" id="timing-note" hidden style="margin-top:10px;"></p>
           <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
             <a class="btn btn-primary" href="#book">See the book</a>
             <a class="btn btn-ghost" href="#how">How ordering works</a>
@@ -211,8 +219,8 @@
             <h2 id="book-title">Your film, <em>printed and bound.</em></h2>
             <p>Each chapter of the film becomes a chapter of the book, laid out like a real book, with every photo, illustration and caption.</p>
             <ul><li>The whole story, word for word, as the narrator tells it</li><li>Every photo and illustration from the film</li><li>A hardcover that will outlast any phone or hard drive</li></ul>
-            <span class="price">From $149</span>
-            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Hardcover story book (from $149)">Ask about the hardcover book</button></div>
+            <span class="price">$149</span><span class="ship">Free shipping to U.S. addresses · ships about 2 to 3 weeks after you approve the proof</span>
+            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="book">Buy the hardcover book · $149</button></div>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
@@ -225,8 +233,8 @@
             <div class="eyebrow">Children's picture book</div>
             <h2>The same story, <em>told for the grandkids.</em></h2>
             <p>Simple words and big pictures, with the illustrations they've already seen in the film. The kind of book that gets read at bedtime and asked for again.</p>
-            <span class="price">From $99</span>
-            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Children's picture book (from $99)">Ask about the picture book</button></div>
+            <span class="price">$99</span><span class="ship">Free shipping to U.S. addresses · 32 pages, hardcover</span>
+            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="picture">Buy the picture book · $99</button></div>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
@@ -240,9 +248,9 @@
           <div>
             <div class="eyebrow">Audiobook</div>
             <h2>For the car, <em>or for Grandpa.</em></h2>
-            <p>The narration in chapters, for anyone who'd rather listen, or whose eyes aren't what they were. Plays on any phone.</p>
-            <span class="price">From $29</span>
-            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Audiobook (from $29)">Ask about the audiobook</button></div>
+            <p>The film's narration as an MP3, with a little extra narration for the things the film shows on screen, so it stands on its own. For anyone who'd rather listen, or whose eyes aren't what they were. Plays on any phone.</p>
+            <span class="price">$29</span><span class="ship">An MP3 you download from your dashboard</span>
+            <div class="buy-row"><button type="button" class="btn btn-primary" data-buy="audiobook">Buy the audiobook · $29</button></div>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
@@ -261,8 +269,8 @@
             <div class="eyebrow">Prints, postcards &amp; QR plaque</div>
             <h2>Something for the wall, <em>or the reunion.</em></h2>
             <p>Framed prints of your favorite photos or illustrations, postcards to hand out, or a small plaque that plays the film when someone scans it with their phone.</p>
-            <span class="price">From $15</span>
-            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Prints, postcards or a QR plaque (from $15)">Ask about prints and the plaque</button></div>
+            <span class="price">From $15</span><span class="ship">Made to order: tell us what you'd like and we'll send a price</span>
+            <div class="buy-row"><button type="button" class="btn btn-ghost" data-ask="Prints, postcards or a QR plaque (from $15)">Ask about prints and the plaque</button></div>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
@@ -280,19 +288,23 @@
           <div>
             <div class="eyebrow">Copies for family</div>
             <h2 id="family-title">One for everyone <em>in the story.</em></h2>
-            <p id="family-text">Tell us who and how many, and we'll ship a copy of the book straight to each of them.</p>
-            <div style="margin-top:18px;"><button type="button" class="btn btn-primary" data-ask="Extra copies of the book for family">Ask about copies for family</button></div>
+            <p id="family-text">Pick how many, and after you pay, tell us in your project chat where to send each one. We ship a copy straight to each person.</p>
+            <span class="price">$79 each</span><span class="ship">Free shipping to each U.S. address</span>
+            <div class="buy-row">
+              <label class="qty">Copies <select id="copies-qty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></label>
+              <button type="button" class="btn btn-primary" data-buy="copies" id="copies-btn">Buy 1 copy · $79</button>
+            </div>
             <div class="ask-state" role="status" aria-live="polite"></div>
           </div>
         </div>
       </section>
 
       <section class="k" id="how">
-        <div class="center"><div class="eyebrow">How ordering works</div><h2>Nothing is charged until you say yes.</h2></div>
+        <div class="center"><div class="eyebrow">How ordering works</div><h2>You see a proof before anything is printed.</h2></div>
         <div class="how">
-          <div><div class="n">1</div><b>Tap the one you want</b><span>Your request goes to your project chat, so it's all in one place with your film.</span></div>
-          <div><div class="n">2</div><b>We send the details</b><span>We reply in the chat with options, a preview and a payment link, usually within an hour during the day.</span></div>
-          <div><div class="n">3</div><b>You say yes</b><span>We make it from your film's script, photos and illustrations and ship it to you, or to each person on your list.</span></div>
+          <div><div class="n">1</div><b>Pay securely</b><span>Checkout is through Stripe. Books ship free to any U.S. address.</span></div>
+          <div><div class="n">2</div><b>Approve the proof</b><span>We design it from your film's script, photos and illustrations and post a proof in your project chat.</span></div>
+          <div><div class="n">3</div><b>We print and ship it</b><span>It arrives about 2 to 3 weeks after you approve. The audiobook goes on your dashboard.</span></div>
         </div>
         <p class="center muted" style="margin-top:26px;">Questions first? <a id="chat-link" href="my-film.html#chat">Ask in your project chat</a>.</p>
       </section>
@@ -401,15 +413,62 @@
 
       if (!['final_ready', 'delivered'].includes(p.status)) {
         $('timing-note').hidden = false;
-        $('timing-note').innerHTML = '<b>Your film is still in the works.</b> Keepsakes are made from the finished film, so ask any time and we\'ll make them as soon as it\'s done.';
+        $('timing-note').innerHTML = '<b>Your film is still in the works.</b> You can order now: we make keepsakes from the finished film, so they come together soon after it\'s done.';
+      }
+      if (!photos.length) {
+        $('photo-note').hidden = false;
+        $('photo-note').innerHTML = '<b>No photos here yet.</b> <a></a> and they\'ll appear in these previews, so you can see what your keepsakes might look like.';
+        const a = $('photo-note').querySelector('a');
+        a.href = `${dash}#step-upload`;
+        a.textContent = 'Upload photos on your dashboard';
+      }
+      // Already ordered: a note under that keepsake's button.
+      const names = { book: 'the hardcover book', copies: 'family copies', picture: 'the picture book', audiobook: 'the audiobook' };
+      (p.keepsakeOrders || []).forEach((o) => {
+        const b = document.querySelector(`[data-buy="${o.item}"]`);
+        if (!b) return;
+        const st = b.closest('.buy-row').parentElement.querySelector('.ask-state');
+        let when = '';
+        try { when = new Date(String(o.paidAt).replace(' ', 'T') + 'Z').toLocaleDateString([], { month: 'short', day: 'numeric' }); } catch {}
+        st.className = 'ask-state ok';
+        st.textContent = `✓ You ordered ${o.item === 'copies' ? `${o.qty} cop${o.qty === 1 ? 'y' : 'ies'}` : names[o.item]}${when ? ` on ${when}` : ''}. We'll keep you posted in your project chat.`;
+      });
+      const paid = params.get('paid');
+      if (paid && names[paid]) {
+        $('paid-banner').hidden = false;
+        $('paid-banner').innerHTML = `<b>Thank you!</b> Your order for ${names[paid]} is in. We emailed you a receipt, and we'll post next steps in your <a href="${dash}#chat">project chat</a>.`;
+        history.replaceState(null, '', `${location.pathname}?t=${encodeURIComponent(token)}${local ? '&local=1' : ''}`);
       }
     }
+
+    // Buying goes straight to Stripe Checkout.
+    $('copies-qty').addEventListener('change', () => {
+      const n = Number($('copies-qty').value);
+      $('copies-btn').textContent = `Buy ${n} cop${n === 1 ? 'y' : 'ies'} · $${n * 79}`;
+    });
+    document.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-buy]');
+      if (!b || b.disabled) return;
+      const state = b.closest('.buy-row').parentElement.querySelector('.ask-state');
+      const label = b.textContent;
+      b.disabled = true;
+      b.textContent = 'Opening checkout…';
+      try {
+        const d = await api('/api/film/keepsake-checkout', { t: token, item: b.dataset.buy, qty: b.dataset.buy === 'copies' ? Number($('copies-qty').value) : 1 });
+        location.href = d.checkoutUrl;
+      } catch (err) {
+        state.className = 'ask-state err';
+        state.textContent = err.status === 401 ? 'Please open your dashboard first to sign in, then come back.' : err.message;
+        b.disabled = false;
+        b.textContent = label;
+      }
+    });
 
     // Asking for a keepsake posts it to the project chat, where we reply with details and a payment link.
     document.addEventListener('click', async (e) => {
       const b = e.target.closest('[data-ask]');
       if (!b || b.disabled) return;
-      const state = b.closest('div').parentElement.querySelector('.ask-state');
+      const state = b.closest('.buy-row').parentElement.querySelector('.ask-state');
       b.disabled = true;
       try {
         await api('/api/film/chat', { t: token, content: `Keepsake request: ${b.dataset.ask}. Please send me the details.` });

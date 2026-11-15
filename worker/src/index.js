@@ -196,7 +196,7 @@ export default {
       const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/stop-autopay', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
       const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead', '/api/page/visit'].includes(url.pathname) && request.method === 'POST');
       // Folder to Film: checkout + customer dashboard (token) + admin (session) + signed file downloads.
-      const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share', '/api/film/keepsake-photos'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
+      const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share', '/api/film/keepsake-photos'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/keepsake-checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
       const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link', '/api/film/chat/reply', '/api/film/email-samples'].includes(url.pathname) && request.method === 'POST');
       if (!isFilmPublic && !isFilmAdmin && !isPreviewPublic && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
@@ -249,6 +249,7 @@ export default {
     if (url.pathname.startsWith('/api/film/')) {
       const p = url.pathname, m = request.method;
       if (p === '/api/film/checkout' && m === 'POST') return film().handleCheckout(request, env, corsHeaders, originAllowed, allowedOrigins);
+      if (p === '/api/film/keepsake-checkout' && m === 'POST') return film().handleKeepsakeCheckout(request, env, corsHeaders, originAllowed, allowedOrigins);
       if (p === '/api/film/ask-k' && m === 'POST') return handleAskK(request, env, corsHeaders, url, { deployment: ASKK_FOLDER_TO_FILM });
       if (p === '/api/film/ask-k/status' && m === 'POST') return handleAskKOrderStatus(request, env, corsHeaders, ctx, { deployment: ASKK_FOLDER_TO_FILM });
       if (p === '/api/film/dashboard' && m === 'GET') return film().handleDashboardGet(request, env, corsHeaders, url);
@@ -1575,6 +1576,16 @@ async function handleStripeWebhook(request, env, corsHeaders) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data?.object || {};
     const sessionId = session.id || null;
+
+    if ((session.metadata?.checkout_type || '').toString() === 'film_keepsake') {
+      try {
+        const r = await film().handleKeepsakePaid(env, event, eventEasternDate(event));
+        return json(r, r.ok ? 200 : 400, corsHeaders);
+      } catch (e) {
+        console.error('Folder to Film keepsake webhook failed', e);
+        return json({ ok: false, error: `Keepsake webhook failed: ${e?.message || e}` }, 500, corsHeaders);
+      }
+    }
 
     if ((session.metadata?.checkout_type || '').toString() === 'folder_to_film') {
       try {

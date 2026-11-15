@@ -922,6 +922,76 @@ test('film emails wear the Folder to Film colors; admin can email samples to the
   assert.ok(samples.some((m) => /replied about your film/.test(m.subject)));
 });
 
+test('keepsakes: buy on the keepsakes page (U.S. shipping, tax code, price); the paid webhook books it, records the order and tells everyone', async (t) => {
+  quietConsole(t);
+  const env = baseEnv();
+  const { stripe, token, id } = await paidProject(t, env);
+  const db = env.DB.sqlite;
+  env.DB.sqlite.prepare(`UPDATE film_projects SET project_name = 'Lake Week' WHERE id = ?`).run(id);
+
+  let r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }));
+  assert.equal(r.status, 200, JSON.stringify(r.data));
+  assert.match(r.data.checkoutUrl, /^https:\/\/checkout\.stripe\.com\//);
+  let params = stripe.sessions.get(r.data.id);
+  assert.equal(params.get('line_items[0][price_data][unit_amount]'), '14900');
+  assert.equal(params.get('line_items[0][price_data][product_data][tax_code]'), 'txcd_35010000');
+  assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
+  assert.equal(params.get('automatic_tax[enabled]'), 'true');
+  assert.equal(params.get('metadata[checkout_type]'), 'film_keepsake');
+  assert.equal(params.get('metadata[keepsake]'), 'book');
+  assert.match(params.get('success_url'), /my-keepsakes\.html\?t=.+&paid=book$/);
+  assert.match(params.get('line_items[0][price_data][product_data][name]'), /Lake Week/);
+  // Family copies: quantity capped, addresses come through the chat; the audiobook is $29 and digital.
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'copies', qty: 99 }));
+  params = stripe.sessions.get(r.data.id);
+  assert.equal(params.get('line_items[0][quantity]'), '25');
+  assert.equal(params.get('line_items[0][price_data][unit_amount]'), '7900');
+  assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), null);
+  r = await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'audiobook' }));
+  params = stripe.sessions.get(r.data.id);
+  assert.equal(params.get('line_items[0][price_data][unit_amount]'), '2900');
+  assert.equal(params.get('line_items[0][price_data][product_data][tax_code]'), 'txcd_10301000');
+  assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'yacht' }))).status, 400);
+  const saved = DEVICE;
+  DEVICE = null;
+  assert.equal((await call(env, post('/api/film/keepsake-checkout', { t: token, item: 'book' }))).status, 401);
+  DEVICE = saved;
+
+  // Paid: order recorded once, income + fee booked, a note in the chat, a receipt and a staff alert.
+  env.EMAIL.sent.length = 0;
+  const event = { id: 'evt_keep_1', type: 'checkout.session.completed', created: Math.floor(Date.now() / 1000), data: { object: {
+    id: 'cs_keep_1', payment_status: 'paid', amount_total: 15794, total_details: { amount_tax: 894 }, payment_intent: 'pi_keep',
+    customer_details: { name: 'Pat Family', email: 'pat@family.example', address: { state: 'MD' } },
+    collected_information: { shipping_details: { name: 'Pat Family', address: { line1: '1 Main St', city: 'Dover', state: 'NH', postal_code: '03820', country: 'US' } } },
+    metadata: { checkout_type: 'film_keepsake', film_project_id: String(id), keepsake: 'book', qty: '1' } } } };
+  let res = await worker.fetch(await signedWebhook(event), env, ctx);
+  assert.equal(res.status, 200, await res.clone().text());
+  const order = db.prepare('SELECT * FROM film_keepsake_orders WHERE project_id = ?').get(id);
+  assert.equal(order.item, 'book');
+  assert.equal(order.amount_cents, 15794);
+  assert.match(order.ship_to, /1 Main St, Dover NH 03820/);
+  const income = db.prepare(`SELECT * FROM tax_income WHERE stripe_session_id = 'cs_keep_1'`).get();
+  assert.equal(income.category, 'Folder to Film Keepsakes');
+  assert.equal(income.amount_cents, 15794);
+  assert.ok(db.prepare(`SELECT id FROM tax_expenses WHERE notes LIKE 'Auto Stripe fee for Folder to Film keepsake session cs_keep_1%'`).get());
+  assert.match(db.prepare(`SELECT content FROM film_messages WHERE project_id = ? ORDER BY id DESC`).get(id).content, /post a proof here/);
+  const receipt = env.EMAIL.sent.find((m) => m.subject === 'Thank you for your order: Hardcover story book');
+  assert.ok(receipt, 'receipt');
+  assert.deepEqual(receipt.to, ['pat@family.example']);
+  assert.match(receipt.html, /images\/story-video\/icon-180\.png/);
+  assert.ok(env.EMAIL.sent.some((m) => /^Keepsake order: Hardcover story book \(Lake Week\)/.test(m.subject)));
+  // A replay changes nothing.
+  res = await worker.fetch(await signedWebhook({ ...event, id: 'evt_keep_2' }), env, ctx);
+  assert.equal(res.status, 200);
+  assert.equal(db.prepare(`SELECT COUNT(*) AS n FROM tax_income WHERE stripe_session_id = 'cs_keep_1'`).get().n, 1);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM film_keepsake_orders').get().n, 1);
+  // The dashboard and admin see the order.
+  const dash = await call(env, get(`/api/film/dashboard?t=${token}`));
+  assert.deepEqual(dash.data.project.keepsakeOrders.map((o) => o.item), ['book']);
+  const detail = await call(env, get(`/api/film/project?id=${id}`, ADMIN));
+  assert.equal(detail.data.keepsakes.length, 1);
+});
+
 // Keep last: node:test runs this file's tests in order.
 test('every email to a customer or someone they added is BCCed to the business, like Survival Node order emails', () => {
   const toCustomers = ALL_SENT.filter((m) => /contact@easternshore\.ai/.test(JSON.stringify(m.from)) && !(m.to || []).includes('owner@inbox.example'));

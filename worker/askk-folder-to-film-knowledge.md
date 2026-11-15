@@ -36,8 +36,8 @@ Read-only grounding for Ask K on folder-to-film.html. Keep it in step with the p
 
 ## Keepsakes (after the film)
 
-- Hardcover story book from $149; children's picture book from $99; audiobook from $29; prints, postcards and a QR plaque that plays the film when scanned, from $15; Legacy bundle (film + hardcover book + audiobook) $399.
-- These are made from the same script, photos and illustrations, so they come together fast. To order, the customer taps the keepsake in the Keepsakes section of their film dashboard (or replies to any of our emails); we reply in their project chat with the details and a payment link. Nothing is charged until they say yes. Relatives can get their own copies of the book too.
+- Hardcover story book $149 and children's picture book $99 (32 pages), both 8.5-inch square hardcovers with free shipping to U.S. addresses (books ship to the U.S. only); extra copies of the hardcover book $79 each, shipped free to each U.S. address; audiobook $29 (an MP3 of the narration with a little extra narration for what the film shows on screen, downloaded from the dashboard); prints, postcards and a QR plaque that plays the film when scanned, from $15 (made to order: ask in the project chat for a price).
+- These are made from the same script, photos and illustrations, so they come together fast. To order, the customer opens the Keepsakes link at the top of their film dashboard and pays on the keepsakes page (Stripe checkout). We design printed books from the finished film and post a proof in the project chat to approve before printing; they arrive about 2 to 3 weeks after approval. For family copies, the customer tells us the addresses in the project chat after paying.
 
 ## AI and privacy
 
@@ -74,7 +74,7 @@ Read-only grounding for Ask K on folder-to-film.html. Keep it in step with the p
 - **Final film:** plays on the dashboard with "Download to keep" and "Copy a link to share". The share link plays the film for anyone they send it to, without opening the dashboard.
 - **Project chat ("Talk with the Eastern Shore AI team"):** for questions and anything about their film; Chris, who is making the film, replies, usually within an hour during the day, and we email them when we reply. Once production starts, the chat moves to the top of the dashboard.
 - **Manage Who Has Access:** the buyer adds family or coworkers by email; each can sign in with an emailed code, upload, answer questions and chat. The buyer can remove anyone, which signs them out right away.
-- **Keepsakes:** the Keepsakes link opens a separate keepsakes page made from their project. Tapping one sends a request into the project chat; we reply there with the details and a payment link. Nothing is charged until they say yes. Keepsakes are made from the finished film's script, photos and illustrations.
+- **Keepsakes:** the Keepsakes link at the top of the dashboard (and, once production starts, the Keepsakes box beside the dashboard) opens a keepsakes page made from their project, with previews built from their own photos. They buy the books and the audiobook right there with Stripe; prints and the QR plaque are requested in the project chat. Printed books ship free to U.S. addresses about 2 to 3 weeks after they approve a proof.
 - **Need Help?** (this assistant, bottom right of the dashboard) answers questions about the process. It can't see their files or chat, change anything, or take payments.
 
 ## Order status and the dashboard

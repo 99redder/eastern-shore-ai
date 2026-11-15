@@ -166,6 +166,18 @@
     .askk-form .btn { border-radius: 12px; padding: 0 16px; width: auto; }
     .askk-typing { color: var(--muted); font-size: 14px; font-style: italic; }
     @media (max-width: 560px) { .askk-drawer { right: 0; bottom: 0; width: 100vw; height: 100dvh; border-radius: 0; } .askk-fab { right: 12px; bottom: 12px; } }
+    /* Keepsakes box: in the right margin on wide screens, a card in the page on smaller ones (production on) */
+    .keep-ad { background: var(--card); border: 1px solid var(--gold); border-radius: 18px; padding: 22px; margin: 22px 0; display: grid; grid-template-columns: 96px 1fr; gap: 18px; align-items: center; }
+    .keep-ad .mini-book { width: 96px; aspect-ratio: 3 / 4; border-radius: 3px 7px 7px 3px; background: linear-gradient(160deg, #3b2c1f, #22180f); box-shadow: 0 14px 28px rgba(0,0,0,.5); padding: 12px 10px; display: flex; flex-direction: column; justify-content: flex-end; transform: rotate(-4deg); }
+    .keep-ad .mini-book span { font-family: var(--serif); color: var(--gold2); font-size: 12.5px; line-height: 1.1; text-align: center; overflow-wrap: anywhere; }
+    .keep-ad h3 { font-size: 26px; margin: 4px 0 6px; }
+    .keep-ad p { margin: 0 0 12px; color: var(--muted); font-size: 15px; }
+    .keep-ad .btn { padding: 11px 18px; font-size: 15px; }
+    @media (min-width: 1440px) {
+      .keep-ad { position: fixed; top: 108px; right: calc((100vw - 920px) / 2 - 262px); width: 236px; margin: 0; grid-template-columns: 1fr; text-align: center; z-index: 5; }
+      .keep-ad .mini-book { margin: 0 auto 4px; width: 104px; }
+      .keep-ad .btn { width: 100%; }
+    }
     .people .tag { font-size: 12px; color: var(--gold2); border: 1px solid var(--gold); border-radius: 999px; padding: 2px 9px; }
     .people button { background: none; border: 0; color: var(--dim); font-size: 14px; cursor: pointer; text-decoration: underline; }
     .people button:hover { color: var(--err); }
@@ -394,6 +406,17 @@
       <p class="small muted" style="margin-top:18px;">The share link plays the film for anyone you send it to, without opening this dashboard. Want it as a hardcover book, a children's book or an audiobook? <a href="#" class="keepsakes-link">See your keepsakes</a>.</p>
     </section>
 
+    <!-- Keepsakes box (once production starts) -->
+    <aside class="keep-ad" id="keep-ad" aria-label="Keepsakes" hidden>
+      <div class="mini-book" aria-hidden="true"><span id="keep-ad-title">Our Story</span></div>
+      <div>
+        <div class="eyebrow">Keepsakes</div>
+        <h3>Something to hold</h3>
+        <p>Turn your film into a hardcover book, a picture book for the grandkids, or an audiobook. Books ship free in the U.S.</p>
+        <a class="btn btn-primary keepsakes-link" href="#">See your keepsakes</a>
+      </div>
+    </aside>
+
     <!-- Project chat + notes (any time after paying) -->
     <section class="card" id="chat" hidden>
       <div class="eyebrow">Project chat</div>
@@ -557,7 +580,7 @@
 
     function show(id) {
       ['state-loading', 'state-signin', 'state-collecting', 'state-production', 'state-demo', 'state-final', 'state-canceled'].forEach((s) => { $(s).hidden = s !== id; });
-      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'jump-nav', 'askk-fab'].forEach((s) => { $(s).hidden = true; });
+      if (id === 'state-signin' || id === 'state-loading') ['chat', 'notes-card', 'people-card', 'jump-nav', 'askk-fab', 'keep-ad'].forEach((s) => { $(s).hidden = true; });
     }
 
     function setTimeline(status) {
@@ -582,6 +605,8 @@
       $('people-card').hidden = !(p.me && (p.me.isOwner || p.me.isStaff) && p.status !== 'canceled');
       $('staff-bar').hidden = !isStaff();
       $('askk-fab').hidden = !p.chat || $('askk-drawer').classList.contains('on');
+      $('keep-ad').hidden = !['production', 'demo_ready', 'changes', 'final_ready', 'delivered'].includes(p.status);
+      $('keep-ad-title').textContent = p.projectName || 'Our Story';
       if (p.people) renderPeople(p.people);
       if (p.chat && document.activeElement !== $('notes')) $('notes').value = p.notes || '';
       if (p.chat) startChat();
