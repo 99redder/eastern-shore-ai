@@ -120,7 +120,9 @@
     #rb-count { min-width: 10em; color: var(--muted); font-size: 15px; }
     #book.has-real .row { grid-template-columns: 1fr; max-width: 660px; margin: 0 auto; text-align: center; }
     #book.has-real .row > .vis { display: none; }
-    #book.has-real .row ul { display: inline-block; text-align: left; }
+    #book.has-real .row ul { display: block; width: fit-content; margin: 0 auto 20px; text-align: left; }
+    #book.has-real .buy-row { justify-content: center; }
+    #book.has-real .ask-state.why { margin-left: 0; }
     #book.has-real .k p, #book.has-real .row p { margin-left: auto; margin-right: auto; }
     .book.real { aspect-ratio: 1 / 1; }
     .book.real .cover { padding: 0; background: #22180f; }
