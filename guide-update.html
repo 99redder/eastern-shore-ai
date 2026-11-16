@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://b893ca94.sibforms.com; object-src 'none'; base-uri 'self'; form-action 'self';">
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VDFQV9B1J"></script>
   <script>
@@ -167,6 +167,27 @@
     .help .big { font-family: 'Hanken Grotesk', sans-serif; font-size: 1.45rem; font-weight: 700; margin: .3rem 0; }
     .help .big a { color: #fff; text-decoration: none; }
 
+    /* Email sign-up for new guides */
+    .signup { border-color: rgba(158, 208, 255, .5); }
+    .signup form { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0 .3rem; position: relative; }
+    .signup input[type="email"] {
+      flex: 1 1 220px; min-width: 0; padding: .75rem .85rem;
+      font: inherit; font-size: 1.05rem; color: var(--text);
+      background: #0a0d16; border: 1px solid var(--line); border-radius: 8px;
+    }
+    .signup input[type="email"]:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
+    .signup button {
+      flex: 0 0 auto; padding: .75rem 1.3rem; border: 0; border-radius: 8px; cursor: pointer;
+      font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; color: #0b0d13;
+      background: linear-gradient(145deg, #bfe2ff, var(--cyan)); box-shadow: 0 0 14px rgba(158, 208, 255, .35);
+    }
+    .signup button:disabled { opacity: .6; cursor: default; }
+    .signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .signup-status { min-height: 1.5em; margin: .2rem 0 0; font-weight: 700; }
+    .signup-status.ok { color: var(--green); }
+    .signup-status.err { color: var(--red); }
+    @media (max-width: 400px) { .signup button { flex: 1 1 100%; } }
+
     footer { border-top: 1px solid var(--line); margin-top: 2rem; padding: 1.2rem 1rem calc(1.4rem + env(safe-area-inset-bottom)); text-align: center; color: var(--muted); font-size: .95rem; }
     footer a { color: var(--muted); margin: 0 .45rem; }
   </style>
@@ -278,6 +299,23 @@
           </ul>
         </div>
       </details>
+    </section>
+
+    <!-- Lets buyers opt in to hear about new guides themselves. eBay doesn't share buyers' real
+         emails (only a members.ebay.com alias), and its rules and Brevo's both forbid adding them
+         to the newsletter without their sign-up, so this is how eBay buyers get on the list.
+         Same Brevo form as the newsletter box in index.html, node.html and film-footer.js. -->
+    <section class="card signup" id="get-updates" aria-labelledby="signup-title">
+      <h2 id="signup-title">📬 Get an email when there's a new guide</h2>
+      <p>Whenever a new User Guide comes out, our newsletter says what changed and links back to this page.</p>
+      <p class="small"><strong>Bought your kit on eBay?</strong> eBay doesn't share your email address with us, so signing up here is the only way we can tell you about new guides. It's our regular Eastern Shore AI newsletter, so it also has occasional news about our other products. Every email has an unsubscribe link.</p>
+      <form id="signup-form" novalidate>
+        <label for="signup-email" class="hp">Email address</label>
+        <input type="email" id="signup-email" name="EMAIL" placeholder="your@email.com" autocomplete="email" required />
+        <button type="submit">Sign me up</button>
+        <input type="text" class="hp" name="email_address_check" value="" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      </form>
+      <p class="signup-status" id="signup-status" role="status" aria-live="polite"></p>
     </section>
 
     <section class="card" aria-labelledby="before-title">
@@ -482,6 +520,39 @@
         document.querySelectorAll('[data-latest-version]').forEach(el => { el.textContent = latest.version; });
       })
       .catch(() => {});
+
+    // "Get an email when there's a new guide": posts to the same Brevo sign-up form as the
+    // site's newsletter boxes, so the address lands in Brevo Contacts.
+    const signupForm = document.getElementById('signup-form');
+    const signupStatus = document.getElementById('signup-status');
+    function signupSay(msg, ok) {
+      signupStatus.textContent = msg;
+      signupStatus.className = 'signup-status ' + (ok ? 'ok' : 'err');
+    }
+    signupForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = signupForm.querySelector('input[type="email"]').value.trim();
+      // Brevo answers "success" even for a malformed address, so check it here first.
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { signupSay('Please enter a valid email address.', false); return; }
+      const button = signupForm.querySelector('button[type="submit"]');
+      button.disabled = true;
+      signupSay('Signing you up…', true);
+      try {
+        const body = new FormData();
+        body.append('EMAIL', email);
+        body.append('email_address_check', signupForm.querySelector('input[name="email_address_check"]').value); // honeypot: bots fill it, Brevo drops them
+        body.append('locale', 'en');
+        const res = await fetch('https://b893ca94.sibforms.com/serve/MUIFAFHNpDgPU-nDfEV3TZttituEiSyIy4p0twQYehCWbO2QZjGgiYIf52Tzi8BjJZHKZaEdmpJZ8wZjawIvJ54EGnqgFvTS-rjUbDTxDA5ftlMluW-n-7ML1FaJ098ByQDvenhzBTDbOJfcfDg1fBs0YLFY3Jvggh62UAvuUmlC3dv5iF1pqPDzqeODqH3UpQhEaJF7yQfUR4bGrA==?isAjax=1', { method: 'POST', body });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.message || 'Submit failed');
+        signupSay("You're signed up! We'll email you when the next guide comes out.", true);
+        signupForm.reset();
+      } catch (err) {
+        signupSay("That didn't go through. Please try again, or call or text (302) 907-9162.", false);
+      } finally {
+        button.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>
