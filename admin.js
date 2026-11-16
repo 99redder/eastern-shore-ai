@@ -2808,12 +2808,23 @@
         let incomeTotal = 0;
         let expenseTotal = 0;
 
+        // Survival Node Sales shows how many sales make up its total: website (Stripe) and eBay alike.
+        const SALES_COUNT_CATEGORY = 'Survival Node Sales';
+        const salesCount = { site: 0, ebay: 0 };
         for (const r of (summaryData.income || [])) {
           const c = r.category || 'Uncategorized';
           const v = Number(r.amount_cents || 0);
           incomeTotal += v;
           incomeByCategory.set(c, (incomeByCategory.get(c) || 0) + v);
+          if (c === SALES_COUNT_CATEGORY && v > 0) {
+            const isEbay = /^ebay:/i.test(String(r.stripe_session_id || '')) || /^ebay$/i.test(String(r.source || '').trim());
+            salesCount[isEbay ? 'ebay' : 'site'] += 1;
+          }
         }
+        const salesCountTotal = salesCount.site + salesCount.ebay;
+        const incomeCategoryLabel = (cat) => (cat === SALES_COUNT_CATEGORY && salesCountTotal
+          ? `<span title="${salesCount.site} on the website, ${salesCount.ebay} on eBay">${cat} (${salesCountTotal})</span>`
+          : `<span>${cat}</span>`);
         for (const r of (summaryData.expenses || [])) {
           const c = r.category || 'Uncategorized';
           const v = Number(r.amount_cents || 0);
@@ -2838,7 +2849,7 @@
         const incomeRows = sortedIncome.length
           ? sortedIncome.map(([cat, cents]) => cat === 'Other'
             ? `<details class="tax-summary-details"${otherIncomeOpen ? ' open' : ''}><summary class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></summary><div class="tax-summary-items">${otherIncomeItems}</div></details>`
-            : `<div class="tax-summary-line"><span>${cat}</span><strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
+            : `<div class="tax-summary-line">${incomeCategoryLabel(cat)}<strong>$${(cents/100).toFixed(2)}</strong></div>`).join('')
           : '<div class="tax-summary-line"><span>No income entries</span><strong>$0.00</strong></div>';
 
         const expenseRows = (sortedExpense.length
