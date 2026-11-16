@@ -204,6 +204,23 @@
     .insert-note { color: var(--muted); font-size: .82rem; }
     .insert-link { color: #1e5a95; text-decoration: underline; overflow-wrap: anywhere; }
     .insert-print-btn { flex-shrink: 0; white-space: nowrap; }
+    /* Order from: Website / eBay. Items marked data-for show only for that kind of order. */
+    .source-switch { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-top: .85rem; }
+    .source-switch > span { font: 700 .9rem 'Hanken Grotesk', sans-serif; color: var(--muted); }
+    .source-btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: .4rem 1.05rem;
+      font: 700 .9rem 'Hanken Grotesk', sans-serif;
+      cursor: pointer;
+    }
+    .source-btn[aria-pressed="true"] { background: var(--cyan); border-color: var(--cyan); color: #fff; }
+    .source-btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    body:not([data-source="ebay"]) [data-for="ebay"],
+    body[data-source="ebay"] [data-for="site"] { display: none !important; }
     .print-frame {
       position: fixed;
       top: 0;
@@ -236,6 +253,8 @@
       .insert-print-btn { display: none; }
       .insert-row { background: #fff; border: 0; border-bottom: 1px solid #e0e0e0; border-radius: 0; padding: .08in 0; }
       .insert-details strong, .insert-link { color: #000; }
+      .source-btn[aria-pressed="false"] { display: none; }
+      .source-btn[aria-pressed="true"] { background: #fff; color: #000; border-color: #999; }
     }
     @media (max-width: 560px) {
       .insert-row { align-items: flex-start; flex-direction: column; gap: .45rem; }
@@ -261,14 +280,19 @@
         <p class="eyebrow">Survival Node — Internal Use Only</p>
         <h1>New Order Checklist</h1>
         <p class="sub">Work through every phase in order. Check each item as you complete it. Do not ship until all phases are complete.</p>
+        <div class="source-switch" role="group" aria-label="Where this order came from">
+          <span>Order from</span>
+          <button type="button" class="source-btn" data-source="site" aria-pressed="true">Website</button>
+          <button type="button" class="source-btn" data-source="ebay" aria-pressed="false">eBay</button>
+        </div>
       </div>
 
       <!-- PRINT INSERTS: quick access -->
       <div class="section insert-section">
         <h2>Print Inserts</h2>
-        <p class="insert-intro">Print the three inserts for the order here: Quick-Start, Deployment Guide, and the warranty insert that matches where the kit sold. Click a document link if you need to view it first.</p>
+        <p class="insert-intro">Print the three inserts for the order here: Quick-Start, Deployment Guide, and the warranty insert for where the kit sold. Click a document link if you need to view it first.</p>
         <ul class="checklist insert-checklist">
-          <li id="li-34"><input type="checkbox" id="c34" onchange="toggle('li-34')"><label for="c34" class="item-text"><strong>Print and include all three inserts.</strong><span class="item-note">eBay order? Print the eBay warranty insert instead of the regular one: returns go through eBay, with no RMA step and no Stripe line.</span></label></li>
+          <li id="li-34"><input type="checkbox" id="c34" onchange="toggle('li-34')"><label for="c34" class="item-text"><strong>Print and include all three inserts.</strong><span class="item-note" data-for="ebay">eBay order: the warranty insert below is the eBay one, which sends returns through eBay (no RMA step, no Stripe line).</span></label></li>
         </ul>
         <div class="insert-list">
           <div class="insert-row">
@@ -285,7 +309,7 @@
             </div>
             <button class="btn insert-print-btn" type="button" data-insert-print="deployment-insert.html" aria-label="Print Deployment Guide Insert">Print</button>
           </div>
-          <div class="insert-row">
+          <div class="insert-row" data-for="site">
             <div class="insert-details">
               <strong>Warranty &amp; Return Policy Insert</strong>
               <span class="insert-note">Website orders</span>
@@ -293,10 +317,10 @@
             </div>
             <button class="btn insert-print-btn" type="button" data-insert-print="warranty-insert.html" aria-label="Print Warranty &amp; Return Policy Insert">Print</button>
           </div>
-          <div class="insert-row">
+          <div class="insert-row" data-for="ebay">
             <div class="insert-details">
               <strong>Warranty &amp; Return Policy Insert (eBay)</strong>
-              <span class="insert-note">eBay orders, instead of the one above</span>
+              <span class="insert-note">eBay orders</span>
               <a class="insert-link" href="warranty-insert.html?ebay=1" target="_blank" rel="noopener">easternshore.ai/warranty-insert.html?ebay=1</a>
             </div>
             <button class="btn insert-print-btn" type="button" data-insert-print="warranty-insert.html?ebay=1" aria-label="Print eBay Warranty &amp; Return Policy Insert">Print</button>
@@ -350,14 +374,18 @@
       <!-- PHASE 4: Fulfillment -->
       <div class="section">
         <h2><span class="phase-badge">Phase 4</span> Fulfillment &amp; Customer Communications</h2>
+        <p class="insert-intro" data-for="ebay">eBay order: eBay sends the buyer the order confirmation, tracking and delivery updates, so the admin Orders panel, its emails and Text Customer aren't used. Keep every message and any return on eBay. If a return comes back, refund it through eBay within 2 business days of receiving it, or eBay may refund the buyer automatically.</p>
         <ul class="checklist">
-          <li id="li-37"><input type="checkbox" id="c37" onchange="toggle('li-37')"><label for="c37" class="item-text"><strong>Send order acknowledgment email within 24 hours of order placement.</strong><span class="item-note">Promised on the product page: "We will send you an order confirmation that gives you an estimated ship date within 24 hours of your order being placed." Use the admin Orders panel → Preview Acknowledgment, and fill in the Estimated Ship Date (it goes in the email and Ask K reports it).</span></label></li>
-          <li id="li-38"><input type="checkbox" id="c38" onchange="toggle('li-38')"><label for="c38" class="item-text"><strong>Generate shipping label (USPS ground).</strong></label></li>
-          <li id="li-39"><input type="checkbox" id="c39" onchange="toggle('li-39')"><label for="c39" class="item-text"><strong>Enter tracking number in the admin Orders panel.</strong></label></li>
-          <li id="li-40"><input type="checkbox" id="c40" onchange="toggle('li-40')"><label for="c40" class="item-text"><strong>Send shipping confirmation email with tracking info to customer.</strong><span class="item-note">Admin Orders panel → Send Email (type: shipping).</span></label></li>
+          <li id="li-48" data-for="ebay"><input type="checkbox" id="c48" onchange="toggle('li-48')"><label for="c48" class="item-text"><strong>Check the ship-by date on the eBay order.</strong><span class="item-note">Seller Hub → Orders. It comes from the listing's handling time; ship by then.</span></label></li>
+          <li id="li-49" data-for="ebay"><input type="checkbox" id="c49" onchange="toggle('li-49')"><label for="c49" class="item-text"><strong>Buy the shipping label through eBay (USPS Ground Advantage).</strong><span class="item-note">From the order, choose Print shipping label. Ground only, because of the lithium battery. eBay adds the tracking to the order and sends it to the buyer, and the label cost comes out of the sale's earnings.</span></label></li>
+          <li id="li-37" data-for="site"><input type="checkbox" id="c37" onchange="toggle('li-37')"><label for="c37" class="item-text"><strong>Send order acknowledgment email within 24 hours of order placement.</strong><span class="item-note">Promised on the product page: "We will send you an order confirmation that gives you an estimated ship date within 24 hours of your order being placed." Use the admin Orders panel → Preview Acknowledgment, and fill in the Estimated Ship Date (it goes in the email and Ask K reports it).</span></label></li>
+          <li id="li-38" data-for="site"><input type="checkbox" id="c38" onchange="toggle('li-38')"><label for="c38" class="item-text"><strong>Generate shipping label (USPS ground).</strong></label></li>
+          <li id="li-39" data-for="site"><input type="checkbox" id="c39" onchange="toggle('li-39')"><label for="c39" class="item-text"><strong>Enter tracking number in the admin Orders panel.</strong></label></li>
+          <li id="li-40" data-for="site"><input type="checkbox" id="c40" onchange="toggle('li-40')"><label for="c40" class="item-text"><strong>Send shipping confirmation email with tracking info to customer.</strong><span class="item-note">Admin Orders panel → Send Email (type: shipping).</span></label></li>
           <li id="li-41"><input type="checkbox" id="c41" onchange="toggle('li-41')"><label for="c41" class="item-text"><strong>Drop off or hand off to carrier.</strong></label></li>
-          <li id="li-42"><input type="checkbox" id="c42" onchange="toggle('li-42')"><label for="c42" class="item-text"><strong>Send delivery confirmation email once tracking shows delivered.</strong><span class="item-note">Admin Orders panel → Send Email (type: delivered). Includes a link to the Users Guide.</span></label></li>
-          <li id="li-43"><input type="checkbox" id="c43" onchange="toggle('li-43')"><label for="c43" class="item-text"><strong>Verify tax income row exists in the admin Tax Ledger for this order.</strong><span class="item-note">Auto-inserted by the Stripe webhook on payment. Category: "Survival Node" or "OpenClaw Setup." Check admin → Tax Ledger if it's missing.</span></label></li>
+          <li id="li-42" data-for="site"><input type="checkbox" id="c42" onchange="toggle('li-42')"><label for="c42" class="item-text"><strong>Send delivery confirmation email once tracking shows delivered.</strong><span class="item-note">Admin Orders panel → Send Email (type: delivered). Includes a link to the Users Guide.</span></label></li>
+          <li id="li-43" data-for="site"><input type="checkbox" id="c43" onchange="toggle('li-43')"><label for="c43" class="item-text"><strong>Verify tax income row exists in the admin Tax Ledger for this order.</strong><span class="item-note">Auto-inserted by the Stripe webhook on payment. Category: "Survival Node" or "OpenClaw Setup." Check admin → Tax Ledger if it's missing.</span></label></li>
+          <li id="li-50" data-for="ebay"><input type="checkbox" id="c50" onchange="toggle('li-50')"><label for="c50" class="item-text"><strong>Add the sale in admin → Tax Ledger → Add eBay Sale.</strong><span class="item-note">Copy the amounts from eBay's order earnings screen: item subtotal, shipping the buyer paid, sales tax eBay collected, transaction fees, shipping label and ad fee. Attach the packing slip or an earnings screenshot as the receipt. eBay sales aren't added on their own and don't show in the Orders panel.</span></label></li>
         </ul>
       </div>
 
@@ -373,9 +401,26 @@
       saveState();
     }
 
+    // Website or eBay order. Steps marked data-for only count toward progress for their kind of order.
+    let orderSource = 'site';
+    function setSource(source) {
+      orderSource = source === 'ebay' ? 'ebay' : 'site';
+      document.body.dataset.source = orderSource;
+      document.querySelectorAll('.source-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.source === orderSource));
+      });
+      try { localStorage.setItem('sn-order-checklist-source', orderSource); } catch(e) {}
+      updateProgress();
+    }
+    function appliesToOrder(cb) {
+      const scoped = cb.closest('[data-for]');
+      return !scoped || scoped.dataset.for === orderSource;
+    }
+
     function updateProgress() {
-      const all = document.querySelectorAll('.checklist input[type="checkbox"]');
-      const done = document.querySelectorAll('.checklist input[type="checkbox"]:checked');
+      const boxes = [...document.querySelectorAll('.checklist input[type="checkbox"]')].filter(appliesToOrder);
+      const all = boxes;
+      const done = boxes.filter(cb => cb.checked);
       const pct = all.length ? Math.round((done.length / all.length) * 100) : 0;
       document.getElementById('progress-fill').style.width = pct + '%';
       document.getElementById('progress-label').textContent = done.length + ' of ' + all.length + ' items complete';
@@ -414,7 +459,7 @@
         if (li) li.classList.remove('done');
       });
       try { localStorage.removeItem('sn-order-checklist'); } catch(e) {}
-      updateProgress();
+      setSource('site');
     }
 
     let activePrintFrame = null;
@@ -459,6 +504,12 @@
       document.querySelectorAll('[data-insert-print]').forEach(btn => {
         btn.addEventListener('click', () => printInsert(btn.dataset.insertPrint));
       });
+      document.querySelectorAll('.source-btn').forEach(btn => {
+        btn.addEventListener('click', () => setSource(btn.dataset.source));
+      });
+      let savedSource = 'site';
+      try { savedSource = localStorage.getItem('sn-order-checklist-source') || 'site'; } catch(e) {}
+      setSource(savedSource);
       loadState();
     });
   </script>
