@@ -4339,7 +4339,10 @@
       show('quotes-card', tab === 'quotes');
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
+      show('profit-card', tab === 'profit');
       if (tab === 'orders' && adminSessionActive) refreshOrderList();
+      // Survival Node Profit (admin-profit.js) reads the Tax Ledger again every time it's opened.
+      if (tab === 'profit' && adminSessionActive && window.refreshProfitCalc) window.refreshProfitCalc();
       if (tab === 'websites' && adminSessionActive && window.refreshWebsiteClients) window.refreshWebsiteClients();
       if (tab === 'films' && adminSessionActive && window.refreshStoryFilms) window.refreshStoryFilms();
       if (tab === 'invoices' && adminSessionActive) refreshInvoiceList();

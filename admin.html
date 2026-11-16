@@ -253,6 +253,46 @@
     .parts-count-table input.pc-qty { width:5.5rem; }
     .parts-count-table input.pc-unit { width:7rem; text-align:right; }
     .parts-count-table .pc-hint { display:block; font-size:.8rem; color:var(--muted); margin-top:.15rem; }
+    /* ── Survival Node Profit tab (admin-profit.js) ── */
+    #profit-card [hidden] { display:none !important; }
+    .profit-status { color:var(--muted); font-size:.92rem; margin:.2rem 0 .7rem; }
+    .profit-status.warn { padding:.55rem .7rem; border:1px solid #ffb84d; background:rgba(255,184,77,.1); color:var(--text); }
+    .profit-controls { display:flex; flex-wrap:wrap; gap:.6rem 1.3rem; align-items:center; margin-bottom:.7rem; }
+    .profit-seg { display:inline-flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+    .profit-seg > span { color:var(--muted); font-size:.9rem; }
+    .profit-seg .btn, .profit-chips .btn { padding:.45rem .85rem; font-size:.9rem; }
+    .profit-seg .btn[aria-pressed="true"], .profit-chips .btn[aria-pressed="true"] { border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 10px rgba(0,229,255,.3); }
+    .profit-check { display:inline-flex; align-items:center; gap:.45rem; color:var(--text); font-size:.92rem; cursor:pointer; }
+    .profit-check input { width:auto; margin:0; }
+    .profit-top { display:grid; gap:.8rem; grid-template-columns:minmax(0,1fr); }
+    @media (min-width: 900px) { .profit-top { grid-template-columns:minmax(0,1fr) minmax(0,1fr); } }
+    .profit-top > .admin-calendar-wrap { margin-top:0; min-width:0; }
+    .profit-label { color:var(--muted); font-size:.8rem; text-transform:uppercase; letter-spacing:.08em; }
+    .profit-fig { font-size:2.7rem; font-weight:700; line-height:1.05; margin:.2rem 0; color:#37d998; font-variant-numeric:tabular-nums; }
+    .profit-fig.loss { color:#ff6b6b; }
+    .profit-line { color:var(--muted); margin:.1rem 0 .7rem; }
+    .profit-line b { color:var(--text); }
+    .profit-compare { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+    .profit-compare th, .profit-compare td { padding:.4rem .55rem; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; }
+    .profit-compare th { color:var(--muted); font-weight:600; font-size:.85rem; }
+    .profit-compare th:first-child, .profit-compare td:first-child { text-align:left; }
+    .profit-compare td { color:var(--muted); }
+    .profit-compare tr.on td { color:var(--text); background:rgba(0,229,255,.08); font-weight:700; }
+    .profit-breakdown { list-style:none; margin:.7rem 0 0; padding:0; font-variant-numeric:tabular-nums; }
+    .profit-breakdown li { display:flex; justify-content:space-between; gap:1rem; padding:.25rem 0; border-bottom:1px dashed var(--line); color:var(--text); }
+    .profit-breakdown li.total { font-weight:700; border-bottom:0; }
+    .profit-fields { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:.7rem; margin-top:.6rem; }
+    .profit-fields label { display:block; font-size:.86rem; color:var(--muted); margin-bottom:.15rem; }
+    .profit-hint { display:block; font-size:.78rem; color:var(--muted); margin-top:.2rem; line-height:1.35; }
+    .profit-chips { display:flex; gap:.4rem; flex-wrap:wrap; margin-top:.4rem; }
+    .profit-parts input.pc-unit { width:7rem; }
+    .profit-parts .profit-edited, .profit-check-count { color:#ffb84d !important; }
+    .profit-actions { gap:.5rem; flex-wrap:wrap; margin:.6rem 0; }
+    .profit-sub { margin:.8rem 0 .35rem; color:var(--text); font-size:.95rem; }
+    .profit-cmp-title { margin:0 0 .45rem; color:var(--text); font-weight:600; }
+    .profit-cmp { margin-bottom:.4rem; }
+    .profit-good { color:#37d998 !important; }
+    .profit-bad { color:#ff6b6b !important; }
     .parts-count-table .pc-hint.edited { color:#ffb84d; }
     .parts-count-table tfoot td { font-weight:700; border-bottom:0; }
     .parts-count-table .pc-remove { padding:.3rem .55rem; font-size:.85rem; }
@@ -492,6 +532,7 @@
             <span class="admin-tab-label">Accounting</span>
             <div class="admin-section-tabs">
               <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
+              <button type="button" class="btn tab-node" data-admin-tab="profit"><span class="tab-icon" aria-hidden="true">📈</span>Survival Node Profit</button>
               <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
               <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
               <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
@@ -1088,6 +1129,14 @@
         </div>
       </div>
 
+      <div class="admin-collapsible-card" id="profit-card" style="margin-top:1rem; display:none;">
+        <div class="admin-collapsible-head">
+          <h3 style="margin:0;">Survival Node Profit</h3>
+          <button type="button" class="btn" id="profit-refresh-btn">Refresh from the books</button>
+        </div>
+        <div id="profit-body"><p class="profit-status">Open this tab to read part costs from the Tax Ledger.</p></div>
+      </div>
+
       <div class="admin-collapsible-card" id="audit-package-card" style="margin-top:1rem;">
         <div class="admin-collapsible-head">
           <h3 style="margin:0;">Audit Package</h3>
@@ -1620,8 +1669,9 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-11-15b"></script>
+  <script src="/admin.js?v=2026-11-16a"></script>
   <script src="/admin-websites.js?v=8"></script>
   <script src="/admin-films.js?v=21"></script>
+  <script src="/admin-profit.js?v=1"></script>
 </body>
 </html>
