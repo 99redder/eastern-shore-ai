@@ -688,7 +688,7 @@ body {
   <h2 id="update-title">Update to the offline version</h2>
   <p id="update-intro">This copy of the guide needs an internet connection. The latest version keeps the whole guide on your phone, so it opens with no signal. Nothing else on your phone changes.</p>
   <a class="update-btn" id="update-btn" href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.15.apk">Update</a>
-  <p>Swipe down from the top of the screen and tap the downloaded file (or open <strong>File Manager → Download</strong>). If Android says it isn't allowed to install unknown apps from this source, tap <strong>Settings</strong>, turn on <strong>Allow from this source</strong> and tap back. Then tap <strong>Update</strong> and <strong>Open</strong>.</p>
+  <p>When a box asks to <strong>Download File</strong>, tap <strong>YES</strong>. Then swipe down from the top of the screen and tap the downloaded file (or open <strong>File Manager → Download</strong>). If Android says it isn't allowed to install unknown apps from this source, tap <strong>Settings</strong> and turn on <strong>Allow from this source</strong> (tap back if the next box doesn't appear by itself). Then tap <strong>Update</strong> and <strong>Open</strong>.</p>
   <p>If the button doesn't download anything, open this address in the phone's web browser:<br><span class="update-url" id="update-url">www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.15.apk</span></p>
 </div>
 
@@ -884,9 +884,9 @@ body {
       <p>This guide lives on your phone and works fully offline. Whenever you open it while connected to Wi-Fi, it checks for a newer version. Offline, it simply opens as usual. It's where to find the current warranty, terms and instructions: the PDF in the Download folder is a dated copy that doesn't update.</p>
       <ol class="steps">
         <li>Connect the phone to Wi-Fi that has working internet, then open this guide</li>
-        <li>If a newer version exists, an orange <strong>Guide update available</strong> note appears at the top — tap <strong>Update</strong>. The download takes a few seconds and runs in the background</li>
+        <li>If a newer version exists, an orange <strong>Guide update available</strong> note appears at the top — tap <strong>Update</strong>, and when a box asks to <strong>Download File</strong>, tap <strong>YES</strong>. The download takes a few seconds and runs in the background</li>
         <li>Swipe down from the top of the screen and tap the downloaded file. You can also open <strong>File Manager → Download</strong> and tap it there</li>
-        <li>If Android says it isn't allowed to install unknown apps from this source, tap <strong>Settings</strong>, turn on <strong>Allow from this source</strong>, then tap the back arrow</li>
+        <li>If Android says it isn't allowed to install unknown apps from this source, tap <strong>Settings</strong> and turn on <strong>Allow from this source</strong>. If the next box doesn't appear by itself, tap the back arrow</li>
         <li>When Android asks "Do you want to update this app?", tap <strong>Update</strong>, then <strong>Open</strong></li>
         <li>Check the version number at the bottom of the guide</li>
       </ol>
@@ -1516,14 +1516,14 @@ body {
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p id="guide-version">Survival Node User Guide · v1.15<span id="test-flag"></span></p>
+  <p id="guide-version">Survival Node User Guide · v1.16<span id="test-flag"></span></p>
 </div>
 
 </main>
 
 <script>
 // Bump with the footer version and latest.json on every release (see README).
-const APP_VERSION_CODE = 11500;
+const APP_VERSION_CODE = 11600;
 const LATEST_URL = 'https://www.easternshore.ai/survival-node-app/latest.json';
 
 function showUpdateNote(apkUrl, title, intro) {
