@@ -140,10 +140,11 @@
 
     /* Screenshots */
     .shots { display: flex; flex-wrap: wrap; gap: .9rem; margin: .9rem 0 .2rem; }
-    .shot { margin: 0; flex: 0 1 230px; }
-    .shot img { width: 100%; height: auto; display: block; border-radius: 14px; border: 2px solid #3a4560; background: #000; }
+    .shot { margin: 0; flex: 0 1 230px; min-width: 0; }
+    .shot.wide { flex-basis: 330px; }
+    .shot img { width: 100%; height: auto; display: block; border-radius: 12px; border: 2px solid #3a4560; background: #000; }
     .shot figcaption { font-size: .92rem; color: var(--muted); margin-top: .35rem; line-height: 1.4; }
-    @media (max-width: 480px) { .shot { flex-basis: calc(50% - .45rem); } }
+    @media (max-width: 480px) { .shot { flex-basis: 80%; } .shot.wide { flex-basis: 100%; } }
 
     /* Download button */
     .btn {
@@ -200,7 +201,7 @@
       <img class="hero-icon" src="/images/guide-icons/user-guide.webp" alt="" width="76" height="76" />
       <p class="kicker">Survival Node Gen 2</p>
       <h1>Update Your User Guide</h1>
-      <p class="lead">The newest User Guide is <strong>version <span data-latest-version>1.15</span></strong>. These steps walk you through putting it on your Survival Node phone, one tap at a time.</p>
+      <p class="lead">The newest User Guide is <strong>version <span data-latest-version>1.15</span></strong>. These steps walk you through putting it on your Survival Node phone, one tap at a time, with pictures of every screen.</p>
       <ul class="facts">
         <li>⏱ About 5 minutes</li>
         <li>📶 Needs Wi-Fi once</li>
@@ -328,7 +329,7 @@
     </section>
 
     <h2 class="section-title" id="steps">The update, step by step</h2>
-    <p class="section-intro">Do these on the Survival Node phone, in order.</p>
+    <p class="section-intro">Do these on the Survival Node phone, in order. The orange outline in each picture shows what to tap.</p>
 
     <section class="card step" id="step-1">
       <div class="step-num" aria-hidden="true">1</div>
@@ -336,22 +337,30 @@
       <div class="step-body">
         <ol>
           <li>Swipe down from the top of the screen two times.</li>
-          <li>Tap <strong>Internet</strong>.</li>
-          <li>Turn Wi-Fi on, then tap your home network. Type the Wi-Fi password if it asks for one.</li>
+          <li>Tap <strong>Wi-Fi</strong> to turn it on.</li>
+          <li>If it doesn't connect by itself, press and hold <strong>Wi-Fi</strong>, tap your home network and type its password.</li>
         </ol>
         <p class="small">Airplane mode can stay on. Wi-Fi still works with it on.</p>
+        <div class="shots">
+          <figure class="shot"><img src="/images/guide-update/step1-wifi-tile.webp" width="540" height="590" loading="lazy" alt="Quick settings with the Wi-Fi tile outlined. It says Wi-Fi, Off." /><figcaption>Tap Wi-Fi to turn it on.</figcaption></figure>
+          <figure class="shot"><img src="/images/guide-update/step1-wifi-list.webp" width="540" height="780" loading="lazy" alt="The Wi-Fi settings page with the Wi-Fi switch on and a list of networks, names blurred." /><figcaption>Press and hold Wi-Fi to see your networks.</figcaption></figure>
+        </div>
       </div>
     </section>
 
     <section class="card step" id="step-2">
       <div class="step-num" aria-hidden="true">2</div>
-      <h2>Open the User Guide and check its version</h2>
+      <h2>Open the guide and check its version</h2>
       <div class="step-body">
         <ol>
-          <li>Open the <span class="app"><img src="/images/guide-icons/user-guide.webp" alt="" />User Guide</span> app on the home screen.</li>
+          <li>Open the <span class="app"><img src="/images/guide-icons/user-guide.webp" alt="" />Survival Node User Guide</span> app on the home screen. Its name shows as <strong>Survival Node …</strong></li>
           <li>Scroll all the way to the bottom.</li>
           <li>The last line shows the version, such as <strong>Survival Node User Guide · v1.13</strong>.</li>
         </ol>
+        <div class="shots">
+          <figure class="shot"><img src="/images/guide-update/step2-home.webp" width="540" height="800" loading="lazy" alt="The Survival Node home screen with the Survival Node User Guide app outlined." /><figcaption>The guide on the home screen.</figcaption></figure>
+          <figure class="shot wide"><img src="/images/guide-update/step2-version.webp" width="540" height="380" loading="lazy" alt="The bottom of the guide. The last line, outlined, says Survival Node User Guide v1.13." /><figcaption>The version is the last line.</figcaption></figure>
+        </div>
         <div class="results">
           <div class="result ok"><b>It says v<span data-latest-version>1.15</span></b>You already have the newest guide. You're done! Turn Wi-Fi off (step 8).</div>
           <div class="result go"><b>It says any other version number</b>Go on to step 3.</div>
@@ -362,11 +371,18 @@
 
     <section class="card step" id="step-3">
       <div class="step-num" aria-hidden="true">3</div>
-      <h2>Tap Update in the orange box</h2>
+      <h2>Tap Update, then YES</h2>
       <div class="step-body">
-        <p>Scroll back to the top of the guide. Within a few seconds an orange box appears that says <strong>Guide update available</strong>. Tap the <strong>Update</strong> button in it.</p>
-        <p>Nothing seems to happen. That's normal: the download takes a few seconds and runs in the background.</p>
-        <div class="callout warn">No orange box after 30 seconds? Use the <a href="#browser">web browser method</a> below instead.</div>
+        <ol>
+          <li>Scroll back to the top of the guide. An orange box says <strong>Guide update available</strong>. Tap the <strong>Update</strong> button in it.</li>
+          <li>A box asks to <strong>Download File</strong>. Tap <strong>YES</strong>.</li>
+          <li>A small download arrow appears at the top of the screen. The download takes a few seconds.</li>
+        </ol>
+        <div class="shots">
+          <figure class="shot"><img src="/images/guide-update/step3-update-box.webp" width="540" height="660" loading="lazy" alt="The top of the guide with the orange Guide update available box. Its Update button is outlined." /><figcaption>Tap Update in the orange box.</figcaption></figure>
+          <figure class="shot wide"><img src="/images/guide-update/step3-download-yes.webp" width="540" height="229" loading="lazy" alt="A box that says Download File survival-node-user-guide-v1.15.apk, with NO and YES. YES is outlined." /><figcaption>Then tap YES.</figcaption></figure>
+        </div>
+        <div class="callout warn">No orange box? Use the <a href="#browser">web browser method</a> below instead.</div>
       </div>
     </section>
 
@@ -375,10 +391,13 @@
       <h2>Open the downloaded file</h2>
       <div class="step-body">
         <ol>
-          <li>Swipe down from the top of the screen.</li>
-          <li>Tap the notification for the download. Its name ends in <strong>.apk</strong>, such as <strong>survival-node-user-guide-v<span data-latest-version>1.15</span>.apk</strong>.</li>
+          <li>Swipe down from the top of the screen one time.</li>
+          <li>Tap the notification that ends in <strong>.apk</strong> and says <strong>Download complete</strong>.</li>
         </ol>
-        <p class="small">Don't see it? Open <span class="app"><img src="/images/guide-icons/file-manager.webp" alt="" />File Manager</span>, open the <strong>Download</strong> folder and tap the file with the newest version number.</p>
+        <div class="shots">
+          <figure class="shot wide"><img src="/images/guide-update/step4-notification.webp" width="540" height="115" loading="lazy" alt="A notification: survival-node-user-guide-v1.15.apk, Download complete." /><figcaption>Tap this notification.</figcaption></figure>
+        </div>
+        <p class="small">Don't see it? Open <span class="app"><img src="/images/guide-icons/file-manager.webp" alt="" />File Manager</span>, open the <strong>Download</strong> folder and tap the file named <strong>survival-node-user-guide</strong> with the newest version number.</p>
       </div>
     </section>
 
@@ -390,9 +409,13 @@
         <ol>
           <li>Tap <strong>Settings</strong>.</li>
           <li>Turn on <strong>Allow from this source</strong>.</li>
-          <li>Tap the back arrow <strong>←</strong> at the top left.</li>
+          <li>The next box (step 6) usually appears by itself. If it doesn't, tap the back arrow <strong>←</strong> at the top left.</li>
         </ol>
-        <p class="small">If you've updated before, this screen may not appear. Go straight to step 6.</p>
+        <div class="shots">
+          <figure class="shot wide"><img src="/images/guide-update/step5-unknown-apps.webp" width="540" height="366" loading="lazy" alt="A box titled Download Manager: your phone currently isn't allowed to install unknown apps from this source. Settings is outlined." /><figcaption>Tap Settings.</figcaption></figure>
+          <figure class="shot"><img src="/images/guide-update/step5-allow.webp" width="540" height="580" loading="lazy" alt="The Install unknown apps page for Download Manager, with the Allow from this source switch outlined." /><figcaption>Turn on Allow from this source.</figcaption></figure>
+        </div>
+        <p class="small">If you've updated before, this may not appear. Go straight to step 6.</p>
       </div>
     </section>
 
@@ -402,9 +425,12 @@
       <div class="step-body">
         <ol>
           <li>Android asks <strong>"Do you want to update this app?"</strong> Tap <strong>Update</strong>.</li>
-          <li>Wait a few seconds until it says the app is installed.</li>
-          <li>Tap <strong>Open</strong>.</li>
+          <li>A few seconds later it says <strong>App installed</strong>. Tap <strong>Open</strong>.</li>
         </ol>
+        <div class="shots">
+          <figure class="shot wide"><img src="/images/guide-update/step6-update.webp" width="540" height="319" loading="lazy" alt="Survival Node User Guide: Do you want to update this app? Update is outlined." /><figcaption>Tap Update.</figcaption></figure>
+          <figure class="shot wide"><img src="/images/guide-update/step6-open.webp" width="540" height="319" loading="lazy" alt="Survival Node User Guide: App installed. Open is outlined." /><figcaption>Then tap Open.</figcaption></figure>
+        </div>
       </div>
     </section>
 
@@ -412,7 +438,10 @@
       <div class="step-num" aria-hidden="true">7</div>
       <h2>Check that it worked</h2>
       <div class="step-body">
-        <p>Scroll to the bottom of the guide. It should now say <strong>v<span data-latest-version>1.15</span></strong>, and the orange box is gone. You can close the notification for the download, too.</p>
+        <p>Scroll to the bottom of the guide. It should now say <strong>v<span data-latest-version>1.15</span></strong>, and the orange box is gone.</p>
+        <div class="shots">
+          <figure class="shot wide"><img src="/images/guide-update/step7-version.webp" width="540" height="380" loading="lazy" alt="The bottom of the guide. The last line, outlined, says Survival Node User Guide v1.15." /><figcaption>The new version number.</figcaption></figure>
+        </div>
       </div>
     </section>
 
@@ -421,7 +450,7 @@
       <h2>Turn Wi-Fi off and put the phone away</h2>
       <div class="step-body">
         <ol>
-          <li>Swipe down from the top two times, tap <strong>Internet</strong> and turn Wi-Fi off.</li>
+          <li>Swipe down from the top two times and tap <strong>Wi-Fi</strong> to turn it off.</li>
           <li>Going back into storage? Charge the phone to about 60%, power it off and seal it in its Faraday bag, as the guide's storage section explains.</li>
         </ol>
         <p class="small">While you're on Wi-Fi, the guide's <strong>Maintenance</strong> section shows how to update your maps and other apps, too.</p>
@@ -434,9 +463,16 @@
     <section class="card">
       <ol>
         <li>Keep Wi-Fi on (step 1).</li>
-        <li>Open <span class="app"><img src="/images/guide-icons/fennec.webp" alt="" />Fennec</span> on the home screen.</li>
-        <li>Tap the address bar at the top, type this, then tap the arrow or Enter key on the keyboard:<span class="addr addr-block">easternshore.ai/guide-update</span></li>
-        <li>This page opens. Scroll down to this section and tap the orange button:</li>
+        <li>Open <span class="app"><img src="/images/guide-icons/fennec.webp" alt="" />Fennec</span> on the home screen. The first time, it says <strong>Welcome to Fennec</strong>: tap <strong>Continue</strong>.</li>
+        <li>Tap the address bar at the top and type this:<span class="addr addr-block">easternshore.ai/guide-update</span>Then tap the green arrow key at the bottom right of the keyboard.</li>
+      </ol>
+      <div class="shots">
+        <figure class="shot"><img src="/images/guide-update/browser-welcome.webp" width="540" height="945" loading="lazy" alt="Fennec's Welcome to Fennec screen with the Continue button outlined." /><figcaption>First time only: tap Continue.</figcaption></figure>
+        <figure class="shot wide"><img src="/images/guide-update/browser-address.webp" width="540" height="220" loading="lazy" alt="Fennec's address bar, outlined, with easternshore.ai/guide-update typed in." /><figcaption>Type the address in the bar at the top.</figcaption></figure>
+        <figure class="shot wide"><img src="/images/guide-update/browser-enter.webp" width="540" height="290" loading="lazy" alt="The bottom of the keyboard with the green arrow key outlined." /><figcaption>Then tap the green arrow key.</figcaption></figure>
+      </div>
+      <ol start="4">
+        <li>This page opens. If a purple tip pops up, tap its <strong>X</strong>. Scroll down to this section and tap the orange button:</li>
       </ol>
       <div class="only-android">
         <a class="btn" data-apk href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.15.apk">⬇ Download the newest guide</a>
@@ -444,8 +480,22 @@
       </div>
       <p class="not-here only-other">The download button appears here when you open this page on the Survival Node phone.</p>
       <ol start="5">
-        <li>When Fennec says the download is finished, tap <strong>Open</strong>. You can also swipe down from the top and tap the download.</li>
-        <li>Then do <a href="#step-5">steps 5 to 8</a> above. Fennec may ask for permission the first time (step 5), even if you've updated before.</li>
+        <li>Fennec asks <strong>Download file?</strong> Tap <strong>Download</strong>.</li>
+        <li>If Fennec asks to send you notifications, tap <strong>Don't allow</strong> (either answer is fine).</li>
+        <li>Right away, tap <strong>Open</strong> in the <strong>Download completed</strong> bar at the bottom of the screen. It disappears after a few seconds.</li>
+      </ol>
+      <div class="shots">
+        <figure class="shot wide"><img src="/images/guide-update/browser-download.webp" width="540" height="550" loading="lazy" alt="Fennec's Download file? box, 1.04 MB, with the Download button outlined." /><figcaption>Tap Download.</figcaption></figure>
+        <figure class="shot"><img src="/images/guide-update/browser-open.webp" width="540" height="735" loading="lazy" alt="Fennec asking to send notifications, with Don't allow outlined, and the Download completed bar at the bottom with Open outlined." /><figcaption>Tap Don't allow, then Open at the bottom.</figcaption></figure>
+      </div>
+      <ol start="8">
+        <li>Missed the <strong>Open</strong> bar? Tap the three dots <strong>⋮</strong> at the top right of Fennec, tap <strong>Downloads</strong>, then tap the guide file.</li>
+      </ol>
+      <div class="shots">
+        <figure class="shot wide"><img src="/images/guide-update/browser-downloads.webp" width="540" height="220" loading="lazy" alt="Fennec's Downloads list with the survival-node-user-guide apk outlined." /><figcaption>Fennec's Downloads list.</figcaption></figure>
+      </div>
+      <ol start="9">
+        <li>Then do <a href="#step-5">steps 5 to 8</a> above. This time the box in step 5 says <strong>Fennec</strong> at the top. Allow it the same way.</li>
       </ol>
     </section>
 
@@ -458,7 +508,7 @@
       </details>
       <details>
         <summary>I tapped Update and nothing downloaded</summary>
-        <p>Wait 30 seconds, then swipe down from the top and look for the download. Still nothing? Use the <a href="#browser">web browser method</a>.</p>
+        <p>Look for a box that says <strong>Download File</strong> and tap <strong>YES</strong> (step 3). Then wait a few seconds, swipe down from the top and look for the download. Still nothing? Use the <a href="#browser">web browser method</a>.</p>
       </details>
       <details>
         <summary>It says "App not installed" or "There was a problem parsing the package"</summary>
@@ -467,6 +517,11 @@
       <details>
         <summary>A "Google Play Protect" box appeared</summary>
         <p>Some phones sold before November 2026 still have Google Play services, which checks apps that don't come from the Play Store. Tap <strong>More details</strong> if you see it, then <strong>Install anyway</strong>. If it asks whether to scan or send the app, either choice is fine.</p>
+      </details>
+      <details>
+        <summary>A Motorola "Critical update" screen appeared</summary>
+        <p>That's Motorola's own Android update, which can arrive whenever the phone is on Wi-Fi. It's separate from the guide. You can tap <strong>Later</strong> and finish updating the guide first. Motorola may still restart the phone on its own a few days later to install its update.</p>
+        <div class="shots"><figure class="shot"><img src="/images/guide-update/motorola-update.webp" width="540" height="575" loading="lazy" alt="Motorola's Critical update screen: Please restart now, with a version number and size." /></figure></div>
       </details>
       <details>
         <summary>It asks to "install" instead of "update"</summary>
