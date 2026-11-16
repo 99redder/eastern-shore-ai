@@ -201,6 +201,7 @@
     }
     .insert-details { min-width: 0; display: flex; flex-direction: column; gap: .05rem; }
     .insert-details strong { color: var(--cyan); font: 700 .95rem 'Hanken Grotesk', sans-serif; }
+    .insert-note { color: var(--muted); font-size: .82rem; }
     .insert-link { color: #1e5a95; text-decoration: underline; overflow-wrap: anywhere; }
     .insert-print-btn { flex-shrink: 0; white-space: nowrap; }
     .print-frame {
@@ -265,9 +266,9 @@
       <!-- PRINT INSERTS: quick access -->
       <div class="section insert-section">
         <h2>Print Inserts</h2>
-        <p class="insert-intro">Print the three inserts for the order here. Click a document link if you need to view it first.</p>
+        <p class="insert-intro">Print the three inserts for the order here: Quick-Start, Deployment Guide, and the warranty insert that matches where the kit sold. Click a document link if you need to view it first.</p>
         <ul class="checklist insert-checklist">
-          <li id="li-34"><input type="checkbox" id="c34" onchange="toggle('li-34')"><label for="c34" class="item-text"><strong>Print and include all three inserts.</strong></label></li>
+          <li id="li-34"><input type="checkbox" id="c34" onchange="toggle('li-34')"><label for="c34" class="item-text"><strong>Print and include all three inserts.</strong><span class="item-note">eBay order? Print the eBay warranty insert instead of the regular one: returns go through eBay, with no RMA step and no Stripe line.</span></label></li>
         </ul>
         <div class="insert-list">
           <div class="insert-row">
@@ -287,9 +288,18 @@
           <div class="insert-row">
             <div class="insert-details">
               <strong>Warranty &amp; Return Policy Insert</strong>
+              <span class="insert-note">Website orders</span>
               <a class="insert-link" href="warranty-insert.html" target="_blank" rel="noopener">easternshore.ai/warranty-insert.html</a>
             </div>
             <button class="btn insert-print-btn" type="button" data-insert-print="warranty-insert.html" aria-label="Print Warranty &amp; Return Policy Insert">Print</button>
+          </div>
+          <div class="insert-row">
+            <div class="insert-details">
+              <strong>Warranty &amp; Return Policy Insert (eBay)</strong>
+              <span class="insert-note">eBay orders, instead of the one above</span>
+              <a class="insert-link" href="warranty-insert.html?ebay=1" target="_blank" rel="noopener">easternshore.ai/warranty-insert.html?ebay=1</a>
+            </div>
+            <button class="btn insert-print-btn" type="button" data-insert-print="warranty-insert.html?ebay=1" aria-label="Print eBay Warranty &amp; Return Policy Insert">Print</button>
           </div>
         </div>
       </div>

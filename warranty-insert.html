@@ -6,6 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
   <title>Survival Node Warranty &amp; Return Policy</title>
+  <script>
+    // warranty-insert.html?ebay=1 is the eBay-order version: returns go through eBay (no RMA),
+    // eBay takes the payment, and the eBay listing holds the purchase terms. Everything else is shared.
+    if (/[?&]ebay=1(&|$)/.test(location.search)) {
+      document.documentElement.dataset.sale = 'ebay';
+      document.title = 'Survival Node Warranty & Return Policy (eBay Order)';
+    }
+  </script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,6 +149,10 @@
     }
     .foot strong { color: var(--text); }
 
+    /* Website order by default; ?ebay=1 shows the eBay lines instead */
+    html:not([data-sale="ebay"]) .ebay-only { display: none !important; }
+    html[data-sale="ebay"] .site-only { display: none !important; }
+
     @media (max-width: 640px) {
       .details { column-count: 1; }
       h1 { font-size: 1.5rem; }
@@ -192,9 +204,10 @@
 
     <div class="sheet">
       <header>
-        <p class="eyebrow">Survival Node &middot; Eastern Shore AI, LLC</p>
+        <p class="eyebrow">Survival Node &middot; Eastern Shore AI, LLC<span class="ebay-only"> &middot; eBay Order</span></p>
         <h1>Warranty &amp; Return Policy</h1>
-        <p class="headline-sub">Your 30-day limited warranty, how to return, and the full purchase terms — all on one page.</p>
+        <p class="headline-sub site-only">Your 30-day limited warranty, how to return, and the full purchase terms — all on one page.</p>
+        <p class="headline-sub ebay-only">Your 30-day limited warranty, how to return through eBay, and the purchase terms — all on one page.</p>
       </header>
 
       <!-- ═══════ SUMMARY (normal size) ═══════ -->
@@ -202,9 +215,12 @@
         <h2>The Short Version</h2>
         <ul>
           <li><strong>30-Day Limited Warranty</strong> — covers hardware and software-configuration defects <em>as delivered</em>, starting on your confirmed delivery date. This is the sole warranty; the manufacturer warranty is void from OS modification.</li>
-          <li><strong>Returns</strong> — return within 30 days of delivery. Email <strong>support@easternshore.ai</strong> for an RMA number <em>before</em> shipping (returns without one are refused). The device must be in original functional condition with no further OS changes. <strong>Return shipping is the buyer's responsibility.</strong></li>
-          <li><strong>Refunds</strong> — issued to your original payment method after the return is received and inspected. Physical damage after receipt is not eligible.</li>
-          <li><strong>Questions or claims</strong> — support@easternshore.ai &middot; (302) 907-9162 &middot; www.easternshore.ai</li>
+          <li class="site-only"><strong>Returns</strong> — return within 30 days of delivery. Email <strong>support@easternshore.ai</strong> for an RMA number <em>before</em> shipping (returns without one are refused). The device must be in original functional condition with no further OS changes. <strong>Return shipping is the buyer's responsibility.</strong></li>
+          <li class="site-only"><strong>Refunds</strong> — issued to your original payment method after the return is received and inspected. Physical damage after receipt is not eligible.</li>
+          <li class="site-only"><strong>Questions or claims</strong> — support@easternshore.ai &middot; (302) 907-9162 &middot; www.easternshore.ai</li>
+          <li class="ebay-only"><strong>Returns</strong> — start a return from this order in your <strong>eBay purchases</strong> within 30 days of delivery. The device must be in original functional condition with no further OS changes. <strong>Changed your mind? The buyer pays return shipping.</strong> Arrived defective or not as described? We pay it.</li>
+          <li class="ebay-only"><strong>Refunds</strong> — issued through eBay to your original payment method once the return arrives. A kit returned used or damaged may get a reduced refund where eBay's rules allow.</li>
+          <li class="ebay-only"><strong>Questions or claims</strong> — message us from the order on eBay, or support@easternshore.ai &middot; (302) 907-9162</li>
         </ul>
       </section>
 
@@ -234,6 +250,7 @@
 
         <section>
           <h3>How to Initiate a Return</h3>
+          <div class="site-only">
           <p>Returns are accepted within 30 days of confirmed delivery. The device must be in original functional condition and the OS must not have been further modified after purchase.</p>
           <ul>
             <li><strong>Contact first</strong> — email support@easternshore.ai (or the contact form at www.easternshore.ai) within the 30-day window with your order info and the issue.</li>
@@ -241,6 +258,15 @@
             <li><strong>Ship it back</strong> — pack carefully (ideally the original box). Return shipping is the buyer's responsibility. Send to: Eastern Shore AI LLC, PO BOX 317, Parsonsburg MD 21849.</li>
             <li><strong>Resolution</strong> — after receipt and inspection we issue a replacement or refund as appropriate.</li>
           </ul>
+          </div>
+          <div class="ebay-only">
+          <p>Returns are accepted through eBay within 30 days of delivery, warranty claims included. The device must be in original functional condition and the OS must not have been further modified after purchase.</p>
+          <ul>
+            <li><strong>Start it on eBay</strong> — message us from the order if something's wrong (many problems are fixed without a return), or choose Return this item from the order in your eBay purchases.</li>
+            <li><strong>Ship it back</strong> — use the label or address eBay gives you and pack carefully. Change of mind: the buyer pays return shipping. Defective or not as described: we pay it.</li>
+            <li><strong>Resolution</strong> — we refund through eBay within 2 business days after the return arrives. eBay's Money Back Guarantee also applies.</li>
+          </ul>
+          </div>
         </section>
 
         <section>
@@ -265,9 +291,12 @@
           <p><strong>No survival guarantee.</strong> This kit is a preparedness tool. It does not guarantee safety, survival, or success in any emergency. AI output is for educational/reference use only and must not replace professional medical, tactical, legal, or emergency guidance when qualified help is available.</p>
           <p><strong>Limitation of liability.</strong> To the maximum extent permitted by law, Eastern Shore AI, LLC disclaims all implied warranties of merchantability and fitness for a particular purpose, and is not liable for any incidental, consequential, special, or punitive damages — including loss of data, personal injury, property damage, or adverse emergency outcomes. After the 30-day window, all products are provided "AS IS," with no repair, replacement, or service except at our discretion.</p>
           <p><strong>User responsibility.</strong> By purchasing, the buyer confirms they are 18+ and accepts responsibility for lawful use, safe storage, maintenance, and updating of the kit.</p>
-          <p><strong>Order cancellation / right to refuse.</strong> We may refuse or cancel any order before shipment (suspected fraud, address concerns, supply constraints, or reasonable belief of unlawful/harmful use). Pre-shipment cancellations are refunded in full.</p>
+          <p class="site-only"><strong>Order cancellation / right to refuse.</strong> We may refuse or cancel any order before shipment (suspected fraud, address concerns, supply constraints, or reasonable belief of unlawful/harmful use). Pre-shipment cancellations are refunded in full.</p>
+          <p class="ebay-only"><strong>Order cancellation.</strong> We may cancel an order through eBay before shipment (suspected fraud, address concerns, supply constraints, or reasonable belief of unlawful/harmful use). Cancellations are refunded in full through eBay.</p>
           <p><strong>Independent seller.</strong> Eastern Shore AI, LLC is an independent seller, not an authorized dealer, affiliate, or partner of any hardware manufacturer. Brand names remain the property of their owners, used for identification only.</p>
-          <p><strong>Payment.</strong> Processed securely by Stripe, Inc. Eastern Shore AI, LLC does not collect, store, or access your payment card or banking information.</p>
+          <p class="site-only"><strong>Payment.</strong> Processed securely by Stripe, Inc. Eastern Shore AI, LLC does not collect, store, or access your payment card or banking information.</p>
+          <p class="ebay-only"><strong>Payment.</strong> Paid through eBay. Eastern Shore AI, LLC never sees your payment card or banking information.</p>
+          <p class="ebay-only"><strong>eBay Money Back Guarantee.</strong> Nothing on this page limits your rights under eBay's Money Back Guarantee; the 30-day limited warranty is in addition to it.</p>
         </section>
 
         <p class="prop65"><strong>California Proposition 65 Notice:</strong> This product may expose you to chemicals known to the State of California to cause cancer and birth defects or other reproductive harm. For more information, visit www.P65Warnings.ca.gov.</p>
@@ -275,8 +304,10 @@
       </div>
 
       <div class="foot">
-        <span><strong>Eastern Shore AI, LLC</strong> &middot; support@easternshore.ai &middot; (302) 907-9162 &middot; www.easternshore.ai</span>
-        <span>Full terms: <strong>www.easternshore.ai/terms.html</strong></span>
+        <span class="site-only"><strong>Eastern Shore AI, LLC</strong> &middot; support@easternshore.ai &middot; (302) 907-9162 &middot; www.easternshore.ai</span>
+        <span class="site-only">Full terms: <strong>www.easternshore.ai/terms.html</strong></span>
+        <span class="ebay-only"><strong>Eastern Shore AI, LLC</strong> &middot; support@easternshore.ai &middot; (302) 907-9162</span>
+        <span class="ebay-only">Purchase terms: <strong>your eBay listing</strong> &middot; eBay Money Back Guarantee applies</span>
       </div>
     </div>
   </div>

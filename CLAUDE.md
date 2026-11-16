@@ -1217,6 +1217,12 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - **Telling buyers:** the checkout notice is `custom_text[submit][message]` in `handleSurvivalNodeCheckout`; `privacy.html` and `terms.html` each have a text messages section. Keep them consistent.
 - **Opt-outs:** if a buyer asks to stop, stop and put it in that order's Internal Notes. Nothing blocks the button.
 
+## eBay orders: warranty insert (added 2026-11-16)
+
+- `warranty-insert.html?ebay=1` is the eBay version of the warranty insert: a head script sets `<html data-sale="ebay">`, and `.ebay-only` / `.site-only` swap only the return steps (start the return from the eBay order, no RMA, we pay return shipping when it arrived defective or not as described, refund through eBay within 2 business days), the refund and contact lines, cancellation, payment ("Paid through eBay", not Stripe), an eBay Money Back Guarantee line and the footer (no website address, "Purchase terms: your eBay listing"). Everything else is shared, so edit it once. Both versions must print on one page.
+- The order checklist's Print Inserts lists it as a fourth row, used instead of the regular warranty insert for eBay orders.
+- Keep it in step with the eBay listing's return settings (30 days, buyer pays return shipping, as of 2026-11-16). eBay's rules win over the website's terms for eBay buyers; don't put anything in an eBay package that invites them to buy from the website (eBay's "offers to buy or sell outside of eBay" policy).
+
 ## Survival Node Ask K order updates (added 2026-10-27)
 
 Ported from Florence Mae Gifts' Ask K (`FlorenceMaeGifts.com/cloudflare/src/ask-k.js` + `orders.js`). Survival Node orders only: no invoices, no eBay.
