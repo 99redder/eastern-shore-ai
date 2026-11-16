@@ -131,7 +131,7 @@ We may text order updates from (302) 907-9162. Customers can reply to those text
 
 **Packaging:** Ships in a standard cardboard box that may carry another company's logo; that implies no affiliation.
 
-**Other terms:** Buyers must be 18+. Eastern Shore AI may cancel an order (full refund before shipment) for suspected fraud, address problems or supply limits. California Prop 65 notice applies.
+**Other terms:** Buyers must be 18+. Eastern Shore AI may cancel an order (full refund before shipment) for suspected fraud, address problems or supply limits. California Prop 65 notice applies. Checkout on our website adds the buyer's email address to the Eastern Shore AI newsletter, so they hear when a new version of the Survival Node User Guide app is out and how to update it, plus other Survival Node product news. They can unsubscribe any time with the link in any newsletter email, or by asking us, and it doesn't affect their order, warranty or order emails. eBay purchases aren't added.
 
 ## BYOG (Bring Your Own Gear) Setup — $69.99
 
