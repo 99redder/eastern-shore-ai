@@ -543,6 +543,20 @@ body {
   word-break: break-all;
 }
 
+/* A short web address for the reader to type (plain text, never a link) */
+.type-addr {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 15px;
+  color: var(--text-bright);
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+
 /* ── FOOTER ── */
 .footer {
   text-align: center;
@@ -860,7 +874,7 @@ body {
     </div></div>
   </div>
 
-  <div class="card" id="update-guide" data-search="update user guide app new version download install">
+  <div class="card" id="update-guide" data-search="update user guide app new version download install email newsletter sign up ebay">
     <button class="card-trigger" onclick="toggleCard(this)">
       <span class="card-icon">📖</span>
       <span>Update This Guide</span>
@@ -878,6 +892,10 @@ body {
       </ol>
       <div class="callout tip">💡 The update installs over this one. Nothing else on your phone changes. If no note appears, you already have the latest guide.</div>
       <div class="callout warning">⚠️ If the guide shows <strong>"Webpage not available"</strong> on Wi-Fi, that Wi-Fi has no working internet. Turn Wi-Fi off and open the guide again; it opens normally. Try the update later on a working connection.</div>
+      <!-- Plain text, never a link: the guide must make no network request (README). -->
+      <h4>Get an Email When There's a New Guide</h4>
+      <p>Pictures of each step, what's new in each version, and an email sign-up for new guides are at this address. Type it into <strong>Fennec</strong>'s address bar while on Wi-Fi, or open it on any computer or phone:<br><span class="type-addr">easternshore.ai/guide-update</span></p>
+      <p><strong>Bought your kit on eBay?</strong> eBay doesn't share your email address with us, so signing up there is the only way we can tell you when a new guide comes out.</p>
     </div></div>
   </div>
 </div>
