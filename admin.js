@@ -4351,6 +4351,7 @@
       show('year-close-card', tab === 'year-close');
       show('audit-package-card', tab === 'audit-package');
       show('profit-card', tab === 'profit');
+      document.getElementById('admin-profit-top-btn')?.classList.toggle('active', tab === 'profit');
       if (tab === 'orders' && adminSessionActive) refreshOrderList();
       // Survival Node Profit (admin-profit.js) reads the Tax Ledger again every time it's opened.
       if (tab === 'profit' && adminSessionActive && window.refreshProfitCalc) window.refreshProfitCalc();
@@ -4663,6 +4664,9 @@
           adminUserGuideBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
           adminUserGuideTopBtn?.addEventListener('click', () => openUserGuideModal('expenses'));
           adminBlurAmountsBtn?.addEventListener('click', () => setBlurMoney(!blurMoneyEnabled));
+          // The header button lives outside the re-mounted controls, so onclick (not addEventListener) keeps it to one handler across logins.
+          const adminProfitTopBtn = document.getElementById('admin-profit-top-btn');
+          if (adminProfitTopBtn) adminProfitTopBtn.onclick = () => setAdminSectionTab('profit');
           userGuideTabBtns.forEach((btn) => {
             btn.addEventListener('click', () => setUserGuideTab(btn.getAttribute('data-guide-tab')));
           });

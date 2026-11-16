@@ -1,4 +1,4 @@
-// ===== Survival Node Profit (admin tab, Accounting row) =====
+// ===== Survival Node Profit (admin tab, opened from its own header button) =====
 // Loaded after admin.js; uses its globals (loadTaxYear, buildPartLots, nowEtParts, escHtml,
 // adminSessionActive, TaxDataIncompleteError). The Tax Ledger is read live every time the tab
 // opens and when Refresh is pressed, so part costs, shipping labels and fee rates always come

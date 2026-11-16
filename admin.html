@@ -347,6 +347,11 @@
     .admin-section-tabs .btn.tab-film { color:#e3c58e; border-color:#a8894f; }
     .admin-section-tabs .btn.tab-film:hover { border-color:#e3c58e; }
     .admin-section-tabs .btn.tab-film.active { border-color:#e3c58e; box-shadow:0 0 14px rgba(227,197,142,.55); }
+    /* Survival Node Profit: its own button in the header, beside the eye and User Guide */
+    #admin-header-tools { flex-wrap:wrap; justify-content:flex-end; }
+    #admin-profit-top-btn { display:inline-flex; align-items:center; gap:.4rem; font-weight:700; color:#9ed0ff; border-color:#3f86d6; white-space:nowrap; }
+    #admin-profit-top-btn:hover { border-color:#9ed0ff; }
+    #admin-profit-top-btn.active { border-color:#9ed0ff; box-shadow:0 0 14px rgba(158,208,255,.55); }
     .tax-ledger-action-row {
       display:flex;
       align-items:center;
@@ -496,6 +501,7 @@
           </div>
         </div>
         <div id="admin-header-tools" style="display:none; gap:.45rem; align-items:center; margin-top:.1rem;">
+          <button type="button" class="btn" id="admin-profit-top-btn" title="Survival Node profit, read from the Tax Ledger"><span aria-hidden="true">📈</span>Survival Node Profit</button>
           <button type="button" class="btn" id="admin-blur-amounts-btn" title="Toggle amount blur" aria-label="Toggle amount blur"></button>
           <button type="button" class="btn" id="admin-user-guide-top-btn">User Guide</button>
           <button type="button" class="btn" id="admin-logout-btn" title="Log out of admin on this browser">Log Out</button>
@@ -532,7 +538,6 @@
             <span class="admin-tab-label">Accounting</span>
             <div class="admin-section-tabs">
               <button type="button" class="btn" data-admin-tab="tax">Tax Ledger</button>
-              <button type="button" class="btn tab-node" data-admin-tab="profit"><span class="tab-icon" aria-hidden="true">📈</span>Survival Node Profit</button>
               <button type="button" class="btn" data-admin-tab="accounts">Accounts</button>
               <button type="button" class="btn" data-admin-tab="reconciliation">Reconciliation</button>
               <button type="button" class="btn" data-admin-tab="year-close">Year-End Close</button>
@@ -1669,7 +1674,7 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-11-16b"></script>
+  <script src="/admin.js?v=2026-11-16c"></script>
   <script src="/admin-websites.js?v=8"></script>
   <script src="/admin-films.js?v=21"></script>
   <script src="/admin-profit.js?v=1"></script>
