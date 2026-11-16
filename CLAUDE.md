@@ -1180,7 +1180,7 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 - **Fix (1.7):** `checkForGuideUpdate()` returns early when `navigator.onLine` is false. The app has `ACCESS_NETWORK_STATE`, so the web view reports airplane mode correctly. Offline, the guide makes no request at all. Still possible: Wi-Fi that's connected but has no internet looks "online", the fetch fails, and the error page appears. No request can be made that the wrapper won't treat this way.
 - **Test channel (1.7):** 7 quick taps on the version line at the bottom of the guide turns "test updates" on for that phone (footer reads "· test updates on"). Such phones are also offered `latest.json`'s optional `test` entry, so new builds reach Red's test phone over Wi-Fi before customers. Customers' guides ignore `test`. 1.7 itself had to be installed by hand (from the hosted APK), since 1.6 has no test channel.
 
-### Checklist for the next guide app update (1.14 = versionCode 11400)
+### Checklist for the next guide app update (1.16 = versionCode 11600)
 
 1. Edit `survival-node-app/index.html`; keep `node-setup.html` in sync. Bump `APP_VERSION_CODE` and the footer version.
 2. **Add nothing that loads from the network while offline:** no fetch, images, fonts or scripts from a URL, and no tappable outside links (write the address as plain text). One failed request replaces the whole guide (above).
@@ -1188,7 +1188,14 @@ wrangler deploy --config wrangler.toml   # confirm output says eastern-shore-ai-
 4. Claude checks the APK: versionCode/versionName from the binary `AndroidManifest.xml`, `assets/htmlapp/root/index.html` byte-identical to the source, v2 signing cert SHA-256 `689120c5…89de7b`. This Mac has no aapt/apksigner, so use a small Python script. Delete scratch copies of the build ZIP afterwards, and never open its `readme.txt`/`certification.txt` (passwords).
 5. Host the APK in `survival-node-app/` and add it as `latest.json`'s `test` entry; the top-level fields stay on the current release. The test phone (test updates on) installs it from the update note over Wi-Fi.
 6. Red **cold-starts it in airplane mode with Wi-Fi off** (swipe it out of recent apps first) and says what they saw. Wrap-up buttons must never pre-write a test result; ask what happened on the phone.
-7. Release in one push: move the `test` values to the top-level fields and delete `test`, remove the old APK, point the update note's fallback link in `index.html` at the new APK, update the README table and history. Then check the live `latest.json` and that the live APK's hash matches the tested build.
+7. Release in one push: move the `test` values to the top-level fields and delete `test`, remove the old APK, point the update note's fallback link in `index.html` at the new APK, update the README table and history, and update `guide-update.html` (below). Then check the live `latest.json` and that the live APK's hash matches the tested build.
+
+### Guide update page for customers (added 2026-11-16)
+
+- `guide-update.html` (`www.easternshore.ai/guide-update`, noindex, not in the sitemap) is the step-by-step update page Red links in the newsletter, sent to everyone who bought a kit, whenever a new guide comes out. Linked from `node.html`'s "How do I update…" FAQ answer and `node-setup.html`'s shared `guideUpdateSteps`. The guide app's own "Update This Guide" card can get the address as plain text at the next build (never a tappable link, see item 2 above).
+- **Gen 2 only (Red's call, 2026-11-16).** Kits sold before October 24, 2026 (mostly Gen 1) have guide 1.1, which has no version number in its footer and no Update button, and the newest guide describes Gen 2 hardware. Step 2's version check tells anyone with no version number, or "Gen 1", to stop and call. The last Gen 1 kit (eBay, 2026-10-29) has its own separate guide app and isn't affected.
+- Two ways to update, both drawn from real screenshots of the test phone: the guide's orange box (1.2 and 1.4+ show it on Wi-Fi), and Fennec to this page, whose download button shows only on Android. The steps match the guide app's "Update This Guide" card and `guideUpdateSteps`; change all three together.
+- **What's new** lists each version, newest first, high level: spell out changes to how the app works or what it explains; legal or terms changes only say "Updated terms and conditions" (Red, 2026-11-16). 1.6 was withdrawn, so it isn't listed. Updating it is part of each release (README step 7); the page also reads `latest.json` for the version number and APK link.
 
 ## Ship-to address in order emails (added 2026-10-30)
 
