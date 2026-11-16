@@ -66,6 +66,7 @@ No SIM card is included (see "Calls and texts" below).
 - **Meshtastic** — app for LoRa mesh radios: text messages and GPS locations with no internet or cell service. Only the app is preinstalled. No radio is included; it needs a separate Meshtastic-compatible radio, sold separately, to send or receive anything
 - **LocalSend** — off-grid file transfer over local Wi-Fi
 - **Fossify File Manager** — private file manager
+- **Fossify Clock** — open-source alarm clock, timer and stopwatch that works without Google Play Services; it's the Clock in the Tools folder (phones prepared from November 16, 2026; earlier phones have Google's Clock)
 - **Eastern Shore AI Users Guide** — the full User Guide as an app; works offline and checks for guide updates on Wi-Fi
 
 All of it runs offline after setup except DeepL, Fennec and F-Droid, which need an internet connection.
@@ -86,6 +87,8 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 **Can I use normal apps like banking or streaming?** Some mainstream apps (banking, DRM streaming, Google-dependent apps) may not work. We recommend using it only for emergencies.
 
 **Does it get Android updates?** It can. Motorola doesn't allow its system updater to be removed, so when the phone is on Wi-Fi, Motorola may install Android and security updates. We don't control or test those updates, and one can change settings or bring back some built-in system apps. If the phone acts up after an update, contact us before resetting it: a factory reset erases the preloaded libraries, maps and AI models. The kit is built to be used offline, and apps, maps and AI models can still be updated over Wi-Fi.
+
+**What is the "Enable Google Play services" notice?** It's expected. Google Play Services is turned off on purpose, so some built-in Google apps post a notice saying they won't work without it, for example "Clock won't work unless you enable Google Play services." Phones prepared from November 16, 2026 use Fossify Clock, which doesn't do this. On an earlier phone, to stop Clock's notice: press and hold the notice, tap Turn off notifications, switch off only "Google Play services availability", then tap Done. Leave "All Clock notifications" on, or alarms and timers may not ring. The Phone app's notice can't be turned off, because Android locks the phone app's notifications, so just swipe it away; it can come back after a restart. Don't turn on Google Play Services to make these go away. The User Guide app's Troubleshooting section has the same steps.
 
 **Can I add apps or update the AI models and maps?** Yes. You can side-load APKs (Google Play Services is removed or disabled). PocketPal can download new or larger model files, and Organic Maps can re-download updated maps, whenever you have Wi-Fi. The User Guide's Maintenance section walks through it.
 
