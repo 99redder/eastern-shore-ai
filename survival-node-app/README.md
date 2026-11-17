@@ -45,8 +45,9 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.16 (not built yet) |
-| Last built version | 1.15 (versionCode 11500, built 2026-11-16 from HTML Files — opens offline, tested) |
+| Current source version | 1.16 (built 2026-11-17, in test) |
+| Last built version | 1.16 (versionCode 11600, built 2026-11-17 from HTML Files; `latest.json` `test` entry; Claude's airplane-mode cold start on ZD222PTV95 opened it; waiting on Red's test) |
+| Last released version | 1.15 (versionCode 11500, built 2026-11-16 — opens offline, tested) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
 **Signing key & build artifacts** (keep private — not in this repo):

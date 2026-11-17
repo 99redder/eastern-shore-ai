@@ -1,5 +1,10 @@
 {
   "version": "1.15",
   "versionCode": 11500,
-  "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.15.apk"
+  "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.15.apk",
+  "test": {
+    "version": "1.16",
+    "versionCode": 11600,
+    "apk": "https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.16.apk"
+  }
 }
