@@ -1,9 +1,13 @@
-// ChatGPT shopping product feed for the Survival Node: chatgpt-feed.jsonl,
-// served at https://www.easternshore.ai/chatgpt-feed.jsonl and given to
+// ChatGPT shopping product feed for the Survival Node: chatgpt-feed.csv,
+// served at https://www.easternshore.ai/chatgpt-feed.csv and given to
 // OpenAI's Business Hub (chatgpt.com/business-hub) as a hosted feed URL.
 //
-// Fields follow OpenAI's product feed schema (one JSON object per line):
+// Fields follow OpenAI's product feed schema:
 // https://developers.openai.com/commerce/specs/file-upload/products
+// CSV because the hosted-URL option takes plain .csv/.tsv but only gzipped
+// JSONL: a header row, one product per row, UTF-8. Booleans are lowercase
+// strings, target_countries is JSON in its cell, additional_image_urls is a
+// comma-separated list (no spaces), and optional fields are left empty.
 //
 // - Title and description come from merchant-feed.xml (the Google feed), so
 //   ChatGPT and Google describe the kit the same way. Edit them there.
@@ -22,7 +26,7 @@
 //
 //   node tools/chatgpt-feed.mjs                     write today's feed
 //   node tools/chatgpt-feed.mjs --date 2026-11-28   write the feed as of that day
-//   node tools/chatgpt-feed.mjs --check             exit 1 if chatgpt-feed.jsonl is out of date
+//   node tools/chatgpt-feed.mjs --check             exit 1 if chatgpt-feed.csv is out of date
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -86,7 +90,20 @@ export function activeSale(now = new Date()) {
   return nodePrice(now).sale;
 }
 
-export function buildFeed(googleFeedXml, now = new Date()) {
+function csvField(value) {
+  const s = String(value ?? '');
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+// How OpenAI wants each value written in a CSV cell.
+function cell(value) {
+  if (Array.isArray(value)) return null; // handled per field below
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
+  return value ?? '';
+}
+
+// The item as an object (what goes in the row), for tests and the CSV writer.
+export function buildItem(googleFeedXml, now = new Date()) {
   const { title, description } = textFromGoogleFeed(googleFeedXml);
   const images = metaImageUrls();
   const sale = activeSale(now);
@@ -97,13 +114,22 @@ export function buildFeed(googleFeedXml, now = new Date()) {
     image_url: images[0],
     additional_image_urls: images.slice(1),
     price: usd(NODE_REGULAR_CENTS),
-    ...(sale ? { sale_price: usd(NODE_SALE_CENTS) } : {})
+    sale_price: sale ? usd(NODE_SALE_CENTS) : ''
   };
-  const row = {};
-  for (const f of FIELDS) if (item[f] !== undefined) row[f] = item[f];
   const extra = Object.keys(item).filter((k) => !FIELDS.includes(k));
   if (extra.length) throw new Error(`chatgpt-feed: fields missing from FIELDS: ${extra.join(', ')}`);
-  return `${JSON.stringify(row)}\n`;
+  return item;
+}
+
+export function buildFeed(googleFeedXml, now = new Date()) {
+  const item = buildItem(googleFeedXml, now);
+  const values = FIELDS.map((f) => {
+    const v = item[f];
+    if (f === 'target_countries') return JSON.stringify(v);
+    if (f === 'additional_image_urls') return v.join(',');
+    return cell(v);
+  });
+  return `${FIELDS.join(',')}\n${values.map(csvField).join(',')}\n`;
 }
 
 function main() {
@@ -113,7 +139,7 @@ function main() {
   // midday UTC is the same calendar day in Eastern time
   const now = args.includes('--date') ? new Date(`${dateArg}T16:00:00Z`) : new Date();
 
-  const feedPath = join(ROOT, 'chatgpt-feed.jsonl');
+  const feedPath = join(ROOT, 'chatgpt-feed.csv');
   const after = buildFeed(readFileSync(join(ROOT, 'merchant-feed.xml'), 'utf8'), now);
   const before = existsSync(feedPath) ? readFileSync(feedPath, 'utf8') : '';
   const sale = activeSale(now);
@@ -124,11 +150,11 @@ function main() {
     return;
   }
   if (check) {
-    console.log(`ChatGPT feed: ${state}. Out of date: chatgpt-feed.jsonl`);
+    console.log(`ChatGPT feed: ${state}. Out of date: chatgpt-feed.csv`);
     process.exit(1);
   }
   writeFileSync(feedPath, after);
-  console.log(`ChatGPT feed: ${state}. Updated: chatgpt-feed.jsonl`);
+  console.log(`ChatGPT feed: ${state}. Updated: chatgpt-feed.csv`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) main();
