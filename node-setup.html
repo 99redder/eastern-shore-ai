@@ -278,6 +278,26 @@
                <p><strong>Get an email when there's a new guide:</strong> pictures of each step, what's new in each version, and an email sign-up for new guides are at <a href="/guide-update.html#get-updates" style="color:var(--cyan)">easternshore.ai/guide-update</a>. On the Survival Node, type the address into <strong>Fennec</strong>'s address bar while on Wi-Fi.</p>
                <p><strong>Bought your kit on eBay?</strong> eBay doesn't share your email address with us, so signing up there is the only way we can tell you when a new guide comes out.</p>`;
 
+    // The Survival Node Pal's instructions (survival_prompt.txt on the phone; rewritten 2026-11-17).
+    // Shown in the PocketPal section and in Maintenance > Update the Survival Node Pal; keep in step with the guide app.
+    const palPromptBox = `<pre style="background:#070910; border:1px solid rgba(158,208,255,.2); border-left:3px solid var(--cyan); border-radius:0 6px 6px 0; padding:.85rem 1rem; margin:.5rem 0 .9rem; font-size:.78rem; color:var(--ok); white-space:pre-wrap; line-height:1.65; font-family:'Courier New',monospace;">You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
+
+Rules:
+1. Answer right away, with no greetings or filler.
+2. If the topic can hurt someone (medical care, drinking water, food, fire, electricity, chemicals), start with a short **CRITICAL SAFETY WARNING**.
+3. Give the standard, proven method first: the one the CDC, Red Cross, FEMA or the U.S. Army teaches. Then give backups, and say what each backup can't do.
+4. Never make up a number. Give a measurement, dose, ratio or time only if it is a well-known standard. If you aren't sure of a number, say so and point to the Survival Manual or WikiMed on this phone.
+5. Never call something safe to drink, eat or use unless the steps you gave make it safe.
+6. Use numbered steps for procedures and short bullet lists for supplies.
+7. Assume no internet and limited supplies. Improvise only with methods known to work.
+8. For a serious injury or illness, say to get medical help as soon as possible.
+
+Drinking water (CDC):
+- Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
+- Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
+- Bleach: plain, unscented household bleach (5-9%). 2 drops per liter (8 per gallon); 4 drops per liter if the water is cloudy, colored or very cold. Stir, then wait at least 30 minutes.
+- Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>`;
+
     const sections = [
       {
         title: 'Initial Setup',
@@ -360,6 +380,18 @@
                <p><strong>Update the User Guide App</strong></p>
                <p>The User Guide app keeps the whole guide on your phone, so it works fully offline. Whenever you open it while connected to Wi-Fi, it checks for a newer version of the guide. Offline, it simply opens as usual.</p>
                ${guideUpdateSteps}
+               <p><strong>Update the Survival Node Pal</strong></p>
+               <p>On November 17, 2026 we rewrote the instructions behind the <strong>Survival Node</strong> Pal in PocketPal. The AI now gives the standard, proven method first, won't make up numbers, and has the CDC's drinking-water figures built in. Phones prepared from November 17, 2026 already have them. If your phone was prepared earlier, update the Pal once. It works offline and takes about two minutes. To check, open PocketPal, tap ☰, then <strong>Pals</strong>, and tap the <strong>Survival Node</strong> card: if the <strong>System Prompt</strong> box starts with "You are Survival Node, an offline advisor", you already have them.</p>
+               <ol>
+                 <li>Copy the new instructions below. In the User Guide app (version 1.17 or later), tap <strong>Copy the new instructions</strong> under <strong>Update the Survival Node Pal</strong>. Here, press and hold the instructions, tap <strong>Select all</strong>, then <strong>Copy</strong>.</li>
+                 <li>Open <strong>PocketPal</strong>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>.</li>
+                 <li>Tap the <strong>Survival Node</strong> card. The <strong>Edit Pal</strong> screen opens.</li>
+                 <li>Press and hold the text in the <strong>System Prompt</strong> box, tap <strong>Select all</strong>, then tap <strong>Paste</strong>.</li>
+                 <li>Tap <strong>Save</strong> at the bottom.</li>
+                 <li>Go back to the chat and start a new one with the pencil button at the top right. The new instructions apply to new chats.</li>
+               </ol>
+               ${palPromptBox}
+               <p style="color:var(--muted); font-size:.9rem;">The <strong>survival_prompt.txt</strong> file on phones prepared before November 17, 2026 (in the Tools folder and the Documents folder) still has the old wording. The box above is the current version.</p>
                <p style="color:var(--muted); font-size:.9rem;"><em>Note: Only connect to a trusted private Wi-Fi network (your home network) during maintenance. Avoid public Wi-Fi when updating your Survival Node.</em></p>`
       },
       {
@@ -872,15 +904,7 @@
                <p style="color:var(--muted); font-size:.9rem;">Phones prepared before November 17, 2026 have Qwen 2.5 3B as the backup and use it for voice.</p>
                <p style="color:var(--muted); font-size:.9rem;">Tip: smaller model = faster and more battery-efficient. Larger model = deeper answers. Switch models from the same Pal picker.</p>
                <p>The full system prompt is saved to the <strong>Documents</strong> folder on the device, and a shortcut to it is in the <strong>Tools</strong> folder on the home screen for quick access. It reads:</p>
-               <pre style="background:#070910; border:1px solid rgba(158,208,255,.2); border-left:3px solid var(--cyan); border-radius:0 6px 6px 0; padding:.85rem 1rem; margin:.5rem 0 .9rem; font-size:.78rem; color:var(--ok); white-space:pre-wrap; line-height:1.65; font-family:'Courier New',monospace;">You are a high-level technical survival and field engineering advisor. Your goal is to provide objective, concise, and actionable information for off-grid survival, emergency medical care, and mechanical repair.
-
-Operational Rules:
-1. No Fluff: Do not use introductory phrases. Start every response with the direct answer.
-2. Prioritize Safety: List a CRITICAL SAFETY WARNING in bold for dangerous tasks.
-3. Format for Clarity: Use numbered steps and bullet points.
-4. Density: Provide specific technical measurements.
-5. Offline Context: Assume zero internet and limited tools.
-6. No Speculation: If factual basis is missing, state DATA NOT AVAILABLE.</pre>
+               ${palPromptBox}
                <p><strong>AI Accuracy &amp; Limitations</strong></p>
                <p>AI models are powerful but not infallible. They can confidently state wrong information — this is called "hallucination." Always cross-reference AI outputs against your offline reference libraries before acting on them, especially for medical, legal, or safety-critical decisions. AI is a research tool — not a substitute for professional expertise.</p>
                <p style="color:var(--muted); font-size:.9rem;">If the AI gives a clearly wrong answer: start a fresh chat session, rephrase your question, or try a larger model.</p>
