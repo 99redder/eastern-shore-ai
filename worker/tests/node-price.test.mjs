@@ -93,6 +93,32 @@ test('node-price-pages switches node.html between sale and regular price', () =>
   assert.match(applyBuyPage(read('buynode.html'), null), /<html lang="en" data-price="regular">/);
 });
 
+// AI shopping assistants and other text-only readers skip CSS, so the copy for
+// the other price has to be `hidden` in the HTML or they read both prices.
+test('node-price-pages hides the other price from text-only readers', () => {
+  const blackFriday = NODE_SALES.find((s) => s.key === 'blackfriday');
+  const copyTags = (html) => [...html.matchAll(/<[a-z][a-z0-9]*\s[^<>]*\bclass="([^"]*)"[^<>]*>/g)]
+    .map(([tag, cls]) => ({ tag, kind: cls.split(/\s+/).find((c) => c === 'sale-only' || c === 'regular-only') }))
+    .filter((t) => t.kind);
+  const isHidden = (tag) => /\shidden(?=[\s>])/.test(tag);
+  // text a reader that ignores CSS but honours `hidden` would get
+  const readable = (html) => html
+    .replace(/<(style|script|noscript)\b[\s\S]*?<\/\1>/g, '')
+    .replace(/<([a-z][a-z0-9]*)\s[^<>]*\shidden(?=[\s>])[^<>]*>[\s\S]*?<\/\1>/g, '')
+    .replace(/<[^>]+>/g, ' ');
+
+  for (const [name, apply] of [['node.html', applyNodePage], ['buynode.html', applyBuyPage]]) {
+    const regular = apply(read(name), null);
+    const sale = apply(regular, blackFriday);
+    assert.ok(copyTags(regular).length >= 5, `${name}: price copy found`);
+    for (const { tag, kind } of copyTags(regular)) assert.equal(isHidden(tag), kind === 'sale-only', `${name} regular: ${tag}`);
+    for (const { tag, kind } of copyTags(sale)) assert.equal(isHidden(tag), kind === 'regular-only', `${name} sale: ${tag}`);
+    assert.equal(apply(sale, null), regular, `${name} round trip`);
+    assert.doesNotMatch(readable(regular), /\$299\.99|Save \$50/, `${name}: no sale price between sales`);
+    assert.match(readable(sale), /\$299\.99/, `${name}: sale price during a sale`);
+  }
+});
+
 test('node-price-pages gives the feed the running or next sale window', () => {
   const feed = read('merchant-feed.xml');
   const [halloween, blackFriday] = NODE_SALES;

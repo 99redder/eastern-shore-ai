@@ -12,7 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     /* Sale vs regular price: seasonal-sale.js sets html[data-price]; the static
-       value is the no-JS fallback, kept current by tools/node-price-pages.mjs */
+       value is the no-JS fallback, kept current by tools/node-price-pages.mjs,
+       which also marks the other price's copy `hidden` for text-only readers */
     html[data-price="regular"] .sale-only, html[data-price="sale"] .regular-only { display: none !important; }
     :root {
       --bg: #0a0b10;
@@ -373,7 +374,7 @@
       .ship-callout p:last-child { font-size: .88rem; }
     }
   </style>
-  <script src="/seasonal-sale.js?v=20261112"></script>
+  <script src="/seasonal-sale.js?v=20261117"></script>
 </head>
 <body>
 
@@ -396,12 +397,12 @@
 
     <div class="order-total">
       <span class="order-total-label">Order Total</span>
-      <p class="offer-regular sale-only">Regularly <s class="price-strike">$349.99</s></p>
+      <p class="offer-regular sale-only" hidden>Regularly <s class="price-strike">$349.99</s></p>
       <span class="order-total-amount">
-        <span class="price-current"><span class="sale-only">Now </span><span id="price-display"><span class="sale-only">$299.99</span><span class="regular-only">$349.99</span></span></span>
-        <span class="offer-save sale-only">Save $50</span>
+        <span class="price-current"><span class="sale-only" hidden>Now </span><span id="price-display"><span class="sale-only" hidden>$299.99</span><span class="regular-only">$349.99</span></span></span>
+        <span class="offer-save sale-only" hidden>Save $50</span>
       </span>
-      <p class="offer-urgency sale-only">Limited-time offer — while supplies last.</p>
+      <p class="offer-urgency sale-only" hidden>Limited-time offer — while supplies last.</p>
     </div>
 
     <div class="buy-cta">
@@ -417,7 +418,7 @@
       </label>
       <div id="agree-terms-error" class="terms-agree-error" role="alert" aria-live="polite">&#9888; Please check the agreement box above to continue.</div>
       <button id="buy-btn" class="btn is-locked" type="button" aria-disabled="true">BUY SURVIVAL NODE GEN 2 NOW</button>
-      <p class="checkout-offer-note sale-only">Save $50 for a limited time — while supplies last.</p>
+      <p class="checkout-offer-note sale-only" hidden>Save $50 for a limited time — while supplies last.</p>
       <div id="status-msg" class="status-msg" aria-live="polite"></div>
     </div>
 

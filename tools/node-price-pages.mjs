@@ -1,7 +1,8 @@
 // Puts the Survival Node price that Google and no-JS visitors read on today's
 // sale schedule (worker/src/node-price.js): node.html's meta description,
-// product:price:amount and Product JSON-LD offer, <html data-price> on
-// node.html and buynode.html, and merchant-feed.xml's sale price dates.
+// product:price:amount and Product JSON-LD offer, <html data-price> and the
+// `hidden` attribute on the .sale-only / .regular-only copy on node.html and
+// buynode.html, and merchant-feed.xml's sale price dates.
 // Visitors with JS and checkout switch at midnight on their own; this catches
 // the static copies up. .github/workflows/node-price.yml runs it just after
 // midnight Eastern and commits any change.
@@ -32,7 +33,29 @@ function replaceOnce(text, pattern, replacement, what) {
   return text.replace(pattern, replacement);
 }
 
+// CSS hides the copy for the other price, but AI shopping assistants, link
+// previews and other text-only readers skip CSS and would read both prices
+// ("Regularly $349.99 $299.99 $349.99 … Save $50"). Marking that copy
+// `hidden` in the HTML itself drops it for them. seasonal-sale.js sets the
+// same attribute in the browser, so the page still switches at midnight.
+export function setPriceCopy(html, sale) {
+  let found = 0;
+  const out = html.replace(/<([a-z][a-z0-9]*)(\s[^<>]*)>/g, (tag, name, attrs) => {
+    const cls = (attrs.match(/\sclass="([^"]*)"/) || [])[1];
+    if (!cls) return tag;
+    const tokens = cls.split(/\s+/);
+    const kind = tokens.includes('sale-only') ? 'sale' : tokens.includes('regular-only') ? 'regular' : null;
+    if (!kind) return tag;
+    found++;
+    const off = (kind === 'sale') !== Boolean(sale);
+    return `<${name}${attrs.replace(/\shidden(?=\s|$)/g, '')}${off ? ' hidden' : ''}>`;
+  });
+  if (!found) throw new Error("node-price-pages: couldn't find any .sale-only / .regular-only copy");
+  return out;
+}
+
 function setPriceState(html, sale) {
+  html = setPriceCopy(html, sale);
   return replaceOnce(html, /<html lang="en"(?: data-price="(?:sale|regular)")?>/, `<html lang="en" data-price="${sale ? 'sale' : 'regular'}">`, '<html> tag');
 }
 

@@ -7,7 +7,10 @@
 // Loaded without defer in <head> so <html data-price="sale|regular"> is set
 // before the page draws; CSS hides .sale-only / .regular-only copy to match.
 // The static data-price in the HTML is the fallback without JS, kept current
-// by tools/node-price-pages.mjs. KEEP the windows IN SYNC with
+// by tools/node-price-pages.mjs, which also marks the other price's copy
+// `hidden` so AI assistants and other text-only readers see one price; this
+// script resets that attribute to match (midnight switch, ?sale= previews).
+// KEEP the windows IN SYNC with
 // worker/src/node-price.js, which sets what checkout charges.
 // Preview any theme with ?sale=halloween|blackfriday|christmas, or the
 // regular price with ?sale=none
@@ -165,6 +168,8 @@
   document.documentElement.dataset.price = sale ? 'sale' : 'regular';
 
   function init() {
+    document.querySelectorAll('.sale-only').forEach(el => { el.hidden = !sale; });
+    document.querySelectorAll('.regular-only').forEach(el => { el.hidden = !!sale; });
     if (sale) applySale(sale);
   }
 
