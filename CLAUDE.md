@@ -1084,6 +1084,12 @@ cd worker && wrangler deploy --config wrangler.toml
 - Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in `node.html`, `buynode.html` and `checkout.html` or visitors keep the old copy.
 - The printed flyer (`flyer/`) still says $249.99, the old sale price.
 
+## FAQ structured data must match the visible FAQ (added 2026-11-16)
+
+- `node.html` and `index.html` each carry their FAQ twice: the visible `<details>` list in `#faq` and a `FAQPage` JSON-LD copy. Google requires the two to match. On 2026-11-16 node.html's had drifted (22 visible questions, 10 JSON-LD ones worded differently) and was rebuilt from the visible FAQ, question for question, in the same order.
+- `worker/tests/faq-sync.test.mjs` (part of `npm test`) fails when any question or answer differs. When you add or change an FAQ answer, change both copies. In node.html the FAQPage object sits in the same JSON-LD list as the Product, which `tools/node-price-pages.mjs` edits by pattern: change only the FAQPage object and run `node tools/node-price-pages.mjs --check` after.
+- The node.html FAQ has "Can I cancel my order?" (the cancellation rule below) and the storage answer gives 60–85°F (ideally 60–75°F) with 14°F and 113°F as the limits, matching the guide.
+
 ## Survival Node cancellations (added 2026-11-16, Red's call)
 
 - **Buyer asks to cancel before it ships:** refunded minus Stripe's processing fee (about 2.9% + $0.30, which Stripe keeps on refunds). **We cancel**, or the order **hasn't shipped within the 7-business-day processing time** and the buyer cancels: full refund (the FTC's mail and internet order rule requires that). Orders to addresses outside the continental U.S.: minus the fee, as before. **Once shipped, the return policy applies, unchanged:** never add the fee to returns ("no restocking fee" is the Google-verified wording). **eBay orders** cancel through eBay.
