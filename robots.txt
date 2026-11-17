@@ -1,4 +1,9 @@
+# Content signals (contentsignals.org) say how automated systems may use this
+# site's content: search = search indexes and results; ai-input = feeding pages
+# into AI answers (grounding, retrieval); ai-train = training AI models.
+# Everything here may be used for all three.
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /admin.html
 Disallow: /api/
