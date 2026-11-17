@@ -1922,7 +1922,7 @@
               <div class="ship-callout" style="background:rgba(255,170,80,0.08); border:2px solid rgba(255,170,80,0.55); border-radius:8px; padding:.7rem .9rem; margin-bottom:.7rem;">
                 <p style="margin:0 0 .35rem; color:#ffb96b; font-family:'Hanken Grotesk',sans-serif; font-size:.78rem; font-weight:800; letter-spacing:.07em; text-transform:uppercase;">&#9888; Continental U.S. (CONUS) Shipping Only</p>
                 <p style="margin:0 0 .35rem; font-size:.85rem; line-height:1.45; color:var(--text);"><strong>CONUS</strong> = the 48 contiguous states + D.C. We <strong>cannot ship</strong> to Alaska, Hawaii, Puerto Rico, U.S. territories, APO/FPO/DPO, or international addresses.</p>
-                <p style="margin:0; font-size:.8rem; line-height:1.45; color:var(--muted);">Non-CONUS orders are canceled and refunded <strong style="color:var(--text);">minus the Stripe processing fee</strong> (approx. 2.9% + $0.30, which Stripe does not return on refunds).</p>
+                <p style="margin:0; font-size:.8rem; line-height:1.45; color:var(--muted);">Non-CONUS orders are canceled and refunded <strong style="color:var(--text);">minus the Stripe processing fee</strong> (approx. 2.9% + $0.30, which Stripe does not return on refunds). The same applies if you ask us to cancel before your order ships.</p>
               </div>
               <label class="terms-agree" id="agree-terms-label" style="display:flex; gap:.55rem; align-items:flex-start; margin-bottom:.7rem; padding:.15rem .25rem; color:var(--text); font-size:.9rem; line-height:1.4;">
                 <input type="checkbox" id="agree-terms-check" style="margin-top:.25rem; accent-color:var(--cyan); flex-shrink:0;" />
@@ -2189,7 +2189,7 @@
         <h4 style="color:var(--cyan); margin:1.1rem 0 .5rem; font-size:1rem;">6. Liability &amp; User Responsibility</h4>
         <p><strong>Limitation of Liability:</strong> To the maximum extent permitted by applicable law, Eastern Shore AI, LLC disclaims all implied warranties of merchantability and fitness for a particular purpose. Eastern Shore AI, LLC shall not be liable for any incidental, consequential, special, or punitive damages arising from the use or inability to use these products — including but not limited to loss of data, personal injury, property damage, or adverse emergency outcomes.</p>
         <p><strong>User Responsibility:</strong> By purchasing this kit, the buyer confirms they are 18 years of age or older and accepts full responsibility for the lawful use, safe storage, routine maintenance, and updating of all included hardware and software.</p>
-        <p><strong>Right to Refuse &amp; Order Cancellation:</strong> Eastern Shore AI, LLC reserves the right to refuse service, cancel any order, or decline a return at its sole discretion — including but not limited to situations involving suspected fraud, address verification concerns, supply constraints, or reasonable belief that the device will be used for unlawful or harmful purposes. In the event of a pre-shipment cancellation, the full purchase amount will be refunded to the original payment method, except that orders to addresses outside the continental U.S. are refunded minus the Stripe payment processing fee, as described above.</p>
+        <p><strong>Right to Refuse &amp; Order Cancellation:</strong> Eastern Shore AI, LLC reserves the right to refuse service, cancel any order, or decline a return at its sole discretion — including but not limited to situations involving suspected fraud, address verification concerns, supply constraints, or reasonable belief that the device will be used for unlawful or harmful purposes. If Eastern Shore AI, LLC cancels an order before shipment, or an order has not shipped within the stated processing time (up to 7 business days) and the buyer chooses to cancel, the full purchase amount will be refunded to the original payment method. If the buyer asks to cancel an order before it ships for any other reason, or the order is to an address outside the continental U.S., it is refunded minus the Stripe payment processing fee (approximately 2.9% + $0.30), which Stripe retains on refunded transactions, as described above. Once an order has shipped, the Return &amp; Refund Policy applies instead.</p>
         <p><strong>Payment Processing:</strong> All payments are processed securely by Stripe, Inc. Eastern Shore AI, LLC does not collect, store, or have access to your credit card or banking information at any point in the transaction. By completing a purchase, you agree to Stripe's Terms of Service and Privacy Policy. Eastern Shore AI, LLC is not responsible for transaction errors, payment holds, or disputes initiated through the payment processor.</p>
 
         <h4 style="color:var(--cyan); margin:1.1rem 0 .5rem; font-size:1rem;">7. Independent Seller, Trademarks &amp; Additional Legal Notices</h4>
@@ -2719,7 +2719,7 @@
 
     const agreeTermsCheck = document.getElementById('agree-terms-check');
     let termsAcceptedAt = null;
-    const TERMS_VERSION = '2026-11-16.2';
+    const TERMS_VERSION = '2026-11-16.3';
     const TERMS_URL = 'https://www.easternshore.ai/terms.html';
     const byogTermsOverlay = document.getElementById('byog-terms-overlay');
     const byogTermsCheck = document.getElementById('byog-terms-check');

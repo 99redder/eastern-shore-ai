@@ -1084,6 +1084,13 @@ cd worker && wrangler deploy --config wrangler.toml
 - Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in `node.html`, `buynode.html` and `checkout.html` or visitors keep the old copy.
 - The printed flyer (`flyer/`) still says $249.99, the old sale price.
 
+## Survival Node cancellations (added 2026-11-16, Red's call)
+
+- **Buyer asks to cancel before it ships:** refunded minus Stripe's processing fee (about 2.9% + $0.30, which Stripe keeps on refunds). **We cancel**, or the order **hasn't shipped within the 7-business-day processing time** and the buyer cancels: full refund (the FTC's mail and internet order rule requires that). Orders to addresses outside the continental U.S.: minus the fee, as before. **Once shipped, the return policy applies, unchanged:** never add the fee to returns ("no restocking fee" is the Google-verified wording). **eBay orders** cancel through eBay.
+- Why: website buyers pay return shipping, so cancelling right after buying was the only free way to cost Red the fee.
+- Written in: `terms.html` ("Key things to know" box and the Right to Refuse &amp; Order Cancellation clause), `node.html` (its copy of that clause and the buy box's CONUS note), `buynode.html` and `checkout.html` (CONUS note), `warranty-insert.html` (website version only), the Ask K knowledge file ("Other terms"), the Stripe Checkout notice (`custom_text` in `handleSurvivalNodeCheckout`, kit orders only, since the BYOG setup service shares that code), `node-setup.html` and the guide app from 1.16. Keep them saying the same thing. Terms version `2026-11-16.3` (`TERMS_VERSION` in node.html, buynode.html, checkout.html). Test: the checkout test in `worker/tests/worker-email.test.mjs`.
+- Refund it by hand in Stripe as a partial refund (total minus the fee on that payment), then book it in the Tax Ledger; the fee row stays an expense.
+
 ## Survival Node phone prep (added 2026-10-30)
 
 - New phones are prepared by the `survival-node-prep` skill (`~/.claude/skills/survival-node-prep/`): one script, run on the laptop Alamo, where the phone is plugged in. **The website is its spec.** If the software list, Kiwix libraries or debloat claims change on the site, change `APP_LIST`, `LIBRARIES` or `verify()` too, and the reverse.

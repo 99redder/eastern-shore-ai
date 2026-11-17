@@ -1451,8 +1451,8 @@ async function handleSurvivalNodeCheckout(request, env, corsHeaders, originAllow
     'metadata[product]': productCode,
     'metadata[unit_price_cents]': unitAmount,
     'metadata[checkout_type]': checkoutType,
-    'custom_text[submit][message]': 'We may text you about your order at the phone number you enter. Message and data rates may apply. Reply STOP to stop.',
-    'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, APO/FPO/DPO, or international addresses will be canceled and refunded.'
+    'custom_text[submit][message]': (isByogSetup ? '' : 'If you ask us to cancel before your order ships, the refund is minus Stripe\'s processing fee (about 2.9% + $0.30); if we cancel or don\'t ship within 7 business days, it\'s a full refund. ') + 'We may text you about your order at the phone number you enter. Message and data rates may apply. Reply STOP to stop.',
+    'custom_text[shipping_address][message]': 'Shipping is limited to the 48 continental U.S. states. Orders to AK, HI, U.S. territories, APO/FPO/DPO, or international addresses will be canceled and refunded' + (isByogSetup ? '.' : ' minus Stripe\'s processing fee.')
   });
 
   if (termsVersion)    body.set('metadata[terms_version]', termsVersion);

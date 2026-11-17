@@ -248,7 +248,7 @@
         <div class="ship-callout" role="note" aria-label="Continental U.S. shipping only">
           <p class="ship-callout-title">&#9888; Continental U.S. (CONUS) Shipping Only</p>
           <p><strong>CONUS</strong> = the 48 contiguous states + D.C. We <strong>cannot ship</strong> to Alaska, Hawaii, Puerto Rico, U.S. territories, APO/FPO/DPO, or international addresses.</p>
-          <p>Non-CONUS orders are canceled and refunded <strong>minus the Stripe processing fee</strong> (approx. 2.9% + $0.30, which Stripe does not return on refunds).</p>
+          <p>Non-CONUS orders are canceled and refunded <strong>minus the Stripe processing fee</strong> (approx. 2.9% + $0.30, which Stripe does not return on refunds). The same applies if you ask us to cancel before your order ships.</p>
         </div>
         <label class="terms-agree" id="agree-terms-label" for="agree-terms-check">
           <input type="checkbox" id="agree-terms-check" />
@@ -390,7 +390,7 @@
 
       // ===== Checkout: same request as node.html / buynode.html =====
       const SURVIVAL_NODE_CHECKOUT_URL = 'https://eastern-shore-ai-contact.99redder.workers.dev/api/survival-node-checkout';
-      const TERMS_VERSION   = '2026-11-16.2';
+      const TERMS_VERSION   = '2026-11-16.3';
       const TERMS_URL       = 'https://www.easternshore.ai/terms.html';
       const buyBtn          = document.getElementById('buy-btn');
       const statusMsg       = document.getElementById('status-msg');

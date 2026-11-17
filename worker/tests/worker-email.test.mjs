@@ -659,6 +659,15 @@ test('checkout tells the buyer they may get texts about their order', async (t) 
   const sent = new URLSearchParams(calls.at(-1).init.body);
   assert.equal(sent.get('phone_number_collection[enabled]'), 'true');
   assert.match(sent.get('custom_text[submit][message]'), /We may text you about your order.*Reply STOP to stop\./);
+  // Buyer-requested cancellations before shipping are refunded minus Stripe's fee (terms 2026-11-16.3).
+  assert.match(sent.get('custom_text[submit][message]'), /ask us to cancel before your order ships, the refund is minus Stripe's processing fee.*full refund/);
+  assert.match(sent.get('custom_text[shipping_address][message]'), /refunded minus Stripe's processing fee\.$/);
+
+  // The BYOG setup service shares this checkout but ships nothing, so it gets no cancellation line.
+  await worker.fetch(post('/api/survival-node-checkout', { termsAccepted: true, checkoutType: 'byog_setup' }, { Origin: 'https://www.easternshore.ai' }), env, ctx);
+  const byog = new URLSearchParams(calls.at(-1).init.body);
+  assert.match(byog.get('custom_text[submit][message]'), /^We may text you/);
+  assert.doesNotMatch(byog.get('custom_text[shipping_address][message]'), /Stripe/);
 });
 
 test('admin order emails: sent once per draft, review email carries List-Unsubscribe', async (t) => {
