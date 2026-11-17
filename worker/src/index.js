@@ -7222,9 +7222,9 @@ function getAskKCannedTestingReply(question, context = {}) {
       'The testing page reports these benchmark figures for the offline AI models:',
       '',
       '- **Qwen3.5-4B-Q4_K_M:** 1.41 tokens/sec generation, 10.78 tokens/sec prompt processing, peak memory about 5 GB (59.6%; 2.73 GB model file, 4.21B parameters)',
-      '- **Qwen2.5-3B-Instruct (Q5_K_M):** 3.50 tokens/sec generation, 16.10 tokens/sec prompt processing, peak memory about 5 GB',
+      '- **Qwen3.5-2B (Q4_K_M):** the faster backup and the model for voice input; not benchmarked yet',
       '',
-      'Qwen3.5 is the current primary for deeper answers; Qwen2.5 remains the faster backup. Those are the figures reported on testing.html, and real-world speeds can vary a bit with temperature, battery level, and background load.'
+      'Qwen3.5-4B is the primary for deeper answers; Qwen3.5-2B is the faster backup. Those are the figures reported on testing.html, and real-world speeds can vary a bit with temperature, battery level, and background load.'
     ].join('\n');
   }
 

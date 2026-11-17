@@ -388,7 +388,7 @@
             <div class="tr-row"><span class="tr-label">Device</span><span class="tr-value tr-pass">Motorola Moto G Power (2024) ✓</span></div>
             <div class="tr-row"><span class="tr-label">RAM (confirmed)</span><span class="tr-value tr-pass">8 GB LPDDR4X ✓</span></div>
             <div class="tr-row"><span class="tr-label">Internal storage (confirmed)</span><span class="tr-value tr-pass">128 GB ✓</span></div>
-            <div class="tr-row"><span class="tr-label">Usable storage after OS + software</span><span class="tr-value">~45 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Usable storage after OS + software</span><span class="tr-value">~43 GB</span></div>
             <div class="tr-row"><span class="tr-label">GPS chip</span><span class="tr-value tr-pass">Present, lock confirmed ✓</span></div>
             <div class="tr-row"><span class="tr-label">Microphone (voice AI input)</span><span class="tr-value tr-pass">Functional ✓</span></div>
           </div>
@@ -516,33 +516,31 @@
           <div class="tr-section">
             <h4>Model Inventory</h4>
             <div class="tr-row"><span class="tr-label">Model 1 — current primary</span><span class="tr-value">Qwen3.5-4B-Q4_K_M</span></div>
-            <div class="tr-row"><span class="tr-label">Model 2 — fast backup</span><span class="tr-value">Qwen2.5-3B-Instruct (Q5_K_M)</span></div>
+            <div class="tr-row"><span class="tr-label">Model 2 — fast backup</span><span class="tr-value">Qwen3.5-2B (Q4_K_M)</span></div>
           </div>
           <div class="tr-section">
-            <h4>Inference Performance — PocketPal Benchmark <span style="font-size:.7rem; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0;">Qwen3.5: 9/12/2026 · Qwen2.5: 3/26/2026 · PP:512 TG:128 Rep:3 · GPU Layers:99</span></h4>
+            <h4>Inference Performance — PocketPal Benchmark <span style="font-size:.7rem; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0;">Qwen3.5-4B: 9/12/2026 · PP:512 TG:128 Rep:3 · GPU Layers:99</span></h4>
             <div class="tr-row"><span class="tr-label">Qwen3.5-4B (Q4_K_M) — token gen</span><span class="tr-value tr-pass">1.41 t/s &nbsp;<button class="bench-btn" data-model="qwen35">View Result ↗</button></span></div>
             <div class="tr-row"><span class="tr-label">Qwen3.5-4B — prompt processing</span><span class="tr-value">10.78 t/s</span></div>
             <div class="tr-row"><span class="tr-label">Qwen3.5-4B — peak memory</span><span class="tr-value">5 GB / 8 GB (59.6%)</span></div>
             <div class="tr-row"><span class="tr-label">Qwen3.5-4B — model/test details</span><span class="tr-value">2.73 GB · 4.21B params · 7m 3s total</span></div>
-            <div class="tr-row"><span class="tr-label">Qwen2.5-3B (Q5_K_M) — token gen</span><span class="tr-value tr-pass">3.50 t/s &nbsp;<button class="bench-btn" data-model="qwen">View Result ↗</button></span></div>
-            <div class="tr-row"><span class="tr-label">Qwen2.5-3B — prompt processing</span><span class="tr-value">16.10 t/s</span></div>
-            <div class="tr-row"><span class="tr-label">Qwen2.5-3B — peak memory</span><span class="tr-value">5 GB / 8 GB (58.9%)</span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-2B (Q4_K_M) — benchmark</span><span class="tr-value">Not yet benchmarked (added 11/17/2026)</span></div>
           </div>
           <div class="tr-section">
             <h4>Offline &amp; Persona Verification</h4>
-            <div class="tr-row"><span class="tr-label">Tested with airplane mode + data off</span><span class="tr-value tr-pass">Both included models load and respond ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Tested with airplane mode + data off</span><span class="tr-value tr-pass">Qwen3.5-4B loads and responds ✓ · Qwen3.5-2B to be tested</span></div>
             <div class="tr-row"><span class="tr-label">Survival Node persona loaded</span><span class="tr-value tr-pass">Confirmed in PocketPal ✓</span></div>
             <div class="tr-row"><span class="tr-label">Persona system prompt active</span><span class="tr-value tr-pass">Verified via test queries ✓</span></div>
-            <div class="tr-row"><span class="tr-label">Voice input (mic) functional on Qwen 2.5</span><span class="tr-value tr-pass">Confirmed ✓</span></div>
+            <div class="tr-row"><span class="tr-label">Voice input (mic) on Qwen 3.5 2B</span><span class="tr-value">To be tested</span></div>
           </div>
-          <p class="tr-note">Qwen3.5 was benchmarked on 9/12/2026 and Qwen2.5 was benchmarked on 3/26/2026 using the same PocketPal benchmark profile. Inference speeds may vary with ambient temperature, background processes, and battery charge level. Qwen3.5 is the current primary for deeper answers; Qwen2.5 remains the faster backup.</p>
+          <p class="tr-note">Qwen3.5-4B was benchmarked on 9/12/2026 with the PocketPal benchmark profile above. Qwen3.5-2B replaced the Qwen2.5-3B backup on phones prepared from 11/17/2026 and will be benchmarked the same way. Inference speeds may vary with ambient temperature, background processes, and battery charge level. Qwen3.5-4B is the primary for deeper answers; Qwen3.5-2B is the faster backup and the model to use for voice input.</p>
         </div>
 
         <!-- Software Suite -->
         <div class="tr-panel" id="tr-software">
           <div class="tr-section">
             <h4>Storage Audit</h4>
-            <div class="tr-row"><span class="tr-label">Total software suite</span><span class="tr-value">~64 GB</span></div>
+            <div class="tr-row"><span class="tr-label">Total software suite</span><span class="tr-value">~68 GB</span></div>
             <div class="tr-row"><span class="tr-label">AI models</span><span class="tr-value">2 model files (storage varies by model and quantization)</span></div>
             <div class="tr-row"><span class="tr-label">Offline maps (all 50 states)</span><span class="tr-value">14.7 GB</span></div>
             <div class="tr-row"><span class="tr-label">Medical libraries</span><span class="tr-value">10.4 GB</span></div>
@@ -666,7 +664,6 @@
     // Benchmark modals
     const benchImages = {
       qwen35: { title: 'Qwen3.5-4B-Q4_K_M — Benchmark Result', src: 'images/benchmarks/bench-qwen35-4b.jpeg' },
-      qwen:  { title: 'Qwen2.5-3B-Instruct (Q5_K_M) — Benchmark Result', src: 'images/benchmarks/bench-qwen25-3b.jpeg' },
     };
     const benchOverlay = document.getElementById('bench-modal');
     const benchImg     = document.getElementById('bench-modal-img');
