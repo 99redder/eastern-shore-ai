@@ -186,6 +186,7 @@
       /* ── Section pages ── */
       .pdf-page { page-break-before: always; padding: 20px 0 26px; }
       .pdf-page-first { page-break-before: auto; }
+      #pdf-print-content pre { white-space: pre-wrap !important; word-break: break-word; overflow-wrap: anywhere; }
       .pdf-page-title { font-size: 20px; font-weight: 700; font-family: 'Hanken Grotesk', sans-serif; color: #000; border-bottom: 1px solid #888; padding-bottom: 8px; margin: 0 0 16px; letter-spacing: .02em; text-transform: uppercase; }
       .pdf-page .guide-content, .pdf-page .guide-content * { color: #111 !important; line-height: 1.85; font-size: 16px !important; }
       .pdf-page .guide-content p { margin: 0 0 12px; }
@@ -267,7 +268,7 @@
   </main>
 
   <script>
-    const appDisclaimer = `<p style="margin-top:1.2rem; padding-top:.75rem; border-top:1px solid rgba(158,208,255,.12); font-size:.78rem; color:var(--muted); line-height:1.65;"><strong style="color:var(--text);">Third-Party Software Disclaimer:</strong> This application is open-source, independently developed software. Eastern Shore AI, LLC has no partnership, affiliation, sponsorship, or arrangement of any kind with the developer(s) or vendor(s) of this software. All product names, brand names, and trademarks are the property of their respective owners and are referenced here solely for informational and identification purposes. This software is provided as-is; your use of it is entirely at your own risk. Eastern Shore AI, LLC makes no warranties — express or implied — regarding the accuracy, reliability, or fitness of any third-party application for any particular purpose.</p>`;
+    const appDisclaimer = `<p style="margin-top:1.2rem; padding-top:.75rem; border-top:1px solid rgba(158,208,255,.12); font-size:.78rem; color:var(--muted); line-height:1.65;"><strong style="color:var(--text);">Third-Party Software Disclaimer:</strong> This application is independently developed software. Eastern Shore AI, LLC has no partnership, affiliation, sponsorship, or arrangement of any kind with the developer(s) or vendor(s) of this software. All product names, brand names, and trademarks are the property of their respective owners and are referenced here solely for informational and identification purposes. This software is provided as-is; your use of it is entirely at your own risk. Eastern Shore AI, LLC makes no warranties — express or implied — regarding the accuracy, reliability, or fitness of any third-party application for any particular purpose.</p>`;
 
     // The User Guide app's update steps, shown under Maintenance and in the User Guide App section.
     const guideUpdateSteps = `<ol>
@@ -293,25 +294,25 @@
                <p style="color:var(--muted); font-size:.9rem;"><strong>What you'll find inside the hard case:</strong> The phone arrives wrapped in protective bubble wrap packaging. The solar battery arrives in its original manufacturer packaging (opened, inspected, tested, and repacked before shipment). The two Mission Darkness Faraday bags will be in their original packaging and placed under the hard case inside the shipping box — not inside the case itself. Complete the First Steps below, then place the phone and solar battery into their Faraday bags before sealing the case for storage.</p>
                <p><strong>What's in the Box</strong></p>
                <ul>
-                 <li>Survival Node phone — debloated Android OS, optimized for performance and longevity, pre-loaded with 50GB+ survival apps and 2 offline LLMs — wall charger, USB-C cable, and shockproof phone case included</li>
+                 <li>Survival Node phone — debloated Android OS, optimized for performance and longevity, pre-loaded with 50GB+ survival apps and 2 offline LLMs — wall charger, USB-C cable, and shockproof phone case with screen protector included</li>
                  <li>Premium 24,000 mAh Solar Battery — rugged, drop- and splash-resistant — with 3 attached cables (2× USB-C, 1× iOS) plus a USB-A output on the side, built-in flashlight, and emergency strobe</li>
                  <li>(2) Mission Darkness Faraday Bags — premium EMP-rated signal-blocking, one for phone, one for solar battery</li>
                  <li>Weatherproof hard storage case with padlock and a premium rechargeable desiccant pouch (silica gel with a blue indicator dot)</li>
                  <li>Full Survival Node User Guide — available as an app on the home screen (it checks for guide updates whenever you open it on Wi-Fi); the standard PDF version is also pre-loaded on the device in the Download folder</li>
                </ul>
-               <p><strong>Your home screen:</strong> Every preloaded app is on one screen, in A to Z order. Settings is in the bottom row between Phone and Camera, and the phone's built-in tools, such as Clock, Calculator, Recorder, FM Radio and Contacts, are in the Tools folder. On phones prepared from November 16, 2026, the Phone in the bottom row is Fossify Phone and the Clock in Tools is Fossify Clock. Google's original Phone app is also in Tools and stays on the phone for emergency calls, so use the Phone in the bottom row. If Google's Phone ever asks to become your default phone app, decline, or the startup notices described in Troubleshooting may come back. Phones prepared before that date have Google's Phone in the bottom row and Google's Clock in Tools.</p>
+               <p><strong>Your home screen:</strong> Every preloaded app is on one screen, in A to Z order. Settings is in the bottom row between Phone and Camera, and the phone's built-in tools, such as Clock, Calculator, Recorder, FM Radio and Contacts, are in the Tools folder. On phones prepared from November 16, 2026, the Phone in the bottom row is Fossify Phone and the Clock in Tools is Fossify Clock. Google's original Phone app is also in Tools and stays on the phone in case you need it for an emergency call, though calls may not work (see SIM Card &amp; Cellular Connectivity below), so use the Phone in the bottom row. If Google's Phone ever asks to become your default phone app, decline, or the startup notices described in Troubleshooting may come back. Phones prepared before that date have Google's Phone in the bottom row and Google's Clock in Tools.</p>
                <p><strong>First Steps</strong></p>
                <p style="color:var(--muted); font-size:.9rem;"><em>Note: Your Survival Node phone was intentionally drained to approximately 30% before shipping to comply with lithium battery shipping regulations. This is normal — don't be surprised if the phone is at 30% or below when you open the box.</em></p>
                <ul>
                  <li><strong>Charge the solar battery:</strong> Plug your solar battery into wall power using the included charger. You can charge to 100% (all 4 blue LEDs solid) to verify it's working correctly, then bring it back down to <strong>2–3 of the 4 blue LEDs (50–75%)</strong> before sealing for long-term storage.</li>
                  <li><strong>Charge the phone:</strong> Plug the phone in using the included wall charger and USB-C cable. Charge it to about 60%, then power it completely off. Do not store it fully charged or fully drained.</li>
                  <li><strong>Set up the desiccant:</strong> Throw away the small white packet (it's only for shipping), then take the premium desiccant pouch out of its plastic bag and put it in the case. This is the kit's long-term moisture protection.</li>
-                 <li><strong>Seal for readiness:</strong> Place the phone and solar battery into their Faraday bags, fold the top twice, seal tightly, then store both in the case with the desiccant pouch.</li>
+                 <li><strong>Seal for readiness:</strong> Place the phone and solar battery into their Faraday bags, fold the top over at least twice (leave the phone in its case), seal tightly, then store both in the case with the desiccant pouch.</li>
                </ul>
                <p><strong>Storage Conditions</strong></p>
                <img src="/images/benchmarks/hard-case-specs.png" alt="Hard case spec diagram showing dimensions, IP67 rating, and protective features" style="width:100%; max-width:480px; display:block; margin:0 auto 1rem; border-radius:8px; border:1px solid rgba(255,255,255,.1);" onerror="this.style.display='none'" />
-               <p>Store your Survival Node in a cool, dry location — ideally between 60°F (15°C) and 85°F (30°C). Avoid cars, attics, and garages where temperatures reach damaging extremes. The included premium desiccant pouch (silica gel) absorbs moisture and is reusable; recharge it when the <strong>blue indicator dot turns light pink</strong>. To recharge, place the pouch with the indicator dot facing up and microwave it for <strong>3–5 minutes</strong>. Once the dot turns blue again, the pouch is ready to reuse. Store the case upright, away from direct sunlight.</p>
-               <p style="color:var(--muted); font-size:.9rem;"><strong>Silica Pack Safety:</strong> Follow the manufacturer guidance when recharging. Keep the indicator side facing up, monitor the pouch while heating, and do not exceed the manufacturer’s stated heat limit of <strong>210°F</strong>. If the pouch appears damaged, leaking, or overheated, discard and replace it.</p>
+               <p>Store your Survival Node in a cool, dry location — between 60°F (15°C) and 85°F (30°C), ideally 60–75°F (15–24°C). Avoid cars, attics, and garages where temperatures reach damaging extremes. The included premium desiccant pouch (silica gel) absorbs moisture and is reusable; recharge it when the <strong>blue indicator dot turns light pink</strong>. To recharge, place the pouch with the indicator dot facing up and microwave it for <strong>3–5 minutes</strong>. Once the dot turns blue again, the pouch is ready to reuse. Store the case upright, away from direct sunlight.</p>
+               <p style="color:var(--muted); font-size:.9rem;"><strong>Desiccant Pouch Safety:</strong> Follow the manufacturer guidance when recharging. Keep the indicator side facing up, monitor the pouch while heating, and do not exceed the manufacturer’s stated heat limit of <strong>210°F</strong>. If the pouch appears damaged, leaking, or overheated, discard and replace it.</p>
                <p><strong>SIM Card &amp; Cellular Connectivity</strong></p>
                <p style="background:rgba(255,80,80,0.08); border-left:4px solid #ff6060; padding:.6rem .8rem; border-radius:0 4px 4px 0;"><strong>No SIM card is included</strong> with your Survival Node, and no activation code, carrier plan, or cellular service of any kind is provided. This device has been deep-debloated and OS-modified for offline, off-grid use — it is <strong>not designed to be used with a cellular carrier</strong>. We have not tested it with any carrier or SIM card, and calls, texts, and emergency calls (including 911) may not work even with a SIM installed. Do not purchase expecting cellular voice or data service. Your Survival Node is built for its offline capabilities only.</p>
                <p>Survival Node phones may come from prepaid carrier stock (such as Cricket Wireless or Tracfone), so yours may be locked to that carrier and may show its logo when it starts up. That logo is part of the phone's firmware and stays. We don't unlock phones, and we make no guarantee that a phone will work with any SIM card or phone service at all.</p>
@@ -436,8 +437,8 @@
                  <li>Charge the phone to <strong>about 60%</strong>. Do not store it fully charged or near empty.</li>
                  <li>Power the phone completely off before storing.</li>
                  <li>Charge the solar battery to <strong>2–3 of the 4 blue LEDs (50–75%)</strong> before storage.</li>
-                 <li>Store in a <strong>cool, dry location</strong> between 60°F–75°F (15°C–24°C). Avoid attics, vehicles, or anywhere with temperature extremes.</li>
-                 <li><strong>Check every 3–6 months.</strong> Power the phone on briefly to verify charge level hasn't dropped significantly. Top it back up to about 60% if needed, then power back off.</li>
+                 <li>Store in a <strong>cool, dry location</strong> between 60°F and 85°F (15–30°C), ideally 60–75°F (15–24°C). Avoid attics, vehicles, or anywhere with temperature extremes.</li>
+                 <li><strong>Check every 6 months (the 6-month readiness check).</strong> Power the phone on briefly to verify charge level hasn't dropped significantly. Top it back up to about 60% if needed, then power back off.</li>
                </ol>
                <p style="border-left:3px solid var(--cyan); padding-left:.75rem; margin:.5rem 0 .7rem; color:var(--ok);">A battery stored at 100% or 0% for months will lose permanent capacity. Storing the phone at about 60% is the single most impactful habit for kit longevity.</p>
 
@@ -479,6 +480,7 @@
                <ul>
                  <li>At first sign of risk, isolate all mission-critical electronics in Faraday bags immediately.</li>
                  <li>Fold the opening over itself at least twice before sealing the Velcro.</li>
+                 <li>Leave the phone in its case; it fits in the bag that way.</li>
                  <li>Check for punctures, worn seams, or contaminated seal surfaces.</li>
                  <li>Keep spare storage sleeves in the case as backup protection.</li>
                </ul>
@@ -503,21 +505,23 @@
       {
         title: 'Warranty, Legal & Support',
         html: `<p><strong>Eastern Shore AI, LLC Warranty:</strong> 30-day limited warranty on products included in this kit, starting from the delivery date.</p>
-               <p><strong>Original Manufacturer Warranty:</strong> Every Survival Node is built on a hand-vetted smartphone selected for battery life, memory performance, and overall suitability before shipment. The original manufacturer's warranty, if any, is non-transferable and may be void due to OS modification. Eastern Shore AI, LLC's 30-day warranty is your active coverage.</p>
-               <p><strong>Returns &amp; Refunds (30-Day Window):</strong> You may return your Survival Node within 30 days of the delivery date for a refund. To initiate a return, contact us at <a href="mailto:support@easternshore.ai" style="color:var(--cyan)">support@easternshore.ai</a> to receive an RMA (Return Merchandise Authorization) number before shipping. Items returned without an RMA or after 30 days may not be accepted. Once your RMA is issued, ship the item to:</p>
+               <p><strong>Original Manufacturer Warranty:</strong> Every Survival Node is built on a hand-vetted smartphone selected for battery life, memory performance, and overall suitability before shipment. The original manufacturer's warranty, if any, is non-transferable, and the OS modification voids any remaining manufacturer warranty. Eastern Shore AI, LLC's 30-day warranty is your active coverage.</p>
+               <p><strong>Returns &amp; Refunds (30-Day Window):</strong> You may return your Survival Node within 30 days of the delivery date for a refund. To be eligible, the device must be in original functional condition and the operating system must not have been further modified after purchase. To initiate a return, contact us at <a href="mailto:support@easternshore.ai" style="color:var(--cyan)">support@easternshore.ai</a> to receive an RMA (Return Merchandise Authorization) number before shipping. Items returned without an RMA or after 30 days will not be accepted. Once your RMA is issued, ship the item to:</p>
                <p style="margin-left:1.2rem; color:var(--ok);"><strong>Eastern Shore AI, LLC</strong><br>PO BOX 317<br>Parsonsburg, MD 21849</p>
-               <p>Return shipping costs are the buyer's responsibility. There is no restocking fee. Refunds are issued to the original payment method within 10 business days after the return is received and inspected. Exchanges are not offered.</p>
+               <p>Return shipping costs are the buyer's responsibility. There is no restocking fee. Refunds are issued to the original payment method within 10 business days after the return is received and inspected. Exchanges are not offered. Items with physical damage caused after receipt (drops, water, puncture) are not eligible for return.</p>
                <p><strong>Bought on eBay?</strong> Your return goes through eBay instead, within the same 30 days and with the same conditions. Something wrong? Message us from the order on eBay first; many problems are fixed without a return. To return it, choose <strong>Return this item</strong> from the order in your eBay purchases. No RMA is needed; use the label or address eBay gives you. Changed your mind: you pay return shipping. Arrived defective or not as described: we pay it. We refund through eBay within 2 business days after the return arrives, and eBay's Money Back Guarantee also applies.</p>
 
-               <p><strong>Right to Refuse &amp; Order Cancellation:</strong> Eastern Shore AI, LLC reserves the right to refuse or cancel any order at its discretion, including cases of suspected fraud, misrepresentation, or policy violations. If your order is canceled, you will be notified and fully refunded.</p>
-               <p><strong>Software Notice:</strong> Every Survival Node ships with a deep-debloated Android OS, optimized for performance and longevity. Google Play Services, carrier apps, and known tracking and battery-draining software are removed or disabled. Pre-installed software is provided "AS IS." Some apps that depend on Google Play Services may not function as expected — this does not affect the offline preparedness stack. Motorola may install Android updates when the phone is on Wi-Fi. Only connect to Wi-Fi you trust.</p>
+               <p><strong>Right to Refuse &amp; Order Cancellation:</strong> Eastern Shore AI, LLC reserves the right to refuse or cancel any order at its discretion, including cases of suspected fraud, misrepresentation, or policy violations. If your order is canceled before it ships, you will be notified and refunded in full, except that orders to addresses outside the continental U.S. are refunded minus Stripe's processing fee, as the terms explain.</p>
+               <p><strong>Software Notice:</strong> Every Survival Node ships with a deep-debloated Android OS, optimized for performance and longevity. Google Play Services, carrier apps, and known tracking and battery-draining software are removed or disabled. Pre-installed software is provided "AS IS." Some apps that depend on Google Play Services may not function as expected — this does not affect the offline preparedness stack. Motorola may install Android updates when the phone is on Wi-Fi. We don't control or test them, and they can change settings or bring back built-in apps. Only connect to Wi-Fi you trust.</p>
+               <p><strong>Factory Reset:</strong> A factory reset erases the preloaded maps, AI models and libraries and brings back the apps we removed. Contact us before resetting; most problems can be fixed without one.</p>
+               <p><strong>Kit Changes:</strong> These instructions describe the kit as currently sold. Kits sold earlier may have different apps, libraries, settings or configurations.</p>
                <p><strong>Meshtastic Radio Not Included:</strong> The Meshtastic app is preinstalled on the phone, but no Meshtastic or LoRa radio is included with any Survival Node. The app cannot send or receive messages without a separate compatible radio, which must be purchased separately. Eastern Shore AI, LLC does not sell, support, or warrant radio hardware and makes no representation about the compatibility, range, or legal use of any radio you choose to use.</p>
                <p><strong>Product Appearance:</strong> Hard storage cases are sourced from multiple suppliers — color, latch style, and interior layout may vary slightly from the case shown in product photos. All units are tested and configured to the same functional specifications before shipment.</p>
                <p><strong>Shipping:</strong> Due to federal regulations governing lithium-ion batteries and cellular devices, all orders ship via USPS ground transportation only — air shipping is not available. Order processing takes up to 7 business days (average 1–2 days). Shipping then takes up to 10 additional business days (average 5–7 days) because of the ground-only requirement. Orders ship to continental U.S. destinations only.</p>
                <p><strong>Payment Processing:</strong> Website orders are processed securely through Stripe; eBay orders are paid through eBay. Eastern Shore AI, LLC never sees or stores payment card information.</p>
                <p><strong>Liability:</strong> To the maximum extent permitted by law, Eastern Shore AI, LLC is not liable for incidental or consequential damages from product use or inability to use.</p>
                <p><strong>Trademark/Affiliation:</strong> Eastern Shore AI, LLC is an independent seller and is not an authorized dealer or affiliate of OEM brands referenced for identification purposes only.</p>
-               <p><strong>Support:</strong> Reach us any time at <a href="mailto:support@easternshore.ai" style="color:var(--cyan)">support@easternshore.ai</a>.</p>`
+               <p><strong>Support:</strong> Reach us any time at <a href="mailto:support@easternshore.ai" style="color:var(--cyan)">support@easternshore.ai</a> or <a href="tel:+13029079162" style="color:var(--cyan)">(302) 907-9162</a>.</p>`
       },
       {
         title: 'AccuBattery',
@@ -608,7 +612,7 @@
                </ol>
                <p style="color:var(--muted); font-size:.9rem;">Note: F-Droid requires Wi-Fi to download or update apps. All apps on your Survival Node are pre-installed — F-Droid is there for future installs and updates when you have connectivity.</p>
                <p><strong>OS &amp; App Compatibility</strong></p>
-               <p>Every Survival Node ships with a debloated Android OS, optimized for performance and longevity. Some apps requiring Google Play Services — banking apps, certain navigation apps, hardware attestation — may not function. This does not affect your offline preparedness stack. Do not install or turn on Google Play Services, as it would undermine the privacy architecture of your Survival Node. Motorola may install Android updates when the phone is on Wi-Fi. Only connect to Wi-Fi you trust.</p>
+               <p>Every Survival Node ships with a debloated Android OS, optimized for performance and longevity. Some apps requiring Google Play Services — banking apps, certain navigation apps, hardware attestation — may not function. This does not affect your offline preparedness stack. Do not install or turn on Google Play Services, as it would undermine the privacy architecture of your Survival Node. Motorola may install Android updates when the phone is on Wi-Fi. We don't control or test them, and they can change settings or bring back built-in apps. Only connect to Wi-Fi you trust.</p>
                ${appDisclaimer}`
       },
       {
@@ -637,7 +641,7 @@
                <p><strong>What it is:</strong> Fossify File Manager is a lightweight, open-source file manager with no ads, no trackers, and no internet permissions. It gives you full access to your device's local storage — browse, move, copy, rename, and delete files without any cloud involvement.</p>
                <p><strong>Best uses on Survival Node:</strong></p>
                <ul>
-                 <li>Navigating to pre-loaded documents and PDFs (including the Users Guide standard PDF backup in Downloads)</li>
+                 <li>Navigating to pre-loaded documents and PDFs (including the User Guide standard PDF backup in the Download folder)</li>
                  <li>Moving files received via LocalSend to organized folders</li>
                  <li>Managing downloaded AI model files for PocketPal</li>
                  <li>Accessing and organizing photos, exports, and offline reference materials</li>
@@ -649,7 +653,7 @@
                  <li>Long-press any file to select it, then use the toolbar to move, copy, rename, or delete</li>
                  <li>Use the search icon to find files by name across all storage</li>
                </ol>
-               <p style="color:var(--muted); font-size:.9rem;">Tip: the Users Guide standard PDF and the PocketPal system prompt are pre-loaded in your Download folder — open Fossify File Manager to find and read them offline at any time. The Users Guide is also available as an app on the home screen.</p>
+               <p style="color:var(--muted); font-size:.9rem;">Tip: the User Guide standard PDF and the PocketPal system prompt are pre-loaded in your Download folder — open Fossify File Manager to find and read them offline at any time. The User Guide is also available as an app on the home screen.</p>
                ${appDisclaimer}`
       },
       {
@@ -721,6 +725,9 @@
                <p><strong>Learning Self Reliance</strong></p>
                <p>A practical guide to self-reliance skills including food storage, homesteading, gardening, animal husbandry, and long-term preparedness planning. Focused on building sustainable systems that function without grid dependency.</p>
 
+               <p><strong>Appropedia</strong></p>
+               <p>Shared knowledge for sustainable, practical living.</p>
+
                <p><strong>Survivor Library</strong></p>
                <p>An extensive collection of pre-industrial skills, trades, and technical knowledge — covering farming, blacksmithing, construction, medicine, engineering, and more. Designed for long-term resilience when modern supply chains and infrastructure are no longer available.</p>
 
@@ -755,7 +762,7 @@
                  <li>Connect both devices to the same Wi-Fi network (or create a hotspot on one and connect the other to it)</li>
                  <li>LocalSend auto-discovers other nearby devices running the app</li>
                  <li>On the sending device: tap <strong>Send</strong>, select your files, then tap the recipient device name</li>
-                 <li>On the receiving device: accept the transfer — files save to your Downloads folder</li>
+                 <li>On the receiving device: accept the transfer — files save to your Download folder</li>
                </ol>
                <p style="color:var(--muted); font-size:.9rem;">Tip: if devices don't see each other, confirm they're on the same Wi-Fi network and that LocalSend has local network permission enabled in Android settings.</p>
                ${appDisclaimer}`
