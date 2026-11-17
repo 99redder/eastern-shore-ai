@@ -43,6 +43,9 @@ ASKK_ORG_MONTHLY_LIMIT = "100"
 IDESIGN_ASKK_URL = "https://idesignas.com/internal/daily-summary"
 # "1" = require the Turnstile bot check (node.html must have TURNSTILE_SITE_KEY set)
 ASKK_TURNSTILE_ENFORCE = "1"
+# easternshore.ai's zone, for the "AI assistants yesterday" part of the 8 AM email
+# (src/ai-traffic.js). Secret CF_ANALYTICS_TOKEN: Zone > Analytics > Read on easternshore.ai only.
+CF_ZONE_TAG = "9168324a0bde7ee21b011ee6ff7770d0"
 
 # Outgoing email (src/email.js) goes through Cloudflare Email Sending on
 # easternshore.ai; if that fails, RESEND_API_KEY (Resend) sends it instead.

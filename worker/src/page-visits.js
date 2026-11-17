@@ -18,8 +18,29 @@ async function sha256(s) {
   return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// AI assistants that send visitors. ChatGPT tags its links utm_source=chatgpt.com;
+// the others mostly arrive as a referrer. Rows saved before 2026-11-17 have
+// "chatgpt.com" as the source, so this reads both forms.
+const AI_ASSISTANTS = [
+  ['chatgpt', /^chatgpt(\.com)?$|(^|\.)chatgpt\.com$|(^|\.)openai\.com$/],
+  ['perplexity', /^perplexity(\.ai)?$|(^|\.)perplexity\.ai$/],
+  ['claude', /^claude(\.ai)?$|(^|\.)claude\.ai$/],
+  ['gemini', /^gemini$|(^|\.)gemini\.google\.com$/],
+  ['copilot', /^copilot$|(^|\.)copilot\.(microsoft\.)?com$/],
+];
+export function aiAssistant(source, refHost) {
+  const s = clip(source, 40).toLowerCase();
+  const h = clip(refHost, 120).toLowerCase();
+  for (const [name, re] of AI_ASSISTANTS) {
+    if ((s && re.test(s)) || (h && re.test(h))) return name;
+  }
+  return null;
+}
+
 // The page sends what it knows; the worker only trusts it for labels.
 export function classifySource(src, refHost) {
+  const ai = aiAssistant(src, src ? '' : refHost);
+  if (ai) return ai;
   const s = clip(src, 40).toLowerCase();
   if (s) return s;
   const h = clip(refHost, 120).toLowerCase();
@@ -70,4 +91,21 @@ export async function pageVisitSummary(env, day) {
     out.lines.push('Towns come from the internet connection and can be off by a town or two.', '');
   }
   return out;
+}
+
+// Visitors AI assistants sent yesterday, for the AI section of the 8 AM email.
+// `total` counts people (distinct hashes) once even if they came twice.
+export async function aiVisitSummary(env, day) {
+  const rows = (await env.DB.prepare(`SELECT source, ref_host, ip_hash FROM page_visits WHERE day = ?1`).bind(day).all()).results || [];
+  const byName = new Map();
+  const everyone = new Set();
+  for (const r of rows) {
+    const name = aiAssistant(r.source, r.ref_host);
+    if (!name) continue;
+    if (!byName.has(name)) byName.set(name, new Set());
+    byName.get(name).add(r.ip_hash);
+    everyone.add(r.ip_hash);
+  }
+  const counts = [...byName].map(([name, set]) => [name, set.size]).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  return { total: everyone.size, counts };
 }

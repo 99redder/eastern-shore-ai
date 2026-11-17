@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import worker from '../src/index.js';
-import { classifySource, pageVisitSummary } from '../src/page-visits.js';
+import { classifySource, pageVisitSummary, aiAssistant, aiVisitSummary } from '../src/page-visits.js';
 import { createD1 } from './d1.mjs';
 
 const MIGRATIONS = new URL('../migrations/', import.meta.url);
@@ -33,6 +33,32 @@ test('classifySource labels referrers', () => {
   assert.equal(classifySource('', 'l.facebook.com'), 'facebook/instagram');
   assert.equal(classifySource('google ads', 'www.google.com'), 'google ads');
   assert.equal(classifySource('', 'example.org'), 'other site');
+});
+
+test('classifySource names AI assistants, from utm_source or referrer', () => {
+  assert.equal(classifySource('chatgpt.com', ''), 'chatgpt');
+  assert.equal(classifySource('', 'chatgpt.com'), 'chatgpt');
+  assert.equal(classifySource('perplexity', ''), 'perplexity');
+  assert.equal(classifySource('', 'www.perplexity.ai'), 'perplexity');
+  assert.equal(classifySource('', 'claude.ai'), 'claude');
+  assert.equal(classifySource('', 'gemini.google.com'), 'gemini', 'Gemini before Google');
+  assert.equal(classifySource('', 'copilot.microsoft.com'), 'copilot');
+  assert.equal(classifySource('google ads', 'gemini.google.com'), 'google ads', 'utm_source still wins');
+  assert.equal(aiAssistant('chatgpt.com', ''), 'chatgpt', 'rows saved before the rename');
+  assert.equal(aiAssistant('google', 'www.google.com'), null);
+  assert.equal(aiAssistant('other site', 'claudeshop.example'), null);
+});
+
+test('aiVisitSummary counts people AI assistants sent', async () => {
+  const e = env();
+  await visit(e, { page: 'node', src: 'chatgpt.com' });
+  await visit(e, { page: 'node', src: 'chatgpt.com' });                                   // same person twice
+  await visit(e, { page: 'node', ref: 'www.perplexity.ai' }, { ip: '5.6.7.8' });
+  await visit(e, { page: 'node', ref: 'www.google.com' }, { ip: '9.8.7.6' });            // not AI
+  e.DB.sqlite.prepare(`INSERT INTO page_visits (page, day, source, ref_host, device, city, region, country, ip_hash) VALUES ('node', ?, 'chatgpt.com', '', 'phone', '', '', '', 'old-row')`).run(today);
+  const s = await aiVisitSummary(e, today);
+  assert.equal(s.total, 3);
+  assert.deepEqual(s.counts, [['chatgpt', 2], ['perplexity', 1]]);
 });
 
 test('visits are stored, bots and Chris skipped, and summarized', async () => {

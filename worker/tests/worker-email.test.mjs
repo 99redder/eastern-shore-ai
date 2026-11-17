@@ -886,6 +886,9 @@ test('daily Ask K summary covers every deployment, emailed from the alerts addre
   assert.match(email.text, /idesignas\): platform\.claude\.com/);
   assert.match(email.text, /platform\.claude\.com → Usage/);
   assert.doesNotMatch(email.text, /console\.anthropic\.com/);
+  // AI section rides along after the visits (no analytics token in tests)
+  assert.match(email.text, /\nAI assistants yesterday — \d{4}-\d\d-\d\d\n\nVisits AI assistants sent: 0\nAI page reads: not set up \(CF_ANALYTICS_TOKEN not set\)\n/);
+  assert.match(email.text, /ChatGPT mentions and clicks: https:\/\/chatgpt\.com\/business-hub\//);
 });
 
 test('daily Ask K summary: FMG budget used up is named, not shown as prepaid credit', async (t) => {

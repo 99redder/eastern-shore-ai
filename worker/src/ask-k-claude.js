@@ -24,6 +24,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { pageVisitSummary } from './page-visits.js';
+import { aiTrafficSummary } from './ai-traffic.js';
 
 const CLAUDE_FAMILY = 'claude-opus-';
 const CLAUDE_FALLBACK_MODEL = 'claude-opus-5-5';
@@ -610,6 +611,11 @@ export async function sendAskKDailySummary(env, notify, now = new Date(), { time
   let visits = null;
   try { visits = await pageVisitSummary(env, day); } catch (e) { console.error('page visit summary failed', e); }
   if (visits) lines.push('', `Website visits yesterday — ${day}`, '', ...visits.lines);
+
+  // AI assistants and node.html: visits they sent, page reads, the ChatGPT feed (src/ai-traffic.js).
+  let ai = null;
+  try { ai = await aiTrafficSummary(env, day); } catch (e) { console.error('AI traffic summary failed', e); }
+  if (ai) lines.push('', `AI assistants yesterday — ${day}`, '', ...ai.lines);
 
   const failed = sections.filter(s => s.failed).map(s => s.name);
   const subject = `Ask K yesterday: ${answers} answered, about ${money(spent)}; ${month} so far ${money(claudeMtd)} of $${limit}`
