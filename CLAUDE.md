@@ -1084,6 +1084,13 @@ cd worker && wrangler deploy --config wrangler.toml
 - Cloudflare caches `.js` for 4 hours. After editing `seasonal-sale.js`, bump the `?v=` on its script tag in `node.html`, `buynode.html` and `checkout.html` or visitors keep the old copy.
 - The printed flyer (`flyer/`) still says $249.99, the old sale price.
 
+## node.html speed fixes (2026-11-16)
+
+- Lighthouse (mobile, simulated) scored node.html 28 before these: about 4.1 MB of images at startup and 2.4 s of main-thread time from the Reddit pixel.
+- **Reddit pixel removed from every page** (Red no longer runs Reddit ads), and from `privacy.html`. The purchase and view events left in node/buynode/checkout check `window.rdt` first, so they skip quietly; the Google Ads purchase event still reads the cart total stashed in `rdt_pending_purchase`. The page-visit counter still labels `rdt_cid` clicks as "reddit ads". The Reddit hosts left in each page's CSP do nothing.
+- **Gallery thumbnails** use `images/carousel/thumbs/<name>.webp` (240 px on the long side, 2–6 KB, `loading="lazy"`); the gallery and lightbox still show the full photos through `itemData` (the thumb's `data-key`). When a carousel photo changes (for example `images/carousel/phone/home-screen.jpg`), remake its thumb.
+- The Ask K header avatar is `images/ask-k/k.webp` (120 px, 3 KB; `k.png` was 873 KB). `images/red.jpg` was resized in place to 720 px (78 KB, was 642 KB) and lazy-loads on the six pages that use it.
+
 ## FAQ structured data must match the visible FAQ (added 2026-11-16)
 
 - `node.html` and `index.html` each carry their FAQ twice: the visible `<details>` list in `#faq` and a `FAQPage` JSON-LD copy. Google requires the two to match. On 2026-11-16 node.html's had drifted (22 visible questions, 10 JSON-LD ones worded differently) and was rebuilt from the visible FAQ, question for question, in the same order.
