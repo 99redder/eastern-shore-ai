@@ -73,7 +73,7 @@ No SIM card is included (see "Calls and texts" below).
 - **Fossify File Manager** — private file manager
 - **Fossify Clock** — open-source alarm clock, timer and stopwatch that works without Google Play Services; it's the Clock in the Tools folder (phones prepared from November 16, 2026; earlier phones have Google's Clock)
 - **Fossify Phone** — open-source dial pad and contacts that work without Google Play Services; it's the Phone in the bottom row (phones prepared from November 16, 2026; earlier phones have Google's Phone). The Survival Node isn't designed or tested for calls
-- **Eastern Shore AI Users Guide** — the full User Guide as an app; works offline and checks for guide updates on Wi-Fi
+- **Survival Node User Guide** — the full User Guide as an app on the home screen; works offline and checks for guide updates on Wi-Fi
 
 All of it runs offline after setup except Fennec and F-Droid, which need an internet connection.
 
