@@ -59,15 +59,13 @@ No SIM card is included (see "Calls and texts" below).
 - **Survival Node Videos** (on phones prepared from November 17, 2026; in VLC, or File Manager → Movies → Survival Node Videos) — first-aid skill videos: hands-only CPR (Welsh Government, CC BY), CPR with an AED, using an AED, bleeding control and shock, applying a tourniquet, and splinting a broken long bone (U.S. Army training videos), plus 5 CDC radiation-emergency videos (shelter in place; get inside, stay inside, stay tuned; contamination vs exposure; potassium iodide; self-decontamination). They play offline. They don't replace hands-on training. The Army videos are EMT demonstrations, so some steps use gear a bystander won't have.
 - **Survival Guides** (PDF, on phones prepared from November 17, 2026; File Manager → Download → Survival Guides) — FEMA "Are You Ready?" disaster preparedness guide, Army ATP 4-02.11 Casualty Response, TCCC and First Aid (2026), Army FM 3-25.26 Map Reading and Land Navigation, USGS Finding Your Way with Map and Compass, National Weather Service Weather Spotter's Field Guide, CISA National Interoperability Field Operations Guide (emergency radio channels), the 2026-2030 ham radio Technician exam question pool, and Nuclear War Survival Skills (Kearny, 1987). Each folder has a CREDITS.txt with sources and licenses.
 - **VLC** — open-source video player for the preloaded videos (on phones prepared from November 17, 2026).
-- **Open-source licenses:** most of the apps, and the AI models and voices on the phone, are free and open-source software by other authors (AccuBattery, BatteryBot Pro and the DeepL app aren't open source). Their licenses, source links and our offer to send the source code of the GPL apps are on the phone in File Manager → Download → Licenses (THIRD-PARTY-NOTICES.txt) and at easternshore.ai/licenses.html.
+- **Open-source licenses:** most of the apps, and the AI models and voices on the phone, are free and open-source software by other authors (Motorola's and Google's own system apps aren't). Their licenses, source links and our offer to send the source code of the GPL apps are on the phone in File Manager → Download → Licenses (THIRD-PARTY-NOTICES.txt) and at easternshore.ai/licenses.html.
 - **Translator** (on phones prepared from November 17, 2026) — offline translation between 62 languages with Mozilla's offline translation models. Pick the two languages, type or tap the mic and speak, and tap the speaker to hear it. About 30 languages have a voice (including English, Spanish, French, German, Portuguese, Italian, Russian, Ukrainian, Polish, Dutch, Vietnamese, Korean); the rest show text only. If no languages show, Settings > Advanced > Use external storage.
 - **Whisper** (on phones prepared from November 17, 2026) — offline voice input in about 99 languages; it's the mic Translator uses. On its own it can also turn speech in any language into English text.
-- **Seamless** — only on phones prepared before November 17, 2026: offline voice translation between English, Spanish, Portuguese, Hindi and Russian.
-- **DeepL** — text translation, 30+ languages (needs an internet connection; Translator is the offline translator)
+- **Seamless and DeepL** — only on phones prepared before November 17, 2026: Seamless is offline voice translation between English, Spanish, Portuguese, Hindi and Russian; DeepL is a text translation app that needs an internet connection. Phones from November 17, 2026 have Translator instead.
 - **Morse** — Morse code encoder/decoder
 - **SOS Flashlight** — SOS beacon
 - **Battery Bot Pro** — battery monitoring and charge alarms
-- **AccuBattery** — battery health and capacity diagnostics
 - **Exodus Privacy** — tracker auditor
 - **Briar** — encrypted Bluetooth/Wi-Fi mesh messenger, no internet or cell needed
 - **Meshtastic** — app for LoRa mesh radios: text messages and GPS locations with no internet or cell service. Only the app is preinstalled. No radio is included; it needs a separate Meshtastic-compatible radio, sold separately, to send or receive anything
@@ -77,7 +75,7 @@ No SIM card is included (see "Calls and texts" below).
 - **Fossify Phone** — open-source dial pad and contacts that work without Google Play Services; it's the Phone in the bottom row (phones prepared from November 16, 2026; earlier phones have Google's Phone). The Survival Node isn't designed or tested for calls
 - **Eastern Shore AI Users Guide** — the full User Guide as an app; works offline and checks for guide updates on Wi-Fi
 
-All of it runs offline after setup except DeepL, Fennec and F-Droid, which need an internet connection.
+All of it runs offline after setup except Fennec and F-Droid, which need an internet connection.
 
 Every preloaded app is on one home screen in A to Z order. There is no app drawer. Settings is in the bottom row between Phone and Camera, and built-in tools such as Clock, Calculator, Recorder, FM Radio and Contacts are in the Tools folder. On phones prepared from November 16, 2026, the Phone in the bottom row is Fossify Phone and the Clock is Fossify Clock; Google's original Phone app is also in Tools, kept in case someone needs it for an emergency call, though calls may not work (see the SIM and calls answer). Customers should use the Phone in the bottom row, and decline if Google's Phone asks to become the default phone app, or the startup notices may come back. Earlier phones have Google's Phone in the bottom row and Google's Clock in Tools.
 
@@ -86,7 +84,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 ## Frequently asked questions
 
-**Does it work without internet or cell signal?** Yes. The AI models, maps and reference libraries run on the phone with no cloud, Wi-Fi or cell signal. DeepL, Fennec and F-Droid are the exceptions, since they need an internet connection.
+**Does it work without internet or cell signal?** Yes. The AI models, maps and reference libraries run on the phone with no cloud, Wi-Fi or cell signal. Fennec and F-Droid are the exceptions, since they need an internet connection.
 
 **Is it ready out of the box?** Yes — hardened OS, full software suite and the Survival Node AI Agent are already set up. For best results, read through the User Guide once to lock in maps, local data and fallback settings.
 
@@ -116,7 +114,7 @@ It's ready out of the box. In PocketPal, tap the upward arrow (↑) to the left 
 
 **What about Raspberry Pi, laptop or tablet builds?** Power is the problem: laptops draw 30–80W+ and tablets much more than a phone, so they're hard to keep charged by solar. A phone is the most power-efficient platform for running a local AI, has GPS, mic, camera and flashlight built in, and fits in a pocket. 8GB RAM is the practical minimum for a capable local model.
 
-**What phone is it, and is it new?** Motorola Moto G Power (2024), brand new or open box. Minor cosmetic wear on open-box units is normal. Each phone is checked for normal charging, battery drain and overall function when it arrives and again before debloating, then gets one AccuBattery health test before shipping. The result is linked in the shipping email.
+**What phone is it, and is it new?** Motorola Moto G Power (2024), brand new or open box. Minor cosmetic wear on open-box units is normal. Each phone is checked for normal charging, battery drain and overall function when it arrives and again before debloating, then gets one AccuBattery health test before shipping. The result is linked in the shipping email. AccuBattery is removed from the phone after that test, so it isn't on the phone (phones shipped before November 17, 2026 still have it); Battery Bot Pro stays for charge level, temperature and charge alerts.
 
 ## Warranty, support and returns
 

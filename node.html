@@ -1486,7 +1486,7 @@
         {
           "@type": "Question",
           "name": "Does the Survival Node work without internet or cell signal?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The AI models, maps, and reference libraries on the Survival Node run locally on the phone. No cloud, no Wi-Fi, no cell signal needed. DeepL, Fennec and F-Droid are the exceptions, since they need an internet connection. Once set up and in your hands, it works anywhere on earth regardless of what's happening to the power grid, cell towers, or internet infrastructure." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The AI models, maps, and reference libraries on the Survival Node run locally on the phone. No cloud, no Wi-Fi, no cell signal needed. Fennec and F-Droid are the exceptions, since they need an internet connection. Once set up and in your hands, it works anywhere on earth regardless of what's happening to the power grid, cell towers, or internet infrastructure." }
         },
         {
           "@type": "Question",
@@ -2066,7 +2066,7 @@
 
         <details>
           <summary>Does the Survival Node need cell service or an internet connection to work?</summary>
-          <p class="answer">No — and that's the entire point. The maps, AI models, and reference libraries on the Survival Node run entirely offline. No cell signal, no Wi-Fi, no cloud dependency. DeepL, Fennec and F-Droid are the exceptions, since they need an internet connection. Once it's set up and in your hands, it works anywhere on earth regardless of what's happening to the power grid, cell towers, or internet infrastructure.</p>
+          <p class="answer">No — and that's the entire point. The maps, AI models, and reference libraries on the Survival Node run entirely offline. No cell signal, no Wi-Fi, no cloud dependency. Fennec and F-Droid are the exceptions, since they need an internet connection. Once it's set up and in your hands, it works anywhere on earth regardless of what's happening to the power grid, cell towers, or internet infrastructure.</p>
         </details>
 
         <details>
@@ -2105,7 +2105,7 @@
           <summary>What is the phone model? Is it new, refurbished, or used? How is the battery life?</summary>
           <div class="answer">
             <p>Every Survival Node is built on a Motorola Moto G Power (2024) — brand new or open box. All units are hand-vetted for battery life, memory performance, and overall suitability before shipment.</p>
-            <p><strong>Battery life:</strong> Every phone is checked for normal charging, battery drain, and overall function when it arrives and again before debloating. Each unit then gets one AccuBattery health test before shipping, and the result is linked in your shipping email. Because the OS is hardened and stripped of known bloatware and unnecessary background processes in every configuration, the device generally achieves better battery endurance than a stock Android phone with the same hardware — more of the battery goes toward what you're actually doing.</p>
+            <p><strong>Battery life:</strong> Every phone is checked for normal charging, battery drain, and overall function when it arrives and again before debloating. Each unit then gets one AccuBattery health test before shipping (we remove the app afterward), and the result is linked in your shipping email. Because the OS is hardened and stripped of known bloatware and unnecessary background processes in every configuration, the device generally achieves better battery endurance than a stock Android phone with the same hardware — more of the battery goes toward what you're actually doing.</p>
           </div>
         </details>
 
@@ -2339,11 +2339,9 @@
               <li style="margin:.2rem 0 .6rem 1rem; font-size:.85rem; color:#b0bcd6;">↳ Wikibooks — free textbooks and how-to manuals, with pictures</li>
               <li style="margin:.3rem 0;"><strong>Translator</strong> — offline translation between 62 languages using Mozilla's offline translation models; type or speak, and hear about 30 languages read aloud</li>
               <li style="margin:.3rem 0;"><strong>Whisper</strong> — offline voice input in about 99 languages; it's the mic for Translator</li>
-              <li style="margin:.3rem 0;"><strong>DeepL</strong> — high-accuracy text translation across 30+ languages</li>
               <li style="margin:.3rem 0;"><strong>Morse</strong> — Morse code encoder/decoder for off-grid signaling</li>
               <li style="margin:.3rem 0;"><strong>SOS Flashlight</strong> — turns your phone flashlight into a bright SOS beacon</li>
               <li style="margin:.3rem 0;"><strong>Battery Bot Pro</strong> — real-time battery monitoring and charge alarms</li>
-              <li style="margin:.3rem 0;"><strong>AccuBattery</strong> — battery health diagnostics, capacity measurement, and charge cycle tracking</li>
               <li style="margin:.3rem 0;"><strong>Exodus Privacy</strong> — app tracker auditor, scans installed apps for hidden trackers</li>
               <li style="margin:.3rem 0;"><strong>Briar</strong> — Bluetooth/Wi-Fi encrypted mesh messenger, no internet or cell required</li>
               <li style="margin:.3rem 0;"><strong>Meshtastic</strong> — off-grid messaging app for LoRa mesh radios. Radio not included; the app needs a separate Meshtastic radio to send or receive</li>
@@ -2356,7 +2354,7 @@
           </div>
         </div>
       </div>
-      <div style="margin-top:.6rem; font-size:.78rem; color:var(--muted); font-style:italic; flex-shrink:0;">Specific apps and versions may vary. Everything runs offline after setup except DeepL, Fennec and F-Droid, which need an internet connection. Translator handles offline translation. Open-source licenses and source code: <a href="/licenses.html" style="color:var(--cyan);">easternshore.ai/licenses.html</a>.</div>
+      <div style="margin-top:.6rem; font-size:.78rem; color:var(--muted); font-style:italic; flex-shrink:0;">Specific apps and versions may vary. Everything runs offline after setup except Fennec and F-Droid, which need an internet connection. Translator handles offline translation. Open-source licenses and source code: <a href="/licenses.html" style="color:var(--cyan);">easternshore.ai/licenses.html</a>.</div>
       <div class="terms-actions" style="margin-top:.6rem; flex-shrink:0;">
         <button type="button" class="btn" id="software-close" style="width:auto; min-width:180px;">Got it</button>
       </div>
@@ -3367,7 +3365,7 @@
       let staffJoinedName = null;
       const cannedQuickReplies = {
         "What's included?": "The Survival Node includes a Motorola Moto G Power (2024) phone (brand new or open box, hand-vetted), a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI Agent, a premium solar battery, two Mission Darkness Faraday bags, a shockproof phone case with screen protector, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. " + (document.documentElement.dataset.price === 'regular' ? 'Survival Node Gen 2 is $349.99' : 'Survival Node Gen 2 is regularly $349.99, now $299.99 for a limited time while supplies last — a $50 saving') + ", with free shipping to the continental U.S.",
-        "Does it work offline?": "Yes — the Survival Node is built for offline use. The AI, maps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required. DeepL, Fennec and F-Droid are the exceptions, since they need an internet connection.",
+        "Does it work offline?": "Yes — the Survival Node is built for offline use. The AI, maps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required. Fennec and F-Droid are the exceptions, since they need an internet connection.",
         "How does shipping work?": "Shipping is free to continental U.S. destinations, and orders ship by ground because of lithium battery rules. Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not currently supported.",
         "What's the warranty?": "The kit includes a 30-day Eastern Shore AI warranty for defects in hardware function and software configuration. Returns are accepted within 30 days of delivery if the device stays in original functional condition and the OS has not been further modified. RMA number required — contact us first. Buyer pays return shipping."
       };
