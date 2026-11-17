@@ -666,7 +666,8 @@ body {
   <a href="#survival-manual" onclick="toggleMenu()">Survival Manual</a>
   <a href="#trail-sense" onclick="toggleMenu()">Trail Sense</a>
   <a href="#vlc" onclick="toggleMenu()">VLC Video Player</a>
-  <a href="#seamless" onclick="toggleMenu()">Seamless Translate</a>
+  <a href="#translator" onclick="toggleMenu()">Translator</a>
+  <a href="#whisper" onclick="toggleMenu()">Whisper Voice Input</a>
   <a href="#deepl" onclick="toggleMenu()">DeepL</a>
   <a href="#morse" onclick="toggleMenu()">Morse Code</a>
   <a href="#briar" onclick="toggleMenu()">Briar Messenger</a>
@@ -828,7 +829,7 @@ body {
       <span class="arrow">▼</span>
     </button>
     <div class="card-body"><div class="card-content">
-      <p>AI models improve regularly. Your 6-month check is a good time to update. Takes about 5–10 minutes on Wi-Fi. Your Survival Node ships with two offline models — <strong>Qwen 3.5-4B</strong> (primary) and <strong>Qwen 2.5-3B</strong> (fast backup).</p>
+      <p>AI models improve regularly. Your 6-month check is a good time to update. Takes about 5–10 minutes on Wi-Fi. Your Survival Node ships with two offline models — <strong>Qwen 3.5-4B</strong> (primary) and <strong>Qwen 3.5-2B</strong> (fast backup).</p>
       <ol class="steps">
         <li>Connect the phone to Wi-Fi</li>
         <li>Open the <strong>PocketPal</strong> app</li>
@@ -1144,10 +1145,10 @@ body {
         <thead><tr><th>Model</th><th>Speed</th><th>Memory</th><th>Role</th></tr></thead>
         <tbody>
           <tr><td>Qwen 3.5-4B</td><td>1.41 t/s</td><td>5 GB (60%)</td><td><span class="tag tag-primary">PRIMARY</span></td></tr>
-          <tr><td>Qwen 2.5-3B</td><td>3.50 t/s</td><td>5 GB (59%)</td><td><span class="tag tag-secondary">FAST BACKUP</span></td></tr>
+          <tr><td>Qwen 3.5-2B</td><td>about 2× the 4B</td><td>—</td><td><span class="tag tag-secondary">FAST BACKUP</span></td></tr>
         </tbody>
       </table>
-      <p><strong>Qwen 3.5-4B (Q4_K_M)</strong> is the current primary and powers the pre-configured Survival Node AI Agent — chosen for deeper, more capable emergency answers. It is slower while generating, so a long response may take several minutes. <strong>Qwen 2.5-3B (Q5_K_M)</strong> is the previous primary, kept as the faster backup for when time or battery matters.</p>
+      <p><strong>Qwen 3.5-4B (Q4_K_M)</strong> is the current primary and powers the pre-configured Survival Node AI Agent — chosen for deeper, more capable emergency answers. It is slower while generating, so a long response may take several minutes. <strong>Qwen 3.5-2B</strong> is the fast backup: it answers about twice as fast as the 4B, for when time or battery matters. Phones prepared before November 17, 2026 have Qwen 2.5 3B as the backup and use it for voice.</p>
       <h4>Using the Survival Node AI Pal</h4>
       <ol class="steps">
         <li>Open PocketPal</li>
@@ -1155,7 +1156,7 @@ body {
         <li>Tap the <strong>Pals</strong> tab</li>
         <li>Select <strong>"Survival Node"</strong></li>
         <li>Start chatting — system prompt is applied automatically</li>
-        <li>To ask out loud, switch to Qwen 2.5 first (tap ↑, then the Models tab), then tap the mic next to the send button. Works offline. Voice doesn't work with Qwen 3.5 — it needs too much memory</li>
+        <li>To ask out loud, switch to the Qwen 3.5 2B model first (tap ↑, then the Models tab), then tap the mic next to the send button. It works offline. The larger Qwen 3.5 4B model needs too much memory to run alongside voice input.</li>
       </ol>
       <div class="callout warning">⚠️ <strong>AI Accuracy:</strong> Models can confidently state wrong information ("hallucination"). Always cross-reference against offline reference libraries for safety-critical decisions.</div>
       <div class="disclaimer">Third-Party Software Disclaimer: Independently developed software. Eastern Shore AI, LLC has no partnership or affiliation with the developer(s). Provided as-is, use at your own risk.</div>
@@ -1308,22 +1309,40 @@ body {
   </div>
 </div>
 
-<div class="section" id="seamless">
-  <div class="card" data-search="seamless voice translation language offline">
+<div class="section" id="translator">
+  <div class="card" data-search="translator translate translation languages offline voice speak mozilla">
     <button class="card-trigger" onclick="toggleCard(this)">
-      <span class="card-icon">🗣️</span>
-      <span>Seamless — Voice Translation</span>
+      <span class="card-icon">🌐</span>
+      <span>Translator — Offline Translation</span>
       <span class="arrow">▼</span>
     </button>
     <div class="card-body"><div class="card-content">
-      <p>On-device voice translation powered by Meta's Unity model — no internet required. Speak in one language, hear the translation in another.</p>
+      <p>Translator (the Offline Translator app) translates between 62 languages with no internet, using Mozilla's offline translation models.</p>
       <ol class="steps">
-        <li>Open Seamless</li>
-        <li>Select source language (what you're speaking)</li>
-        <li>Select target language (what you want output in)</li>
-        <li>Tap the microphone and speak — translation plays back automatically</li>
+        <li>Open <strong>Translator</strong> from the home screen</li>
+        <li>Pick the two languages</li>
+        <li>Type, or tap the mic and speak (voice input is Whisper, below)</li>
+        <li>Tap the speaker to hear the translation read out loud</li>
+        <li>To reply, swap the languages</li>
       </ol>
-      <div class="callout tip">💡 Test your target languages before an emergency to confirm performance.</div>
+      <p>About 30 languages have a voice; the rest show text only.</p>
+      <div class="callout tip">💡 If no languages show up, open <strong>Settings › Advanced</strong> and turn on <strong>Use external storage</strong> (done before your kit shipped).</div>
+      <p>Phones prepared before November 17, 2026 have Seamless instead, which translates English, Spanish, Portuguese, Hindi and Russian.</p>
+      <div class="disclaimer">Third-Party Software Disclaimer: Independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="whisper">
+  <div class="card" data-search="whisper voice input speech to text dictation languages offline translate english">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🎙️</span>
+      <span>Whisper — Offline Voice Input</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Whisper turns speech into text with no internet, in about 99 languages. It's the voice input Translator uses when you tap the mic.</p>
+      <p>Opened on its own, it can also translate any language it hears into English text: open <strong>Whisper</strong>, pick the multilingual model, and speak.</p>
       <div class="disclaimer">Third-Party Software Disclaimer: Independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
     </div></div>
   </div>
@@ -1338,7 +1357,7 @@ body {
     </button>
     <div class="card-body"><div class="card-content">
       <p>High-accuracy text translation for 30+ languages. Best for translating written text, documents, signs, and longer passages where natural phrasing matters.</p>
-      <div class="callout warning">⚠️ DeepL needs an internet connection. Use <strong>Seamless</strong> for fully offline voice translation.</div>
+      <div class="callout warning">⚠️ DeepL needs an internet connection. Use <strong>Translator</strong> for offline translation.</div>
       <div class="disclaimer">Third-Party Software Disclaimer: Independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
     </div></div>
   </div>
@@ -1601,6 +1620,7 @@ body {
       <p><strong>Android updates.</strong> Motorola may install Android updates when the phone is on Wi-Fi. We don't control or test them, and they can change settings or bring back built-in apps. Only connect to Wi-Fi you trust.</p>
       <p><strong>Factory reset.</strong> A factory reset erases the preloaded maps, AI models and libraries and brings back the apps we removed. Contact us before resetting; most problems can be fixed without one.</p>
       <p><strong>Kit changes.</strong> These instructions describe the kit as currently sold. Kits sold earlier may have different apps, libraries, settings or configurations.</p>
+      <p><strong>Open-source licenses.</strong> Most of the apps, and the AI models and voices on the phone, are free and open-source software by other authors. Their licenses, where to find their source code, and our offer to send the source code of the GPL apps are in File Manager → Download → Licenses (THIRD-PARTY-NOTICES.txt), and at easternshore.ai/licenses.html.</p>
       <p><strong>Meshtastic radio not included.</strong> Only the app is preinstalled. It needs a separate compatible radio, sold separately. Eastern Shore AI, LLC does not sell, support, or warrant radio hardware.</p>
       <ul>
         <li><strong>Right to refuse &amp; order cancellation:</strong> Eastern Shore AI, LLC reserves the right to refuse or cancel any order at its discretion, including cases of suspected fraud, misrepresentation, or policy violations. If we cancel your order before it ships, or it hasn't shipped within 7 business days and you cancel, you will be refunded in full. If you ask to cancel before it ships, or it's going to an address outside the continental U.S., the refund is minus Stripe's processing fee, as the terms explain. eBay orders are canceled through eBay.</li>
