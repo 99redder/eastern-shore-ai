@@ -51,7 +51,7 @@ test('feed item matches the Commerce Manager item and node.html', () => {
   assert.equal(additional.length, 14);
   assert.deepEqual(additional, META_IMAGES.slice(1).map((p) => `https://www.easternshore.ai/${p}`));
   assert.equal(additional[0], 'https://www.easternshore.ai/images/carousel/entirenode/survival-node-kit-closed-white.jpg');
-  assert.equal(additional[13], 'https://www.easternshore.ai/images/carousel/phone/background.jpg');
+  assert.equal(additional[13], 'https://www.easternshore.ai/images/carousel/phone/background-v2.jpg');
   assert.match(row.description, /^A hardened smartphone pre-loaded with offline AI/);
   assert.doesNotMatch(row.description, /<|https?:/);
 });

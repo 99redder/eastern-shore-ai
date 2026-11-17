@@ -54,14 +54,14 @@ export const META_IMAGES = [
   'images/carousel/solarbattery/solar-battery-cables.jpg',          // 5 solar battery, back with three cables
   'images/carousel/case/case3.jpg',                                 // 6 empty hard case, open
   'images/carousel/case/padlock-keys.jpg',                          // 7 padlock with two keys
-  'images/carousel/phone/home-screen.jpg',                          // 8 phone home screen
+  'images/carousel/phone/home-screen-v2.jpg',                       // 8 phone home screen (badge wallpaper, 2026-11-16)
   'images/carousel/aichat/rainwater-chat.jpg',                      // 9 AI chat, rainwater question (Qwen3.5-4B)
   'images/carousel/maps/map-delmarva.jpg',                          // 10 offline map, Delmarva
   'images/carousel/maps/map-salisbury.jpg',                         // 11 offline map, Salisbury + hospital card
   'images/carousel/usersguide/guide-home.jpg',                      // 12 User Guide home
   'images/carousel/usersguide/guide-first-steps.jpg',               // 13 User Guide, First Steps
   'images/carousel/usersguide/guide-6-month.jpg',                   // 14 User Guide, 6-Month Readiness Checklist
-  'images/carousel/phone/background.jpg'                            // 15 Survival Node Gen 2 logo wallpaper
+  'images/carousel/phone/background-v2.jpg'                         // 15 Survival Node Gen 2 wallpaper, badge above the dock (2026-11-16)
 ];
 const SITE = 'https://www.easternshore.ai/';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
