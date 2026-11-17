@@ -513,12 +513,15 @@
             <div class="tr-row"><span class="tr-label">Model 2 — fast backup</span><span class="tr-value">Qwen3.5-2B (Q4_K_M)</span></div>
           </div>
           <div class="tr-section">
-            <h4>Inference Performance — PocketPal Benchmark <span style="font-size:.7rem; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0;">Qwen3.5-4B: 9/12/2026 · PP:512 TG:128 Rep:3 · GPU Layers:99</span></h4>
-            <div class="tr-row"><span class="tr-label">Qwen3.5-4B (Q4_K_M) — token gen</span><span class="tr-value tr-pass">1.41 t/s &nbsp;<button class="bench-btn" data-model="qwen35">View Result ↗</button></span></div>
-            <div class="tr-row"><span class="tr-label">Qwen3.5-4B — prompt processing</span><span class="tr-value">10.78 t/s</span></div>
-            <div class="tr-row"><span class="tr-label">Qwen3.5-4B — peak memory</span><span class="tr-value">5 GB / 8 GB (59.6%)</span></div>
-            <div class="tr-row"><span class="tr-label">Qwen3.5-4B — model/test details</span><span class="tr-value">2.73 GB · 4.21B params · 7m 3s total</span></div>
-            <div class="tr-row"><span class="tr-label">Qwen3.5-2B (Q4_K_M) — benchmark</span><span class="tr-value">Not yet benchmarked (added 11/17/2026)</span></div>
+            <h4>Inference Performance — PocketPal Benchmark <span style="font-size:.7rem; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0;">11/17/2026 · PP:512 TG:128 Rep:3 · CPU, 6 threads</span></h4>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-4B (Q4_K_M) — token gen</span><span class="tr-value tr-pass">3.20 t/s &nbsp;<button class="bench-btn" data-model="qwen35">View Result ↗</button></span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-4B — prompt processing</span><span class="tr-value">13.61 t/s</span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-4B — peak memory</span><span class="tr-value">4 GB / 8 GB (48.0%)</span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-4B — model/test details</span><span class="tr-value">2.73 GB · 4.21B params · 3m 54s total</span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-2B (Q4_K_M) — token gen</span><span class="tr-value tr-pass">6.13 t/s &nbsp;<button class="bench-btn" data-model="qwen35-2b">View Result ↗</button></span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-2B — prompt processing</span><span class="tr-value">32.20 t/s</span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-2B — peak memory</span><span class="tr-value">4 GB / 8 GB (47.6%)</span></div>
+            <div class="tr-row"><span class="tr-label">Qwen3.5-2B — model/test details</span><span class="tr-value">1.27 GB · 1.88B params · 1m 51s total</span></div>
           </div>
           <div class="tr-section">
             <h4>Offline &amp; Persona Verification</h4>
@@ -527,7 +530,7 @@
             <div class="tr-row"><span class="tr-label">Persona system prompt active</span><span class="tr-value tr-pass">Verified via test queries ✓</span></div>
             <div class="tr-row"><span class="tr-label">Voice input (mic) on Qwen 3.5 2B</span><span class="tr-value tr-pass">Works ✓ (checked on a phone 11/16/2026; PocketPal shows a "Memory is tight" warning, and answers take longer)</span></div>
           </div>
-          <p class="tr-note">Qwen3.5-4B was benchmarked on 9/12/2026 with the PocketPal benchmark profile above. Qwen3.5-2B replaced the Qwen2.5-3B backup on phones prepared from 11/17/2026 and will be benchmarked the same way. Inference speeds may vary with ambient temperature, background processes, and battery charge level. Qwen3.5-4B is the primary for deeper answers; Qwen3.5-2B is the faster backup and the model to use for voice input.</p>
+          <p class="tr-note">Both models were benchmarked on 11/17/2026 on a Survival Node phone (Moto G Power 5G 2024, 8 GB) with the PocketPal benchmark profile above. PocketPal runs them on the phone's processor, since it can't use this phone's graphics chip. An earlier run of the 4B on 9/12/2026, in the PocketPal version of the time, measured 1.41 t/s. Qwen3.5-2B replaced the Qwen2.5-3B backup on phones prepared from 11/17/2026. Inference speeds may vary with ambient temperature, background processes, and battery charge level. Qwen3.5-4B is the primary for deeper answers; Qwen3.5-2B is the faster backup and the model to use for voice input.</p>
         </div>
 
         <!-- Software Suite -->
@@ -657,7 +660,8 @@
 
     // Benchmark modals
     const benchImages = {
-      qwen35: { title: 'Qwen3.5-4B-Q4_K_M — Benchmark Result', src: 'images/benchmarks/bench-qwen35-4b.jpeg' },
+      qwen35: { title: 'Qwen3.5-4B-Q4_K_M — Benchmark Result', src: 'images/benchmarks/bench-qwen35-4b-20261117.jpg' },
+      'qwen35-2b': { title: 'Qwen3.5-2B-Q4_K_M — Benchmark Result', src: 'images/benchmarks/bench-qwen35-2b-20261117.jpg' },
     };
     const benchOverlay = document.getElementById('bench-modal');
     const benchImg     = document.getElementById('bench-modal-img');
