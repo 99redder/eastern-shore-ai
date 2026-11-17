@@ -657,12 +657,15 @@ body {
   <a href="#power" onclick="toggleMenu()">Power & Solar Charging</a>
   <a href="#battery" onclick="toggleMenu()">Battery Management</a>
   <a href="#emp" onclick="toggleMenu()">EMP Protocol</a>
+  <a href="#videos" onclick="toggleMenu()">Survival Node Videos</a>
+  <a href="#pdf-guides" onclick="toggleMenu()">Survival Guides (PDF)</a>
   <div class="sidebar-section">Apps</div>
   <a href="#pocketpal" onclick="toggleMenu()">PocketPal AI</a>
   <a href="#organic-maps" onclick="toggleMenu()">Organic Maps</a>
   <a href="#kiwix" onclick="toggleMenu()">Kiwix Libraries</a>
   <a href="#survival-manual" onclick="toggleMenu()">Survival Manual</a>
   <a href="#trail-sense" onclick="toggleMenu()">Trail Sense</a>
+  <a href="#vlc" onclick="toggleMenu()">VLC Video Player</a>
   <a href="#seamless" onclick="toggleMenu()">Seamless Translate</a>
   <a href="#deepl" onclick="toggleMenu()">DeepL</a>
   <a href="#morse" onclick="toggleMenu()">Morse Code</a>
@@ -1076,6 +1079,54 @@ body {
   </div>
 </div>
 
+<!-- ════════════════════════ VIDEOS & GUIDES ════════════════════════ -->
+<div class="section" id="videos-guides">
+  <div class="section-header"><span class="icon">🎬</span> OFFLINE VIDEOS & GUIDES</div>
+
+  <div class="card" id="videos" data-search="videos first aid cpr aed bleeding shock tourniquet splint radiation potassium iodide decontamination vlc">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🎬</span>
+      <span>Survival Node Videos</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>First-aid and emergency videos that play with no signal. Open <strong>VLC</strong> and tap <strong>Video</strong> (or <strong>File Manager → Movies → Survival Node Videos</strong>).</p>
+      <ul>
+        <li>Hands-only CPR (Welsh Government; it says to call 999 — in the U.S. call 911)</li>
+        <li>CPR with an AED, and using an AED (U.S. Army)</li>
+        <li>Bleeding control and shock (U.S. Army)</li>
+        <li>Applying a tourniquet (U.S. Army Combat Lifesaver)</li>
+        <li>Splinting a broken long bone (U.S. Army)</li>
+        <li>Radiation emergencies (CDC): shelter in place; get inside, stay inside, stay tuned; contamination vs exposure; potassium iodide; self-decontamination</li>
+      </ul>
+      <div class="callout warning">⚠️ These are for learning and don't replace hands-on training. The Army videos are EMT demonstrations, so some steps use gear a bystander won't have.</div>
+      <p>Sources and licenses are in the folder's <strong>CREDITS.txt</strong>. Phones prepared before November 17, 2026 don't have these videos.</p>
+    </div></div>
+  </div>
+
+  <div class="card" id="pdf-guides" data-search="pdf survival guides fema are you ready tccc casualty first aid map reading land navigation compass usgs weather spotter nifog radio ham exam nuclear war survival skills">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">📄</span>
+      <span>Survival Guides (PDF)</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>Open <strong>File Manager → Download → Survival Guides</strong>.</p>
+      <ul>
+        <li>FEMA: Are You Ready? (disaster preparedness for every kind of emergency)</li>
+        <li>Army ATP 4-02.11: Casualty Response, TCCC and First Aid (2026)</li>
+        <li>Army FM 3-25.26: Map Reading and Land Navigation</li>
+        <li>USGS: Finding Your Way with Map and Compass</li>
+        <li>National Weather Service: Weather Spotter's Field Guide</li>
+        <li>CISA NIFOG: emergency radio channels and procedures</li>
+        <li>Ham radio Technician exam question pool (2026–2030)</li>
+        <li>Nuclear War Survival Skills (Cresson Kearny, 1987)</li>
+      </ul>
+      <p>Sources and licenses are in the folder's <strong>CREDITS.txt</strong>. Phones prepared before November 17, 2026 don't have these guides.</p>
+    </div></div>
+  </div>
+</div>
+
 <!-- ════════════════════════ APPS ════════════════════════ -->
 <div class="section" id="pocketpal">
   <div class="section-header"><span class="icon">💬</span> APPS — OFFLINE AI & TOOLS</div>
@@ -1143,7 +1194,7 @@ body {
 </div>
 
 <div class="section" id="kiwix">
-  <div class="card" data-search="kiwix library wikipedia medical wikimed knots water survival gutenberg ifixit">
+  <div class="card" data-search="kiwix library wikipedia wikibooks medical wikimed knots water survival gutenberg ifixit canning outdoors gardening mechanics woodworking ham amateur radio">
     <button class="card-trigger" onclick="toggleCard(this)">
       <span class="card-icon">📚</span>
       <span>Kiwix — Offline Libraries</span>
@@ -1173,6 +1224,13 @@ body {
         <li><strong>Appropedia</strong> — shared knowledge for sustainable, practical living</li>
         <li><strong>Survivor Library</strong> — pre-industrial skills, trades, and technical knowledge</li>
         <li><strong>Food for Preppers</strong> — long-term food storage and preservation</li>
+        <li><strong>USDA Complete Guide to Home Canning</strong> — tested, research-based canning methods</li>
+        <li><strong>The Great Outdoors Q&amp;A</strong> — camping, hiking, wilderness skills and safety</li>
+        <li><strong>Gardening &amp; Landscaping Q&amp;A</strong> — growing food, soil, pests and plant care</li>
+        <li><strong>Motor Vehicle Mechanics Q&amp;A</strong> — repairing and maintaining cars, trucks and small engines</li>
+        <li><strong>Woodworking Q&amp;A</strong> — tools, joinery and building with wood</li>
+        <li><strong>Amateur Radio Q&amp;A</strong> — ham radio questions and answers, from licensing to antennas</li>
+        <li><strong>Wikibooks</strong> — free textbooks and how-to manuals, with pictures</li>
         <li><strong>iFixit</strong> — repair guides for thousands of devices</li>
       </ul>
       <ol class="steps">
@@ -1181,6 +1239,7 @@ body {
         <li>Browse and read — all fully offline</li>
         <li>Use the search bar within each library</li>
       </ol>
+      <p><em>USDA Home Canning, the five Q&amp;A libraries and Wikibooks are on phones prepared from November 17, 2026.</em></p>
       <div class="callout info">📌 If a library doesn't appear, swipe down in the Library tab to trigger a storage scan.</div>
       <div class="disclaimer">Third-Party Software Disclaimer: Independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
     </div></div>
@@ -1229,6 +1288,21 @@ body {
         <li><strong>More tools:</strong> flashlight, pedometer, clinometer, packing lists, and built-in survival and field guides.</li>
       </ul>
       <div class="callout tip">💡 Phones prepared before November 17, 2026 don't have Trail Sense. To add it, connect to Wi-Fi, open F-Droid, search for <strong>Trail Sense</strong> and tap <strong>Install</strong>.</div>
+      <div class="disclaimer">Third-Party Software Disclaimer: Independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="section" id="vlc">
+  <div class="card" data-search="vlc video player videos movies watch">
+    <button class="card-trigger" onclick="toggleCard(this)">
+      <span class="card-icon">🎞️</span>
+      <span>VLC — Video Player</span>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="card-body"><div class="card-content">
+      <p>VLC is an open-source video player. Use it to watch the Survival Node Videos: open VLC, tap <strong>Video</strong>, then the <strong>Survival Node Videos</strong> folder. The first time, allow it to access videos if it asks.</p>
+      <p>Phones prepared before November 17, 2026 don't have VLC.</p>
       <div class="disclaimer">Third-Party Software Disclaimer: Independently developed. No affiliation with Eastern Shore AI. Provided as-is.</div>
     </div></div>
   </div>

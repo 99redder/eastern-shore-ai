@@ -487,6 +487,35 @@
                <p style="color:var(--muted); font-size:.9rem;"><em>Note: Every Survival Node includes two Mission Darkness Faraday bags — one for the phone, one for the solar battery.</em></p>`
       },
       {
+        title: 'Survival Node Videos',
+        html: `<p>First-aid and emergency videos that play with no signal. Open <strong>VLC</strong> and tap <strong>Video</strong> (or <strong>File Manager → Movies → Survival Node Videos</strong>).</p>
+               <ul>
+                 <li>Hands-only CPR (Welsh Government; it says to call 999 — in the U.S. call 911)</li>
+                 <li>CPR with an AED, and using an AED (U.S. Army)</li>
+                 <li>Bleeding control and shock (U.S. Army)</li>
+                 <li>Applying a tourniquet (U.S. Army Combat Lifesaver)</li>
+                 <li>Splinting a broken long bone (U.S. Army)</li>
+                 <li>Radiation emergencies (CDC): shelter in place; get inside, stay inside, stay tuned; contamination vs exposure; potassium iodide; self-decontamination</li>
+               </ul>
+               <p><strong>These are for learning and don't replace hands-on training. The Army videos are EMT demonstrations, so some steps use gear a bystander won't have.</strong></p>
+               <p style="color:var(--muted); font-size:.9rem;">Sources and licenses are in the folder's <strong>CREDITS.txt</strong>. Phones prepared before November 17, 2026 don't have these videos.</p>`
+      },
+      {
+        title: 'Survival Guides (PDF)',
+        html: `<p>Open <strong>File Manager → Download → Survival Guides</strong>.</p>
+               <ul>
+                 <li>FEMA: Are You Ready? (disaster preparedness for every kind of emergency)</li>
+                 <li>Army ATP 4-02.11: Casualty Response, TCCC and First Aid (2026)</li>
+                 <li>Army FM 3-25.26: Map Reading and Land Navigation</li>
+                 <li>USGS: Finding Your Way with Map and Compass</li>
+                 <li>National Weather Service: Weather Spotter's Field Guide</li>
+                 <li>CISA NIFOG: emergency radio channels and procedures</li>
+                 <li>Ham radio Technician exam question pool (2026–2030)</li>
+                 <li>Nuclear War Survival Skills (Cresson Kearny, 1987)</li>
+               </ul>
+               <p style="color:var(--muted); font-size:.9rem;">Sources and licenses are in the folder's <strong>CREDITS.txt</strong>. Phones prepared before November 17, 2026 don't have these guides.</p>`
+      },
+      {
         title: 'Troubleshooting',
         html: `<p>Before deep debugging, run quick checks in this order:</p>
                <ul>
@@ -733,6 +762,28 @@
 
                <p><strong>Food for Preppers</strong></p>
                <p>A practical reference for long-term food storage, preservation, and emergency nutrition planning — covering shelf-stable food selection, rotation schedules, caloric planning, and preservation methods including canning, dehydrating, and vacuum sealing.</p>
+
+               <p><strong>USDA Complete Guide to Home Canning</strong></p>
+               <p>Tested, research-based canning methods.</p>
+
+               <p><strong>The Great Outdoors Q&amp;A</strong></p>
+               <p>Camping, hiking, wilderness skills and safety.</p>
+
+               <p><strong>Gardening &amp; Landscaping Q&amp;A</strong></p>
+               <p>Growing food, soil, pests and plant care.</p>
+
+               <p><strong>Motor Vehicle Mechanics Q&amp;A</strong></p>
+               <p>Repairing and maintaining cars, trucks and small engines.</p>
+
+               <p><strong>Woodworking Q&amp;A</strong></p>
+               <p>Tools, joinery and building with wood.</p>
+
+               <p><strong>Amateur Radio Q&amp;A</strong></p>
+               <p>Ham radio questions and answers, from licensing to antennas.</p>
+
+               <p><strong>Wikibooks</strong></p>
+               <p>Free textbooks and how-to manuals, with pictures.</p>
+               <p style="color:var(--muted); font-size:.9rem;">USDA Home Canning, the five Q&amp;A libraries and Wikibooks are on phones prepared from November 17, 2026.</p>
                ${appDisclaimer}`
       },
       {
@@ -951,6 +1002,12 @@ Operational Rules:
                </ul>
                <p style="color:var(--muted); font-size:.9rem;">Phones prepared before November 17, 2026 don't have Trail Sense. To add it, connect to Wi-Fi, open F-Droid, search for <strong>Trail Sense</strong> and tap <strong>Install</strong>.</p>
                ${appDisclaimer}`
+      },
+      {
+        title: 'VLC',
+        html: `<p><strong>What it is:</strong> VLC is an open-source video player. Use it to watch the Survival Node Videos: open VLC, tap <strong>Video</strong>, then the <strong>Survival Node Videos</strong> folder. The first time, allow it to access videos if it asks.</p>
+               <p style="color:var(--muted); font-size:.9rem;">Phones prepared before November 17, 2026 don't have VLC.</p>
+               ${appDisclaimer}`
       }
     ];
 
@@ -958,7 +1015,7 @@ Operational Rules:
     const appTopicsEl = document.getElementById('topics-apps');
     // Procedures go in the Guide group as bigger tiles; everything else is an app, listed A to Z.
     const guideTopics = new Set(['Initial Setup', 'Maintenance (6-Month Rule)', 'Emergency Deployment', 'Power & Solar Charging',
-      'Battery Management', 'EMP Protocol', 'Troubleshooting', 'Warranty, Legal & Support']);
+      'Battery Management', 'EMP Protocol', 'Survival Node Videos', 'Survival Guides (PDF)', 'Troubleshooting', 'Warranty, Legal & Support']);
     const titleEl = document.getElementById('guide-title');
     const contentEl = document.getElementById('guide-content');
     const prevBtn = document.getElementById('prev-btn');
@@ -975,7 +1032,7 @@ Operational Rules:
       'Seamless': 'seamless', 'DeepL': 'deepl', 'Morse': 'morse', 'Exodus Privacy': 'exodus',
       'Briar Messenger': 'briar', 'Meshtastic': 'meshtastic', 'LocalSend': 'localsend',
       'SOS Flashlight': 'sos-flashlight', 'Fossify File Manager': 'file-manager', 'iFixit': '🔩',
-      'AccuBattery': 'accubattery', 'Trail Sense': 'trail-sense', 'EMP Protocol': '🛡️', 'Troubleshooting': '🔧', 'Warranty, Legal & Support': '📋',
+      'AccuBattery': 'accubattery', 'Trail Sense': 'trail-sense', 'VLC': 'vlc', 'Survival Node Videos': '🎬', 'Survival Guides (PDF)': '📄', 'EMP Protocol': '🛡️', 'Troubleshooting': '🔧', 'Warranty, Legal & Support': '📋',
     };
 
     function topicIcon(title) {
