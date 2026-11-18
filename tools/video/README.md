@@ -1,6 +1,6 @@
 # Survival Node video pipeline
 
-Scripts that made the Battery Health Test videos (Nov 2026): long version for `testing.html` (YouTube 3wSWWJK-iHs) and short version for social (YouTube Short Bzzoj4WEhsw, X, Facebook/Instagram Reels). Reuse them for the next videos (unboxing is next).
+Scripts that made the Battery Health Test videos (Nov 2026): a long version (YouTube 3wSWWJK-iHs) and a short version (YouTube Short Bzzoj4WEhsw, X, Facebook/Instagram Reels). **The long version was taken off the site on 2026-11-18:** around 3:30 it says phones are drained below 30% because used lithium-ion batteries can't ship above 30%, which isn't a USPS ground rule (it's an air rule), and phones now ship at 60–80%. node.html and testing.html both use the short one, which skips that part. Don't put the long one back; if a long version is remade, leave out the 30% claim. Reuse them for the next videos (unboxing is next).
 
 Everything runs in a Claude cloud session; paths are hard-coded to `/home/claude/sn/`. To start a new video, copy this folder there:
 
