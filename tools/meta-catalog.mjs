@@ -55,7 +55,7 @@ export const META_IMAGES = [
   'images/carousel/case/case3.jpg',                                 // 6 empty hard case, open
   'images/carousel/case/padlock-keys.jpg',                          // 7 padlock with two keys
   'images/carousel/phone/home-screen-v3.jpg',                       // 8 phone home screen (dock: User Guide, Settings, PocketPal, 2026-11-18)
-  'images/carousel/aichat/rainwater-chat.jpg',                      // 9 AI chat, rainwater question (Qwen3.5-4B)
+  'images/carousel/aichat/rainwater-chat-v2.jpg',                   // 9 AI chat, rainwater question (Qwen3.5-4B, Pal of 2026-11-18, Think off)
   'images/carousel/maps/map-delmarva.jpg',                          // 10 offline map, Delmarva
   'images/carousel/maps/map-salisbury.jpg',                         // 11 offline map, Salisbury + hospital card
   'images/carousel/usersguide/guide-home.jpg',                      // 12 User Guide home
