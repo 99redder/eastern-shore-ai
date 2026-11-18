@@ -934,8 +934,8 @@ body {
       <span class="arrow">▼</span>
     </button>
     <div class="card-body"><div class="card-content">
-      <p>On November 17, 2026 we rewrote the instructions behind the <strong>Survival Node</strong> Pal in PocketPal. The AI now gives the standard, proven method first, won't make up numbers, and has the CDC's drinking-water figures built in. Phones prepared from November 17, 2026 already have them. If your phone was prepared earlier, update the Pal once. It works offline and takes about two minutes.</p>
-      <p><strong>Already updated?</strong> Open PocketPal, tap <strong>☰</strong>, then <strong>Pals</strong>, and tap the <strong>Survival Node</strong> card. If the <strong>System Prompt</strong> box starts with "You are Survival Node, an offline advisor", you have the new instructions.</p>
+      <p>On November 17, 2026 we rewrote the instructions behind the <strong>Survival Node</strong> Pal in PocketPal. The AI now gives the standard, proven method first, won't make up numbers, and has the CDC's drinking-water figures built in. On November 18 we tightened the bleach line to drops per gallon only, after more testing found the AI could still get the amount wrong when converting liters to gallons. Kits shipped from November 19, 2026 already have it. If your kit shipped earlier, or you updated on November 18 before that change, update the Pal. It works offline and takes about two minutes.</p>
+      <p><strong>Already updated?</strong> Open PocketPal, tap <strong>☰</strong>, then <strong>Pals</strong>, and tap the <strong>Survival Node</strong> card. If the <strong>Drinking water</strong> part of the <strong>System Prompt</strong> box says "Measure bleach only in drops", you have the current instructions.</p>
       <ol class="steps">
         <li>Tap <strong>Copy the new instructions</strong> below</li>
         <li>Open <strong>PocketPal</strong>, tap <strong>☰</strong> (top left), then <strong>Pals</strong></li>
@@ -964,7 +964,7 @@ Drinking water (CDC):
 - Bleach: plain, unscented household bleach (5-9%). Measure bleach only in drops, never in cups or spoons. Use 8 drops per gallon of water (40 drops for 5 gallons), or 16 drops per gallon if the water is cloudy, colored or very cold. Stir, then wait at least 30 minutes. The water should smell slightly of chlorine; if it doesn't, add the same number of drops again and wait 15 more minutes.
 - Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>
       <div class="callout tip">💡 If the Copy button doesn't work, press and hold the instructions above, tap <strong>Select all</strong>, then <strong>Copy</strong>, and paste them in step 4.</div>
-      <div class="callout info">ℹ️ The <strong>survival_prompt.txt</strong> file on phones prepared before November 17, 2026 (in the Tools folder and the Documents folder) still has the old wording. The box above is the current version.</div>
+      <div class="callout info">ℹ️ The <strong>survival_prompt.txt</strong> file on kits shipped before November 19, 2026 (in the Tools folder and the Documents folder) has older wording. The box above is the current version.</div>
     </div></div>
   </div>
 </div>
@@ -1216,7 +1216,7 @@ Drinking water (CDC):
         </tbody>
       </table>
       <p><strong>Qwen 3.5-4B (Q4_K_M)</strong> is the current primary and powers the pre-configured Survival Node AI Agent — chosen for deeper, more capable emergency answers. It is slower while generating, so a long response may take several minutes. <strong>Qwen 3.5-2B</strong> is the fast backup: it answers about twice as fast as the 4B, for when time or battery matters. Phones prepared before November 17, 2026 have Qwen 2.5 3B as the backup and use it for voice.</p>
-      <div class="callout warning">⚠️ <strong>Use the 4B for first aid and drinking water.</strong> For first aid, water, medicine or anything you'll act on, use Qwen 3.5 4B, the Survival Node Pal's default model. In our tests on November 17, 2026, the 4B answered water, bleeding and hypothermia questions correctly, and the 2B got the first-aid questions wrong. Use the 2B for voice and quick, low-stakes questions. If you asked a first-aid question by voice on the 2B, switch to the 4B and ask again before acting on the answer.</div>
+      <div class="callout warning">⚠️ <strong>Use the 4B for first aid and drinking water.</strong> For first aid, water, medicine or anything you'll act on, use Qwen 3.5 4B, the Survival Node Pal's default model. In our tests on November 17 and 18, 2026, the 4B answered water, bleeding and hypothermia questions correctly, and the 2B got the first-aid questions wrong. Use the 2B for voice and quick, low-stakes questions. If you asked a first-aid question by voice on the 2B, switch to the 4B and ask again before acting on the answer.</div>
       <h4>Using the Survival Node AI Pal</h4>
       <ol class="steps">
         <li>Open PocketPal</li>
@@ -1226,7 +1226,7 @@ Drinking water (CDC):
         <li>Start chatting — system prompt is applied automatically</li>
         <li>To ask out loud, switch to the Qwen 3.5 2B model first (tap ↑, then the Models tab), then tap the mic next to the send button. It works offline. The larger Qwen 3.5 4B model needs too much memory to run alongside voice input. PocketPal may show a “Memory is tight” warning when you use the mic with Qwen 3.5 2B. Voice input still works; answers just take longer.</li>
       </ol>
-      <div class="callout tip">💡 Tip: the AI thinks before it answers, which makes answers more thorough but slower. For faster answers, tap <strong>Think</strong> (the atom icon at the bottom left of the chat box, next to the ↑) until it's no longer filled in. Thinking stays on when you use the mic, and it turns back on in each new chat.</div>
+      <div class="callout warning">🧠 <strong>When to use Think: keep it off for survival questions.</strong> Before you ask, tap <strong>Think</strong> (the atom icon at the bottom left of the chat box, next to the ↑) so it's no longer filled in. It turns back on in each new chat, so check it every time. With Think on, the AI works through the question before it answers, which on this phone can take several minutes, and it can use up all its room and stop with "The conversation ran out of room" before it answers. With Think off, the 4B gave correct drinking-water answers in our November 18, 2026 tests. Think also stays on when you ask with the mic: if a voice answer stops with "ran out of room", start a new chat with the pencil button, turn Think off and type the question. Turn Think on only if you want to see the AI's reasoning on a short question that isn't urgent.</div>
       <div class="callout warning">⚠️ <strong>AI Accuracy:</strong> Models can confidently state wrong information ("hallucination"). Always cross-reference against offline reference libraries for safety-critical decisions.</div>
       <div class="disclaimer">Third-Party Software Disclaimer: Independently developed software. Eastern Shore AI, LLC has no partnership or affiliation with the developer(s). Provided as-is, use at your own risk.</div>
     </div></div>
@@ -1693,14 +1693,14 @@ Drinking water (CDC):
 <div class="footer">
   <div class="logo">EASTERN SHORE AI</div>
   <p>support@easternshore.ai · www.easternshore.ai<br>PO BOX 317 · Parsonsburg, MD 21849</p>
-  <p id="guide-version">Survival Node User Guide · v1.19<span id="test-flag"></span></p>
+  <p id="guide-version">Survival Node User Guide · v1.20<span id="test-flag"></span></p>
 </div>
 
 </main>
 
 <script>
 // Bump with the footer version and latest.json on every release (see README).
-const APP_VERSION_CODE = 11900;
+const APP_VERSION_CODE = 12000;
 const LATEST_URL = 'https://www.easternshore.ai/survival-node-app/latest.json';
 
 function showUpdateNote(apkUrl, title, intro) {
