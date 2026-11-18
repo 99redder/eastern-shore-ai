@@ -179,7 +179,7 @@ const OFF_TOPIC_PATTERNS = [
   /\b(python|javascript|typescript|java|c\+\+|c#|rust|golang|php|html|css|sql|bash|powershell)\b/i,
   /\b(homework|essay|translate|summari[sz]e this|solve for|integral|derivative)\b/i,
 ];
-const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|bags?|emp|solar|battery|batteries|charg\w*|offline|maps?|gps|ship\w*|deliver\w*|returns?|refund\w*|warranty|rma|orders?|track\w*|packages?|status|byog|price|pricing|cost|discount|sale|phone|moto\w*|case|padlock|silica|eastern shore|prepar\w*|emergency|persona|pocketpal|qwen|llm|apps?|software|storage|ram|sim|support)\b/i;
+const ON_TOPIC_HINT = /\b(survival|node|kit|faraday|bags?|emp|solar|battery|batteries|charg\w*|offline|maps?|gps|ship\w*|deliver\w*|returns?|refund\w*|warranty|rma|orders?|track\w*|packages?|status|byog|price|pricing|cost|discount|sale|phone|moto\w*|case|padlock|silica|eastern shore|prepar\w*|emergency|persona|pocketpal|qwen|llm|apps?|software|storage|ram|sim|support|translat\w*|languages?|voice|whisper|mic|pal|guide|update\w*|think|version|kiwix|wikipedia|wikimed|trail sense|compass|meshtastic|briar|fennec|vlc|videos?)\b/i;
 
 // Questions about an order already placed. Claude decides this itself (the
 // `lookup` field); the "busy" reply and the error reply use this pattern.
@@ -200,7 +200,7 @@ export const ASKK_SURVIVAL_NODE = {
   offTopicReply: OFF_TOPIC_REPLY,
   onTopicHint: ON_TOPIC_HINT,
   orderHint: ORDER_STATUS_HINT,
-  topicSystem: 'You screen messages sent to the shopping assistant on the Survival Node product page of Eastern Shore AI (an offline emergency-preparedness phone kit with offline AI, maps, solar power and Faraday bags; the company also does local AI setup services). Reply ON if the latest message is something a shopper or owner could reasonably ask that assistant: the product, its contents or specs, offline AI, power, maps, EMP protection, emergency preparedness, pricing, ordering, shipping, returns, warranty, setup, the company, or a greeting, thanks or follow-up. Reply OFF if it asks for unrelated work or chat: writing or fixing code, essays, homework, translations, other products, general knowledge, or using the assistant for something else. If you are unsure, reply ON. Reply with exactly one word: ON or OFF.',
+  topicSystem: 'You screen messages sent to the shopping assistant on the Survival Node product page of Eastern Shore AI (an offline emergency-preparedness phone kit with offline AI, maps, solar power and Faraday bags; the company also does local AI setup services). Reply ON if the latest message is something a shopper or owner could reasonably ask that assistant: the product, its contents or specs, offline AI, power, maps, EMP protection, emergency preparedness, pricing, ordering, shipping, returns, warranty, setup, the company, or a greeting, thanks or follow-up. Questions about the phone\'s apps and features (the offline translator, voice input, maps, reference libraries, the Survival Node Pal, the User Guide, updates) are ON. Reply OFF if it asks for unrelated work or chat: writing or fixing code, essays, homework, translating text for them, other products, general knowledge, or using the assistant for something else. If you are unsure, reply ON. Reply with exactly one word: ON or OFF.',
 };
 
 export const ASKK_FOLDER_TO_FILM = {
