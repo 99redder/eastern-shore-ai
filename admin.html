@@ -892,6 +892,15 @@
             </div>
             <div id="order-list" class="admin-list">No orders yet.</div>
           </section>
+          <section class="admin-calendar-wrap" id="reviews-section" style="margin-top:1rem; grid-column:1 / -1;">
+            <h4 style="margin:0 0 .3rem;">⭐ Customer Reviews</h4>
+            <p class="invoice-flow-note">Ratings from the one-tap stars in the review request email (admin-reviews.js). Approve every genuine review, low ones included; hide only spam or abuse. Approved reviews show on node.html, its product data and the ChatGPT feed once there are 3 (the nightly price job adds them).</p>
+            <div class="admin-row" style="gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; align-items:center;">
+              <button type="button" class="btn" id="reviews-refresh-btn">Refresh Reviews</button>
+              <span id="reviews-summary" style="color:var(--muted); font-size:.9rem;"></span>
+            </div>
+            <div id="reviews-list" class="admin-list">Open this section or press Refresh Reviews.</div>
+          </section>
         </div>
       </div>
 
@@ -1676,9 +1685,10 @@
     </div>
   </div>
 
-  <script src="/admin.js?v=2026-11-16c"></script>
+  <script src="/admin.js?v=2026-11-17a"></script>
   <script src="/admin-websites.js?v=8"></script>
   <script src="/admin-films.js?v=21"></script>
   <script src="/admin-profit.js?v=1"></script>
+  <script src="/admin-reviews.js?v=1"></script>
 </body>
 </html>

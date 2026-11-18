@@ -32,6 +32,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { nodePrice, NODE_REGULAR_CENTS, NODE_SALE_CENTS } from '../worker/src/node-price.js';
 import { metaImageUrls } from './meta-catalog.mjs';
+import { aggregateFromPage } from './node-reviews.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://www.easternshore.ai';
@@ -65,7 +66,7 @@ export const FIELDS = [
   'item_id', 'title', 'description', 'url', 'brand', 'seller_name', 'image_url', 'availability',
   'price', 'sale_price', 'target_countries', 'store_country', 'is_eligible_search', 'condition',
   'product_category', 'dimensions', 'additional_image_urls', 'seller_url', 'shipping_price', 'accepts_returns',
-  'return_deadline_in_days', 'return_policy', 'seller_privacy_policy', 'seller_tos'
+  'return_deadline_in_days', 'return_policy', 'review_count', 'star_rating', 'seller_privacy_policy', 'seller_tos'
 ];
 
 const usd = (cents) => `${(cents / 100).toFixed(2)} USD`;
@@ -105,7 +106,16 @@ function cell(value) {
 }
 
 // The item as an object (what goes in the row), for tests and the CSV writer.
-export function buildItem(googleFeedXml, now = new Date()) {
+function reviewFields(nodeHtml) {
+  const agg = aggregateFromPage(nodeHtml);
+  return agg && agg.count > 0
+    ? { review_count: agg.count, star_rating: agg.average.toFixed(2) }
+    : { review_count: '', star_rating: '' };
+}
+
+// nodeHtml: node.html, whose Product JSON-LD carries the approved reviews' aggregateRating
+// (tools/node-reviews.mjs); without one, review_count and star_rating stay empty (unknown).
+export function buildItem(googleFeedXml, now = new Date(), nodeHtml = '') {
   const { title, description } = textFromGoogleFeed(googleFeedXml);
   const images = metaImageUrls();
   const sale = activeSale(now);
@@ -116,15 +126,16 @@ export function buildItem(googleFeedXml, now = new Date()) {
     image_url: images[0],
     additional_image_urls: images.slice(1),
     price: usd(NODE_REGULAR_CENTS),
-    sale_price: sale ? usd(NODE_SALE_CENTS) : ''
+    sale_price: sale ? usd(NODE_SALE_CENTS) : '',
+    ...reviewFields(nodeHtml)
   };
   const extra = Object.keys(item).filter((k) => !FIELDS.includes(k));
   if (extra.length) throw new Error(`chatgpt-feed: fields missing from FIELDS: ${extra.join(', ')}`);
   return item;
 }
 
-export function buildFeed(googleFeedXml, now = new Date()) {
-  const item = buildItem(googleFeedXml, now);
+export function buildFeed(googleFeedXml, now = new Date(), nodeHtml = '') {
+  const item = buildItem(googleFeedXml, now, nodeHtml);
   const values = FIELDS.map((f) => {
     const v = item[f];
     if (f === 'target_countries' || f === 'dimensions') return JSON.stringify(v);
@@ -142,7 +153,7 @@ function main() {
   const now = args.includes('--date') ? new Date(`${dateArg}T16:00:00Z`) : new Date();
 
   const feedPath = join(ROOT, 'chatgpt-feed.csv');
-  const after = buildFeed(readFileSync(join(ROOT, 'merchant-feed.xml'), 'utf8'), now);
+  const after = buildFeed(readFileSync(join(ROOT, 'merchant-feed.xml'), 'utf8'), now, readFileSync(join(ROOT, 'node.html'), 'utf8'));
   const before = existsSync(feedPath) ? readFileSync(feedPath, 'utf8') : '';
   const sale = activeSale(now);
   const state = sale ? `${sale.name} running, sale_price ${usd(NODE_SALE_CENTS)}` : `no sale running, ${usd(NODE_REGULAR_CENTS)}`;

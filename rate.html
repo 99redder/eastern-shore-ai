@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self' https://eastern-shore-ai-contact.99redder.workers.dev http://localhost:8787; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Rate Your Survival Node | Eastern Shore AI</title>
+  <meta name="description" content="Rate your Survival Node from Eastern Shore AI.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/fonts.css">
+  <style>
+    /* One-tap reviews: the stars in the review request email link here (worker/src/reviews.js). */
+    :root {
+      --bg: #0b0d13; --card: #131926; --line: #2a3348; --text: #eaf1ff; --muted: #a5b1c8;
+      --cyan: #9ed0ff; --star: #f5b301; --star-off: #3a445c; --ok: #9bd9b5; --warn: #ffb4a8;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.6 'Titillium Web', system-ui, sans-serif; }
+    a { color: var(--cyan); text-underline-offset: .2em; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-right, 0px)) 56px max(16px, env(safe-area-inset-left, 0px)); }
+    header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    header b { display: block; font-family: 'Hanken Grotesk', sans-serif; font-size: 1.05rem; }
+    header span { color: var(--muted); font-size: .9rem; }
+    main { background: var(--card); border: 1px solid var(--line); padding: 26px clamp(18px, 5vw, 32px);
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px)); }
+    h1 { font-family: 'Hanken Grotesk', sans-serif; font-size: clamp(1.45rem, 5vw, 1.8rem); line-height: 1.15; margin: 0 0 6px; color: var(--cyan); }
+    .lead { color: var(--muted); margin: 0 0 16px; }
+    .stars { display: flex; gap: 6px; margin: 4px 0 6px; }
+    .star { appearance: none; border: 0; background: none; padding: 2px; cursor: pointer; font-size: 2.6rem; line-height: 1; color: var(--star-off); min-width: 48px; min-height: 48px; }
+    .star.on { color: var(--star); }
+    .star:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .status { min-height: 1.6em; margin: 0 0 18px; font-weight: 600; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--warn); }
+    label { display: block; font-weight: 600; margin: 0 0 6px; }
+    textarea { width: 100%; min-height: 120px; padding: 10px 12px; background: #0b0d13; color: var(--text); border: 1px solid var(--line); font: inherit; font-size: 16px; resize: vertical; }
+    textarea:focus { outline: 2px solid var(--cyan); outline-offset: 0; }
+    .count { color: var(--muted); font-size: .82rem; text-align: right; margin: 2px 0 14px; }
+    fieldset { border: 0; padding: 0; margin: 0 0 18px; }
+    legend { font-weight: 600; margin: 0 0 6px; padding: 0; }
+    .choice { display: flex; align-items: flex-start; gap: 10px; margin: 6px 0; font-weight: 400; cursor: pointer; }
+    .choice input { margin-top: .35em; width: 18px; height: 18px; accent-color: var(--cyan); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 0; cursor: pointer;
+      font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; }
+    .btn-main { background: linear-gradient(135deg, #9ed0ff, #c7a6ff); color: #0b0d13; }
+    .btn-main[disabled] { opacity: .5; cursor: default; }
+    .btn-ghost { background: transparent; color: var(--cyan); border: 1px solid var(--cyan); }
+    .saved { color: var(--ok); margin-left: 12px; font-weight: 600; }
+    .google { margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .google p { margin: 0 0 12px; color: var(--muted); }
+    .fine { color: var(--muted); font-size: .85rem; margin: 22px 0 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="/favicon.svg" alt="" width="40" height="40">
+      <div><b>Eastern Shore AI</b><span>Survival Node</span></div>
+    </header>
+    <main>
+      <h1 id="title">Rate your Survival Node</h1>
+      <p class="lead" id="lead">Tap a star. That's all it takes.</p>
+
+      <div class="stars" role="group" aria-label="Your rating" id="stars">
+        <button type="button" class="star" data-n="1" aria-label="1 star" aria-pressed="false">★</button>
+        <button type="button" class="star" data-n="2" aria-label="2 stars" aria-pressed="false">★</button>
+        <button type="button" class="star" data-n="3" aria-label="3 stars" aria-pressed="false">★</button>
+        <button type="button" class="star" data-n="4" aria-label="4 stars" aria-pressed="false">★</button>
+        <button type="button" class="star" data-n="5" aria-label="5 stars" aria-pressed="false">★</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <form id="more" hidden>
+        <label for="comment">Anything you'd like to add? <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+        <textarea id="comment" maxlength="2000" placeholder="What do you like? What could be better?"></textarea>
+        <div class="count"><span id="count">0</span> / 2000</div>
+
+        <fieldset>
+          <legend>How should your name show?</legend>
+          <label class="choice"><input type="radio" name="name" value="initial" checked> <span>First name and last initial (<span id="initial-name">like "Mike R."</span>)</span></label>
+          <label class="choice"><input type="radio" name="name" value="anonymous"> <span>Anonymous ("Verified buyer")</span></label>
+        </fieldset>
+
+        <button type="submit" class="btn btn-main" id="save">Save my review</button><span class="saved" id="saved" hidden>Saved. Thank you!</span>
+      </form>
+
+      <div class="google" id="google" hidden>
+        <p>Want to share it on Google too? It helps other people find us.</p>
+        <a class="btn btn-ghost" id="google-link" href="/review" target="_blank" rel="noopener">Leave a Google review</a>
+      </div>
+
+      <p class="fine">We read every review and show every genuine one on our site, good or bad; we only remove spam or abuse. Your email address is never shown. <a href="/privacy.html">Privacy</a></p>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(location.search);
+      const API = (params.get('local') === '1' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname))
+        ? 'http://localhost:8787' : 'https://eastern-shore-ai-contact.99redder.workers.dev';
+      const token = (params.get('t') || '').trim();
+      const fromEmail = Number(params.get('r'));
+      const $ = (id) => document.getElementById(id);
+      const starEls = [...document.querySelectorAll('.star')];
+      let rating = 0;
+      let busy = false;
+
+      function setStatus(text, kind) {
+        $('status').textContent = text;
+        $('status').className = 'status' + (kind ? ' ' + kind : '');
+      }
+      function paint(n) {
+        starEls.forEach((el) => {
+          const on = Number(el.dataset.n) <= n;
+          el.classList.toggle('on', on);
+          el.setAttribute('aria-pressed', String(Number(el.dataset.n) === n));
+        });
+      }
+      function fill(data) {
+        rating = Number(data.rating) || 0;
+        paint(rating);
+        if (data.firstName) $('title').textContent = `Thanks, ${data.firstName}! Rate your Survival Node`;
+        if (data.initialName) $('initial-name').textContent = data.initialName;
+        if (typeof data.comment === 'string' && document.activeElement !== $('comment')) {
+          $('comment').value = data.comment;
+          $('count').textContent = data.comment.length;
+        }
+        const choice = document.querySelector(`input[name="name"][value="${data.nameChoice || 'initial'}"]`);
+        if (choice) choice.checked = true;
+        if (data.googleReviewUrl) $('google-link').href = data.googleReviewUrl;
+        $('more').hidden = !rating;
+        $('google').hidden = false;
+        $('lead').textContent = rating ? 'Tap a different star to change it.' : 'Tap a star. That\'s all it takes.';
+      }
+      async function call(method, body) {
+        const res = await fetch(`${API}/api/review${method === 'GET' ? `?t=${encodeURIComponent(token)}` : ''}`, {
+          method,
+          headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
+          body: method === 'GET' ? undefined : JSON.stringify({ t: token, ...body }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+        return data;
+      }
+      async function rate(n) {
+        if (busy) return;
+        busy = true;
+        paint(n);
+        setStatus('Saving…');
+        try {
+          const data = await call('POST', { rating: n });
+          fill(data);
+          setStatus(`Thank you! Your ${n}-star rating is saved.`, 'ok');
+        } catch (e) {
+          paint(rating);
+          setStatus(e.message, 'err');
+        } finally { busy = false; }
+      }
+
+      starEls.forEach((el) => el.addEventListener('click', () => rate(Number(el.dataset.n))));
+      $('comment').addEventListener('input', () => { $('count').textContent = $('comment').value.length; $('saved').hidden = true; });
+      document.querySelectorAll('input[name="name"]').forEach((el) => el.addEventListener('change', () => { $('saved').hidden = true; }));
+      $('more').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!rating || busy) return;
+        busy = true;
+        $('save').disabled = true;
+        try {
+          const data = await call('POST', {
+            rating,
+            comment: $('comment').value,
+            nameChoice: document.querySelector('input[name="name"]:checked')?.value || 'initial',
+          });
+          fill(data);
+          $('saved').hidden = false;
+          setStatus(`Thank you! Your ${rating}-star review is saved.`, 'ok');
+        } catch (err) {
+          setStatus(err.message, 'err');
+        } finally { busy = false; $('save').disabled = false; }
+      });
+
+      if (!/^[0-9a-f]{48}$/.test(token)) {
+        document.getElementById('stars').hidden = true;
+        setStatus('This link looks incomplete. Please tap a star in the email again, or reply to the email and we\'ll help.', 'err');
+        return;
+      }
+      if (fromEmail >= 1 && fromEmail <= 5) {
+        // The star tapped in the email: saved right away (that's the whole review).
+        // Take it out of the address so a reload can't undo a later change.
+        history.replaceState(null, '', `${location.pathname}?t=${encodeURIComponent(token)}${params.get('local') === '1' ? '&local=1' : ''}`);
+        rate(fromEmail);
+      } else {
+        call('GET').then(fill).catch((e) => setStatus(e.message, 'err'));
+      }
+    })();
+  </script>
+</body>
+</html>

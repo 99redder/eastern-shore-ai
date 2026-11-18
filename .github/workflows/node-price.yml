@@ -1,4 +1,4 @@
-# Keeps the Survival Node price that Google, Meta, ChatGPT, AI assistants and
+# Keeps the Survival Node price (and approved reviews) that Google, Meta, ChatGPT, AI assistants and
 # no-JS visitors read (node.html JSON-LD, meta and hidden price copy,
 # <html data-price>, merchant-feed.xml sale dates, meta-catalog.csv sale
 # columns, chatgpt-feed.csv sale_price) on the sale schedule in
@@ -43,6 +43,8 @@ jobs:
           node-version: 22
       - run: node tools/node-price-pages.mjs
       - run: node tools/meta-catalog.mjs
+      # Approved one-tap reviews (3+) into node.html; leaves the page alone if the API can't be reached.
+      - run: node tools/node-reviews.mjs
       - run: node tools/chatgpt-feed.mjs
       - name: Commit if changed
         run: |

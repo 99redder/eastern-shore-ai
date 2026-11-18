@@ -954,8 +954,12 @@
       const shippingGuideHtml = isDelivered
         ? `<div style="margin:28px 0;padding:16px 20px;background:#101923;border:1px solid #26364a;border-left:4px solid #c850ff;border-radius:6px;color:#d8dce8;"><div style="font-weight:700;color:#d8c2ff;margin-bottom:8px;">Getting Started</div><div style="line-height:1.6;">The User Guide is an app on the main screen of the phone — just tap it to open anytime. It works offline, and whenever you open it on Wi-Fi it checks for a newer version of the guide.<br><br>Your box also includes printed inserts: one walks you through the <strong>first steps</strong> to get set up, and another covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#9ed0ff;font-weight:700;">https://www.easternshore.ai/userguide.html</a></div></div>`
         : '';
+      // One-tap stars (worker/src/reviews.js): each links to that order's rate.html page in the sent email.
+      const reviewStarsPreview = isReview
+        ? `<div style="margin:24px 0 8px;text-align:center;"><div style="font-weight:700;color:#eaf1ff;margin-bottom:8px;">How's your Survival Node? Tap a star:</div><div style="font-size:40px;line-height:44px;color:#E8A400;letter-spacing:8px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div style="font-size:13px;color:#a5b1c8;margin-top:8px;">1 = poor, 5 = great. One tap is all it takes; you can add a comment after if you like.</div></div>`
+        : '';
       const googleReviewHtml = isReview
-        ? `<div style="margin:24px 0;text-align:center;"><a href="https://www.easternshore.ai/review" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-weight:700;font-size:16px;">Leave a Google Review &#9733;</a></div>`
+        ? reviewStarsPreview + `<div style="margin:24px 0;text-align:center;"><a href="https://www.easternshore.ai/review" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-weight:700;font-size:16px;">Leave a Google Review &#9733;</a></div>`
         : '';
       const trackProxyUrl = !isDelivered && !isReview && trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
       const trackButtonLabel = trackingProvider ? `Track on ${trackingProvider.toUpperCase()}` : 'Track Your Shipment';

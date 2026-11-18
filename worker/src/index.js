@@ -13,6 +13,7 @@ import { sendEmail, emailConfigured } from './email.js';
 import { emailLayout, emailButton, emailButtonRow, detailsBox, callout, emailParagraphs, itemsTable, smallPrint, TAGLINES, BUSINESS_LOCATION } from './email-layout.js';
 import { handleEmailEventBatch } from './email-events.js';
 import { handlePageVisit } from './page-visits.js';
+import { createReviewHandlers, ensureReviewInvite, reviewStarsHtml, reviewStarsText, GOOGLE_REVIEW_LINK } from './reviews.js';
 import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, wantsOrderStatus, ASKK_CONVERSATION_LIMIT, ASKK_SURVIVAL_NODE, ASKK_FOLDER_TO_FILM } from './ask-k-claude.js';
 import { sendOrderStatusEmail, normalizeOrderNumber, normalizeShipDate, longDate } from './order-status.js';
 import { nodePrice, nodePriceSentence, easternDate } from './node-price.js';
@@ -50,6 +51,19 @@ function previewLeads() {
   return _previewLeads;
 }
 
+// One-tap Survival Node reviews (src/reviews.js).
+const _reviewRateLimits = new Map();
+let _reviews = null;
+function reviews() {
+  if (!_reviews) {
+    _reviews = createReviewHandlers({
+      json, requireAdmin, sendStaffOperationalAlert,
+      rateLimit: (request, env, cors) => checkPersistentIpRateLimit(env, _reviewRateLimits, request, 'review', { limit: 30, windowMs: 60 * 60 * 1000, error: 'Too many tries. Please wait a bit and try again.' }, cors),
+    });
+  }
+  return _reviews;
+}
+
 // ===== ROUTE HANDLER INDEX =====
 // POST /api/contact             → handleContact()        — Form submissions (domain offers, questions) + email (email.js)
 // POST /api/checkout-session    → handleCheckoutSession() — Create Stripe checkout with conflict + past-time checks
@@ -60,6 +74,11 @@ function previewLeads() {
 // GET  /api/orders              → handleOrdersList()      — Admin: list paid Stripe orders + fulfillment state
 // POST /api/orders/preview      → handleOrderEmailPreview() — Admin: build branded order/shipping email preview
 // POST /api/orders/send         → handleOrderEmailSend()  — Admin: send branded order/shipping email
+// GET  /api/review              → reviews().handleGet     — Public: the one-tap review behind a token (rate.html)
+// POST /api/review              → reviews().handleSave    — Public: save a rating / comment / name choice
+// GET  /api/reviews/public      → reviews().handlePublic  — Public: approved reviews + count and average (tools/node-reviews.mjs)
+// GET  /api/reviews             → reviews().handleAdminList — Admin: rated reviews to approve
+// POST /api/reviews/status      → reviews().handleAdminStatus — Admin: approve / back to pending / hide (spam only)
 // POST /api/orders/text         → handleOrderTextDraft()  — Admin: order texts + phone to paste into Google Voice (never sends)
 // POST /api/orders/tracking     → handleOrderTrackingUpdate() — Admin: save tracking + fulfillment notes
 // POST /api/orders/ship-date    → handleOrderShipDateUpdate() — Admin: set/clear the estimated ship date Ask K reports
@@ -195,10 +214,11 @@ export default {
       const isWebsitePlanPublic = (url.pathname === '/api/website-agreement' && request.method === 'GET') || (['/api/website-agreement/sign', '/api/website-agreement/checkout', '/api/website-agreement/portal', '/api/website-agreement/autopay', '/api/website-plan/find'].includes(url.pathname) && request.method === 'POST');
       const isWebsitePlanAdmin = (['/api/website-clients', '/api/website-clients/agreement'].includes(url.pathname) && request.method === 'GET') || (['/api/website-clients', '/api/website-clients/link', '/api/website-clients/status', '/api/website-clients/stop-autopay', '/api/website-clients/delete'].includes(url.pathname) && request.method === 'POST');
       const isPreviewPublic = (url.pathname === '/api/preview/site' && request.method === 'GET') || (['/api/preview/visit', '/api/preview/lead', '/api/page/visit'].includes(url.pathname) && request.method === 'POST');
+      const isReviewRoute = (['/api/review', '/api/reviews/public', '/api/reviews'].includes(url.pathname) && request.method === 'GET') || (['/api/review', '/api/reviews/status'].includes(url.pathname) && request.method === 'POST');
       // Folder to Film: checkout + customer dashboard (token) + admin (session) + signed file downloads.
       const isFilmPublic = (['/api/film/dashboard', '/api/film/file', '/api/film/chat', '/api/film/watch', '/api/film/share', '/api/film/keepsake-photos', '/api/film/book-page', '/api/film/listen', '/api/film/listen/audio.mp3', '/api/film/listen/download', '/api/film/listen/feed.xml'].includes(url.pathname) && request.method === 'GET') || (['/api/film/checkout', '/api/film/keepsake-checkout', '/api/film/ask-k', '/api/film/ask-k/status', '/api/film/dashboard', '/api/film/chat', '/api/film/chat/typing', '/api/film/notes', '/api/film/access/code', '/api/film/access/verify', '/api/film/access/staff', '/api/film/people', '/api/film/people/remove', '/api/film/people/role', '/api/film/upload/start', '/api/film/upload/part', '/api/film/upload/complete', '/api/film/upload/delete', '/api/film/start', '/api/film/feedback'].includes(url.pathname) && request.method === 'POST');
       const isFilmAdmin = (['/api/film/projects', '/api/film/project'].includes(url.pathname) && request.method === 'GET') || (['/api/film/project/update', '/api/film/email', '/api/film/file-link', '/api/film/project/delete', '/api/film/deliver/start', '/api/film/keepsake/update', '/api/film/deliver/part', '/api/film/deliver/complete', '/api/film/staff-link', '/api/film/chat/reply', '/api/film/email-samples', '/api/film/book-preview', '/api/film/book-preview/remove'].includes(url.pathname) && request.method === 'POST');
-      if (!isFilmPublic && !isFilmAdmin && !isPreviewPublic && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
+      if (!isFilmPublic && !isFilmAdmin && !isPreviewPublic && !isReviewRoute && !isBookingsRead && !isAvailabilityRead && !isAdminBlockWrite && !isTaxRead && !isTaxWrite && !isAccountsRead && !isAccountsWrite && !isPostRoute && !isPlannerRoute && !isQuotePublic && !isInvoicePublic && !isProductsRead && !isAskKRoute && !isAdminAskKRoute && !isChatPublic && !isChatAdmin && !isAdminAuthRoute && !isBatteryImagePublic && !isTrackPublic && !isWebsitePlanPublic && !isWebsitePlanAdmin) {
         return json({ ok: false, error: 'Method not allowed' }, 405, corsHeaders);
       }
 
@@ -311,6 +331,13 @@ export default {
       if (p === '/api/film/file-link' && m === 'POST') return film().handleAdminFileLink(request, env, corsHeaders, url);
       if (p === '/api/film/project/delete' && m === 'POST') return film().handleAdminDelete(request, env, corsHeaders, url);
     }
+
+    // One-tap Survival Node reviews (src/reviews.js)
+    if (url.pathname === '/api/review' && request.method === 'GET') return reviews().handleGet(request, env, corsHeaders, url);
+    if (url.pathname === '/api/review' && request.method === 'POST') return reviews().handleSave(request, env, corsHeaders);
+    if (url.pathname === '/api/reviews/public' && request.method === 'GET') return reviews().handlePublic(request, env, corsHeaders);
+    if (url.pathname === '/api/reviews' && request.method === 'GET') return reviews().handleAdminList(request, env, corsHeaders, url);
+    if (url.pathname === '/api/reviews/status' && request.method === 'POST') return reviews().handleAdminStatus(request, env, corsHeaders, url);
 
     if (url.pathname === '/api/products' && request.method === 'GET') {
       return json({ ok: true, products: publicSurvivalNodeProducts() }, 200, corsHeaders);
@@ -2568,7 +2595,7 @@ function defaultOrderEmailSubject(kind, row) {
   return 'We received your order';
 }
 
-const GOOGLE_REVIEW_URL = 'https://www.easternshore.ai/review';
+const GOOGLE_REVIEW_URL = GOOGLE_REVIEW_LINK; // review.html, which forwards to the Google review page
 const ORDER_EMAIL_KINDS = ['ack', 'shipping', 'delivered', 'review', 'message'];
 
 function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber = '', trackingUrl = '') {
@@ -2611,9 +2638,11 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
       '',
       'We hope you\'re loving your Survival Node!',
       '',
-      'If you have a moment, we\'d really appreciate it if you could leave us a review on Google. Your feedback helps other preppers find us and helps us keep improving.',
+      'Would you rate it for us? Just tap a star below. One tap is all it takes, and your rating helps other preppers find us and helps us keep improving.',
       '',
-      'It only takes a minute — thank you so much for your support!'
+      'If you\'d like, you can also leave a review on Google.',
+      '',
+      'Thank you so much for your support!'
     ].filter(Boolean).join('\n');
   }
   return [
@@ -2790,11 +2819,14 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const trackHtml = trackProxyUrl && kind !== 'delivered' && kind !== 'review'
     ? emailButton(trackProxyUrl, trackButtonLabel) + smallPrint('Tracking opens the official carrier website.')
     : '';
-  const reviewHtml = kind === 'review' ? emailButton(GOOGLE_REVIEW_URL, 'Leave a Google Review \u2605') : '';
+  // One-tap stars (src/reviews.js) when the order has a review token, then the Google link for everyone.
+  const reviewToken = kind === 'review' ? (overrides.reviewToken || '').toString().trim() : '';
+  const reviewHtml = kind === 'review' ? (reviewToken ? reviewStarsHtml(reviewToken) : '') + emailButton(GOOGLE_REVIEW_URL, 'Leave a Google Review \u2605') : '';
+  const reviewText = kind === 'review' ? `${reviewToken ? `${reviewStarsText(reviewToken)}\n\n` : ''}Leave a Google review: ${GOOGLE_REVIEW_URL}\n\n` : '';
   const gettingStarted = kind === 'delivered'
     ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime. It works offline, and whenever you open it on Wi-Fi it checks for a newer version of the guide.<br><br>Your box also includes printed inserts: one walks you through the <strong>first steps</strong> to get set up, and another covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
     : '';
-  const text = `${estimatedShipDate ? `Estimated ship date: ${longDate(estimatedShipDate)}\n\n` : ''}${shipTo ? `Ship to:\n${shipTo}\n\n` : ''}${bodyText}\n\n${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — ${BUSINESS_LOCATION}\nhttps://www.easternshore.ai`;
+  const text = `${estimatedShipDate ? `Estimated ship date: ${longDate(estimatedShipDate)}\n\n` : ''}${shipTo ? `Ship to:\n${shipTo}\n\n` : ''}${bodyText}\n\n${reviewText}${transactionContext}\nSecurity reminder: ${securityReminder}\n\nQuestions? Reply to this email, email contact@easternshore.ai, or call (302) 907-9162.\nEastern Shore AI, LLC — ${BUSINESS_LOCATION}\nhttps://www.easternshore.ai`;
   const html = emailLayout({
     heading: subject,
     preheader,
@@ -3070,13 +3102,15 @@ async function handleOrderEmailPreview(request, env, corsHeaders, url) {
   const trackingNumber = (data.trackingNumber ?? hydratedRow.tracking_number ?? row.tracking_number ?? '').toString().trim();
   const trackingUrl = (data.trackingUrl ?? hydratedRow.tracking_url ?? row.tracking_url ?? '').toString().trim();
   const shipTo = orderEmailShowsShipTo(kind) ? await orderShipTo(env, hydratedRow) : '';
+  const reviewToken = kind === 'review' ? await ensureReviewInvite(env, hydratedRow).catch((e) => { console.error('review invite failed', e); return ''; }) : '';
   const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
     bodyText: data.bodyText,
     trackingProvider,
     trackingNumber,
     trackingUrl,
-    shipTo
+    shipTo,
+    reviewToken
   });
   return json({
     ok: true,
@@ -3466,6 +3500,7 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     cc = parsed.cc;
   }
 
+  const reviewToken = kind === 'review' ? await ensureReviewInvite(env, hydratedRow).catch((e) => { console.error('review invite failed', e); return ''; }) : '';
   const content = buildOrderEmailContent(kind, hydratedRow, {
     subject: data.subject,
     bodyText: data.bodyText,
@@ -3473,7 +3508,8 @@ async function handleOrderEmailSend(request, env, corsHeaders, url) {
     trackingNumber,
     trackingUrl,
     estimatedShipDate: estimatedShipDate || hydratedRow.estimated_ship_date,
-    shipTo
+    shipTo,
+    reviewToken
   });
 
   const fromEmail = (env.ORDERS_FROM_EMAIL || env.FROM_EMAIL || '').toString().trim();

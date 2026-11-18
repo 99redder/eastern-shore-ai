@@ -238,6 +238,17 @@
     @media (max-width: 540px) {
       .buyer-review-source { flex-basis: 100%; margin-left: 0; }
     }
+    /* Customer reviews: written by tools/node-reviews.mjs from approved one-tap reviews (3+) */
+    .site-reviews { margin: 1rem 0; padding: clamp(1rem, 3vw, 1.5rem); border-left: 3px solid #f5b301; }
+    .site-reviews h2 { margin-bottom: .35rem; font-size: 1.15rem; }
+    .reviews-summary { margin: 0 0 .8rem; color: var(--text); }
+    .review-stars { color: #f5b301; letter-spacing: .06em; }
+    .review-list { list-style: none; margin: 0; padding: 0; }
+    .review-list li { margin: 0; padding: .7rem 0; border-top: 1px solid var(--line); }
+    .review-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .7rem; }
+    .review-verified { color: #9bd9b5; font-size: .85rem; }
+    .review-date { color: var(--muted); font-size: .85rem; }
+    .review-list p { margin: .35rem 0 0; color: var(--text); line-height: 1.5; }
     /* Specs at a glance: a plain table so shoppers and AI assistants can read the facts in one place */
     .specs-glance { margin: 1rem 0; padding: clamp(1rem, 3vw, 1.5rem); }
     .specs-glance h2 { margin-bottom: .35rem; font-size: 1.15rem; }
@@ -2021,6 +2032,8 @@
         </figcaption>
       </figure>
     </section>
+
+    <!-- reviews:start (tools/node-reviews.mjs writes this from approved reviews; don't edit by hand) --><!-- reviews:end -->
 
     <section class="card specs-glance" id="specs" aria-labelledby="specs-title">
       <h2 id="specs-title">Specs at a glance</h2>
