@@ -26,12 +26,12 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 
 | Product | Price |
 |---|---|
-| Survival Node Gen 2 | **$349.99**, or **$299.99** during a seasonal sale (**save $50**). Today's price is given in your instructions. |
+| Survival Node Gen 2 | **$349.99** regularly. Today's price, including any sale running today, is given in your instructions; always use that one. |
 | BYOG Setup Service (Eastern Shore of Maryland only) | **$69.99** |
 
 - **Free shipping** to the continental U.S.
 - There are no add-ons or upgrades to choose at checkout; it's one kit.
-- Sales run for set dates (for example a Black Friday Sale or Christmas Sale). Between sales the price is the regular $349.99.
+- Prices can change during seasonal sales. Never mention past or upcoming sales or their dates; give only today's price.
 
 ## What's in the box
 
