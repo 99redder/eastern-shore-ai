@@ -160,6 +160,7 @@
     .step .copy-note { text-align: left; }
     .done-check { font-size: 1.08rem; padding: .8rem 1rem; }
     .done-check b { font-size: 1.15rem; }
+    .ver-line { margin: .5rem 0; padding: .7rem .9rem; background: #070910; border: 1px solid rgba(142, 230, 168, .5); border-radius: 8px; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.15rem; color: #fff; }
     .tip-big { background: #0f1420; border: 1px solid var(--line); border-left: 5px solid var(--cyan); border-radius: 10px; padding: .9rem 1rem; margin: 0 0 .9rem; }
     .tip-big .howto { border-top: 0; padding-top: 0; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -240,14 +241,14 @@
       <img class="hero-icon" src="/images/guide-icons/pocketpal.webp" alt="" width="76" height="76" />
       <p class="kicker">Important software update</p>
       <h1>Update Your Survival Node's AI Instructions</h1>
-      <p class="lead">If your Survival Node shipped before November 19, 2026, please take two minutes to update the instructions behind its AI. It works offline and doesn't change anything else on your phone. <strong>Updated on November 18 before 2:55 PM Eastern?</strong> Please do it once more: we tightened the bleach line that afternoon and evening.</p>
+      <p class="lead">If your Survival Node shipped before November 19, 2026, please take two minutes to update the instructions behind its AI. It works offline and doesn't change anything else on your phone. <strong>Updated on November 18 before 3:26 PM Eastern?</strong> Please do it once more: we tightened the bleach line that afternoon and evening.</p>
       <ul class="facts">
         <li>⏱ About 2 minutes</li>
         <li>📴 Works offline</li>
         <li>🗂 Your chats, maps and files stay put</li>
       </ul>
       <p><a class="go-steps" href="#steps">Go to the steps ↓</a></p>
-      <p class="updated">Posted November 18, 2026, 12:25 PM Eastern · Last updated November 18, 2026, 2:55 PM Eastern</p>
+      <p class="updated">Posted November 18, 2026, 12:25 PM Eastern · Last updated November 18, 2026, 3:26 PM Eastern</p>
     </header>
 
     <section class="card" aria-labelledby="why-title">
@@ -263,7 +264,7 @@
         <li><strong>November 17, 2026:</strong> Found the problem in our ongoing, periodic QA testing and rewrote the instructions the same day. Every kit prepared since then has the new ones.</li>
         <li><strong>November 18, 2026:</strong> Emailed every owner who bought from our website, messaged eBay buyers through eBay where eBay allows it, and posted this notice.</li>
         <li><strong>November 18, 2026, afternoon:</strong> Further testing found the AI could still get the bleach amount wrong when converting liters to gallons. We changed that line to drops per gallon only, tested it again, and updated the instructions on this page and the owners page.</li>
-        <li><strong>November 18, 2026, evening:</strong> Hundreds more test runs on a faster test computer found the AI could still mix up bleach amounts when the instructions gave it several numbers (once 1/3 cup for 5 gallons). We cut the bleach line to one amount, the CDC's 8 drops (1/8 teaspoon) per gallon, in one fixed sentence, tested it again, and updated the instructions on this page and the owners page.</li>
+        <li><strong>November 18, 2026, evening:</strong> Hundreds more test runs on a faster test computer found the AI could still mix up bleach amounts when the instructions gave it several numbers (once 1/3 cup for 5 gallons). We cut the bleach line to one amount, the CDC's 8 drops (1/8 teaspoon) per gallon, in one fixed sentence, and added a version line so you can check your update by asking the AI "What version are you?" We tested it again and updated the instructions on this page and the owners page.</li>
       </ul>
     </section>
 
@@ -340,7 +341,9 @@
 
       <div class="check done-check">
         <b>✅ Check that it worked</b>
-        <p>Open the <strong>Survival Node</strong> card again (steps 3 and 4). In the <strong>System Prompt</strong> box, the Drinking water part should say <em>"Bleach, only if you can't boil"</em>. If it does, you're done.</p>
+        <p>In the new chat, type <strong>What version are you?</strong> and send it. In a minute or two it should answer:</p>
+        <p class="ver-line">Survival Node instructions, updated November 18, 2026.</p>
+        <p>If it says anything else, even a version number like "v1.0", do steps 1 to 7 again.</p>
       </div>
 
       <details class="howto">
@@ -348,7 +351,9 @@
         <p>Press and hold the instructions below, tap <strong>Select all</strong>, then <strong>Copy</strong>. Then go on with step 2.</p>
         <!-- Must match survival_prompt.txt exactly, like node-setup.html (palPromptBox), the guide app and owners.html
              (#pal-prompt). worker/tests/pal-sync.test.mjs fails if the copies differ. -->
-        <pre class="prompt-box" id="pal-prompt">You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
+        <pre class="prompt-box" id="pal-prompt">Survival Node instructions, updated November 18, 2026
+
+You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
 
 Rules:
 1. Answer right away, with no greetings or filler.
@@ -364,7 +369,9 @@ Drinking water (CDC):
 - Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
 - Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
 - Bleach, only if you can't boil: plain, unscented household bleach (5-9%). If the water is cloudy, let it settle or filter it through cloth first. Give the amount only by copying this sentence word for word, and give no other bleach amounts: "Add 8 drops (1/8 teaspoon) of bleach to each gallon of water, stir, and wait 30 minutes." For more water, say to repeat that for each gallon.
-- Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>
+- Boiling and bleach don't remove fuel or chemicals. Find another water source.
+
+If someone asks which version of your instructions you have, answer only: "Survival Node instructions, updated November 18, 2026."</pre>
       </details>
       <p class="small">No internet where you are? The <strong>User Guide</strong> app has these steps and a Copy button that works offline, under <strong>Update the Survival Node Pal</strong>. Its copy has this change from version 1.21; earlier versions have older wording, so use the copy on this page once you can get online.</p>
       <p class="small">Don't see a <strong>Survival Node</strong> card under Pals? Call or text us at <a href="tel:+13029079162"><strong>(302) 907-9162</strong></a> or email <a href="mailto:support@easternshore.ai">support@easternshore.ai</a>, and we'll set it up with you.</p>
@@ -413,18 +420,19 @@ Drinking water (CDC):
       <p>An AI doesn't give the same answer every time, so one good answer proves very little. We asked the same questions over and over and checked every answer.</p>
       <ul>
         <li><strong>The same AI as your phone.</strong> We used the exact Qwen 3.5 4B and 2B model files on the Survival Node, with PocketPal's own settings, the same room for each conversation (2,048 tokens) and Think off, as we recommend. We tested on a Survival Node kit in airplane mode and on a much faster test computer running the same files.</li>
-        <li><strong>Hundreds of answers.</strong> On November 18, 2026 we checked more than 450 answers on the test computer, plus answers on the kit itself. The questions included making creek water safe, how much bleach to use for one gallon and for a 5-gallon bucket, what to do without a dropper, catching and treating rainwater, and flood water.</li>
+        <li><strong>Hundreds of answers.</strong> On November 18, 2026 we checked more than 900 answers on the test computer, plus answers on the kit itself. The questions included making creek water safe, how much bleach to use for one gallon and for a 5-gallon bucket, what to do without a dropper, catching and treating rainwater, and flood water.</li>
+        <li><strong>A quick way to check your update.</strong> We added a version line, and asked both AI models "What version are you?" again and again: with the new instructions they gave the exact version line every time, and the older instructions never did.</li>
         <li><strong>Every bleach amount checked.</strong> A checking program pulled every bleach amount out of every answer and converted it to drops per gallon, and we read each flagged answer ourselves.</li>
-        <li><strong>Several rewrites compared.</strong> We tried four versions of the bleach line side by side and kept the one with the fewest mistakes.</li>
+        <li><strong>Several rewrites compared.</strong> We tried six versions of the bleach line side by side and kept the one with no answers giving too much bleach.</li>
       </ul>
       <table class="libs">
         <thead><tr><th>Qwen 3.5 4B, bleach questions</th><th class="size">Answers</th><th class="size">Too much bleach</th><th class="size">Too little</th></tr></thead>
         <tbody>
           <tr><td>Earlier on November 18<span class="aka">drops per gallon, with separate amounts for cloudy water and for 5 gallons</span></td><td class="size">47</td><td class="size">4</td><td class="size">0</td></tr>
-          <tr><td>Now on this page<span class="aka">boiling first, and one amount: 8 drops (1/8 teaspoon) per gallon</span></td><td class="size">80</td><td class="size">0</td><td class="size">3</td></tr>
+          <tr><td>Now on this page<span class="aka">boiling first, and one amount: 8 drops (1/8 teaspoon) per gallon</span></td><td class="size">160</td><td class="size">0</td><td class="size">8</td></tr>
         </tbody>
       </table>
-      <p class="small">The 4 answers that gave too much bleach gave 5 to 16 times the right amount, for example "1 to 2 teaspoons per gallon." Of the 3 that gave too little, two used one gallon's amount for a whole 5-gallon bucket. The smaller Qwen 3.5 2B made more mistakes on these questions, which is why we say to use the 4B for drinking water.</p>
+      <p class="small">The 4 answers that gave too much bleach gave 5 to 16 times the right amount, for example "1 to 2 teaspoons per gallon." Of the 8 that gave too little, 7 used one gallon's amount for a whole 5-gallon bucket, so for a bucket, go by the amount below. The smaller Qwen 3.5 2B made more mistakes on these questions, which is why we say to use the 4B for drinking water.</p>
       <h4>What this means for you</h4>
       <p><strong>Boil when you can.</strong> A rolling boil for 1 minute (3 minutes above 6,500 feet) has no amount to get wrong. If you use bleach, the CDC amount is 8 drops (1/8 teaspoon) of plain, unscented bleach for each gallon, so a 5-gallon bucket needs 40 drops (5/8 teaspoon). Stir, then wait 30 minutes.</p>
       <p>Even with better instructions, an AI can still be wrong. Check anything you'll act on against the Survival Manual, WikiMed or the other references on the phone. We'll keep testing the AI's answers this way, topic by topic, and post what we change on the <a href="/owners.html">owners page</a>.</p>

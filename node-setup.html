@@ -283,7 +283,9 @@
 
     // The Survival Node Pal's instructions (survival_prompt.txt on the phone; rewritten 2026-11-17).
     // Shown in the PocketPal section and in Maintenance > Update the Survival Node Pal; keep in step with the guide app.
-    const palPromptBox = `<pre style="background:#070910; border:1px solid rgba(158,208,255,.2); border-left:3px solid var(--cyan); border-radius:0 6px 6px 0; padding:.85rem 1rem; margin:.5rem 0 .9rem; font-size:.78rem; color:var(--ok); white-space:pre-wrap; line-height:1.65; font-family:'Courier New',monospace;">You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
+    const palPromptBox = `<pre style="background:#070910; border:1px solid rgba(158,208,255,.2); border-left:3px solid var(--cyan); border-radius:0 6px 6px 0; padding:.85rem 1rem; margin:.5rem 0 .9rem; font-size:.78rem; color:var(--ok); white-space:pre-wrap; line-height:1.65; font-family:'Courier New',monospace;">Survival Node instructions, updated November 18, 2026
+
+You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
 
 Rules:
 1. Answer right away, with no greetings or filler.
@@ -299,7 +301,9 @@ Drinking water (CDC):
 - Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
 - Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
 - Bleach, only if you can't boil: plain, unscented household bleach (5-9%). If the water is cloudy, let it settle or filter it through cloth first. Give the amount only by copying this sentence word for word, and give no other bleach amounts: "Add 8 drops (1/8 teaspoon) of bleach to each gallon of water, stir, and wait 30 minutes." For more water, say to repeat that for each gallon.
-- Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>`;
+- Boiling and bleach don't remove fuel or chemicals. Find another water source.
+
+If someone asks which version of your instructions you have, answer only: "Survival Node instructions, updated November 18, 2026."</pre>`;
 
     const sections = [
       {

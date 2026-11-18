@@ -1,4 +1,4 @@
-// The Survival Node Pal's instructions (survival_prompt.txt on the phones, rewritten 2026-11-17) are shown to
+// The Survival Node Pal's instructions (survival_prompt.txt on the phones, rewritten 2026-11-17, v1.3e 2026-11-18) are shown to
 // owners in three places: the online guide (node-setup.html, palPromptBox), the guide app
 // (survival-node-app/index.html, #pal-prompt), the owners page (owners.html, #pal-prompt) and the update notice
 // that social posts link to (pal-update.html, #pal-prompt, 2026-11-18). Owners copy them into PocketPal, so every
@@ -29,7 +29,11 @@ function onlineGuide() {
 
 test('Survival Node Pal instructions are identical in the online guide, the guide app, the owners page and the notice', () => {
   const web = onlineGuide();
-  assert.match(web, /^You are Survival Node, an offline advisor/);
+  // From 2026-11-18 the first line is the version owners check by asking "What version are you?"; the last
+  // rule must answer with the same line.
+  const head = web.match(/^(Survival Node instructions, updated [A-Z][a-z]+ \d{1,2}, \d{4})\n\nYou are Survival Node, an offline advisor/);
+  assert.ok(head, 'instructions must start with "Survival Node instructions, updated <date>", a blank line, then "You are Survival Node, an offline advisor"');
+  assert.ok(web.trimEnd().endsWith(`answer only: "${head[1]}."`), 'the version rule at the end must give the same line as the first line');
   assert.equal(preById('survival-node-app/index.html'), web, 'guide app #pal-prompt differs from node-setup.html');
   assert.equal(preById('owners.html'), web, 'owners.html #pal-prompt differs from node-setup.html');
   assert.equal(preById('pal-update.html'), web, 'pal-update.html #pal-prompt differs from node-setup.html');

@@ -935,7 +935,7 @@ body {
     </button>
     <div class="card-body"><div class="card-content">
       <p>On November 17, 2026 we rewrote the instructions behind the <strong>Survival Node</strong> Pal in PocketPal. The AI now gives the standard, proven method first, won't make up numbers, and has the CDC's drinking-water figures built in. On November 18 we tightened the bleach line to boiling first and one amount, 8 drops (1/8 teaspoon) per gallon, after more testing found the AI could still get the amount wrong. Kits shipped from November 19, 2026 already have it. If your kit shipped earlier, or you updated on November 18 before that change, update the Pal. It works offline and takes about two minutes.</p>
-      <p><strong>Already updated?</strong> Open PocketPal, tap <strong>☰</strong>, then <strong>Pals</strong>, and tap the <strong>Survival Node</strong> card. If the <strong>Drinking water</strong> part of the <strong>System Prompt</strong> box says "Bleach, only if you can't boil", you have the current instructions.</p>
+      <p><strong>Already updated?</strong> Start a new chat with the <strong>Survival Node</strong> Pal and type <strong>What version are you?</strong>. If it answers "Survival Node instructions, updated November 18, 2026.", you have the current instructions. If it says anything else, even a version number like "v1.0", update.</p>
       <ol class="steps">
         <li>Tap <strong>Copy the new instructions</strong> below</li>
         <li>Open <strong>PocketPal</strong>, tap <strong>☰</strong> (top left), then <strong>Pals</strong></li>
@@ -946,7 +946,9 @@ body {
       </ol>
       <button class="update-btn copy-btn" type="button" onclick="copyPalPrompt(this)">Copy the new instructions</button>
       <p class="copy-note" id="pal-copy-note"></p>
-      <pre class="prompt-box" id="pal-prompt">You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
+      <pre class="prompt-box" id="pal-prompt">Survival Node instructions, updated November 18, 2026
+
+You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
 
 Rules:
 1. Answer right away, with no greetings or filler.
@@ -962,7 +964,9 @@ Drinking water (CDC):
 - Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
 - Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
 - Bleach, only if you can't boil: plain, unscented household bleach (5-9%). If the water is cloudy, let it settle or filter it through cloth first. Give the amount only by copying this sentence word for word, and give no other bleach amounts: "Add 8 drops (1/8 teaspoon) of bleach to each gallon of water, stir, and wait 30 minutes." For more water, say to repeat that for each gallon.
-- Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>
+- Boiling and bleach don't remove fuel or chemicals. Find another water source.
+
+If someone asks which version of your instructions you have, answer only: "Survival Node instructions, updated November 18, 2026."</pre>
       <div class="callout tip">💡 If the Copy button doesn't work, press and hold the instructions above, tap <strong>Select all</strong>, then <strong>Copy</strong>, and paste them in step 4.</div>
       <div class="callout info">ℹ️ The <strong>survival_prompt.txt</strong> file on kits shipped before November 19, 2026 (in the Tools folder and the Documents folder) has older wording. The box above is the current version.</div>
     </div></div>
