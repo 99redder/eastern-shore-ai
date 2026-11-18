@@ -726,6 +726,7 @@ test('admin order emails: sent once per draft, review email carries List-Unsubsc
   env.EMAIL.sent.forEach(assertStandardLayout);
   assert.match(env.EMAIL.sent[1].html, /Track on USPS/);
   assert.match(env.EMAIL.sent[2].html, /Getting Started/);
+  assert.match(env.EMAIL.sent[2].html, /href="https:\/\/www\.easternshore\.ai\/owners\.html"/); // owners page for later kit updates
   const review = env.EMAIL.sent[3];
   assert.match(review.html, /leave a Google review/i);
   assert.deepEqual(review.headers, { 'List-Unsubscribe': '<mailto:contact@easternshore.ai?subject=Unsubscribe%20from%20review%20requests>' });
