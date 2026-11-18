@@ -45,7 +45,8 @@ export const ASKK_CONVERSATION_LIMIT = 20;
 export const ASKK_KNOWLEDGE_MAX_CHARS = 60000;
 const PASS_TTL_SECS = 2 * 3600;
 
-export const ASKK_BUSY_REPLY = "Ask K is busy right now. Our team can help directly: call (302) 907-9162 or use the contact form on easternshore.ai.";
+export const ASKK_BUSY_REPLY = "Ask K is busy right now. Our team can help directly: call or text (302) 907-9162 or email support@easternshore.ai.";
+export const askKBusyReply = (dep) => `Ask K is busy right now. Our team can help directly: ${dep.contact}.`;
 const OFF_TOPIC_REPLY = "I can only help with questions about the Survival Node and Eastern Shore AI: what's included, how it works offline, power, maps, shipping, returns, warranty, and ordering. What would you like to know about the Survival Node?";
 
 // ── Small helpers ──────────────────────────────────────────────
@@ -189,6 +190,7 @@ const ORDER_STATUS_HINT = /\b(order status|status of (my|our|the) \w+|track(ing)
 
 export const ASKK_SURVIVAL_NODE = {
   id: 'node',
+  contact: 'call or text (302) 907-9162 or email support@easternshore.ai',
   name: 'Survival Node',
   prefix: '',
   apiKeyEnv: 'ANTHROPIC_API_KEY',
@@ -205,6 +207,7 @@ export const ASKK_SURVIVAL_NODE = {
 
 export const ASKK_FOLDER_TO_FILM = {
   id: 'film',
+  contact: 'call or text (302) 907-9162 or email contact@easternshore.ai',
   name: 'Folder to Film',
   prefix: 'film_',
   apiKeyEnv: 'FILM_ANTHROPIC_API_KEY',
@@ -433,7 +436,7 @@ export async function answerAskK(env, { question, history = [], context = {}, sy
   await notifyOnce(env, deps.notify, `${dep.prefix}busy-${outReason || 'unknown'}`, dep.id === 'node' ? 'Ask K is paused' : `Ask K is paused (${dep.name})`,
     `Ask K on ${dep.page} can't answer right now because ${why}. Visitors are being shown your phone number and contact form instead. It starts answering again automatically ${back}.${fix}`);
   // The order-status box needs no AI, so it still shows while K is busy.
-  return { reply: ASKK_BUSY_REPLY, provider: 'busy', lookup: wantsOrderStatus(question, dep) };
+  return { reply: askKBusyReply(dep), provider: 'busy', lookup: wantsOrderStatus(question, dep) };
 }
 
 // Counts a blocked request (failed bot check, rate limit) or an order-status

@@ -3706,7 +3706,7 @@
           content = content
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             // Our own pages only (owners, guide-update…) become links; other addresses stay plain text.
-            .replace(/https:\/\/www\.easternshore\.ai\/[A-Za-z0-9\/._#-]*[A-Za-z0-9\/#-]/g, url => `<a href="${url}" target="_blank" rel="noopener">${url}</a>`)
+            .replace(/(^|[\s(>])((?:https:\/\/)?(?:www\.)?easternshore\.ai\/[A-Za-z0-9\/._#-]*[A-Za-z0-9\/#-])/g, (m, pre, addr) => `${pre}<a href="${addr.startsWith('https://') ? addr : 'https://www.' + addr.replace(/^www\./, '')}" target="_blank" rel="noopener">${addr}</a>`)
             .replace(/\n/g, '<br>');
         }
         // Add sender name for staff messages
@@ -3850,7 +3850,7 @@
           if (data.lookup) showLookup();
         } catch (err) {
           hideTyping();
-          addMessage('assistant', 'I\'m having trouble connecting right now. You can reach our team directly at (302) 907-9162 or through the contact form on our homepage.');
+          addMessage('assistant', 'I\'m having trouble connecting right now. You can reach our team directly: call or text (302) 907-9162 or email support@easternshore.ai.');
         }
 
         isTyping = false;
@@ -4121,7 +4121,7 @@
             escalateBtn.textContent = 'Talk to a human';
           }
         } catch (err) {
-          addMessage('system', 'Could not connect to support. Please call (302) 907-9162 or use the contact form on our homepage.');
+          addMessage('system', 'Could not connect to support. Please call or text (302) 907-9162 or email support@easternshore.ai.');
           hideInlineTyping();
           escalateBtn.disabled = false;
           escalateBtn.textContent = 'Talk to a human';
