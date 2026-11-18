@@ -1454,16 +1454,23 @@
         "itemCondition": "https://schema.org/UsedCondition",
         "url": "https://www.easternshore.ai/node.html",
         "seller": { "@type": "Organization", "name": "Eastern Shore AI, LLC" },
-        "shippingDetails": {
-          "@type": "OfferShippingDetails",
-          "shippingRate": { "@type": "MonetaryAmount", "value": "0", "currency": "USD" },
-          "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "US" },
-          "deliveryTime": {
-            "@type": "ShippingDeliveryTime",
-            "handlingTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 7, "unitCode": "DAY" },
-            "transitTime": { "@type": "QuantitativeValue", "minValue": 5, "maxValue": 10, "unitCode": "DAY" }
+        "shippingDetails": [
+          {
+            "@type": "OfferShippingDetails",
+            "shippingRate": { "@type": "MonetaryAmount", "value": "0", "currency": "USD" },
+            "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "US" },
+            "deliveryTime": {
+              "@type": "ShippingDeliveryTime",
+              "handlingTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 7, "unitCode": "DAY" },
+              "transitTime": { "@type": "QuantitativeValue", "minValue": 5, "maxValue": 10, "unitCode": "DAY" }
+            }
+          },
+          {
+            "@type": "OfferShippingDetails",
+            "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "US", "addressRegion": ["AK", "HI"] },
+            "doesNotShip": true
           }
-        },
+        ],
         "hasMerchantReturnPolicy": {
           "@type": "MerchantReturnPolicy",
           "applicableCountry": "US",
