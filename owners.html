@@ -255,11 +255,11 @@
         <span class="meta">⏱ About 2 minutes · works offline</span>
         <h3 id="pal-title">Update the Survival Node Pal's instructions</h3>
       </div>
-      <p>The <strong>Survival Node</strong> Pal in PocketPal is the AI set up for survival, first aid and field repair. On November 17, 2026 we rewrote the instructions behind it. In our ongoing, periodic QA testing, the earlier instructions led the AI to give unsafe drinking-water advice. With the new ones, the AI gives the standard, proven method first (the one the CDC, Red Cross, FEMA or U.S. Army teaches), doesn't make up numbers, and knows the CDC's drinking-water figures.</p>
+      <p>The <strong>Survival Node</strong> Pal in PocketPal is the AI set up for survival, first aid and field repair. On November 17, 2026 we rewrote the instructions behind it. In our ongoing, periodic QA testing, the earlier instructions led the AI to give unsafe drinking-water advice. With the new ones, the AI gives the standard, proven method first (the one the CDC, Red Cross, FEMA or U.S. Army teaches), doesn't make up numbers, and knows the CDC's drinking-water figures. On November 18 we tightened the bleach line (drops per gallon only), after more testing found the AI could still get the bleach amount wrong when converting liters to gallons. <strong>Already updated on November 18?</strong> Please do it once more.</p>
       <p class="small">We test the AI's answers on an ongoing, periodic basis and will keep improving these instructions. Future updates will appear on this page and in the User Guide app.</p>
       <div class="check">
         <b>✅ You already have this if…</b>
-        <p>You open <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>, tap the <strong>Survival Node</strong> card, and the <strong>System Prompt</strong> box starts with <em>"You are Survival Node, an offline advisor"</em>. Phones prepared from November 17, 2026 have it.</p>
+        <p>You open <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>, tap the <strong>Survival Node</strong> card, and the <strong>Drinking water</strong> part of the <strong>System Prompt</strong> box says <em>"Measure bleach only in drops"</em>. Kits shipped from November 19, 2026 have it.</p>
       </div>
       <details class="howto" open>
         <summary>Show the steps</summary>
@@ -290,15 +290,16 @@ Rules:
 Drinking water (CDC):
 - Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
 - Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
-- Bleach: plain, unscented household bleach (5-9%). 2 drops per liter (8 per gallon); 4 drops per liter if the water is cloudy, colored or very cold. Stir, then wait at least 30 minutes.
+- Bleach: plain, unscented household bleach (5-9%). Measure bleach only in drops, never in cups or spoons. Use 8 drops per gallon of water (40 drops for 5 gallons), or 16 drops per gallon if the water is cloudy, colored or very cold. Stir, then wait at least 30 minutes. The water should smell slightly of chlorine; if it doesn't, add the same number of drops again and wait 15 more minutes.
 - Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>
-        <p class="small">No internet where you are? The <strong>User Guide</strong> app has these same steps and a Copy button that works offline, from version 1.17 (under <strong>Update the Survival Node Pal</strong>).</p>
+        <p class="small">No internet where you are? The <strong>User Guide</strong> app has these steps and a Copy button that works offline, under <strong>Update the Survival Node Pal</strong>. Its copy has the November 18 change from version 1.20; versions 1.17 to 1.19 have the November 17 wording, so use the copy on this page once you can get online.</p>
         <p class="small">The <strong>survival_prompt.txt</strong> file on older phones (in the Tools folder and the Documents folder) still has the old wording. The box above is the current version.</p>
         <p class="small">Don't see a <strong>Survival Node</strong> card under Pals? Call or text us and we'll set it up with you.</p>
       </details>
 
       <div class="callout danger" id="which-model">
         <p><strong>Use Qwen 3.5 4B for first aid, drinking water and anything you'll act on.</strong> In our tests on November 17, 2026, the Qwen 3.5 4B model answered water, bleeding and hypothermia questions correctly, and the smaller Qwen 3.5 2B got the first-aid questions wrong. Use the 2B for voice and quick, low-stakes questions. If you asked a first-aid question by voice on the 2B, switch to the 4B and ask again before acting on the answer. Always check critical answers against WikiMed or the Survival Manual on the phone.</p>
+        <p><strong>Turn off Think when you ask the 4B.</strong> Tap <strong>Think</strong> (the atom icon at the bottom of the chat box) so it's no longer filled in. It turns back on in each new chat. With Think on, the 4B can use up all its room thinking and stop with <em>"The conversation ran out of room"</em> before it answers. With Think off it answers in a few minutes, and that's how it gave correct drinking-water answers in our November 18 tests.</p>
       </div>
       <div class="check">
         <b>✅ Check which model the Pal uses</b>
