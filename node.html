@@ -3857,6 +3857,7 @@
         if (!isTyping) showLookup(LOOKUP_INTRO);
       });
       fab.addEventListener('click', openDrawer);
+      if (location.hash === '#ask-k') openDrawer();  // the owners page's "Ask K a question" link opens K straight away
       overlay.addEventListener('click', closeDrawer);
       closeBtn.addEventListener('click', closeDrawer);
 
