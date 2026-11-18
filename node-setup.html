@@ -67,6 +67,8 @@
     .hero-logo { width:min(180px, 42vw); display:block; margin: 0 auto .6rem; filter: drop-shadow(0 0 16px rgba(158,208,255,.25)); }
     h1 { margin: 0 0 .35rem; font-size: clamp(1.6rem, 3vw, 2.45rem); text-align:center; }
     .sub { color: var(--muted); margin: 0 auto 1.05rem; text-align:center; max-width:800px; }
+    .owners-note { margin: -.45rem auto 1.1rem; text-align: center; max-width: 800px; font-size: .92rem; color: var(--muted); }
+    .owners-note a { color: var(--cyan); font-weight: 700; white-space: nowrap; }
 
     .topics {
       display: grid;
@@ -163,7 +165,7 @@
 
     @media print {
       body { background: #fff !important; color: #111 !important; }
-      .back-btn, .topics, .topics-label, .guide-card, .wrap > h1, .sub, .hero-logo { display: none !important; }
+      .back-btn, .topics, .topics-label, .guide-card, .wrap > h1, .sub, .owners-note, .hero-logo { display: none !important; }
       .wrap { padding: 0 !important; max-width: 100% !important; }
       #pdf-print-content { display: block !important; font-family: 'Titillium Web', sans-serif; font-size: 17px; color: #111; line-height: 1.85; }
 
@@ -241,6 +243,7 @@
     <img src="/images/carousel/entirenode/wholekit-gen2.png" alt="Survival Node Gen 2 complete kit" class="hero-logo" />
     <h1>Survival Node User Guide</h1>
     <div class="sub">One page for setup, operation, maintenance, troubleshooting, and legal notices.</div>
+    <p class="owners-note">Had your kit a while? See what's changed since it shipped, and how to add it: <a href="/owners.html">easternshore.ai/owners</a></p>
 
     <h2 class="topics-label" id="guide-topics-label">Guide</h2>
     <section class="topics topics-guide" id="topics-guide" aria-labelledby="guide-topics-label"></section>
