@@ -39,6 +39,7 @@ const SITE = 'https://www.easternshore.ai';
 
 export const ITEM = {
   item_id: 'SN-GEN2', // same id as merchant-feed.xml
+  mpn: 'SN-GEN2', // same as merchant-feed.xml g:mpn and the JSON-LD
   url: `${SITE}/node.html`,
   brand: 'Eastern Shore AI',
   seller_name: 'Eastern Shore AI',
@@ -63,7 +64,7 @@ export const ITEM = {
 
 // The order fields are written in (OpenAI's schema order).
 export const FIELDS = [
-  'item_id', 'title', 'description', 'url', 'brand', 'seller_name', 'image_url', 'availability',
+  'item_id', 'mpn', 'title', 'description', 'url', 'brand', 'seller_name', 'image_url', 'availability',
   'price', 'sale_price', 'target_countries', 'store_country', 'is_eligible_search', 'condition',
   'product_category', 'dimensions', 'additional_image_urls', 'seller_url', 'shipping_price', 'accepts_returns',
   'return_deadline_in_days', 'return_policy', 'review_count', 'star_rating', 'seller_privacy_policy', 'seller_tos'
