@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://b893ca94.sibforms.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VDFQV9B1J"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3VDFQV9B1J');
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Important Software Update for Survival Node Owners | Eastern Shore AI</title>
+  <meta name="description" content="If your Survival Node was prepared before November 17, 2026, please update the instructions behind its AI. It takes about two minutes and works offline." />
+  <!-- The Survival Node Pal update notice (Red, 2026-11-18), the page social posts link to. Unlisted like the
+       owners page: noindex, not in sitemap.xml, support only (no prices, buy buttons or sales). Its #pal-prompt
+       must match the other copies (worker/tests/pal-sync.test.mjs). -->
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://www.easternshore.ai/pal-update.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Important software update for Survival Node owners" />
+  <meta property="og:description" content="If your Survival Node was prepared before November 17, 2026, please update its AI's instructions. It takes about two minutes and works offline." />
+  <meta property="og:url" content="https://www.easternshore.ai/pal-update.html" />
+  <meta property="og:image" content="https://www.easternshore.ai/images/survival-node-og.jpg?v=20261117" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="800" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Important software update for Survival Node owners" />
+  <meta name="twitter:description" content="If your Survival Node was prepared before November 17, 2026, please update its AI's instructions. It takes about two minutes and works offline." />
+  <meta name="twitter:image" content="https://www.easternshore.ai/images/survival-node-og.jpg?v=20261117" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card: #131926;
+      --card-2: #0f1321;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #c7a6ff;
+      --orange: #ffb35c;
+      --green: #8ee6a8;
+      --red: #ff8a8a;
+    }
+    * { box-sizing: border-box; }
+    html { background: #000; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      background:
+        radial-gradient(circle at 18% 6%, rgba(190, 220, 255, 0.14), transparent 35%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 50%, #090b11 100%);
+      background-color: #000;
+      color: var(--text);
+      min-height: 100vh;
+    }
+    h1, h2, h3, .btn, .back-btn, .kicker, .tag, .jump a, summary { font-family: 'Hanken Grotesk', system-ui, sans-serif; }
+    a { color: var(--cyan); }
+    strong { color: #fff; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      margin: 1rem 0 0 1rem;
+      padding: .55rem .9rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: .78rem;
+      color: #f4f9ff; text-decoration: none;
+      background: linear-gradient(145deg, #5f7597, #8fa6c8);
+      border: 1px solid rgba(198, 220, 255, .55);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+    }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+
+    /* Hero */
+    .hero { text-align: center; margin: .4rem 0 1.4rem; }
+    .hero-icon { width: 76px; height: 76px; border-radius: 50%; display: block; margin: 0 auto .7rem; box-shadow: 0 0 22px rgba(158, 208, 255, .35); }
+    .kicker { margin: 0; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); font-weight: 700; }
+    h1 { margin: .2rem 0 .7rem; font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1.15; }
+    .lead { margin: 0 auto; max-width: 640px; color: #d6deee; }
+    .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+    .facts li { background: var(--card-2); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .85rem; font-size: .95rem; color: #d6deee; }
+    .updated { margin: .8rem 0 0; font-size: .92rem; color: var(--muted); }
+
+    /* Jump links */
+    .jump { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0 0 1.2rem; padding: 0; list-style: none; justify-content: center; }
+    .jump a { display: inline-block; padding: .4rem .8rem; border-radius: 8px; border: 1px solid var(--line); background: var(--card-2); color: #fff; text-decoration: none; font-weight: 700; font-size: .92rem; }
+    .jump a:active { transform: translateY(1px); }
+
+    /* Cards */
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1.15rem 1.15rem 1.2rem; margin: 0 0 1.1rem; }
+    .card h2 { margin: 0 0 .6rem; font-size: 1.35rem; line-height: 1.25; color: var(--cyan); }
+    .card h3 { margin: 0; font-size: 1.22rem; line-height: 1.3; color: #fff; }
+    .card h4 { margin: 1rem 0 .2rem; font-family: 'Hanken Grotesk', sans-serif; font-size: 1.05rem; color: #fff; }
+    .card p { margin: .55rem 0; }
+    .card ul, .card ol { margin: .5rem 0; padding-left: 1.4rem; }
+    .card li { margin: .35rem 0; }
+    .small { font-size: 1rem; color: var(--muted); }
+    .addr { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.05em; background: #0a0d16; border: 1px solid var(--line); border-radius: 6px; padding: .05rem .4rem; color: #fff; overflow-wrap: anywhere; }
+    .addr-block { display: block; width: fit-content; max-width: 100%; margin: .5rem 0 .2rem; padding: .35rem .7rem; font-size: 1.05rem; }
+    .app { white-space: nowrap; font-weight: 700; color: #fff; }
+    .app img { width: 1.5em; height: 1.5em; border-radius: 50%; vertical-align: -.4em; margin-right: .25rem; }
+    .device { border-color: rgba(255, 179, 92, .55); background: linear-gradient(145deg, rgba(255, 179, 92, .12), rgba(19, 25, 38, 1) 60%); }
+    .device h2 { color: var(--orange); }
+
+    /* Section headings */
+    .section-title { margin: 2rem 0 .3rem; font-size: 1.6rem; line-height: 1.2; scroll-margin-top: 1rem; }
+    .section-intro { margin: 0 0 1rem; color: #d6deee; }
+
+    /* One update */
+    .item { scroll-margin-top: 1rem; }
+    .item-head { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .6rem; margin: 0 0 .5rem; }
+    .item-head h3 { flex: 1 1 100%; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; border-radius: 999px; padding: .15rem .6rem; border: 1px solid; }
+    .tag.important { color: #ffd0d0; border-color: rgba(255, 138, 138, .7); background: rgba(255, 138, 138, .16); }
+    .tag.recommended { color: var(--cyan); border-color: rgba(158, 208, 255, .6); background: rgba(158, 208, 255, .1); }
+    .tag.optional { color: var(--muted); border-color: var(--line); background: var(--card-2); }
+    .meta { font-size: .9rem; color: var(--muted); }
+    .item.important { border-color: rgba(255, 138, 138, .55); background: linear-gradient(160deg, rgba(255, 138, 138, .09), rgba(19, 25, 38, 1) 45%); }
+
+    .check { border: 1px solid rgba(142, 230, 168, .5); background: rgba(142, 230, 168, .07); border-radius: 8px; padding: .6rem .8rem; margin: .7rem 0; }
+    .check b { display: block; font-family: 'Hanken Grotesk', sans-serif; color: var(--green); font-size: 1rem; margin-bottom: .1rem; }
+    .check p { margin: .2rem 0; }
+
+    details.howto { margin: .7rem 0 0; border-top: 1px solid var(--line); padding-top: .6rem; }
+    details.howto > summary { cursor: pointer; font-weight: 700; color: var(--cyan); font-size: 1.05rem; padding: .2rem 0; }
+    details.howto[open] > summary { margin-bottom: .3rem; }
+
+    .callout { border-left: 3px solid var(--cyan); background: rgba(158, 208, 255, .07); padding: .6rem .85rem; margin: .8rem 0 0; border-radius: 0 6px 6px 0; }
+    .callout.warn { border-left-color: var(--orange); background: rgba(255, 179, 92, .08); }
+    .callout.danger { border-left-color: var(--red); background: rgba(255, 138, 138, .09); }
+    .callout p:first-child { margin-top: 0; }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* Survival Node Pal instructions */
+    .prompt-box { background: #070910; border: 1px solid rgba(158, 208, 255, .2); border-left: 3px solid var(--cyan); border-radius: 0 6px 6px 0; padding: .85rem 1rem; margin: .6rem 0 .4rem; font-size: .82rem; color: #b8f0ff; white-space: pre-wrap; line-height: 1.6; font-family: ui-monospace, Menlo, Consolas, monospace; max-height: 22rem; overflow: auto; }
+    .copy-btn {
+      display: block; width: 100%; max-width: 420px; margin: .9rem auto .3rem; padding: .85rem 1rem; border: 0; border-radius: 10px; cursor: pointer;
+      font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem; color: #0b0d13;
+      background: linear-gradient(145deg, #ffd08f, var(--orange)); box-shadow: 0 0 18px rgba(255, 179, 92, .4);
+    }
+    .copy-note { text-align: center; min-height: 1.4em; margin: .2rem 0 0; font-weight: 700; color: var(--green); font-size: 1rem; }
+
+    /* Buttons and links out */
+    .btn {
+      display: block; width: 100%; max-width: 460px; margin: .9rem auto .3rem;
+      padding: .9rem 1.1rem; text-align: center; text-decoration: none;
+      font-weight: 700; font-size: 1.1rem; color: #0b0d13;
+      background: linear-gradient(145deg, #bfe2ff, var(--cyan));
+      border-radius: 10px; box-shadow: 0 0 14px rgba(158, 208, 255, .35);
+    }
+    .btn:active { transform: translateY(1px); }
+    .fdroid { font-size: .95rem; }
+
+    /* Library table */
+    table.libs { width: 100%; border-collapse: collapse; margin: .6rem 0; font-size: 1rem; }
+    table.libs th, table.libs td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    table.libs th { font-family: 'Hanken Grotesk', sans-serif; font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    table.libs td.size { white-space: nowrap; text-align: right; color: #d6deee; }
+    table.libs th.size { text-align: right; }
+    table.libs tr.total td { font-weight: 700; color: #fff; border-bottom: 0; }
+    table.libs .new { font-size: .75rem; font-weight: 700; color: var(--green); margin-left: .3rem; white-space: nowrap; }
+    table.libs .aka { display: block; font-size: .88rem; color: var(--muted); }
+
+    /* Hardware */
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin: .8rem 0 .2rem; }
+    .compare > div { background: var(--card-2); border: 1px solid var(--line); border-radius: 10px; padding: .8rem; min-width: 0; }
+    .compare h4 { margin: 0 0 .5rem; }
+    .photos { display: flex; gap: .5rem; align-items: flex-end; justify-content: center; margin: 0 0 .6rem; }
+    .photos img { display: block; max-width: 100%; height: auto; border-radius: 8px; background: #fff; }
+    .photos.two img { height: 180px; width: calc(50% - .25rem); object-fit: contain; padding: .3rem; }
+    .compare ul { padding-left: 1.15rem; font-size: 1rem; }
+    @media (max-width: 560px) { .compare { grid-template-columns: 1fr; } }
+
+    .wall { display: flex; gap: 1rem; align-items: flex-start; margin: .6rem 0; }
+    .wall img { width: 110px; height: auto; border-radius: 10px; border: 2px solid #3a4560; flex: none; }
+
+    .help { text-align: center; }
+    .help .big { font-family: 'Hanken Grotesk', sans-serif; font-size: 1.45rem; font-weight: 700; margin: .3rem 0; }
+    .help .big a { color: #fff; text-decoration: none; }
+
+    /* Email sign-up (same Brevo form as guide-update.html) */
+    .signup { border-color: rgba(158, 208, 255, .5); }
+    .signup form { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0 .3rem; position: relative; }
+    .signup input[type="email"] {
+      flex: 1 1 220px; min-width: 0; padding: .75rem .85rem;
+      font: inherit; font-size: 1.05rem; color: var(--text);
+      background: #0a0d16; border: 1px solid var(--line); border-radius: 8px;
+    }
+    .signup input[type="email"]:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
+    .signup button {
+      flex: 0 0 auto; padding: .75rem 1.3rem; border: 0; border-radius: 8px; cursor: pointer;
+      font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; color: #0b0d13;
+      background: linear-gradient(145deg, #bfe2ff, var(--cyan)); box-shadow: 0 0 14px rgba(158, 208, 255, .35);
+    }
+    .signup button:disabled { opacity: .6; cursor: default; }
+    .signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .signup-status { min-height: 1.5em; margin: .2rem 0 0; font-weight: 700; }
+    .signup-status.ok { color: var(--green); }
+    .signup-status.err { color: var(--red); }
+    @media (max-width: 400px) { .signup button { flex: 1 1 100%; } }
+
+    footer { border-top: 1px solid var(--line); margin-top: 2rem; padding: 1.2rem 1rem calc(1.4rem + env(safe-area-inset-bottom)); text-align: center; color: var(--muted); font-size: .95rem; }
+    footer a { color: var(--muted); margin: 0 .45rem; display: inline-block; }
+  </style>
+</head>
+<body>
+  <a class="back-btn" href="/owners.html">← All owner updates</a>
+
+  <main class="wrap">
+    <header class="hero">
+      <img class="hero-icon" src="/images/guide-icons/pocketpal.webp" alt="" width="76" height="76" />
+      <p class="kicker">Important software update</p>
+      <h1>Update Your Survival Node's AI Instructions</h1>
+      <p class="lead">If your Survival Node was prepared before November 17, 2026, please take two minutes to update the instructions behind its AI. It works offline and doesn't change anything else on your phone.</p>
+      <ul class="facts">
+        <li>⏱ About 2 minutes</li>
+        <li>📴 Works offline</li>
+        <li>🗂 Your chats, maps and files stay put</li>
+      </ul>
+      <p class="updated">Posted November 18, 2026</p>
+    </header>
+
+    <section class="card" aria-labelledby="why-title">
+      <h2 id="why-title">What happened</h2>
+      <p>The <strong>Survival Node</strong> Pal in PocketPal is the AI set up for survival, first aid and field repair. In our ongoing, periodic QA testing, its earlier instructions sometimes led the AI to give unsafe drinking-water advice. On November 17, 2026 we rewrote them.</p>
+      <p>With the new instructions, the AI gives the standard, proven method first (the one the CDC, Red Cross, FEMA or U.S. Army teaches), doesn't make up numbers, and knows the CDC's drinking-water figures. Every kit prepared from November 17, 2026 already has them.</p>
+    </section>
+
+    <section class="card item important" id="pal" aria-labelledby="pal-title">
+      <div class="item-head">
+        <span class="tag important">Important · Safety</span>
+        <span class="meta">⏱ About 2 minutes · works offline</span>
+        <h3 id="pal-title">Update the Survival Node Pal's instructions</h3>
+      </div>
+      <p>Do these steps on your <strong>Survival Node phone</strong>. The easiest way is to open this page on the phone itself, so the Copy button below works there: connect to Wi-Fi, open <span class="app"><img src="/images/guide-icons/fennec.webp" alt="" />Fennec</span>, and type <strong>easternshore.ai/pal-update</strong> in the address bar.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>You open <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>, tap the <strong>Survival Node</strong> card, and the <strong>System Prompt</strong> box starts with <em>"You are Survival Node, an offline advisor"</em>.</p>
+      </div>
+      <details class="howto" open>
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Tap <strong>Copy the new instructions</strong> below. (Or press and hold the instructions, tap <strong>Select all</strong>, then <strong>Copy</strong>.)</li>
+          <li>Open <strong>PocketPal</strong>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>.</li>
+          <li>Tap the <strong>Survival Node</strong> card. The <strong>Edit Pal</strong> screen opens.</li>
+          <li>Press and hold the text in the <strong>System Prompt</strong> box, tap <strong>Select all</strong>, then tap <strong>Paste</strong>.</li>
+          <li>Tap <strong>Save</strong> at the bottom.</li>
+          <li>Go back to the chat and start a new one with the pencil button at the top right. The new instructions apply to new chats.</li>
+        </ol>
+        <button class="copy-btn" type="button" id="copy-pal">Copy the new instructions</button>
+        <p class="copy-note" id="pal-copy-note" role="status" aria-live="polite"></p>
+        <!-- Must match survival_prompt.txt exactly, like node-setup.html (palPromptBox), the guide app and owners.html
+             (#pal-prompt). worker/tests/pal-sync.test.mjs fails if the copies differ. -->
+        <pre class="prompt-box" id="pal-prompt">You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
+
+Rules:
+1. Answer right away, with no greetings or filler.
+2. If the topic can hurt someone (medical care, drinking water, food, fire, electricity, chemicals), start with a short **CRITICAL SAFETY WARNING**.
+3. Give the standard, proven method first: the one the CDC, Red Cross, FEMA or the U.S. Army teaches. Then give backups, and say what each backup can't do.
+4. Never make up a number. Give a measurement, dose, ratio or time only if it is a well-known standard. If you aren't sure of a number, say so and point to the Survival Manual or WikiMed on this phone.
+5. Never call something safe to drink, eat or use unless the steps you gave make it safe.
+6. Use numbered steps for procedures and short bullet lists for supplies.
+7. Assume no internet and limited supplies. Improvise only with methods known to work.
+8. For a serious injury or illness, say to get medical help as soon as possible.
+
+Drinking water (CDC):
+- Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
+- Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
+- Bleach: plain, unscented household bleach (5-9%). 2 drops per liter (8 per gallon); 4 drops per liter if the water is cloudy, colored or very cold. Stir, then wait at least 30 minutes.
+- Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>
+        <p class="small">No internet where you are? The <strong>User Guide</strong> app has these same steps and a Copy button that works offline, from version 1.17 (under <strong>Update the Survival Node Pal</strong>).</p>
+        <p class="small">Don't see a <strong>Survival Node</strong> card under Pals? Call or text us and we'll set it up with you.</p>
+      </details>
+
+      <div class="callout danger" id="which-model">
+        <p><strong>Use Qwen 3.5 4B for first aid, drinking water and anything you'll act on.</strong> In our tests on November 17, 2026, the Qwen 3.5 4B model answered water, bleeding and hypothermia questions correctly, and the smaller Qwen 3.5 2B got the first-aid questions wrong. Use the 2B for voice and quick, low-stakes questions. Always check critical answers against WikiMed or the Survival Manual on the phone.</p>
+      </div>
+      <div class="check">
+        <b>✅ Check which model the Pal uses</b>
+        <p>In PocketPal, tap <strong>☰</strong>, then <strong>Pals</strong>, then the <strong>Survival Node</strong> card. <strong>Default Model</strong> should be <strong>Qwen3.5-4B</strong>. If it isn't, tap it, choose Qwen3.5-4B and tap <strong>Save</strong>.</p>
+        <p>No Qwen3.5-4B to choose? Kits sold before mid-September 2026 came with different AI models. To add it: connect to Wi-Fi, open PocketPal, tap <strong>☰</strong>, then <strong>Models</strong>, tap the <strong>+</strong> button, then <strong>Add from Hugging Face</strong>. Search for <strong>Qwen3.5-4B</strong>, tap the result from unsloth, and download <strong>Qwen3.5-4B-Q4_K_M.gguf</strong> (about 2.7 GB). Then set it as the Default Model as above.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="terms-title">
+      <h2 id="terms-title">A reminder from our terms</h2>
+      <p>The AI's answers are for education and reference only and don't replace professional medical, tactical, legal or emergency-response guidance. Check anything important against the references on the phone, such as the Survival Manual and WikiMed, and get medical help as soon as you can.</p>
+    </section>
+
+    <section class="card" aria-labelledby="more-title">
+      <h2 id="more-title">More updates for your kit</h2>
+      <p>Newer apps, AI models and reference libraries we've added since your kit shipped are on the owners page, each with a quick check and the steps to add it yourself.</p>
+      <p><a class="btn" href="/owners.html">See all owner updates →</a></p>
+    </section>
+
+    <section class="card help" id="help" aria-labelledby="stuck-title">
+      <h2 id="stuck-title">Stuck? We'll walk you through it</h2>
+      <p><strong>Ask K</strong>, our AI assistant, knows the Survival Node and can walk you through any step on this page.</p>
+      <p><a class="btn" href="/node.html#ask-k">Ask K a question →</a></p>
+      <p class="small">K opens on our Survival Node page. To reach a person instead, tap <strong>Talk to a human</strong> there. Like the AI on your phone, K's answers are for education and reference only.</p>
+      <p class="big"><a href="tel:+13029079162">(302) 907-9162</a></p>
+      <p>Call or text, or email <a href="mailto:support@easternshore.ai">support@easternshore.ai</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© <span id="year">2026</span> Eastern Shore AI, LLC</p>
+    <p><a href="/node-setup.html">Online User Guide</a><a href="/guide-update.html">Guide updates</a><a href="/licenses.html">Licenses</a><a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a></p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Copy the Survival Node Pal's instructions to the clipboard.
+    (function () {
+      const btn = document.getElementById('copy-pal');
+      const note = document.getElementById('pal-copy-note');
+      const text = () => document.getElementById('pal-prompt').textContent;
+      const done = ok => {
+        note.textContent = ok
+          ? 'Copied. Now open PocketPal and paste them into the System Prompt box (step 4).'
+          : "Couldn't copy here. Press and hold the instructions below, tap Select all, then Copy.";
+        note.style.color = ok ? '' : 'var(--orange)';
+      };
+      const fallback = () => {
+        const area = document.createElement('textarea');
+        area.value = text();
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        area.setSelectionRange(0, area.value.length);
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(area);
+        done(ok);
+      };
+      btn.addEventListener('click', () => {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text()).then(() => done(true), fallback);
+        } else {
+          fallback();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

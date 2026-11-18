@@ -1,8 +1,9 @@
 // The Survival Node Pal's instructions (survival_prompt.txt on the phones, rewritten 2026-11-17) are shown to
 // owners in three places: the online guide (node-setup.html, palPromptBox), the guide app
-// (survival-node-app/index.html, #pal-prompt) and the owners page (owners.html, #pal-prompt). Owners copy them
-// into PocketPal, so every copy must be the same text, word for word. When the instructions change, change all
-// three (and survival_prompt.txt on Alamo); this test fails until they match.
+// (survival-node-app/index.html, #pal-prompt), the owners page (owners.html, #pal-prompt) and the update notice
+// that social posts link to (pal-update.html, #pal-prompt, 2026-11-18). Owners copy them into PocketPal, so every
+// copy must be the same text, word for word. When the instructions change, change all four (and survival_prompt.txt
+// on Alamo); this test fails until they match.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -26,9 +27,10 @@ function onlineGuide() {
   return decode(m[1]);
 }
 
-test('Survival Node Pal instructions are identical in the online guide, the guide app and the owners page', () => {
+test('Survival Node Pal instructions are identical in the online guide, the guide app, the owners page and the notice', () => {
   const web = onlineGuide();
   assert.match(web, /^You are Survival Node, an offline advisor/);
   assert.equal(preById('survival-node-app/index.html'), web, 'guide app #pal-prompt differs from node-setup.html');
   assert.equal(preById('owners.html'), web, 'owners.html #pal-prompt differs from node-setup.html');
+  assert.equal(preById('pal-update.html'), web, 'pal-update.html #pal-prompt differs from node-setup.html');
 });
