@@ -14,7 +14,7 @@ import { emailLayout, emailButton, emailButtonRow, detailsBox, callout, emailPar
 import { handleEmailEventBatch } from './email-events.js';
 import { handlePageVisit } from './page-visits.js';
 import { createReviewHandlers, ensureReviewInvite, reviewStarsHtml, reviewStarsText, GOOGLE_REVIEW_LINK } from './reviews.js';
-import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, wantsOrderStatus, ASKK_CONVERSATION_LIMIT, ASKK_SURVIVAL_NODE, ASKK_FOLDER_TO_FILM } from './ask-k-claude.js';
+import { answerAskK, checkAskKVisitor, recordAskKBlocked, sendAskKDailySummary, wantsOrderStatus, ASKK_CONVERSATION_LIMIT, ASKK_KNOWLEDGE_MAX_CHARS, ASKK_SURVIVAL_NODE, ASKK_FOLDER_TO_FILM } from './ask-k-claude.js';
 import { sendOrderStatusEmail, normalizeOrderNumber, normalizeShipDate, longDate } from './order-status.js';
 import { nodePrice, nodePriceSentence, easternDate } from './node-price.js';
 import { runNodePriceDispatch, runNodePriceFeedCheck, DISPATCH_CRONS, FEED_CHECK_CRONS } from './node-price-dispatch.js';
@@ -7095,7 +7095,7 @@ async function handleAskK(request, env, corsHeaders, url, { admin = false, deplo
       history,
       context,
       systemPrompt: isFilm ? filmAskKSystemPrompt(dash) : askKSystemPrompt(),
-      knowledge: clipAskKKnowledge(isFilm ? ASKK_FOLDER_TO_FILM_KNOWLEDGE : ASKK_SURVIVAL_NODE_KNOWLEDGE, 20000),
+      knowledge: clipAskKKnowledge(isFilm ? ASKK_FOLDER_TO_FILM_KNOWLEDGE : ASKK_SURVIVAL_NODE_KNOWLEDGE, ASKK_KNOWLEDGE_MAX_CHARS),
       deployment: dep,
     }, {
       notify: sendAskKAlert,
@@ -7272,9 +7272,11 @@ function getAskKCannedTestingReply(question, context = {}) {
   return '';
 }
 
-function clipAskKKnowledge(text, max = 20000) {
+function clipAskKKnowledge(text, max = ASKK_KNOWLEDGE_MAX_CHARS) {
   const s = String(text || '').trim();
-  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+  if (s.length <= max) return s;
+  console.warn(`Ask K knowledge is ${s.length} characters, over the ${max} limit; the end is cut off`);
+  return `${s.slice(0, max - 1)}…`;
 }
 
 /**

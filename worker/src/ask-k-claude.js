@@ -39,6 +39,10 @@ const PRICE = {
 };
 
 export const ASKK_CONVERSATION_LIMIT = 20;
+// Ask K reads its whole knowledge file (cached as the first system block). It was cut at 20,000 characters
+// until 2026-11-18, which hid returns, warranty, cancellations and the owner FAQ once the file passed 20 KB.
+// tests/askk-knowledge-size.test.mjs fails if a knowledge file gets near this.
+export const ASKK_KNOWLEDGE_MAX_CHARS = 60000;
 const PASS_TTL_SECS = 2 * 3600;
 
 export const ASKK_BUSY_REPLY = "Ask K is busy right now. Our team can help directly: call (302) 907-9162 or use the contact form on easternshore.ai.";
