@@ -45,6 +45,8 @@ export const ITEM = {
   availability: 'in_stock',
   condition: 'used',
   product_category: 'Home & Garden > Emergency Preparedness > Emergency Tools & Kits',
+  // the hard case the kit comes in (testing.html); no net weight is published, so no `weight`
+  dimensions: { length: '14.96', width: '11.81', height: '5.51', unit: 'in' },
   target_countries: ['US'],
   store_country: 'US',
   is_eligible_search: true,
@@ -62,7 +64,7 @@ export const ITEM = {
 export const FIELDS = [
   'item_id', 'title', 'description', 'url', 'brand', 'seller_name', 'image_url', 'availability',
   'price', 'sale_price', 'target_countries', 'store_country', 'is_eligible_search', 'condition',
-  'product_category', 'additional_image_urls', 'seller_url', 'shipping_price', 'accepts_returns',
+  'product_category', 'dimensions', 'additional_image_urls', 'seller_url', 'shipping_price', 'accepts_returns',
   'return_deadline_in_days', 'return_policy', 'seller_privacy_policy', 'seller_tos'
 ];
 
@@ -125,7 +127,7 @@ export function buildFeed(googleFeedXml, now = new Date()) {
   const item = buildItem(googleFeedXml, now);
   const values = FIELDS.map((f) => {
     const v = item[f];
-    if (f === 'target_countries') return JSON.stringify(v);
+    if (f === 'target_countries' || f === 'dimensions') return JSON.stringify(v);
     if (f === 'additional_image_urls') return v.join(',');
     return cell(v);
   });

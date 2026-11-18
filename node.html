@@ -238,6 +238,26 @@
     @media (max-width: 540px) {
       .buyer-review-source { flex-basis: 100%; margin-left: 0; }
     }
+    /* Specs at a glance: a plain table so shoppers and AI assistants can read the facts in one place */
+    .specs-glance { margin: 1rem 0; padding: clamp(1rem, 3vw, 1.5rem); }
+    .specs-glance h2 { margin-bottom: .35rem; font-size: 1.15rem; }
+    .specs-glance-sub { margin: 0 0 .9rem; color: var(--muted); font-size: .9rem; }
+    .specs-table { width: 100%; border-collapse: collapse; font-size: .95rem; line-height: 1.45; }
+    .specs-table th, .specs-table td { padding: .6rem .75rem; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .specs-table tr:first-child th, .specs-table tr:first-child td { border-top: 0; }
+    .specs-table th {
+      width: 11rem; color: var(--cyan); font-family: 'Hanken Grotesk', sans-serif;
+      font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .specs-table td { color: var(--text); }
+    .specs-table td small { display: block; margin-top: .2rem; color: var(--muted); font-size: .82rem; }
+    .specs-table a { color: var(--cyan); text-underline-offset: .2em; }
+    @media (max-width: 600px) {
+      .specs-table, .specs-table tbody, .specs-table tr, .specs-table th, .specs-table td { display: block; width: auto; }
+      .specs-table tr { padding: .55rem 0; border-top: 1px solid var(--line); }
+      .specs-table tr:first-child { border-top: 0; }
+      .specs-table th, .specs-table td { border-top: 0; padding: .1rem 0; }
+    }
     ul { padding-left: 1.15rem; margin-top: .6rem; }
     li { margin: .45rem 0; }
     .ghost-intro {
@@ -1443,6 +1463,20 @@
       "mpn": "SN-GEN2",
       "category": "Emergency Preparedness Kit",
       "brand": { "@type": "Brand", "name": "Eastern Shore AI" },
+      "width": { "@type": "QuantitativeValue", "value": 14.96, "unitCode": "INH" },
+      "depth": { "@type": "QuantitativeValue", "value": 11.81, "unitCode": "INH" },
+      "height": { "@type": "QuantitativeValue", "value": 5.51, "unitCode": "INH" },
+      "additionalProperty": [
+        { "@type": "PropertyValue", "name": "Phone", "value": "Motorola Moto G Power (2024)" },
+        { "@type": "PropertyValue", "name": "RAM", "value": "8 GB" },
+        { "@type": "PropertyValue", "name": "Storage", "value": "128 GB" },
+        { "@type": "PropertyValue", "name": "Offline AI models", "value": "Qwen 3.5 4B and Qwen 3.5 2B" },
+        { "@type": "PropertyValue", "name": "Offline content", "value": "50GB+ of apps, maps and references" },
+        { "@type": "PropertyValue", "name": "Solar battery capacity", "value": "24,000 mAh" },
+        { "@type": "PropertyValue", "name": "Faraday bags", "value": "2 Mission Darkness bags" },
+        { "@type": "PropertyValue", "name": "Hard case size", "value": "14.96 × 11.81 × 5.51 in (380 × 300 × 140 mm)" },
+        { "@type": "PropertyValue", "name": "Warranty", "value": "30 days" }
+      ],
       "url": "https://www.easternshore.ai/node.html",
       "offers": {
         "@type": "Offer",
@@ -1459,6 +1493,10 @@
             "@type": "OfferShippingDetails",
             "shippingRate": { "@type": "MonetaryAmount", "value": "0", "currency": "USD" },
             "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "US" },
+            "weight": { "@type": "QuantitativeValue", "value": 8.5, "unitCode": "LBR" },
+            "depth": { "@type": "QuantitativeValue", "value": 16, "unitCode": "INH" },
+            "width": { "@type": "QuantitativeValue", "value": 13, "unitCode": "INH" },
+            "height": { "@type": "QuantitativeValue", "value": 7, "unitCode": "INH" },
             "deliveryTime": {
               "@type": "ShippingDeliveryTime",
               "handlingTime": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 7, "unitCode": "DAY" },
@@ -1548,6 +1586,38 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "<p>Other products in this space typically use a Raspberry Pi, a laptop, or a tablet as the base hardware — and those are all legitimate options, with one critical problem: <strong>power</strong>.</p> <p>In a long-term grid-down scenario, keeping a laptop charged with a solar battery is genuinely difficult. Laptops draw 30–80W+ under load — a solar panel that works well for a phone will barely trickle-charge a laptop, especially on overcast days. Tablets are better, but still draw significantly more power than a phone, and few tablets are designed to run machine learning workloads efficiently.</p> <p>A smartphone is the most power-efficient computing platform ever built for its performance class. It runs on a battery measured in watt-hours, not tens of watt-hours — and our included solar battery can fully charge it multiple times over. That power efficiency is what makes the Survival Node viable for genuine long-term grid independence, not just a short power outage.</p> <p><strong>Why a phone specifically — and why 8GB RAM?</strong></p> <ul> <li><strong>Processing power to run models locally:</strong> Most phones don't have enough RAM to run a meaningful local AI model at all. We specifically source 8GB RAM units because that's the minimum floor for loading a capable quantized LLM in memory and getting real, useful output — not a toy chatbot. Raspberry Pi builds often hit this same wall: the 8GB Pi 5 is close, but then you're back to power draw and form factor problems.</li> <li><strong>The perfect survival app platform:</strong> A phone already has offline maps, a GPS chip, a camera, a flashlight, a compass, Bluetooth, and a mature app ecosystem of survival and field-reference tools. A Raspberry Pi needs peripherals, a screen, a keyboard, and a case before it's even usable in the field.</li> <li><strong>Ask questions with your voice:</strong> The built-in microphone lets you speak your question instead of typing it. In a field situation — hands dirty, cold, dealing with an injury or equipment problem — being able to just ask out loud is a real advantage over a keyboard. Voice input runs on the smaller Qwen 3.5 2B model, because the 4B model needs too much memory to run alongside it. PocketPal may show a \"Memory is tight\" warning when you use the mic with Qwen 3.5 2B. Voice input still works; answers just take longer.</li> <li><strong>Pocketable and deployable:</strong> The Survival Node fits in a cargo pocket or a pack. A Raspberry Pi build requires a bag just to carry the components. A laptop requires its own case and charger. In an emergency, form factor matters.</li> <li><strong>Sealed and ready:</strong> Our phone arrives with the OS hardened, software pre-loaded, maps downloaded, AI persona configured, and battery tested. A Raspberry Pi build requires flashing an OS image, wiring components, solving dependencies, and configuring everything yourself — none of which you want to be doing when you actually need it.</li> </ul> <p>If you're technically inclined and want to build something from scratch, a Raspberry Pi is a great project. But the Survival Node is an operational tool built around the most practical form factor for off-grid AI — and one you can recharge from the sun with real-world hardware, not a lab setup.</p>"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is it different from a USB drive or hard drive of survival books and PDFs?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "<p>A drive only holds files. To read it, you need a working laptop or phone and a way to keep that device charged.</p> <p>The Survival Node is the whole system in one weatherproof case: the screen, the battery, the solar charger and the content, plus offline maps and directions for the entire U.S. and two AI models you can ask questions in plain language. If you already have a drive, keep it as a backup copy.</p>"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it replace a satellite messenger or two-way radio?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "<p>No. The Survival Node is for knowing what to do and where to go when the grid and internet are down. It isn't designed or tested for calls, texts or 911, and it can't call for help.</p> <p>If you need to send messages or an SOS from places with no cell service, add a satellite messenger or a two-way radio to your kit. The phone has the Meshtastic app for off-grid texting, but that needs a separately purchased Meshtastic radio; none is included.</p>"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I still need printed survival books?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "<p>We'd keep a few. Books need no power, so a short shelf of printed essentials, like a first-aid guide and paper maps of your area, is a good backup to any electronic device.</p> <p>What the Survival Node adds is scale and speed: over 10GB of medical references and over 10GB of survival references, summaries of every Wikipedia article, offline maps and directions for the whole U.S., and AI you can ask questions in plain language, all in one case.</p>"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it a complete emergency kit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "<p>No, it's the information part of being prepared. It doesn't include food, water, a first-aid kit or a radio. Pair it with a standard emergency kit; FEMA's Ready.gov has a checklist of what to put in one.</p>"
           }
         },
         {
@@ -1952,6 +2022,25 @@
       </figure>
     </section>
 
+    <section class="card specs-glance" id="specs" aria-labelledby="specs-title">
+      <h2 id="specs-title">Specs at a glance</h2>
+      <p class="specs-glance-sub">Survival Node Gen 2: everything in the kit, in one place.</p>
+      <table class="specs-table">
+        <tbody>
+          <tr><th scope="row">Phone</th><td>Motorola Moto G Power (2024), 8GB RAM, 128GB storage<small>Brand new or open box, hand-vetted for battery life and performance. Debloated Android.</small></td></tr>
+          <tr><th scope="row">Offline AI</th><td>2 AI models that run on the phone: Qwen 3.5 4B (main) and Qwen 3.5 2B (faster, for voice questions)<small>Preset "Survival Node" assistant in the PocketPal app. No internet or cell signal needed.</small></td></tr>
+          <tr><th scope="row">Offline content</th><td>50GB+ of apps, maps and references<small>Maps and directions for the entire U.S., over 10GB of medical references, over 10GB of survival references and videos, summaries of every Wikipedia article, a translator for 60+ languages, and compass, navigation and weather tools.</small></td></tr>
+          <tr><th scope="row">Solar battery</th><td>24,000 mAh with 3 attached cables (2× USB-C, 1× iOS), plus a USB-A port</td></tr>
+          <tr><th scope="row">Faraday bags</th><td>2 Mission Darkness bags, one for the phone and one for the battery<small>Manufacturer-rated 80+ dB attenuation, low MHz to 40 GHz.</small></td></tr>
+          <tr><th scope="row">Hard case</th><td>Weatherproof, with padlock<small>14.96 × 11.81 × 5.51 in (380 × 300 × 140 mm), 3.97 lb (1.8 kg) empty.</small></td></tr>
+          <tr><th scope="row">Also in the box</th><td>Shockproof phone case with screen protector, wall charger, USB-C cable, rechargeable desiccant pouch</td></tr>
+          <tr><th scope="row">Works without internet</th><td>The maps, AI and reference libraries<small>Not designed or tested for calls, texts or 911.</small></td></tr>
+          <tr><th scope="row">Shipping</th><td>Free ground shipping to the 48 contiguous states and D.C.<small>Ships within 1–7 business days. Shipping weight 8 lb 8 oz, box 16 × 13 × 7 in. We can't ship to Alaska, Hawaii or U.S. territories.</small></td></tr>
+          <tr><th scope="row">Warranty and returns</th><td>30-day warranty and 30-day returns<small>You pay return shipping; no restocking fee. See the <a href="/terms.html">terms</a>.</small></td></tr>
+        </tbody>
+      </table>
+    </section>
+
     <article class="card" id="choose-kit">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:.6rem; flex-wrap:wrap; margin-bottom:.7rem;">
           <h2 style="margin:0;">Get Your Survival Node Now While Supplies Last</h2>
@@ -2186,6 +2275,33 @@
               <li><strong>Sealed and ready:</strong> Our phone arrives with the OS hardened, software pre-loaded, maps downloaded, AI persona configured, and battery tested. A Raspberry Pi build requires flashing an OS image, wiring components, solving dependencies, and configuring everything yourself — none of which you want to be doing when you actually need it.</li>
             </ul>
             <p>If you're technically inclined and want to build something from scratch, a Raspberry Pi is a great project. But the Survival Node is an operational tool built around the most practical form factor for off-grid AI — and one you can recharge from the sun with real-world hardware, not a lab setup.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How is it different from a USB drive or hard drive of survival books and PDFs?</summary>
+          <div class="answer">
+            <p>A drive only holds files. To read it, you need a working laptop or phone and a way to keep that device charged.</p>
+            <p>The Survival Node is the whole system in one weatherproof case: the screen, the battery, the solar charger and the content, plus offline maps and directions for the entire U.S. and two AI models you can ask questions in plain language. If you already have a drive, keep it as a backup copy.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Can it replace a satellite messenger or two-way radio?</summary>
+          <div class="answer">
+            <p>No. The Survival Node is for knowing what to do and where to go when the grid and internet are down. It isn't designed or tested for calls, texts or 911, and it can't call for help.</p>
+            <p>If you need to send messages or an SOS from places with no cell service, add a satellite messenger or a two-way radio to your kit. The phone has the Meshtastic app for off-grid texting, but that needs a separately purchased Meshtastic radio; none is included.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Do I still need printed survival books?</summary>
+          <div class="answer">
+            <p>We'd keep a few. Books need no power, so a short shelf of printed essentials, like a first-aid guide and paper maps of your area, is a good backup to any electronic device.</p>
+            <p>What the Survival Node adds is scale and speed: over 10GB of medical references and over 10GB of survival references, summaries of every Wikipedia article, offline maps and directions for the whole U.S., and AI you can ask questions in plain language, all in one case.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Is it a complete emergency kit?</summary>
+          <div class="answer">
+            <p>No, it's the information part of being prepared. It doesn't include food, water, a first-aid kit or a radio. Pair it with a standard emergency kit; FEMA's Ready.gov has a checklist of what to put in one.</p>
           </div>
         </details>
 

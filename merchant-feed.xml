@@ -30,6 +30,58 @@
       <g:product_highlight>Rugged 24,000 mAh solar battery with attached charging cables</g:product_highlight>
       <g:product_highlight>Two Mission Darkness Faraday bags for EMP and signal protection</g:product_highlight>
       <g:product_highlight>Weatherproof hard storage case with padlock, ready out of the box</g:product_highlight>
+      <g:product_detail>
+        <g:section_name>Phone</g:section_name>
+        <g:attribute_name>Model</g:attribute_name>
+        <g:attribute_value>Motorola Moto G Power (2024)</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>Phone</g:section_name>
+        <g:attribute_name>RAM</g:attribute_name>
+        <g:attribute_value>8 GB</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>Phone</g:section_name>
+        <g:attribute_name>Storage</g:attribute_name>
+        <g:attribute_value>128 GB</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>Software</g:section_name>
+        <g:attribute_name>Offline AI models</g:attribute_name>
+        <g:attribute_value>Qwen 3.5 4B and Qwen 3.5 2B</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>Software</g:section_name>
+        <g:attribute_name>Offline content</g:attribute_name>
+        <g:attribute_value>50GB+ of apps, maps and references</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>Power</g:section_name>
+        <g:attribute_name>Solar battery capacity</g:attribute_name>
+        <g:attribute_value>24,000 mAh</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>Protection</g:section_name>
+        <g:attribute_name>Faraday bags</g:attribute_name>
+        <g:attribute_value>2 Mission Darkness bags</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>Protection</g:section_name>
+        <g:attribute_name>Hard case size</g:attribute_name>
+        <g:attribute_value>14.96 x 11.81 x 5.51 in</g:attribute_value>
+      </g:product_detail>
+      <g:product_detail>
+        <g:section_name>General</g:section_name>
+        <g:attribute_name>Warranty</g:attribute_name>
+        <g:attribute_value>30 days</g:attribute_value>
+      </g:product_detail>
+      <g:product_length>14.96 in</g:product_length>
+      <g:product_width>11.81 in</g:product_width>
+      <g:product_height>5.51 in</g:product_height>
+      <g:shipping_weight>8.5 lb</g:shipping_weight>
+      <g:shipping_length>16 in</g:shipping_length>
+      <g:shipping_width>13 in</g:shipping_width>
+      <g:shipping_height>7 in</g:shipping_height>
     </item>
   </channel>
 </rss>

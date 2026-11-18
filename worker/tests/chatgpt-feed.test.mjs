@@ -51,6 +51,7 @@ test('feed row has OpenAI\'s required fields and matches the Google feed', () =>
   assert.equal(row.condition, 'used', 'same condition as merchant-feed.xml');
   assert.match(googleFeed, /<g:condition>used<\/g:condition>/);
   assert.equal(row.target_countries, '["US"]', 'JSON in its cell');
+  assert.deepEqual(JSON.parse(row.dimensions), { length: '14.96', width: '11.81', height: '5.51', unit: 'in' }, 'hard case size, JSON in its cell');
   assert.equal(row.store_country, 'US');
   assert.equal(row.is_eligible_search, 'true');
   assert.ok(!FIELDS.includes('is_eligible_checkout'), 'checkout stays on our site');
