@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://b893ca94.sibforms.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3VDFQV9B1J"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3VDFQV9B1J');
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Survival Node Owners: Updates and How-Tos | Eastern Shore AI</title>
+  <meta name="description" content="Everything that has changed on the Survival Node since the first kits shipped, with a quick check for each and the steps to add it to your phone yourself." />
+  <!-- Unlisted for now (Red, 2026-11-18): noindex and not in sitemap.xml. Support only: no prices, buy buttons or
+       sales, because eBay buyers are sent here too (eBay forbids steering them to buy off eBay). -->
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://www.easternshore.ai/owners.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Survival Node Owners: Updates and How-Tos" />
+  <meta property="og:description" content="What's changed since your kit shipped, and how to bring your phone up to date." />
+  <meta property="og:url" content="https://www.easternshore.ai/owners.html" />
+  <meta property="og:image" content="https://www.easternshore.ai/images/survival-node-og.jpg?v=20261117" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/fonts.css" />
+  <style>
+    :root {
+      --bg: #0b0d13;
+      --card: #131926;
+      --card-2: #0f1321;
+      --line: #2a3348;
+      --text: #eaf1ff;
+      --muted: #a5b1c8;
+      --cyan: #9ed0ff;
+      --violet: #c7a6ff;
+      --orange: #ffb35c;
+      --green: #8ee6a8;
+      --red: #ff8a8a;
+    }
+    * { box-sizing: border-box; }
+    html { background: #000; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Titillium Web', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      background:
+        radial-gradient(circle at 18% 6%, rgba(190, 220, 255, 0.14), transparent 35%),
+        linear-gradient(180deg, #121723 0%, #0b0d13 50%, #090b11 100%);
+      background-color: #000;
+      color: var(--text);
+      min-height: 100vh;
+    }
+    h1, h2, h3, .btn, .back-btn, .kicker, .tag, .jump a, summary { font-family: 'Hanken Grotesk', system-ui, sans-serif; }
+    a { color: var(--cyan); }
+    strong { color: #fff; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      margin: 1rem 0 0 1rem;
+      padding: .55rem .9rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: .04em; font-size: .78rem;
+      color: #f4f9ff; text-decoration: none;
+      background: linear-gradient(145deg, #5f7597, #8fa6c8);
+      border: 1px solid rgba(198, 220, 255, .55);
+      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
+    }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+
+    /* Hero */
+    .hero { text-align: center; margin: .4rem 0 1.4rem; }
+    .hero-icon { width: 76px; height: 76px; border-radius: 50%; display: block; margin: 0 auto .7rem; box-shadow: 0 0 22px rgba(158, 208, 255, .35); }
+    .kicker { margin: 0; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); font-weight: 700; }
+    h1 { margin: .2rem 0 .7rem; font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1.15; }
+    .lead { margin: 0 auto; max-width: 640px; color: #d6deee; }
+    .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+    .facts li { background: var(--card-2); border: 1px solid var(--line); border-radius: 999px; padding: .3rem .85rem; font-size: .95rem; color: #d6deee; }
+    .updated { margin: .8rem 0 0; font-size: .92rem; color: var(--muted); }
+
+    /* Jump links */
+    .jump { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0 0 1.2rem; padding: 0; list-style: none; justify-content: center; }
+    .jump a { display: inline-block; padding: .4rem .8rem; border-radius: 8px; border: 1px solid var(--line); background: var(--card-2); color: #fff; text-decoration: none; font-weight: 700; font-size: .92rem; }
+    .jump a:active { transform: translateY(1px); }
+
+    /* Cards */
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1.15rem 1.15rem 1.2rem; margin: 0 0 1.1rem; }
+    .card h2 { margin: 0 0 .6rem; font-size: 1.35rem; line-height: 1.25; color: var(--cyan); }
+    .card h3 { margin: 0; font-size: 1.22rem; line-height: 1.3; color: #fff; }
+    .card h4 { margin: 1rem 0 .2rem; font-family: 'Hanken Grotesk', sans-serif; font-size: 1.05rem; color: #fff; }
+    .card p { margin: .55rem 0; }
+    .card ul, .card ol { margin: .5rem 0; padding-left: 1.4rem; }
+    .card li { margin: .35rem 0; }
+    .small { font-size: 1rem; color: var(--muted); }
+    .addr { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.05em; background: #0a0d16; border: 1px solid var(--line); border-radius: 6px; padding: .05rem .4rem; color: #fff; overflow-wrap: anywhere; }
+    .addr-block { display: block; width: fit-content; max-width: 100%; margin: .5rem 0 .2rem; padding: .35rem .7rem; font-size: 1.05rem; }
+    .app { white-space: nowrap; font-weight: 700; color: #fff; }
+    .app img { width: 1.5em; height: 1.5em; border-radius: 50%; vertical-align: -.4em; margin-right: .25rem; }
+    .device { border-color: rgba(255, 179, 92, .55); background: linear-gradient(145deg, rgba(255, 179, 92, .12), rgba(19, 25, 38, 1) 60%); }
+    .device h2 { color: var(--orange); }
+
+    /* Section headings */
+    .section-title { margin: 2rem 0 .3rem; font-size: 1.6rem; line-height: 1.2; scroll-margin-top: 1rem; }
+    .section-intro { margin: 0 0 1rem; color: #d6deee; }
+
+    /* One update */
+    .item { scroll-margin-top: 1rem; }
+    .item-head { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .6rem; margin: 0 0 .5rem; }
+    .item-head h3 { flex: 1 1 100%; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; border-radius: 999px; padding: .15rem .6rem; border: 1px solid; }
+    .tag.important { color: #ffd0d0; border-color: rgba(255, 138, 138, .7); background: rgba(255, 138, 138, .16); }
+    .tag.recommended { color: var(--cyan); border-color: rgba(158, 208, 255, .6); background: rgba(158, 208, 255, .1); }
+    .tag.optional { color: var(--muted); border-color: var(--line); background: var(--card-2); }
+    .meta { font-size: .9rem; color: var(--muted); }
+    .item.important { border-color: rgba(255, 138, 138, .55); background: linear-gradient(160deg, rgba(255, 138, 138, .09), rgba(19, 25, 38, 1) 45%); }
+
+    .check { border: 1px solid rgba(142, 230, 168, .5); background: rgba(142, 230, 168, .07); border-radius: 8px; padding: .6rem .8rem; margin: .7rem 0; }
+    .check b { display: block; font-family: 'Hanken Grotesk', sans-serif; color: var(--green); font-size: 1rem; margin-bottom: .1rem; }
+    .check p { margin: .2rem 0; }
+
+    details.howto { margin: .7rem 0 0; border-top: 1px solid var(--line); padding-top: .6rem; }
+    details.howto > summary { cursor: pointer; font-weight: 700; color: var(--cyan); font-size: 1.05rem; padding: .2rem 0; }
+    details.howto[open] > summary { margin-bottom: .3rem; }
+
+    .callout { border-left: 3px solid var(--cyan); background: rgba(158, 208, 255, .07); padding: .6rem .85rem; margin: .8rem 0 0; border-radius: 0 6px 6px 0; }
+    .callout.warn { border-left-color: var(--orange); background: rgba(255, 179, 92, .08); }
+    .callout.danger { border-left-color: var(--red); background: rgba(255, 138, 138, .09); }
+    .callout p:first-child { margin-top: 0; }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* Survival Node Pal instructions */
+    .prompt-box { background: #070910; border: 1px solid rgba(158, 208, 255, .2); border-left: 3px solid var(--cyan); border-radius: 0 6px 6px 0; padding: .85rem 1rem; margin: .6rem 0 .4rem; font-size: .82rem; color: #b8f0ff; white-space: pre-wrap; line-height: 1.6; font-family: ui-monospace, Menlo, Consolas, monospace; max-height: 22rem; overflow: auto; }
+    .copy-btn {
+      display: block; width: 100%; max-width: 420px; margin: .9rem auto .3rem; padding: .85rem 1rem; border: 0; border-radius: 10px; cursor: pointer;
+      font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem; color: #0b0d13;
+      background: linear-gradient(145deg, #ffd08f, var(--orange)); box-shadow: 0 0 18px rgba(255, 179, 92, .4);
+    }
+    .copy-note { text-align: center; min-height: 1.4em; margin: .2rem 0 0; font-weight: 700; color: var(--green); font-size: 1rem; }
+
+    /* Buttons and links out */
+    .btn {
+      display: block; width: 100%; max-width: 460px; margin: .9rem auto .3rem;
+      padding: .9rem 1.1rem; text-align: center; text-decoration: none;
+      font-weight: 700; font-size: 1.1rem; color: #0b0d13;
+      background: linear-gradient(145deg, #bfe2ff, var(--cyan));
+      border-radius: 10px; box-shadow: 0 0 14px rgba(158, 208, 255, .35);
+    }
+    .btn:active { transform: translateY(1px); }
+    .fdroid { font-size: .95rem; }
+
+    /* Library table */
+    table.libs { width: 100%; border-collapse: collapse; margin: .6rem 0; font-size: 1rem; }
+    table.libs th, table.libs td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    table.libs th { font-family: 'Hanken Grotesk', sans-serif; font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    table.libs td.size { white-space: nowrap; text-align: right; color: #d6deee; }
+    table.libs th.size { text-align: right; }
+    table.libs tr.total td { font-weight: 700; color: #fff; border-bottom: 0; }
+    table.libs .new { font-size: .75rem; font-weight: 700; color: var(--green); margin-left: .3rem; white-space: nowrap; }
+    table.libs .aka { display: block; font-size: .88rem; color: var(--muted); }
+
+    /* Hardware */
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin: .8rem 0 .2rem; }
+    .compare > div { background: var(--card-2); border: 1px solid var(--line); border-radius: 10px; padding: .8rem; min-width: 0; }
+    .compare h4 { margin: 0 0 .5rem; }
+    .photos { display: flex; gap: .5rem; align-items: flex-end; justify-content: center; margin: 0 0 .6rem; }
+    .photos img { display: block; max-width: 100%; height: auto; border-radius: 8px; background: #fff; }
+    .photos.two img { height: 180px; width: calc(50% - .25rem); object-fit: contain; padding: .3rem; }
+    .compare ul { padding-left: 1.15rem; font-size: 1rem; }
+    @media (max-width: 560px) { .compare { grid-template-columns: 1fr; } }
+
+    .wall { display: flex; gap: 1rem; align-items: flex-start; margin: .6rem 0; }
+    .wall img { width: 110px; height: auto; border-radius: 10px; border: 2px solid #3a4560; flex: none; }
+
+    .help { text-align: center; }
+    .help .big { font-family: 'Hanken Grotesk', sans-serif; font-size: 1.45rem; font-weight: 700; margin: .3rem 0; }
+    .help .big a { color: #fff; text-decoration: none; }
+
+    /* Email sign-up (same Brevo form as guide-update.html) */
+    .signup { border-color: rgba(158, 208, 255, .5); }
+    .signup form { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0 .3rem; position: relative; }
+    .signup input[type="email"] {
+      flex: 1 1 220px; min-width: 0; padding: .75rem .85rem;
+      font: inherit; font-size: 1.05rem; color: var(--text);
+      background: #0a0d16; border: 1px solid var(--line); border-radius: 8px;
+    }
+    .signup input[type="email"]:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
+    .signup button {
+      flex: 0 0 auto; padding: .75rem 1.3rem; border: 0; border-radius: 8px; cursor: pointer;
+      font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; color: #0b0d13;
+      background: linear-gradient(145deg, #bfe2ff, var(--cyan)); box-shadow: 0 0 14px rgba(158, 208, 255, .35);
+    }
+    .signup button:disabled { opacity: .6; cursor: default; }
+    .signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .signup-status { min-height: 1.5em; margin: .2rem 0 0; font-weight: 700; }
+    .signup-status.ok { color: var(--green); }
+    .signup-status.err { color: var(--red); }
+    @media (max-width: 400px) { .signup button { flex: 1 1 100%; } }
+
+    footer { border-top: 1px solid var(--line); margin-top: 2rem; padding: 1.2rem 1rem calc(1.4rem + env(safe-area-inset-bottom)); text-align: center; color: var(--muted); font-size: .95rem; }
+    footer a { color: var(--muted); margin: 0 .45rem; display: inline-block; }
+  </style>
+</head>
+<body>
+  <a class="back-btn" href="/node-setup.html">← User Guide</a>
+
+  <main class="wrap">
+    <header class="hero">
+      <img class="hero-icon" src="/images/guide-icons/user-guide.webp" alt="" width="76" height="76" />
+      <p class="kicker">For Survival Node owners</p>
+      <h1>Keep Your Survival Node Up to Date</h1>
+      <p class="lead">We keep improving the Survival Node: better AI instructions, new apps and more reference libraries. This page collects every change since the first kits shipped, so you can bring your phone up to date yourself, whenever you bought it.</p>
+      <ul class="facts">
+        <li>📱 Every kit uses the same phone</li>
+        <li>✅ A quick check for each change</li>
+        <li>🗂 Your maps, chats and files stay put</li>
+      </ul>
+      <p class="updated">Last updated November 18, 2026</p>
+    </header>
+
+    <ul class="jump" aria-label="Jump to">
+      <li><a href="#important">⚠️ Important</a></li>
+      <li><a href="#recommended">⭐ Recommended</a></li>
+      <li><a href="#optional">➕ Optional</a></li>
+      <li><a href="#hardware">🔋 Battery &amp; bags</a></li>
+      <li><a href="#get-updates">📬 Emails</a></li>
+      <li><a href="#help">☎️ Help</a></li>
+    </ul>
+
+    <section class="card" aria-labelledby="how-title">
+      <h2 id="how-title">How to use this page</h2>
+      <p>You don't need to know when your kit was made. Each change starts with a quick <strong>"You already have this if…"</strong> check you can do on your phone. If you already have it, skip to the next one. If not, tap <strong>Show the steps</strong>.</p>
+      <p>Start with the <strong>Important</strong> one. The <strong>Recommended</strong> ones add newer apps and libraries, and the <strong>Optional</strong> ones are about how the phone looks.</p>
+      <p class="small">Every Survival Node is built on the same phone, a Motorola Moto G Power (2024), so every software change here works on every kit. Only the solar battery and Faraday bags changed over time: see <a href="#hardware">Your battery and Faraday bags</a>.</p>
+    </section>
+
+    <section class="card device" aria-labelledby="device-title">
+      <h2 id="device-title">📱 Before you start</h2>
+      <ul>
+        <li>Do the steps on your <strong>Survival Node phone</strong>. To open this page on it, connect to Wi-Fi, open <span class="app"><img src="/images/guide-icons/fennec.webp" alt="" />Fennec</span>, tap the address bar and type:<span class="addr addr-block">easternshore.ai/owners</span></li>
+        <li>Most steps need <strong>Wi-Fi with working internet</strong>, such as your home Wi-Fi. Use Wi-Fi you trust, not a coffee shop or hotel. Airplane mode can stay on; Wi-Fi works with it on. To turn Wi-Fi on, swipe down from the top of the screen twice and tap <strong>Wi-Fi</strong>.</li>
+        <li>Charge the phone to at least 50% first. Big downloads use battery.</li>
+        <li>When you're done, turn Wi-Fi off. Going back into storage? Charge the phone to about 60%, power it off and seal it in its Faraday bag.</li>
+      </ul>
+      <p class="small">Kits sold before about October 30, 2026 still have Google Play Services (turned off) and an older set of reference libraries. Every step on this page works on them too. If a <strong>Google Play Protect</strong> box appears when you install an app, tap <strong>More details</strong>, then <strong>Install anyway</strong>.</p>
+    </section>
+
+    <!-- ═══════════════════════════ IMPORTANT ═══════════════════════════ -->
+    <h2 class="section-title" id="important">⚠️ Important</h2>
+    <p class="section-intro">This one is about safety. Please check it first.</p>
+
+    <section class="card item important" id="pal" aria-labelledby="pal-title">
+      <div class="item-head">
+        <span class="tag important">Important · Safety</span>
+        <span class="meta">⏱ About 2 minutes · works offline</span>
+        <h3 id="pal-title">Update the Survival Node Pal's instructions</h3>
+      </div>
+      <p>The <strong>Survival Node</strong> Pal in PocketPal is the AI set up for survival, first aid and field repair. On November 17, 2026 we rewrote the instructions behind it. In our testing, the earlier instructions led the AI to give unsafe drinking-water advice. With the new ones, the AI gives the standard, proven method first (the one the CDC, Red Cross, FEMA or U.S. Army teaches), doesn't make up numbers, and knows the CDC's drinking-water figures.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>You open <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>, tap the <strong>Survival Node</strong> card, and the <strong>System Prompt</strong> box starts with <em>"You are Survival Node, an offline advisor"</em>. Phones prepared from November 17, 2026 have it.</p>
+      </div>
+      <details class="howto" open>
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Tap <strong>Copy the new instructions</strong> below. (Or press and hold the instructions, tap <strong>Select all</strong>, then <strong>Copy</strong>.)</li>
+          <li>Open <strong>PocketPal</strong>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>.</li>
+          <li>Tap the <strong>Survival Node</strong> card. The <strong>Edit Pal</strong> screen opens.</li>
+          <li>Press and hold the text in the <strong>System Prompt</strong> box, tap <strong>Select all</strong>, then tap <strong>Paste</strong>.</li>
+          <li>Tap <strong>Save</strong> at the bottom.</li>
+          <li>Go back to the chat and start a new one with the pencil button at the top right. The new instructions apply to new chats.</li>
+        </ol>
+        <button class="copy-btn" type="button" id="copy-pal">Copy the new instructions</button>
+        <p class="copy-note" id="pal-copy-note" role="status" aria-live="polite"></p>
+        <!-- Must match survival_prompt.txt exactly, as shown in node-setup.html (palPromptBox) and the guide app
+             (#pal-prompt). worker/tests/pal-sync.test.mjs fails if the copies differ. -->
+        <pre class="prompt-box" id="pal-prompt">You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
+
+Rules:
+1. Answer right away, with no greetings or filler.
+2. If the topic can hurt someone (medical care, drinking water, food, fire, electricity, chemicals), start with a short **CRITICAL SAFETY WARNING**.
+3. Give the standard, proven method first: the one the CDC, Red Cross, FEMA or the U.S. Army teaches. Then give backups, and say what each backup can't do.
+4. Never make up a number. Give a measurement, dose, ratio or time only if it is a well-known standard. If you aren't sure of a number, say so and point to the Survival Manual or WikiMed on this phone.
+5. Never call something safe to drink, eat or use unless the steps you gave make it safe.
+6. Use numbered steps for procedures and short bullet lists for supplies.
+7. Assume no internet and limited supplies. Improvise only with methods known to work.
+8. For a serious injury or illness, say to get medical help as soon as possible.
+
+Drinking water (CDC):
+- Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
+- Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
+- Bleach: plain, unscented household bleach (5-9%). 2 drops per liter (8 per gallon); 4 drops per liter if the water is cloudy, colored or very cold. Stir, then wait at least 30 minutes.
+- Boiling and bleach don't remove fuel or chemicals. Find another water source.</pre>
+        <p class="small">No internet where you are? The <strong>User Guide</strong> app has these same steps and a Copy button that works offline, from version 1.17 (under <strong>Update the Survival Node Pal</strong>).</p>
+        <p class="small">The <strong>survival_prompt.txt</strong> file on older phones (in the Tools folder and the Documents folder) still has the old wording. The box above is the current version.</p>
+        <p class="small">Don't see a <strong>Survival Node</strong> card under Pals? Call or text us and we'll set it up with you.</p>
+      </details>
+
+      <div class="callout danger" id="which-model">
+        <p><strong>Use Qwen 3.5 4B for first aid, drinking water and anything you'll act on.</strong> In our tests on November 17, 2026, the Qwen 3.5 4B model answered water, bleeding and hypothermia questions correctly, and the smaller Qwen 3.5 2B got the first-aid questions wrong. Use the 2B for voice and quick, low-stakes questions. If you asked a first-aid question by voice on the 2B, switch to the 4B and ask again before acting on the answer. Always check critical answers against WikiMed or the Survival Manual on the phone.</p>
+      </div>
+      <div class="check">
+        <b>✅ Check which model the Pal uses</b>
+        <p>In PocketPal, tap <strong>☰</strong>, then <strong>Pals</strong>, then the <strong>Survival Node</strong> card. <strong>Default Model</strong> should be <strong>Qwen3.5-4B</strong>. If it isn't, tap it, choose Qwen3.5-4B and tap <strong>Save</strong>.</p>
+        <p>No Qwen3.5-4B to choose? Kits sold before September 2026 came with different AI models. Add it the same way as <a href="#qwen-2b">Qwen 3.5 2B below</a>, but search for <strong>Qwen3.5-4B</strong> and pick <strong>Qwen3.5-4B-Q4_K_M.gguf</strong> (about 2.7 GB). Then set it as the Default Model.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ RECOMMENDED ═══════════════════════════ -->
+    <h2 class="section-title" id="recommended">⭐ Recommended</h2>
+    <p class="section-intro">Newer apps, AI models and libraries we've added to the kit. Each one needs Wi-Fi once; after that it works offline.</p>
+
+    <section class="card item" id="guide-app" aria-labelledby="guide-title">
+      <div class="item-head">
+        <span class="tag recommended">Recommended</span>
+        <span class="meta">⏱ About 5 minutes · 📶 Wi-Fi</span>
+        <h3 id="guide-title">Update the User Guide app</h3>
+      </div>
+      <p>The User Guide app on your home screen has the current instructions, warranty and terms. The newest version is <strong>v<span data-latest-version>1.18</span></strong>.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>You open the <span class="app"><img src="/images/guide-icons/user-guide.webp" alt="" />User Guide</span> app, scroll to the very bottom, and the last line says <strong>v<span data-latest-version>1.18</span></strong>.</p>
+        <p class="small">No version number at the bottom? Your guide is from before it could update itself. Call or text us at <a href="tel:+13029079162">(302) 907-9162</a> and we'll walk you through it.</p>
+      </div>
+      <a class="btn" href="/guide-update.html">Update the guide, step by step, with pictures →</a>
+    </section>
+
+    <section class="card item" id="qwen-2b" aria-labelledby="qwen-title">
+      <div class="item-head">
+        <span class="tag recommended">Recommended</span>
+        <span class="meta">⏱ 10–15 minutes · 📶 Wi-Fi · 1.4 GB</span>
+        <h3 id="qwen-title">Add the Qwen 3.5 2B model and turn on voice input</h3>
+      </div>
+      <p>Qwen 3.5 2B is the fast backup AI model, about twice as fast as the 4B, and the one to use when you want to ask out loud. Phones prepared before November 17, 2026 have Qwen 2.5 3B as the backup instead.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>In PocketPal, you tap the <strong>↑</strong> to the left of the chat box, then the <strong>Models</strong> tab, and <strong>Qwen3.5-2B</strong> is in the list.</p>
+      </div>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <h4>Add the model</h4>
+        <ol>
+          <li>Connect to Wi-Fi and open <strong>PocketPal</strong>.</li>
+          <li>Tap <strong>☰</strong> (top left), then <strong>Models</strong>.</li>
+          <li>Tap the <strong>+</strong> button at the bottom right, then <strong>Add from Hugging Face</strong>.</li>
+          <li>Search for <strong>Qwen3.5-2B</strong> and tap the result from <strong>unsloth</strong> (Qwen3.5-2B-GGUF).</li>
+          <li>Tap the download button next to <strong>Qwen3.5-2B-Q4_K_M.gguf</strong> (about 1.3 GB). It takes a few minutes on home Wi-Fi.</li>
+          <li>When it finishes, tap <strong>Load</strong> on its card to check that it works.</li>
+        </ol>
+        <h4>Turn on voice input</h4>
+        <ol>
+          <li>In PocketPal, tap <strong>☰</strong>, then <strong>Settings</strong>, and turn on <strong>Voice input</strong>.</li>
+          <li>Go back to the chat. Tap <strong>↑</strong>, then the <strong>Models</strong> tab, and choose <strong>Qwen3.5-2B</strong>.</li>
+          <li>Tap the mic next to the send button. The first time, PocketPal downloads its voice model (about 82 MB). Keep Wi-Fi on for that. After that, the mic works offline.</li>
+        </ol>
+        <p class="small">PocketPal may say <strong>"Memory is tight"</strong> when you use the mic with Qwen 3.5 2B. Voice input still works; answers just take longer. The larger Qwen 3.5 4B needs too much memory to run alongside the mic.</p>
+        <p class="small"><strong>Faster answers:</strong> the AI thinks before it answers, which is more thorough but slower. To skip that, tap <strong>Think</strong> (the atom icon at the bottom left of the chat box) until it's no longer filled in. It turns back on in each new chat.</p>
+        <p class="small"><strong>Qwen 2.5 3B:</strong> once Qwen 3.5 2B works, you don't need the older Qwen 2.5 3B. You can keep it, or delete it to free up over 2 GB: in <strong>☰ → Models</strong>, tap the trash button on its card, then <strong>Delete</strong>.</p>
+        <p class="small">These steps match PocketPal 1.22, the version on current kits. On an older PocketPal some buttons may be in slightly different places.</p>
+      </details>
+    </section>
+
+    <section class="card item" id="translator" aria-labelledby="translator-title">
+      <div class="item-head">
+        <span class="tag recommended">Recommended</span>
+        <span class="meta">⏱ 15–30 minutes · 📶 Wi-Fi</span>
+        <h3 id="translator-title">Offline translation: Translator and Whisper</h3>
+      </div>
+      <p><strong>Translator</strong> translates between 62 languages with no internet, and can read many of them out loud. <strong>Whisper</strong> turns speech into text offline, so you can speak instead of type. Together they replace Seamless (5 languages) and DeepL (which needed internet).</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p><span class="app"><img src="/images/guide-icons/translator.webp" alt="" />Translator</span> and <span class="app"><img src="/images/guide-icons/whisper.webp" alt="" />Whisper</span> are on your home screen.</p>
+      </div>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Connect to Wi-Fi and open <strong>F-Droid</strong>. Give it a minute to refresh its app list.</li>
+          <li>Tap the search icon, search for <strong>Whisper</strong> and install it. Open it once while you're on Wi-Fi so it downloads its speech models, and allow the microphone when it asks.</li>
+          <li>Back in F-Droid, search for <strong>Translator</strong> and install the offline translator.</li>
+          <li>Open <strong>Translator</strong>. It asks you to download language packs. Download <strong>English</strong> and every language you might need. Where a language offers a voice, download that too if you want translations read out loud.</li>
+          <li>Try it: pick two languages, type something, and tap the speaker to hear it.</li>
+          <li>Tap the mic in Translator. If Android asks which app to use, choose <strong>Whisper</strong>, then <strong>Always</strong>.</li>
+          <li>Turn Wi-Fi off and try it once more. Everything you downloaded works offline.</li>
+        </ol>
+        <p class="fdroid small">On F-Droid's website: <a href="https://f-droid.org/packages/dev.davidv.translator/" rel="noopener">Translator</a> · <a href="https://f-droid.org/packages/org.woheller69.whisper/" rel="noopener">Whisper</a></p>
+        <p class="small">Once Translator works, you can remove Seamless and DeepL if you like. See <a href="#deepl">Remove DeepL</a>.</p>
+      </details>
+    </section>
+
+    <section class="card item" id="trail-sense" aria-labelledby="trail-title">
+      <div class="item-head">
+        <span class="tag recommended">Recommended</span>
+        <span class="meta">⏱ About 5 minutes · 📶 Wi-Fi</span>
+        <h3 id="trail-title">Trail Sense: offline wilderness tools</h3>
+      </div>
+      <p>Trail Sense never uses the internet. It saves places (camp, water, your car) and guides you back to them, retraces your path, gives sunrise and sunset times, makes a short-term weather forecast from the phone's barometer, turns a photo of a trail map into a map with your position, and has built-in survival and field guides. The phone has a compass sensor, so the compass works.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p><span class="app"><img src="/images/guide-icons/trail-sense.webp" alt="" />Trail Sense</span> is on your home screen.</p>
+      </div>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Connect to Wi-Fi and open <strong>F-Droid</strong>.</li>
+          <li>Search for <strong>Trail Sense</strong> and tap <strong>Install</strong>.</li>
+          <li>Open it and tap through the short intro. Allow location when it asks; it needs GPS for navigation.</li>
+          <li>If the compass seems off, move the phone in a figure 8 to calibrate it.</li>
+        </ol>
+        <p class="fdroid small">On F-Droid's website: <a href="https://f-droid.org/packages/com.kylecorry.trail_sense/" rel="noopener">Trail Sense</a></p>
+      </details>
+    </section>
+
+    <section class="card item" id="libraries" aria-labelledby="libs-title">
+      <div class="item-head">
+        <span class="tag recommended">Recommended</span>
+        <span class="meta">⏱ 15–90 minutes · 📶 Wi-Fi · about 6.4 GB</span>
+        <h3 id="libs-title">Newer Kiwix reference libraries</h3>
+      </div>
+      <p>On November 17, 2026 we added seven libraries: tested home canning methods, ham radio, outdoor skills, vehicle repair, gardening, woodworking, and Wikibooks (free textbooks and how-to manuals). They come free from Kiwix's own online library.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>You open <span class="app"><img src="/images/guide-icons/kiwix.webp" alt="" />Kiwix</span>, tap the <strong>Library</strong> tab, and see the libraries below. Older kits may be missing others too: compare yours with <a href="#all-libraries">every library in the current kit</a>.</p>
+      </div>
+      <table class="libs">
+        <thead><tr><th>Library</th><th class="size">Size</th></tr></thead>
+        <tbody>
+          <tr><td>USDA Complete Guide to Home Canning<span class="aka">In Kiwix: USDA Guide to Home Canning</span></td><td class="size">20 MB</td></tr>
+          <tr><td>Amateur Radio Q&amp;A</td><td class="size">77 MB</td></tr>
+          <tr><td>The Great Outdoors Q&amp;A</td><td class="size">142 MB</td></tr>
+          <tr><td>Motor Vehicle Mechanics Q&amp;A<span class="aka">In Kiwix: Motor Vehicle Mechanics</span></td><td class="size">342 MB</td></tr>
+          <tr><td>Gardening &amp; Landscaping Q&amp;A</td><td class="size">933 MB</td></tr>
+          <tr><td>Woodworking Q&amp;A</td><td class="size">107 MB</td></tr>
+          <tr><td>Wikibooks<span class="aka">Pick the 4.7 GB one, with pictures</span></td><td class="size">4.7 GB</td></tr>
+          <tr class="total"><td>All seven</td><td class="size">about 6.4 GB</td></tr>
+        </tbody>
+      </table>
+      <p class="small"><strong>How long?</strong> All seven take roughly 10 to 15 minutes on fast home internet, and 30 to 90 minutes on slower internet. Wikibooks is most of it. The six small ones take a few minutes together.</p>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Check your free space: open <strong>Settings</strong>, then <strong>Storage</strong>. You need about 7 GB free for all seven.</li>
+          <li>Connect to Wi-Fi and open <strong>Kiwix</strong>.</li>
+          <li>Tap the <strong>Download</strong> tab at the bottom (called <strong>Explore</strong> in newer versions of Kiwix).</li>
+          <li>Tap the search icon and type part of the library's name, such as <strong>canning</strong> or <strong>woodworking</strong>.</li>
+          <li>Tap the library to download it. Check its size first: for Wikibooks, pick the 4.7 GB one.</li>
+          <li>Repeat for each library. They download one after another; you can watch the progress.</li>
+          <li>When they're done, tap the <strong>Library</strong> tab and pull the list down to refresh it. The new libraries appear there.</li>
+        </ol>
+        <p class="small"><strong>Need more room?</strong> Kits sold before November 17, 2026 also have Project Gutenberg General Works, about 9.7 GB, mostly old magazines. It's no longer in the kit. You can keep it, or delete it in Kiwix's Library tab: press and hold it, then tap the trash icon. It's the larger of the two "Project Gutenberg" libraries; keep the medicine one.</p>
+      </details>
+      <details class="howto" id="all-libraries">
+        <summary>Every library in the current kit</summary>
+        <p class="small">Sizes are Kiwix's current versions, so yours may differ a little. Anything missing from your Library tab can be downloaded the same way.</p>
+        <table class="libs">
+          <thead><tr><th>Medical</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td>WikiMed Medical Encyclopedia<span class="aka">The 1.9 GB one, with pictures</span></td><td class="size">1.9 GB</td></tr>
+            <tr><td>MDWiki Medical Encyclopedia<span class="aka">The 2.3 GB one</span></td><td class="size">2.3 GB</td></tr>
+            <tr><td>MedlinePlus</td><td class="size">1.9 GB</td></tr>
+            <tr><td>Project Gutenberg Medicine<span class="aka">In Kiwix: Project Gutenberg Library (medicine)</span></td><td class="size">1.5 GB</td></tr>
+            <tr><td>Medicine LibreTexts</td><td class="size">1.2 GB</td></tr>
+            <tr><td>Surviving Residency</td><td class="size">530 MB</td></tr>
+            <tr><td>CDC Travelers' Health<span class="aka">In Kiwix: Travelers' Health</span></td><td class="size">180 MB</td></tr>
+            <tr><td>Libre Pathology</td><td class="size">100 MB</td></tr>
+            <tr><td>Medical Library</td><td class="size">70 MB</td></tr>
+            <tr><td>Military Medicine</td><td class="size">60 MB</td></tr>
+            <tr><td>Medical Sciences Q&amp;A</td><td class="size">60 MB</td></tr>
+            <tr><td>WikiVet</td><td class="size">60 MB</td></tr>
+            <tr><td>NHS Medicines A to Z</td><td class="size">20 MB</td></tr>
+          </tbody>
+        </table>
+        <table class="libs">
+          <thead><tr><th>Survival and general reference</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td>Wikipedia (summaries)<span class="aka">The 14.4 GB "mini" one: the opening summary of every article</span></td><td class="size">14.4 GB</td></tr>
+            <tr><td>Wikibooks <span class="new">NEW</span></td><td class="size">4.7 GB</td></tr>
+            <tr><td>Learning Self Reliance</td><td class="size">4.0 GB</td></tr>
+            <tr><td>iFixit<span class="aka">In Kiwix: iFixit in English</span></td><td class="size">3.6 GB</td></tr>
+            <tr><td>Gardening &amp; Landscaping Q&amp;A <span class="new">NEW</span></td><td class="size">933 MB</td></tr>
+            <tr><td>Appropedia</td><td class="size">580 MB</td></tr>
+            <tr><td>Motor Vehicle Mechanics Q&amp;A <span class="new">NEW</span></td><td class="size">342 MB</td></tr>
+            <tr><td>The Great Outdoors Q&amp;A <span class="new">NEW</span></td><td class="size">142 MB</td></tr>
+            <tr><td>Woodworking Q&amp;A <span class="new">NEW</span></td><td class="size">107 MB</td></tr>
+            <tr><td>Food for Preppers</td><td class="size">100 MB</td></tr>
+            <tr><td>Amateur Radio Q&amp;A <span class="new">NEW</span></td><td class="size">77 MB</td></tr>
+            <tr><td>Water Treatment Library</td><td class="size">20 MB</td></tr>
+            <tr><td>USDA Complete Guide to Home Canning <span class="new">NEW</span></td><td class="size">20 MB</td></tr>
+            <tr><td>Knots<span class="aka">In Kiwix: Knots by Wikipedia</span></td><td class="size">10 MB</td></tr>
+            <tr><td>Survivor Library<span class="aka">The kit's copy isn't in Kiwix's online library: today's version is about 220 GB, too big for the phone</span></td><td class="size">—</td></tr>
+          </tbody>
+        </table>
+      </details>
+    </section>
+
+    <section class="card item" id="guides-videos" aria-labelledby="gv-title">
+      <div class="item-head">
+        <span class="tag recommended">Recommended</span>
+        <span class="meta">⏱ 5–15 minutes · 📶 Wi-Fi · about 710 MB for all</span>
+        <h3 id="gv-title">Survival Guides (PDF) and first-aid videos</h3>
+      </div>
+      <p>Phones prepared from November 17, 2026 come with eight survival guides from FEMA, the U.S. Army, USGS, the National Weather Service and others, and eleven first-aid and radiation-emergency videos from the U.S. Army, the CDC and the Welsh Government. They're free to share, so you can download the same files here.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>You open <strong>File Manager</strong>, then <strong>Download</strong>, and there's a <strong>Survival Guides</strong> folder. And <span class="app"><img src="/images/guide-icons/vlc.webp" alt="" />VLC</span> is on your home screen.</p>
+      </div>
+      <details class="howto">
+        <summary>Show the steps and the files</summary>
+        <ol>
+          <li>Connect to Wi-Fi and open this page on the Survival Node in <strong>Fennec</strong>.</li>
+          <li>For the videos you need <strong>VLC</strong>. If it isn't on your home screen, open <strong>F-Droid</strong>, search for <strong>VLC</strong> and install it.</li>
+          <li>Tap each guide or video you want below. If Fennec asks, tap <strong>Download</strong>. They save to your <strong>Download</strong> folder.</li>
+          <li>To read a guide, open <strong>File Manager</strong>, then <strong>Download</strong>, and tap it.</li>
+          <li>To watch a video, open <strong>VLC</strong> and tap <strong>Video</strong>. Allow it to access your videos the first time.</li>
+        </ol>
+        <table class="libs">
+          <thead><tr><th>Survival Guides (PDF)</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/FEMA%20-%20Are%20You%20Ready%20%28Disaster%20Preparedness%20Guide%29.pdf" rel="noopener">FEMA: Are You Ready? (disaster preparedness for every kind of emergency)</a></td><td class="size">4.2 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20ATP%204-02.11%20-%20Casualty%20Response%2C%20TCCC%20and%20First%20Aid%20%282026%29.pdf" rel="noopener">Army ATP 4-02.11: Casualty Response, TCCC and First Aid (2026)</a></td><td class="size">13 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20FM%203-25.26%20-%20Map%20Reading%20and%20Land%20Navigation%20%282001%29.pdf" rel="noopener">Army FM 3-25.26: Map Reading and Land Navigation</a></td><td class="size">24 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/USGS%20-%20Finding%20Your%20Way%20with%20Map%20and%20Compass.pdf" rel="noopener">USGS: Finding Your Way with Map and Compass</a></td><td class="size">205 KB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NWS%20-%20Weather%20Spotters%20Field%20Guide.pdf" rel="noopener">National Weather Service: Weather Spotter&#x27;s Field Guide</a></td><td class="size">28 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/CISA%20-%20National%20Interoperability%20Field%20Operations%20Guide%20%28NIFOG%202.02%29.pdf" rel="noopener">CISA NIFOG: emergency radio channels and procedures</a></td><td class="size">6.7 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NCVEC%20-%20Technician%20Ham%20Radio%20Exam%20Question%20Pool%202026-2030.pdf" rel="noopener">Ham radio Technician exam question pool (2026–2030)</a></td><td class="size">480 KB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Nuclear%20War%20Survival%20Skills%20%28Kearny%2C%201987%29.pdf" rel="noopener">Nuclear War Survival Skills (Cresson Kearny, 1987)</a></td><td class="size">74 MB</td></tr>
+          </tbody>
+        </table>
+        <table class="libs">
+          <thead><tr><th>First-aid and emergency videos</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/CPR%20-%20Hands-Only%20CPR%20%28Save%20a%20Life%20Cymru%29.webm" rel="noopener">Hands-only CPR (Welsh Government; it says to call 999, in the U.S. call 911)</a></td><td class="size">91 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/CPR%20-%20Cardiac%20Arrest%20Management%20with%20CPR%20and%20AED%20%28US%20Army%29.mp4" rel="noopener">CPR with an AED (U.S. Army)</a></td><td class="size">54 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/AED%20-%20Using%20an%20Automated%20External%20Defibrillator%20%28US%20Army%29.mp4" rel="noopener">Using an AED (U.S. Army)</a></td><td class="size">124 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Bleeding%20-%20Bleeding%20Control%20and%20Shock%20Management%20%28US%20Army%29.mp4" rel="noopener">Bleeding control and shock (U.S. Army)</a></td><td class="size">84 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Tourniquet%20-%20Applying%20a%20Tourniquet%20%28US%20Army%20Combat%20Lifesaver%29.mp4" rel="noopener">Applying a tourniquet (U.S. Army Combat Lifesaver)</a></td><td class="size">33 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Splinting%20-%20Immobilizing%20a%20Long%20Bone%20Injury%20%28US%20Army%29.mp4" rel="noopener">Splinting a broken long bone (U.S. Army)</a></td><td class="size">125 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Radiation%201%20-%20Shelter%20in%20Place%20%28CDC%29.mp4" rel="noopener">Radiation 1: Shelter in place (CDC)</a></td><td class="size">9.3 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Radiation%202%20-%20Get%20Inside%2C%20Stay%20Inside%2C%20Stay%20Tuned%20%28CDC%29.mp4" rel="noopener">Radiation 2: Get inside, stay inside, stay tuned (CDC)</a></td><td class="size">17 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Radiation%203%20-%20Contamination%20vs%20Exposure%20%28CDC%29.mp4" rel="noopener">Radiation 3: Contamination vs exposure (CDC)</a></td><td class="size">6.3 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Radiation%204%20-%20Potassium%20Iodide%20%28CDC%29.mp4" rel="noopener">Radiation 4: Potassium iodide (CDC)</a></td><td class="size">1.7 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Radiation%205%20-%20Self-Decontamination%20%28CDC%29.mp4" rel="noopener">Radiation 5: Self-decontamination (CDC)</a></td><td class="size">16 MB</td></tr>
+          </tbody>
+        </table>
+        <p class="small"><strong>The videos are for learning and don't replace hands-on training.</strong> The Army videos are EMT demonstrations, so some steps use gear a bystander won't have. In an emergency, call 911 if you can.</p>
+        <p class="small">Eastern Shore AI didn't make these guides or videos and has no connection to their publishers. Sources and licenses: <a href="https://files.easternshore.ai/survival-guides/CREDITS.txt" rel="noopener">guides</a> · <a href="https://files.easternshore.ai/survival-node-videos/CREDITS.txt" rel="noopener">videos</a>.</p>
+      </details>
+    </section>
+
+    <section class="card item" id="fossify" aria-labelledby="fossify-title">
+      <div class="item-head">
+        <span class="tag recommended">Recommended</span>
+        <span class="meta">⏱ About 10 minutes · 📶 Wi-Fi</span>
+        <h3 id="fossify-title">Fossify Clock and Phone: no more "Enable Google Play services" notices</h3>
+      </div>
+      <p>Google Play Services is turned off on the Survival Node on purpose. On older kits, Google's own Clock and Phone apps keep posting notices about it, including a burst of them each time the phone starts. Fossify Clock and Fossify Phone are open-source apps that work without Google, and with them those notices can be switched off.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>Your phone never shows <strong>"Enable Google Play services"</strong> notices. Phones prepared from November 16, 2026 already use Fossify Clock and Fossify Phone (the green Phone icon in the Tools folder).</p>
+      </div>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Connect to Wi-Fi, open <strong>F-Droid</strong>, and install <strong>Fossify Clock</strong> and <strong>Fossify Phone</strong>.</li>
+          <li>Open <strong>Fossify Phone</strong> (its icon is green and reads "Phone"). When it asks to be your default phone app, say yes. If it doesn't ask: <strong>Settings → Apps → Default apps → Phone app</strong>, and choose the Fossify one.</li>
+          <li>Open <strong>Fossify Clock</strong> and set your alarms there. Turn off any alarms in the old Clock so they don't ring twice. Allow notifications when it asks.</li>
+          <li>Now switch off the old notices. The next time one appears, press and hold it, tap <strong>Turn off notifications</strong>, switch off only <strong>Google Play services availability</strong>, then tap <strong>Done</strong>. Do this once for Clock and once for Phone.</li>
+          <li>If Google's Phone app ever asks to be your default phone app again, decline, or the notices come back.</li>
+        </ol>
+        <p class="small">Keep Google's Phone app on the phone. Don't turn on Google Play Services to make the notices go away.</p>
+        <p class="small">The Survival Node isn't designed or tested for calls, so don't count on it to call for help. Keep a regular phone for that.</p>
+        <p class="fdroid small">On F-Droid's website: <a href="https://f-droid.org/packages/org.fossify.clock/" rel="noopener">Fossify Clock</a> · <a href="https://f-droid.org/packages/org.fossify.phone/" rel="noopener">Fossify Phone</a></p>
+      </details>
+    </section>
+
+    <section class="card item" id="android-updates" aria-labelledby="android-title">
+      <div class="item-head">
+        <span class="tag recommended">Good to know</span>
+        <span class="meta">Applies to every kit</span>
+        <h3 id="android-title">Android updates can arrive on Wi-Fi</h3>
+      </div>
+      <p>Motorola doesn't allow its system updater to be removed, so while the phone is on Wi-Fi, Motorola may install Android and security updates. We don't control or test them, and one can change settings or bring back some built-in apps. That's why we suggest Wi-Fi you trust, and turning Wi-Fi off when you're done.</p>
+      <ul>
+        <li>A Motorola <strong>"Critical update"</strong> screen may appear while you're doing these steps. You can tap <strong>Later</strong> and finish first. Motorola may still restart the phone on its own a few days later to install it.</li>
+        <li>If the phone acts up after an update, call us before resetting it. A factory reset erases the maps, AI models and libraries.</li>
+      </ul>
+    </section>
+
+    <!-- ═══════════════════════════ OPTIONAL ═══════════════════════════ -->
+    <h2 class="section-title" id="optional">➕ Optional</h2>
+    <p class="section-intro">How the phone looks and what's on the home screen. Nothing here changes what the kit can do.</p>
+
+    <section class="card item" id="home-screen" aria-labelledby="home-title">
+      <div class="item-head">
+        <span class="tag optional">Optional</span>
+        <span class="meta">⏱ About 5 minutes · works offline</span>
+        <h3 id="home-title">The new home screen layout</h3>
+      </div>
+      <p>From November 18, 2026, the bottom row holds the three apps you'll reach for most: the <strong>User Guide</strong>, <strong>Settings</strong> and <strong>PocketPal</strong>. Camera and Clock sit on the home screen with the other apps, in A to Z order, and both Phone apps are in the <strong>Tools</strong> folder, since the Survival Node isn't designed for calls.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>The bottom row of your home screen is User Guide, Settings and PocketPal.</p>
+      </div>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Press and hold <strong>Phone</strong> in the bottom row, drag it onto the <strong>Tools</strong> folder and let go.</li>
+          <li>Press and hold <strong>Camera</strong> in the bottom row and drag it up to an empty spot on the home screen.</li>
+          <li>Drag the <strong>User Guide</strong> into the empty space at the left of the bottom row, and <strong>PocketPal</strong> into the space at the right.</li>
+          <li>Clock in the Tools folder? Open Tools, press and hold <strong>Clock</strong>, drag it out of the folder and drop it on an empty spot.</li>
+        </ol>
+        <p class="small">Drop icons on empty spots, not on other icons: dropping one icon on another makes a new folder. If that happens, open the folder and drag the icons back out.</p>
+        <p class="small">Keep the band just above the bottom row clear, so the wallpaper's badge shows: at most five rows of four icons. If you add apps, group similar ones into a folder, like Tools.</p>
+      </details>
+    </section>
+
+    <section class="card item" id="wallpaper" aria-labelledby="wall-title">
+      <div class="item-head">
+        <span class="tag optional">Optional</span>
+        <span class="meta">⏱ About 3 minutes · 📶 Wi-Fi</span>
+        <h3 id="wall-title">The new wallpaper</h3>
+      </div>
+      <div class="wall">
+        <img src="/images/owners/wallpaper-preview.webp" width="110" height="244" loading="lazy" alt="The Survival Node wallpaper: a dark sky over a forest, with the Survival Node badge near the bottom." />
+        <div>
+          <p>A darker sky behind the icons, with the Survival Node badge in the open band just above the bottom row.</p>
+          <div class="check" style="margin-bottom:0">
+            <b>✅ You already have this if…</b>
+            <p>The badge sits between your last row of icons and the bottom row.</p>
+          </div>
+        </div>
+      </div>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <ol>
+          <li>On the Survival Node, with Wi-Fi on, open this page in Fennec and tap <a href="/images/owners/survival-node-wallpaper-v2.jpg" download>Download the wallpaper</a>. Tap <strong>Download</strong> if Fennec asks.</li>
+          <li>Open <strong>File Manager</strong>, then <strong>Download</strong>.</li>
+          <li>Press and hold <strong>survival-node-wallpaper-v2.jpg</strong>, tap <strong>⋮</strong> (top right), then <strong>Set as</strong>, and choose <strong>Wallpaper</strong>.</li>
+          <li>Tap <strong>Set wallpaper</strong>, then <strong>Home and lock screens</strong>.</li>
+        </ol>
+      </details>
+    </section>
+
+    <section class="card item" id="deepl" aria-labelledby="deepl-title">
+      <div class="item-head">
+        <span class="tag optional">Optional</span>
+        <span class="meta">⏱ 1 minute · works offline</span>
+        <h3 id="deepl-title">Remove DeepL (and Seamless)</h3>
+      </div>
+      <p>DeepL needs internet, and its app is no longer offered in F-Droid, so it won't get updates. Translator does the same job offline. Once <a href="#translator">Translator</a> works, you can also remove Seamless, the older offline translator for five languages, to free up space.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>There's no DeepL icon on your home screen.</p>
+      </div>
+      <details class="howto">
+        <summary>Show the steps</summary>
+        <ol>
+          <li>Press and hold the <strong>DeepL</strong> icon and tap <strong>App info</strong>.</li>
+          <li>Tap <strong>Uninstall</strong>, then <strong>OK</strong>.</li>
+          <li>Do the same for <strong>Seamless</strong> if you like.</li>
+        </ol>
+      </details>
+    </section>
+
+    <!-- ═══════════════════════════ HARDWARE ═══════════════════════════ -->
+    <h2 class="section-title" id="hardware">🔋 Your battery and Faraday bags</h2>
+    <p class="section-intro">The phone has been the same in every kit. The solar battery and Faraday bags were upgraded when Survival Node Gen 2 came out in September 2026. Kits sold before then weren't called "Gen 1" at the time. Mission Darkness bags were an upgrade option on those earlier kits, so you may have them with the earlier battery. Go by what yours looks like.</p>
+
+    <section class="card" aria-labelledby="battery-title">
+      <h2 id="battery-title">Which solar battery do you have?</h2>
+      <p>The easiest way to tell: <strong>count the cables attached to the back.</strong></p>
+      <div class="compare">
+        <div>
+          <h4>Gen 2 battery: 3 cables</h4>
+          <div class="photos two">
+            <img src="/images/owners/gen2-battery-panel.webp" width="480" height="864" loading="lazy" alt="Gen 2 solar battery with a solar panel on the front and 4 small blue charge lights at the bottom. This one has orange corner bumpers; many have black ones." />
+            <img src="/images/owners/gen2-battery-cables.webp" width="640" height="457" loading="lazy" alt="Back of the Gen 2 battery with three attached cables: two USB-C and one iPhone." />
+          </div>
+          <ul>
+            <li><strong>3 attached cables</strong> (2 USB-C, 1 iPhone), plus a USB-A port on the side</li>
+            <li>4 small blue charge lights</li>
+            <li>Flashlight, thermometer and carabiner clip</li>
+            <li>Corner bumpers are black on most, orange on some</li>
+            <li>24,000 mAh</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Earlier battery (Gen 1): 4 cables</h4>
+          <div class="photos two">
+            <img src="/images/owners/gen1-battery-panel.webp" width="225" height="393" loading="lazy" alt="Earlier solar battery with a solar panel on the front, and a green light and four small charge lights at the bottom." />
+            <img src="/images/owners/gen1-battery-cables.webp" width="213" height="367" loading="lazy" alt="Back of the earlier battery with four attached cables." />
+          </div>
+          <ul>
+            <li><strong>4 attached cables</strong> (USB-C, iPhone, micro USB and USB-A)</li>
+            <li>A green light and a row of 4 small charge lights</li>
+            <li>42,800 mAh</li>
+          </ul>
+        </div>
+      </div>
+      <h4>Charging and care: Gen 2</h4>
+      <ul>
+        <li>Charge it from the wall with the kit's charger. You can charge it to 100% (all 4 blue lights solid) to check it, then bring it back down to <strong>2 or 3 of the 4 lights (50–75%)</strong> before storing it.</li>
+        <li>Solar: in daylight, leave it panel-up in direct sun, and re-angle it as the sun moves. Use wall power whenever you have it.</li>
+        <li>Don't charge it and charge something from it at the same time.</li>
+      </ul>
+      <h4>Charging and care: earlier battery</h4>
+      <ul>
+        <li>The row of 4 small lights shows the charge.</li>
+        <li>From the wall: plug the small USB charging cable it came with into a USB wall charger. You can charge it until all 4 lights are lit to check it, then bring it back down to <strong>2 or 3 of the 4 lights (50–75%)</strong> before storing it.</li>
+        <li>Solar: in daylight, leave it panel-up in direct sun, and re-angle it as the sun moves. Use wall power whenever you have it.</li>
+      </ul>
+      <h4>Both batteries</h4>
+      <ul>
+        <li>Keep it dry, and store it between 60°F and 85°F (ideally 60–75°F).</li>
+        <li>Don't charge it above 113°F (45°C). If it feels hot, stop and move it to shade.</li>
+        <li>Check and top it up every 6 months.</li>
+        <li>If the case looks swollen or warped, stop using it and take it to a battery recycling drop-off. The User Guide's Power &amp; Solar Charging section explains.</li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="bags-title">
+      <h2 id="bags-title">Which Faraday bags do you have?</h2>
+      <div class="compare">
+        <div>
+          <h4>Mission Darkness bags (Gen 2)</h4>
+          <div class="photos"><img src="/images/owners/mission-darkness-bags.webp" width="640" height="536" loading="lazy" alt="Two black Mission Darkness Faraday bags, with the solar battery and phone partly inside." /></div>
+          <ul>
+            <li>Black, with the <strong>Mission Darkness</strong> label and fold instructions printed near the top</li>
+            <li>Manufacturer-rated (Mission Darkness, independent lab tested to MIL-STD-188-125-2 and IEEE 299-2006): 80+ dB attenuation, low MHz to 40 GHz. <a href="https://mosequipment.com/pages/testing-certifications" rel="noopener">Source</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Standard bags (earlier kits)</h4>
+          <div class="photos"><img src="/images/owners/standard-bags.webp" width="640" height="330" loading="lazy" alt="Two plain black Faraday bags, folded closed, with no label or printing." /></div>
+          <ul>
+            <li>Plain black, with <strong>no label or printing</strong></li>
+          </ul>
+        </div>
+      </div>
+      <h4>Sealing and care</h4>
+      <ul>
+        <li>Leave the phone in its case; it fits in the bag that way.</li>
+        <li>Fold the opening over at least twice, then close the seal.</li>
+        <li>Every 6 months, look for holes, worn seams or a dirty seal.</li>
+        <li>Faraday bags block signals. They don't protect against water or drops; that's the hard case's job.</li>
+      </ul>
+    </section>
+
+    <!-- Same Brevo form, honeypot and email check as guide-update.html #get-updates (and the newsletter boxes on
+         index.html, node.html and film-footer.js). Change the action URL in all of them together. -->
+    <section class="card signup" id="get-updates" aria-labelledby="signup-title">
+      <h2 id="signup-title">📬 Get an email when there's a new guide</h2>
+      <p>Whenever a new User Guide comes out, our newsletter says what changed and how to update.</p>
+      <p class="small"><strong>Bought your kit on eBay?</strong> eBay doesn't share your email address with us, so signing up here is the only way we can tell you about new guides. It's our regular Eastern Shore AI newsletter, so it also has occasional news about our other products. Every email has an unsubscribe link.</p>
+      <form id="signup-form" novalidate>
+        <label for="signup-email" class="hp">Email address</label>
+        <input type="email" id="signup-email" name="EMAIL" placeholder="your@email.com" autocomplete="email" required />
+        <button type="submit">Sign me up</button>
+        <input type="text" class="hp" name="email_address_check" value="" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      </form>
+      <p class="signup-status" id="signup-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card help" id="help" aria-labelledby="stuck-title">
+      <h2 id="stuck-title">Stuck? We'll walk you through it</h2>
+      <p class="big"><a href="tel:+13029079162">(302) 907-9162</a></p>
+      <p>Call or text, or email <a href="mailto:support@easternshore.ai">support@easternshore.ai</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© <span id="year">2026</span> Eastern Shore AI, LLC</p>
+    <p><a href="/node-setup.html">Online User Guide</a><a href="/guide-update.html">Guide updates</a><a href="/licenses.html">Licenses</a><a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a></p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // The newest guide version is written in by hand; latest.json is what the guide app itself checks, so use it
+    // if it's newer (same as guide-update.html).
+    fetch('/survival-node-app/latest.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(res => res.ok ? res.json() : null)
+      .then(latest => {
+        if (!latest || !latest.version) return;
+        document.querySelectorAll('[data-latest-version]').forEach(el => { el.textContent = latest.version; });
+      })
+      .catch(() => {});
+
+    // Copy the Survival Node Pal's instructions to the clipboard.
+    (function () {
+      const btn = document.getElementById('copy-pal');
+      const note = document.getElementById('pal-copy-note');
+      const text = () => document.getElementById('pal-prompt').textContent;
+      const done = ok => {
+        note.textContent = ok
+          ? 'Copied. Now open PocketPal and paste them into the System Prompt box (step 4).'
+          : "Couldn't copy here. Press and hold the instructions below, tap Select all, then Copy.";
+        note.style.color = ok ? '' : 'var(--orange)';
+      };
+      const fallback = () => {
+        const area = document.createElement('textarea');
+        area.value = text();
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        area.setSelectionRange(0, area.value.length);
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(area);
+        done(ok);
+      };
+      btn.addEventListener('click', () => {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text()).then(() => done(true), fallback);
+        } else {
+          fallback();
+        }
+      });
+    })();
+
+    // "Get an email when there's a new guide": same Brevo sign-up form as guide-update.html.
+    const signupForm = document.getElementById('signup-form');
+    const signupStatus = document.getElementById('signup-status');
+    function signupSay(msg, ok) {
+      signupStatus.textContent = msg;
+      signupStatus.className = 'signup-status ' + (ok ? 'ok' : 'err');
+    }
+    signupForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = signupForm.querySelector('input[type="email"]').value.trim();
+      // Brevo answers "success" even for a malformed address, so check it here first.
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { signupSay('Please enter a valid email address.', false); return; }
+      const button = signupForm.querySelector('button[type="submit"]');
+      button.disabled = true;
+      signupSay('Signing you up…', true);
+      try {
+        const body = new FormData();
+        body.append('EMAIL', email);
+        body.append('email_address_check', signupForm.querySelector('input[name="email_address_check"]').value); // honeypot: bots fill it, Brevo drops them
+        body.append('locale', 'en');
+        const res = await fetch('https://b893ca94.sibforms.com/serve/MUIFAFHNpDgPU-nDfEV3TZttituEiSyIy4p0twQYehCWbO2QZjGgiYIf52Tzi8BjJZHKZaEdmpJZ8wZjawIvJ54EGnqgFvTS-rjUbDTxDA5ftlMluW-n-7ML1FaJ098ByQDvenhzBTDbOJfcfDg1fBs0YLFY3Jvggh62UAvuUmlC3dv5iF1pqPDzqeODqH3UpQhEaJF7yQfUR4bGrA==?isAjax=1', { method: 'POST', body });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.message || 'Submit failed');
+        signupSay("You're signed up! We'll email you when the next guide comes out.", true);
+        signupForm.reset();
+      } catch (err) {
+        signupSay("That didn't go through. Please try again, or call or text (302) 907-9162.", false);
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -45,7 +45,7 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 | App name | Survival Node User Guide |
 | Package | `com.easternshoreaillc.survivalnodeuserguide` |
 | WebIntoApp App ID | 1240101 |
-| Current source version | 1.18 (released 2026-11-18; the next build is 1.19 = 11900) |
+| Current source version | 1.18 (released 2026-11-18; the next build is 1.19 = 11900; see "Waiting for 1.19" below) |
 | Last built version | 1.18 (versionCode 11800, built 2026-11-18 from HTML Files — opens offline, tested, released) |
 | Edit/rebuild URL | https://webintoapp.com/author/apps |
 
@@ -54,6 +54,21 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
 - `Survival Node User Guide 1.1/android/my-release-key.jks` — **reuse this same keystore** for
   every update, or the Play Store will reject the upload as a different app.
 - `readme.txt` / `android/certification.txt` — keystore password, app password, App Key.
+
+## Waiting for 1.19 (source edited 2026-11-18, not built)
+
+- **One guide for every kit (Red, 2026-11-18).** "Kit bought before September 2026?" notes in Long-Term
+  Storage (the earlier solar battery: 4 attached cables, 4 small charge lights, its small USB cable) and in
+  Faraday Bag Protection (plain black bags). The same notes are in `node-setup.html`.
+- The owners page address as plain text in Update This Guide ("What's Changed Since Your Kit Shipped",
+  `easternshore.ai/owners`).
+- **When 1.19 is released:** owners whose guide shows no version number (1.1, kits sold before
+  2026-10-24) can then update to it. 1.1 has the same package and signing certificate, so the new guide
+  installs over it, through the browser method (1.1 has no update check). In the same push, change
+  `guide-update.html` step 2's red "No version number" box to send them to the browser method instead of
+  "don't install, call us" (keep "stop and call" for a guide that says Gen 1: that's the separate eBay
+  Gen 1 app, WebIntoApp 1739776, a different package), and change `owners.html`'s matching line in
+  "Update the User Guide app". Until then, both pages keep "call us", because 1.18 has no earlier-kit notes.
 
 ## To update the app
 
