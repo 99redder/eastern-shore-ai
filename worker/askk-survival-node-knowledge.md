@@ -202,7 +202,7 @@ testing.html has pre-shipment test data for every component plus two demo videos
 
 **Faraday bags:** phone shows no signal inside a sealed bag; roll-fold seal (2 folds minimum) passes a leak-down test; no pinholes or delamination; the phone fits inside with its case on.
 
-**Offline maps:** all 50 states, about 14.7 GB, street-level zoom (z16), cross-checked against USGS data. GPS cold lock 6–9 seconds, warm under 3 seconds, ±4 m accuracy in open sky; works in airplane mode (GPS uses satellites, not internet). Offline turn-by-turn routing, place search and waypoints all work.
+**Offline maps:** all 50 states, about 15.6 GB, street-level zoom (z16), cross-checked against USGS data. GPS cold lock 6–9 seconds, warm under 3 seconds, ±4 m accuracy in open sky; works in airplane mode (GPS uses satellites, not internet). Offline turn-by-turn routing, place search and waypoints all work.
 
 **AI models:** Qwen3.5-4B-Q4_K_M is the primary (deeper answers); Qwen3.5-2B (Q4_K_M) is the faster backup and the model for voice input (it replaced Qwen2.5-3B on phones prepared from November 17, 2026). PocketPal benchmark (PP:512, TG:128, 3 repeats, on the phone's processor; both tested 11/17/2026):
 - **Qwen3.5-4B:** 3.20 tokens/sec generation, 13.61 tokens/sec prompt processing, peak memory 4 GB of 8 GB (48.0%); 2.73 GB model, 4.21B parameters.
