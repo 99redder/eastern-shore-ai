@@ -126,6 +126,7 @@ Features added to the Survival Node page:
 - floating **Ask K** button + right-side drawer
 - K avatar in header and assistant responses
 - Survival-Node-specific quick actions / canned FAQ replies
+- a **How do I update my kit?** quick action (2nd, canned in `cannedQuickReplies`) pointing owners to `/owners` and `/guide-update`; assistant and staff messages turn `https://www.easternshore.ai/...` addresses into links (our own site only, other addresses stay text); `node.html#ask-k` opens the drawer on load (the owners page's "Ask K a question" button and the owners email use it) (2026-11-18)
 - freeform AI Q&A for custom questions
 - **Talk to a human** escalation button (pink/black styling so it stands out)
 - customer-side human support mode with:

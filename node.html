@@ -3635,6 +3635,7 @@
       let isUserTypingLocally = false;
       let staffJoinedName = null;
       const cannedQuickReplies = {
+        "How do I update my kit?": "Every update since your kit shipped is on the owners page, each with a quick \"You already have this if...\" check, so you can skip anything your phone already has:\n\nhttps://www.easternshore.ai/owners\n\nStart with the **Important** one: update the Survival Node Pal's instructions. Every kit prepared before November 17, 2026 needs it, and it takes about two minutes. Most of the other updates need Wi-Fi once, then work offline. To update the User Guide app, see https://www.easternshore.ai/guide-update\n\nIf you get stuck on a step, ask me about it here.",
         "What's included?": "The Survival Node includes a Motorola Moto G Power (2024) phone (brand new or open box, hand-vetted), a de-bloated Android OS, a 50GB+ offline software suite, a pre-configured Survival Node AI Agent, a premium solar battery, two Mission Darkness Faraday bags, a shockproof phone case with screen protector, a weatherproof hard case with padlock, a USB-C cable, and charging accessories. " + (document.documentElement.dataset.price === 'regular' ? 'Survival Node Gen 2 is $349.99' : 'Survival Node Gen 2 is regularly $349.99, now $299.99 for a limited time while supplies last — a $50 saving') + ", with free shipping to the continental U.S.",
         "Does it work offline?": "Yes — the Survival Node is built for offline use. The AI, maps, and reference libraries run locally on the phone with no internet, no Wi-Fi, and no cell signal required. Fennec and F-Droid are the exceptions, since they need an internet connection.",
         "How does shipping work?": "Shipping is free to continental U.S. destinations, and orders ship by ground because of lithium battery rules. Alaska, Hawaii, U.S. territories, APO/FPO/DPO military addresses, and international destinations are not currently supported.",
@@ -3701,6 +3702,8 @@
         if (role === 'assistant' || role === 'staff') {
           content = content
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            // Our own pages only (owners, guide-update…) become links; other addresses stay plain text.
+            .replace(/https:\/\/www\.easternshore\.ai\/[A-Za-z0-9\/._#-]*[A-Za-z0-9\/#-]/g, url => `<a href="${url}" target="_blank" rel="noopener">${url}</a>`)
             .replace(/\n/g, '<br>');
         }
         // Add sender name for staff messages
@@ -4260,6 +4263,7 @@
 
     <div class="askk-quick-actions" id="askk-quick-actions">
       <button class="askk-quick-btn" data-askk-lookup>Check my order status</button>
+      <button class="askk-quick-btn">How do I update my kit?</button>
       <button class="askk-quick-btn">What's included?</button>
       <button class="askk-quick-btn">Does it work offline?</button>
       <button class="askk-quick-btn">How does shipping work?</button>
