@@ -14,7 +14,7 @@ If the answer isn't here, say: "I don't have that information, but I can connect
 
 ## Product overview
 
-**Survival Node Gen 2** (the only kit sold now; Gen 1 is discontinued) is a hardened smartphone pre-loaded with offline AI chat, a custom Survival AI Agent, 50GB+ of survival apps, offline maps of the entire United States, and critical reference libraries — packed in a weatherproof hard case with a premium high-capacity solar battery and two Mission Darkness Faraday bags for EMP protection. It works completely without internet, cell signal, or the power grid.
+**Survival Node Gen 2** (the only kit sold now; Gen 1 is discontinued) is a hardened smartphone pre-loaded with offline AI chat, a custom Survival AI Agent, 50GB+ of survival apps, offline maps of the entire United States, and critical reference libraries — packed in a weatherproof hard case with a premium high-capacity solar battery and two Mission Darkness Faraday bags for EMP protection. The AI, maps and reference libraries work without internet, cell signal or the power grid.
 
 **What's new in Gen 2:** Mission Darkness Faraday bags included standard; an upgraded, tougher solar battery; more capable offline AI (powered by Qwen 3.5).
 
