@@ -2640,8 +2640,6 @@ function defaultOrderEmailBody(kind, row, trackingProvider = '', trackingNumber 
       '',
       'Would you rate it for us? Just tap a star below. One tap is all it takes, and your rating helps other preppers find us and helps us keep improving.',
       '',
-      'If you\'d like, you can also leave a review on Google.',
-      '',
       'Thank you so much for your support!'
     ].filter(Boolean).join('\n');
   }
@@ -2819,10 +2817,17 @@ function buildOrderEmailContent(kind, row, overrides = {}) {
   const trackHtml = trackProxyUrl && kind !== 'delivered' && kind !== 'review'
     ? emailButton(trackProxyUrl, trackButtonLabel) + smallPrint('Tracking opens the official carrier website.')
     : '';
-  // One-tap stars (src/reviews.js) when the order has a review token, then the Google link for everyone.
+  // One-tap stars (src/reviews.js) are the one call to action; Google is a quiet line after them,
+  // offered to everyone (rate.html offers it again after they rate). No token: the Google button.
   const reviewToken = kind === 'review' ? (overrides.reviewToken || '').toString().trim() : '';
-  const reviewHtml = kind === 'review' ? (reviewToken ? reviewStarsHtml(reviewToken) : '') + emailButton(GOOGLE_REVIEW_URL, 'Leave a Google Review \u2605') : '';
-  const reviewText = kind === 'review' ? `${reviewToken ? `${reviewStarsText(reviewToken)}\n\n` : ''}Leave a Google review: ${GOOGLE_REVIEW_URL}\n\n` : '';
+  const reviewHtml = kind !== 'review' ? ''
+    : reviewToken
+      ? reviewStarsHtml(reviewToken) + `<p style="margin:28px 0 0;padding-top:16px;border-top:1px solid #E3E7EC;text-align:center;font-family:Arial,sans-serif;font-size:13px;line-height:20px;color:#5B6472;">Prefer Google? You can <a href="${GOOGLE_REVIEW_URL}" style="color:#0E6E86;">leave a Google review</a> too.</p>`
+      : emailButton(GOOGLE_REVIEW_URL, 'Leave a Google Review \u2605');
+  const reviewText = kind !== 'review' ? ''
+    : reviewToken
+      ? `${reviewStarsText(reviewToken)}\n\nPrefer Google? You can leave a Google review too: ${GOOGLE_REVIEW_URL}\n\n`
+      : `Leave a Google review: ${GOOGLE_REVIEW_URL}\n\n`;
   const gettingStarted = kind === 'delivered'
     ? callout('Getting Started', 'The User Guide is an app on the main screen of the phone — just tap it to open anytime. It works offline, and whenever you open it on Wi-Fi it checks for a newer version of the guide.<br><br>Your box also includes printed inserts: one walks you through the <strong>first steps</strong> to get set up, and another covers <strong>how to deploy</strong> when you need it.<br><br>You can also view the full User Guide on the web here: <a href="https://www.easternshore.ai/userguide.html" style="color:#0E6E86;font-weight:bold;">www.easternshore.ai/userguide.html</a>')
     : '';

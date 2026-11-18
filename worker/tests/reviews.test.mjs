@@ -89,14 +89,17 @@ test('review email has five one-tap star links for the order, reused on every se
   const token = tokenFrom(preview.html);
   assert.ok(token, 'preview has star links');
   for (const n of [1, 2, 3, 4, 5]) assert.ok(preview.html.includes(`rate.html?t=${token}&amp;r=${n}`) || preview.html.includes(`rate.html?t=${token}&r=${n}`), `star ${n}`);
-  assert.match(preview.html, /Leave a Google Review/, 'Google link still offered to everyone');
+  assert.match(preview.html, /Prefer Google\? You can <a href="https:\/\/www\.easternshore\.ai\/review"[^>]*>leave a Google review<\/a> too\./, 'Google offered to everyone, as a quiet line');
+  assert.doesNotMatch(preview.html, /Leave a Google Review \u2605|Leave a Google Review ★/, 'no second big button competing with the stars');
+  assert.ok(preview.html.indexOf('Prefer Google') > preview.html.indexOf('rate.html?t='), 'Google line comes after the stars');
 
   const res = await worker.fetch(post('/api/orders/send', { bookingId, kind: 'review', idempotencyKey: 'rv-1' }, admin), env, ctx);
   assert.equal(res.status, 200, await res.clone().text());
   const mail = env.EMAIL.sent[0];
   assert.equal(tokenFrom(mail.html), token, 'same token as the preview');
   assert.match(mail.text, new RegExp(`★★★★★ 5: https://www\\.easternshore\\.ai/rate\\.html\\?t=${token}&r=5`));
-  assert.match(mail.text, /Leave a Google review: https:\/\/www\.easternshore\.ai\/review/);
+  assert.match(mail.text, /Prefer Google\? You can leave a Google review too: https:\/\/www\.easternshore\.ai\/review/);
+  assert.doesNotMatch(mail.text, /also leave a review on Google/, 'the message no longer asks for Google before the stars');
   assert.match(mail.text, /tap a star below/i);
   await worker.fetch(post('/api/orders/send', { bookingId, kind: 'review', idempotencyKey: 'rv-2' }, admin), env, ctx);
   assert.equal(tokenFrom(env.EMAIL.sent[1].html), token, 'a second request keeps the link');

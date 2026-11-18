@@ -727,7 +727,7 @@ test('admin order emails: sent once per draft, review email carries List-Unsubsc
   assert.match(env.EMAIL.sent[1].html, /Track on USPS/);
   assert.match(env.EMAIL.sent[2].html, /Getting Started/);
   const review = env.EMAIL.sent[3];
-  assert.match(review.html, /Leave a Google Review/);
+  assert.match(review.html, /leave a Google review/i);
   assert.deepEqual(review.headers, { 'List-Unsubscribe': '<mailto:contact@easternshore.ai?subject=Unsubscribe%20from%20review%20requests>' });
   assert.equal(env.EMAIL.sent[0].headers, undefined);
 });

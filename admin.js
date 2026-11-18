@@ -958,8 +958,9 @@
       const reviewStarsPreview = isReview
         ? `<div style="margin:24px 0 8px;text-align:center;"><div style="font-weight:700;color:#eaf1ff;margin-bottom:8px;">How's your Survival Node? Tap a star:</div><div style="font-size:40px;line-height:44px;color:#E8A400;letter-spacing:8px;">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div style="font-size:13px;color:#a5b1c8;margin-top:8px;">1 = poor, 5 = great. One tap is all it takes; you can add a comment after if you like.</div></div>`
         : '';
+      // The stars are the one call to action; Google is a quiet line after them (same as the sent email).
       const googleReviewHtml = isReview
-        ? reviewStarsPreview + `<div style="margin:24px 0;text-align:center;"><a href="https://www.easternshore.ai/review" style="display:inline-block;background:#c850ff;background-image:linear-gradient(145deg,#ff4fd8,#c850ff);color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:6px;font-weight:700;font-size:16px;">Leave a Google Review &#9733;</a></div>`
+        ? reviewStarsPreview + `<p style="margin:28px 0 0;padding-top:16px;border-top:1px solid #2a2d42;text-align:center;font-size:13px;line-height:20px;color:#a5b1c8;">Prefer Google? You can <a href="https://www.easternshore.ai/review" style="color:#9ed0ff;">leave a Google review</a> too.</p>`
         : '';
       const trackProxyUrl = !isDelivered && !isReview && trackingNumber ? `https://services.easternshore.ai/track?n=${encodeURIComponent(trackingNumber)}${trackingProvider ? `&c=${encodeURIComponent(trackingProvider)}` : ''}` : '';
       const trackButtonLabel = trackingProvider ? `Track on ${trackingProvider.toUpperCase()}` : 'Track Your Shipment';
