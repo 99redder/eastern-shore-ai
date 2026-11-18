@@ -199,9 +199,9 @@
   <main class="wrap">
     <header class="hero">
       <img class="hero-icon" src="/images/guide-icons/user-guide.webp" alt="" width="76" height="76" />
-      <p class="kicker">Survival Node Gen 2</p>
+      <p class="kicker">Survival Node</p>
       <h1>Update Your User Guide</h1>
-      <p class="lead">The newest User Guide is <strong>version <span data-latest-version>1.18</span></strong>. These steps walk you through putting it on your Survival Node phone, one tap at a time, with pictures of every screen.</p>
+      <p class="lead">The newest User Guide is <strong>version <span data-latest-version>1.19</span></strong>. These steps walk you through putting it on your Survival Node phone, one tap at a time, with pictures of every screen.</p>
       <ul class="facts">
         <li>⏱ About 5 minutes</li>
         <li>📶 Needs Wi-Fi once</li>
@@ -221,13 +221,21 @@
       <!-- Newest version first. Spell out changes to how the app works or what it explains;
            legal or terms changes are just "Updated terms and conditions". See survival-node-app/README.md. -->
       <div class="version">
-        <div class="version-head"><h3>Version 1.18</h3><span>November 18, 2026</span></div>
+        <div class="version-head"><h3>Version 1.19</h3><span>November 18, 2026</span></div>
         <ul>
-          <li>The home screen description matches the new layout. The bottom row now has the User Guide, Settings and PocketPal, Camera and Clock are on the home screen with the other apps, and both Phone apps are in the Tools folder (Fossify Phone is the green one). Kits shipped before November 18, 2026 still have Phone, Settings and Camera in the bottom row.</li>
+          <li>One guide for every kit. If your kit was bought before September 2026, the Long-Term Storage and Faraday Bag Protection sections now have short notes for your earlier solar battery (the one with 4 cables) and plain black Faraday bags.</li>
+          <li>Guides with no version number can now update to this one, and kits that came with only the PDF guide can install the app, using the web browser steps on this page.</li>
+          <li>Update This Guide now gives the address of our owners page, <strong>easternshore.ai/owners</strong>. It lists every app, AI model and library we've added since your kit shipped, with a quick check and the steps to add each one.</li>
         </ul>
       </div>
       <details class="earlier">
         <summary>Earlier updates</summary>
+        <div class="version">
+          <div class="version-head"><h3>Version 1.18</h3><span>November 18, 2026</span></div>
+          <ul>
+            <li>The home screen description matches the new layout. The bottom row now has the User Guide, Settings and PocketPal, Camera and Clock are on the home screen with the other apps, and both Phone apps are in the Tools folder (Fossify Phone is the green one). Kits shipped before November 18, 2026 still have Phone, Settings and Camera in the bottom row.</li>
+          </ul>
+        </div>
         <div class="version">
           <div class="version-head"><h3>Version 1.17</h3><span>November 17, 2026</span></div>
           <ul>
@@ -395,9 +403,11 @@
           <figure class="shot wide"><img src="/images/guide-update/step2-version.webp" width="540" height="380" loading="lazy" alt="The bottom of the guide. The last line, outlined, says Survival Node User Guide v1.13." /><figcaption>The version is the last line.</figcaption></figure>
         </div>
         <div class="results">
-          <div class="result ok"><b>It says v<span data-latest-version>1.18</span></b>You already have the newest guide. You're done! Turn Wi-Fi off (step 8).</div>
+          <div class="result ok"><b>It says v<span data-latest-version>1.19</span></b>You already have the newest guide. You're done! Turn Wi-Fi off (step 8).</div>
           <div class="result go"><b>It says any other version number</b>Go on to step 3.</div>
-          <div class="result stop"><b>No version number, or it says Gen 1</b>You have a Gen 1 kit. Don't install this update: it's written for Gen 2 hardware, and your guide is the right one for your kit. Questions? Call or text <a href="tel:+13029079162">(302) 907-9162</a>.</div>
+          <div class="result go"><b>No version number</b>Your guide is the first version, from a kit bought before October 24, 2026. It can't show the orange box, so skip to <a href="#browser">No orange box? Use the web browser</a> below. The newest guide covers your kit too, with notes for kits bought before September 2026.</div>
+          <div class="result go"><b>No User Guide app on your home screen</b>Some early kits came with only the PDF guide. You can add the app: skip to <a href="#browser">No orange box? Use the web browser</a> below.</div>
+          <div class="result stop"><b>It says Gen 1</b>That's a separate guide made just for your kit. Don't install this update. Questions? Call or text <a href="tel:+13029079162">(302) 907-9162</a>.</div>
         </div>
       </div>
     </section>
@@ -457,7 +467,7 @@
       <h2>Tap Update, then Open</h2>
       <div class="step-body">
         <ol>
-          <li>Android asks <strong>"Do you want to update this app?"</strong> Tap <strong>Update</strong>.</li>
+          <li>Android asks <strong>"Do you want to update this app?"</strong> Tap <strong>Update</strong>. If your phone had no User Guide app before, it asks <strong>"Do you want to install this app?"</strong> instead: tap <strong>Install</strong>.</li>
           <li>A few seconds later it says <strong>App installed</strong>. Tap <strong>Open</strong>.</li>
         </ol>
         <div class="shots">
@@ -471,7 +481,7 @@
       <div class="step-num" aria-hidden="true">7</div>
       <h2>Check that it worked</h2>
       <div class="step-body">
-        <p>Scroll to the bottom of the guide. It should now say <strong>v<span data-latest-version>1.18</span></strong>, and the orange box is gone.</p>
+        <p>Scroll to the bottom of the guide. It should now say <strong>v<span data-latest-version>1.19</span></strong>, and the orange box is gone.</p>
         <div class="shots">
           <figure class="shot wide"><img src="/images/guide-update/step7-version.webp" width="540" height="380" loading="lazy" alt="The bottom of the guide. The last line, outlined, says Survival Node User Guide v1.15." /><figcaption>The new version number.</figcaption></figure>
         </div>
@@ -491,7 +501,7 @@
     </section>
 
     <h2 class="section-title" id="browser">No orange box? Use the web browser</h2>
-    <p class="section-intro">If the orange box never shows up but your guide isn't on v<span data-latest-version>1.18</span>, or tapping Update didn't download anything, get the update from this page instead.</p>
+    <p class="section-intro">If your guide has no version number, the orange box never shows up but your guide isn't on v<span data-latest-version>1.19</span>, or tapping Update didn't download anything, get the update from this page instead.</p>
 
     <section class="card">
       <ol>
@@ -508,8 +518,8 @@
         <li>This page opens. If a purple tip pops up, tap its <strong>X</strong>. Scroll down to this section and tap the orange button:</li>
       </ol>
       <div class="only-android">
-        <a class="btn" data-apk href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.18.apk">⬇ Download the newest guide</a>
-        <p class="btn-note">Version <span data-latest-version>1.18</span> · about 1 MB · for the Survival Node phone only</p>
+        <a class="btn" data-apk href="https://www.easternshore.ai/survival-node-app/survival-node-user-guide-v1.19.apk">⬇ Download the newest guide</a>
+        <p class="btn-note">Version <span data-latest-version>1.19</span> · about 1 MB · for the Survival Node phone only</p>
       </div>
       <p class="not-here only-other">The download button appears here when you open this page on the Survival Node phone.</p>
       <ol start="5">
@@ -558,7 +568,8 @@
       </details>
       <details>
         <summary>It asks to "install" instead of "update"</summary>
-        <p>Stop and call us at <a href="tel:+13029079162">(302) 907-9162</a>. That means the phone doesn't have the guide this update replaces, and we'll sort it out with you.</p>
+        <p>If your phone had no User Guide app before, that's expected: tap <strong>Install</strong>.</p>
+        <p>If you do have a User Guide app and it still says install, stop and call us at <a href="tel:+13029079162">(302) 907-9162</a>. That means the guide on your phone isn't the one this update replaces, and we'll sort it out with you.</p>
       </details>
       <details>
         <summary>Will I lose anything?</summary>
