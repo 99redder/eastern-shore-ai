@@ -843,24 +843,25 @@ body {
     </div></div>
   </div>
 
-  <div class="card" id="update-ai" data-search="update ai models pocketpal download">
+  <div class="card" id="update-ai" data-search="update ai models pocketpal download hugging face add model">
     <button class="card-trigger" onclick="toggleCard(this)">
       <span class="card-icon">🤖</span>
       <span>Update AI Models</span>
       <span class="arrow">▼</span>
     </button>
     <div class="card-body"><div class="card-content">
-      <p>AI models improve regularly. Your 6-month check is a good time to update. Takes about 5–10 minutes on Wi-Fi. Your Survival Node ships with two offline models — <strong>Qwen 3.5-4B</strong> (primary) and <strong>Qwen 3.5-2B</strong> (fast backup).</p>
+      <p>Your Survival Node ships with two offline AI models: <strong>Qwen 3.5-4B</strong> (primary) and <strong>Qwen 3.5-2B</strong> (fast backup and voice input).</p>
+      <div class="callout warning">⚠️ <strong>Keep Qwen 3.5-4B on the phone.</strong> It's the model the Survival Node Pal was tested with, and the one to use for first aid, water and anything you'll act on.</div>
+      <p>At your 6-month check, look at the owners page on Wi-Fi: when we test and recommend a newer model, it's listed there with the steps to add it. Type this into <strong>Fennec</strong>'s address bar:<br><span class="type-addr">easternshore.ai/owners</span></p>
+      <p>You can also try other models on your own. We haven't tested them with the Survival Node Pal, so check what they tell you against the survival references before you rely on it. The phone has 8GB of memory, so choose model files about 3 GB or smaller.</p>
       <ol class="steps">
-        <li>Connect the phone to Wi-Fi</li>
-        <li>Open the <strong>PocketPal</strong> app</li>
-        <li>Tap the menu (☰) at the top left, then <strong>Models</strong></li>
-        <li>Browse available models — look for updated versions or newer options at similar sizes</li>
-        <li>Tap <strong>Download</strong> on any model you want to add</li>
-        <li>Tap <strong>Load</strong> on the model to confirm it loads</li>
-        <li>Delete old version: menu (☰) → Models → tap the Delete icon on the old model</li>
+        <li>Connect to Wi-Fi and check you have room: <strong>Settings</strong> → <strong>Storage</strong>. A model takes 1–3 GB</li>
+        <li>Open <strong>PocketPal</strong>. Tap the menu (☰) at the top left, then <strong>Models</strong></li>
+        <li>Tap the <strong>+</strong> button at the bottom right, then <strong>Add from Hugging Face</strong></li>
+        <li>Search for the model by name and tap a result. Choose a file ending in <strong>Q4_K_M.gguf</strong>, about 3 GB or smaller, and tap its download button</li>
+        <li>When it finishes, tap <strong>Load</strong> on its card to check that it works</li>
+        <li>To remove a model you added: menu (☰) → Models → tap the Delete icon on its card. Don't delete Qwen 3.5-4B</li>
       </ol>
-      <div class="callout tip">💡 Swap like-for-like by size — replace small with new small, medium with new medium. Keeps storage balanced.</div>
     </div></div>
   </div>
 
