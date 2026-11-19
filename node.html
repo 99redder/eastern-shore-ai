@@ -202,6 +202,10 @@
       padding: 1rem;
     }
     .card h2 { margin-top: 0; color: var(--cyan); font-size: 1.4rem; }
+    .ai-note { display: flex; gap: .7rem; align-items: flex-start; margin: 1rem 0; padding: .8rem 1rem; background: rgba(158, 208, 255, .06); border: 1px solid var(--line); border-left: 4px solid var(--cyan); clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+    .ai-note-icon { font-size: 1.35rem; line-height: 1.25; }
+    .ai-note p { margin: 0; color: var(--text); font-size: .98rem; line-height: 1.5; }
+    .ai-note strong { color: var(--cyan); }
     .buyer-review {
       margin: 1rem 0;
       padding: clamp(1rem, 3vw, 1.5rem);
@@ -1980,6 +1984,13 @@
     <button class="car-arrow car-next" id="car-next" aria-label="Next slide">›</button>
     -->
     </div>
+
+    <!-- How to use the AI safely (Red, 2026-11-18): references are the primary source. Keep it in step with the
+         "Can I trust the AI" FAQ and the terms' "AI Answers" clause. -->
+    <aside class="ai-note" aria-label="How to use the AI">
+      <span class="ai-note-icon" aria-hidden="true">📚</span>
+      <p><strong>References first, AI second.</strong> The offline libraries on the phone (WikiMed, the Survival Manual and more) are your primary source. The AI helps you find the right page and talk through follow-up questions the books don't answer, but it can be wrong, so check anything you'll act on.</p>
+    </aside>
 
     <article class="card" style="padding:1rem 1.1rem;">
       <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.85rem;">
