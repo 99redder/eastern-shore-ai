@@ -40,28 +40,6 @@
       color: var(--text);
       min-height: 100vh;
     }
-    .back-btn {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      z-index: 6000;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.6rem 0.95rem;
-      font-family: 'Hanken Grotesk', sans-serif;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-size: 0.78rem;
-      color: #f4f9ff;
-      text-decoration: none;
-      background: linear-gradient(145deg, #5f7597, #8fa6c8);
-      border: 1px solid rgba(198, 220, 255, 0.55);
-      box-shadow: 0 0 12px rgba(158, 208, 255, 0.35);
-      clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
-    }
-    .back-btn:hover { filter: brightness(1.1); }
 
     .wrap { max-width: 1160px; margin: 0 auto; padding: 2.4rem 1rem 3rem; }
     .hero-logo { width:min(180px, 42vw); display:block; margin: 0 auto .6rem; filter: drop-shadow(0 0 16px rgba(158,208,255,.25)); }
@@ -165,7 +143,7 @@
 
     @media print {
       body { background: #fff !important; color: #111 !important; }
-      .back-btn, .topics, .topics-label, .guide-card, .wrap > h1, .sub, .owners-note, .hero-logo { display: none !important; }
+      .topics, .topics-label, .guide-card, .wrap > h1, .sub, .owners-note, .hero-logo { display: none !important; }
       .wrap { padding: 0 !important; max-width: 100% !important; }
       #pdf-print-content { display: block !important; font-family: 'Titillium Web', sans-serif; font-size: 17px; color: #111; line-height: 1.85; }
 
@@ -237,7 +215,6 @@
   </style>
 </head>
 <body>
-  <a href="/owners.html" id="global-back-btn" class="back-btn" aria-label="Back to the Survival Node owners page">← Back</a>
 
   <main class="wrap">
     <img src="/images/carousel/entirenode/wholekit-gen2.png" alt="Survival Node Gen 2 complete kit" class="hero-logo" />

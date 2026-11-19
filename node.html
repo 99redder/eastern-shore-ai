@@ -89,7 +89,6 @@
     .back-btn:hover { filter: brightness(1.1); }
     #users-guide-btn { top: 4.5rem; }
 
-    #global-back-btn { top: auto; bottom: 1.2rem; }
 .promo-toggle {
       background: none;
       border: 1px solid rgba(157,255,122,.45);
@@ -1232,7 +1231,7 @@
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
       .buy-now-float { padding: 0.75rem 1.4rem; font-size: 1.05rem; }
-      #global-back-btn, #users-guide-btn, .buy-now-float, .veteran-float { display: none !important; }
+      #users-guide-btn, .buy-now-float, .veteran-float { display: none !important; }
       .askk-fab { width: 52px; height: 52px; font-size: 1.4rem; bottom: 1rem; right: 1rem; }
       .askk-fab-label { display: none; }
       .askk-drawer { width: 100vw; right: -100vw; }
@@ -1784,7 +1783,6 @@
   <script src="/seasonal-sale.js?v=20261117"></script>
 </head>
 <body>
-<a href="/" id="global-back-btn" class="back-btn" aria-label="Back to homepage">← Back</a>
   <a href="#choose-kit" class="buy-now-float" id="buy-now-float">
     <span>Buy Now ↓</span>
     <span class="float-regular sale-only" hidden>Regularly <s>$349.99</s></span>
@@ -2897,19 +2895,16 @@
       const photoModal    = document.getElementById('photo-modal');
       const photoModalImg = document.getElementById('photo-modal-img');
       const photoModalClose = document.getElementById('photo-modal-close');
-      const _backBtn  = document.getElementById('global-back-btn');
       const _guideBtn = document.getElementById('users-guide-btn');
       function openPhoto(src, alt) {
         photoModalImg.src = src;
         photoModalImg.alt = alt;
         photoModal.classList.add('open');
-        if (_backBtn)  _backBtn.style.visibility  = 'hidden';
         if (_guideBtn) _guideBtn.style.visibility = 'hidden';
       }
       function closePhoto() {
         photoModal.classList.remove('open');
         photoModalImg.src = '';
-        if (_backBtn)  _backBtn.style.visibility  = '';
         if (_guideBtn) _guideBtn.style.visibility = '';
       }
       galleryEl.addEventListener('click', e => {
