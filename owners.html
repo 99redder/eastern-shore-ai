@@ -176,6 +176,14 @@
     table.libs tr.total td { font-weight: 700; color: #fff; border-bottom: 0; }
     table.libs .new { font-size: .75rem; font-weight: 700; color: var(--green); margin-left: .3rem; white-space: nowrap; }
     table.libs .aka { display: block; font-size: .88rem; color: var(--muted); }
+    table.libs .soon { font-size: .75rem; font-weight: 700; color: var(--orange); margin-left: .3rem; white-space: nowrap; }
+
+    /* What's new (same look as guide-update.html) */
+    .version { margin: .6rem 0 0; }
+    .version-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .7rem; margin: 0 0 .2rem; }
+    .version-head h3 { margin: 0; font-size: 1.12rem; color: #fff; }
+    .version-head span { color: var(--muted); font-size: .95rem; }
+    .version ul { margin-top: .2rem; }
 
     /* Hardware */
     .compare { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin: .8rem 0 .2rem; }
@@ -233,10 +241,11 @@
         <li>✅ A quick check for each change</li>
         <li>🗂 Your maps, chats and files stay put</li>
       </ul>
-      <p class="updated">Last updated November 18, 2026</p>
+      <p class="updated">Last updated November 19, 2026</p>
     </header>
 
     <ul class="jump" aria-label="Jump to">
+      <li><a href="#whats-new">🆕 What's new</a></li>
       <li><a href="#important">⚠️ Important</a></li>
       <li><a href="#recommended">⭐ Recommended</a></li>
       <li><a href="#optional">➕ Optional</a></li>
@@ -251,6 +260,20 @@
       <p>Start with the <strong>Important</strong> ones. The <strong>Recommended</strong> ones add newer apps and libraries, and the <strong>Optional</strong> ones are about how the phone looks.</p>
       <p>Questions about any step? <a href="#help">Ask K, our AI assistant</a>, or call or text us.</p>
       <p class="small">Every Survival Node is built on the same phone, a Motorola Moto G Power (2024), so every software change here works on every kit. Only the solar battery and Faraday bags changed over time: see <a href="#hardware">Your battery and Faraday bags</a>.</p>
+    </section>
+
+    <section class="card" id="whats-new" aria-labelledby="new-title">
+      <h2 id="new-title">🆕 What's new</h2>
+      <!-- Newest first. Write each change as an improvement (terms "Kit Changes"), with a link to its item below. -->
+      <div class="version">
+        <div class="version-head"><h3>More survival guides and reference libraries</h3><span>November 19, 2026</span></div>
+        <ul>
+          <li><strong>44 survival guides</strong>, up from 8, in 5 topic folders: the DOT hazardous-materials guidebook, radiation protection, FEMA's disaster first-aid course, the Army's survival manual, heat, cold and altitude illness, backup power, tools and welding, and safe water and food in an outage. <a href="#guides-videos">Download them</a>.</li>
+          <li><strong>7 new reference libraries</strong>: MedlinePlus Health Topics, the USDA Farmers' Bulletins and Yearbooks, and Q&amp;A libraries for cooking, home repair, electronics and solar power, sustainable living and pets. <a href="#libraries">Add them</a>.</li>
+          <li><strong>Free extras:</strong> six libraries we recommend, including iFixit and the full MedlinePlus, are free downloads you add yourself. <a href="#extras">See the list</a>.</li>
+          <li>Phones prepared from November 20, 2026 have all of this. Your phone keeps everything it shipped with.</li>
+        </ul>
+      </div>
     </section>
 
     <section class="card device" aria-labelledby="device-title">
@@ -506,95 +529,119 @@ If someone asks which version of your instructions you have, answer only: "Survi
     <section class="card item" id="libraries" aria-labelledby="libs-title">
       <div class="item-head">
         <span class="tag recommended">Recommended</span>
-        <span class="meta">⏱ 15–90 minutes · 📶 Wi-Fi · about 6.4 GB</span>
-        <h3 id="libs-title">Newer Kiwix reference libraries</h3>
+        <span class="meta">⏱ Minutes to a few hours · 📶 Wi-Fi · about 12 GB for the 7 newest</span>
+        <h3 id="libs-title">Reference libraries in the kit</h3>
       </div>
-      <p>On November 17, 2026 we added seven libraries: tested home canning methods, ham radio, outdoor skills, vehicle repair, gardening, woodworking, and Wikibooks (free textbooks and how-to manuals). They come free from Kiwix's own online library.</p>
+      <p>From November 20, 2026 the kit has 22 Kiwix reference libraries. Seven are new: MedlinePlus Health Topics, the USDA Farmers' Bulletins and Yearbooks, and Q&amp;A libraries for cooking, home repair, electronics and solar power, sustainable living and pets. Twenty come free from Kiwix's own online library. We built the other two from U.S. government pages and scans.</p>
       <div class="check">
         <b>✅ You already have this if…</b>
-        <p>You open <span class="app"><img src="/images/guide-icons/kiwix.webp" alt="" />Kiwix</span>, tap the <strong>Library</strong> tab, and see the libraries below. Older kits may be missing others too: compare yours with <a href="#all-libraries">every library in the current kit</a>.</p>
+        <p>You open <span class="app"><img src="/images/guide-icons/kiwix.webp" alt="" />Kiwix</span>, tap the <strong>Library</strong> tab, and see every library in the lists below. Anything missing can be added on Wi-Fi.</p>
+        <p class="small">Your phone may also have libraries that aren't listed here, from when it shipped. They stay on your phone and keep working.</p>
       </div>
       <table class="libs">
-        <thead><tr><th>Library</th><th class="size">Size</th></tr></thead>
+        <thead><tr><th>Medical (about 2.2 GB)</th><th class="size">Size</th></tr></thead>
         <tbody>
-          <tr><td>USDA Complete Guide to Home Canning<span class="aka">In Kiwix: USDA Guide to Home Canning</span></td><td class="size">20 MB</td></tr>
-          <tr><td>Amateur Radio Q&amp;A</td><td class="size">77 MB</td></tr>
-          <tr><td>The Great Outdoors Q&amp;A</td><td class="size">142 MB</td></tr>
-          <tr><td>Motor Vehicle Mechanics Q&amp;A<span class="aka">In Kiwix: Motor Vehicle Mechanics</span></td><td class="size">342 MB</td></tr>
-          <tr><td>Gardening &amp; Landscaping Q&amp;A</td><td class="size">933 MB</td></tr>
-          <tr><td>Woodworking Q&amp;A</td><td class="size">107 MB</td></tr>
-          <tr><td>Wikibooks<span class="aka">Pick the 4.7 GB one, with pictures</span></td><td class="size">4.7 GB</td></tr>
-          <tr class="total"><td>All seven</td><td class="size">about 6.4 GB</td></tr>
+          <tr><td>WikiMed Medical Encyclopedia (Full)<span class="aka">Thousands of medical articles, fully searchable offline · In Kiwix: WikiMed Medical Encyclopedia, the 1.9 GB one</span></td><td class="size">1.9 GB</td></tr>
+          <tr><td>MedlinePlus Health Topics <span class="new">NEW</span><span class="aka">Plain-English summaries of more than 1,000 health topics and 300 lab tests from the U.S. National Library of Medicine, plus NIH herb and supplement facts · Built by us, not in Kiwix's library: <a href="#our-libraries">download it below</a></span></td><td class="size">3 MB</td></tr>
+          <tr><td>Military Medicine<span class="aka">U.S. military medical field manuals</span></td><td class="size">60 MB</td></tr>
+          <tr><td>NHS Medicines A to Z<span class="aka">How medicines work and how to take them · In Kiwix: NHS' Medicines A to Z</span></td><td class="size">20 MB</td></tr>
+          <tr><td>CDC Travelers' Health<span class="aka">Disease prevention advice · In Kiwix: Travelers' Health</span></td><td class="size">180 MB</td></tr>
+          <tr><td>Medical Sciences Q&amp;A<span class="aka">Questions and answers on medicine and health</span></td><td class="size">60 MB</td></tr>
         </tbody>
       </table>
-      <p class="small"><strong>How long?</strong> All seven take roughly 10 to 15 minutes on fast home internet, and 30 to 90 minutes on slower internet. Wikibooks is most of it. The six small ones take a few minutes together.</p>
+      <table class="libs">
+        <thead><tr><th>General, survival and skills (about 33 GB)</th><th class="size">Size</th></tr></thead>
+        <tbody>
+          <tr><td>Wikipedia (Summaries)<span class="aka">The opening summary of every English Wikipedia article · In Kiwix: Wikipedia, the 14.4 GB "mini" one</span></td><td class="size">14.4 GB</td></tr>
+          <tr><td>Knots<span class="aka">Illustrated knot reference · In Kiwix: Knots by Wikipedia</span></td><td class="size">10 MB</td></tr>
+          <tr><td>Appropedia<span class="aka">Shared knowledge for sustainable, practical living</span></td><td class="size">580 MB</td></tr>
+          <tr><td>USDA Farmers' Bulletins and Yearbooks <span class="new">NEW</span><span class="aka">1,080 USDA guides from 1891 to 1984 on growing food, livestock and poultry, animal health, food storage, wells and water, buildings, tools and farm skills, plus 6 Yearbooks of Agriculture. Outdated chemical and canning advice was screened out. Bulletins open as PDFs in Fennec · Built by us, not in Kiwix's library: <a href="#our-libraries">download coming soon</a></span></td><td class="size">5.2 GB</td></tr>
+          <tr><td>USDA Complete Guide to Home Canning<span class="aka">Tested, research-based canning methods · In Kiwix: USDA Guide to Home Canning</span></td><td class="size">20 MB</td></tr>
+          <tr><td>Seasoned Advice (Cooking) Q&amp;A <span class="new">NEW</span><span class="aka">Cooking, food safety and preserving food · In Kiwix: Cooking Q&amp;A (Seasoned Advice)</span></td><td class="size">240 MB</td></tr>
+          <tr><td>Home Improvement Q&amp;A <span class="new">NEW</span><span class="aka">Home repair, plumbing, wiring and building</span></td><td class="size">2.1 GB</td></tr>
+          <tr><td>Electrical Engineering Q&amp;A <span class="new">NEW</span><span class="aka">Electronics, batteries, solar power and circuit repair · In Kiwix: Electronics Q&amp;A</span></td><td class="size">4.3 GB</td></tr>
+          <tr><td>Motor Vehicle Mechanics Q&amp;A<span class="aka">Repairing and maintaining cars, trucks and small engines · In Kiwix: Motor Vehicle Mechanics</span></td><td class="size">340 MB</td></tr>
+          <tr><td>Amateur Radio Q&amp;A<span class="aka">Ham radio, from licensing to antennas</span></td><td class="size">80 MB</td></tr>
+          <tr><td>The Great Outdoors Q&amp;A<span class="aka">Camping, hiking, wilderness skills and safety</span></td><td class="size">140 MB</td></tr>
+          <tr><td>Gardening &amp; Landscaping Q&amp;A<span class="aka">Growing food, soil, pests and plant care</span></td><td class="size">930 MB</td></tr>
+          <tr><td>Woodworking Q&amp;A<span class="aka">Tools, joinery and building with wood</span></td><td class="size">110 MB</td></tr>
+          <tr><td>Sustainable Living Q&amp;A <span class="new">NEW</span><span class="aka">Off-grid power, water and low-waste living</span></td><td class="size">30 MB</td></tr>
+          <tr><td>Pets Q&amp;A <span class="new">NEW</span><span class="aka">Care and health questions for dogs, cats and other pets</span></td><td class="size">90 MB</td></tr>
+          <tr><td>Wikibooks<span class="aka">Free textbooks and how-to manuals, with pictures · Pick the 4.7 GB one</span></td><td class="size">4.7 GB</td></tr>
+          <tr class="total"><td>All 22 libraries</td><td class="size">about 35 GB</td></tr>
+        </tbody>
+      </table>
+      <p class="small"><strong>How long?</strong> On fast home internet, about 2 minutes per GB. On slower internet, 5 to 15 minutes per GB. The small libraries take a minute or two each.</p>
       <details class="howto">
-        <summary>Show the steps</summary>
+        <summary>Show the steps: libraries from Kiwix</summary>
         <ol>
-          <li>Check your free space: open <strong>Settings</strong>, then <strong>Storage</strong>. You need about 7 GB free for all seven.</li>
+          <li>Check your free space: open <strong>Settings</strong>, then <strong>Storage</strong>. Leave a few GB free after adding up the sizes of the libraries you want.</li>
           <li>Connect to Wi-Fi and open <strong>Kiwix</strong>.</li>
-          <li>Tap the <strong>Download</strong> tab at the bottom (called <strong>Explore</strong> in newer versions of Kiwix).</li>
-          <li>Tap the search icon and type part of the library's name, such as <strong>canning</strong> or <strong>woodworking</strong>.</li>
-          <li>Tap the library to download it. Check its size first: for Wikibooks, pick the 4.7 GB one.</li>
+          <li>Tap <strong>Download</strong> at the bottom right (called <strong>Explore</strong> in newer versions of Kiwix).</li>
+          <li>Tap the magnifying glass and type one word of the library's name as Kiwix shows it, such as <strong>cooking</strong>, <strong>electronics</strong> or <strong>pets</strong>.</li>
+          <li>Tap the library to download it. Check its size against the list above first: for Wikibooks, pick the 4.7 GB one.</li>
           <li>Repeat for each library. They download one after another; you can watch the progress.</li>
           <li>When they're done, tap the <strong>Library</strong> tab and pull the list down to refresh it. The new libraries appear there.</li>
         </ol>
-        <p class="small"><strong>Need more room?</strong> Kits sold before November 17, 2026 also have Project Gutenberg General Works, about 9.7 GB, mostly old magazines. It's no longer in the kit. You can keep it, or delete it in Kiwix's Library tab: press and hold it, then tap the trash icon. It's the larger of the two "Project Gutenberg" libraries; keep the medicine one.</p>
+        <p class="small"><strong>Need more room?</strong> Kits sold before November 17, 2026 also have Project Gutenberg General Works, about 9.7 GB, mostly old magazines. It's no longer in the kit. You can keep it, but if you need space for new libraries, it's the one to remove first: in Kiwix's Library tab, press and hold it, then tap the trash icon. Check the size before you delete: it's the larger of the two "Project Gutenberg" libraries.</p>
       </details>
-      <details class="howto" id="all-libraries">
-        <summary>Every library in the current kit</summary>
-        <p class="small">Sizes are Kiwix's current versions, so yours may differ a little. Anything missing from your Library tab can be downloaded the same way.</p>
+      <details class="howto" id="our-libraries">
+        <summary>Show the steps: MedlinePlus Health Topics and the Farmers' Bulletins</summary>
+        <p>We built these two from U.S. government pages and scans, so they aren't in Kiwix's online library. Download them from our file server instead.</p>
+        <ol>
+          <li>Connect to Wi-Fi and open this page on the Survival Node in <strong>Fennec</strong>.</li>
+          <li>Tap the library below. If Fennec asks, tap <strong>Download</strong>. It saves to your <strong>Download</strong> folder.</li>
+          <li>When it's done, open <strong>Kiwix</strong>, tap the <strong>Library</strong> tab and pull the list down to refresh it. The library appears there.</li>
+        </ol>
         <table class="libs">
-          <thead><tr><th>Medical</th><th class="size">Size</th></tr></thead>
+          <thead><tr><th>Built by Eastern Shore AI</th><th class="size">Size</th></tr></thead>
           <tbody>
-            <tr><td>WikiMed Medical Encyclopedia<span class="aka">The 1.9 GB one, with pictures</span></td><td class="size">1.9 GB</td></tr>
-            <tr><td>MDWiki Medical Encyclopedia<span class="aka">The 2.3 GB one</span></td><td class="size">2.3 GB</td></tr>
-            <tr><td>MedlinePlus</td><td class="size">1.9 GB</td></tr>
-            <tr><td>Project Gutenberg Medicine<span class="aka">In Kiwix: Project Gutenberg Library (medicine)</span></td><td class="size">1.5 GB</td></tr>
-            <tr><td>Medicine LibreTexts</td><td class="size">1.2 GB</td></tr>
-            <tr><td>Surviving Residency</td><td class="size">530 MB</td></tr>
-            <tr><td>CDC Travelers' Health<span class="aka">In Kiwix: Travelers' Health</span></td><td class="size">180 MB</td></tr>
-            <tr><td>Libre Pathology</td><td class="size">100 MB</td></tr>
-            <tr><td>Medical Library</td><td class="size">70 MB</td></tr>
-            <tr><td>Military Medicine</td><td class="size">60 MB</td></tr>
-            <tr><td>Medical Sciences Q&amp;A</td><td class="size">60 MB</td></tr>
-            <tr><td>WikiVet</td><td class="size">60 MB</td></tr>
-            <tr><td>NHS Medicines A to Z</td><td class="size">20 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/libraries/survivalnode_medlineplus_en_2026-11.zim" rel="noopener">MedlinePlus Health Topics</a><span class="aka">From MedlinePlus's own public-domain pages; not the full MedlinePlus site</span></td><td class="size">3 MB</td></tr>
+            <tr><td>USDA Farmers' Bulletins and Yearbooks <span class="soon">COMING SOON</span><span class="aka">The download isn't ready yet. Check back on this page.</span></td><td class="size">5.2 GB</td></tr>
           </tbody>
         </table>
-        <table class="libs">
-          <thead><tr><th>Survival and general reference</th><th class="size">Size</th></tr></thead>
-          <tbody>
-            <tr><td>Wikipedia (summaries)<span class="aka">The 14.4 GB "mini" one: the opening summary of every article</span></td><td class="size">14.4 GB</td></tr>
-            <tr><td>Wikibooks <span class="new">NEW</span></td><td class="size">4.7 GB</td></tr>
-            <tr><td>Learning Self Reliance</td><td class="size">4.0 GB</td></tr>
-            <tr><td>iFixit<span class="aka">In Kiwix: iFixit in English</span></td><td class="size">3.6 GB</td></tr>
-            <tr><td>Gardening &amp; Landscaping Q&amp;A <span class="new">NEW</span></td><td class="size">933 MB</td></tr>
-            <tr><td>Appropedia</td><td class="size">580 MB</td></tr>
-            <tr><td>Motor Vehicle Mechanics Q&amp;A <span class="new">NEW</span></td><td class="size">342 MB</td></tr>
-            <tr><td>The Great Outdoors Q&amp;A <span class="new">NEW</span></td><td class="size">142 MB</td></tr>
-            <tr><td>Woodworking Q&amp;A <span class="new">NEW</span></td><td class="size">107 MB</td></tr>
-            <tr><td>Food for Preppers</td><td class="size">100 MB</td></tr>
-            <tr><td>Amateur Radio Q&amp;A <span class="new">NEW</span></td><td class="size">77 MB</td></tr>
-            <tr><td>Water Treatment Library</td><td class="size">20 MB</td></tr>
-            <tr><td>USDA Complete Guide to Home Canning <span class="new">NEW</span></td><td class="size">20 MB</td></tr>
-            <tr><td>Knots<span class="aka">In Kiwix: Knots by Wikipedia</span></td><td class="size">10 MB</td></tr>
-            <tr><td>Survivor Library<span class="aka">The kit's copy isn't in Kiwix's online library: today's version is about 220 GB, too big for the phone</span></td><td class="size">—</td></tr>
-          </tbody>
-        </table>
+        <p class="small">Leave the file in your Download folder: Kiwix reads it from there.</p>
       </details>
+    </section>
+
+    <section class="card item" id="extras" aria-labelledby="extras-title">
+      <div class="item-head">
+        <span class="tag recommended">Free extras</span>
+        <span class="meta">⏱ 30 minutes to a few hours · 📶 Wi-Fi · about 12 GB for all six</span>
+        <h3 id="extras-title">Free extras we recommend</h3>
+      </div>
+      <p>Six more libraries worth having. They're free from their makers for personal use, and you download them yourself from Kiwix's online library. They aren't part of the kit, and we haven't checked them.</p>
+      <p class="small">Why aren't they in the kit? Their licenses allow free personal use but not selling them on a kit. If your phone already has them, keep them: nothing on your phone changes.</p>
+      <div class="check">
+        <b>✅ You already have this if…</b>
+        <p>In Kiwix's <strong>Library</strong> tab you see the libraries below. Many kits sold before November 20, 2026 came with some or all of them.</p>
+      </div>
+      <table class="libs">
+        <thead><tr><th>Free extras</th><th class="size">Size</th></tr></thead>
+        <tbody>
+          <tr><td>MedlinePlus<span class="aka">The full MedlinePlus site, not just the health topics · In Kiwix: MedlinePlus, the 1.9 GB one</span></td><td class="size">1.9 GB</td></tr>
+          <tr><td>Medical Library<span class="aka">Field and emergency medicine: Where There Is No Doctor, Where There Is No Dentist, A Book for Midwives</span></td><td class="size">70 MB</td></tr>
+          <tr><td>iFixit<span class="aka">Step-by-step repair guides · In Kiwix: iFixit in English</span></td><td class="size">3.6 GB</td></tr>
+          <tr><td>MDWiki<span class="aka">Medical encyclopedia · In Kiwix: MDWiki Medical Encyclopedia, the 2.3 GB one</span></td><td class="size">2.3 GB</td></tr>
+          <tr><td>Learning Self Reliance<span class="aka">Self-reliance skills · In Kiwix: Learning Self-Reliance</span></td><td class="size">4.0 GB</td></tr>
+          <tr><td>WikiVet<span class="aka">Veterinary medicine reference</span></td><td class="size">60 MB</td></tr>
+          <tr class="total"><td>All six</td><td class="size">about 12 GB</td></tr>
+        </tbody>
+      </table>
+      <p class="small">Download them the same way as the <a href="#libraries">libraries in the kit</a>: on Wi-Fi, open Kiwix, tap <strong>Download</strong> at the bottom right, then the magnifying glass, and search for the name.</p>
     </section>
 
     <section class="card item" id="guides-videos" aria-labelledby="gv-title">
       <div class="item-head">
         <span class="tag recommended">Recommended</span>
-        <span class="meta">⏱ 5–15 minutes · 📶 Wi-Fi · about 710 MB for all</span>
+        <span class="meta">⏱ 10–30 minutes · 📶 Wi-Fi · about 920 MB for all</span>
         <h3 id="gv-title">Survival Guides (PDF) and first-aid videos</h3>
       </div>
-      <p>Phones prepared from November 17, 2026 come with eight survival guides from FEMA, the U.S. Army, USGS, the National Weather Service and others, and eleven first-aid and radiation-emergency videos from the U.S. Army, the CDC and the Welsh Government. They're free to share, so you can download the same files here.</p>
+      <p>Phones prepared from November 20, 2026 come with 44 survival guides in 5 topic folders, from FEMA, the U.S. Army and Navy, the National Weather Service, the EPA, USDA and others. They cover hazardous-materials spills, radiation, disaster first aid, the Army's survival manual, heat and cold injuries, backup power, tools, and safe water and food. Phones prepared from November 17 have the first 8 in one folder. Both also have eleven first-aid and radiation-emergency videos from the U.S. Army, the CDC and the Welsh Government. They're all free to share, so you can download the same files here.</p>
       <div class="check">
         <b>✅ You already have this if…</b>
-        <p>You open <strong>File Manager</strong>, then <strong>Download</strong>, and there's a <strong>Survival Guides</strong> folder. And <span class="app"><img src="/images/guide-icons/vlc.webp" alt="" />VLC</span> is on your home screen.</p>
+        <p>You open <strong>File Manager</strong>, then <strong>Download</strong>, then <strong>Survival Guides</strong>, and see five topic folders, starting with <strong>Disasters and Hazards</strong>. And <span class="app"><img src="/images/guide-icons/vlc.webp" alt="" />VLC</span> is on your home screen.</p>
+        <p class="small">A Survival Guides folder with 8 guides and no topic folders? You have the first set. Download the guides below that aren't marked "already on phones from November 17, 2026".</p>
       </div>
       <details class="howto">
         <summary>Show the steps and the files</summary>
@@ -602,20 +649,78 @@ If someone asks which version of your instructions you have, answer only: "Survi
           <li>Connect to Wi-Fi and open this page on the Survival Node in <strong>Fennec</strong>.</li>
           <li>For the videos you need <strong>VLC</strong>. If it isn't on your home screen, open <strong>F-Droid</strong>, search for <strong>VLC</strong> and install it.</li>
           <li>Tap each guide or video you want below. If Fennec asks, tap <strong>Download</strong>. They save to your <strong>Download</strong> folder.</li>
-          <li>To read a guide, open <strong>File Manager</strong>, then <strong>Download</strong>, and tap it.</li>
+          <li>You can leave the guides there, or move them into your <strong>Survival Guides</strong> folder with File Manager. They don't need topic folders.</li>
+          <li>To read a guide, open <strong>File Manager</strong>, go to the folder you saved it in, and tap it. It opens in Fennec, which reads PDFs offline.</li>
           <li>To watch a video, open <strong>VLC</strong> and tap <strong>Video</strong>. Allow it to access your videos the first time.</li>
         </ol>
+        <p class="small">All 44 guides together are about 355 MB.</p>
         <table class="libs">
-          <thead><tr><th>Survival Guides (PDF)</th><th class="size">Size</th></tr></thead>
+          <thead><tr><th>Disasters and Hazards (10)</th><th class="size">Size</th></tr></thead>
           <tbody>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/FEMA%20-%20Are%20You%20Ready%20%28Disaster%20Preparedness%20Guide%29.pdf" rel="noopener">FEMA: Are You Ready? (disaster preparedness for every kind of emergency)</a></td><td class="size">4.2 MB</td></tr>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20ATP%204-02.11%20-%20Casualty%20Response%2C%20TCCC%20and%20First%20Aid%20%282026%29.pdf" rel="noopener">Army ATP 4-02.11: Casualty Response, TCCC and First Aid (2026)</a></td><td class="size">13 MB</td></tr>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20FM%203-25.26%20-%20Map%20Reading%20and%20Land%20Navigation%20%282001%29.pdf" rel="noopener">Army FM 3-25.26: Map Reading and Land Navigation</a></td><td class="size">24 MB</td></tr>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/USGS%20-%20Finding%20Your%20Way%20with%20Map%20and%20Compass.pdf" rel="noopener">USGS: Finding Your Way with Map and Compass</a></td><td class="size">205 KB</td></tr>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/NWS%20-%20Weather%20Spotters%20Field%20Guide.pdf" rel="noopener">National Weather Service: Weather Spotter&#x27;s Field Guide</a></td><td class="size">28 MB</td></tr>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/CISA%20-%20National%20Interoperability%20Field%20Operations%20Guide%20%28NIFOG%202.02%29.pdf" rel="noopener">CISA NIFOG: emergency radio channels and procedures</a></td><td class="size">6.7 MB</td></tr>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/NCVEC%20-%20Technician%20Ham%20Radio%20Exam%20Question%20Pool%202026-2030.pdf" rel="noopener">Ham radio Technician exam question pool (2026–2030)</a></td><td class="size">480 KB</td></tr>
-            <tr><td><a href="https://files.easternshore.ai/survival-guides/Nuclear%20War%20Survival%20Skills%20%28Kearny%2C%201987%29.pdf" rel="noopener">Nuclear War Survival Skills (Cresson Kearny, 1987)</a></td><td class="size">74 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/DOT%20-%20Emergency%20Response%20Guidebook%20for%20Hazardous%20Materials%20%282024%29.pdf" rel="noopener">DOT: Emergency Response Guidebook for Hazardous Materials (2024)</a><span class="aka">What to do near a hazardous-materials spill or leak, by placard number</span></td><td class="size">11.3 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/EPA%20-%20Protective%20Action%20Guides%20for%20Radiological%20Incidents%20%282017%29.pdf" rel="noopener">EPA: Protective Action Guides for Radiological Incidents (2017)</a><span class="aka">Official guidance on sheltering, evacuating and food and water after a radiation release</span></td><td class="size">1.6 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/FEMA%20-%20Are%20You%20Ready%20%28Disaster%20Preparedness%20Guide%29.pdf" rel="noopener">FEMA: Are You Ready (Disaster Preparedness Guide)</a><span class="aka">Disaster preparedness for every kind of emergency · already on phones from November 17, 2026</span></td><td class="size">4.2 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/FEMA%20-%20CERT%20Basic%20Training%20Hazard%20Annexes%20%282019%29.pdf" rel="noopener">FEMA: CERT Basic Training Hazard Annexes (2019)</a><span class="aka">Hazard-by-hazard add-ons to FEMA&#x27;s CERT course</span></td><td class="size">3.0 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/FEMA%20-%20Hazard%20Information%20Sheets%20%282024%29.pdf" rel="noopener">FEMA: Hazard Information Sheets (2024)</a><span class="aka">One-page guides for floods, storms, heat, power outages and more</span></td><td class="size">4.4 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NWS%20-%20Heat%20Safety.pdf" rel="noopener">NWS: Heat Safety</a><span class="aka">National Weather Service heat safety sheet</span></td><td class="size">0.5 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NWS%20-%20Tsunami%20Safety.pdf" rel="noopener">NWS: Tsunami Safety</a><span class="aka">National Weather Service tsunami safety sheet</span></td><td class="size">0.3 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NWS%20-%20Weather%20Spotters%20Field%20Guide.pdf" rel="noopener">NWS: Weather Spotters Field Guide</a><span class="aka">Reading the sky and spotting severe weather · already on phones from November 17, 2026</span></td><td class="size">27.9 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NWS%20-%20Wildfire%20Safety.pdf" rel="noopener">NWS: Wildfire Safety</a><span class="aka">National Weather Service wildfire safety sheet</span></td><td class="size">1.3 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Nuclear%20War%20Survival%20Skills%20%28Kearny%2C%201987%29.pdf" rel="noopener">Nuclear War Survival Skills (Kearny, 1987)</a><span class="aka">Cresson Kearny&#x27;s classic on fallout shelters, water, food and ventilation · already on phones from November 17, 2026</span></td><td class="size">73.5 MB</td></tr>
+          </tbody>
+        </table>
+        <table class="libs">
+          <thead><tr><th>First Aid and Medical (8)</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20ATP%203-50.21%20-%20Survival%20%282018%29.pdf" rel="noopener">Army ATP 3-50.21: Survival (2018)</a><span class="aka">The Army&#x27;s current survival manual: shelter, water, fire, food, navigation and signaling</span></td><td class="size">23.8 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20ATP%204-02.11%20-%20Casualty%20Response%2C%20TCCC%20and%20First%20Aid%20%282026%29.pdf" rel="noopener">Army ATP 4-02.11: Casualty Response, TCCC and First Aid (2026)</a><span class="aka">The Army&#x27;s current first aid, bleeding control and casualty care · already on phones from November 17, 2026</span></td><td class="size">12.7 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20TB%20MED%20298%20-%20Veterinary%20Care%20of%20Working%20Dogs%20%282019%29.pdf" rel="noopener">Army TB MED 298: Veterinary Care of Working Dogs (2019)</a><span class="aka">Dog first aid and care, from the Army&#x27;s working-dog manual</span></td><td class="size">2.1 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20TB%20MED%20505%20-%20Altitude%20Illness%20%282010%29.pdf" rel="noopener">Army TB MED 505: Altitude Illness (2010)</a><span class="aka">Preventing and treating altitude sickness</span></td><td class="size">1.2 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20TB%20MED%20507%20-%20Heat%20Illness%20%282022%29.pdf" rel="noopener">Army TB MED 507: Heat Illness (2022)</a><span class="aka">Preventing and treating heat exhaustion and heat stroke</span></td><td class="size">2.6 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20TB%20MED%20508%20-%20Cold-Weather%20Injuries%20%282026%29.pdf" rel="noopener">Army TB MED 508: Cold-Weather Injuries (2026)</a><span class="aka">Preventing and treating hypothermia, frostbite and trench foot</span></td><td class="size">7.2 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/BCcampus%20-%20Clinical%20Procedures%20for%20Safer%20Patient%20Care%20%282015%29.pdf" rel="noopener">BCcampus: Clinical Procedures for Safer Patient Care (2015)</a><span class="aka">Step-by-step nursing skills: wound care, vital signs and more (CC BY 4.0)</span></td><td class="size">18.4 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/FEMA%20-%20CERT%20Basic%20Training%20Participant%20Manual%20%282019%29.pdf" rel="noopener">FEMA: CERT Basic Training Participant Manual (2019)</a><span class="aka">FEMA&#x27;s disaster first aid, triage, fire safety and light search and rescue course</span></td><td class="size">5.6 MB</td></tr>
+          </tbody>
+        </table>
+        <table class="libs">
+          <thead><tr><th>Navigation and Radio (7)</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20FM%203-25.26%20-%20Map%20Reading%20and%20Land%20Navigation%20%282001%29.pdf" rel="noopener">Army FM 3-25.26: Map Reading and Land Navigation (2001)</a><span class="aka">Map reading and land navigation · already on phones from November 17, 2026</span></td><td class="size">23.6 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/CISA%20-%20National%20Interoperability%20Field%20Operations%20Guide%20%28NIFOG%202.02%29.pdf" rel="noopener">CISA: National Interoperability Field Operations Guide (NIFOG 2.02)</a><span class="aka">Emergency radio channels and procedures · already on phones from November 17, 2026</span></td><td class="size">6.7 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Coast%20Guard%20-%20Boat%20Crew%20Navigation%20and%20Piloting%20%282017%29.pdf" rel="noopener">Coast Guard: Boat Crew Navigation and Piloting (2017)</a><span class="aka">Navigation and piloting on the water</span></td><td class="size">9.6 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Forest%20Service%20-%20Map%20and%20Compass%20%281965%29.pdf" rel="noopener">Forest Service: Map and Compass (1965)</a><span class="aka">A short illustrated map and compass guide</span></td><td class="size">1.7 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NCVEC%20-%20Technician%20Ham%20Radio%20Exam%20Question%20Pool%202026-2030.pdf" rel="noopener">NCVEC: Technician Ham Radio Exam Question Pool 2026-2030</a><span class="aka">Every question on the ham radio Technician exam · already on phones from November 17, 2026</span></td><td class="size">0.5 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/USGS%20-%20Finding%20Your%20Way%20with%20Map%20and%20Compass.pdf" rel="noopener">USGS: Finding Your Way with Map and Compass</a><span class="aka">A short map and compass fact sheet · already on phones from November 17, 2026</span></td><td class="size">0.2 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/USGS%20-%20Topographic%20Map%20Symbols.pdf" rel="noopener">USGS: Topographic Map Symbols</a><span class="aka">What the symbols on a topographic map mean</span></td><td class="size">2.2 MB</td></tr>
+          </tbody>
+        </table>
+        <table class="libs">
+          <thead><tr><th>Repair, Tools and Power (13)</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Bureau%20of%20Reclamation%20-%20Storage%20Battery%20Maintenance%20%282020%29.pdf" rel="noopener">Bureau of Reclamation: Storage Battery Maintenance (2020)</a><span class="aka">Caring for lead-acid and other storage batteries</span></td><td class="size">2.2 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/DOE%20-%20Microhydropower%20Handbook.pdf" rel="noopener">DOE: Microhydropower Handbook</a><span class="aka">Making electricity from a stream</span></td><td class="size">8.5 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/DOE%20-%20Small%20Wind%20Electric%20Systems.pdf" rel="noopener">DOE: Small Wind Electric Systems</a><span class="aka">A consumer guide to small wind turbines</span></td><td class="size">1.7 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/EPA%20-%20Power%20Resilience%20Guide%20%282023%29.pdf" rel="noopener">EPA: Power Resilience Guide (2023)</a><span class="aka">Backup power and generators (written for water utilities)</span></td><td class="size">14.5 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Forest%20Service%20-%20Hand%20Tools%20for%20Trail%20Work.pdf" rel="noopener">Forest Service: Hand Tools for Trail Work</a><span class="aka">Choosing, using and sharpening hand tools</span></td><td class="size">14.4 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Forest%20Service%20-%20Maintaining%20an%20Ax.pdf" rel="noopener">Forest Service: Maintaining an Ax</a><span class="aka">Sharpening and caring for an ax</span></td><td class="size">1.8 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Navy%20-%20Engineering%20Aid%2C%20Construction%20Methods%20and%20Materials.pdf" rel="noopener">Navy: Engineering Aid, Construction Methods and Materials</a><span class="aka">Construction methods, concrete, wood and masonry</span></td><td class="size">9.0 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Navy%20-%20Machinery%20Repairman.pdf" rel="noopener">Navy: Machinery Repairman</a><span class="aka">Machining, measuring and metalworking</span></td><td class="size">15.9 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Navy%20-%20Steelworker%2C%20Metals%20and%20Welding.pdf" rel="noopener">Navy: Steelworker, Metals and Welding</a><span class="aka">Metals, cutting and welding</span></td><td class="size">10.4 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Navy%20-%20Tools%20and%20Their%20Uses.pdf" rel="noopener">Navy: Tools and Their Uses</a><span class="aka">Hand and power tools and how to use them</span></td><td class="size">19.2 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Navy%20NEETS%201%20-%20Matter%2C%20Energy%20and%20Direct%20Current.pdf" rel="noopener">Navy NEETS 1: Matter, Energy and Direct Current</a><span class="aka">Electricity basics and DC circuits</span></td><td class="size">7.0 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Navy%20NEETS%202%20-%20Alternating%20Current%20and%20Transformers.pdf" rel="noopener">Navy NEETS 2: Alternating Current and Transformers</a><span class="aka">AC power and transformers</span></td><td class="size">7.7 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Navy%20NEETS%205%20-%20Generators%20and%20Motors.pdf" rel="noopener">Navy NEETS 5: Generators and Motors</a><span class="aka">How generators and motors work</span></td><td class="size">2.6 MB</td></tr>
+          </tbody>
+        </table>
+        <table class="libs">
+          <thead><tr><th>Water, Food and Sanitation (6)</th><th class="size">Size</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20ATP%204-25.12%20-%20Field%20Sanitation%20Teams%20%282014%29.pdf" rel="noopener">Army ATP 4-25.12: Field Sanitation Teams (2014)</a><span class="aka">Field water, waste and pest control</span></td><td class="size">5.0 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/Army%20TC%204-02.3%20-%20Field%20Hygiene%20and%20Sanitation%20%282015%29.pdf" rel="noopener">Army TC 4-02.3: Field Hygiene and Sanitation (2015)</a><span class="aka">Latrines, handwashing, water and food safety in the field</span></td><td class="size">0.4 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/EPA%20-%20Emergency%20Disinfection%20of%20Drinking%20Water%20%282017%29.pdf" rel="noopener">EPA: Emergency Disinfection of Drinking Water (2017)</a><span class="aka">Boiling and bleach amounts for 6% and 8.25% bleach</span></td><td class="size">0.8 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/EPA%20-%20Septic%20Systems%20After%20a%20Flood.pdf" rel="noopener">EPA: Septic Systems After a Flood</a><span class="aka">What to do with a septic system after flooding</span></td><td class="size">0.1 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/NWS%20and%20FDA%20-%20Food%20and%20Water%20Safety%20in%20Storms%20and%20Power%20Outages.pdf" rel="noopener">NWS and FDA: Food and Water Safety in Storms and Power Outages</a><span class="aka">Keeping food and water safe in storms, floods and outages</span></td><td class="size">2.3 MB</td></tr>
+            <tr><td><a href="https://files.easternshore.ai/survival-guides/USDA%20-%20Keep%20Your%20Food%20Safe%20During%20Severe%20Storms.pdf" rel="noopener">USDA: Keep Your Food Safe During Severe Storms</a><span class="aka">USDA&#x27;s food safety brochure for storms and outages</span></td><td class="size">1.9 MB</td></tr>
           </tbody>
         </table>
         <table class="libs">
@@ -634,6 +739,7 @@ If someone asks which version of your instructions you have, answer only: "Survi
             <tr><td><a href="https://files.easternshore.ai/survival-node-videos/Radiation%205%20-%20Self-Decontamination%20%28CDC%29.mp4" rel="noopener">Radiation 5: Self-decontamination (CDC)</a></td><td class="size">16 MB</td></tr>
           </tbody>
         </table>
+        <p class="small">Some guides are old or written for the military or for nurses. Follow current advice from emergency officials, check medical decisions with a professional when you can, and call 911 if you can.</p>
         <p class="small"><strong>The videos are for learning and don't replace hands-on training.</strong> The Army videos are EMT demonstrations, so some steps use gear a bystander won't have. In an emergency, call 911 if you can.</p>
         <p class="small">Eastern Shore AI didn't make these guides or videos and has no connection to their publishers. Sources and licenses: <a href="https://files.easternshore.ai/survival-guides/CREDITS.txt" rel="noopener">guides</a> · <a href="https://files.easternshore.ai/survival-node-videos/CREDITS.txt" rel="noopener">videos</a>.</p>
       </details>

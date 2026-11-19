@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Survival Node Free Extras Insert</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16,6 L18.73,2.27 L21.36,3.07 L21.56,7.69 L23.07,8.93 L27.64,8.22 L28.93,10.64 L25.81,14.05 L26,16 L29.73,18.73 L28.93,21.36 L24.31,21.56 L23.07,23.07 L23.78,27.64 L21.36,28.93 L17.95,25.81 L16,26 L13.27,29.73 L10.64,28.93 L10.44,24.31 L8.93,23.07 L4.36,23.78 L3.07,21.36 L6.19,17.95 L6,16 L2.27,13.27 L3.07,10.64 L7.69,10.44 L8.93,8.93 L8.22,4.36 L10.64,3.07 L14.05,6.19 Z' fill='%239ed0ff'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='%230b0d13'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f7f9; --panel: #ffffff; --text: #111111; --muted: #5f6b7a; --line: rgba(0,0,0,.14);
+      --cyan: #173b63; --lime: #4f6f1f;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Titillium Web', sans-serif; line-height: 1.5; padding: 1.2rem; }
+    .shell { max-width: 850px; margin: 0 auto; }
+    .toolbar { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+    .btn { appearance: none; border: 1px solid var(--line); background: #fff; color: var(--text); border-radius: 12px; padding: .8rem 1rem; font: 700 .96rem 'Hanken Grotesk', sans-serif; cursor: pointer; }
+    .side { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.08); padding: 1.5rem 1.7rem; }
+    .eyebrow { color: var(--lime); text-transform: uppercase; letter-spacing: .14em; font: 800 .74rem 'Hanken Grotesk', sans-serif; margin: 0 0 .3rem; }
+    h1 { margin: 0 0 .3rem; color: var(--cyan); font: 800 1.9rem 'Hanken Grotesk', sans-serif; line-height: 1.05; }
+    .headline-sub { margin: 0; color: var(--muted); font-size: .98rem; }
+    .keep-strip { margin: .9rem 0 0; padding: .55rem .85rem; background: #eef4ff; border: 1px solid #9db4d6; border-radius: 10px; color: var(--cyan); font-weight: 700; font-size: .92rem; text-align: center; }
+    h2 { margin: 1.1rem 0 .5rem; color: var(--cyan); font: 800 1.15rem 'Hanken Grotesk', sans-serif; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+    th, td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font: 800 .78rem 'Hanken Grotesk', sans-serif; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    td.size { white-space: nowrap; color: var(--muted); }
+    td strong { color: var(--cyan); }
+    .steps-lg { counter-reset: dstep; list-style: none; margin: .4rem 0 .3rem; padding: 0; }
+    .steps-lg > li { counter-increment: dstep; position: relative; padding-left: 2.4rem; margin: 0 0 .65rem; }
+    .steps-lg > li::before { content: counter(dstep); position: absolute; left: 0; top: -.05rem; width: 1.7rem; height: 1.7rem; background: var(--cyan); color: #fff; border-radius: 50%; font: 800 .95rem 'Hanken Grotesk', sans-serif; display: flex; align-items: center; justify-content: center; }
+    .help { margin: .8rem 0 0; padding: .65rem .85rem; border: 1px solid var(--line); border-radius: 10px; background: #f7f9fc; }
+    .contact { color: var(--cyan); font-weight: 700; }
+    .foot { margin-top: .9rem; padding-top: .6rem; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted); }
+    @media print {
+      @page { size: letter; margin: 0.55in; }
+      body { background: #fff; color: #111; padding: 0; font-size: 11.5px; }
+      .toolbar { display: none !important; }
+      .shell { max-width: 100%; }
+      .side { border: 0; box-shadow: none; border-radius: 0; padding: 0; }
+      h1 { color: #000; font-size: 25px; }
+      .eyebrow { color: #4a4a4a; }
+      h2 { color: #000; }
+      .keep-strip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .steps-lg > li::before { background: #173b63; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .foot { color: #333; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="toolbar"><button class="btn" data-print-button>Save / Print PDF</button></div>
+
+    <div class="side">
+      <p class="eyebrow">Survival Node &middot; Free Extras</p>
+      <h1>Free Extras We Recommend Downloading</h1>
+      <p class="headline-sub">These excellent free libraries can't come preloaded on a kit we sell: their makers allow free personal use, not resale. So you add them yourself. It takes one evening at home on Wi-Fi, and then they work offline like everything else.</p>
+      <p class="keep-strip">Do this at home on Wi-Fi now, before you ever need it.</p>
+
+      <h2>What we recommend</h2>
+      <table>
+        <tr><th>Library</th><th>What it's good for</th><th>Size</th></tr>
+        <tr><td><strong>MedlinePlus</strong></td><td>Plain-English health information: conditions, symptoms, medicines and first aid</td><td class="size">1.9 GB</td></tr>
+        <tr><td><strong>Medical Library (field and emergency)</strong></td><td><em>Where There Is No Doctor</em>, <em>Where There Is No Dentist</em> and <em>A Book for Midwives</em>: medical and dental care written for non-medics</td><td class="size">70 MB</td></tr>
+        <tr><td><strong>iFixit</strong></td><td>Step-by-step repair guides with photos for phones, appliances, tools, cars and more</td><td class="size">3.6 GB</td></tr>
+        <tr><td><strong>MDWiki</strong></td><td>A second medical encyclopedia, with pictures and videos</td><td class="size">2.3 GB</td></tr>
+        <tr><td><strong>Learning Self Reliance</strong></td><td>Homesteading and self-reliance how-to videos</td><td class="size">4.0 GB</td></tr>
+        <tr><td><strong>WikiVet</strong></td><td>Animal and livestock care</td><td class="size">60 MB</td></tr>
+      </table>
+      <p style="margin:.5rem 0 0; font-size:.92rem; color:var(--muted);">All six together are about 12 GB. Your phone has room for them.</p>
+
+      <h2>How to add them (about 10 minutes of tapping, then let it download)</h2>
+      <ol class="steps-lg">
+        <li><strong>Plug the phone in and connect to Wi-Fi.</strong> Swipe down from the top of the screen and tap <strong>Wi-Fi</strong>.</li>
+        <li><strong>Open Kiwix</strong> and tap <strong>Download</strong> at the bottom right. That's Kiwix's free online library.</li>
+        <li><strong>Tap the magnifying glass</strong> at the top, type a name from the table above, then tap it in the list to download it. Do the same for each one; Kiwix downloads them one after another.</li>
+        <li><strong>Leave the phone plugged in on Wi-Fi</strong> until they're all done. Large ones can take an hour or more.</li>
+        <li><strong>Turn Wi-Fi back off.</strong> The new libraries now show up in Kiwix next to WikiMed, and work with no internet.</li>
+      </ol>
+
+      <div class="help">
+        <strong>Want a hand?</strong> Step-by-step help: <span class="contact">easternshore.ai/owners#extras</span>. Or call us for free help and we'll walk you through it while you tap: <span class="contact">(302) 907-9162</span> &middot; <span class="contact">support@easternshore.ai</span>
+      </div>
+
+      <p class="foot">These libraries come free from their makers (the U.S. National Library of Medicine, Hesperian Health Guides, iFixit, WikiProject Medicine, Learning Self Reliance and WikiVet) through Kiwix's free online library. They aren't part of the Survival Node, aren't sold by us, and haven't been reviewed by us. Some medical content is written for other countries, so drug names and doses may differ from what you know. Check important medical decisions with a professional when you can.</p>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll("[data-print-button]").forEach(btn => btn.addEventListener("click", () => window.print()));
+  </script>
+</body>
+</html>
