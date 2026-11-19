@@ -45,6 +45,8 @@ export const ITEM = {
 
 // The full Gen 2 photo set, in the order of the hand-made Commerce Manager item's
 // 15 photos. The first is image_link; the rest go in additional_image_link.
+// Photos 13 and 14 were retaken from guide 1.23 on 2026-11-19 (ZY22KR4LFD) under -v2 names:
+// the 2026-10-30 ones said phones ship drained to ~30% and named the power hub and silica gel.
 // Paths are relative to the repo root (served from https://www.easternshore.ai/).
 export const META_IMAGES = [
   'images/carousel/entirenode/wholekit-gen2.jpg',                   // 1 open case, whole kit, white background
@@ -59,8 +61,8 @@ export const META_IMAGES = [
   'images/carousel/maps/map-delmarva.jpg',                          // 10 offline map, Delmarva
   'images/carousel/maps/map-salisbury.jpg',                         // 11 offline map, Salisbury + hospital card
   'images/carousel/usersguide/guide-home.jpg',                      // 12 User Guide home
-  'images/carousel/usersguide/guide-first-steps.jpg',               // 13 User Guide, First Steps
-  'images/carousel/usersguide/guide-6-month.jpg',                   // 14 User Guide, 6-Month Readiness Checklist
+  'images/carousel/usersguide/guide-first-steps-v2.jpg',            // 13 User Guide 1.23, First Steps (arrives at 60-80%)
+  'images/carousel/usersguide/guide-6-month-v2.jpg',                // 14 User Guide 1.23, 6-Month Readiness Checklist
   'images/carousel/phone/background-v2.jpg'                         // 15 Survival Node Gen 2 wallpaper, badge above the dock (2026-11-16)
 ];
 const SITE = 'https://www.easternshore.ai/';
