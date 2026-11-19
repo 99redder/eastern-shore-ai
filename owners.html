@@ -135,6 +135,25 @@
       font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.1rem; color: #0b0d13;
       background: linear-gradient(145deg, #ffd08f, var(--orange)); box-shadow: 0 0 18px rgba(255, 179, 92, .4);
     }
+    /* Big step cards, same as pal-update.html (2026-11-18) */
+    .card h4.steps-title { font-family: 'Hanken Grotesk', system-ui, sans-serif; color: #fff; font-size: 1.45rem; margin: 1.2rem 0 .8rem; scroll-margin-top: .8rem; }
+    .card ol.steps { list-style: none; padding: 0; margin: 0; }
+    .card ol.steps > li.step { display: flex; gap: .9rem; align-items: flex-start; background: #0f1420; border: 1px solid var(--line); border-left: 5px solid var(--orange); border-radius: 10px; padding: 1rem; margin: 0 0 .9rem; }
+    .step-num { flex: 0 0 2.7rem; height: 2.7rem; border-radius: 50%; background: var(--orange); color: #0b0d13; font-family: 'Hanken Grotesk', sans-serif; font-weight: 800; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; }
+    .step-body { flex: 1; min-width: 0; }
+    .step-do { margin: .25rem 0 0; font-family: 'Hanken Grotesk', sans-serif; font-size: 1.32rem; line-height: 1.35; font-weight: 700; color: #fff; }
+    .step-tip { margin: .4rem 0 0; font-size: 1.08rem; line-height: 1.5; color: #c9d3e6; }
+    .step .copy-btn { margin: .75rem 0 .2rem; max-width: none; font-size: 1.25rem; padding: 1rem; }
+    .step .copy-note { text-align: left; }
+    .done-check { font-size: 1.08rem; padding: .8rem 1rem; }
+    .done-check b { font-size: 1.15rem; }
+    .ver-line { margin: .5rem 0; padding: .7rem .9rem; background: #070910; border: 1px solid rgba(142, 230, 168, .5); border-radius: 8px; font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 1.15rem; color: #fff; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    @media (max-width: 480px) {
+      .card ol.steps > li.step { padding: .85rem .8rem; gap: .7rem; }
+      .step-num { flex-basis: 2.4rem; height: 2.4rem; font-size: 1.25rem; }
+      .step-do { font-size: 1.22rem; }
+    }
     .copy-note { text-align: center; min-height: 1.4em; margin: .2rem 0 0; font-weight: 700; color: var(--green); font-size: 1rem; }
 
     /* Buttons and links out */
@@ -276,18 +295,70 @@
         <b>✅ You already have this if…</b>
         <p>In <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span> you start a new chat with the <strong>Survival Node</strong> Pal (pencil button, top right), type <strong>What version are you?</strong>, and in a minute or two it answers <em>"Survival Node instructions, updated November 18, 2026."</em> Kits shipped from November 19, 2026 have it.</p>
       </div>
-      <details class="howto" open>
-        <summary>Show the steps</summary>
-        <ol>
-          <li>Tap <strong>Copy the new instructions</strong> below. (Or press and hold the instructions, tap <strong>Select all</strong>, then <strong>Copy</strong>.)</li>
-          <li>Open <strong>PocketPal</strong>, tap <strong>☰</strong> (top left), then <strong>Pals</strong>.</li>
-          <li>Tap the <strong>Survival Node</strong> card. The <strong>Edit Pal</strong> screen opens.</li>
-          <li>Press and hold the text in the <strong>System Prompt</strong> box, tap <strong>Select all</strong>, then tap <strong>Paste</strong>.</li>
-          <li>Tap <strong>Save</strong> at the bottom.</li>
-          <li>Go back to the chat and start a new one with the pencil button at the top right. The new instructions apply to new chats.</li>
-        </ol>
-        <button class="copy-btn" type="button" id="copy-pal">Copy the new instructions</button>
-        <p class="copy-note" id="pal-copy-note" role="status" aria-live="polite"></p>
+      <h4 class="steps-title" id="pal-steps">Update it in 7 steps</h4>
+      <ol class="steps">
+        <li class="step">
+          <span class="step-num" aria-hidden="true">1</span>
+          <div class="step-body">
+            <p class="step-do"><span class="sr-only">Step 1: </span>Tap the orange <strong>Copy</strong> button.</p>
+            <button class="copy-btn" type="button" id="copy-pal">Copy the new instructions</button>
+            <p class="copy-note" id="pal-copy-note" role="status" aria-live="polite"></p>
+            <p class="step-tip">It says "Copied" in green when it worked.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">2</span>
+          <div class="step-body">
+            <p class="step-do"><span class="sr-only">Step 2: </span>Open <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span>.</p>
+            <p class="step-tip">It has a smiling yellow face. It's on your home screen.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">3</span>
+          <div class="step-body">
+            <p class="step-do"><span class="sr-only">Step 3: </span>Tap <strong>☰</strong> at the top left, then tap <strong>Pals</strong>.</p>
+            <p class="step-tip">☰ is three short lines.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">4</span>
+          <div class="step-body">
+            <p class="step-do"><span class="sr-only">Step 4: </span>Tap the <strong>Survival Node</strong> card.</p>
+            <p class="step-tip">The Edit Pal screen opens.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">5</span>
+          <div class="step-body">
+            <p class="step-do"><span class="sr-only">Step 5: </span>Replace the old instructions with the new ones.</p>
+            <p class="step-tip">Press and hold your finger on the text in the <strong>System Prompt</strong> box. Tap <strong>Select all</strong>, then tap <strong>Paste</strong>.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">6</span>
+          <div class="step-body">
+            <p class="step-do"><span class="sr-only">Step 6: </span>Tap <strong>Save</strong> at the bottom.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">7</span>
+          <div class="step-body">
+            <p class="step-do"><span class="sr-only">Step 7: </span>Start a new chat.</p>
+            <p class="step-tip">Go back to the chat and tap the pencil button at the top right. The new instructions only work in new chats.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="check done-check">
+        <b>✅ Check that it worked</b>
+        <p>In the new chat, type <strong>What version are you?</strong> and send it. In a minute or two it should answer:</p>
+        <p class="ver-line">Survival Node instructions, updated November 18, 2026.</p>
+        <p>If it says anything else, even a version number like "v1.0", do steps 1 to 7 again.</p>
+      </div>
+
+      <details class="howto">
+        <summary>Copy button didn't work? Show the instructions</summary>
+        <p>Press and hold the instructions below, tap <strong>Select all</strong>, then <strong>Copy</strong>. Then go on with step 2.</p>
         <!-- Must match survival_prompt.txt exactly, as shown in node-setup.html (palPromptBox) and the guide app
              (#pal-prompt). worker/tests/pal-sync.test.mjs fails if the copies differ. -->
         <pre class="prompt-box" id="pal-prompt">Survival Node instructions, updated November 18, 2026
@@ -818,8 +889,8 @@ If someone asks which version of your instructions you have, answer only: "Survi
       const text = () => document.getElementById('pal-prompt').textContent;
       const done = ok => {
         note.textContent = ok
-          ? 'Copied. Now open PocketPal and paste them into the System Prompt box (step 4).'
-          : "Couldn't copy here. Press and hold the instructions below, tap Select all, then Copy.";
+          ? 'Copied! Now do step 2: open PocketPal.'
+          : "Couldn't copy here. Tap 'Copy button didn't work?' after step 7.";
         note.style.color = ok ? '' : 'var(--orange)';
       };
       const fallback = () => {
