@@ -169,7 +169,8 @@ wrapper won't treat that way. **Test every build by cold-starting it in airplane
      updates". Keep it high level. Spell out changes to how the app works or what it explains;
      legal or terms changes only say "Updated terms and conditions" (Red, 2026-11-16).
    - Change the old version number everywhere on the page (the `data-latest-version` spans) and the
-     download button's link. The page also reads `latest.json` and uses its version and APK, so a
+     download button's link. `owners.html` has two `data-latest-version` spans too (its Update the User Guide app item); change
+     them in the same push. The page also reads `latest.json` and uses its version and APK, so a
      missed number or link still comes out right, but the What's new entry doesn't.
 
 - **1.8** (10800, built 2026-10-30): added Meshtastic (radio not included), corrected the Kiwix library list, AccuBattery and PocketPal wording. Same v2 signing certificate (`689120c5…89de7b`), bundled `index.html` identical to this folder's, cold-started in airplane mode with Wi-Fi off on a phone with no Play Services.
