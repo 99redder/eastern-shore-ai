@@ -87,7 +87,9 @@
       clip-path: polygon(0 4px, 4px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 7px 100%, 0 calc(100% - 7px));
     }
     .back-btn:hover { filter: brightness(1.1); }
-    #users-guide-btn { top: 4.5rem; }
+    /* Owner Updates + User Guide, top right (2026-11-20) */
+    .top-btns { position: fixed; top: 4.5rem; right: 1rem; z-index: 6000; display: flex; gap: .45rem; align-items: center; }
+    .top-btns .back-btn { position: static; }
 
 .promo-toggle {
       background: none;
@@ -1231,7 +1233,7 @@
     @media (max-width: 480px) {
       /* 1. Hide all fixed floating elements — replaced by the inline mobile-nav-bar */
       .buy-now-float { padding: 0.75rem 1.4rem; font-size: 1.05rem; }
-      #users-guide-btn, .buy-now-float, .veteran-float { display: none !important; }
+      #top-btns, .buy-now-float, .veteran-float { display: none !important; }
       .askk-fab { width: 52px; height: 52px; font-size: 1.4rem; bottom: 1rem; right: 1rem; }
       .askk-fab-label { display: none; }
       .askk-drawer { width: 100vw; right: -100vw; }
@@ -1796,7 +1798,10 @@
     <span>Veteran Owned Business</span>
     <svg class="vf-flag" width="22" height="15" viewBox="0 0 26 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect width="26" height="18" fill="#fff"/><g fill="#B22234"><rect width="26" height="1.385"/><rect width="26" height="1.385" y="2.77"/><rect width="26" height="1.385" y="5.54"/><rect width="26" height="1.385" y="8.31"/><rect width="26" height="1.385" y="11.08"/><rect width="26" height="1.385" y="13.85"/><rect width="26" height="1.385" y="16.62"/></g><rect width="11" height="9.69" fill="#3C3B6E"/><g fill="#fff"><circle cx="1.5" cy="1.4" r=".6"/><circle cx="3.4" cy="1.4" r=".6"/><circle cx="5.3" cy="1.4" r=".6"/><circle cx="7.2" cy="1.4" r=".6"/><circle cx="9.1" cy="1.4" r=".6"/><circle cx="1.5" cy="3.5" r=".6"/><circle cx="3.4" cy="3.5" r=".6"/><circle cx="5.3" cy="3.5" r=".6"/><circle cx="7.2" cy="3.5" r=".6"/><circle cx="9.1" cy="3.5" r=".6"/><circle cx="1.5" cy="5.6" r=".6"/><circle cx="3.4" cy="5.6" r=".6"/><circle cx="5.3" cy="5.6" r=".6"/><circle cx="7.2" cy="5.6" r=".6"/><circle cx="9.1" cy="5.6" r=".6"/><circle cx="1.5" cy="7.7" r=".6"/><circle cx="3.4" cy="7.7" r=".6"/><circle cx="5.3" cy="7.7" r=".6"/><circle cx="7.2" cy="7.7" r=".6"/><circle cx="9.1" cy="7.7" r=".6"/></g></svg>
   </div>
-  <a href="/node-setup.html" id="users-guide-btn" class="back-btn" style="left:auto; right:1rem;">User Guide</a>
+  <div class="top-btns" id="top-btns">
+    <a href="/owners.html" id="owners-btn" class="back-btn" title="Updates and how-tos for Survival Node owners">Owner Updates</a>
+    <a href="/node-setup.html" id="users-guide-btn" class="back-btn">User Guide</a>
+  </div>
 
   <div id="promo-banner" style="width:100%; border-bottom:1px solid rgba(0,0,0,.15); background:#9ed0ff; padding:.6rem max(1rem, calc(50% - 580px + 1rem));">
     <button class="promo-toggle" id="promo-toggle" aria-expanded="false" aria-controls="promo-body" style="border-color:rgba(0,0,0,.3); color:#000;">▼</button>
@@ -1831,6 +1836,7 @@
   <!-- Mobile-only nav bar: replaces fixed Back + User Guide buttons on small screens -->
   <div class="mobile-nav-bar">
     <a href="/" class="mobile-nav-btn">← Back</a>
+    <a href="/owners.html" class="mobile-nav-btn" style="margin-left:auto;">Owner Updates</a>
     <a href="/node-setup.html" class="mobile-nav-btn">User Guide</a>
   </div>
 
@@ -2886,7 +2892,7 @@
       const photoModal    = document.getElementById('photo-modal');
       const photoModalImg = document.getElementById('photo-modal-img');
       const photoModalClose = document.getElementById('photo-modal-close');
-      const _guideBtn = document.getElementById('users-guide-btn');
+      const _guideBtn = document.getElementById('top-btns');
       function openPhoto(src, alt) {
         photoModalImg.src = src;
         photoModalImg.alt = alt;
