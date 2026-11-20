@@ -1,4 +1,4 @@
-// The Survival Node Pal's instructions (survival_prompt.txt on the phones, rewritten 2026-11-17, v1.3e 2026-11-18) are shown to
+// The Survival Node Pal's instructions (survival_prompt.txt on the phones, rewritten 2026-11-17, v1.3e 2026-11-18, v2 2026-11-20) are shown to
 // owners in three places: the online guide (node-setup.html, palPromptBox), the guide app
 // (survival-node-app/index.html, #pal-prompt), the owners page (owners.html, #pal-prompt) and the update notice
 // that social posts link to (pal-update.html, #pal-prompt, 2026-11-18). Owners copy them into PocketPal, so every

@@ -240,7 +240,7 @@
         <li>✅ A quick check for each change</li>
         <li>🗂 Your maps, chats and files stay put</li>
       </ul>
-      <p class="updated">Last updated November 19, 2026</p>
+      <p class="updated">Last updated November 20, 2026</p>
     </header>
 
     <ul class="jump" aria-label="Jump to">
@@ -264,6 +264,12 @@
     <section class="card" id="whats-new" aria-labelledby="new-title">
       <h2 id="new-title">🆕 What's new</h2>
       <!-- Newest first. Write each change as an improvement (terms "Kit Changes"), with a link to its item below. -->
+      <div class="version">
+        <div class="version-head"><h3>Updated AI instructions</h3><span>November 20, 2026</span></div>
+        <ul>
+          <li>The <strong>Survival Node</strong> Pal's instructions now cover more emergencies, from choking and tourniquets to generators, chemical leaks and fallout, and its answers are shorter. <a href="#pal">Update yours in 2 minutes</a>.</li>
+        </ul>
+      </div>
       <div class="version">
         <div class="version-head"><h3>More survival guides and reference libraries</h3><span>November 19, 2026</span></div>
         <ul>
@@ -302,7 +308,7 @@
         <li><strong>Never act on an AI answer alone</strong> for medical care, drinking water, food, fire, carbon monoxide, radiation or chemicals. Follow emergency officials, and call 911 when you can.</li>
         <li><strong>If you do ask the AI,</strong> use Qwen 3.5 4B with Think off (see the Pal item below).</li>
       </ul>
-      <p class="small">We're testing improved instructions that cover more topics, and they'll appear on this page when they're ready. Our <a href="/terms.html">Terms of Sale</a> describe these limits under "AI Answers."</p>
+      <p class="small">On November 20, 2026 we updated the AI's instructions to cover more emergencies (the Pal item below). Our <a href="/terms.html">Terms of Sale</a> describe these limits under "AI Answers."</p>
     </section>
 
     <section class="card item important" id="pal" aria-labelledby="pal-title">
@@ -311,11 +317,11 @@
         <span class="meta">⏱ About 2 minutes · works offline</span>
         <h3 id="pal-title">Update the Survival Node Pal's instructions</h3>
       </div>
-      <p>The <strong>Survival Node</strong> Pal in PocketPal is the AI set up for survival, first aid and field repair. On November 17, 2026 we rewrote the instructions behind it. In our ongoing, periodic QA testing, the earlier instructions led the AI to give unsafe drinking-water advice. With the new ones, the AI gives the standard, proven method first (the one the CDC, Red Cross, FEMA or U.S. Army teaches), doesn't make up numbers, and knows the CDC's drinking-water figures. On November 18 we tightened the bleach line to boiling first and one amount, the CDC's 8 drops (1/8 teaspoon) per gallon, after more testing found the AI could still get the bleach amount wrong.</p>
+      <p>The <strong>Survival Node</strong> Pal in PocketPal is the AI set up for survival and first aid. On November 20, 2026 we updated the instructions behind it. They keep the drinking-water rules from November 18 (boil first, and one bleach amount, the CDC's 8 drops (1/8 teaspoon) per gallon, now with the amount for a 5-gallon bucket too) and add short, checked facts for more emergencies: choking (adults, babies under 1 and yourself), a chemical in the eye, tourniquets, objects stuck in a wound, fires and fuel, generators and fuel heaters, being stuck in a car in snow, chemical clouds and fumes, fallout, and wild plants, mushrooms and canning. The AI's answers are also shorter, so they come sooner. The November 17 and 18 updates fixed drinking-water advice that our ongoing, periodic QA testing found unsafe: see <a href="/pal-update.html#history">the update history</a>.</p>
       <p class="small">We test the AI's answers on an ongoing, periodic basis and will keep improving these instructions. Future updates will appear on this page and in the User Guide app.</p>
       <div class="check">
         <b>✅ You already have this if…</b>
-        <p>In <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span> you start a new chat with the <strong>Survival Node</strong> Pal (pencil button, top right), type <strong>What version are you?</strong>, and in a minute or two it answers <em>"Survival Node instructions, updated November 18, 2026."</em> Kits shipped from November 19, 2026 have it.</p>
+        <p>In <span class="app"><img src="/images/guide-icons/pocketpal.webp" alt="" />PocketPal</span> you start a new chat with the <strong>Survival Node</strong> Pal (pencil button, top right), type <strong>What version are you?</strong>, and in a minute or two it answers <em>"Survival Node instructions, updated November 20, 2026."</em> Kits shipped from November 20, 2026 have it.</p>
       </div>
       <h4 class="steps-title" id="pal-steps">Update it in 7 steps</h4>
       <ol class="steps">
@@ -374,7 +380,7 @@
       <div class="check done-check">
         <b>✅ Check that it worked</b>
         <p>In the new chat, type <strong>What version are you?</strong> and send it. In a minute or two it should answer:</p>
-        <p class="ver-line">Survival Node instructions, updated November 18, 2026.</p>
+        <p class="ver-line">Survival Node instructions, updated November 20, 2026.</p>
         <p>If it says anything else, even a version number like "v1.0", do steps 1 to 7 again.</p>
       </div>
 
@@ -383,29 +389,34 @@
         <p>Press and hold the instructions below, tap <strong>Select all</strong>, then <strong>Copy</strong>. Then go on with step 2.</p>
         <!-- Must match survival_prompt.txt exactly, as shown in node-setup.html (palPromptBox) and the guide app
              (#pal-prompt). worker/tests/pal-sync.test.mjs fails if the copies differ. -->
-        <pre class="prompt-box" id="pal-prompt">Survival Node instructions, updated November 18, 2026
+        <pre class="prompt-box" id="pal-prompt">Survival Node instructions, updated November 20, 2026
 
-You are Survival Node, an offline advisor for survival, first aid and field repair. The person asking may be in a real emergency with no internet and no way to check your answer, so being correct matters more than being complete.
+You are Survival Node, an offline advisor for survival and first aid.
 
 Rules:
-1. Answer right away, with no greetings or filler.
-2. If the topic can hurt someone (medical care, drinking water, food, fire, electricity, chemicals), start with a short **CRITICAL SAFETY WARNING**.
-3. Give the standard, proven method first: the one the CDC, Red Cross, FEMA or the U.S. Army teaches. Then give backups, and say what each backup can't do.
-4. Never make up a number. Give a measurement, dose, ratio or time only if it is a well-known standard. If you aren't sure of a number, say so and point to the Survival Manual or WikiMed on this phone.
-5. Never call something safe to drink, eat or use unless the steps you gave make it safe.
-6. Use numbered steps for procedures and short bullet lists for supplies.
-7. Assume no internet and limited supplies. Improvise only with methods known to work.
-8. For a serious injury or illness, say to get medical help as soon as possible.
+1. If someone could get hurt, start with a short **CRITICAL SAFETY WARNING**.
+2. Give the standard CDC, Red Cross or Army method, most important step first.
+3. Never make up a number.
+4. Never call something safe unless your steps make it safe.
+5. End every answer with: "AI can make mistakes. Check WikiMed or the Survival Manual on this phone."
 
-Drinking water (CDC):
-- Filtering through cloth or letting water settle only makes it clearer. It must still be boiled or disinfected.
-- Boil: a rolling boil for 1 minute (3 minutes above 6,500 feet). Boiling kills bacteria, viruses and parasites, including Giardia and Cryptosporidium.
-- Bleach, only if you can't boil: plain, unscented household bleach (5-9%). If the water is cloudy, let it settle or filter it through cloth first. Give the amount only by copying this sentence word for word, and give no other bleach amounts: "Add 8 drops (1/8 teaspoon) of bleach to each gallon of water, stir, and wait 30 minutes." For more water, say to repeat that for each gallon.
-- Boiling and bleach don't remove fuel or chemicals. Find another water source.
+Key facts (use only for that topic):
+- Water: boil 1 minute (3 minutes above 6,500 feet). Filtering or settling only makes water clearer. Bleach only if you can't boil. Give the amount only by copying this sentence word for word, and give no other bleach amounts: "Add 8 drops (1/8 teaspoon) of plain, unscented bleach to each gallon of water, stir, and wait 30 minutes." For a 5-gallon bucket, copy this instead: "Add 40 drops of bleach to the whole 5-gallon bucket, stir, and wait 30 minutes." Otherwise, repeat it for each gallon. Neither removes fuel or chemicals.
+- Choking (can't cough, talk or breathe): age 1 and up, 5 back blows, then 5 abdominal thrusts, repeated. Baby under 12 months: 5 back blows held face down along your forearm, then 5 chest thrusts face up with the heel of one hand; never abdominal thrusts. If a choking person goes limp, start CPR.
+- Choking alone: thrust your own fist in and up above your navel, or push your belly hard against a chair back.
+- Chemical in the eye: flush right away with running water (tap water is fine) for at least 15 minutes, and call Poison Control.
+- Tourniquet, arm or leg only: 2-3 inches above the wound, not on a joint, tightened until the bleeding stops. Note the time; never loosen or remove it.
+- Object stuck in a wound: leave it in and pad around it.
+- Never use gasoline to start a fire. Generators, grills and fuel heaters only outdoors, 20 feet from windows and doors.
+- Stuck in a car in snow: stay in the car, clear the tailpipe, and run the engine 10 minutes an hour with a window cracked.
+- Chemical cloud outside: go inside, close windows and doors, and turn off heating and air conditioning. Outside, move upwind.
+- Fumes inside, like mixed cleaners: get everyone out to fresh air.
+- Fallout: get inside a basement or the middle of a brick or concrete building for 24 hours unless officials say otherwise. Take off outer clothes and wash with soap and shampoo.
+- Never eat a wild plant or mushroom an AI identified; no edibility test makes it safe. Vegetables and meat need a pressure canner; never give canning times (see the USDA guide). Never eat from a bulging can.
 
-If someone asks which version of your instructions you have, answer only: "Survival Node instructions, updated November 18, 2026."</pre>
-        <p class="small">No internet where you are? The <strong>User Guide</strong> app has these steps and a Copy button that works offline, under <strong>Update the Survival Node Pal</strong>. Its copy has the latest change from version 1.21; earlier versions have older wording, so use the copy on this page once you can get online.</p>
-        <p class="small">The <strong>survival_prompt.txt</strong> file on kits shipped before November 19, 2026 (in the Download and Documents folders) has older wording. The box above is the current version.</p>
+If someone asks which version of your instructions you have, answer only: "Survival Node instructions, updated November 20, 2026."</pre>
+        <p class="small">No internet where you are? The <strong>User Guide</strong> app has these steps and a Copy button that works offline, under <strong>Update the Survival Node Pal</strong>. Its copy has the latest change from version 1.24; earlier versions have older wording, so use the copy on this page once you can get online.</p>
+        <p class="small">The <strong>survival_prompt.txt</strong> file on kits shipped before November 20, 2026 (in the Download and Documents folders) has older wording. The box above is the current version.</p>
         <p class="small">Don't see a <strong>Survival Node</strong> card under Pals? Call or text us at <a href="tel:+13029079162"><strong>(302) 907-9162</strong></a> or email <a href="mailto:support@easternshore.ai">support@easternshore.ai</a>, and we'll set it up with you.</p>
       </details>
 
