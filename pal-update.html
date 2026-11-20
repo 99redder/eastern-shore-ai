@@ -257,7 +257,7 @@
       <ul>
         <li><strong>More emergencies covered.</strong> Short, checked facts for choking (adults, babies under 1 and yourself), a chemical in the eye, tourniquets, objects stuck in a wound, fires and fuel, generators and fuel heaters, being stuck in a car in snow, chemical clouds and fumes, fallout, and wild plants, mushrooms and canning.</li>
         <li><strong>The same drinking-water rules.</strong> Boil first, and one bleach amount, the CDC's 8 drops (1/8 teaspoon) per gallon, now with the amount for a 5-gallon bucket too.</li>
-        <li><strong>Shorter answers.</strong> They come sooner on the phone.</li>
+        <li><strong>Shorter answers.</strong> About 40% shorter, so most finish sooner on the phone. The first answer after PocketPal loads the AI starts about 15 seconds later, because the instructions are longer.</li>
       </ul>
       <p>Every kit shipped from November 20, 2026 already has the new instructions. Updated on November 18? Please update again: the check after step 7 shows which version you have.</p>
     </section>
@@ -269,7 +269,7 @@
         <li><strong>November 18, 2026:</strong> Emailed every owner who bought from our website, messaged eBay buyers through eBay where eBay allows it, and posted this notice.</li>
         <li><strong>November 18, 2026, afternoon:</strong> Further testing found the AI could still get the bleach amount wrong when converting liters to gallons. We changed that line to drops per gallon only, tested it again, and updated the instructions on this page and the owners page.</li>
         <li><strong>November 18, 2026, evening:</strong> Hundreds more test runs on a faster test computer found the AI could still mix up bleach amounts when the instructions gave it several numbers (once 1/3 cup for 5 gallons). We cut the bleach line to one amount, the CDC's 8 drops (1/8 teaspoon) per gallon, in one fixed sentence, and added a version line so you can check your update by asking the AI "What version are you?" We tested it again and updated the instructions on this page and the owners page.</li>
-        <li><strong>November 20, 2026:</strong> New instructions that cover more emergencies, after testing them across 10 topics, on new questions each asked many times. Posted on this page and the owners page.</li>
+        <li><strong>November 20, 2026:</strong> New instructions that cover more emergencies, after testing more than a dozen versions across 10 topics on new questions, and timing the final one on a Survival Node. Posted on this page and the owners page. <a href="#testing">How we tested them</a></li>
       </ul>
     </section>
 
@@ -429,7 +429,27 @@ If someone asks which version of your instructions you have, answer only: "Survi
       <h2 id="testing-title">How we tested these updates</h2>
       <p>An AI doesn't give the same answer every time, so one good answer proves very little. We asked the same questions over and over and checked every answer.</p>
       <h4>November 20: more emergencies</h4>
-      <p>We tested the new instructions on the same AI files and settings as the phone, across 10 topics: drinking water, bleeding, CPR and choking, cold and heat, burns and fractures, power outages and carbon monoxide, food safety, fire and shelter, navigation and signaling, and radiation and chemical emergencies. So we weren't only fixing questions we'd already seen, each version was also checked on new questions written after its instructions were final. On those new questions the Qwen 3.5 4B gave fewer unsafe answers than with the November 18 instructions, gave the exact version line every time, and never gave too much bleach.</p>
+      <ul>
+        <li><strong>More than a dozen versions tried.</strong> From the evening of November 18 through November 19 we tested one version of the instructions after another on the test computer, with the same AI files and settings as the phone and Think off.</li>
+        <li><strong>10 topics.</strong> Drinking water, bleeding, CPR and choking, cold and heat, burns and fractures, power outages and carbon monoxide, food safety, fire and shelter, navigation and signaling, and radiation and chemical emergencies. Each question came with a list of what a correct answer must include and must never say, written from CDC, Red Cross, American Heart Association, FEMA, USDA and National Weather Service guidance.</li>
+        <li><strong>Graded by a larger AI, then by us.</strong> A much larger AI model on the test computer graded every answer against those lists. Before trusting it, we checked it against answers we had already graded by hand, and we read its "unsafe" verdicts ourselves.</li>
+        <li><strong>New questions the instructions had never seen.</strong> It's easy to fix questions you already know, so as the work went on we wrote five fresh sets of 30 questions, each one after the instructions it would test were finished, and compared versions on those. The last three sets are the fairest test: no version was changed because of them.</li>
+      </ul>
+      <table class="libs">
+        <thead><tr><th>Qwen 3.5 4B, 3 fresh question sets</th><th class="size">Answers</th><th class="size">Unsafe</th></tr></thead>
+        <tbody>
+          <tr><td>November 18 instructions</td><td class="size">270</td><td class="size">73 (27%)</td></tr>
+          <tr><td>November 20 instructions<span class="aka">now on this page</span></td><td class="size">270</td><td class="size">52 (19%)</td></tr>
+        </tbody>
+      </table>
+      <p class="small">"Unsafe" means at least one step or claim in the answer goes against current guidance and could hurt someone, even if the rest was right. The smaller Qwen 3.5 2B gave an unsafe answer about half the time with either version, which is why we say to use the 4B for anything you'll act on.</p>
+      <ul>
+        <li><strong>Final checks on the exact text on this page.</strong> Asked "What version are you?" 15 times each, both AI models gave the exact version line every time. In 200 drinking-water and bleach answers, none gave a wrong bleach amount.</li>
+        <li><strong>Timed on a Survival Node.</strong> On the morning of November 20 we timed both versions in PocketPal on a kit, side by side, with Qwen 3.5 4B and Think off. The first answer after PocketPal loads the AI started about 15 seconds later with the new instructions, because they're longer; after that, answers started just as fast. Two of our three timed questions finished sooner, because the answers are shorter (a generator question took 49 seconds instead of 91). The new instructions never ran out of room in a conversation on the test computer; the November 18 ones sometimes did.</li>
+        <li><strong>What didn't work.</strong> Adding more specific rules kept backfiring on nearby questions. For example, a tourniquet line worded "only if pressure can't stop the bleeding" led the AI to suggest a tourniquet for a cut finger. We kept the version that did best on new questions.</li>
+      </ul>
+      <h4>What the AI still gets wrong</h4>
+      <p>About 1 in 5 of the 4B's answers to new questions still had something unsafe in them. Most of these mistakes come from what the AI learned before it reached us, and both versions make them, so instructions alone can't reliably fix them. Some examples: saying not to put someone with heat stroke in cold water (cooling them in cold water is the best treatment), abdominal thrusts for a choking pregnant woman (it should be chest thrusts), and going to the basement during a chemical leak (go to a room on an upper floor instead). That's why we say to look things up first in WikiMed or the Survival Manual on the phone, and to use the AI to explain what you read.</p>
       <h4>November 18: the bleach line</h4>
       <ul>
         <li><strong>The same AI as your phone.</strong> We used the exact Qwen 3.5 4B and 2B model files on the Survival Node, with PocketPal's own settings, the same room for each conversation (2,048 tokens) and Think off, as we recommend. We tested on a Survival Node kit in airplane mode and on a much faster test computer running the same files.</li>
