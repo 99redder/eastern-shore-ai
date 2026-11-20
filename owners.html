@@ -121,6 +121,12 @@
     details.howto { margin: .7rem 0 0; border-top: 1px solid var(--line); padding-top: .6rem; }
     details.howto > summary { cursor: pointer; font-weight: 700; color: var(--cyan); font-size: 1.05rem; padding: .2rem 0; }
     details.howto[open] > summary { margin-bottom: .3rem; }
+    .shots { display: flex; flex-wrap: wrap; gap: .9rem; margin: .7rem 0 .4rem; }
+    .shot { margin: 0; flex: 0 1 200px; min-width: 0; }
+    .shot.wide { flex-basis: 300px; }
+    .shot img { width: 100%; height: auto; display: block; border-radius: 12px; border: 2px solid #3a4560; background: #000; }
+    .shot figcaption { font-size: .92rem; color: var(--muted); margin-top: .35rem; line-height: 1.4; }
+    @media (max-width: 480px) { .shot { flex-basis: 80%; } .shot.wide { flex-basis: 100%; } }
 
     .callout { border-left: 3px solid var(--cyan); background: rgba(158, 208, 255, .07); padding: .6rem .85rem; margin: .8rem 0 0; border-radius: 0 6px 6px 0; }
     .callout.warn { border-left-color: var(--orange); background: rgba(255, 179, 92, .08); }
@@ -551,7 +557,7 @@ If someone asks which version of your instructions you have, answer only: "Survi
       <table class="libs">
         <thead><tr><th>Medical (about 2.2 GB)</th><th class="size">Size</th></tr></thead>
         <tbody>
-          <tr><td>WikiMed Medical Encyclopedia (Full)<span class="aka">Thousands of medical articles, fully searchable offline · In Kiwix: WikiMed Medical Encyclopedia, the 1.9 GB one</span></td><td class="size">1.9 GB</td></tr>
+          <tr><td>WikiMed Medical Encyclopedia (Full)<span class="aka">Thousands of medical articles, fully searchable offline · In Kiwix: WikiMed Medical Encyclopedia, shown as 1.7 GB</span></td><td class="size">1.9 GB</td></tr>
           <tr><td>MedlinePlus Health Topics <span class="new">NEW</span><span class="aka">Plain-English summaries of more than 1,000 health topics and 300 lab tests from the U.S. National Library of Medicine, plus NIH herb and supplement facts · Built by us, not in Kiwix's library: <a href="#our-libraries">download it below</a></span></td><td class="size">3 MB</td></tr>
           <tr><td>Military Medicine<span class="aka">U.S. military medical field manuals</span></td><td class="size">60 MB</td></tr>
           <tr><td>NHS Medicines A to Z<span class="aka">How medicines work and how to take them · In Kiwix: NHS' Medicines A to Z</span></td><td class="size">20 MB</td></tr>
@@ -562,7 +568,7 @@ If someone asks which version of your instructions you have, answer only: "Survi
       <table class="libs">
         <thead><tr><th>General, survival and skills (about 33 GB)</th><th class="size">Size</th></tr></thead>
         <tbody>
-          <tr><td>Wikipedia (Summaries)<span class="aka">The opening summary of every English Wikipedia article · In Kiwix: Wikipedia, the 14.4 GB "mini" one</span></td><td class="size">14.4 GB</td></tr>
+          <tr><td>Wikipedia (Summaries)<span class="aka">The opening summary of every English Wikipedia article · In Kiwix: Wikipedia, the "mini" one, shown as 13.4 GB</span></td><td class="size">14.4 GB</td></tr>
           <tr><td>Knots<span class="aka">Illustrated knot reference · In Kiwix: Knots by Wikipedia</span></td><td class="size">10 MB</td></tr>
           <tr><td>Appropedia<span class="aka">Shared knowledge for sustainable, practical living</span></td><td class="size">580 MB</td></tr>
           <tr><td>USDA Farmers' Bulletins and Yearbooks <span class="new">NEW</span><span class="aka">1,080 USDA guides from 1891 to 1984 on growing food, livestock and poultry, animal health, food storage, wells and water, buildings, tools and farm skills, plus 6 Yearbooks of Agriculture. Outdated chemical and canning advice was screened out. Bulletins open as PDFs in Fennec · Built by us, not in Kiwix's library: <a href="#our-libraries">download it from us</a></span></td><td class="size">5.2 GB</td></tr>
@@ -577,7 +583,7 @@ If someone asks which version of your instructions you have, answer only: "Survi
           <tr><td>Woodworking Q&amp;A<span class="aka">Tools, joinery and building with wood</span></td><td class="size">110 MB</td></tr>
           <tr><td>Sustainable Living Q&amp;A <span class="new">NEW</span><span class="aka">Off-grid power, water and low-waste living</span></td><td class="size">30 MB</td></tr>
           <tr><td>Pets Q&amp;A <span class="new">NEW</span><span class="aka">Care and health questions for dogs, cats and other pets</span></td><td class="size">90 MB</td></tr>
-          <tr><td>Wikibooks<span class="aka">Free textbooks and how-to manuals, with pictures · Pick the 4.7 GB one</span></td><td class="size">4.7 GB</td></tr>
+          <tr><td>Wikibooks<span class="aka">Free textbooks and how-to manuals, with pictures · In Kiwix: Wikibooks, the English one shown as 4.4 GB</span></td><td class="size">4.7 GB</td></tr>
           <tr class="total"><td>All 22 libraries</td><td class="size">about 35 GB</td></tr>
         </tbody>
       </table>
@@ -587,13 +593,33 @@ If someone asks which version of your instructions you have, answer only: "Survi
         <ol>
           <li>Check your free space: open <strong>Settings</strong>, then <strong>Storage</strong>. Leave a few GB free after adding up the sizes of the libraries you want.</li>
           <li>Connect to Wi-Fi and open <strong>Kiwix</strong>.</li>
-          <li>Tap <strong>Download</strong> at the bottom right (called <strong>Explore</strong> in newer versions of Kiwix).</li>
-          <li>Tap the magnifying glass and type one word of the library's name as Kiwix shows it, such as <strong>cooking</strong>, <strong>electronics</strong> or <strong>pets</strong>.</li>
-          <li>Tap the library to download it. Check its size against the list above first: for Wikibooks, pick the 4.7 GB one.</li>
-          <li>Repeat for each library. They download one after another; you can watch the progress.</li>
-          <li>When they're done, tap the <strong>Library</strong> tab and pull the list down to refresh it. The new libraries appear there.</li>
+          <li>Tap <strong>Download</strong> at the bottom right (called <strong>Explore</strong> in newer versions of Kiwix), then the magnifying glass at the top.
+            <div class="shots">
+              <figure class="shot"><img src="/images/owners/kiwix-download-tab.webp" width="540" height="1140" loading="lazy" alt="Kiwix's Download tab, a list of online libraries, with Download at the bottom right and the magnifying glass at the top outlined." /><figcaption>Download, then the magnifying glass.</figcaption></figure>
+            </div>
+          </li>
+          <li>Type one word of the library's name as Kiwix shows it, such as <strong>cooking</strong>, <strong>electronics</strong> or <strong>pets</strong>. Libraries already on your phone don't show up in the search, so if yours isn't there (or Kiwix says <strong>No items available</strong>), check the Library tab: you most likely have it.</li>
+          <li>Tap the library to download it. If the same name shows up more than once, pick the one the list above describes. Kiwix shows sizes a little smaller than the Size column (it counts in a different unit), so Wikibooks, for example, is the English one shown as 4.4 GB.
+            <div class="shots">
+              <figure class="shot wide"><img src="/images/owners/kiwix-search.webp" width="540" height="400" loading="lazy" alt="Kiwix search for wikivet, with one result, WikiVet, 54.3 MB, outlined." /><figcaption>Searching for WikiVet, one of the free extras below. Tap the library to start the download.</figcaption></figure>
+              <figure class="shot wide"><img src="/images/owners/kiwix-notifications.webp" width="472" height="353" loading="lazy" alt="A box asking Allow Kiwix to send you notifications?, with Allow outlined and Don't allow below it." /><figcaption>The first time, Kiwix asks about notifications. Either answer works; Allow also shows the download's progress in your notifications.</figcaption></figure>
+            </div>
+          </li>
+          <li>Repeat for each library. They download one after another; you can watch the progress.
+            <div class="shots">
+              <figure class="shot wide"><img src="/images/owners/kiwix-downloading.webp" width="540" height="380" loading="lazy" alt="Kiwix's Downloading list: WikiVet, In Progress, with a progress bar, 2 seconds left, and pause and stop buttons." /><figcaption>The progress bar, with pause and stop buttons.</figcaption></figure>
+            </div>
+          </li>
+          <li>When they're done, tap the <strong>Library</strong> tab and pull the list down to refresh it. The new libraries appear there.
+            <div class="shots">
+              <figure class="shot"><img src="/images/owners/kiwix-library.webp" width="540" height="1140" loading="lazy" alt="Kiwix's Library tab listing libraries on the phone, from Amateur Radio Q&amp;A to Gardening &amp; Landscaping Q&amp;A, with the Library tab outlined." /><figcaption>Your libraries, in the Library tab.</figcaption></figure>
+            </div>
+          </li>
         </ol>
         <p class="small"><strong>Need more room?</strong> Kits sold before November 17, 2026 also have Project Gutenberg General Works, about 9.7 GB, mostly old magazines. It's no longer in the kit. You can keep it, but if you need space for new libraries, it's the one to remove first: in Kiwix's Library tab, press and hold it, then tap the trash icon. Check the size before you delete: it's the larger of the two "Project Gutenberg" libraries.</p>
+        <div class="shots">
+          <figure class="shot wide"><img src="/images/owners/kiwix-delete.webp" width="540" height="650" loading="lazy" alt="Kiwix's Library tab with one library ticked and the trash icon at the top outlined." /><figcaption>Press and hold a library to tick it, then tap the trash icon. Kiwix asks before it deletes.</figcaption></figure>
+        </div>
       </details>
       <details class="howto" id="our-libraries">
         <summary>Show the steps: MedlinePlus Health Topics and the Farmers' Bulletins</summary>
@@ -629,10 +655,10 @@ If someone asks which version of your instructions you have, answer only: "Survi
       <table class="libs">
         <thead><tr><th>Free extras</th><th class="size">Size</th></tr></thead>
         <tbody>
-          <tr><td>MedlinePlus<span class="aka">The full MedlinePlus site, not just the health topics · In Kiwix: MedlinePlus, the 1.9 GB one</span></td><td class="size">1.9 GB</td></tr>
+          <tr><td>MedlinePlus<span class="aka">The full MedlinePlus site, not just the health topics · In Kiwix: MedlinePlus, the English one, shown as 1.8 GB</span></td><td class="size">1.9 GB</td></tr>
           <tr><td>Medical Library<span class="aka">Field and emergency medicine: Where There Is No Doctor, Where There Is No Dentist, A Book for Midwives</span></td><td class="size">70 MB</td></tr>
           <tr><td>iFixit<span class="aka">Step-by-step repair guides · In Kiwix: iFixit in English</span></td><td class="size">3.6 GB</td></tr>
-          <tr><td>MDWiki<span class="aka">Medical encyclopedia · In Kiwix: MDWiki Medical Encyclopedia, the 2.3 GB one</span></td><td class="size">2.3 GB</td></tr>
+          <tr><td>MDWiki<span class="aka">Medical encyclopedia · In Kiwix: MDWiki Medical Encyclopedia, shown as 2.1 GB (not the 10 GB one)</span></td><td class="size">2.3 GB</td></tr>
           <tr><td>Learning Self Reliance<span class="aka">Self-reliance skills · In Kiwix: Learning Self-Reliance</span></td><td class="size">4.0 GB</td></tr>
           <tr><td>WikiVet<span class="aka">Veterinary medicine reference</span></td><td class="size">60 MB</td></tr>
           <tr class="total"><td>All six</td><td class="size">about 12 GB</td></tr>
