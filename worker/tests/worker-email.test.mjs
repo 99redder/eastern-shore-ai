@@ -602,8 +602,7 @@ test('text customer: phone saved from Stripe, texts follow the emails, one link 
   assert.equal((await send('delivered')).status, 200);
   draft = await texts();
   assert.equal(draft.suggested, 'delivered');
-  assert.match(draft.texts.delivered, /shows as delivered/);
-  assert.match(draft.texts.delivered, /If anything's missing or if you have any questions, just reply to this text\. Thanks again\./);
+  assert.match(draft.texts.delivered, /^Hi \S+, it's Chris from Eastern Shore AI\. Your Survival Node order #\d+ shows as delivered\. Your Mission Darkness Faraday bags are underneath the weatherproof case in the shipping box in their original packaging\.\n\nIf you have any questions, just reply to this text\. Thanks again\.\n\n-Chris$/);
   for (const text of Object.values(draft.texts)) {
     assert.ok((text.match(/https?:\/\//g) || []).length <= 1, text);
     assert.match(text, /-Chris$/);

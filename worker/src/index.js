@@ -2772,8 +2772,8 @@ function buildOrderTexts(row, shipTo) {
   ].filter(Boolean).join('\n\n');
 
   const delivered = [
-    `${hi}, it's Chris from Eastern Shore AI. Your ${order} shows as delivered.`,
-    'If anything\'s missing or if you have any questions, just reply to this text. Thanks again.',
+    `${hi}, it's Chris from Eastern Shore AI. Your ${order} shows as delivered. Your Mission Darkness Faraday bags are underneath the weatherproof case in the shipping box in their original packaging.`,
+    'If you have any questions, just reply to this text. Thanks again.',
     '-Chris'
   ].join('\n\n');
 
